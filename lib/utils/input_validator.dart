@@ -1,0 +1,212 @@
+import 'package:flutter/services.dart';
+
+class InputValidator {
+
+  static List<TextInputFormatter> textDigit(int length) {
+    return [
+      LengthLimitingTextInputFormatter(length),
+      FilteringTextInputFormatter.allow(RegExp(r'[0-9a-zA-Z ]')),
+    ];
+  }
+
+  static List<TextInputFormatter> digit(int length) {
+    return [
+      LengthLimitingTextInputFormatter(length),
+      FilteringTextInputFormatter.allow(RegExp("[0-9]")),
+    ];
+  }
+
+  static TextInputFormatter digitAndCharacterOnly() {
+    return FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]'));
+  }
+
+  static List<TextInputFormatter> textOnly(int length) {
+    return [
+      LengthLimitingTextInputFormatter(length),
+      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+    ];
+  }
+
+  static bool isValidMobileNumber(String mobileNumber) {
+    RegExp mobileRegExp = RegExp(r'^[9876]\d{9}$');
+    if (mobileNumber == "" || !mobileRegExp.hasMatch(mobileNumber)) {
+      return false;
+    }
+    return true;
+  }
+
+  static List<TextInputFormatter> emailInputFormatters() {
+    return [
+      LengthLimitingTextInputFormatter(50), // optional limit
+      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._\-+]')),
+    ];
+  }
+
+  static bool isValidEmail(String input) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(input);
+  }
+
+  static List<TextInputFormatter> ifscInputFormatters() {
+    return [
+      LengthLimitingTextInputFormatter(11),
+      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+      UpperCaseTextFormatter(),
+    ];
+  }
+
+  static List<TextInputFormatter> gstInputFormatters() {
+    return [
+      UpperCaseTextFormatter(),
+      FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
+      LengthLimitingTextInputFormatter(15),
+    ];
+  }
+
+  static bool isValidGST(String input) {
+    final gstRegex = RegExp(
+      r'^[0-9]{2}' // State code (2 digits)
+      r'[A-Z]{5}' // PAN alpha (first 5 letters)
+      r'[0-9]{4}' // PAN numeric (4 digits)
+      r'[A-Z]{1}' // PAN last character (1 letter)
+      r'[1-9A-Z]{1}' // Registration count (1 char)
+      r'Z' // Constant Z
+      r'[0-9A-Z]{1}$', // Check code (1 digit or letter)
+    );
+    return gstRegex.hasMatch(input.toUpperCase());
+  }
+
+  static bool isValidIFSC(String input) {
+    final ifscRegex = RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$');
+    return ifscRegex.hasMatch(input);
+  }
+
+
+  static List<TextInputFormatter> reraInputFormatters() {
+    return [
+      LengthLimitingTextInputFormatter(12), // adjust if needed
+      FilteringTextInputFormatter.allow(
+        RegExp(r'[a-zA-Z0-9]'), // allows letters and numbers
+      ),
+      UpperCaseTextFormatter(), // optional: auto convert to uppercase
+    ];
+  }
+
+  static bool isValidRERA(String input) {
+    final reraRegex = RegExp(r'^[A-Z]{1,}[A-Z0-9]{11,}$');
+    return reraRegex.hasMatch(input);
+  }
+
+  static bool isValidAge(DateTime dob) {
+    final today = DateTime.now();
+    final age = today.year - dob.year;
+
+    final hasHadBirthdayThisYear =
+        (today.month > dob.month) ||
+            (today.month == dob.month && today.day >= dob.day);
+
+    final actualAge = hasHadBirthdayThisYear ? age : age - 1;
+
+    return actualAge >= 18;
+  }
+
+  static List<TextInputFormatter> accountNumberInputFormatters() {
+    return [
+      LengthLimitingTextInputFormatter(18),
+      FilteringTextInputFormatter.digitsOnly,
+    ];
+  }
+
+  static bool isValidAccountNumber(String input) {
+    final ifscRegex = RegExp(r'^[0-9]{9,18}$');
+    return ifscRegex.hasMatch(input);
+  }
+
+  static bool isValidDrivingLicence(String dl) {
+    final regex = RegExp(r'^[A-Z]{2}\d{2}\d{4}\d{7}$');
+    return regex.hasMatch(dl);
+  }
+
+  static bool isValidVoterId(String voterId) {
+    final regex = RegExp(r'^[A-Z]{3}[0-9]{7}$');
+    return regex.hasMatch(voterId);
+  }
+
+  static List<TextInputFormatter> panInputFormatters() {
+    return [
+      LengthLimitingTextInputFormatter(10),
+      AlphaNumericWithoutSpacesFormatter(),
+      UpperCaseTextFormatter(),
+    ];
+  }
+
+  static bool isValidPAN(String input) {
+    final panRegex = RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]$');
+    return panRegex.hasMatch(input);
+  }
+
+  static List<TextInputFormatter> cinInputFormatters() {
+    return [
+      LengthLimitingTextInputFormatter(21),
+      FilteringTextInputFormatter.allow(
+        RegExp(r'[a-zA-Z0-9]'),
+      ), // allow both cases
+      UpperCaseTextFormatter(),
+    ];
+  }
+
+  static bool isValidCIN(String input) {
+    final cinRegex = RegExp(
+      r'^[LU]{1}[0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$',
+    );
+    return cinRegex.hasMatch(input);
+  }
+
+  static List<TextInputFormatter> aadharNumberInputFormatter() {
+    return [
+      FilteringTextInputFormatter.digitsOnly,
+      LengthLimitingTextInputFormatter(12),
+    ];
+  }
+
+  static bool isValidAadharNumber(String input) {
+    final aadharRegex = RegExp(r'^\d{12}$');
+    return aadharRegex.hasMatch(input);
+  }
+
+}
+
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    return newValue.copyWith(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
+  }
+}
+
+class AlphaNumericWithoutSpacesFormatter extends TextInputFormatter {
+  final RegExp _regExp = RegExp(r'^[a-zA-Z0-9]*$');
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    // Prevent space character input entirely
+    if (newValue.text.contains(' ')) {
+      return oldValue;
+    }
+
+    // Check if new value matches the allowed pattern
+    if (_regExp.hasMatch(newValue.text)) {
+      return newValue;
+    }
+    // Reject the input if it contains spaces or special characters
+    return oldValue;
+  }
+}

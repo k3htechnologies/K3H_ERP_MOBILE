@@ -1,0 +1,107 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:k3h_erp_app/core/models/module.model.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/core/repository/utils.repository.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
+
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashMobileScreenState();
+}
+
+class _SplashMobileScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(seconds: 3), () async {
+      final localStorage = LocalStorageManager();
+      final menu = localStorage.getString(StorageKey.menu);
+      final selectedProject = localStorage.getString(
+        StorageKey.selectedProject,
+      );
+      final bool isLoggedIn = selectedProject != null || menu != null;
+      if (isLoggedIn) {
+        if (menu != null) {
+          goRouter.goNamed(AppRoutes.dashboardScreen);
+        } else {
+          dynamic projectJson = jsonDecode(
+            localStorage.getString(StorageKey.selectedProject) ?? "",
+          );
+          ProjectModel project = ProjectModel.fromJson(projectJson);
+          final UtilsRepository utilsRepository =
+          serviceLocator<UtilsRepository>();
+          var result = await utilsRepository.getMenu(
+            employeeId:
+            UserModel.fromJson(
+              jsonDecode(
+                LocalStorageManager().getString(StorageKey.currentUser) ??
+                    '',
+              ),
+            ).employeeId,
+            projectId: project.projectId,
+          );
+          return result.fold(
+                (failure) {
+              // Handle failure
+              return false;
+            },
+                (data) async {
+              localStorage.setString(
+                StorageKey.menu,
+                jsonEncode(data["menuData"] as List<ModuleModel>),
+              );
+              // localStorage.setString(
+              //   StorageKey.moduleAction,
+              //   jsonEncode(
+              //     data["materialRequisitionModulesPermissionsData"]
+              //         as List<ModuleActionPermissionModel>,
+              //   ),
+              // );
+              await compute(
+                    (_) => updateRouteAuthorization(
+                  data["menuData"] as List<ModuleModel>,
+                ),
+                "",
+              );
+              goRouter.goNamed(AppRoutes.dashboardScreen);
+            },
+          );
+        }
+      } else {
+        goRouter.goNamed(AppRoutes.login);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            Image.asset(AppAssets.splashLogoGif),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10.0),
+              child: Text("Technologies", style: AppTextStyle.ts14R()),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,153 @@
+class AppRoutes {
+  static String helloWorld = "/helloWord";
+  static String splashScreen = "/splash";
+  static String notAuthorized = "/notAuthorized";
+  static String login = "/login";
+  static String otp = "/otp";
+  static String projectList = "/projectList";
+
+  // DASHBOARD
+  static String dashboardScreen = "/dashboard";
+
+  // MASTER
+  static String departmentMaster = "/departmentMaster";
+  static String companyMaster = "/companyMaster";
+  static String addCompany = "/addCompany";
+  static String viewCompanyMobile = "/viewCompanyMobile";
+  static String designationMaster = "/designationMaster";
+  static String projectMaster = "/projectMaster";
+  static String projectDetails = "projectDetails";
+  static String globalProjectDetails = "/globalProjectDetails";
+  static String projectMasterAccess = "/projectMasterAccess";
+  static String employeeMaster = "/employeeMaster";
+  static String addUpdateEmployeeMobile = "/addUpdateEmployeeMobile";
+  static String employeeDetailsMobile = "/employeeDetailsMobile";
+  static String employeeModuleAccess = "/employeeModuleAccess";
+  static String selectEmployeeMobile = "/selectEmployeeMobile";
+  static String selectCompanyMobile = "/selectCompanyMobile";
+  static String termsAndConditions = "/tnc";
+  static String rera = "/rera";
+
+  // PROCUREMENT MASTER
+  static String materialMaster = "/materialMaster";
+  static String uomMaster = "/uomMaster";
+  static String activityMaster = "/activityMaster";
+  static String contractMaster = "/contractMaster";
+  static String subMaterialMaster = "/subMaterialMaster";
+
+  // PROCUREMENT
+  static String materialRequisition = "/materialRequisition";
+  static String addMaterialRequisitionMobile = "/addMaterialRequisitionMobile";
+  static String requisitionDetails = "/requisitionDetails";
+  static String vendorSelection = "/vendorSelection";
+  static String summaryScreen = "/summaryScreen";
+  static String materialRequisitionReports = "/materialRequisitionReports";
+
+  // VENDOR
+  static String vendor = "/vendor";
+  static String addVendor = "/addVendor";
+  static String viewVendorDetailsMobile = "/viewVendorDetailsMobile";
+
+  // INVENTORY
+  static String inventory = "/inventory";
+  static String addInventory = "/addInventory";
+  static String addInventorySpecification = "/addInventorySpecification";
+
+  // PARKING
+  static String parking = "/parking";
+
+  // INVOICE
+  static String viewInvoiceMobile = "/viewInvoiceMobile";
+
+  // GRN
+  static String grnSummaryMobile = "/grnSummaryMobile";
+
+  // NOTIFICATION
+  static String notificationScreenMobile = "/notificationScreenMobile";
+
+  // SALES
+  static String callTracker = "/callTracker";
+  static String enquiry = "/enquiry";
+  static String addEnquiry = "/addEnquiry";
+  static String channelPartner = "/channelPartner";
+  static String addChannelPartnerMobileScreen =
+      "/addChannelPartnerMobileScreen";
+  static String channelPartnerReport = "/channelPartnerReport";
+  static String viewBookingReport = "/channelPartnerBooking";
+  static String viewEnquiryReport = "/viewEnquiryReport";
+  static String otherCharges = "/otherCharges";
+  static String bookingOtherCharges = "/bookingOtherCharges";
+  static String booking = "/booking";
+  static String addBooking = "/addBooking";
+  static String viewBooking = "/viewBooking";
+  static String addPaymentSchedule = "/addPaymentSchedule";
+  static String enquiryReport = "/enquiryReport";
+  static String cpEnquiryReport = "/cpEnquiryReport";
+  static String sourcing = "/sourcing";
+
+  // HRM
+  static String assetMaster = "/assetMaster";
+  static String assetMappingMaster = "/assetMappingMaster";
+  static String branchMaster = "/branchMaster";
+  static String branchAssociation = "/branchAssociationsMaster";
+  static String leaveType = "/leaveTypeMaster";
+  static String leaveEncashmentMaster = "/leaveEncashmentMaster";
+  static String holidayMaster = "/holidayMaster";
+  static String holidayMappingMaster = "/holidayMappingMaster";
+  static String earningMaster = "/earningMaster";
+  static String deductionMaster = "/deductionMaster";
+  static String shiftMaster = "/shiftMaster";
+  static String shiftMappingMaster = "/shiftMappingMaster";
+  static String weekOffMaster = "/weekOffMaster";
+  static String weekOffMapping = "/weekOffMappingMaster";
+
+  // STOCK MANAGEMENT
+  static String stockManagement = "/stock";
+  static String stockManagementHistory = "/stockHistory";
+
+  // REDEVELOPMENT
+  static String building = "/building";
+  static String buildingDescription = "/buildingDescription";
+  static String proposedOffer = "/proposedOffer";
+  static String rent = "/rent";
+  static String tenant = "/tenant";
+  static String addTenant = "/addTenant";
+  static String viewTenant = "/viewTenant";
+  static String viewPayTrackRentLedger = "/viewPayTrackRentLedger";
+
+  // CRM
+  static String payTrack = "/payTrack";
+  static String paymentSchedule = "/paymentSchedule";
+  static String paymentLedger = "/paymentLedger";
+  static String crmBooking = "/crmBooking";
+  static String crmBrokerage = "/brokerage";
+  static String brokerageInvoice = "/brokerageInvoice";
+  static String viewPayment = "/viewPayment";
+  static String viewFlatAlterationRequest = "/viewFlatAlterationRequest";
+  static String viewParkingModificationRequest =
+      "/viewParkingModificationRequest";
+  static String viewBookingModificationRequest =
+      "/viewBookingModificationRequest";
+  static String updateBookingModificationRequest =
+      "/updateBookingModificationRequest";
+
+  // DOCUMENT
+  static String category = "/category";
+  static String document = "/document";
+
+  // LEGAL
+  static String litigation = "/litigation";
+  static String addLitigation = "/addLitigation";
+  static String viewLitigation = "/viewLitigation";
+
+  // MARKETING
+  static String content = "/content";
+  static String contentDocument = "/contentDocument";
+
+  //PROJECT MANAGEMENT
+  static String approvedBank = "/approvedBank";
+  static String approvedBankFile = "/approvedBankFile";
+
+  // SALES TARGET
+  static String salesTarget = "/target";
+}

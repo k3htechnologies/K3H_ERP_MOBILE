@@ -1,0 +1,50 @@
+import 'package:fpdart/fpdart.dart';
+import 'package:k3h_erp_app/core/error_handler.dart';
+import 'package:k3h_erp_app/core/failure.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/features/login/data/datasource/login.datasource.dart';
+
+abstract interface class LoginRepository {
+  Future<Either<Failure, String>> loginUser({required String mobileNumber});
+
+  Future<Either<Failure, UserModel>> validateOTP({
+    required String mobileNumber,
+    required String otp,
+  });
+}
+
+class LoginRepositoryImpl implements LoginRepository {
+  final LoginDatasource loginDatasource;
+
+  LoginRepositoryImpl({required this.loginDatasource});
+
+  @override
+  Future<Either<Failure, String>> loginUser({
+    required String mobileNumber,
+  }) async {
+    try {
+      var result = await loginDatasource.apicallIsValidMobileNumber(
+        mobileNumber: mobileNumber,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserModel>> validateOTP({
+    required String mobileNumber,
+    required String otp,
+  }) async {
+    try {
+      var result = await loginDatasource.apicallIsValidOTP(
+        mobileNumber: mobileNumber,
+        otp: otp,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+}

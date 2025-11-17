@@ -1,0 +1,125 @@
+name: k3h_erp_app
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.2
+
+# DEPENDENCIES
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # CUPERTINO ICONS
+  cupertino_icons: ^1.0.8
+  # ROUTING
+  go_router: ^15.1.1
+  # STATE MANAGEMENT
+  flutter_bloc: ^9.1.0
+  bloc: ^9.0.0
+  # DEPENDECY INJECTION
+  get_it: ^8.0.3
+  # COMPARING OBJECTS
+  equatable: ^2.0.7
+  # HANDLING REPONSE
+  fpdart: ^1.1.1
+  # Responsive Builder
+  responsive_builder: ^0.7.0
+  # DATE FORMATTER
+  intl: ^0.20.2
+  # FILE PICKER
+  file_picker: ^10.1.2
+  envied: ^1.1.1
+  # NETWORK IMAGES
+  cached_network_image: ^3.4.1
+  # GESTURE HANDLING IN WEB
+  universal_html: ^2.2.3
+  # PATH PROVIDER
+  path_provider: ^2.1.5
+  path: ^1.9.1
+  # OPEN LOCAL FILES
+  open_file: ^3.5.10
+  # LAUNCH URLS
+  url_launcher: ^6.3.1
+  # SHARE FUNCTIONALITY
+  share_plus: ^10.1.2
+  # LOCAL STORAGE
+  shared_preferences: ^2.5.3
+  # OTP FIELDS
+  pinput: ^5.0.1
+  # SWITCH
+  flutter_advanced_switch: ^3.1.0
+  # WEB '#' REMOVE
+  dynamic_path_url_strategy: ^1.0.0
+  # TO SHOW SVG IMAGES
+  flutter_svg: ^2.1.0
+  # ENCRYPTION - DECRYPTION
+  encrypt: ^5.0.3
+  # CUSTOM DROPDOWN
+  animated_custom_dropdown: ^3.1.1
+  # HTTP PARSER
+  http_parser: ^4.1.2
+  # FOR GROUP BY
+  collection: ^1.19.1
+  # FOR EXCEL DOWNLOAD
+  excel: ^4.0.6
+  file_saver: ^0.2.14
+  universal_platform: ^1.1.0
+  # INNER BOX SHADOW
+  flutter_inset_shadow: ^2.0.3
+  # FOR VIEWING PDF ON SCREEN
+  pdfrx:
+  # CIRCULAR PROGRESS INDICATOR
+  simple_circular_progress_bar: ^1.0.2
+  # CUSTOM PAGINATED DROPDOWN
+  dropdown_search: ^6.0.2
+  # HTML RENDERING
+  flutter_html: ^3.0.0-beta.2
+  # K3H HTTP CLIENT
+  k3h_http_client:
+    git:
+      url: https://github.com/k3htechnologies/K3H_HTTP.git
+      ref: main
+
+# DEV DEPENDENCIES
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+  envied_generator: ^1.1.1
+  build_runner: ^2.4.15
+
+
+flutter:
+
+  uses-material-design: true
+
+  # ASSETS
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/sideDrawer/
+    - assets/icons/common/
+    - assets/icons/procurement/
+    - assets/icons/procurement/requisition_enquiry/
+
+  # FONTS
+  fonts:
+    - family: light
+      fonts:
+        - asset: fonts/light.ttf
+    - family: regular
+      fonts:
+        - asset: fonts/regular.ttf
+    - family: medium
+      fonts:
+        - asset: fonts/medium.ttf
+    - family: semibold
+      fonts:
+        - asset: fonts/semibold.ttf
+    - family: bold
+      fonts:
+        - asset: fonts/bold.ttf

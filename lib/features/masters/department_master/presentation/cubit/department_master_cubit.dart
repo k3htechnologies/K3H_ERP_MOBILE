@@ -1,0 +1,218 @@
+import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
+import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
+
+part 'department_master_state.dart';
+
+class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
+  DepartmentMasterCubit() : super(DepartmentMasterState.initial());
+
+  final DepartmentMasterRepository _departmentMasterRepository =
+      serviceLocator<DepartmentMasterRepository>();
+
+  // <---- GET DEPARTMENT LIST ---->
+  Future getDepartmentList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+    Map<String, dynamic> queryParams = {
+      "DepartmentName": state.searchText,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+    };
+    var result = await _departmentMasterRepository.getDepartmentList(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      queryParams: queryParams,
+    );
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        List<DepartmentModel> updatedList = List.from(state.departmentList);
+        updatedList.addAll(response['data'] as List<DepartmentModel>);
+        emit(
+          state.copyWith(
+            isLoading: false,
+            departmentList: updatedList,
+            totalNumberOfRecord:
+                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
+                    ? state.totalNumberOfRecord - 1
+                    : response['totalNumberOfRecord'],
+            currentPage: pageNumber,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- ADD DEPARTMENT ---->
+  Future addDepartmentMaster({
+    required BuildContext context,
+    required String departmentCode,
+    required String departmentName,
+  }) async {
+    DialogHelper.showProcessingDialog(context);
+    Map<String, dynamic> requestBody = {
+      "DepartmentMasterId": 0,
+      "DepartmentCode": departmentCode,
+      "DepartmentName": departmentName,
+    };
+    var addResult = await _departmentMasterRepository.addUpdateDepartment(
+      body: requestBody,
+    );
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        var list = [
+          response['data'][0] as DepartmentModel,
+          ...state.departmentList,
+        ];
+
+        emit(
+          state.copyWith(
+            departmentList: list,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord == -1
+                    ? 1
+                    : state.totalNumberOfRecord + 1,
+          ),
+        );
+        showSuccessMessage(context);
+      },
+    );
+  }
+
+  // <---- UPDATE DEPARMTENT ---->
+  Future updateDepartmentMaster({
+    required BuildContext context,
+    required int departmentMasterId,
+    required String uniqueKey,
+    required String departmentCode,
+    required String departmentName,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingDialog(context);
+    Map<String, dynamic> requestBody = {
+      "DepartmentMasterId": departmentMasterId,
+      "Uniquekey": uniqueKey,
+      "DepartmentCode": departmentCode,
+      "DepartmentName": departmentName,
+    };
+    var addResult = await _departmentMasterRepository.addUpdateDepartment(
+      body: requestBody,
+    );
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        final updatedList = List<DepartmentModel>.from(state.departmentList);
+        updatedList[index] = (response['data'][0] as DepartmentModel);
+        goRouter.pop();
+
+        emit(state.copyWith(departmentList: updatedList));
+        showSuccessMessage(context);
+      },
+    );
+  }
+
+  // <---- DELETE DEPARTMENT ---->
+  Future deleteDepartmentMaster({
+    required BuildContext context,
+    required int departmentMasterId,
+    required String uniqueKey,
+    required int pageNumber,
+    required int pageSize,
+    int? index,
+  }) async {
+    DialogHelper.showProcessingDialog(context);
+    var deleteResult = await _departmentMasterRepository.deleteDepartment(
+      departmentMasterId: departmentMasterId,
+      uniqueKey: uniqueKey,
+    );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(context);
+        if (index != null) {
+          final updatedList = List<DepartmentModel>.from(state.departmentList);
+          updatedList.removeAt(index);
+
+          emit(state.copyWith(departmentList: updatedList));
+        } else {
+          getDepartmentList(context, pageNumber, pageSize);
+        }
+      },
+    );
+  }
+
+  // <---- SEARCH DEPARTMENT ---->
+  Future searchDepartment(BuildContext context, String value) async {
+    emit(state.copyWith(searchText: value, departmentList: []));
+    await getDepartmentList(context, 1, 20);
+  }
+
+  // <---- SORT DEPARTMENT ---->
+  Future sortDepartment(
+    BuildContext context,
+    String value,
+    String direction,
+  ) async {
+    emit(
+      state.copyWith(
+        currentSortColumn: value,
+        currentSortDirection: direction,
+        departmentList: [],
+      ),
+    );
+    await getDepartmentList(context, 1, 10);
+  }
+
+  // <---- EXPORT EXCEL PDF ---->
+  Future exportExcelPdf(BuildContext context, String exportType) async {
+    DialogHelper.showProcessingDialog(context);
+    var result = await _departmentMasterRepository.exportDepartment(
+      pageNumber: 1,
+      pageSize: state.totalNumberOfRecord,
+      queryParams:
+          state.searchText != ""
+              ? {"DepartmentName": state.searchText, "ExportType": exportType}
+              : {"ExportType": exportType},
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "department_${DateTime.now()}.pdf"
+              : "department_${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+}

@@ -1,0 +1,74 @@
+import 'package:k3h_erp_app/routes/app_routes.dart';
+
+class AuthorizationModel {
+  final bool isAccess;
+  final bool isAction;
+  final bool isExport;
+  final bool isView;
+
+  AuthorizationModel({
+    this.isAccess = false,
+    this.isAction = false,
+    this.isExport = false,
+    this.isView = false,
+  });
+}
+
+class Authorization {
+  static Map<String, AuthorizationModel> routeAuthorizationMap = {
+    AppRoutes.dashboardScreen: AuthorizationModel(isAccess: true),
+    // <---- MASTERS ---->
+    // COMPANY SETUP
+    AppRoutes.departmentMaster: AuthorizationModel(),
+    AppRoutes.companyMaster: AuthorizationModel(),
+    AppRoutes.addCompany: AuthorizationModel(),
+    AppRoutes.designationMaster: AuthorizationModel(),
+    AppRoutes.projectMaster: AuthorizationModel(),
+    AppRoutes.employeeMaster: AuthorizationModel(),
+    AppRoutes.employeeModuleAccess: AuthorizationModel(),
+    // PROCUREMENT MASTER
+    AppRoutes.materialMaster: AuthorizationModel(),
+    AppRoutes.activityMaster: AuthorizationModel(),
+    AppRoutes.contractMaster: AuthorizationModel(),
+    AppRoutes.subMaterialMaster: AuthorizationModel(),
+    // <---- PROCUREMENT ---->
+    // MATERIAL REQUISITION
+    AppRoutes.materialRequisition: AuthorizationModel(),
+    // <---- VENDOR ---->
+    AppRoutes.vendor: AuthorizationModel(),
+    // <---- INVENTORY ---->
+    AppRoutes.inventory: AuthorizationModel(),
+    // <---- REDEVELOPMENT ---->
+    AppRoutes.building: AuthorizationModel(),
+    AppRoutes.proposedOffer: AuthorizationModel(),
+    AppRoutes.rent: AuthorizationModel(),
+    AppRoutes.tenant: AuthorizationModel(),
+    // <---- SALES ---->
+    AppRoutes.callTracker: AuthorizationModel(),
+    AppRoutes.enquiry: AuthorizationModel(),
+    AppRoutes.booking: AuthorizationModel(),
+    AppRoutes.otherCharges: AuthorizationModel(),
+    // <---- CHANNEL PARTNER ---->
+    AppRoutes.channelPartner: AuthorizationModel(),
+
+    // <---- HRM ---->
+    AppRoutes.assetMaster: AuthorizationModel(),
+    AppRoutes.assetMappingMaster: AuthorizationModel(),
+    AppRoutes.branchMaster: AuthorizationModel(),
+    AppRoutes.branchAssociation: AuthorizationModel(),
+    AppRoutes.leaveType: AuthorizationModel(),
+    AppRoutes.holidayMaster: AuthorizationModel(),
+    AppRoutes.earningMaster: AuthorizationModel(),
+    AppRoutes.weekOffMaster: AuthorizationModel(),
+    AppRoutes.weekOffMapping: AuthorizationModel(),
+    AppRoutes.leaveEncashmentMaster: AuthorizationModel(),
+
+    // ACTIONS
+    // ModuleAction.getQuotation: AuthorizationModel(),
+    // ModuleAction.getCompare: AuthorizationModel(),
+    // ModuleAction.finalizeVendor: AuthorizationModel(),
+    // ModuleAction.generatePurchaseOrder: AuthorizationModel(),
+    // ModuleAction.addInvoice: AuthorizationModel(),
+    // ModuleAction.makePayments: AuthorizationModel(),
+  };
+}
