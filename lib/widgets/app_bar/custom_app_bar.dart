@@ -193,11 +193,23 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                                               AppAssets.sortDESC,
                                               width: 24.0,
                                               height: 24.0,
+                                              colorFilter: ColorFilter.mode(
+                                                isDarkMode
+                                                    ? AppColor.white
+                                                    : AppColor.primary,
+                                                BlendMode.srcIn,
+                                              ),
                                             )
                                             : SvgPicture.asset(
                                               AppAssets.sortASC,
                                               width: 24.0,
                                               height: 24.0,
+                                              colorFilter: ColorFilter.mode(
+                                                isDarkMode
+                                                    ? AppColor.white
+                                                    : AppColor.primary,
+                                                BlendMode.srcIn,
+                                              ),
                                             ),
                                   ),
                                   horizontalSpacing(width: 4.0),

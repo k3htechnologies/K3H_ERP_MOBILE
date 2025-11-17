@@ -22,6 +22,7 @@ class SearchWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     Timer? debounce;
     return Container(
       height: 35.0,
@@ -34,7 +35,12 @@ class SearchWidget extends StatelessWidget {
       child: Row(
         spacing: 5.0,
         children: [
-          SvgPicture.asset(AppAssets.searchIcon, width: 24, height: 24),
+          SvgPicture.asset(
+            AppAssets.searchIcon,
+            width: 24,
+            height: 24,
+            colorFilter: ColorFilter.mode( AppColor.grey, BlendMode.srcIn),
+          ),
           Expanded(
             child: TextField(
               controller: textController,
@@ -48,8 +54,8 @@ class SearchWidget extends StatelessWidget {
               },
               onSubmitted: onSubmit,
               cursorHeight: 15,
-              cursorColor: AppColor.cursorColor,
-              style: AppTextStyle.ts12R(),
+              cursorColor: isDarkMode ? AppColor.warning : AppColor.cursorColor,
+              style: AppTextStyle.ts12R().copyWith(color: isDarkMode?AppColor.white:AppColor.black),
               decoration: InputDecoration.collapsed(
                 hintText: hintText,
                 hintStyle: AppTextStyle.ts12R(color: AppColor.grey),
@@ -61,7 +67,7 @@ class SearchWidget extends StatelessWidget {
               height: 28,
               width: 1,
               margin: EdgeInsets.symmetric(horizontal: 6.0),
-              color: AppColor.grey30,
+              color: isDarkMode ? AppColor.grey: AppColor.grey30,
             ),
             SvgPicture.asset(
               AppAssets.filterIcon,

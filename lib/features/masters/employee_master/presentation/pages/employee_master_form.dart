@@ -15,22 +15,22 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_paginated_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class EmployeeMasterFormMobileScreen extends StatefulWidget {
+class EmployeeMasterFormScreen extends StatefulWidget {
   final UserModel? employee;
   final int index;
-  const EmployeeMasterFormMobileScreen({
+
+  const EmployeeMasterFormScreen({
     super.key,
     this.employee,
     required this.index,
   });
 
   @override
-  State<EmployeeMasterFormMobileScreen> createState() =>
-      _EmployeeMasterFormMobileScreenState();
+  State<EmployeeMasterFormScreen> createState() =>
+      _EmployeeMasterFormScreenState();
 }
 
-class _EmployeeMasterFormMobileScreenState
-    extends State<EmployeeMasterFormMobileScreen> {
+class _EmployeeMasterFormScreenState extends State<EmployeeMasterFormScreen> {
   // CUBIT
   late EmployeeMasterCubit _employeeMasterCubit;
 
@@ -126,12 +126,14 @@ class _EmployeeMasterFormMobileScreenState
   Map<String, dynamic>? selectedState;
   Map<String, dynamic>? selectedDistrict;
   Map<String, dynamic>? selectedCity;
+
   // BANK DETAILS
   Map<String, dynamic>? selectedBank;
 
   // DATES
   // BASIC EMPLOYEE DETAILS
   DateTime? dateOfBirth;
+
   // EMPLOYEE INFO SHEET
   DateTime? joiningDate;
 
@@ -1232,6 +1234,7 @@ class _EmployeeMasterFormMobileScreenState
 
 class KeepAlivePage extends StatefulWidget {
   final Widget child;
+
   const KeepAlivePage({super.key, required this.child});
 
   @override

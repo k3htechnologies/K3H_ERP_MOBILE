@@ -51,7 +51,7 @@ String? authenticateAndAuthorizeRoute(GoRouterState state) {
   }
   // AUTHORIZATION
   AuthorizationModel? routeAuthorizationModel =
-      Authorization.routeAuthorizationMap[state.uri.path];
+  Authorization.routeAuthorizationMap[state.uri.path];
   if (routeAuthorizationModel == null) {
     return null;
   }
@@ -226,20 +226,23 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addUpdateEmployeeMobile,
               builder: (context, state) {
                 final employee = state.uri.queryParameters['employee'];
-                return EmployeeMasterFormMobileScreen(
-                  employee:
-                  employee != null
-                      ? UserModel.fromJson(
-                    jsonDecode(
-                      EncryptionManager.decryptData(
-                        Uri.decodeComponent(employee),
+                return BlocProvider(
+                  create: (context) => EmployeeMasterCubit(),
+                  child: EmployeeMasterFormScreen(
+                    employee:
+                    employee != null
+                        ? UserModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(employee),
+                        ),
                       ),
-                    ),
-                  )
-                      : null,
-                  index:
-                  int.tryParse(state.uri.queryParameters['index'] ?? '') ??
-                      0,
+                    )
+                        : null,
+                    index:
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ??
+                        0,
+                  ),
                 );
               },
             ),
