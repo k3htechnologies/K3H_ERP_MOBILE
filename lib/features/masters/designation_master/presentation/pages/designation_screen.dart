@@ -361,7 +361,7 @@ class _DesignationMasterScreenState
                                   ),
                                 ),
                                 Text(
-                                  "${designation.createdBy} \n${formatDateTimeAsDDMMYYYY(designation.createdDate)}",
+                                  "${designation.createdBy} \n${formatDateTimeAsDDMMMYYYY(designation.createdDate)}",
                                   style: AppTextStyle.ts14R(),
                                 ),
                               ],
@@ -378,7 +378,7 @@ class _DesignationMasterScreenState
                                   ),
                                 ),
                                 Text(
-                                  "${designation.modifiedBy.isNotEmpty ? designation.modifiedBy : "-"} \n${designation.modifiedDate != null ? formatDateTimeAsDDMMYYYY(designation.modifiedDate!) : '-'}",
+                                  "${designation.modifiedBy.isNotEmpty ? designation.modifiedBy : "-"} \n${designation.modifiedDate != null ? formatDateTimeAsDDMMMYYYY(designation.modifiedDate!) : '-'}",
                                   style: AppTextStyle.ts14R(),
                                 ),
                               ],

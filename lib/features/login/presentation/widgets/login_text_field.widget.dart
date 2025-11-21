@@ -44,7 +44,7 @@ class LoginTextFieldWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // height: 40.0,
+      height: 40.0,
       margin:
       isMargin
           ? const EdgeInsetsDirectional.only(bottom: 10.0)
@@ -89,7 +89,7 @@ class LoginTextFieldWidget extends StatelessWidget {
               color: readOnly ? AppColor.darkGrey : AppColor.info,
               width: 1.0,
             ),
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(6.0),
           ),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
@@ -99,17 +99,17 @@ class LoginTextFieldWidget extends StatelessWidget {
                   : AppColor.grey.withValues(alpha: 0.3),
               width: 1.0,
             ),
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(6.0),
           ),
           errorBorder: OutlineInputBorder(
             gapPadding: 0,
             borderSide: BorderSide(color: AppColor.error, width: 1.0),
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(6.0),
           ),
           focusedErrorBorder: OutlineInputBorder(
             gapPadding: 0,
             borderSide: BorderSide(color: AppColor.error, width: 1.0),
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(6.0),
           ),
           errorStyle: AppTextStyle.ts14R(color: AppColor.error),
           prefixIcon: prefixWidget,

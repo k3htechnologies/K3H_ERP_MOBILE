@@ -1,5 +1,5 @@
 class AppRoutes {
-  static String helloWorld = "/helloWord";
+  static String testScreen = "/testScreen";
   static String splashScreen = "/splash";
   static String notAuthorized = "/notAuthorized";
   static String login = "/login";

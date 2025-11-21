@@ -39,7 +39,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
   void initState() {
     super.initState();
     date = widget.initialDate;
-    finalDate = date != null ? formatDateTimeAsDDMMYYYY(date!) : null;
+    finalDate = date != null ? formatDateTimeAsDDMMMYYYY(date!) : null;
   }
 
   @override
@@ -47,7 +47,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialDate != widget.initialDate) {
       date = widget.initialDate;
-      finalDate = date != null ? formatDateTimeAsDDMMYYYY(date!) : null;
+      finalDate = date != null ? formatDateTimeAsDDMMMYYYY(date!) : null;
     }
   }
 
@@ -77,7 +77,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
         widget.setValue(value);
         setState(() {
           date = value;
-          finalDate = formatDateTimeAsDDMMYYYY(value);
+          finalDate = formatDateTimeAsDDMMMYYYY(value);
           state.didChange(date);
         });
       }

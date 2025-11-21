@@ -330,7 +330,7 @@ class _DepartmentMasterMobileScreenState
                                   ),
                                 ),
                                 Text(
-                                  "${department.createdBy} \n${formatDateTimeAsDDMMYYYY(department.createdDate)}",
+                                  "${department.createdBy} \n${formatDateTimeAsDDMMMYYYY(department.createdDate)}",
                                   style: AppTextStyle.ts14R(),
                                 ),
                               ],
@@ -358,7 +358,7 @@ class _DepartmentMasterMobileScreenState
                                   ),
                                 ),
                                 Text(
-                                  "${department.modifiedBy.isNotEmpty ? department.modifiedBy : "-"} \n${department.modifiedDate != null ? formatDateTimeAsDDMMYYYY(department.modifiedDate!) : '-'}",
+                                  "${department.modifiedBy.isNotEmpty ? department.modifiedBy : "-"} \n${department.modifiedDate != null ? formatDateTimeAsDDMMMYYYY(department.modifiedDate!) : '-'}",
                                   style: AppTextStyle.ts14R(),
                                 ),
                               ],

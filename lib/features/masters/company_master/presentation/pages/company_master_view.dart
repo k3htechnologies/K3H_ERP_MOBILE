@@ -246,7 +246,7 @@ class _CompanyMasterViewMobileScreenState
                                         ),
                                       ),
                                       Text(
-                                        formatDateTimeAsDDMMYYYY(
+                                        formatDateTimeAsDDMMMYYYY(
                                           companyPartnerModel
                                               .dateOfBirth,
                                         ),

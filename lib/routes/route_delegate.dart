@@ -30,6 +30,7 @@ import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_form.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_view_details_screen.dart';
+import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
@@ -89,7 +90,8 @@ final GoRouter goRouter = GoRouter(
       path: AppRoutes.login,
       name: AppRoutes.login,
       builder: (context, state) {
-        return const LoginScreen();
+        // return const LoginScreen();
+        return const TestScreen();
       },
     ),
     // OTP SCREEN

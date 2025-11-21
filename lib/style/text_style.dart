@@ -26,6 +26,11 @@ class AppTextStyle {
     fontSize: 16.0,
     color: color ?? AppColor.black,
   );
+  static TextStyle ts18R({Color? color}) => TextStyle(
+    fontFamily: "regular",
+    fontSize: 18.0,
+    color: color ?? AppColor.black,
+  );
   static TextStyle ts20R({Color? color}) => TextStyle(
     fontFamily: "regular",
     fontSize: 20.0,
@@ -53,6 +58,11 @@ class AppTextStyle {
     fontSize: 16.0,
     color: color ?? AppColor.black,
   );
+  static TextStyle ts18M({Color? color}) => TextStyle(
+    fontFamily: "medium",
+    fontSize: 18.0,
+    color: color ?? AppColor.black,
+  );
   static TextStyle ts20M({Color? color}) => TextStyle(
     fontFamily: "medium",
     fontSize: 20.0,
@@ -73,6 +83,11 @@ class AppTextStyle {
   static TextStyle ts20SB({Color? color}) => TextStyle(
     fontFamily: "semibold",
     fontSize: 20.0,
+    color: color ?? AppColor.black,
+  );
+  static TextStyle ts24SB({Color? color}) => TextStyle(
+    fontFamily: "semibold",
+    fontSize: 24.0,
     color: color ?? AppColor.black,
   );
   static TextStyle ts32SB({Color? color}) => TextStyle(

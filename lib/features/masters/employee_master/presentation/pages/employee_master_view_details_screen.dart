@@ -99,7 +99,7 @@ class EmployeeMasterViewDetailsScreen extends StatelessWidget {
                   _dataRow(
                     'DOB',
                     employee.dateOfBirth != null
-                        ? formatDateTimeAsDDMMYYYY(employee.dateOfBirth!)
+                        ? formatDateTimeAsDDMMMYYYY(employee.dateOfBirth!)
                         : '-',
                   ),
                   _dataRow('Office Email Id', employee.officeEmailId),
@@ -148,7 +148,7 @@ class EmployeeMasterViewDetailsScreen extends StatelessWidget {
                   _dataRow(
                     'Joining Date',
                     employee.joiningDate != null
-                        ? formatDateTimeAsDDMMYYYY(employee.joiningDate!)
+                        ? formatDateTimeAsDDMMMYYYY(employee.joiningDate!)
                         : '-',
                   ),
                   _dataRow('Reporting Person', employee.reportPersonName),

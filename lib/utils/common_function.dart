@@ -143,12 +143,12 @@ Future logOutUser() async {
 
 // SHOW SUCCESS MESSAGE
 Future showSuccessMessage(BuildContext context, {String? title}) async {
-  bool isPoped = false;
+  bool isPop = false;
   Future.delayed(Duration(seconds: 2), () {
-    if (!isPoped) goRouter.pop();
+    if (!isPop) goRouter.pop();
   });
   await DialogHelper.successDialog(context, title: title);
-  isPoped = true;
+  isPop = true;
 }
 
 // SHOW ERROR MESSAGE
@@ -160,16 +160,16 @@ Future showErrorMessage(
   if (message.contains("Menu")) {
     DialogHelper.showMenuChangedErrorDialog(context: context);
   } else {
-    bool isPoped = false;
+    bool isPop = false;
     Future.delayed(Duration(seconds: 2), () {
-      if (!isPoped) goRouter.pop();
+      if (!isPop) goRouter.pop();
     });
     await DialogHelper.showErrorDialog(
       context: context,
       message: message,
       title: title,
     );
-    isPoped = true;
+    isPop = true;
   }
 }
 
@@ -179,8 +179,8 @@ bool isValidMobileNumber(String value) {
 }
 
 // DATE FORMATTERS
-String formatDateTimeAsDDMMYYYY(DateTime d, {String? seperator}) {
-  return DateFormat('dd${seperator ?? '/'}MM${seperator ?? '/'}yyyy').format(d);
+String formatDateTimeAsDDMMMYYYY(DateTime d, {String? separator}) {
+  return DateFormat('dd${separator ?? '-'}MMM${separator ?? '-'}yyyy').format(d);
 }
 
 // <---- EXPORT AND DOWNLOAD FILE FOR MOBILE ---->

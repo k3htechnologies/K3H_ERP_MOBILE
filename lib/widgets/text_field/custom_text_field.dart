@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController textController;
+  final bool? isRequired;
   final String? hint;
   final String? title;
   final TextInputType? keyboardType;
@@ -23,6 +24,7 @@ class CustomTextField extends StatelessWidget {
   const CustomTextField({
     super.key,
     required this.textController,
+    this.isRequired=false,
     this.hint,
     this.title,
     this.keyboardType,
@@ -47,12 +49,17 @@ class CustomTextField extends StatelessWidget {
         if (title != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 4),
-            child: Text(
-              title!,
-              style: AppTextStyle.ts14R(color: readOnly ? AppColor.grey : null),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            child: Row(
+              children: [
+                Text(
+                  title!,
+                  style: AppTextStyle.ts14R(color: readOnly ? AppColor.grey : null),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                isRequired==true? Text("*",style: AppTextStyle.ts14R(color: AppColor.error),):SizedBox()
+              ],
+            )
           ),
         Padding(
           padding: const EdgeInsets.only(bottom: 14.0),
@@ -86,7 +93,7 @@ class CustomTextField extends StatelessWidget {
               prefixIcon: prefixWidget,
               suffixIcon: suffixWidget,
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: BorderRadius.circular(6.0),
                 borderSide: const BorderSide(
                   color: AppColor.primary,
                   width: 1.0,
@@ -105,7 +112,7 @@ class CustomTextField extends StatelessWidget {
                 borderSide: BorderSide(color: AppColor.error, width: 1.0),
               ),
               focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                borderRadius: BorderRadius.circular(6.0),
                 borderSide: BorderSide(color: AppColor.error, width: 1.0),
               ),
             ),
