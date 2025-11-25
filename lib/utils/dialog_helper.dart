@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -13,47 +16,37 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class DialogHelper{
 
   // <----PROCESSING DIALOG ---->
-  static void showProcessingDialog(BuildContext context) {
-    showDialog(
+  static void showProcessingOverlay(BuildContext context) {
+    showGeneralDialog(
       context: context,
-      builder:
-          (context) => Dialog(
-        child: Container(
-          width: 150.0,
-          height: 150.0,
-          decoration: BoxDecoration(
-            color: AppColor.white,
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                verticalSpacing(height: 20.0),
-                Row(
-                  children: [
-                    Image.asset(
-                      AppAssets.appLogo,
-                      width: 50.0,
-                      height: 50.0,
-                    ),
-                    const SizedBox(width: 10.0),
-                    Text("K3H ERP", style: AppTextStyle.ts14B()),
-                  ],
-                ),
-                const Divider(),
-                const Spacer(),
-                CircularProgressIndicator(
-                  color: AppColor.primary,
-                  strokeWidth: 2.0,
-                ),
-                verticalSpacing(height: 20.0),
-              ],
+      barrierDismissible: false,
+      barrierLabel: "",
+      barrierColor: Colors.transparent, // important!
+      pageBuilder: (context, _, __) {
+        return SizedBox.expand(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+            child: Container(
+              color: Colors.transparent,
+              width: double.infinity,
+              height: double.infinity,
             ),
           ),
-        ),
-      ),
+        );
+      },
+      transitionBuilder: (_, anim, __, child) {
+        return FadeTransition(
+          opacity: anim,
+          child: Stack(
+            children: [
+              child,
+              const Center(
+                child: CircularProgressIndicator(strokeWidth: 3),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -221,24 +214,23 @@ class DialogHelper{
       builder: (BuildContext context) {
         return Dialog(
           insetPadding: const EdgeInsets.symmetric(
-            horizontal: 40.0,
-            vertical: 80.0,
+            horizontal: 20.0,
+            vertical: 40.0,
           ),
           backgroundColor: Colors.transparent,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
             child: Container(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColor.error, width: 1),
+                border: Border.all(color: AppColor.error, width: 0.5),
                 color: AppColor.white,
                 borderRadius: BorderRadius.circular(25.0),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  verticalSpacing(height: 25),
-                  Icon(Icons.delete, color: AppColor.error, size: 52),
+                  Icon(CupertinoIcons.delete, color: AppColor.error, size: 32),
                   verticalSpacing(height: 15),
                   Text(
                     title,
@@ -252,26 +244,24 @@ class DialogHelper{
                     textAlign: TextAlign.center,
                   ),
                   verticalSpacing(height: 24),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CustomButton(
-                          backgroundColor: AppColor.lightGrey,
-                          textColor: AppColor.black,
+                  Row(
+                    spacing: 2,
+                    children: [
+                      Expanded(
+                        child: CustomButton.cancelOutline(
                           onPressed: () => goRouter.pop(false),
-                          text: "Cancel",
                         ),
-                        horizontalSpacing(),
-                        CustomButton(
+                      ),
+                      horizontalSpacing(),
+                      Expanded(
+                        child: CustomButton(
                           backgroundColor: AppColor.error,
                           textColor: AppColor.white,
                           onPressed: () => goRouter.pop(true),
-                          text: "Delete",
+                          text: "Confirm",
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -297,9 +287,9 @@ class DialogHelper{
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
         width: getActualWidth(context),
-        height: getActualHeight(context) * 0.90,
+        height: getActualHeight(context) * 0.50,
         decoration: BoxDecoration(
-          color: AppColor.white,
+          color: AppColor.bottomSheetBackground,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20.0),
             topRight: Radius.circular(20.0),

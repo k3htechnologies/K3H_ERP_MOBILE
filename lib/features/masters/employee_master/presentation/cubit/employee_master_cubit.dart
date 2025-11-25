@@ -122,7 +122,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     required String emergencyContactPersonRelationship,
     required String employeeType,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       'EmployeeId': 0,
       "FirstName": firstName,
@@ -224,7 +224,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     required String employeeType,
     required int index,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       'EmployeeId': employeeMasterId,
       'UniqueKey': uniqueKey,
@@ -491,7 +491,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
 
   // <---- EXPORT EXCEL PDF ---->
   Future exportExcelPdf(BuildContext context, String exportType) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var result = await employeeMasterRepository.exportEmployee(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,

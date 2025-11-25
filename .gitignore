@@ -46,3 +46,6 @@ app.*.map.json
 
 # ENV
 .env.dev
+
+# FVM Version Cache
+.fvm/

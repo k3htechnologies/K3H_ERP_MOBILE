@@ -2,7 +2,12 @@ import 'dart:ui';
 
 class AppColor {
   // PRIMARY
-  static const Color primary = Color(0xFF135BEC); // DARK SLATE GRAY
+  static const Color primary = Color(0xFF135BEC);
+
+  // BASIC
+  static const Color lightBlue = Color(0xFFDBEAFE); // LIGHT BLUE
+  static const Color formBackground = Color(0xFFF4F7F9); // FORM BACKGROUND
+  static const Color bottomSheetBackground = Color(0xFFE4F0FF); // BOTTOM SHEET BACKGROUND
 
   // BASIC
   static const Color black = Color(0xFF111111); // BLACK
@@ -35,7 +40,6 @@ class AppColor {
   static const Color success = Color(0xFF32D583); // GREEN
   static const Color warning = Color(0xFFFDB022); // ORANGE
   static const Color info = Color(0xFF5A82E8); //  BLUE
-  static const Color lightBlue = Color(0xFFCDDBFF); // LIGHT BLUE
   static const Color slightDarkBlue = Color(0xFF5A82E8); // LIGHT BLUE
   static const Color yellow = Color(0xFFF59E0B);
   static const Color yellow10 = Color(0x1AF59E0B);

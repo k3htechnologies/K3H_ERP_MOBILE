@@ -79,6 +79,9 @@ class CustomTextField extends StatelessWidget {
                 ? AppTextStyle.ts14R().copyWith(color: AppColor.grey)
                 : AppTextStyle.ts14R(),
             onChanged: onChangeFunction,
+            onTapOutside: (event) {
+              FocusScope.of(context).unfocus();
+            },
             onFieldSubmitted: onSubmitFunction,
             validator: validator,
             decoration: InputDecoration(

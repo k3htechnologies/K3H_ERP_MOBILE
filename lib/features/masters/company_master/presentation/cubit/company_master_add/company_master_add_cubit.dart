@@ -43,7 +43,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     required int pageNumber,
     required int pageSize,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
 
     Map<String, String> requestBody = {
       "CompanyId": "0",
@@ -321,7 +321,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     required int pageNumber,
     required int pageSize,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
       "CompanyId": companyId.toString(),
       "Uniquekey": uniquekey,

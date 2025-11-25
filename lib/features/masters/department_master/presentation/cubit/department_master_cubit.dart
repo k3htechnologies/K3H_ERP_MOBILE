@@ -61,7 +61,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
     required String departmentCode,
     required String departmentName,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       "DepartmentMasterId": 0,
       "DepartmentCode": departmentCode,
@@ -106,7 +106,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
     required String departmentName,
     required int index,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       "DepartmentMasterId": departmentMasterId,
       "Uniquekey": uniqueKey,
@@ -142,7 +142,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
     required int pageSize,
     int? index,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var deleteResult = await _departmentMasterRepository.deleteDepartment(
       departmentMasterId: departmentMasterId,
       uniqueKey: uniqueKey,
@@ -191,7 +191,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
 
   // <---- EXPORT EXCEL PDF ---->
   Future exportExcelPdf(BuildContext context, String exportType) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var result = await _departmentMasterRepository.exportDepartment(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,

@@ -1,5 +1,5 @@
 name: k3h_erp_app
-description: "A new Flutter project."
+description: "ERP Mobile App."
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -19,11 +19,11 @@ dependencies:
   # STATE MANAGEMENT
   flutter_bloc: ^9.1.0
   bloc: ^9.0.0
-  # DEPENDECY INJECTION
+  # DEPENDENCY INJECTION
   get_it: ^8.0.3
   # COMPARING OBJECTS
   equatable: ^2.0.7
-  # HANDLING REPONSE
+  # HANDLING RESPONSE
   fpdart: ^1.1.1
   # Responsive Builder
   responsive_builder: ^0.7.0
@@ -60,6 +60,7 @@ dependencies:
   # CUSTOM DROPDOWN
   animated_custom_dropdown: ^3.1.1
   # HTTP PARSER
+  dio: ^5.9.0
   http_parser: ^4.1.2
   # FOR GROUP BY
   collection: ^1.19.1
@@ -77,11 +78,8 @@ dependencies:
   dropdown_search: ^6.0.2
   # HTML RENDERING
   flutter_html: ^3.0.0-beta.2
-  # K3H HTTP CLIENT
-  k3h_http_client:
-    git:
-      url: https://github.com/k3htechnologies/K3H_HTTP.git
-      ref: main
+  # SHIMMER EFFECT FOR IMAGES
+  shimmer: ^3.0.0
 
 # DEV DEPENDENCIES
 dev_dependencies:

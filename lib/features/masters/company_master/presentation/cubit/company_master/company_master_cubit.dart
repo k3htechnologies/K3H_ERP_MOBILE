@@ -78,7 +78,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     required int pageSize,
     int? index,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var deleteResult = await _companyMasterRepository.deleteCompanyList(
       companyId: companyMasterId,
       uniqueKey: uniqueKey,
@@ -126,7 +126,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     required int pageNumber,
     required int pageSize,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
 
     Map<String, String> requestBody = {
       "CompanyId": "0",
@@ -377,7 +377,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
 
   // <---- EXPORT EXCEL OR PDF ---->
   Future exportExcelPdf(BuildContext context, String exportType) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var result = await _companyMasterRepository.exportCompany(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,

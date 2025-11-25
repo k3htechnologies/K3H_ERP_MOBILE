@@ -69,7 +69,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     required String designationName,
     required String noticePeriod,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       'DesignationName': designationName,
       'NoticePeriod': noticePeriod,
@@ -114,7 +114,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     required String noticePeriod,
     required int index,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       'DesignationMasterId': designationMasterId,
       'UniqueKey': uniqueKey,
@@ -157,7 +157,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     required int pageSize,
     int? index,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var deleteResult = await _designationMasterRepository.deleteDesignation(
       designationtMasterId: designationMasterId,
       uniqueKey: uniqueKey,
@@ -212,7 +212,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
 
   // <---- EXPORT EXCEL PDF ---->
   Future exportExcelPdf(BuildContext context, String exportType) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var result = await _designationMasterRepository.exportDesignation(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
@@ -301,7 +301,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     required BuildContext context,
     required int designationMasterId,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
 
     var requestBody = {
       "DesignationMasterId": designationMasterId,

@@ -120,7 +120,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String googleLocation,
     required MultiFilePickerModel projectPhotoMap,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
       "ProjectName": projectName,
       "ProjectLocation": location,
@@ -222,7 +222,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required MultiFilePickerModel projectPhotoMap,
     required int index,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
       "ProjectId": projectId.toString(),
       "Uniquekey": uniqueKey,
@@ -446,7 +446,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String projectId,
     required BuildContext context,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var result = await _projectMasterRepository.addUpdateProjectWithBankDetails(
       bankRequestBody: bankRequestBody,
     );
@@ -470,7 +470,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String uniqueKey,
     required int projectId,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var result = await _projectMasterRepository.deleteProjectWithBankDetails(
       projectId: projectId,
       uniqueKey: uniqueKey,
@@ -697,7 +697,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String uniquekey,
     required String employeeId,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var result = await _projectMasterRepository.deleteProjectWithEmployee(
       projectId: projectId,
       uniquekey: uniquekey,

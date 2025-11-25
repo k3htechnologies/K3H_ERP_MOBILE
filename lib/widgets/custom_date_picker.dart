@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 
 class CustomDatePicker extends StatefulWidget {
   final Function(DateTime) setValue;
+  final bool? isRequired;
   final String? hint;
   final String? label;
   final String? title;
@@ -16,6 +17,7 @@ class CustomDatePicker extends StatefulWidget {
 
   const CustomDatePicker({
     required this.setValue,
+    this.isRequired=false,
     this.hint,
     this.label,
     this.title,
@@ -91,7 +93,12 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
       spacing: 4,
       children: [
         if (widget.title != null)
-          Text(widget.title!, style: AppTextStyle.ts14R()),
+          Row(
+            children: [
+              Text(widget.title!, style: AppTextStyle.ts14R()),
+              widget.isRequired==true?Text("*",style: AppTextStyle.ts14R(color: AppColor.error),):SizedBox()
+            ],
+          ),
         FormField<DateTime>(
           validator: widget.validator,
           initialValue: date,

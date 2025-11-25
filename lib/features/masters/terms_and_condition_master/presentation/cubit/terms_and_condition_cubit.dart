@@ -120,7 +120,7 @@ class TermsAndConditionCubit extends Cubit<TermsAndConditionState> {
     required String module,
     required String description,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       "TermsAndConditionsMasterId": 0,
       "ModuleName": "MATERIAL REQUISITION",
@@ -168,7 +168,7 @@ class TermsAndConditionCubit extends Cubit<TermsAndConditionState> {
     required String description,
     required int index,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       "TermsAndConditionsMasterId": termsAndConditionId,
       "Uniquekey": uniqueKey,
@@ -208,7 +208,7 @@ class TermsAndConditionCubit extends Cubit<TermsAndConditionState> {
     required String module,
     required String description,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       "TermsAndConditionsMasterId": 0,
       "ModuleName": "BOOKING",
@@ -254,7 +254,7 @@ class TermsAndConditionCubit extends Cubit<TermsAndConditionState> {
     required String description,
     required int index,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       "TermsAndConditionsMasterId": termsAndConditionId,
       "Uniquekey": uniqueKey,
@@ -292,7 +292,7 @@ class TermsAndConditionCubit extends Cubit<TermsAndConditionState> {
     required int pageSize,
     int? index,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var deleteResult = await _termsAndConditionsMasterRepository
         .deleteTermsAndConditions(
           termsAndConditionsMasterId: termsAndConditionsMasterId,
@@ -337,7 +337,7 @@ class TermsAndConditionCubit extends Cubit<TermsAndConditionState> {
     required int pageSize,
     int? index,
   }) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var deleteResult = await _termsAndConditionsMasterRepository
         .deleteTermsAndConditions(
           termsAndConditionsMasterId: termsAndConditionsMasterId,
@@ -424,7 +424,7 @@ class TermsAndConditionCubit extends Cubit<TermsAndConditionState> {
     BuildContext context,
     String exportType,
   ) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var result = await _termsAndConditionsMasterRepository
         .exportTermsAndConditions(
           pageNumber: 1,
@@ -457,7 +457,7 @@ class TermsAndConditionCubit extends Cubit<TermsAndConditionState> {
 
   // <---- EXPORT EXCEL PDF ---->
   Future exportExcelPdfBooking(BuildContext context, String exportType) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var result = await _termsAndConditionsMasterRepository
         .exportTermsAndConditions(
           pageNumber: 1,

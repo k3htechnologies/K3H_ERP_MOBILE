@@ -67,7 +67,7 @@ class _ProjectListMobileScreenState extends State<ProjectListScreen> {
   }
 
   Future<void> selectProject(int index) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     _localStorageManager.setString(
       StorageKey.selectedProject,
       jsonEncode(widget.projectList[index]),

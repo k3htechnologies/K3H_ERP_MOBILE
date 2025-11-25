@@ -92,25 +92,6 @@ class CustomButton extends StatelessWidget {
     ],
   );
 
-  CustomButton.cancel({Key? key, required VoidCallback onPressed})
-      : this(
-    key: key,
-    onPressed: onPressed,
-    text: 'Cancel',
-    leading: Icon(Icons.do_disturb_alt, color: AppColor.white),
-    backgroundColor: AppColor.error,
-    textColor: AppColor.white,
-    boxShadow: [
-      BoxShadow(
-        color: AppColor.black10.withValues(alpha: 0.02),
-        offset: Offset(0, 4),
-        blurRadius: 4,
-        spreadRadius: 0,
-        inset: true,
-      ),
-    ],
-  );
-
   CustomButton.add({Key? key, required VoidCallback onPressed})
       : this(
     key: key,
@@ -168,6 +149,34 @@ class CustomButton extends StatelessWidget {
         inset: true,
       ),
     ],
+  );
+
+  // ---------------- OUTLINE BUTTONS ----------------
+
+// CANCEL (OUTLINE)
+  CustomButton.cancelOutline({Key? key, required VoidCallback onPressed})
+      : this(
+    key: key,
+    onPressed: onPressed,
+    text: 'Cancel',
+    backgroundColor: Colors.transparent,
+    textColor: AppColor.grey,
+    borderColor: AppColor.grey,
+    elevation: 0,
+    boxShadow: [],
+  );
+
+// RESET (OUTLINE)
+  CustomButton.resetOutline({Key? key, required VoidCallback onPressed})
+      : this(
+    key: key,
+    onPressed: onPressed,
+    text: 'Reset',
+    backgroundColor: Colors.transparent,
+    textColor: AppColor.warning,
+    borderColor: AppColor.warning,
+    elevation: 0,
+    boxShadow: [],
   );
 
 }

@@ -15,7 +15,6 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
-import 'package:k3h_http_client/k3h_http_client.dart';
 
 part 'login_state.dart';
 
@@ -36,7 +35,7 @@ class LoginCubit extends Cubit<LoginState> {
 
   Future<void> sendOTP(BuildContext context, String mobileNumber) async {
     try {
-      DialogHelper.showProcessingDialog(context);
+      DialogHelper.showProcessingOverlay(context);
       emit(state.copyWith(isLoading: true, stateType: StateType.sendOTP));
 
       final result = await loginRepository.loginUser(mobileNumber: mobileNumber);
@@ -78,7 +77,7 @@ class LoginCubit extends Cubit<LoginState> {
       String mobileNumber,
       String otp,
       ) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
 
     final result = await loginRepository.validateOTP(
       mobileNumber: mobileNumber,
@@ -99,11 +98,6 @@ class LoginCubit extends Cubit<LoginState> {
         localStorage.setString(StorageKey.authorizationToken, user.token);
         localStorage.setString(StorageKey.userUniqueKey, user.uniqueKey);
 
-
-        // RELOAD TOKEN FOR BASECLIENT
-        if (serviceLocator.isRegistered<K3hHttpClient>()) {
-          await serviceLocator.unregister<K3hHttpClient>();
-        }
 
         // ROUTING DECISION
         if (user.projectData.isNotEmpty) {
