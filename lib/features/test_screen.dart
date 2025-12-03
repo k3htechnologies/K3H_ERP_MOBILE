@@ -112,6 +112,7 @@ class TestScreen extends StatelessWidget {
               ),
               CustomDatePicker(
                 title: "Date",
+                initialDate: DateTime.now(),
                 setValue: (value) {},
                 isRequired: true,
               ),
