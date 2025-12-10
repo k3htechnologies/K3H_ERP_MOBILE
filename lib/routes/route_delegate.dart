@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
-import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
@@ -12,8 +11,11 @@ import 'package:k3h_erp_app/core/presentation/cubit/main_screen_cubit.dart';
 import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/core/presentation/pages/no_authorised_screen.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/calendar/presentation/pages/calendar_screen.dart';
+import 'package:k3h_erp_app/features/calendar/presentation/pages/calendar_date_detail_screen.dart';
+import 'package:k3h_erp_app/features/calendar/data/models/calendar_event.dart'
+    as calendar_models;
 import 'package:k3h_erp_app/features/dashboard/dashboard_screen.dart';
-import 'package:k3h_erp_app/features/login/presentation/pages/login_screen.dart';
 import 'package:k3h_erp_app/features/login/presentation/pages/otp_screen.dart';
 import 'package:k3h_erp_app/features/login/presentation/pages/project_list_screen.dart';
 import 'package:k3h_erp_app/features/login/presentation/pages/splash_screen.dart';
@@ -33,7 +35,6 @@ import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
-import 'package:k3h_erp_app/utils/storage_key.dart';
 
 String? authenticateAndAuthorizeRoute(GoRouterState state) {
   // SPLASH || LOGIN
@@ -44,15 +45,15 @@ String? authenticateAndAuthorizeRoute(GoRouterState state) {
     return null;
   }
   // AUTHENTICATION
-  final localStorage = LocalStorageManager();
-  final menuData = localStorage.getString(StorageKey.menu);
-  final bool isLoggedIn = menuData != null;
-  if (!isLoggedIn) {
-    return AppRoutes.login;
-  }
+  // final localStorage = LocalStorageManager();
+  // final menuData = localStorage.getString(StorageKey.menu);
+  // final bool isLoggedIn = menuData != null;
+  // if (!isLoggedIn) {
+  //   return AppRoutes.login;
+  // }
   // AUTHORIZATION
   AuthorizationModel? routeAuthorizationModel =
-  Authorization.routeAuthorizationMap[state.uri.path];
+      Authorization.routeAuthorizationMap[state.uri.path];
   if (routeAuthorizationModel == null) {
     return null;
   }
@@ -100,7 +101,7 @@ final GoRouter goRouter = GoRouter(
       name: AppRoutes.otp,
       builder: (context, state) {
         final queryParameterMobileNumber =
-        state.uri.queryParameters['mobileNumber'];
+            state.uri.queryParameters['mobileNumber'];
         if (queryParameterMobileNumber != null) {
           final mobileNumber = EncryptionManager.decryptData(
             Uri.decodeComponent(queryParameterMobileNumber),
@@ -180,7 +181,7 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.viewCompanyMobile,
               builder: (context, state) {
                 final queryParameterVendor =
-                state.uri.queryParameters['company_master'];
+                    state.uri.queryParameters['company_master'];
                 if (queryParameterVendor != null) {
                   final decodedJson = jsonDecode(
                     EncryptionManager.decryptData(
@@ -232,17 +233,19 @@ final GoRouter goRouter = GoRouter(
                   create: (context) => EmployeeMasterCubit(),
                   child: EmployeeMasterFormScreen(
                     employee:
-                    employee != null
-                        ? UserModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(employee),
-                        ),
-                      ),
-                    )
-                        : null,
+                        employee != null
+                            ? UserModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(employee),
+                                ),
+                              ),
+                            )
+                            : null,
                     index:
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ??
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
                         0,
                   ),
                 );
@@ -270,6 +273,54 @@ final GoRouter goRouter = GoRouter(
               create: (context) => EmployeeMasterCubit(),
               child: EmployeeMasterScreen(),
             );
+          },
+        ),
+        // CALENDAR
+        GoRoute(
+          path: AppRoutes.calendar,
+          name: AppRoutes.calendar,
+          builder: (context, state) {
+            return CalendarScreen();
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.calendarDetail,
+          name: AppRoutes.calendarDetail,
+          builder: (context, state) {
+            final payload = state.uri.queryParameters['data'];
+            if (payload == null || payload.isEmpty) {
+              return CalendarDateDetailScreen(
+                date: DateTime.now(),
+                events: const [],
+              );
+            }
+
+            try {
+              final decrypted =
+                  EncryptionManager.decryptData(Uri.decodeComponent(payload));
+              final data = jsonDecode(decrypted) as Map<String, dynamic>;
+              final dateString = data['date'] as String? ?? '';
+              final date = DateTime.tryParse(dateString) ?? DateTime.now();
+
+              final eventsJson = (data['events'] as List<dynamic>? ?? []);
+              final events = eventsJson
+                  .map(
+                    (e) => calendar_models.CalendarEvent.fromJson(
+                      Map<String, dynamic>.from(e as Map),
+                    ),
+                  )
+                  .toList();
+
+              return CalendarDateDetailScreen(
+                date: date,
+                events: events,
+              );
+            } catch (_) {
+              return CalendarDateDetailScreen(
+                date: DateTime.now(),
+                events: const [],
+              );
+            }
           },
         ),
       ],

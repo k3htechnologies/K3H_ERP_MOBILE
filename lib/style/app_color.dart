@@ -6,6 +6,7 @@ class AppColor {
 
   // BASIC
   static const Color lightBlue = Color(0xFFDBEAFE); // LIGHT BLUE
+  static const Color mediumBlue = Color(0xFF3B82F6); // FORM BACKGROUND
   static const Color formBackground = Color(0xFFF4F7F9); // FORM BACKGROUND
   static const Color bottomSheetBackground = Color(0xFFE4F0FF); // BOTTOM SHEET BACKGROUND
 

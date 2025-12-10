@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/widgets/custom_file_preview_dialogue_content.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -201,4 +202,20 @@ Future<void> exportExcelOrPdfMobile(String base64, String fileName) async {
   } catch (e) {
     developer.log("Error saving file: $e");
   }
+}
+
+void showFilePreviewDialog(
+    BuildContext context,
+    List<String> urls, {
+      List<Uint8List>? fileBytes,
+    }) {
+  showDialog(
+    context: context,
+    builder:
+        (context) => Dialog(
+      insetPadding: const EdgeInsets.all(20),
+      backgroundColor: Colors.white,
+      child: CommonFileViewer(urls: urls, fileBytes: fileBytes),
+    ),
+  );
 }

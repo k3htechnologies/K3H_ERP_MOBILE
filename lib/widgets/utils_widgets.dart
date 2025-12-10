@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -10,7 +12,6 @@ Widget horizontalSpacing({double width = 10.0}) => SizedBox(width: width);
 double verticalSpacingMeasure({double height = 10.0}) => height;
 
 double horizontalSpacingMeasure({double width = 20.0}) => width;
-
 
 Widget noDataWidget() => Container(
   width: double.infinity,
@@ -26,16 +27,44 @@ Widget noDataWidget() => Container(
   ),
 );
 
-Widget loader() => Container(
-  width: double.infinity,
-  height: double.infinity,
-  decoration: const BoxDecoration(color: Colors.transparent),
-  child: Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Image.asset("assets/images/logo.png", width: 100.0, height: 100.0),
-      verticalSpacing(),
-      CircularProgressIndicator(color: AppColor.primary, strokeWidth: 2.0),
-    ],
-  ),
-);
+Widget loader() {
+  return Container(
+    width: double.infinity,
+    height: double.infinity,
+    decoration: const BoxDecoration(color: Colors.transparent),
+    child: Stack(
+      children: [
+        // BLUR BACKGROUND
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+          child: Container(
+            width: 160,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15), // glass transparency
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.3),
+                width: 1.2,
+              ),
+            ),
+          ),
+        ),
+
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset("assets/images/logo.png", width: 100, height: 100),
+              verticalSpacing(),
+              CircularProgressIndicator(
+                color: AppColor.primary,
+                strokeWidth: 2,
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/features/login/presentation/widgets/login_text_field.widget.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -22,10 +24,10 @@ class TestScreen extends StatelessWidget {
             spacing: 10,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CustomButton(
-                onPressed: () {},
-                text: 'Edit',
-                leading: Icon(Icons.edit, color: AppColor.white, size: 12),
+              CustomButton.add(
+                onPressed: () {
+                  context.pushNamed(AppRoutes.calendar);
+                },
               ),
               Row(
                 spacing: 20,
@@ -40,10 +42,19 @@ class TestScreen extends StatelessWidget {
                         );
                       },
                       text: 'Save Changes',
+                      gradient: LinearGradient(
+                        colors: [AppColor.primary, AppColor.primary, AppColor.darkBlue],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
                   ),
                   CustomButton(
-                    backgroundColor: AppColor.error,
+                    gradient: LinearGradient(
+                      colors: [AppColor.error, AppColor.red, AppColor.red],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     onPressed: () {
                       DialogHelper.deleteDialog(
                         context,
@@ -88,13 +99,18 @@ class TestScreen extends StatelessWidget {
                 icon: Icons.notifications_none,
               ),
               Text(formatDateTimeAsDDMMMYYYY(DateTime.now())),
-              NetworkImageWidget(
-                imageUrl:
-                    "https://plus.unsplash.com/premium_photo-1667358091118-29e916ddbcc5?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGh1c2t5fGVufDB8fDB8fHww",
-                width: 120,
-                height: 120,
-                fit: BoxFit.cover,
-                borderRadius: BorderRadius.circular(55),
+              GestureDetector(
+                onTap: (){
+                  showFilePreviewDialog(context, ["https://www.shutterstock.com/image-photo/portrait-fake-doublecross-betray-85500217?dd_referrer=https%3A%2F%2Fwww.google.com%2F"]);
+                },
+                child: NetworkImageWidget(
+                  imageUrl:
+                      "https://plus.unsplash.com/premium_photo-1667358091118-29e916ddbcc5?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGh1c2t5fGVufDB8fDB8fHww",
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.cover,
+                  borderRadius: BorderRadius.circular(55),
+                ),
               ),
               CustomTextField(
                 textController: TextEditingController(),

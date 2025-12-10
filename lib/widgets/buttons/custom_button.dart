@@ -17,6 +17,7 @@ class CustomButton extends StatelessWidget {
   final Color? borderColor;
   final TextStyle? titleTextStyle;
   final List<BoxShadow>? boxShadow;
+  final Gradient? gradient;
 
   const CustomButton({
     super.key,
@@ -33,41 +34,58 @@ class CustomButton extends StatelessWidget {
     this.borderColor,
     this.titleTextStyle,
     this.boxShadow,
+    this.gradient,   // <-- new
   });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed:isDisable? null: onPressed,
+      onPressed: isDisable ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: backgroundColor,
-        foregroundColor: Colors.transparent,
-        surfaceTintColor: AppColor.grey,
-        disabledBackgroundColor: AppColor.grey30,
-        side: BorderSide(color: borderColor ?? Colors.transparent),
-        padding: padding,
-        elevation: 0,
-        fixedSize: Size.fromHeight(height),
+        backgroundColor: gradient != null ? Colors.transparent : backgroundColor,
+        shadowColor: Colors.transparent,
+        padding: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (leading != null) ...[
-            leading!,
-            const SizedBox(width: 6),
-          ],
-          Flexible(
-            child: Text(
-              text,
-              style: titleTextStyle ?? AppTextStyle.ts12SB(color: isDisable? AppColor.black:textColor),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
+      child: Ink(
+        decoration: BoxDecoration(
+          // FOR GRADIENT BUTTONS
+          gradient: gradient,
+
+          // FOR NORMAL BUTTONS (NOT GRADIENT)
+          color: (gradient == null && borderColor == null) ? backgroundColor : null,
+
+          // FOR OUTLINE BUTTONS
+          border: borderColor != null ? Border.all(color: borderColor!) : null,
+
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        child: Container(
+          height: height,
+          padding: padding,
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (leading != null) ...[
+                leading!,
+                const SizedBox(width: 6),
+              ],
+              Flexible(
+                child: Text(
+                  text,
+                  style: titleTextStyle ??
+                      AppTextStyle.ts12SB(
+                          color: isDisable ? AppColor.black : textColor),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -98,16 +116,11 @@ class CustomButton extends StatelessWidget {
     onPressed: onPressed,
     text: 'Add',
     leading: Icon(Icons.add, color: AppColor.white),
-    backgroundColor: AppColor.green.withValues(alpha: 0.8),
-    boxShadow: [
-      BoxShadow(
-        color: AppColor.darkGreen,
-        offset: Offset(0, 4),
-        blurRadius: 4,
-        spreadRadius: 0,
-        inset: true,
-      ),
-    ],
+    gradient: LinearGradient(
+      colors: [AppColor.green, AppColor.darkGreen],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ),
   );
 
   CustomButton.view({Key? key, required VoidCallback onPressed})
