@@ -10,6 +10,8 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -154,9 +156,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final encrypted = EncryptionManager.encryptData(jsonEncode(payload));
     context.pushNamed(
       AppRoutes.calendarDetail,
-      queryParameters: {
-        'data': Uri.encodeComponent(encrypted),
-      },
+      queryParameters: {'data': Uri.encodeComponent(encrypted)},
     );
   }
 
@@ -166,147 +166,156 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final daysInMonth = _daysInMonth(visibleMonth);
     final startWeekday = firstDayOfMonth.weekday % 7; // Sunday -> 0
     final totalGridItems = startWeekday + daysInMonth;
-    final rows = math.max(
-      6,
-      ((totalGridItems + 6) / 7).floor(),
-    );
+    final rows = math.max(6, ((totalGridItems + 6) / 7).floor());
     final paddedItemCount = rows * 7;
 
     return Scaffold(
-      appBar: AppBar(
-        leading: GestureDetector(
-          onTap: (){
-            goRouter.pop();
-          },
-          child: Icon(Icons.arrow_back),
-        ),
-        title: Text("Calendar"),
-      ),
+      appBar: CustomAppBarWithBackButton(screenTitle: "Calendar"),
       body: SafeArea(
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: AppColor.lightBlue.withValues(alpha: .4),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          padding: const EdgeInsets.symmetric( vertical: 12),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(16),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              // MONTH AND YEAR
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new, size: 22),
-                    onPressed: _goToPreviousMonth,
-                  ),
-                  Text(
-                    _monthTitle(visibleMonth),
-                    style: AppTextStyle.ts16SB(),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.arrow_forward_ios, size: 22),
-                    onPressed: _goToNextMonth,
-                  ),
-                ],
-              ),
-              verticalSpacing(),
-              // DAYS
-              _buildWeekdayHeader(),
-              // DATES
-              verticalSpacing(height: 6),
-              Flexible(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    const spacing = 8.0;
-                    final totalSpacingX = spacing * 6; // gaps between 7 cols
-                    final cellWidth =
-                        (constraints.maxWidth - totalSpacingX) / 5.0;
-                    final totalRowsSpacing = spacing * (rows - 1);
-                    final rawCellHeight =
-                        (constraints.maxHeight - totalRowsSpacing) / rows;
-                    final aspectRatio = cellWidth / (rawCellHeight * 0.7);
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColor.lightBlue.withValues(alpha: .4),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // MONTH AND YEAR
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_ios_new, size: 22),
+                          onPressed: _goToPreviousMonth,
+                        ),
+                        Text(
+                          _monthTitle(visibleMonth),
+                          style: AppTextStyle.ts16SB(),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_forward_ios, size: 22),
+                          onPressed: _goToNextMonth,
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    // DAYS
+                    _buildWeekdayHeader(),
+                    // DATES
+                    verticalSpacing(height: 6),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        const spacing = 8.0;
 
-                    return GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 7,
-                        mainAxisSpacing: spacing,
-                        crossAxisSpacing: spacing,
-                        childAspectRatio: aspectRatio,
-                      ),
-                      itemCount: paddedItemCount,
-                      itemBuilder: (context, index) {
-                        DateTime currentDate;
-                        bool isOutOfMonth = false;
+                        return GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 7,
+                                mainAxisSpacing: spacing,
+                                crossAxisSpacing: spacing,
+                                childAspectRatio: 1,
+                              ),
+                          itemCount: paddedItemCount,
+                          itemBuilder: (context, index) {
+                            DateTime currentDate;
+                            bool isOutOfMonth = false;
 
-                        if (index < startWeekday) {
-                          final prevMonth = DateTime(
-                            visibleMonth.year,
-                            visibleMonth.month - 1,
-                            1,
-                          );
-                          final prevMonthDays = _daysInMonth(prevMonth);
-                          final day =
-                              prevMonthDays - (startWeekday - index) + 1;
-                          currentDate =
-                              DateTime(prevMonth.year, prevMonth.month, day);
-                          isOutOfMonth = true;
-                        } else if (index >= totalGridItems) {
-                          final day = index - totalGridItems + 1;
-                          final nextMonth = DateTime(
-                            visibleMonth.year,
-                            visibleMonth.month + 1,
-                            1,
-                          );
-                          currentDate =
-                              DateTime(nextMonth.year, nextMonth.month, day);
-                          isOutOfMonth = true;
-                        } else {
-                          final day = index - startWeekday + 1;
-                          currentDate = DateTime(
-                            visibleMonth.year,
-                            visibleMonth.month,
-                            day,
-                          );
-                        }
-                        final isToday = _isSameDate(
-                          currentDate,
-                          DateTime.now(),
-                        );
-                        final isSelected = _isSameDate(
-                          currentDate,
-                          selectedDate,
-                        );
-                        final eventsForDay = _eventsForDate(currentDate);
-                        final dots = <Color>[];
-                        if (eventsForDay.any((e) => e.type == CalendarEventType.task)) {
-                          dots.add(eventTypeColor(CalendarEventType.task));
-                        }
-                        if (eventsForDay.any((e) => e.type == CalendarEventType.meeting)) {
-                          dots.add(eventTypeColor(CalendarEventType.meeting));
-                        }
-                        if (eventsForDay.any((e) => e.type == CalendarEventType.conferenceRoom)) {
-                          dots.add(eventTypeColor(CalendarEventType.conferenceRoom));
-                        }
+                            if (index < startWeekday) {
+                              final prevMonth = DateTime(
+                                visibleMonth.year,
+                                visibleMonth.month - 1,
+                                1,
+                              );
+                              final prevMonthDays = _daysInMonth(prevMonth);
+                              final day =
+                                  prevMonthDays - (startWeekday - index) + 1;
+                              currentDate = DateTime(
+                                prevMonth.year,
+                                prevMonth.month,
+                                day,
+                              );
+                              isOutOfMonth = true;
+                            } else if (index >= totalGridItems) {
+                              final day = index - totalGridItems + 1;
+                              final nextMonth = DateTime(
+                                visibleMonth.year,
+                                visibleMonth.month + 1,
+                                1,
+                              );
+                              currentDate = DateTime(
+                                nextMonth.year,
+                                nextMonth.month,
+                                day,
+                              );
+                              isOutOfMonth = true;
+                            } else {
+                              final day = index - startWeekday + 1;
+                              currentDate = DateTime(
+                                visibleMonth.year,
+                                visibleMonth.month,
+                                day,
+                              );
+                            }
+                            final isToday = _isSameDate(
+                              currentDate,
+                              DateTime.now(),
+                            );
+                            final isSelected = _isSameDate(
+                              currentDate,
+                              selectedDate,
+                            );
+                            final eventsForDay = _eventsForDate(currentDate);
+                            final dots = <Color>[];
+                            if (eventsForDay.any(
+                              (e) => e.type == CalendarEventType.task,
+                            )) {
+                              dots.add(eventTypeColor(CalendarEventType.task));
+                            }
+                            if (eventsForDay.any(
+                              (e) => e.type == CalendarEventType.meeting,
+                            )) {
+                              dots.add(
+                                eventTypeColor(CalendarEventType.meeting),
+                              );
+                            }
+                            if (eventsForDay.any(
+                              (e) => e.type == CalendarEventType.conferenceRoom,
+                            )) {
+                              dots.add(
+                                eventTypeColor(
+                                  CalendarEventType.conferenceRoom,
+                                ),
+                              );
+                            }
 
-                        return GestureDetector(
-                          onTap: () => _onDateSelected(currentDate),
-                          child: _DayCell(
-                            day: currentDate.day,
-                            isToday: isToday,
-                            isSelected: isSelected,
-                            isOutOfMonth: isOutOfMonth,
-                            dots: dots,
-                          ),
+                            return GestureDetector(
+                              onTap: () => _onDateSelected(currentDate),
+                              child: _DayCell(
+                                day: currentDate.day,
+                                isToday: isToday,
+                                isSelected: isSelected,
+                                isOutOfMonth: isOutOfMonth,
+                                dots: dots,
+                              ),
+                            );
+                          },
                         );
                       },
-                    );
-                  },
+                    ),
+                  ],
                 ),
               ),
+              verticalSpacing(height: 20),
+              CustomButton.add(onPressed: () {
+                goRouter.pushNamed(AppRoutes.addDetailsCalendar);
+              }),
             ],
           ),
         ),
@@ -357,9 +366,10 @@ class _DayCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bgColor = isSelected ? AppColor.mediumBlue : Colors.transparent;
-    final textColor = isOutOfMonth
-        ? AppColor.grey
-        : isSelected
+    final textColor =
+        isOutOfMonth
+            ? AppColor.grey
+            : isSelected
             ? Colors.white
             : Colors.black87;
 
@@ -377,10 +387,7 @@ class _DayCell extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            '$day',
-            style: AppTextStyle.ts12M(color: textColor),
-          ),
+          Text('$day', style: AppTextStyle.ts12M(color: textColor)),
           if (dots.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 6),

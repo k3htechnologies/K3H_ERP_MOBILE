@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
@@ -11,14 +12,21 @@ import 'package:k3h_erp_app/core/presentation/cubit/main_screen_cubit.dart';
 import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/core/presentation/pages/no_authorised_screen.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/calendar/presentation/pages/add_event_details_screen.dart';
 import 'package:k3h_erp_app/features/calendar/presentation/pages/calendar_screen.dart';
 import 'package:k3h_erp_app/features/calendar/presentation/pages/calendar_date_detail_screen.dart';
 import 'package:k3h_erp_app/features/calendar/data/models/calendar_event.dart'
     as calendar_models;
 import 'package:k3h_erp_app/features/dashboard/dashboard_screen.dart';
+import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_screen.dart';
+import 'package:k3h_erp_app/features/login/presentation/pages/login_screen.dart';
 import 'package:k3h_erp_app/features/login/presentation/pages/otp_screen.dart';
 import 'package:k3h_erp_app/features/login/presentation/pages/project_list_screen.dart';
 import 'package:k3h_erp_app/features/login/presentation/pages/splash_screen.dart';
+import 'package:k3h_erp_app/features/marketing/content/presentation/cubit/content_document/content_document_cubit.dart';
+import 'package:k3h_erp_app/features/marketing/content/presentation/cubit/content_folder/content_folder_cubit.dart';
+import 'package:k3h_erp_app/features/marketing/content/presentation/pages/content_document_screen.dart';
+import 'package:k3h_erp_app/features/marketing/content/presentation/pages/content_folder_screen.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/cubit/company_master/company_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/cubit/company_master_add/company_master_add_cubit.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/add_company_master_screen.dart';
@@ -32,9 +40,14 @@ import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_form.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_view_details_screen.dart';
+import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_file/approved_bank_file_cubit.dart';
+import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder/approved_bank_folder_cubit.dart';
+import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_file_screen.dart';
+import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_folder_screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 
 String? authenticateAndAuthorizeRoute(GoRouterState state) {
   // SPLASH || LOGIN
@@ -45,12 +58,12 @@ String? authenticateAndAuthorizeRoute(GoRouterState state) {
     return null;
   }
   // AUTHENTICATION
-  // final localStorage = LocalStorageManager();
-  // final menuData = localStorage.getString(StorageKey.menu);
-  // final bool isLoggedIn = menuData != null;
-  // if (!isLoggedIn) {
-  //   return AppRoutes.login;
-  // }
+  final localStorage = LocalStorageManager();
+  final menuData = localStorage.getString(StorageKey.menu);
+  final bool isLoggedIn = menuData != null;
+  if (!isLoggedIn) {
+    return AppRoutes.login;
+  }
   // AUTHORIZATION
   AuthorizationModel? routeAuthorizationModel =
       Authorization.routeAuthorizationMap[state.uri.path];
@@ -91,8 +104,8 @@ final GoRouter goRouter = GoRouter(
       path: AppRoutes.login,
       name: AppRoutes.login,
       builder: (context, state) {
-        // return const LoginScreen();
-        return const TestScreen();
+        return const LoginScreen();
+        // return const TestScreen();
       },
     ),
     // OTP SCREEN
@@ -208,7 +221,7 @@ final GoRouter goRouter = GoRouter(
             );
           },
         ),
-        // DEPARTMENT MASTER
+        // DESIGNATION MASTER
         GoRoute(
           name: AppRoutes.designationMaster,
           path: AppRoutes.designationMaster,
@@ -275,14 +288,6 @@ final GoRouter goRouter = GoRouter(
             );
           },
         ),
-        // CALENDAR
-        GoRoute(
-          path: AppRoutes.calendar,
-          name: AppRoutes.calendar,
-          builder: (context, state) {
-            return CalendarScreen();
-          },
-        ),
         GoRoute(
           path: AppRoutes.calendarDetail,
           name: AppRoutes.calendarDetail,
@@ -296,31 +301,130 @@ final GoRouter goRouter = GoRouter(
             }
 
             try {
-              final decrypted =
-                  EncryptionManager.decryptData(Uri.decodeComponent(payload));
+              final decrypted = EncryptionManager.decryptData(
+                Uri.decodeComponent(payload),
+              );
               final data = jsonDecode(decrypted) as Map<String, dynamic>;
               final dateString = data['date'] as String? ?? '';
               final date = DateTime.tryParse(dateString) ?? DateTime.now();
 
               final eventsJson = (data['events'] as List<dynamic>? ?? []);
-              final events = eventsJson
-                  .map(
-                    (e) => calendar_models.CalendarEvent.fromJson(
-                      Map<String, dynamic>.from(e as Map),
-                    ),
-                  )
-                  .toList();
+              final events =
+                  eventsJson
+                      .map(
+                        (e) => calendar_models.CalendarEvent.fromJson(
+                          Map<String, dynamic>.from(e as Map),
+                        ),
+                      )
+                      .toList();
 
-              return CalendarDateDetailScreen(
-                date: date,
-                events: events,
-              );
+              return CalendarDateDetailScreen(date: date, events: events);
             } catch (_) {
               return CalendarDateDetailScreen(
                 date: DateTime.now(),
                 events: const [],
               );
             }
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.addDetailsCalendar,
+          name: AppRoutes.addDetailsCalendar,
+          builder: (context, state) {
+            return AddEventDetailsScreen();
+          },
+        ),
+        // CALENDAR
+        GoRoute(
+          path: AppRoutes.calendar,
+          name: AppRoutes.calendar,
+          builder: (context, state) {
+            return CalendarScreen();
+          },
+        ),
+        // MARKETING CONTENT DOCUMENT
+        GoRoute(
+          path: AppRoutes.content,
+          name: AppRoutes.content,
+          builder: (context, state) {
+            return BlocProvider(
+              create: (_) => ContentFolderCubit(),
+              child: ContentFolderScreen(),
+            );
+          },
+          routes: [
+            GoRoute(
+              parentNavigatorKey: navigatorKey,
+              name: AppRoutes.contentDocument,
+              path: AppRoutes.contentDocument,
+              builder: (context, state) {
+                final queryParameterMarketingContentFolderId =
+                    state.uri.queryParameters['marketingContentFolderId'];
+
+                if (queryParameterMarketingContentFolderId != null) {
+                  final decodedJson = jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(
+                        queryParameterMarketingContentFolderId,
+                      ),
+                    ),
+                  );
+
+                  return BlocProvider(
+                    create: (_) => ContentDocumentCubit(),
+                    child: ContentDocumentScreen(
+                      marketingContentFolderId: decodedJson,
+                    ),
+                  );
+                }
+                return TestScreen();
+              },
+            ),
+          ],
+        ),
+        // PROJECT MANAGEMENT APPROVED BANK
+        GoRoute(
+          path: AppRoutes.approvedBank,
+          name: AppRoutes.approvedBank,
+          builder: (context, state) {
+            return BlocProvider(
+              create: (context) => ApprovedBankFolderCubit(),
+              child: ApprovedBankFolderMobileScreen(),
+            );
+          },
+          routes: [
+            GoRoute(
+              parentNavigatorKey: navigatorKey,
+              name: AppRoutes.approvedBankFile,
+              path: AppRoutes.approvedBankFile,
+              builder: (context, state) {
+                final queryParameter =
+                    state.uri.queryParameters['approvedBankFolderId'];
+                if (queryParameter == null) {
+                  return TestScreen();
+                }
+
+                final decodedJsonApprovedBankFolderId = jsonDecode(
+                  EncryptionManager.decryptData(
+                    Uri.decodeQueryComponent(queryParameter),
+                  ),
+                );
+                return BlocProvider(
+                  create: (context) => ApprovedBankFileCubit(),
+                  child: ApprovedBankFieScreen(
+                    approvedBankFolderId: decodedJsonApprovedBankFolderId,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+        // INVENTORY
+        GoRoute(
+          path: AppRoutes.inventory,
+          name: AppRoutes.inventory,
+          builder: (context, state) {
+            return InventoryScreen();
           },
         ),
       ],

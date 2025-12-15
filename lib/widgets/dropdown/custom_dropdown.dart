@@ -6,12 +6,14 @@ import 'package:animated_custom_dropdown/custom_dropdown.dart';
 class CustomDropDownWidget extends StatelessWidget {
   final List<Map<String, dynamic>> dataList;
   final Function(Map<String, dynamic>) onSelected;
+  final bool? isRequired;
   final String? title;
   final String? Function(Map<String, dynamic>?)? validator;
   final Map<String, dynamic>? initialValue;
   const CustomDropDownWidget({
     super.key,
     required this.dataList,
+    this.isRequired=false,
     required this.onSelected,
     this.title,
     this.validator,
@@ -25,11 +27,16 @@ class CustomDropDownWidget extends StatelessWidget {
       spacing: 4,
       children: [
         if (title != null)
-          Text(
-            title!,
-            style: AppTextStyle.ts14R(),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
+          Row(
+            children: [
+              Text(
+                title!,
+                style: AppTextStyle.ts14R(),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+              isRequired==true? Text("*",style: AppTextStyle.ts14R(color: AppColor.error),):SizedBox()
+            ],
           ),
         FormField<Map<String, dynamic>>(
           validator: validator,

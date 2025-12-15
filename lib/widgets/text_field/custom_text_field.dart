@@ -24,7 +24,7 @@ class CustomTextField extends StatelessWidget {
   const CustomTextField({
     super.key,
     required this.textController,
-    this.isRequired=false,
+    this.isRequired = false,
     this.hint,
     this.title,
     this.keyboardType,
@@ -43,85 +43,107 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (title != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: Row(
-              children: [
-                Text(
-                  title!,
-                  style: AppTextStyle.ts14R(color: readOnly ? AppColor.grey : null),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                isRequired==true? Text("*",style: AppTextStyle.ts14R(color: AppColor.error),):SizedBox()
-              ],
-            )
-          ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 14.0),
-          child: TextFormField(
-            controller: textController,
-            keyboardType: keyboardType,
-            inputFormatters: inputFormatterList,
-            obscureText: obscureText,
-            readOnly: readOnly,
-            minLines: minLines,
-            maxLines: maxLines,
-            cursorColor: AppColor.primary,
-            textInputAction: TextInputAction.newline,
-            focusNode: focusNode,
-            style:
-            readOnly
-                ? AppTextStyle.ts14R().copyWith(color: AppColor.grey)
-                : AppTextStyle.ts14R(),
-            onChanged: onChangeFunction,
-            onTapOutside: (event) {
-              FocusScope.of(context).unfocus();
-            },
-            onFieldSubmitted: onSubmitFunction,
-            validator: validator,
-            decoration: InputDecoration(
-              isDense: true,
-              counterText: '',
-              hintText: hint ?? "",
-              hintStyle: AppTextStyle.ts14R().copyWith(color: AppColor.grey),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 10.0,
-                vertical: 14.0,
-              ),
-              prefixIcon: prefixWidget,
-              suffixIcon: suffixWidget,
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6.0),
-                borderSide: const BorderSide(
-                  color: AppColor.primary,
-                  width: 1.0,
+    return FormField<String>(
+      validator: validator,
+      initialValue: textController.text,
+      builder: (FormFieldState<String> formFieldState) {
+        final hasError = formFieldState.hasError;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (title != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    Text(
+                      title!,
+                      style: AppTextStyle.ts14R(
+                        color: readOnly ? AppColor.grey : null,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    isRequired == true
+                        ? Text("*", style: AppTextStyle.ts14R(color: AppColor.error))
+                        : SizedBox(),
+                  ],
                 ),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6.0),
-                borderSide: BorderSide(color: AppColor.grey30, width: 1.0),
-              ),
-              disabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6.0),
-                borderSide: BorderSide(color: AppColor.grey30, width: 1.0),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6.0),
-                borderSide: BorderSide(color: AppColor.error, width: 1.0),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6.0),
-                borderSide: BorderSide(color: AppColor.error, width: 1.0),
+
+            Padding(
+              padding: EdgeInsets.only(bottom:  2.0),
+              child: TextFormField(
+                controller: textController,
+                keyboardType: keyboardType,
+                inputFormatters: inputFormatterList,
+                obscureText: obscureText,
+                readOnly: readOnly,
+                minLines: minLines,
+                maxLines: maxLines,
+                cursorColor: AppColor.primary,
+                focusNode: focusNode,
+                style: readOnly
+                    ? AppTextStyle.ts14R().copyWith(color: AppColor.grey)
+                    : AppTextStyle.ts14R(),
+                onChanged: (value) {
+                  formFieldState.didChange(value); // IMPORTANT
+                  onChangeFunction?.call(value);
+                },
+                onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                onFieldSubmitted: onSubmitFunction,
+                decoration: InputDecoration(
+                  isDense: true,
+                  counterText: '',
+                  hintText: hint ?? "",
+                  hintStyle: AppTextStyle.ts14R().copyWith(color: AppColor.grey),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 10.0,
+                    vertical: 14.0,
+                  ),
+                  prefixIcon: prefixWidget,
+                  suffixIcon: suffixWidget,
+
+                  // 🔥 APPLY hasError HERE
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6.0),
+                    borderSide: BorderSide(
+                      color: hasError ? AppColor.error : AppColor.grey30,
+                      width: 1.0,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6.0),
+                    borderSide: BorderSide(
+                      color: hasError ? AppColor.error : AppColor.primary,
+                      width: 1.0,
+                    ),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6.0),
+                    borderSide: BorderSide(color: AppColor.error, width: 1.0),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6.0),
+                    borderSide: BorderSide(color: AppColor.error, width: 1.0),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+
+            // 🔥 SHOW ERROR TEXT (WITHOUT REMOVING ANYTHING ELSE)
+            hasError?
+              Padding(
+                padding: const EdgeInsets.only(top: 2, left: 12),
+                child: Text(
+                  formFieldState.errorText ?? "",
+                  style: AppTextStyle.ts12R(color: AppColor.error),
+                ),
+              ) : const SizedBox(height: 18),
+          ],
+        );
+      },
     );
   }
 }

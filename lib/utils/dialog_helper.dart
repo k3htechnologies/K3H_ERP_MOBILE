@@ -289,7 +289,6 @@ class DialogHelper{
         width: getActualWidth(context),
         height: getActualHeight(context) * 0.50,
         decoration: BoxDecoration(
-          color: AppColor.bottomSheetBackground,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(20.0),
             topRight: Radius.circular(20.0),
@@ -298,34 +297,27 @@ class DialogHelper{
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                InkWell(
-                  onTap: () {
-                    goRouter.pop();
-                  },
-                  child: Icon(
-                    Icons.keyboard_arrow_down_outlined,
-                    color: AppColor.black,
-                    size: 32.0,
-                  ),
-                ),
-              ],
+            Container(
+              alignment: Alignment.center,
+              margin: EdgeInsets.symmetric(vertical: 6),
+              height: 5,
+              width: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: AppColor.grey,
+              ),
             ),
-            Padding(
+            Container(
+              margin: const EdgeInsets.only(top: 10),
               padding: const EdgeInsets.only(bottom: 16),
               child: Align(
                 alignment: Alignment.center,
-                child: Text(title, style: AppTextStyle.ts16R()),
+                child: Text(title, style: AppTextStyle.ts16SB()),
               ),
             ),
-
+            Divider(color: AppColor.grey,thickness: .3,),
             Expanded(
-              child: ColoredBox(
-                color: AppColor.greyBackground,
-                child: contentWidget,
-              ),
+              child: contentWidget,
             ),
             verticalSpacing(height: 10.0),
           ],

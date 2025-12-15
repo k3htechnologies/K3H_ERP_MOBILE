@@ -154,5 +154,6 @@ class AppRoutes {
   // CALENDAR
   static String calendar = "/calendar";
   static String calendarDetail = "/calendarDetail";
+  static String addDetailsCalendar = "/addDetailsCalendar";
 
 }

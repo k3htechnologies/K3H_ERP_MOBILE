@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/features/calendar/data/models/calendar_event.dart';
-import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CalendarDateDetailScreen extends StatefulWidget {
@@ -22,7 +22,6 @@ class CalendarDateDetailScreen extends StatefulWidget {
 }
 
 class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
-  static const double _slotExtent = 96.0;
 
   late DateTime _currentDate;
   late List<CalendarEvent> _currentEvents;
@@ -105,6 +104,30 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
     }
   }
 
+  // void _scrollToCurrentTime() {
+  //   if (!_scrollController.hasClients) {
+  //     WidgetsBinding.instance.addPostFrameCallback((_) {
+  //       _scrollToCurrentTime();
+  //     });
+  //     return;
+  //   }
+  //   final slots = _timeSlots();
+  //   final nowHour = DateTime.now().hour.clamp(0, 23);
+  //   final targetIndex = slots.indexOf(nowHour);
+  //   if (targetIndex == 0 || targetIndex >= _slotKeys.length) return;
+  //
+  //   final paddingTop = 5.0;
+  //   final max = _scrollController.position.maxScrollExtent;
+  //   double offset = paddingTop + targetIndex * _slotExtent;
+  //   offset = offset.clamp(0.0, max);
+  //
+  //   _scrollController.animateTo(
+  //     offset,
+  //     duration: const Duration(milliseconds: 800),
+  //     curve: Curves.easeOutCubic,
+  //   );
+  // }
+
   void _scrollToCurrentTime() {
     if (!_scrollController.hasClients) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -112,15 +135,28 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
       });
       return;
     }
-    final slots = _timeSlots();
-    final nowHour = DateTime.now().hour.clamp(0, 23);
-    final targetIndex = slots.indexOf(nowHour - 3);
-    if (targetIndex == -1 || targetIndex >= _slotKeys.length) return;
 
-    final paddingTop = 5.0;
+    final nowHour = DateTime.now().hour-2;
+    if (nowHour < 0 || nowHour >= _slotKeys.length) return;
+
+    final ctx = _slotKeys[nowHour].currentContext;
+    if (ctx == null) return;
+
+    // The list view’s render box
+    final listBox = _scrollController.position.context.storageContext
+        .findRenderObject() as RenderBox;
+
+    // The item’s render box
+    final itemBox = ctx.findRenderObject() as RenderBox;
+
+    // Position of item relative to LIST, not the screen
+    final itemOffset = itemBox.localToGlobal(Offset.zero, ancestor: listBox).dy;
+
+    // Current scroll offset + item’s position in the list
+    final targetOffset = _scrollController.offset + itemOffset - 20; // small padding
+
     final max = _scrollController.position.maxScrollExtent;
-    double offset = paddingTop + targetIndex * _slotExtent;
-    offset = offset.clamp(0.0, max);
+    final offset = targetOffset.clamp(0.0, max);
 
     _scrollController.animateTo(
       offset,
@@ -145,16 +181,7 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        leading: GestureDetector(
-          onTap: () {
-            goRouter.pop();
-          },
-          child: Icon(Icons.arrow_back),
-        ),
-        centerTitle: true,
-        title: Text("Details",style: AppTextStyle.ts16SB()),
-      ),
+      appBar: CustomAppBarWithBackButton(screenTitle: "Details"),
       body: Column(
         children: [
           Row(

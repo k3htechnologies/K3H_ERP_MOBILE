@@ -177,7 +177,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                   padding: const EdgeInsets.only(left: 12.0, top: 4.0),
                   child: Text(
                     formFieldState.errorText ?? '',
-                    style: AppTextStyle.ts14R(color: AppColor.error),
+                    style: AppTextStyle.ts12R(color: AppColor.error),
                   ),
                 )
                     : const SizedBox(height: 18),

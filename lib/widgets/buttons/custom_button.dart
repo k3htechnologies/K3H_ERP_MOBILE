@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide BoxDecoration, BoxShadow;
 import 'package:flutter_inset_shadow/flutter_inset_shadow.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -71,7 +72,7 @@ class CustomButton extends StatelessWidget {
             children: [
               if (leading != null) ...[
                 leading!,
-                const SizedBox(width: 6),
+                horizontalSpacing(width: 6),
               ],
               Flexible(
                 child: Text(
