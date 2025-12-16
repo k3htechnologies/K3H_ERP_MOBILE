@@ -152,8 +152,14 @@ class AppRoutes {
   static String salesTarget = "/target";
 
   // CALENDAR
-  static String calendar = "/calendar";
+  static String calendar = "/event";
   static String calendarDetail = "/calendarDetail";
   static String addDetailsCalendar = "/addDetailsCalendar";
+
+  // MENU
+  static String menu = "/menu";
+
+  // PROFILE
+  static String profile = "/profile";
 
 }

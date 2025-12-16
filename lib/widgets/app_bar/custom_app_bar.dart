@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
-import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String screenTitle;
@@ -67,19 +65,44 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
   @override
   Widget build(BuildContext context) {
     isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final currentPath = GoRouterState.of(context).uri.toString();
+
+    final rootScreens = [
+      AppRoutes.dashboardScreen,
+      AppRoutes.menu,
+      AppRoutes.profile,
+    ];
+    final isRootScreen = rootScreens.contains(currentPath);
+    final showMenuIcon = isRootScreen;
+
     return AppBar(
       toolbarHeight: widget.preferredSize.height,
       title: Column(
         spacing: 15.0,
         children: [
           Row(
+            spacing: 10,
             children: [
               InkWell(
                 onTap: () {
-                  mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
+                  if (showMenuIcon) {
+                    // Navigate to menu screen
+                    if (currentPath != AppRoutes.menu) {
+                      goRouter.pushNamed(AppRoutes.menu);
+                    }
+                  } else {
+                    // Navigate back to menu screen instead of pop
+                    // This ensures we can always go back to menu from feature screens
+                    if (goRouter.canPop()) {
+                      goRouter.pop();
+                    } else {
+                      // If can't pop (because go() was used), navigate to menu
+                      goRouter.goNamed(AppRoutes.menu);
+                    }
+                  }
                 },
                 child: Icon(
-                  Icons.menu,
+                  showMenuIcon ? Icons.menu : Icons.arrow_back,
                   color: isDarkMode ? AppColor.white : AppColor.black,
                   size: 24.0,
                 ),
@@ -90,69 +113,15 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                   style: AppTextStyle.ts16R().copyWith(
                     color: isDarkMode ? AppColor.white : AppColor.black,
                   ),
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.start,
                 ),
               ),
-              GestureDetector(
-                onTap: () {
-                  goRouter.pushNamed(AppRoutes.notificationScreenMobile);
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 5),
-                  child: SvgPicture.asset(
-                    AppAssets.notificationIcon,
-                    height: 24,
-                    colorFilter: ColorFilter.mode(
-                      isDarkMode ? AppColor.white : AppColor.black,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                ),
-              ),
-              widget.authorization.isAction && widget.onExportCallback != null
-                  ? InkWell(
-                    onTap: () {
-                      final RenderBox box =
-                          context.findRenderObject() as RenderBox;
-                      final Offset position = box.localToGlobal(Offset.zero);
-                      CustomOverlayMenu.show(
-                        width: 200,
-                        context: context,
-                        position: Offset(position.dx + 10, position.dy + 100),
-                        items: [
-                          AddImportExportOverlayMenuItem(
-                            icon: Icons.file_download_outlined,
-                            iconColor: AppColor.primary,
-                            label: 'Export Excel',
-                            value: 'EXCEL',
-                            onTap: (val) {
-                              widget.onExportCallback!(val);
-                            },
-                          ),
-                          AddImportExportOverlayMenuItem(
-                            icon: Icons.file_download_outlined,
-                            iconColor: AppColor.primary,
-                            label: 'Export PDF',
-                            value: 'PDF',
-                            onTap: (val) {
-                              widget.onExportCallback!(val);
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                    child: Icon(
-                      Icons.more_vert,
-                      color: isDarkMode ? AppColor.white : AppColor.black,
-                    ),
-                  )
-                  : Container(),
             ],
           ),
           Row(
-            spacing: 10.0,
             children: [
-              Expanded(
+              Flexible(
+                flex: 5,
                 child:
                     widget.onSearchSubmit == null
                         ? Container()
@@ -161,9 +130,70 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                           textController: widget.textController!,
                         ),
               ),
-              Expanded(
-                child:
-                    widget.sortOptionList == null
+              Spacer(),
+              Flexible(
+                flex: 2,
+                child: Row(
+                  spacing: 10,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    widget.authorization.isAction &&
+                            widget.onAddCallback != null
+                        ? CustomIconButton(
+                          onPressed: () {
+                            widget.onAddCallback!();
+                          },
+                          icon: Icons.add,
+                          backgroundColor: AppColor.lightGreen,
+                          iconColor: AppColor.darkGreen,
+                        )
+                        : Container(),
+                    widget.authorization.isAction &&
+                            widget.onExportCallback != null
+                        ? CustomIconButton(
+                          onPressed: () {
+                            final RenderBox box =
+                                context.findRenderObject() as RenderBox;
+                            final Offset position = box.localToGlobal(
+                              Offset.zero,
+                            );
+                            CustomOverlayMenu.show(
+                              width: 180,
+                              context: context,
+                              position: Offset(
+                                position.dx + 10,
+                                position.dy + 100,
+                              ),
+                              items: [
+                                AddImportExportOverlayMenuItem(
+                                  icon: Icons.file_download_outlined,
+                                  iconColor: AppColor.primary,
+                                  label: 'Export Excel',
+                                  value: 'EXCEL',
+                                  onTap: (val) {
+                                    widget.onExportCallback!(val);
+                                  },
+                                ),
+                                AddImportExportOverlayMenuItem(
+                                  icon: Icons.file_download_outlined,
+                                  iconColor: AppColor.primary,
+                                  label: 'Export PDF',
+                                  value: 'PDF',
+                                  onTap: (val) {
+                                    widget.onExportCallback!(val);
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                          icon: Icons.file_download,
+                          backgroundColor: AppColor.lightRed,
+                          iconColor: AppColor.error,
+                        )
+                        : Container(),
+                  ],
+                ),
+                /*widget.sortOptionList == null
                         ? Container()
                         : StatefulBuilder(
                           builder: (context, localSetState) {
@@ -265,7 +295,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                               ),
                             );
                           },
-                        ),
+                        ),*/
               ),
             ],
           ),

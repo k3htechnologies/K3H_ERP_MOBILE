@@ -14,7 +14,7 @@ class CustomIconButton extends StatelessWidget {
     required this.icon,
     this.iconColor=AppColor.primary,
     this.backgroundColor=AppColor.lightBlue,
-    this.size=24,
+    this.size=16,
   });
 
   @override
@@ -26,8 +26,8 @@ class CustomIconButton extends StatelessWidget {
           color: backgroundColor,
           borderRadius: BorderRadius.circular(8),
         ),
-        padding: EdgeInsets.all(8),
-        child: Icon(icon,color: iconColor,),
+        padding: EdgeInsets.all(6),
+        child: Icon(icon,color: iconColor,size: size,),
       ),
     );
   }

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
@@ -111,10 +110,7 @@ class LoginCubit extends Cubit<LoginState> {
           localStorage.setString(StorageKey.menu, jsonEncode(user.moduleData));
 
           // UPDATE ROUTE AUTH
-          await compute(
-                (_) => updateRouteAuthorization(user.moduleData),
-            "",
-          );
+          await updateRouteAuthorization(user.moduleData);
 
           goRouter.go(AppRoutes.dashboardScreen);
         }

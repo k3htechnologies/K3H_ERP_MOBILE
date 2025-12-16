@@ -3,7 +3,6 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-
 class CustomModuleTile extends StatefulWidget {
   final String title;
   final String imagePath;
@@ -39,62 +38,77 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
         highlightColor: Colors.transparent,
         hoverColor: Colors.transparent,
       ),
-      child: ListTileTheme(
-        minLeadingWidth: 0,
-        minVerticalPadding: 0,
-        child:
-            hasItems
-                ? ExpansionTile(
-                  collapsedIconColor: AppColor.black,
-                  iconColor: AppColor.black,
-                  minTileHeight: 30,
-                  initiallyExpanded: widget.isExpanded,
-                  childrenPadding: const EdgeInsets.only(left: 15.0),
-                  title: Row(
-                    children: [
-                      Image.asset(widget.imagePath, height: 20),
-                      horizontalSpacing(),
-                      Expanded(
-                        child: Text(
-                          widget.title,
-                          style: AppTextStyle.ts16SB(
-                            color:
-                                widget.isActive
-                                    ? AppColor.slightDarkBlue
-                                    : AppColor.black,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+      child: Column(
+        children: [
+          hasItems
+              ? ExpansionTile(
+                collapsedIconColor: AppColor.black,
+                iconColor: AppColor.black,
+                minTileHeight: 30,
+                initiallyExpanded: widget.isExpanded,
+                childrenPadding: const EdgeInsets.only(left: 15.0),
+
+                // ✅ keep these
+                shape: const Border(),
+                collapsedShape: const Border(),
+
+                title: Row(
+                  children: [
+                    Image.asset(widget.imagePath, height: 20),
+                    horizontalSpacing(),
+                    Expanded(
+                      child: Text(
+                        widget.title,
+                        style: AppTextStyle.ts16SB(
+                          color:
+                              widget.isActive
+                                  ? AppColor.slightDarkBlue
+                                  : AppColor.black,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                  ),
-                  children: widget.items!,
-                )
-                : ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-                  minTileHeight: 30,
-                  title: Row(
-                    children: [
-                      Image.asset(widget.imagePath, height: 20),
-                      horizontalSpacing(),
-                      Expanded(
-                        child: Text(
-                          widget.title,
-                          style: AppTextStyle.ts16SB(
-                            color:
-                                widget.isActive
-                                    ? AppColor.slightDarkBlue
-                                    : AppColor.black,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  onTap: widget.onTapCallback,
+                    ),
+                  ],
                 ),
+                children: widget.items!,
+              )
+              : ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                minTileHeight: 30,
+                title: Row(
+                  children: [
+                    Image.asset(widget.imagePath, height: 20),
+                    horizontalSpacing(),
+                    Expanded(
+                      child: Text(
+                        widget.title,
+                        style: AppTextStyle.ts16SB(
+                          color:
+                              widget.isActive
+                                  ? AppColor.slightDarkBlue
+                                  : AppColor.black,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                onTap: widget.onTapCallback,
+              ),
+
+          // ✅ YOUR divider (single, clean, controlled)
+          if (!widget.isLast)
+            Padding(
+              padding: const EdgeInsets.only(left: 15),
+              child: Divider(
+                height: 1,
+                thickness: 1,
+                color: AppColor.slightDarkBlue.withValues(alpha: 0.3),
+              ),
+            ),
+        ],
       ),
     );
   }

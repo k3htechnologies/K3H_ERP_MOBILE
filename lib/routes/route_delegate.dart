@@ -15,6 +15,8 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/calendar/presentation/pages/add_event_details_screen.dart';
 import 'package:k3h_erp_app/features/calendar/presentation/pages/calendar_screen.dart';
 import 'package:k3h_erp_app/features/calendar/presentation/pages/calendar_date_detail_screen.dart';
+import 'package:k3h_erp_app/features/menu/presentation/pages/menu_screen.dart';
+import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:k3h_erp_app/features/calendar/data/models/calendar_event.dart'
     as calendar_models;
 import 'package:k3h_erp_app/features/dashboard/dashboard_screen.dart';
@@ -340,6 +342,22 @@ final GoRouter goRouter = GoRouter(
           name: AppRoutes.calendar,
           builder: (context, state) {
             return CalendarScreen();
+          },
+        ),
+        // MENU
+        GoRoute(
+          path: AppRoutes.menu,
+          name: AppRoutes.menu,
+          builder: (context, state) {
+            return const MenuScreen();
+          },
+        ),
+        // PROFILE
+        GoRoute(
+          path: AppRoutes.profile,
+          name: AppRoutes.profile,
+          builder: (context, state) {
+            return const ProfileScreen();
           },
         ),
         // MARKETING CONTENT DOCUMENT

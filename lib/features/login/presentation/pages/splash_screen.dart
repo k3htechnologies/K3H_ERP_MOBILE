@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
@@ -71,11 +70,8 @@ class _SplashMobileScreenState extends State<SplashScreen> {
               //         as List<ModuleActionPermissionModel>,
               //   ),
               // );
-              await compute(
-                    (_) => updateRouteAuthorization(
-                  data["menuData"] as List<ModuleModel>,
-                ),
-                "",
+              await updateRouteAuthorization(
+                data["menuData"] as List<ModuleModel>,
               );
               goRouter.goNamed(AppRoutes.dashboardScreen);
             },
