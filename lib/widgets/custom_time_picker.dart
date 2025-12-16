@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -33,13 +34,14 @@ class CustomTimePicker extends StatefulWidget {
 
 class _CustomTimePickerState extends State<CustomTimePicker> {
   TimeOfDay? time;
-  String? finalTime;
+  DateTime? selectedDateTime;
 
   @override
   void initState() {
     super.initState();
     time = widget.initialTime;
-    finalTime = time != null ? _formatTime(time!) : null;
+    selectedDateTime =
+    time != null ? _timeOfDayToDateTime(time!) : null;
   }
 
   @override
@@ -47,14 +49,20 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialTime != widget.initialTime) {
       time = widget.initialTime;
-      finalTime = time != null ? _formatTime(time!) : null;
+      selectedDateTime =
+      time != null ? _timeOfDayToDateTime(time!) : null;
     }
   }
 
-  String _formatTime(TimeOfDay time) {
-    final hour = time.hour.toString().padLeft(2, '0');
-    final minute = time.minute.toString().padLeft(2, '0');
-    return "$hour:$minute";
+  DateTime _timeOfDayToDateTime(TimeOfDay time) {
+    final now = DateTime.now();
+    return DateTime(
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    );
   }
 
   _showTimePicker(BuildContext context, FormFieldState<TimeOfDay> state) {
@@ -112,10 +120,14 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                     ),
                     onPressed: () {
                       Navigator.pop(context);
-                      widget.setValue(selected);
+
+                      final dateTime = _timeOfDayToDateTime(selected);
+
+                      widget.setValue(selected); // keep TimeOfDay if needed
+
                       setState(() {
                         time = selected;
-                        finalTime = _formatTime(selected);
+                        selectedDateTime = dateTime;
                         state.didChange(selected);
                       });
                     },
@@ -196,9 +208,11 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            finalTime ?? "HH:mm",
+                            selectedDateTime != null
+                                ? DateFormat('HH:mm').format(selectedDateTime!)
+                                : "HH:mm",
                             style: AppTextStyle.ts14R().copyWith(
-                              color: finalTime != null
+                              color: selectedDateTime != null
                                   ? AppColor.black
                                   : AppColor.grey,
                             ),

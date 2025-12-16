@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
@@ -15,6 +17,9 @@ class AddEventDetailsScreen extends StatefulWidget {
 }
 
 class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
+
+  late CalendarCubit _calendarCubit;
+
   // TEXT CONTROLLER
   late TextEditingController _titleC, _remarkC;
 
@@ -56,6 +61,7 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
   @override
   void initState() {
     super.initState();
+    _calendarCubit = context.read<CalendarCubit>();
     initialiseValue();
   }
 
@@ -101,102 +107,104 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                CustomDropDownWidget(
-                  title: "Select Type",
-                  initialValue: selectedType,
-                  isRequired: true,
-                  dataList: typeList,
-                  onSelected: (value) {
-                    selectedType = value;
-                  },
-                  validator: (value) {
-                    if (value == null || value["zAttributesId"] == "-1") {
-                      return "Select valid type";
-                    }
-                    return null;
-                  },
-                ),
-                CustomTextField(
-                  textController: _titleC,
-                  title: "Add Title",
-                  isRequired: true,
-                  hint: "Enter title",
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Enter valid title";
-                    }
-                    return null;
-                  },
-                ),
-                Row(
-                  spacing: 10,
-                  children: [
-                    Expanded(
-                      child: CustomDatePicker(
-                        initialDate: selectedDate,
-                        title: "Select Date",
-                        isRequired: true,
-                        hint: "DD/MM/YYYY",
-                        setValue: (value) {
-                          selectedDate = value;
-                        },
-                        validator: (value) {
-                          if (value == null) {
-                            return "Select valid date";
-                          }
-                          return null;
-                        },
+          child: StatefulBuilder(builder: (_,innerState){
+            return Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  CustomDropDownWidget(
+                    title: "Select Type",
+                    initialValue: selectedType,
+                    isRequired: true,
+                    dataList: typeList,
+                    onSelected: (value) {
+                      selectedType = value;
+                    },
+                    validator: (value) {
+                      if (value == null || value["zAttributesId"] == "-1") {
+                        return "Select valid type";
+                      }
+                      return null;
+                    },
+                  ),
+                  CustomTextField(
+                    textController: _titleC,
+                    title: "Add Title",
+                    isRequired: true,
+                    hint: "Enter title",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Enter valid title";
+                      }
+                      return null;
+                    },
+                  ),
+                  Row(
+                    spacing: 10,
+                    children: [
+                      Expanded(
+                        child: CustomDatePicker(
+                          initialDate: selectedDate,
+                          title: "Select Date",
+                          isRequired: true,
+                          hint: "DD/MM/YYYY",
+                          setValue: (value) {
+                            selectedDate = value;
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return "Select valid date";
+                            }
+                            return null;
+                          },
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: CustomTimePicker(
-                        title: "Start Time",
-                        isRequired: true,
-                        initialTime: selectedTime,
-                        setValue: (time) {
-                          selectedTime = time;
-                        },
-                        validator: (value) {
-                          if (value == null) {
-                            return "Select valid time";
-                          }
-                          return null;
-                        },
+                      Expanded(
+                        child: CustomTimePicker(
+                          title: "Start Time",
+                          isRequired: true,
+                          initialTime: selectedTime,
+                          setValue: (time) {
+                            selectedTime = time;
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return "Select valid time";
+                            }
+                            return null;
+                          },
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                CustomMultipleSelectPopup(
-                  title: "Select Members",
-                  initialValue: _selectedMembers,
-                  dataFetchCallBack: getEmployeeDropdownData,
-                  dataList: _dummyMembers,
-                  onSelected: (values) {
-                    _selectedMembers = values;
-                  },
-                ),
-                CustomDropDownWidget(
-                  title: "Select Room",
-                  initialValue: selectedRoom,
-                  dataList: roomList,
-                  onSelected: (value) {
-                    selectedRoom = value;
-                  },
-                ),
-                CustomTextField(
-                  textController: _remarkC,
-                  title: "Remark",
-                  hint: "Enter remark",
-                  minLines: 3,
-                  maxLines: 3,
-                ),
-              ],
-            ),
-          ),
+                    ],
+                  ),
+                  CustomMultipleSelectPopup(
+                    title: "Select Members",
+                    initialValue: _selectedMembers,
+                    dataFetchCallBack: _calendarCubit.getMembersList,
+                    dataList: [],
+                    onSelected: (values) {
+                      _selectedMembers = values;
+                    },
+                  ),
+                  CustomDropDownWidget(
+                    title: "Select Room",
+                    initialValue: selectedRoom,
+                    dataList: roomList,
+                    onSelected: (value) {
+                      selectedRoom = value;
+                    },
+                  ),
+                  CustomTextField(
+                    textController: _remarkC,
+                    title: "Remark",
+                    hint: "Enter remark",
+                    minLines: 3,
+                    maxLines: 3,
+                  ),
+                ],
+              ),
+            );
+          }),
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -204,7 +212,8 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: CustomButton.add(
             onPressed: () {
-              if (_formKey.currentState!.validate()) {}
+              if (_formKey.currentState!.validate()) {
+              }
             },
           ),
         ),

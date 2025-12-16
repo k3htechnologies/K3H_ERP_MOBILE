@@ -1,49 +1,94 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 
-enum CalendarEventType { task, meeting, conferenceRoom }
+CalendarEventModel calendarEventModelFromJson(String str) =>
+    CalendarEventModel.fromJson(json.decode(str));
 
-class CalendarEvent {
+String calendarEventModelToJson(CalendarEventModel data) =>
+    json.encode(data.toJson());
+
+class CalendarEventModel {
+  final int eventId;
+  final String uniquekey;
+  final String type;
   final String title;
   final DateTime date;
-  final TimeOfDay time;
-  final CalendarEventType type;
+  final DateTime time;
+  final String employeeId;
+  final String employeeFullName;
+  final String room;
+  final String documentUrl;
+  final String remarks;
+  final int createdById;
+  final String createdBy;
+  final DateTime createdDate;
+  final int modifiedById;
+  final String modifiedBy;
+  final dynamic modifiedDate;
 
-  const CalendarEvent({
+  CalendarEventModel({
+    required this.eventId,
+    required this.uniquekey,
+    required this.type,
     required this.title,
     required this.date,
     required this.time,
-    required this.type,
+    required this.employeeId,
+    required this.employeeFullName,
+    required this.room,
+    required this.documentUrl,
+    required this.remarks,
+    required this.createdById,
+    required this.createdBy,
+    required this.createdDate,
+    required this.modifiedById,
+    required this.modifiedBy,
+    required this.modifiedDate,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'title': title,
-      'date': date.toIso8601String(),
-      'time': '${time.hour}:${time.minute}',
-      'type': type.name,
-    };
-  }
-
-  factory CalendarEvent.fromJson(Map<String, dynamic> json) {
-    final date = DateTime.tryParse(json['date'] ?? '') ?? DateTime.now();
-    final timeString = json['time'] as String? ?? '0:0';
-    final timeParts = timeString.split(':');
-    final hour = int.tryParse(timeParts.elementAt(0)) ?? 0;
-    final minute = int.tryParse(timeParts.elementAt(1)) ?? 0;
-    final typeName = (json['type'] as String? ?? '').toLowerCase();
-    final type = CalendarEventType.values.firstWhere(
-      (t) => t.name.toLowerCase() == typeName,
-      orElse: () => CalendarEventType.task,
-    );
-
-    return CalendarEvent(
-      title: json['title'] as String? ?? '',
-      date: date,
-      time: TimeOfDay(hour: hour, minute: minute),
-      type: type,
+  factory CalendarEventModel.fromJson(Map<String, dynamic> json) {
+    return CalendarEventModel(
+      eventId: json["EventId"],
+      uniquekey: json["Uniquekey"],
+      type: json["Type"],
+      title: json["Title"],
+      date: DateTime.parse(json["Date"]),
+      time: DateTime.parse(json["Time"]),
+      employeeId: json["EmployeeId"],
+      employeeFullName: json["EmployeeFullName"],
+      room: json["Room"],
+      documentUrl: json["DocumentURL"],
+      remarks: json["Remarks"],
+      createdById: json["CreatedById"],
+      createdBy: json["CreatedBy"],
+      createdDate: DateTime.parse(json["CreatedDate"]),
+      modifiedById: json["ModifiedById"],
+      modifiedBy: json["ModifiedBy"],
+      modifiedDate: json["ModifiedDate"],
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    "EventId": eventId,
+    "Uniquekey": uniquekey,
+    "Type": type,
+    "Title": title,
+    "Date": date.toIso8601String(),
+    "Time": time.toIso8601String(),
+    "EmployeeId": employeeId,
+    "EmployeeFullName": employeeFullName,
+    "Room": room,
+    "DocumentURL": documentUrl,
+    "Remarks": remarks,
+    "CreatedById": createdById,
+    "CreatedBy": createdBy,
+    "CreatedDate": createdDate.toIso8601String(),
+    "ModifiedById": modifiedById,
+    "ModifiedBy": modifiedBy,
+    "ModifiedDate": modifiedDate,
+  };
 }
 
 Color eventTypeColor(CalendarEventType type) {
@@ -54,6 +99,25 @@ Color eventTypeColor(CalendarEventType type) {
       return AppColor.primary;
     case CalendarEventType.conferenceRoom:
       return AppColor.yellow;
+  }
+}
+
+enum CalendarEventType { task, meeting, conferenceRoom }
+
+extension CalendarEventTypeMapper on String {
+  CalendarEventType toCalendarEventType() {
+    switch (toLowerCase()) {
+      case 'task':
+        return CalendarEventType.task;
+      case 'meeting':
+        return CalendarEventType.meeting;
+      case 'conferenceroom':
+      case 'conference_room':
+      case 'conference room':
+        return CalendarEventType.conferenceRoom;
+      default:
+        return CalendarEventType.task;
+    }
   }
 }
 

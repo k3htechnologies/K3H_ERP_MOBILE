@@ -16,7 +16,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:k3h_erp_app/widgets/dropdown/custom_paginated_dropdown.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 
 class ApprovedBankFolderMobileScreen extends StatefulWidget {
   const ApprovedBankFolderMobileScreen({super.key});
@@ -38,52 +38,17 @@ class _ApprovedBankFolderMobileScreenState
   late ProjectModel _project;
 
   Future<Map<String, dynamic>?> _showBankSelectionPopup() async {
-    Map<String, dynamic>? selectedBank;
-
-    await showDialog<Map<String, dynamic>?>(
+    final result = await CustomMultipleSelectPopup.showBottomSheet(
       context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: Text('Select Bank', style: AppTextStyle.ts16M()),
-          content: SizedBox(
-            width: 420,
-            child: CustomPaginationDropDownWidget(
-              title: 'Bank Name',
-              dataList: const [],
-              initialValue: const {
-                "zAttributesId": -1,
-                "DisplayName": "Select Bank",
-              },
-              dataFetchCallBack: _approvedBankCubit.getBankList,
-              onSelected: (value) => selectedBank = value,
-              validator: (value) {
-                if (value == null || value["zAttributesId"] == -1) {
-                  return 'Please select a bank';
-                }
-                return null;
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (selectedBank != null &&
-                    selectedBank?["zAttributesId"] != -1) {
-                  Navigator.of(dialogContext).pop(selectedBank);
-                }
-              },
-              child: const Text('Add'),
-            ),
-          ],
-        );
-      },
+      title: 'Select Bank',
+      dataFetchCallBack: _approvedBankCubit.getBankList,
+      isMultiSelect: false,
     );
 
-    return selectedBank;
+    if (result != null && result.isNotEmpty) {
+      return result.first;
+    }
+    return null;
   }
 
   @override

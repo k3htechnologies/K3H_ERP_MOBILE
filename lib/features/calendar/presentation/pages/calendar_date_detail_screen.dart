@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/features/calendar/data/models/calendar_event.dart';
+import 'package:k3h_erp_app/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -8,7 +10,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CalendarDateDetailScreen extends StatefulWidget {
   final DateTime date;
-  final List<CalendarEvent> events;
+  final List<CalendarEventModel> events;
 
   const CalendarDateDetailScreen({
     super.key,
@@ -24,14 +26,18 @@ class CalendarDateDetailScreen extends StatefulWidget {
 class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
 
   late DateTime _currentDate;
-  late List<CalendarEvent> _currentEvents;
+  late List<CalendarEventModel> _currentEvents;
   bool _isLoading = false;
   List<GlobalKey> _slotKeys = [];
   final ScrollController _scrollController = ScrollController();
 
+  // CUBIT
+  late CalendarCubit _calendarCubit;
+
   @override
   void initState() {
     super.initState();
+    _calendarCubit = context.read<CalendarCubit>();
     _currentDate = widget.date;
     _currentEvents = _sorted(widget.events);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -39,8 +45,8 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
     });
   }
 
-  List<CalendarEvent> _sorted(List<CalendarEvent> list) {
-    final sorted = List<CalendarEvent>.from(list);
+  List<CalendarEventModel> _sorted(List<CalendarEventModel> list) {
+    final sorted = List<CalendarEventModel>.from(list);
     sorted.sort((a, b) {
       final aMinutes = a.time.hour * 60 + a.time.minute;
       final bMinutes = b.time.hour * 60 + b.time.minute;
@@ -49,13 +55,21 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
     return sorted;
   }
 
-  Future<List<CalendarEvent>> _fetchEventsForDate(DateTime date) async {
-    /// DO API CALL TO GET DATA DATE WISE
-    await Future.delayed(const Duration(milliseconds: 150));
+  Future<List<CalendarEventModel>> _fetchEventsForDate(DateTime date) async {
+    // If it's the initial date, return the events from widget
     if (_isSameDate(date, widget.date)) {
       return widget.events;
     }
-    return [];
+
+    // Fetch events for the specific date using separate API method
+    // This uses dateDetailEvents which is separate from the main events list
+    await _calendarCubit.getDateDetailEvents(
+      context: context,
+      date: date,
+    );
+    
+    // Return events from dateDetailEvents (separate from main events list)
+    return _calendarCubit.state.dateDetailEvents;
   }
 
   String _formatDate(DateTime date) {
@@ -80,7 +94,6 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
     });
     final fetched = await _fetchEventsForDate(targetDate);
     if (!mounted) return;
-    await Future.delayed(Duration(milliseconds: 1000));
     setState(() {
       _currentEvents = _sorted(fetched);
       _isLoading = false;
@@ -103,30 +116,6 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
       _slotKeys = List<GlobalKey>.generate(count, (_) => GlobalKey());
     }
   }
-
-  // void _scrollToCurrentTime() {
-  //   if (!_scrollController.hasClients) {
-  //     WidgetsBinding.instance.addPostFrameCallback((_) {
-  //       _scrollToCurrentTime();
-  //     });
-  //     return;
-  //   }
-  //   final slots = _timeSlots();
-  //   final nowHour = DateTime.now().hour.clamp(0, 23);
-  //   final targetIndex = slots.indexOf(nowHour);
-  //   if (targetIndex == 0 || targetIndex >= _slotKeys.length) return;
-  //
-  //   final paddingTop = 5.0;
-  //   final max = _scrollController.position.maxScrollExtent;
-  //   double offset = paddingTop + targetIndex * _slotExtent;
-  //   offset = offset.clamp(0.0, max);
-  //
-  //   _scrollController.animateTo(
-  //     offset,
-  //     duration: const Duration(milliseconds: 800),
-  //     curve: Curves.easeOutCubic,
-  //   );
-  // }
 
   void _scrollToCurrentTime() {
     if (!_scrollController.hasClients) {
@@ -175,7 +164,7 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
   Widget build(BuildContext context) {
     final slots = _timeSlots();
     _ensureSlotKeys(slots.length);
-    final eventsByHour = <int, List<CalendarEvent>>{};
+    final eventsByHour = <int, List<CalendarEventModel>>{};
     for (final e in _currentEvents) {
       eventsByHour.putIfAbsent(e.time.hour, () => []).add(e);
     }
@@ -270,12 +259,12 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
                                                               LinearGradient(
                                                                 colors: [
                                                                   eventTypeColor(
-                                                                    event.type,
+                                                                    event.type.toCalendarEventType(),
                                                                   ).withValues(
                                                                     alpha: 0.7,
                                                                   ),
                                                                   eventTypeColor(
-                                                                    event.type,
+                                                                    event.type.toCalendarEventType(),
                                                                   ).withValues(
                                                                     alpha: 0.4,
                                                                   ),
@@ -302,7 +291,7 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
                                                                   color:
                                                                       eventTypeColor(
                                                                         event
-                                                                            .type,
+                                                                            .type.toCalendarEventType(),
                                                                       ),
                                                                   borderRadius:
                                                                       BorderRadius.circular(
@@ -330,8 +319,7 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
                                                                     ),
                                                                     Text(
                                                                       _formatTime(
-                                                                        event
-                                                                            .time,
+                                                                        TimeOfDay.fromDateTime(event.time)
                                                                       ),
                                                                       style: AppTextStyle.ts12SB(
                                                                         color:
@@ -344,7 +332,6 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
                                                                     Text(
                                                                       event
                                                                           .type
-                                                                          .name
                                                                           .toUpperCase(),
                                                                       style: AppTextStyle.ts12SB(
                                                                         color:

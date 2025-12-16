@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/marketing/content/content.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 
+import 'feature_dependencies/calendar/calendar.dependencies.dart';
 import 'feature_dependencies/login/login.dependencies.dart';
 import 'feature_dependencies/masters/company_master_dependencies.dart';
 import 'feature_dependencies/masters/department_master.dependencies.dart';
@@ -28,4 +29,6 @@ void initDependencies() {
   registerContentDependencies(serviceLocator);
   // APPROVED BANK DEPENDENCIES
   registerApprovedBankDependencies(serviceLocator);
+  // CALENDAR DEPENDENCIES
+  registerCalendarDependencies(serviceLocator);
 }

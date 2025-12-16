@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/core/presentation/pages/no_authorised_screen.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/calendar/presentation/pages/add_event_details_screen.dart';
 import 'package:k3h_erp_app/features/calendar/presentation/pages/calendar_screen.dart';
+import 'package:k3h_erp_app/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:k3h_erp_app/features/calendar/presentation/pages/calendar_date_detail_screen.dart';
 import 'package:k3h_erp_app/features/menu/presentation/pages/menu_screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
@@ -290,59 +291,123 @@ final GoRouter goRouter = GoRouter(
             );
           },
         ),
-        GoRoute(
-          path: AppRoutes.calendarDetail,
-          name: AppRoutes.calendarDetail,
-          builder: (context, state) {
-            final payload = state.uri.queryParameters['data'];
-            if (payload == null || payload.isEmpty) {
-              return CalendarDateDetailScreen(
-                date: DateTime.now(),
-                events: const [],
-              );
-            }
-
-            try {
-              final decrypted = EncryptionManager.decryptData(
-                Uri.decodeComponent(payload),
-              );
-              final data = jsonDecode(decrypted) as Map<String, dynamic>;
-              final dateString = data['date'] as String? ?? '';
-              final date = DateTime.tryParse(dateString) ?? DateTime.now();
-
-              final eventsJson = (data['events'] as List<dynamic>? ?? []);
-              final events =
-                  eventsJson
-                      .map(
-                        (e) => calendar_models.CalendarEvent.fromJson(
-                          Map<String, dynamic>.from(e as Map),
-                        ),
-                      )
-                      .toList();
-
-              return CalendarDateDetailScreen(date: date, events: events);
-            } catch (_) {
-              return CalendarDateDetailScreen(
-                date: DateTime.now(),
-                events: const [],
-              );
-            }
-          },
-        ),
-        GoRoute(
-          path: AppRoutes.addDetailsCalendar,
-          name: AppRoutes.addDetailsCalendar,
-          builder: (context, state) {
-            return AddEventDetailsScreen();
-          },
-        ),
         // CALENDAR
-        GoRoute(
+       /* GoRoute(
           path: AppRoutes.calendar,
           name: AppRoutes.calendar,
           builder: (context, state) {
-            return CalendarScreen();
+            return BlocProvider(
+              create: (_) => CalendarCubit(),
+              child: const CalendarScreen(),
+            );
           },
+          routes: [
+            GoRoute(
+              path: AppRoutes.addDetailsCalendar,
+              name: AppRoutes.addDetailsCalendar,
+              builder: (context, state) {
+                return AddEventDetailsScreen();
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.calendarDetail,
+              name: AppRoutes.calendarDetail,
+              builder: (context, state) {
+                final payload = state.uri.queryParameters['data'];
+                if (payload == null || payload.isEmpty) {
+                  return CalendarDateDetailScreen(
+                    date: DateTime.now(),
+                    events: const [],
+                  );
+                }
+
+                try {
+                  final decrypted = EncryptionManager.decryptData(
+                    Uri.decodeComponent(payload),
+                  );
+                  final data = jsonDecode(decrypted) as Map<String, dynamic>;
+                  final dateString = data['date'] as String? ?? '';
+                  final date = DateTime.tryParse(dateString) ?? DateTime.now();
+
+                  final eventsJson = (data['events'] as List<dynamic>? ?? []);
+                  final events =
+                  eventsJson
+                      .map(
+                        (e) => calendar_models.CalendarEventModel.fromJson(
+                      Map<String, dynamic>.from(e as Map),
+                    ),
+                  )
+                      .toList();
+
+                  return CalendarDateDetailScreen(date: date, events: events);
+                } catch (_) {
+                  return CalendarDateDetailScreen(
+                    date: DateTime.now(),
+                    events: const [],
+                  );
+                }
+              },
+            ),
+          ]
+        ),*/
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => CalendarCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              path: AppRoutes.calendar,
+              name: AppRoutes.calendar,
+              builder: (context, state) => const CalendarScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.addDetailsCalendar,
+              name: AppRoutes.addDetailsCalendar,
+              builder: (context, state) => AddEventDetailsScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.calendarDetail,
+              name: AppRoutes.calendarDetail,
+              builder: (context, state) {
+                final payload = state.uri.queryParameters['data'];
+                if (payload == null || payload.isEmpty) {
+                  return CalendarDateDetailScreen(
+                    date: DateTime.now(),
+                    events: const [],
+                  );
+                }
+
+                try {
+                  final decrypted = EncryptionManager.decryptData(
+                    Uri.decodeComponent(payload),
+                  );
+                  final data = jsonDecode(decrypted) as Map<String, dynamic>;
+                  final dateString = data['date'] as String? ?? '';
+                  final date = DateTime.tryParse(dateString) ?? DateTime.now();
+
+                  final eventsJson = (data['events'] as List<dynamic>? ?? []);
+                  final events =
+                  eventsJson
+                      .map(
+                        (e) => calendar_models.CalendarEventModel.fromJson(
+                      Map<String, dynamic>.from(e as Map),
+                    ),
+                  )
+                      .toList();
+
+                  return CalendarDateDetailScreen(date: date, events: events);
+                } catch (_) {
+                  return CalendarDateDetailScreen(
+                    date: DateTime.now(),
+                    events: const [],
+                  );
+                }
+              },
+            ),
+          ],
         ),
         // MENU
         GoRoute(
