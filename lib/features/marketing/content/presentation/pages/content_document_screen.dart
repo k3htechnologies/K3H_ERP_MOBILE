@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/marketing/content/data/model/content_document.model.dart';
 import 'package:k3h_erp_app/features/marketing/content/presentation/cubit/content_document/content_document_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -259,7 +260,10 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.greyBackground,
-      appBar: CustomAppBarWithBackButton(screenTitle: 'Content Document'),
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: 'Content Document',
+        authorization: AuthorizationModel(),
+      ),
       body: BlocBuilder<ContentDocumentCubit, ContentDocumentState>(
         builder: (context, state) {
           return Column(

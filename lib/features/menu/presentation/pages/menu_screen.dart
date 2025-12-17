@@ -10,7 +10,7 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/side_drawer/side_drawer_modules/custom_module_tile.dart';
 import 'package:k3h_erp_app/widgets/side_drawer/side_drawer_modules/custom_sub_module_tile.dart';
 import 'package:k3h_erp_app/widgets/side_drawer/side_drawer_modules/custom_sub_sub_module_tile.dart';
@@ -46,7 +46,8 @@ UserModel? _getUser() {
 }
 
 void closeAllOverlays(BuildContext context) {
-  goRouter.pop();
+  CustomOverlayMenu.close();
+  SortOverlayMenu.close();
 }
 
 class MenuScreen extends StatelessWidget {
@@ -119,7 +120,7 @@ class MenuScreen extends StatelessWidget {
         title: sub.subModuleName,
         imagePath: sub.icon,
         onTapCallback: () {
-          goRouter.goNamed(sub.path);
+          goRouter.pushNamed(sub.path);
           closeAllOverlays(context);
         },
         isExpanded: false,
@@ -158,7 +159,7 @@ class MenuScreen extends StatelessWidget {
       title: subSub.subSubModuleName,
       iconData: subSub.icon,
       onTapFunction: () {
-        goRouter.goNamed(subSub.path);
+        goRouter.pushNamed(subSub.path);
         closeAllOverlays(context);
       },
       isLast: isLast,

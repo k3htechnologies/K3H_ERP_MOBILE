@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
@@ -36,18 +37,14 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildHeader(UserModel user, ProjectModel? project) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColor.primary.withValues(alpha: 0.1),
-      ),
+      decoration: BoxDecoration(color: AppColor.primary.withValues(alpha: 0.1)),
       child: Row(
         children: [
           CircleAvatar(
             radius: 40,
             backgroundColor: AppColor.primary,
             child: Text(
-              user.fullName.isNotEmpty
-                  ? user.fullName[0].toUpperCase()
-                  : 'U',
+              user.fullName.isNotEmpty ? user.fullName[0].toUpperCase() : 'U',
               style: AppTextStyle.ts24B(color: AppColor.white),
             ),
           ),
@@ -89,10 +86,7 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildSection(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Text(
-        title,
-        style: AppTextStyle.ts16SB(),
-      ),
+      child: Text(title, style: AppTextStyle.ts16SB()),
     );
   }
 
@@ -112,10 +106,7 @@ class ProfileScreen extends StatelessWidget {
         children: [
           SizedBox(
             width: 120,
-            child: Text(
-              label,
-              style: AppTextStyle.ts14R(color: AppColor.grey),
-            ),
+            child: Text(label, style: AppTextStyle.ts14R(color: AppColor.grey)),
           ),
           Expanded(
             child: Text(
@@ -171,15 +162,19 @@ class ProfileScreen extends StatelessWidget {
 
     if (user == null) {
       return Scaffold(
-        appBar: CustomAppBarWithBackButton(screenTitle: "Profile"),
-        body: const Center(
-          child: Text("No user information found"),
+        appBar: CustomAppBarWithBackButton(
+          screenTitle: "Profile",
+          authorization: AuthorizationModel(),
         ),
+        body: const Center(child: Text("No user information found")),
       );
     }
 
     return Scaffold(
-      appBar: CustomAppBarWithBackButton(screenTitle: "Profile"),
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: "Profile",
+        authorization: AuthorizationModel(),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,4 +230,3 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 }
-

@@ -1,11 +1,14 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/calendar/data/datasource/calendar.datasource.dart';
 import 'package:k3h_erp_app/features/calendar/data/models/calendar_event.dart';
 import 'package:k3h_erp_app/features/calendar/data/repository/calendar.repository.dart';
+import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
+import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -15,13 +18,18 @@ part 'calendar_state.dart';
 
 class CalendarCubit extends Cubit<CalendarState> {
   CalendarCubit()
-      : _calendarRepository = CalendarRepositoryImpl(
-          calendarDatasource: CalendarDatasourceImpl(),
-        ),
-        super(CalendarState.initial());
+    : _calendarRepository = CalendarRepositoryImpl(
+        calendarDatasource: CalendarDatasourceImpl(),
+      ),
+      super(CalendarState.initial());
 
+  // EMPLOYEE REPOSITORY
   EmployeeMasterRepository employeeMasterRepository =
-  serviceLocator<EmployeeMasterRepository>();
+      serviceLocator<EmployeeMasterRepository>();
+
+  // DEPARTMENT REPOSITORY
+  DepartmentMasterRepository departmentMasterRepository =
+      serviceLocator<DepartmentMasterRepository>();
 
   final CalendarRepository _calendarRepository;
 
@@ -48,7 +56,7 @@ class CalendarCubit extends Cubit<CalendarState> {
         emit(
           state.copyWith(
             isLoading: false,
-            events: List<CalendarEventModel>.from(response['data']),
+            eventsList: List<CalendarEventModel>.from(response['data']),
             totalNumberOfRecord: response['totalNumberOfRecord'] ?? 0,
           ),
         );
@@ -64,7 +72,7 @@ class CalendarCubit extends Cubit<CalendarState> {
     emit(state.copyWith(isLoadingDateDetail: true));
     final start = DateTime(date.year, date.month, date.day, 0, 0, 0);
     final end = DateTime(date.year, date.month, date.day, 23, 59, 59);
-    
+
     final result = await _calendarRepository.getEventList(
       fromDate: start.toIso8601String(),
       toDate: end.toIso8601String(),
@@ -86,17 +94,56 @@ class CalendarCubit extends Cubit<CalendarState> {
     );
   }
 
-  // ADD / UPDATE EVENT
- /* Future<void> addOrUpdateEvent({
+  // ADD EVENT
+  Future<void> addEvent({
     required BuildContext context,
     required String type,
     required String title,
-    required String date,
-    required String time,
+    required String projects,
+    required String departments,
+    required String members,
+    required String startDate,
+    required String deadlineDate,
+    required String startTime,
+    required String endTime,
+    required String room,
+    required String priority,
+    required String remark,
+    required MultiFilePickerModel document,
   }) async {
     DialogHelper.showProcessingOverlay(context);
+
+    Map<String, String> requestBody = {
+      "EventId": "0",
+      "Type": type,
+      "Title": title,
+      "Projects": projects,
+      "Departments": departments,
+      "Members": members,
+      "StartDate": startDate,
+      "DeadlineDate": deadlineDate,
+      "StartTime": startTime,
+      "EndTime": endTime,
+      "Room": room,
+      "Priority": priority,
+      "Remark": remark,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < document.fileNameList.length; i++) {
+      if (document.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "DocumentURL",
+        "value": document.fileBytesList[i],
+        "fileName": document.fileNameList[i],
+      });
+    }
+
     final result = await _calendarRepository.addUpdateEvent(
-      body: body,
+      body: requestBody,
       fileList: fileList,
     );
     goRouter.pop();
@@ -110,15 +157,95 @@ class CalendarCubit extends Cubit<CalendarState> {
         // prepend latest event(s)
         emit(
           state.copyWith(
-            events: [...apiEvents, ...state.events],
+            eventsList: [...apiEvents, ...state.eventsList],
             totalNumberOfRecord:
-                state.totalNumberOfRecord <= 0 ? apiEvents.length : state.totalNumberOfRecord + apiEvents.length,
+                state.totalNumberOfRecord <= 0
+                    ? apiEvents.length
+                    : state.totalNumberOfRecord + apiEvents.length,
           ),
         );
         showSuccessMessage(context);
       },
     );
-  }*/
+  }
+
+  Future<void> updateEvent({
+    required BuildContext context,
+    required String eventId,
+    required String uniqueKey,
+    required String type,
+    required String title,
+    required String projects,
+    required String departments,
+    required String members,
+    required String startDate,
+    required String deadlineDate,
+    required String startTime,
+    required String endTime,
+    required String room,
+    required String priority,
+    required String remark,
+    required MultiFilePickerModel document,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    Map<String, String> requestBody = {
+      "EventId": eventId,
+      "UniqueKey": uniqueKey,
+      "Type": type,
+      "Title": title,
+      "Projects": projects,
+      "Departments": departments,
+      "Members": members,
+      "StartDate": startDate,
+      "DeadlineDate": deadlineDate,
+      "StartTime": startTime,
+      "EndTime": endTime,
+      "Room": room,
+      "Priority": priority,
+      "Remark": remark,
+      "RemoveDocumentURL": document.deletedFileList,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < document.fileNameList.length; i++) {
+      if (document.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "DocumentURL",
+        "value": document.fileBytesList[i],
+        "fileName": document.fileNameList[i],
+      });
+    }
+
+    final result = await _calendarRepository.addUpdateEvent(
+      body: requestBody,
+      fileList: fileList,
+    );
+    goRouter.pop();
+
+    result.fold(
+      (failure) => showErrorMessage(context, 'Error', failure.message),
+      (response) {
+        final List<CalendarEventModel> apiEvents =
+            List<CalendarEventModel>.from(response['data']);
+
+        // prepend latest event(s)
+        emit(
+          state.copyWith(
+            eventsList: [...apiEvents, ...state.eventsList],
+            totalNumberOfRecord:
+                state.totalNumberOfRecord <= 0
+                    ? apiEvents.length
+                    : state.totalNumberOfRecord + apiEvents.length,
+          ),
+        );
+        showSuccessMessage(context);
+      },
+    );
+  }
 
   // DELETE EVENT
   Future<void> deleteEvent({
@@ -136,16 +263,16 @@ class CalendarCubit extends Cubit<CalendarState> {
     result.fold(
       (failure) => showErrorMessage(context, 'Error', failure.message),
       (_) {
-        final updated = List<CalendarEventModel>.from(state.events)
-          ..removeWhere(
-            (e) => e.eventId == eventId || e.uniquekey == uniqueKey,
-          );
+        final updated = List<CalendarEventModel>.from(
+          state.eventsList,
+        )..removeWhere((e) => e.eventId == eventId || e.uniquekey == uniqueKey);
         emit(
           state.copyWith(
-            events: updated,
-            totalNumberOfRecord: state.totalNumberOfRecord > 0
-                ? state.totalNumberOfRecord - 1
-                : 0,
+            eventsList: updated,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
           ),
         );
         showSuccessMessage(context);
@@ -154,9 +281,9 @@ class CalendarCubit extends Cubit<CalendarState> {
   }
 
   Future<Map<String, dynamic>> getMembersList(
-      int pageNumber, {
-        String? value,
-      }) async {
+    int pageNumber, {
+    String? value,
+  }) async {
     var result = await employeeMasterRepository.getEmployeeMasterList(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -164,7 +291,7 @@ class CalendarCubit extends Cubit<CalendarState> {
     );
 
     return result.fold(
-          (failure) {
+      (failure) {
         return {
           "itemList": <Map<String, dynamic>>[
             {'zAttributesId': -1, 'DisplayName': 'Select Members'},
@@ -172,18 +299,57 @@ class CalendarCubit extends Cubit<CalendarState> {
           "totalNumberOfRecord": 0,
         };
       },
-          (response) {
-        final List<Map<String, dynamic>> employees = List<Map<String, dynamic>>.from(
-          (response['data'] as List<UserModel>).map(
-            (e) => {
-              "zAttributesId": e.employeeId,
-              "DisplayName": e.fullName,
-            },
-          ),
-        );
+      (response) {
+        final List<Map<String, dynamic>> employees =
+            List<Map<String, dynamic>>.from(
+              (response['data'] as List<UserModel>).map(
+                (e) => {
+                  "zAttributesId": e.employeeId,
+                  "DisplayName": e.fullName,
+                },
+              ),
+            );
 
         return {
           "itemList": employees,
+          "totalNumberOfRecord": response["totalNumberOfRecord"],
+        };
+      },
+    );
+  }
+
+  Future<Map<String, dynamic>> getDepartmentList(
+    int pageNumber, {
+    String? value,
+  }) async {
+    var result = await departmentMasterRepository.getDepartmentList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      queryParams: {'DepartmentName': value ?? ''},
+    );
+
+    return result.fold(
+      (failure) {
+        return {
+          "itemList": <Map<String, dynamic>>[
+            {'zAttributesId': -1, 'DisplayName': 'Select Department'},
+          ],
+          "totalNumberOfRecord": 0,
+        };
+      },
+      (response) {
+        final List<Map<String, dynamic>> departments =
+            List<Map<String, dynamic>>.from(
+              (response['data'] as List<DepartmentModel>).map(
+                (e) => {
+                  "zAttributesId": e.departmentMasterId,
+                  "DisplayName": e.departmentName,
+                },
+              ),
+            );
+
+        return {
+          "itemList": departments,
           "totalNumberOfRecord": response["totalNumberOfRecord"],
         };
       },

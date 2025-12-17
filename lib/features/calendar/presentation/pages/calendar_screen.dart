@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -18,9 +19,13 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+enum SortType { all, task, meeting, conference }
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -32,9 +37,12 @@ class CalendarScreen extends StatefulWidget {
 class _CalendarScreenState extends State<CalendarScreen> {
   late DateTime selectedDate;
   late DateTime visibleMonth;
-  late DateTime visibleWeek; // Start of the visible week (Sunday)
+  late DateTime visibleWeek;
 
   int _selectedTabIndex = 0;
+
+  SortType? selectedSortType;
+  OverlayEntry? _overlayEntry;
 
   // CUBIT
   late CalendarCubit _calendarCubit;
@@ -45,7 +53,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _calendarCubit = context.read<CalendarCubit>();
     selectedDate = DateTime.now();
     visibleMonth = DateTime(selectedDate.year, selectedDate.month);
-    // Set visibleWeek to the start of the current week (Sunday)
     final now = DateTime.now();
     final daysFromSunday = now.weekday % 7;
     visibleWeek = DateTime(now.year, now.month, now.day - daysFromSunday);
@@ -57,11 +64,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   void _fetchMonthEvents() {
     final start = DateTime(visibleMonth.year, visibleMonth.month, 1);
     final end = DateTime(visibleMonth.year, visibleMonth.month + 1, 0, 23, 59);
-    context.read<CalendarCubit>().getEvents(
-      context: context,
-      fromDate: start,
-      toDate: end,
-    );
+    _calendarCubit.getEvents(context: context, fromDate: start, toDate: end);
   }
 
   String _monthTitle(DateTime month) {
@@ -76,6 +79,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
       final d = e.date;
       return d.year == date.year && d.month == date.month && d.day == date.day;
     }).toList();
+  }
+
+  CalendarEventType? _mapSortTypeToEventType(SortType? sortType) {
+    if (sortType == null || sortType == SortType.all) return null;
+    switch (sortType) {
+      case SortType.task:
+        return CalendarEventType.task;
+      case SortType.meeting:
+        return CalendarEventType.meeting;
+      case SortType.conference:
+        return CalendarEventType.conferenceRoom;
+      case SortType.all:
+        return null;
+    }
   }
 
   int _daysInMonth(DateTime month) {
@@ -145,43 +162,323 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
+  // FILTER OVERLAY
+  void showSortOverlay(BuildContext context) {
+    final overlay = Overlay.of(context);
+
+    _overlayEntry = OverlayEntry(
+      builder:
+          (context) => GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              _overlayEntry?.remove();
+              _overlayEntry = null;
+            },
+            child: Stack(
+              children: [
+                Positioned(
+                  top: 160,
+                  right: 16,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Container(
+                      width: 220,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black26, blurRadius: 8),
+                        ],
+                      ),
+                      child: StatefulBuilder(
+                        builder: (context, innerSetState) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              /// Header
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    "Sort By",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      _overlayEntry?.remove();
+                                      _overlayEntry = null;
+                                    },
+                                    child: const Icon(Icons.close, size: 18),
+                                  ),
+                                ],
+                              ),
+
+                              const Divider(),
+
+                              /// Radio options
+                              _buildRadio(
+                                title: "All",
+                                value: SortType.all,
+                                groupValue: selectedSortType,
+                                onChanged: (value) {
+                                  innerSetState(() {
+                                    selectedSortType = value;
+                                  });
+                                  // Rebuild main calendar screen to reflect updated label
+                                  setState(() {});
+
+                                  _overlayEntry?.remove();
+                                  _overlayEntry = null;
+                                },
+                              ),
+                              _buildRadio(
+                                title: "Task",
+                                value: SortType.task,
+                                groupValue: selectedSortType,
+                                onChanged: (value) {
+                                  innerSetState(() {
+                                    selectedSortType = value;
+                                  });
+                                  setState(() {});
+
+                                  _overlayEntry?.remove();
+                                  _overlayEntry = null;
+                                },
+                              ),
+                              _buildRadio(
+                                title: "Meeting",
+                                value: SortType.meeting,
+                                groupValue: selectedSortType,
+                                onChanged: (value) {
+                                  innerSetState(() {
+                                    selectedSortType = value;
+                                  });
+                                  setState(() {});
+
+                                  _overlayEntry?.remove();
+                                  _overlayEntry = null;
+                                },
+                              ),
+                              _buildRadio(
+                                title: "Conference",
+                                value: SortType.conference,
+                                groupValue: selectedSortType,
+                                onChanged: (value) {
+                                  innerSetState(() {
+                                    selectedSortType = value;
+                                  });
+                                  setState(() {});
+
+                                  _overlayEntry?.remove();
+                                  _overlayEntry = null;
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+    );
+
+    overlay.insert(_overlayEntry!);
+  }
+
+  // GET SORT LABEL
+  String getSortLabel(SortType? type) {
+    switch (type) {
+      case SortType.task:
+        return "Task";
+      case SortType.meeting:
+        return "Meeting";
+      case SortType.conference:
+        return "Conference";
+      case SortType.all:
+        return "Filter";
+      default:
+        return "Filter";
+    }
+  }
+
+  // RADIO BUTTON
+  Widget _buildRadio({
+    required String title,
+    required SortType value,
+    required SortType? groupValue,
+    required ValueChanged<SortType?> onChanged,
+  }) {
+    return InkWell(
+      onTap: () => onChanged(value),
+      child: Row(
+        children: [
+          Radio<SortType>(
+            value: value,
+            groupValue: groupValue,
+            onChanged: onChanged,
+          ),
+          Text(title),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: CustomAppBarWithBackButton(
         screenTitle: "Calendar",
         authorization: AuthorizationModel(isAction: true),
-        onAddCallback: () {},
+        onAddCallback: () {
+          goRouter.pushNamed(AppRoutes.addDetailsCalendar);
+        },
+        showNotification: true,
       ),
       body: SafeArea(
         child: BlocBuilder<CalendarCubit, CalendarState>(
           builder: (context, calState) {
-            if(calState.isLoading==true){
+            if (calState.isLoading == true) {
               return loader();
             }
-            final sourceEvents = calState.events;
+            final sourceEvents = calState.eventsList;
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      _eventTypeWidget(
-                        color: AppColor.error,
-                        eventType: "Task",
+                  selectedSortType == SortType.all || selectedSortType == null
+                      ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              _eventTypeWidget(
+                                color: AppColor.mediumBlue,
+                                eventType: "Task",
+                              ),
+                              const SizedBox(width: 10),
+                              _eventTypeWidget(
+                                color: AppColor.error,
+                                eventType: "Meeting",
+                              ),
+                              const SizedBox(width: 10),
+                              _eventTypeWidget(
+                                color: AppColor.warning,
+                                eventType: "Conference Room",
+                              ),
+                            ],
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              showSortOverlay(context);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColor.lightBlue.withValues(alpha: .3),
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(
+                                  color: AppColor.primary,
+                                  width: .5,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    getSortLabel(selectedSortType),
+                                    style: AppTextStyle.ts14R(),
+                                  ),
+                                  horizontalSpacing(),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: AppColor.lightBlue,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    padding: EdgeInsets.all(6),
+                                    child: SvgPicture.asset(
+                                      AppAssets.filterIcon,
+                                      height: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                      : Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              _eventTypeWidget(
+                                color: AppColor.green,
+                                eventType: "Low",
+                              ),
+                              const SizedBox(width: 10),
+                              _eventTypeWidget(
+                                color: AppColor.mediumBlue,
+                                eventType: "Medium",
+                              ),
+                              const SizedBox(width: 10),
+                              _eventTypeWidget(
+                                color: AppColor.error,
+                                eventType: "High",
+                              ),
+                            ],
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              showSortOverlay(context);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColor.lightBlue.withValues(alpha: .3),
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(
+                                  color: AppColor.primary,
+                                  width: .5,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    getSortLabel(selectedSortType),
+                                    style: AppTextStyle.ts14R(),
+                                  ),
+                                  horizontalSpacing(),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: AppColor.lightBlue,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    padding: EdgeInsets.all(6),
+                                    child: SvgPicture.asset(
+                                      AppAssets.filterIcon,
+                                      height: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 10),
-                      _eventTypeWidget(
-                        color: AppColor.mediumBlue,
-                        eventType: "Meeting",
-                      ),
-                      const SizedBox(width: 10),
-                      _eventTypeWidget(
-                        color: AppColor.warning,
-                        eventType: "Conference Room",
-                      ),
-                    ],
-                  ),
                   verticalSpacing(),
                   Row(
                     children: [
@@ -275,11 +572,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     _buildMonthlyEventsList(sourceEvents),
                   ],
                   verticalSpacing(height: 20),
-                  CustomButton.add(
-                    onPressed: () {
-                      goRouter.pushNamed(AppRoutes.addDetailsCalendar);
-                    },
-                  ),
                 ],
               ),
             );
@@ -289,6 +581,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  // MONTHLY WIDGET
   Widget _monthlyWidget(List<CalendarEventModel> sourceEvents) {
     final firstDayOfMonth = DateTime(visibleMonth.year, visibleMonth.month, 1);
     final daysInMonth = _daysInMonth(visibleMonth);
@@ -425,8 +718,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  // MONTHLY EVENT LIST
   Widget _buildMonthlyEventsList(List<CalendarEventModel> sourceEvents) {
-    final selectedEvents = _eventsForDate(sourceEvents, selectedDate);
+    // Events for the currently selected date
+    final allSelectedEvents = _eventsForDate(sourceEvents, selectedDate);
+
+    // Apply type filter if any specific filter is selected
+    final filterType = _mapSortTypeToEventType(selectedSortType);
+    final selectedEvents =
+        filterType == null
+            ? allSelectedEvents
+            : allSelectedEvents
+                .where((e) => e.type.toCalendarEventType() == filterType)
+                .toList();
 
     if (selectedEvents.isEmpty) {
       return Container(
@@ -510,7 +814,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
                 // Events for this type (horizontal scroll)
                 SizedBox(
-                  height: 80,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -519,7 +822,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               .map(
                                 (event) => Padding(
                                   padding: const EdgeInsets.only(right: 8),
-                                  child: _buildHorizontalEventCard(event),
+                                  child: _buildEventCardForCurrentFilter(event),
                                 ),
                               )
                               .toList(),
@@ -529,11 +832,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ],
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
 
+  // HELPER FUNCTIONS FOR EVENT TYPE
   String _getEventTypeName(CalendarEventType type) {
     switch (type) {
       case CalendarEventType.task:
@@ -545,6 +849,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
+  // WEEKLY WIDGET
   Widget _weeklyWidget(List<CalendarEventModel> sourceEvents) {
     final weekDates = _getWeekDates(visibleWeek);
 
@@ -651,14 +956,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  // WEEKLY EVENT LIST
   Widget _buildWeeklyEventsList(
     List<DateTime> weekDates,
     List<CalendarEventModel> sourceEvents,
   ) {
-    // Group events by date for the week
     final Map<DateTime, List<CalendarEventModel>> eventsByDate = {};
     for (final date in weekDates) {
-      final dayEvents = _eventsForDate(sourceEvents, date);
+      final allDayEvents = _eventsForDate(sourceEvents, date);
+
+      // Apply type filter when specific filter selected
+      final filterType = _mapSortTypeToEventType(selectedSortType);
+      final dayEvents =
+          filterType == null
+              ? allDayEvents
+              : allDayEvents
+                  .where((e) => e.type.toCalendarEventType() == filterType)
+                  .toList();
+
       if (dayEvents.isNotEmpty) {
         // Sort events by time
         dayEvents.sort((a, b) {
@@ -731,7 +1046,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     )
                   else
                     SizedBox(
-                      height: 80,
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
@@ -740,7 +1054,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   .map(
                                     (event) => Padding(
                                       padding: const EdgeInsets.only(right: 8),
-                                      child: _buildHorizontalEventCard(event),
+                                      child: _buildEventCardForCurrentFilter(
+                                        event,
+                                      ),
                                     ),
                                   )
                                   .toList(),
@@ -754,6 +1070,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  Widget _buildEventCardForCurrentFilter(CalendarEventModel event) {
+    switch (selectedSortType) {
+      case null:
+        return _buildHorizontalEventCard(event);
+      case SortType.task:
+        return _buildTaskCard(event);
+      case SortType.meeting:
+        return _buildMeetingCard(event);
+      case SortType.conference:
+        return _buildConferenceCard(event);
+      case SortType.all:
+        return _buildHorizontalEventCard(event);
+    }
+  }
+
+  // HORIZONTAL CARD FOR EVENT.
   Widget _buildHorizontalEventCard(CalendarEventModel event) {
     final color = eventTypeColor(event.type.toCalendarEventType());
     final timeString = DateFormat(
@@ -761,7 +1093,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     ).format(DateTime(2000, 1, 1, event.time.hour, event.time.minute));
 
     return Container(
-      width: 150,
+      width: 200,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
@@ -773,8 +1105,142 @@ class _CalendarScreenState extends State<CalendarScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            event.title,
+            event.type == "Conference Room Booking" ? event.room : event.title,
             style: AppTextStyle.ts12M(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          verticalSpacing(height: 4),
+          event.type == "Conference Room Booking"
+              ? Text(
+                event.title,
+                style: AppTextStyle.ts12R(color: AppColor.grey),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              )
+              : Row(
+                children: [
+                  Text(
+                    "Created By: ",
+                    style: AppTextStyle.ts12R(color: AppColor.grey),
+                  ),
+                  Flexible(
+                    child: Text(
+                      event.createdBy,
+                      style: AppTextStyle.ts12R(color: AppColor.grey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+          verticalSpacing(height: 4),
+          Text(timeString, style: AppTextStyle.ts12R(color: AppColor.grey)),
+        ],
+      ),
+    );
+  }
+
+  // FILTER CARD FOR TASK.
+  Widget _buildTaskCard(CalendarEventModel event) {
+    final deadline = formatDateTimeAsDDMMMYYYY(event.date);
+
+    return Container(
+      width: 260,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: AppColor.primary, width: 0.3),
+        color: AppColor.lightGreyBackground,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Task Id- ${event.eventId}',
+                style: AppTextStyle.ts14SB(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              horizontalSpacing(),
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColor.green,
+                ),
+              ),
+              Spacer(),
+              CustomIconButton(onPressed: () {}, icon: Icons.history),
+              horizontalSpacing(width: 4),
+              CustomIconButton(
+                onPressed: () {},
+                icon: Icons.compare_arrows_outlined,
+              ),
+            ],
+          ),
+          verticalSpacing(height: 6),
+          Text(
+            'Project  :-  ${event.title}',
+            style: AppTextStyle.ts12R(color: AppColor.black),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          verticalSpacing(height: 4),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Deadline :-  $deadline',
+                  style: AppTextStyle.ts12R(color: AppColor.grey),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              horizontalSpacing(width: 4),
+              Text(
+                'Status :- ',
+                style: AppTextStyle.ts12R(color: AppColor.grey),
+              ),
+              Text('Open', style: AppTextStyle.ts12R(color: AppColor.green)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // FILTER CARD FOR MEETING.
+  Widget _buildMeetingCard(CalendarEventModel event) {
+    final timeString = DateFormat(
+      'h:mm a',
+    ).format(DateTime(2000, 1, 1, event.time.hour, event.time.minute));
+
+    return Container(
+      width: 220,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: AppColor.primary.withValues(alpha: .4),
+          width: 0.8,
+        ),
+        color: AppColor.lightGreyBackground,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('Meeting', style: AppTextStyle.ts14M()),
+          verticalSpacing(height: 4),
+          Text(
+            event.title,
+            style: AppTextStyle.ts12R(color: AppColor.black),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -785,6 +1251,69 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  // FILTER CARD FOR CONFERENCE
+  Widget _buildConferenceCard(CalendarEventModel event) {
+    return Container(
+      width: 300,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(3),
+        border: Border.all(color: AppColor.primary, width: 0.3),
+        color: AppColor.lightGreyBackground,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(event.room, style: AppTextStyle.ts14SB()),
+          verticalSpacing(height: 4),
+          Row(
+            children: [
+              Text("Title: ", style: AppTextStyle.ts12R(color: AppColor.grey)),
+              Text(
+                event.title,
+                style: AppTextStyle.ts12R(color: AppColor.black),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+          Divider(color: AppColor.grey, thickness: .2),
+          Row(
+            children: [
+              Text(
+                "Date & Time: ",
+                style: AppTextStyle.ts12R(color: AppColor.grey),
+              ),
+              Text(
+                formatDateTimeAsDDMMMYYYY(event.date),
+                style: AppTextStyle.ts12R(color: AppColor.black),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+          Divider(color: AppColor.grey, thickness: .2),
+          Row(
+            children: [
+              Text(
+                "Created By: ",
+                style: AppTextStyle.ts12R(color: AppColor.grey),
+              ),
+              Text(
+                event.createdBy,
+                style: AppTextStyle.ts12R(color: AppColor.black),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // EVENT TYPE CARD FOR INDICATION OF EVENT TYPE AND PRIORITY
   Widget _eventTypeWidget({required Color color, required String eventType}) {
     return Row(
       children: [
@@ -806,6 +1335,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
+  // WEEKLY HEADER
   Widget _buildWeekdayHeader() {
     const labels = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
     return Row(

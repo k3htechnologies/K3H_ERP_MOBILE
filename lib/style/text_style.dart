@@ -75,6 +75,11 @@ class AppTextStyle {
     fontSize: 12.0,
     color: color ?? AppColor.black,
   );
+  static TextStyle ts14SB({Color? color}) => TextStyle(
+    fontFamily: "semibold",
+    fontSize: 14.0,
+    color: color ?? AppColor.black,
+  );
   static TextStyle ts16SB({Color? color}) => TextStyle(
     fontFamily: "semibold",
     fontSize: 16.0,

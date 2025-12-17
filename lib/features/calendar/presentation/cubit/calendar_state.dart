@@ -1,7 +1,7 @@
 part of 'calendar_cubit.dart';
 
 class CalendarState extends BaseState {
-  final List<CalendarEventModel> events;
+  final List<CalendarEventModel> eventsList;
   final int totalNumberOfRecord;
   final int currentPage;
   final bool isLoadingDateDetail;
@@ -9,7 +9,7 @@ class CalendarState extends BaseState {
 
   const CalendarState({
     super.isLoading = false,
-    this.events = const [],
+    this.eventsList = const [],
     this.totalNumberOfRecord = 0,
     this.currentPage = 1,
     this.isLoadingDateDetail = false,
@@ -20,7 +20,7 @@ class CalendarState extends BaseState {
 
   CalendarState copyWith({
     bool? isLoading,
-    List<CalendarEventModel>? events,
+    List<CalendarEventModel>? eventsList,
     int? totalNumberOfRecord,
     int? currentPage,
     bool? isLoadingDateDetail,
@@ -28,7 +28,7 @@ class CalendarState extends BaseState {
   }) {
     return CalendarState(
       isLoading: isLoading ?? this.isLoading,
-      events: events ?? this.events,
+      eventsList: eventsList ?? this.eventsList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       isLoadingDateDetail: isLoadingDateDetail ?? this.isLoadingDateDetail,
@@ -39,7 +39,7 @@ class CalendarState extends BaseState {
   @override
   List<Object?> get props => [
     isLoading,
-    events,
+    eventsList,
     totalNumberOfRecord,
     currentPage,
     isLoadingDateDetail,

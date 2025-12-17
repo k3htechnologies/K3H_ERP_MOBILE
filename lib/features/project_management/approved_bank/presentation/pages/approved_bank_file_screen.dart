@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/data/model/approved_bank_file.model.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_file/approved_bank_file_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -23,18 +24,13 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ApprovedBankFieScreen extends StatefulWidget {
   final int approvedBankFolderId;
-  const ApprovedBankFieScreen({
-    super.key,
-    required this.approvedBankFolderId,
-  });
+  const ApprovedBankFieScreen({super.key, required this.approvedBankFolderId});
 
   @override
-  State<ApprovedBankFieScreen> createState() =>
-      _ApprovedBankFieScreenState();
+  State<ApprovedBankFieScreen> createState() => _ApprovedBankFieScreenState();
 }
 
-class _ApprovedBankFieScreenState
-    extends State<ApprovedBankFieScreen> {
+class _ApprovedBankFieScreenState extends State<ApprovedBankFieScreen> {
   // CUBIT
   late ApprovedBankFileCubit _approvedBankFileCubit;
 
@@ -274,7 +270,10 @@ class _ApprovedBankFieScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.greyBackground,
-      appBar: CustomAppBarWithBackButton(screenTitle: 'Approved Bank File'),
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: 'Approved Bank File',
+        authorization: AuthorizationModel(),
+      ),
       body: BlocBuilder<ApprovedBankFileCubit, ApprovedBankFileState>(
         builder: (context, state) {
           if ((state.isLoading ?? true) && state.approvedBankFileList.isEmpty) {

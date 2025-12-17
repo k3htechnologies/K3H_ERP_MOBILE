@@ -94,11 +94,11 @@ class CalendarEventModel {
 Color eventTypeColor(CalendarEventType type) {
   switch (type) {
     case CalendarEventType.task:
-      return AppColor.error;
-    case CalendarEventType.meeting:
       return AppColor.primary;
+    case CalendarEventType.meeting:
+      return AppColor.error;
     case CalendarEventType.conferenceRoom:
-      return AppColor.yellow;
+      return AppColor.warning;
   }
 }
 
@@ -111,9 +111,9 @@ extension CalendarEventTypeMapper on String {
         return CalendarEventType.task;
       case 'meeting':
         return CalendarEventType.meeting;
-      case 'conferenceroom':
-      case 'conference_room':
-      case 'conference room':
+      case 'conferenceroombooking':
+      case 'conference_room_booking':
+      case 'conference room booking':
         return CalendarEventType.conferenceRoom;
       default:
         return CalendarEventType.task;

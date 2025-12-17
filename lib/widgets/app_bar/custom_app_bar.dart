@@ -77,6 +77,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
 
     return AppBar(
       toolbarHeight: widget.preferredSize.height,
+      automaticallyImplyLeading: false,
       title: Column(
         spacing: 15.0,
         children: [
@@ -86,17 +87,13 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
               InkWell(
                 onTap: () {
                   if (showMenuIcon) {
-                    // Navigate to menu screen
                     if (currentPath != AppRoutes.menu) {
                       goRouter.pushNamed(AppRoutes.menu);
                     }
                   } else {
-                    // Navigate back to menu screen instead of pop
-                    // This ensures we can always go back to menu from feature screens
                     if (goRouter.canPop()) {
                       goRouter.pop();
                     } else {
-                      // If can't pop (because go() was used), navigate to menu
                       goRouter.goNamed(AppRoutes.menu);
                     }
                   }

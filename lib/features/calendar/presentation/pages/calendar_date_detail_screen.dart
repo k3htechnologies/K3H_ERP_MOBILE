@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/calendar/data/models/calendar_event.dart';
 import 'package:k3h_erp_app/features/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -24,7 +25,6 @@ class CalendarDateDetailScreen extends StatefulWidget {
 }
 
 class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
-
   late DateTime _currentDate;
   late List<CalendarEventModel> _currentEvents;
   bool _isLoading = false;
@@ -63,11 +63,8 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
 
     // Fetch events for the specific date using separate API method
     // This uses dateDetailEvents which is separate from the main events list
-    await _calendarCubit.getDateDetailEvents(
-      context: context,
-      date: date,
-    );
-    
+    await _calendarCubit.getDateDetailEvents(context: context, date: date);
+
     // Return events from dateDetailEvents (separate from main events list)
     return _calendarCubit.state.dateDetailEvents;
   }
@@ -125,15 +122,16 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
       return;
     }
 
-    final nowHour = DateTime.now().hour-2;
+    final nowHour = DateTime.now().hour - 2;
     if (nowHour < 0 || nowHour >= _slotKeys.length) return;
 
     final ctx = _slotKeys[nowHour].currentContext;
     if (ctx == null) return;
 
     // The list view’s render box
-    final listBox = _scrollController.position.context.storageContext
-        .findRenderObject() as RenderBox;
+    final listBox =
+        _scrollController.position.context.storageContext.findRenderObject()
+            as RenderBox;
 
     // The item’s render box
     final itemBox = ctx.findRenderObject() as RenderBox;
@@ -142,7 +140,8 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
     final itemOffset = itemBox.localToGlobal(Offset.zero, ancestor: listBox).dy;
 
     // Current scroll offset + item’s position in the list
-    final targetOffset = _scrollController.offset + itemOffset - 20; // small padding
+    final targetOffset =
+        _scrollController.offset + itemOffset - 20; // small padding
 
     final max = _scrollController.position.maxScrollExtent;
     final offset = targetOffset.clamp(0.0, max);
@@ -170,7 +169,10 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
     }
 
     return Scaffold(
-      appBar: CustomAppBarWithBackButton(screenTitle: "Details"),
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: "Details",
+        authorization: AuthorizationModel(isAction: true),
+      ),
       body: Column(
         children: [
           Row(
@@ -255,21 +257,22 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
                                                               bottom: 8,
                                                             ),
                                                         decoration: BoxDecoration(
-                                                          gradient:
-                                                              LinearGradient(
-                                                                colors: [
-                                                                  eventTypeColor(
-                                                                    event.type.toCalendarEventType(),
-                                                                  ).withValues(
-                                                                    alpha: 0.7,
-                                                                  ),
-                                                                  eventTypeColor(
-                                                                    event.type.toCalendarEventType(),
-                                                                  ).withValues(
-                                                                    alpha: 0.4,
-                                                                  ),
-                                                                ],
+                                                          gradient: LinearGradient(
+                                                            colors: [
+                                                              eventTypeColor(
+                                                                event.type
+                                                                    .toCalendarEventType(),
+                                                              ).withValues(
+                                                                alpha: 0.7,
                                                               ),
+                                                              eventTypeColor(
+                                                                event.type
+                                                                    .toCalendarEventType(),
+                                                              ).withValues(
+                                                                alpha: 0.4,
+                                                              ),
+                                                            ],
+                                                          ),
                                                           borderRadius:
                                                               BorderRadius.circular(
                                                                 12,
@@ -288,11 +291,10 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
                                                               Container(
                                                                 width: 6,
                                                                 decoration: BoxDecoration(
-                                                                  color:
-                                                                      eventTypeColor(
-                                                                        event
-                                                                            .type.toCalendarEventType(),
-                                                                      ),
+                                                                  color: eventTypeColor(
+                                                                    event.type
+                                                                        .toCalendarEventType(),
+                                                                  ),
                                                                   borderRadius:
                                                                       BorderRadius.circular(
                                                                         8,
@@ -319,7 +321,10 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
                                                                     ),
                                                                     Text(
                                                                       _formatTime(
-                                                                        TimeOfDay.fromDateTime(event.time)
+                                                                        TimeOfDay.fromDateTime(
+                                                                          event
+                                                                              .time,
+                                                                        ),
                                                                       ),
                                                                       style: AppTextStyle.ts12SB(
                                                                         color:
@@ -330,8 +335,7 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
                                                                       height: 4,
                                                                     ),
                                                                     Text(
-                                                                      event
-                                                                          .type
+                                                                      event.type
                                                                           .toUpperCase(),
                                                                       style: AppTextStyle.ts12SB(
                                                                         color:
