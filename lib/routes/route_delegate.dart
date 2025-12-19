@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,7 +36,9 @@ import 'package:k3h_erp_app/features/masters/company_master/presentation/cubit/c
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/add_company_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/company_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/company_master_view.dart';
+import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/cubit/department_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/add_department_screen.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/department_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/cubit/designation_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/designation_screen.dart';
@@ -225,6 +228,36 @@ final GoRouter goRouter = GoRouter(
               child: DepartmentMasterScreen(),
             );
           },
+          routes: [
+            GoRoute(
+              parentNavigatorKey: navigatorKey,
+              name: AppRoutes.addDepartment,
+              path: AppRoutes.addDepartment,
+              builder: (context, state) {
+                final queryParameterDepartment =
+                    state.uri.queryParameters['department'];
+                final DepartmentModel? department = queryParameterDepartment != null
+                    ? DepartmentModel.fromJson(
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterDepartment),
+                          ),
+                        ),
+                      )
+                    : null;
+                final index = int.tryParse(
+                      state.uri.queryParameters['index'] ?? '',
+                    ) ?? 0;
+                return BlocProvider(
+                  create: (context) => DepartmentMasterCubit(),
+                  child: AddDepartmentScreen(
+                    department: department,
+                    index: index,
+                  ),
+                );
+              },
+            ),
+          ],
         ),
         // DESIGNATION MASTER
         GoRoute(
@@ -293,65 +326,6 @@ final GoRouter goRouter = GoRouter(
             );
           },
         ),
-        // CALENDAR
-        /* GoRoute(
-          path: AppRoutes.calendar,
-          name: AppRoutes.calendar,
-          builder: (context, state) {
-            return BlocProvider(
-              create: (_) => CalendarCubit(),
-              child: const CalendarScreen(),
-            );
-          },
-          routes: [
-            GoRoute(
-              path: AppRoutes.addDetailsCalendar,
-              name: AppRoutes.addDetailsCalendar,
-              builder: (context, state) {
-                return AddEventDetailsScreen();
-              },
-            ),
-            GoRoute(
-              path: AppRoutes.calendarDetail,
-              name: AppRoutes.calendarDetail,
-              builder: (context, state) {
-                final payload = state.uri.queryParameters['data'];
-                if (payload == null || payload.isEmpty) {
-                  return CalendarDateDetailScreen(
-                    date: DateTime.now(),
-                    events: const [],
-                  );
-                }
-
-                try {
-                  final decrypted = EncryptionManager.decryptData(
-                    Uri.decodeComponent(payload),
-                  );
-                  final data = jsonDecode(decrypted) as Map<String, dynamic>;
-                  final dateString = data['date'] as String? ?? '';
-                  final date = DateTime.tryParse(dateString) ?? DateTime.now();
-
-                  final eventsJson = (data['events'] as List<dynamic>? ?? []);
-                  final events =
-                  eventsJson
-                      .map(
-                        (e) => calendar_models.CalendarEventModel.fromJson(
-                      Map<String, dynamic>.from(e as Map),
-                    ),
-                  )
-                      .toList();
-
-                  return CalendarDateDetailScreen(date: date, events: events);
-                } catch (_) {
-                  return CalendarDateDetailScreen(
-                    date: DateTime.now(),
-                    events: const [],
-                  );
-                }
-              },
-            ),
-          ]
-        ),*/
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(create: (_) => CalendarCubit(), child: child);
@@ -388,17 +362,21 @@ final GoRouter goRouter = GoRouter(
                   final date = DateTime.tryParse(dateString) ?? DateTime.now();
 
                   final eventsJson = (data['events'] as List<dynamic>? ?? []);
-                  final events =
-                      eventsJson
-                          .map(
-                            (e) => CalendarEventModel.fromJson(
-                              Map<String, dynamic>.from(e as Map),
-                            ),
-                          )
-                          .toList();
+                  final events = <CalendarEventModel>[];
+                  
+                  for (var e in eventsJson) {
+                    try {
+                      final event = CalendarEventModel.fromJson(
+                        Map<String, dynamic>.from(e as Map),
+                      );
+                      events.add(event);
+                    } catch (error) {
+                      log(error.toString());
+                    }
+                  }
 
                   return CalendarDateDetailScreen(date: date, events: events);
-                } catch (_) {
+                } catch (error) {
                   return CalendarDateDetailScreen(
                     date: DateTime.now(),
                     events: const [],

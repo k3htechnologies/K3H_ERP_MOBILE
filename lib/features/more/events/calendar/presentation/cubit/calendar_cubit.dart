@@ -2,11 +2,13 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/data/datasource/calendar.datasource.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/data/repository/calendar.repository.dart';
@@ -30,6 +32,10 @@ class CalendarCubit extends Cubit<CalendarState> {
   // DEPARTMENT REPOSITORY
   DepartmentMasterRepository departmentMasterRepository =
       serviceLocator<DepartmentMasterRepository>();
+
+  // PROJECT REPOSITORY
+  ProjectMasterRepository projectMasterRepository =
+  serviceLocator<ProjectMasterRepository>();
 
   final CalendarRepository _calendarRepository;
 
@@ -69,7 +75,12 @@ class CalendarCubit extends Cubit<CalendarState> {
     required BuildContext context,
     required DateTime date,
   }) async {
-    emit(state.copyWith(isLoadingDateDetail: true));
+    // Clear previous events first to avoid showing stale data
+    emit(state.copyWith(
+      isLoadingDateDetail: true,
+      dateDetailEvents: const [],
+    ));
+    
     final start = DateTime(date.year, date.month, date.day, 0, 0, 0);
     final end = DateTime(date.year, date.month, date.day, 23, 59, 59);
 
@@ -80,7 +91,10 @@ class CalendarCubit extends Cubit<CalendarState> {
 
     result.fold(
       (failure) {
-        emit(state.copyWith(isLoadingDateDetail: false));
+        emit(state.copyWith(
+          isLoadingDateDetail: false,
+          dateDetailEvents: const [],
+        ));
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
@@ -141,20 +155,24 @@ class CalendarCubit extends Cubit<CalendarState> {
         "fileName": document.fileNameList[i],
       });
     }
+    
+    goRouter.pop();
 
     final result = await _calendarRepository.addUpdateEvent(
       body: requestBody,
       fileList: fileList,
     );
-    goRouter.pop();
 
     result.fold(
-      (failure) => showErrorMessage(context, 'Error', failure.message),
-      (response) {
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) async {
+        
+        goRouter.pop();
         final List<CalendarEventModel> apiEvents =
             List<CalendarEventModel>.from(response['data']);
 
-        // prepend latest event(s)
         emit(
           state.copyWith(
             eventsList: [...apiEvents, ...state.eventsList],
@@ -164,7 +182,24 @@ class CalendarCubit extends Cubit<CalendarState> {
                     : state.totalNumberOfRecord + apiEvents.length,
           ),
         );
-        showSuccessMessage(context);
+        
+        // Show success message (it will handle navigation after 2 seconds)
+        if (context.mounted) {
+          await showSuccessMessage(context);
+        }
+        
+        // After success message, refresh events list to get latest from server
+        // Use a wide date range (current month ± 1 month) to ensure we get the new event
+        if (context.mounted) {
+          final now = DateTime.now();
+          final start = DateTime(now.year, now.month - 1, 1);
+          final end = DateTime(now.year, now.month + 2, 0, 23, 59);
+          await getEvents(
+            context: context,
+            fromDate: start,
+            toDate: end,
+          );
+        }
       },
     );
   }
@@ -313,6 +348,42 @@ class CalendarCubit extends Cubit<CalendarState> {
         return {
           "itemList": employees,
           "totalNumberOfRecord": response["totalNumberOfRecord"],
+        };
+      },
+    );
+  }
+
+  Future<Map<String, dynamic>> getProjectList(
+      int pageNumber, {
+        String? value,
+      }) async {
+    var result = await projectMasterRepository.getProjectList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      queryParams: {'ProjectName': value ?? ''},
+    );
+
+    return result.fold(
+          (failure) {
+        return {
+          "itemList": <Map<String, dynamic>>[],
+          "totalNumberOfRecord": 0,
+        };
+      },
+          (response) {
+        final List<Map<String, dynamic>> projects =
+        List<Map<String, dynamic>>.from(
+          (response['data'] as List<ProjectModel>).map(
+                (e) => {
+              "zAttributesId": e.projectId.toString(),
+              "DisplayName": e.projectName,
+            },
+          ),
+        );
+
+        return {
+          "itemList": projects,
+          "totalNumberOfRecord": response["totalNumberOfRecord"] ?? 0,
         };
       },
     );

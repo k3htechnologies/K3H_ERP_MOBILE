@@ -5,7 +5,7 @@ class AppTheme {
   /// 🌞 LIGHT THEME
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
-    scaffoldBackgroundColor: AppColor.white,
+    scaffoldBackgroundColor: AppColor.lightGreyBackground,
     visualDensity: VisualDensity.compact,
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColor.white,

@@ -11,6 +11,7 @@ class AppRoutes {
 
   // MASTER
   static String departmentMaster = "/departmentMaster";
+  static String addDepartment = "/addDepartment";
   static String companyMaster = "/companyMaster";
   static String addCompany = "/addCompany";
   static String viewCompanyMobile = "/viewCompanyMobile";
@@ -163,5 +164,4 @@ class AppRoutes {
 
   // PROFILE
   static String profile = "/profile";
-
 }

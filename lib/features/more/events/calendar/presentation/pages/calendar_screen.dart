@@ -46,6 +46,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // CUBIT
   late CalendarCubit _calendarCubit;
+  bool _isInitialLoad = true;
+  DateTime? _lastRefreshTime;
 
   @override
   void initState() {
@@ -56,9 +58,29 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final now = DateTime.now();
     final daysFromSunday = now.weekday % 7;
     visibleWeek = DateTime(now.year, now.month, now.day - daysFromSunday);
+    _lastRefreshTime = DateTime.now();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchMonthEvents();
+      _isInitialLoad = false;
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Refresh events when screen becomes active (after navigation back)
+    // Only refresh if enough time has passed since last refresh to avoid unnecessary calls
+    final now = DateTime.now();
+    if (!_isInitialLoad && 
+        mounted && 
+        (_lastRefreshTime == null || now.difference(_lastRefreshTime!).inSeconds > 1)) {
+      _lastRefreshTime = now;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _fetchMonthEvents();
+        }
+      });
+    }
   }
 
   void _fetchMonthEvents() {
@@ -76,7 +98,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
     DateTime date,
   ) {
     return source.where((e) {
-      final d = e.date;
+      final d = e.getEventDate();
+      if (d == null) return false;
       return d.year == date.year && d.month == date.month && d.day == date.day;
     }).toList();
   }
@@ -307,9 +330,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
       case SortType.conference:
         return "Conference Room";
       case SortType.all:
-        return "Filter";
+        return "All";
       default:
-        return "Filter";
+        return "All";
     }
   }
 
@@ -347,8 +370,28 @@ class _CalendarScreenState extends State<CalendarScreen> {
         showNotification: true,
       ),
       body: SafeArea(
-        child: BlocBuilder<CalendarCubit, CalendarState>(
-          builder: (context, calState) {
+        child: BlocListener<CalendarCubit, CalendarState>(
+          listenWhen: (previous, current) {
+            // Listen when events list increases (new event added) and not loading
+            // This helps refresh the list when events are added from other screens
+            return (current.isLoading == false) && 
+                   previous.isLoading == false &&
+                   previous.eventsList.length < current.eventsList.length &&
+                   !_isInitialLoad;
+          },
+          listener: (context, state) {
+            // When a new event is detected, refresh the current month's events
+            // This ensures the calendar shows the latest data
+            if (mounted) {
+              Future.delayed(const Duration(milliseconds: 300), () {
+                if (mounted) {
+                  _fetchMonthEvents();
+                }
+              });
+            }
+          },
+          child: BlocBuilder<CalendarCubit, CalendarState>(
+            builder: (context, calState) {
             if (calState.isLoading == true) {
               return loader();
             }
@@ -579,6 +622,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
             );
           },
+          ),
         ),
       ),
     );
@@ -758,8 +802,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
     // Sort events within each type by time
     eventsByType.forEach((type, events) {
       events.sort((a, b) {
-        final aMinutes = a.time.hour * 60 + a.time.minute;
-        final bMinutes = b.time.hour * 60 + b.time.minute;
+        final aTime = a.getStartTimeAsDateTime();
+        final bTime = b.getStartTimeAsDateTime();
+        if (aTime == null && bTime == null) return 0;
+        if (aTime == null) return 1;
+        if (bTime == null) return -1;
+        final aMinutes = aTime.hour * 60 + aTime.minute;
+        final bMinutes = bTime.hour * 60 + bTime.minute;
         return aMinutes.compareTo(bMinutes);
       });
     });
@@ -982,8 +1031,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
       if (dayEvents.isNotEmpty) {
         // Sort events by time
         dayEvents.sort((a, b) {
-          final aMinutes = a.time.hour * 60 + a.time.minute;
-          final bMinutes = b.time.hour * 60 + b.time.minute;
+          final aTime = a.getStartTimeAsDateTime();
+          final bTime = b.getStartTimeAsDateTime();
+          if (aTime == null && bTime == null) return 0;
+          if (aTime == null) return 1;
+          if (bTime == null) return -1;
+          final aMinutes = aTime.hour * 60 + aTime.minute;
+          final bMinutes = bTime.hour * 60 + bTime.minute;
           return aMinutes.compareTo(bMinutes);
         });
         eventsByDate[date] = dayEvents;
@@ -1093,9 +1147,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
   // HORIZONTAL CARD FOR EVENT.
   Widget _buildHorizontalEventCard(CalendarEventModel event) {
     final color = eventTypeColor(event.type.toCalendarEventType());
-    final timeString = DateFormat(
-      'h:mm a',
-    ).format(DateTime(2000, 1, 1, event.time.hour, event.time.minute));
+    final time = event.getStartTimeAsDateTime();
+    final timeString = time != null
+        ? DateFormat('h:mm a').format(time)
+        : event.startTime ?? '';
 
     return Container(
       width: 200,
@@ -1110,7 +1165,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            event.type == "Conference Room Booking" ? event.room : event.title,
+            event.type == "Conference Room Booking" ? (event.room ?? '') : (event.title),
             style: AppTextStyle.ts12M(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -1131,7 +1186,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   ),
                   Flexible(
                     child: Text(
-                      event.createdBy,
+                      event.createdBy ?? '',
                       style: AppTextStyle.ts12R(color: AppColor.grey),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -1148,7 +1203,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // FILTER CARD FOR TASK.
   Widget _buildTaskCard(CalendarEventModel event) {
-    final deadline = formatDateTimeAsDDMMMYYYY(event.date);
+    final deadline = event.deadlineDate != null
+        ? formatDateTimeAsDDMMMYYYY(event.deadlineDate!)
+        : '';
 
     return Container(
       width: 260,
@@ -1227,9 +1284,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // FILTER CARD FOR MEETING.
   Widget _buildMeetingCard(CalendarEventModel event) {
-    final timeString = DateFormat(
-      'h:mm a',
-    ).format(DateTime(2000, 1, 1, event.time.hour, event.time.minute));
+    final time = event.getStartTimeAsDateTime();
+    final timeString = time != null
+        ? DateFormat('h:mm a').format(time)
+        : event.startTime ?? '';
 
     return Container(
       width: 220,
@@ -1275,7 +1333,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(event.room, style: AppTextStyle.ts14SB()),
+          Text(event.room ?? '', style: AppTextStyle.ts14SB()),
           verticalSpacing(height: 4),
           Row(
             children: [
@@ -1296,7 +1354,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 style: AppTextStyle.ts12R(color: AppColor.grey),
               ),
               Text(
-                formatDateTimeAsDDMMMYYYY(event.date),
+                event.getEventDate() != null
+                    ? formatDateTimeAsDDMMMYYYY(event.getEventDate()!)
+                    : '',
                 style: AppTextStyle.ts12R(color: AppColor.black),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -1311,7 +1371,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 style: AppTextStyle.ts12R(color: AppColor.grey),
               ),
               Text(
-                event.createdBy,
+                event.createdBy ?? '',
                 style: AppTextStyle.ts12R(color: AppColor.black),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

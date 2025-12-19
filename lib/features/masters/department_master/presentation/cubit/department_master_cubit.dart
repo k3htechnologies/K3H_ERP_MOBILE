@@ -1,9 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
+import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -38,8 +40,11 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        List<DepartmentModel> updatedList = List.from(state.departmentList);
-        updatedList.addAll(response['data'] as List<DepartmentModel>);
+        // If pageNumber is 1, replace the list; otherwise append
+        List<DepartmentModel> updatedList = pageNumber == 1
+            ? List<DepartmentModel>.from(response['data'] as List<DepartmentModel>)
+            : List<DepartmentModel>.from(state.departmentList)
+              ..addAll(response['data'] as List<DepartmentModel>);
         emit(
           state.copyWith(
             isLoading: false,
@@ -54,6 +59,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
       },
     );
   }
+
 
   // <---- ADD DEPARTMENT ---->
   Future addDepartmentMaster({
@@ -78,20 +84,23 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
       },
       (response) {
         goRouter.pop();
-        var list = [
-          response['data'][0] as DepartmentModel,
-          ...state.departmentList,
-        ];
+        final newDepartment = response['data'][0] as DepartmentModel;
+        
+        // Try to update parent cubit first (when called from AddDepartmentScreen)
+       var list = [
+            newDepartment,
+            ...state.departmentList,
+          ];
+          emit(
+            state.copyWith(
+              departmentList: list,
+              totalNumberOfRecord:
+                  state.totalNumberOfRecord == -1
+                      ? 1
+                      : state.totalNumberOfRecord + 1,
+            ),
+          );
 
-        emit(
-          state.copyWith(
-            departmentList: list,
-            totalNumberOfRecord:
-                state.totalNumberOfRecord == -1
-                    ? 1
-                    : state.totalNumberOfRecord + 1,
-          ),
-        );
         showSuccessMessage(context);
       },
     );
@@ -123,11 +132,20 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
         return;
       },
       (response) {
-        final updatedList = List<DepartmentModel>.from(state.departmentList);
-        updatedList[index] = (response['data'][0] as DepartmentModel);
         goRouter.pop();
+        final updatedDepartment = response['data'][0] as DepartmentModel;
 
-        emit(state.copyWith(departmentList: updatedList));
+
+          if (state.departmentList.isNotEmpty && index < state.departmentList.length) {
+            final updatedList = List<DepartmentModel>.from(state.departmentList);
+            updatedList[index] = updatedDepartment;
+            emit(
+              state.copyWith(
+                departmentList: updatedList,
+              ),
+            );
+          }
+
         showSuccessMessage(context);
       },
     );

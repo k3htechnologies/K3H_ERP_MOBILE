@@ -249,3 +249,4 @@ BoxDecoration commonCardDecoration() => BoxDecoration(
     ),
   ],
 );
+

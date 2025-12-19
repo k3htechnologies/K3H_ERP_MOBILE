@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 CalendarEventModel calendarEventModelFromJson(String str) =>
     CalendarEventModel.fromJson(json.decode(str));
@@ -14,18 +15,26 @@ class CalendarEventModel {
   final String uniquekey;
   final String type;
   final String title;
-  final DateTime date;
-  final DateTime time;
-  final String employeeId;
-  final String employeeFullName;
-  final String room;
-  final String documentUrl;
-  final String remarks;
+  final DateTime? date;
+  final DateTime? deadlineDate;
+  final String? startTime;
+  final String? endTime;
+  final String? projectId;
+  final String? projectName;
+  final String? departmentId;
+  final String? departmentName;
+  final String? employeeId;
+  final String? fullName;
+  final String? employeeFullName;
+  final String? room;
+  final String? priority;
+  final String? documentUrl;
+  final String? description;
   final int createdById;
-  final String createdBy;
-  final DateTime createdDate;
+  final String? createdBy;
+  final DateTime? createdDate;
   final int modifiedById;
-  final String modifiedBy;
+  final String? modifiedBy;
   final dynamic modifiedDate;
 
   CalendarEventModel({
@@ -33,39 +42,61 @@ class CalendarEventModel {
     required this.uniquekey,
     required this.type,
     required this.title,
-    required this.date,
-    required this.time,
-    required this.employeeId,
-    required this.employeeFullName,
-    required this.room,
-    required this.documentUrl,
-    required this.remarks,
+    this.date,
+    this.deadlineDate,
+    this.startTime,
+    this.endTime,
+    this.projectId,
+    this.projectName,
+    this.departmentId,
+    this.departmentName,
+    this.employeeId,
+    this.fullName,
+    this.employeeFullName,
+    this.room,
+    this.priority,
+    this.documentUrl,
+    this.description,
     required this.createdById,
-    required this.createdBy,
-    required this.createdDate,
+    this.createdBy,
+    this.createdDate,
     required this.modifiedById,
-    required this.modifiedBy,
-    required this.modifiedDate,
+    this.modifiedBy,
+    this.modifiedDate,
   });
 
   factory CalendarEventModel.fromJson(Map<String, dynamic> json) {
     return CalendarEventModel(
-      eventId: json["EventId"],
-      uniquekey: json["Uniquekey"],
-      type: json["Type"],
-      title: json["Title"],
-      date: DateTime.parse(json["Date"]),
-      time: DateTime.parse(json["Time"]),
-      employeeId: json["EmployeeId"],
-      employeeFullName: json["EmployeeFullName"],
-      room: json["Room"],
-      documentUrl: json["DocumentURL"],
-      remarks: json["Remarks"],
-      createdById: json["CreatedById"],
-      createdBy: json["CreatedBy"],
-      createdDate: DateTime.parse(json["CreatedDate"]),
-      modifiedById: json["ModifiedById"],
-      modifiedBy: json["ModifiedBy"],
+      eventId: parseValue<int>(json, "EventId"),
+      uniquekey: parseValue<String>(json, "Uniquekey"),
+      type: parseValue<String>(json, "Type"),
+      title: parseValue<String>(json, "Title"),
+      date: json["Date"] != null && json["Date"].toString().isNotEmpty
+          ? DateTime.tryParse(json["Date"].toString())
+          : null,
+      deadlineDate: json["DeadlineDate"] != null && json["DeadlineDate"].toString().isNotEmpty
+          ? DateTime.tryParse(json["DeadlineDate"].toString())
+          : null,
+      startTime: parseValue<String>(json, "StartTime"),
+      endTime: parseValue<String>(json, "EndTime"),
+      projectId: parseValue<String>(json, "ProjectId"),
+      projectName: parseValue<String>(json, "ProjectName"),
+      departmentId: parseValue<String>(json, "DepartmentId"),
+      departmentName: parseValue<String>(json, "DepartmentName"),
+      employeeId: parseValue<String>(json, "EmployeeId"),
+      fullName: parseValue<String>(json, "FullName"),
+      employeeFullName: parseValue<String>(json, "EmployeeFullName"),
+      room: parseValue<String>(json, "Room"),
+      priority: parseValue<String>(json, "Priority"),
+      documentUrl: parseValue<String>(json, "DocumentURL"),
+      description: parseValue<String>(json, "Description"),
+      createdById: parseValue<int>(json, "CreatedById"),
+      createdBy: parseValue<String>(json, "CreatedBy"),
+      createdDate: json["CreatedDate"] != null && json["CreatedDate"].toString().isNotEmpty
+          ? DateTime.tryParse(json["CreatedDate"].toString())
+          : null,
+      modifiedById: parseValue<int>(json, "ModifiedById"),
+      modifiedBy: parseValue<String>(json, "ModifiedBy"),
       modifiedDate: json["ModifiedDate"],
     );
   }
@@ -75,20 +106,70 @@ class CalendarEventModel {
     "Uniquekey": uniquekey,
     "Type": type,
     "Title": title,
-    "Date": date.toIso8601String(),
-    "Time": time.toIso8601String(),
+    "Date": date?.toIso8601String(),
+    "DeadlineDate": deadlineDate?.toIso8601String(),
+    "StartTime": startTime,
+    "EndTime": endTime,
+    "ProjectId": projectId,
+    "ProjectName": projectName,
+    "DepartmentId": departmentId,
+    "DepartmentName": departmentName,
     "EmployeeId": employeeId,
+    "FullName": fullName,
     "EmployeeFullName": employeeFullName,
     "Room": room,
+    "Priority": priority,
     "DocumentURL": documentUrl,
-    "Remarks": remarks,
+    "Description": description,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
-    "CreatedDate": createdDate.toIso8601String(),
+    "CreatedDate": createdDate?.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate,
   };
+
+  // Helper method to get the appropriate date based on event type
+  DateTime? getEventDate() {
+    final eventType = type.toLowerCase();
+    if (eventType == 'task') {
+      return deadlineDate;
+    } else {
+      return date;
+    }
+  }
+
+  // Helper method to parse startTime string to DateTime for time operations
+  DateTime? getStartTimeAsDateTime() {
+    if (startTime == null || startTime!.isEmpty) return null;
+    try {
+      final parts = startTime!.split(':');
+      if (parts.length >= 2) {
+        final hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+        return DateTime(2000, 1, 1, hour, minute);
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
+
+  // Helper method to parse endTime string to DateTime for time operations
+  DateTime? getEndTimeAsDateTime() {
+    if (endTime == null || endTime!.isEmpty) return null;
+    try {
+      final parts = endTime!.split(':');
+      if (parts.length >= 2) {
+        final hour = int.parse(parts[0]);
+        final minute = int.parse(parts[1]);
+        return DateTime(2000, 1, 1, hour, minute);
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
 }
 
 Color eventTypeColor(CalendarEventType type) {

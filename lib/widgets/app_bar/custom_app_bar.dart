@@ -140,7 +140,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                           onPressed: () {
                             widget.onAddCallback!();
                           },
-                          icon: Icon(Icons.add),
+                          icon: Icon(Icons.add,size: 16,color: AppColor.darkGreen,),
                           backgroundColor: AppColor.lightGreen,
                         )
                         : Container(),
@@ -182,8 +182,8 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                               ],
                             );
                           },
-                          icon: Icon(Icons.file_download),
-                          backgroundColor: AppColor.lightRed,
+                          icon: Icon(Icons.file_download,size: 16,color: AppColor.primary,),
+                          backgroundColor: AppColor.lightBlue,
                         )
                         : Container(),
                   ],
@@ -296,7 +296,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
           ),
         ],
       ),
-      backgroundColor: isDarkMode ? AppColor.primary : AppColor.white,
+      backgroundColor: isDarkMode ? AppColor.primary : AppColor.lightGreyBackground,
       surfaceTintColor: Colors.transparent,
     );
   }

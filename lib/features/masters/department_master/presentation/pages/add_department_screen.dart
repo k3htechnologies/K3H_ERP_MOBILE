@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/cubit/department_master_cubit.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -12,7 +15,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddDepartmentScreen extends StatefulWidget {
   final DepartmentModel? department;
-  const AddDepartmentScreen({super.key, this.department});
+  final int index;
+  const AddDepartmentScreen({
+    super.key,
+    this.department,
+    this.index = 0,
+  });
 
   @override
   State<AddDepartmentScreen> createState() => _AddDepartmentScreenState();
@@ -33,6 +41,7 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
   @override
   void initState() {
     super.initState();
+    _departmentMasterCubit = BlocProvider.of<DepartmentMasterCubit>(context);
     _initializeTextEditingController();
     if (widget.department != null) {
       _prefillDialogueToAddUpdateDepartmentMaster(widget.department!);
@@ -97,48 +106,71 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
         child: Form(
           key: _departmentMasterAddUpdateKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Add Department", style: AppTextStyle.ts16SB()),
+              Text(
+                widget.department != null ? "Edit Department" : "Add Department",
+                style: AppTextStyle.ts16SB(),
+              ),
               verticalSpacing(),
-              CustomTextField(
-                title: 'Department Name*',
-                textController: _departmentNameC,
-                inputFormatterList: [LengthLimitingTextInputFormatter(50)],
-                validator: (string) {
-                  if (string == null || string.trim().isEmpty) {
-                    return 'Department Name is required';
-                  }
-                  return null;
-                },
-              ),
-              CustomTextField(
-                title: 'Department Code*',
-                textController: _departmentCodeC,
-                inputFormatterList: [
-                  UpperCaseTextFormatter(),
-                  LengthLimitingTextInputFormatter(4),
-                  AlphaNumericWithoutSpacesFormatter(),
-                ],
-                validator: (string) {
-                  if (string == null || string.trim().isEmpty) {
-                    return 'Department Code is required';
-                  }
-                  return null;
-                },
-              ),
+             Container(
+               padding: EdgeInsets.all(12),
+               decoration: commonCardDecoration(),
+               child: Column(
+                 children: [
+                   CustomTextField(
+                     title: 'Department Name',
+                     isRequired: true,
+                     textController: _departmentNameC,
+                     inputFormatterList: [LengthLimitingTextInputFormatter(50)],
+                     validator: (string) {
+                       if (string == null || string.trim().isEmpty) {
+                         return 'Department Name is required';
+                       }
+                       return null;
+                     },
+                   ),
+                   CustomTextField(
+                     title: 'Department Code',
+                     isRequired: true,
+                     textController: _departmentCodeC,
+                     inputFormatterList: [
+                       UpperCaseTextFormatter(),
+                       LengthLimitingTextInputFormatter(4),
+                       AlphaNumericWithoutSpacesFormatter(),
+                     ],
+                     validator: (string) {
+                       if (string == null || string.trim().isEmpty) {
+                         return 'Department Code is required';
+                       }
+                       return null;
+                     },
+                   ),
+                 ],
+               ),
+             )
             ],
           ),
         ),
       ),
       bottomNavigationBar: SafeArea(
-        child: Expanded(child: CustomButton.add(onPressed: () {
-          _addUpdateDepartment(
-            context,
-            widget.department,
-            _departmentMasterCubit.state,
-            index ?? 0,
-          );
-        })),
+        child: Container(
+          color: AppColor.white,
+          padding: EdgeInsets.all(16),
+          child: CustomButton(
+            leading: widget.department != null ? Icon(Icons.edit,size: 18,color: AppColor.white,) : Icon(Icons.add,size: 18,color: AppColor.white,),
+            text: widget.department != null ?'Edit':'Add',
+            backgroundColor: AppColor.primary,
+            onPressed: () {
+              _addUpdateDepartment(
+                context,
+                widget.department,
+                _departmentMasterCubit.state,
+                widget.index,
+              );
+            },
+          ),
+        ),
       ),
     );
   }

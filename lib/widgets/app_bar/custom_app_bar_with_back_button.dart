@@ -32,7 +32,7 @@ class CustomAppBarWithBackButton extends StatelessWidget
     return Padding(
       padding: const EdgeInsets.only(right: 10),
       child: CustomIconButton(
-        icon: Icon(icon),
+        icon: Icon(icon,size: 16,color: iconColor,),
         onPressed: onTap,
         backgroundColor: backgroundColor,
       ),
@@ -43,16 +43,15 @@ class CustomAppBarWithBackButton extends StatelessWidget
   Widget build(BuildContext context) {
     return AppBar(
       toolbarHeight: preferredSize.height,
-      backgroundColor: AppColor.white,
+      backgroundColor: AppColor.lightGreyBackground,
       centerTitle: false,
-      elevation: 0.5,
-      leading: IconButton(
-        onPressed: () {
+      leading: GestureDetector(
+        onTap: () {
           if (goRouter.canPop()) {
             goRouter.pop();
           }
         },
-        icon: Icon(Icons.arrow_back),
+        child: Icon(Icons.arrow_back),
       ),
       title: Text(
         screenTitle,

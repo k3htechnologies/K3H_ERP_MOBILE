@@ -48,8 +48,13 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
   List<CalendarEventModel> _sorted(List<CalendarEventModel> list) {
     final sorted = List<CalendarEventModel>.from(list);
     sorted.sort((a, b) {
-      final aMinutes = a.time.hour * 60 + a.time.minute;
-      final bMinutes = b.time.hour * 60 + b.time.minute;
+      final aTime = a.getStartTimeAsDateTime();
+      final bTime = b.getStartTimeAsDateTime();
+      if (aTime == null && bTime == null) return 0;
+      if (aTime == null) return 1;
+      if (bTime == null) return -1;
+      final aMinutes = aTime.hour * 60 + aTime.minute;
+      final bMinutes = bTime.hour * 60 + bTime.minute;
       return aMinutes.compareTo(bMinutes);
     });
     return sorted;
@@ -61,12 +66,10 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
       return widget.events;
     }
 
-    // Fetch events for the specific date using separate API method
-    // This uses dateDetailEvents which is separate from the main events list
     await _calendarCubit.getDateDetailEvents(context: context, date: date);
 
-    // Return events from dateDetailEvents (separate from main events list)
-    return _calendarCubit.state.dateDetailEvents;
+    final events = _calendarCubit.state.dateDetailEvents;
+    return events;
   }
 
   String _formatDate(DateTime date) {
@@ -84,18 +87,42 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
 
   Future<void> _changeDate(int days) async {
     final targetDate = _currentDate.add(Duration(days: days));
+    
+    // Clear events immediately
     setState(() {
       _isLoading = true;
       _currentDate = targetDate;
       _currentEvents = const [];
     });
-    final fetched = await _fetchEventsForDate(targetDate);
-    if (!mounted) return;
-    setState(() {
-      _currentEvents = _sorted(fetched);
-      _isLoading = false;
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToCurrentTime());
+    
+    // Force a rebuild to show the cleared state
+    await Future.delayed(const Duration(milliseconds: 50));
+    
+    try {
+      final fetched = await _fetchEventsForDate(targetDate);
+      if (!mounted) return;
+      
+      // Filter out any events that don't match the target date (safety check)
+      final filteredEvents = fetched.where((event) {
+        final eventDate = event.getEventDate();
+        if (eventDate == null) return false;
+        return eventDate.year == targetDate.year &&
+               eventDate.month == targetDate.month &&
+               eventDate.day == targetDate.day;
+      }).toList();
+      
+      setState(() {
+        _currentEvents = _sorted(filteredEvents);
+        _isLoading = false;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToCurrentTime());
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _currentEvents = const [];
+        _isLoading = false;
+      });
+    }
   }
 
   List<int> _timeSlots() {
@@ -164,8 +191,21 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
     final slots = _timeSlots();
     _ensureSlotKeys(slots.length);
     final eventsByHour = <int, List<CalendarEventModel>>{};
+    final eventsWithoutTime = <CalendarEventModel>[];
+    
     for (final e in _currentEvents) {
-      eventsByHour.putIfAbsent(e.time.hour, () => []).add(e);
+      final time = e.getStartTimeAsDateTime();
+      if (time != null) {
+        eventsByHour.putIfAbsent(time.hour, () => []).add(e);
+      } else {
+        // Events without time (like tasks) - add to a special list or first hour
+        eventsWithoutTime.add(e);
+      }
+    }
+    
+    // Add events without time to hour 0 (midnight) or first available slot
+    if (eventsWithoutTime.isNotEmpty) {
+      eventsByHour.putIfAbsent(0, () => []).addAll(eventsWithoutTime);
     }
 
     return Scaffold(
@@ -321,10 +361,11 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
                                                                     ),
                                                                     Text(
                                                                       _formatTime(
-                                                                        TimeOfDay.fromDateTime(
-                                                                          event
-                                                                              .time,
-                                                                        ),
+                                                                        event.getStartTimeAsDateTime() != null
+                                                                            ? TimeOfDay.fromDateTime(
+                                                                                event.getStartTimeAsDateTime()!,
+                                                                              )
+                                                                            : TimeOfDay.now(),
                                                                       ),
                                                                       style: AppTextStyle.ts12SB(
                                                                         color:

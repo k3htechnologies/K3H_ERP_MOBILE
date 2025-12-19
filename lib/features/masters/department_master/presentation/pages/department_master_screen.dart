@@ -1,21 +1,22 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/cubit/department_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
-import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class DepartmentMasterScreen extends StatefulWidget {
@@ -37,12 +38,8 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
   late ScrollController scrollController;
   Timer? _debounce;
 
-  // FORM KEY
-  final GlobalKey<FormState> _departmentMasterAddUpdateKey =
-      GlobalKey<FormState>();
-
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC, _departmentNameC, _departmentCodeC;
+  late TextEditingController _searchC;
 
   @override
   void initState() {
@@ -59,13 +56,9 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
   void dispose() {
     super.dispose();
     _searchC.dispose();
-    _departmentNameC.dispose();
-    _departmentCodeC.dispose();
   }
 
   void _initializeTextEditingController() {
-    _departmentNameC = TextEditingController();
-    _departmentCodeC = TextEditingController();
     _searchC = TextEditingController();
   }
 
@@ -89,131 +82,6 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
         });
       }
     });
-  }
-
-  // <---- CLEAR DEPARTMENT ---->
-  void _clearDialogueToAddUpdateDepartmentMaster() {
-    _departmentNameC.clear();
-    _departmentCodeC.clear();
-  }
-
-  // <---- PREFILL DEPARTMENT ---->
-  void _prefillDialogueToAddUpdateDepartmentMaster(
-    DepartmentModel departmentModel,
-  ) {
-    _departmentNameC.text = departmentModel.departmentName;
-    _departmentCodeC.text = departmentModel.departmentCode;
-  }
-
-  // <---- API CALLS TO ADD/UPDATE DEPARTMENT ---->
-  Future<void> _addUpdateDepartment(
-    BuildContext context,
-    DepartmentModel? departmentModel,
-    DepartmentMasterState state,
-    int index,
-  ) async {
-    if (_departmentMasterAddUpdateKey.currentState!.validate()) {
-      departmentModel != null
-          ? _departmentMasterCubit.updateDepartmentMaster(
-            context: context,
-            departmentName: _departmentNameC.text,
-            departmentCode: _departmentCodeC.text,
-            uniqueKey: departmentModel.uniquekey,
-            departmentMasterId: departmentModel.departmentMasterId,
-            index: index,
-          )
-          : _departmentMasterCubit.addDepartmentMaster(
-            context: context,
-            departmentName: _departmentNameC.text,
-            departmentCode: _departmentCodeC.text,
-          );
-    }
-  }
-
-  // <---- DIALOGUE TO ADD/UPDATE DEPARTMENT ---->
-  Future<void> _showBottomSheetToAddUpdateDepartmentMaster(
-    BuildContext context,
-    DepartmentMasterState state, {
-    DepartmentModel? department,
-    int? index,
-  }) async {
-    if (department != null) {
-      _prefillDialogueToAddUpdateDepartmentMaster(department);
-    }
-    await DialogHelper.showCustomBottomSheet(
-      context,
-      "Add Department",
-      Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-              left: 16,
-              right: 16,
-              top: 8,
-            ),
-            child: SingleChildScrollView(
-              child: Form(
-                key: _departmentMasterAddUpdateKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    verticalSpacing(),
-                    Column(
-                      children: [
-                        CustomTextField(
-                          title: 'Department Name*',
-                          textController: _departmentNameC,
-                          inputFormatterList: [
-                            LengthLimitingTextInputFormatter(50),
-                          ],
-                          validator: (string) {
-                            if (string == null || string.trim().isEmpty) {
-                              return 'Department Name is required';
-                            }
-                            return null;
-                          },
-                        ),
-                        CustomTextField(
-                          title: 'Department Code*',
-                          textController: _departmentCodeC,
-                          inputFormatterList: [
-                            UpperCaseTextFormatter(),
-                            LengthLimitingTextInputFormatter(4),
-                            AlphaNumericWithoutSpacesFormatter(),
-                          ],
-                          validator: (string) {
-                            if (string == null || string.trim().isEmpty) {
-                              return 'Department Code is required';
-                            }
-                            return null;
-                          },
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: CustomButton.save(
-                        onPressed: () {
-                          _addUpdateDepartment(
-                            context,
-                            department,
-                            state,
-                            index ?? 0,
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-    _clearDialogueToAddUpdateDepartmentMaster();
   }
 
   // <---- DELETE DEPARTMENT ---->
@@ -243,17 +111,20 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBar(
         screenTitle: 'Department',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
           _departmentMasterCubit.exportExcelPdf(context, value);
         },
-        onAddCallback:
-            () async => await _showBottomSheetToAddUpdateDepartmentMaster(
-              context,
-              _departmentMasterCubit.state,
-            ),
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addDepartment);
+          // Refresh list when returning from add screen
+          if (context.mounted) {
+            _departmentMasterCubit.getDepartmentList(context, 1, 10);
+          }
+        },
         onSearchSubmit: (value) {
           _departmentMasterCubit.searchDepartment(context, value);
         },
@@ -274,24 +145,17 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
           }
           return ListView.builder(
             controller: scrollController,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             itemCount: _departmentMasterCubit.state.departmentList.length + 1,
             itemBuilder: (context, index) {
-              if (index == state.departmentList.length) {
-                return state.departmentList.length < state.totalNumberOfRecord
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
               var department = state.departmentList[index];
               return Container(
-                margin: EdgeInsets.only(bottom: 20),
+                margin: EdgeInsets.only(bottom: 10),
                 padding: EdgeInsets.all(12),
                 decoration: commonCardDecoration(),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
@@ -302,42 +166,106 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                         Spacer(),
                         Row(
                           children: [
-                            Text("Code: ",style: AppTextStyle.ts12R(color: AppColor.grey),),
-                            Text(
-                              department.departmentCode,
-                              style: AppTextStyle.ts14R(),
+                            CustomIconButton(
+                              onPressed: () async {
+                                await goRouter.pushNamed(
+                                  AppRoutes.addDepartment,
+                                  queryParameters: {
+                                    'department': Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(department.toJson()),
+                                      ),
+                                    ),
+                                    'index': index.toString(),
+                                  },
+                                );
+                                if (context.mounted) {
+                                  _departmentMasterCubit.getDepartmentList(
+                                    context,
+                                    1,
+                                    10,
+                                  );
+                                }
+                              },
+                              icon: Icon(Icons.edit, size: 16),
+                              backgroundColor: AppColor.grey10,
+                            ),
+                            horizontalSpacing(),
+                            CustomIconButton(
+                              onPressed: () {
+                                _showPopupToDeleteDepartmentMaster(
+                                  context,
+                                  department,
+                                  state.currentPage,
+                                  index,
+                                );
+                              },
+                              icon: SvgPicture.asset(
+                                AppAssets.deleteIcon2,
+                                height: 16,
+                                colorFilter: ColorFilter.mode(
+                                  AppColor.error,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              backgroundColor: AppColor.lightRed,
                             ),
                           ],
                         ),
                       ],
                     ),
                     verticalSpacing(),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColor.grey10,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Code: ",
+                            style: AppTextStyle.ts12R(color: AppColor.grey),
+                          ),
+                          Text(
+                            department.departmentCode,
+                            style: AppTextStyle.ts14R(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Divider(
+                      color: AppColor.primary.withValues(alpha: .5),
+                      thickness: .5,
+                      height: 25,
+                    ),
                     Row(
                       children: [
                         Row(
                           children: [
-                            Text("Employee Count: ",style: AppTextStyle.ts12R(color: AppColor.grey),),
                             Text(
-                              department.numberOfEmployee.toString(),
-                              style: AppTextStyle.ts14R(),
+                              "Employee Count: ",
+                              style: AppTextStyle.ts12R(color: AppColor.grey),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 6),
+                              decoration: BoxDecoration(
+                                color: AppColor.purple.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                department.numberOfEmployee.toString(),
+                                style: AppTextStyle.ts14R(
+                                  color: AppColor.purple,
+                                ),
+                              ),
                             ),
                           ],
                         ),
-                        Spacer(),
-                        Row(
-                          children: [
-                            CustomIconButton(onPressed: (){}, icon: Icon(Icons.edit,size: 18,),backgroundColor: AppColor.grey10,),
-                            horizontalSpacing(),
-                            CustomIconButton(onPressed: (){
-                              _showPopupToDeleteDepartmentMaster(
-                                context,
-                                department,
-                                state.currentPage,
-                                index,
-                              );
-                            }, icon: Icon(Icons.delete,color: AppColor.error,size: 18,),backgroundColor: AppColor.lightRed,),
-                          ],
-                        )
                       ],
                     ),
                   ],

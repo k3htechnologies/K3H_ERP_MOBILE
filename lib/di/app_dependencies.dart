@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/marketing/content/content.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/masters/project_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
@@ -32,6 +33,8 @@ void initDependencies() {
   registerContentDependencies(serviceLocator);
   // APPROVED BANK DEPENDENCIES
   registerApprovedBankDependencies(serviceLocator);
+  // PROJECT MASTER DEPENDENCIES (must be before calendar as calendar depends on it)
+  registerProjectMasterDependencies(serviceLocator);
   // CALENDAR DEPENDENCIES
   registerCalendarDependencies(serviceLocator);
 }

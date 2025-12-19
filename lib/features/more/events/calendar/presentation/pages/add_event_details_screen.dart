@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
@@ -26,14 +27,14 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
   late CalendarCubit _calendarCubit;
 
   // TEXT CONTROLLER
-  late TextEditingController _titleC, _projectC, _remarkC;
+  late TextEditingController _titleC, _remarkC;
 
   // TYPE LIST
   List<Map<String, dynamic>> typeList = [
     {'zAttributesId': '-1', 'DisplayName': 'Select Type'},
     {'zAttributesId': '1', 'DisplayName': 'Task'},
     {'zAttributesId': '2', 'DisplayName': 'Meeting'},
-    {'zAttributesId': '3', 'DisplayName': 'Conference Room'},
+    {'zAttributesId': '3', 'DisplayName': 'Conference Room Booking'},
   ];
 
   // TYPE LIST
@@ -64,6 +65,7 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
   TimeOfDay? selectedEndTime;
   List<Map<String, dynamic>> _selectedMembers = [];
   List<Map<String, dynamic>> _selectedDepartments = [];
+  Map<String, dynamic> _selectedProjects = {};
   MultiFilePickerModel selectedDocument = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -93,7 +95,6 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
     selectedPriority = priorityList.first;
     selectedRoom = roomList.first;
     _titleC = TextEditingController();
-    _projectC = TextEditingController();
     _remarkC = TextEditingController();
   }
 
@@ -117,7 +118,7 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Add Details',style: AppTextStyle.ts16SB(),),
+              Text('Add Details', style: AppTextStyle.ts16SB()),
               verticalSpacing(),
               Container(
                 padding: EdgeInsets.all(16),
@@ -162,7 +163,8 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
                               });
                             },
                             validator: (value) {
-                              if (value == null || value["zAttributesId"] == "-1") {
+                              if (value == null ||
+                                  value["zAttributesId"] == "-1") {
                                 return "Select valid type";
                               }
                               return null;
@@ -187,15 +189,34 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
                               return null;
                             },
                           ),
-                          CustomTextField(
+                          CustomMultipleSelectPopup(
                             title: "Select Project",
-                            textController: _projectC,
-                            hint: "Enter project",
+                            initialValue:
+                                _selectedProjects.isNotEmpty &&
+                                        _selectedProjects.containsKey(
+                                          "zAttributesId",
+                                        )
+                                    ? [_selectedProjects]
+                                    : [],
+                            dataFetchCallBack: _calendarCubit.getProjectList,
+                            isMultiSelect: false,
+                            dataList: [],
+                            onSelected: (values) {
+                              if (values.isNotEmpty && values[0].isNotEmpty) {
+                                _selectedProjects = values[0];
+                              } else {
+                                _selectedProjects = {};
+                              }
+                            },
                           ),
                           CustomMultipleSelectPopup(
                             title: "Select Department",
-                            initialValue: _selectedDepartments,
+                            initialValue:
+                                _selectedDepartments.isNotEmpty
+                                    ? _selectedDepartments
+                                    : [],
                             dataFetchCallBack: _calendarCubit.getDepartmentList,
+                            isMultiSelect: true,
                             dataList: [],
                             onSelected: (values) {
                               _selectedDepartments = values;
@@ -214,8 +235,35 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
                             visible: selectedType["zAttributesId"] == "1",
                             child: CustomDatePicker(
                               title: "Deadline",
+                              isRequired: true,
                               setValue: (value) {
                                 selectedDeadline = value;
+                              },
+                              validator: (value) {
+                                if (selectedType["zAttributesId"] == "1" &&
+                                    value == null) {
+                                  return "Please select deadline";
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          Visibility(
+                            visible: selectedType["zAttributesId"] == "1",
+                            child: CustomTimePicker(
+                              title: "End Time",
+                              isRequired: true,
+                              initialTime: selectedStartTime,
+                              setValue: (time) {
+                                selectedStartTime = time;
+                              },
+                              validator: (value) {
+                                if (selectedType["zAttributesId"] == "1" &&
+                                    value == null) {
+                                  return "Select valid end time";
+                                }
+
+                                return null;
                               },
                             ),
                           ),
@@ -223,12 +271,21 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
                             visible: selectedType["zAttributesId"] == "1",
                             child: CustomDropDownWidget(
                               title: "Select Priority",
+                              isRequired: true,
                               initialValue: selectedPriority,
                               dataList: priorityList,
                               onSelected: (value) {
                                 innerState(() {
                                   selectedPriority = value;
                                 });
+                              },
+                              validator: (value) {
+                                if (selectedType["zAttributesId"] == "1" &&
+                                    (value == null ||
+                                        value["zAttributesId"] == "-1")) {
+                                  return "Please select priority";
+                                }
+                                return null;
                               },
                             ),
                           ),
@@ -259,8 +316,17 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
                               title:
                                   "Select ${selectedType["zAttributesId"] == "2" ? "Meeting Date" : "Conference Date"}",
                               hint: "DD/MM/YY",
+                              isRequired: true,
                               setValue: (value) {
                                 selectedDate = value;
+                              },
+                              validator: (value) {
+                                if ((selectedType["zAttributesId"] == "2" ||
+                                        selectedType["zAttributesId"] == "3") &&
+                                    value == null) {
+                                  return "Please select date";
+                                }
+                                return null;
                               },
                             ),
                           ),
@@ -274,58 +340,78 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
                                 Expanded(
                                   child: CustomTimePicker(
                                     title: "Start Time",
+                                    isRequired: true,
                                     initialTime: selectedStartTime,
                                     setValue: (time) {
                                       selectedStartTime = time;
                                     },
-                                    // validator: (value) {
-                                    //   if (value == null) {
-                                    //     return "Select valid start time";
-                                    //   }
-                                    //   return null;
-                                    // },
+                                    validator: (value) {
+                                      if ((selectedType["zAttributesId"] ==
+                                                  "2" ||
+                                              selectedType["zAttributesId"] ==
+                                                  "3") &&
+                                          value == null) {
+                                        return "Select valid start time";
+                                      }
+                                      return null;
+                                    },
                                   ),
                                 ),
                                 Expanded(
                                   child: CustomTimePicker(
                                     title: "End Time",
+                                    isRequired: true,
                                     initialTime: selectedEndTime,
                                     setValue: (time) {
                                       selectedEndTime = time;
                                     },
-                                    // validator: (value) {
-                                    //   if (value == null) {
-                                    //     return "Select valid end time";
-                                    //   }
-                                    //
-                                    //   if (selectedStartTime == null) {
-                                    //     return "Select start time first";
-                                    //   }
-                                    //
-                                    //   if (!isEndTimeAfterStart(
-                                    //     selectedStartTime!,
-                                    //     value,
-                                    //   )) {
-                                    //     return "End time must be greater than start time";
-                                    //   }
-                                    //
-                                    //   return null;
-                                    // },
+                                    validator: (value) {
+                                      if ((selectedType["zAttributesId"] ==
+                                                  "2" ||
+                                              selectedType["zAttributesId"] ==
+                                                  "3") &&
+                                          value == null) {
+                                        return "Select valid end time";
+                                      }
+
+                                      if (selectedStartTime == null) {
+                                        return "Select start time first";
+                                      }
+
+                                      if (value != null &&
+                                          !isEndTimeAfterStart(
+                                            selectedStartTime!,
+                                            value,
+                                          )) {
+                                        return "End time must be greater than start time";
+                                      }
+
+                                      return null;
+                                    },
                                   ),
                                 ),
                               ],
                             ),
                           ),
                           Visibility(
-                            visible:
-                                selectedType["zAttributesId"] == "2" ||
-                                selectedType["zAttributesId"] == "3",
+                            visible: selectedType["zAttributesId"] == "3",
                             child: CustomDropDownWidget(
                               title: "Select Room",
+                              isRequired: true,
                               initialValue: selectedRoom,
                               dataList: roomList,
                               onSelected: (value) {
-                                selectedRoom = value;
+                                innerState(() {
+                                  selectedRoom = value;
+                                });
+                              },
+                              validator: (value) {
+                                if (selectedType["zAttributesId"] == "3" &&
+                                    (value == null ||
+                                        value["zAttributesId"] == "-1")) {
+                                  return "Please select room";
+                                }
+                                return null;
                               },
                             ),
                           ),
@@ -354,77 +440,128 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
         ),
       ),
       bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: CustomButton.add(
+        child: Container(
+          color: AppColor.white,
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+          child: CustomButton(
+            text: "Add",
+            backgroundColor: AppColor.primary,
             onPressed: () {
               if (!_formKey.currentState!.validate()) return;
 
+              // Validate that either department or member must be selected
+              final hasDepartments =
+                  _selectedDepartments.isNotEmpty &&
+                  _selectedDepartments.any(
+                    (dept) =>
+                        dept["zAttributesId"] != -1 &&
+                        dept["zAttributesId"] != "-1" &&
+                        dept["zAttributesId"] != null,
+                  );
+              final hasMembers =
+                  _selectedMembers.isNotEmpty &&
+                  _selectedMembers.any(
+                    (member) =>
+                        member["zAttributesId"] != -1 &&
+                        member["zAttributesId"] != "-1" &&
+                        member["zAttributesId"] != null,
+                  );
+
+              if (!hasDepartments && !hasMembers) {
+                showErrorMessage(
+                  context,
+                  "Validation Error",
+                  "Please select at least one department or member",
+                );
+                return;
+              }
+
               final typeId = selectedType["zAttributesId"];
 
-              if ((typeId == "2" || typeId == "3") && selectedDate == null) {
-                print("Please select date");
-                return;
+              // Convert type ID to type name
+              String eventType = "";
+              if (typeId == "1") {
+                eventType = "Task";
+              } else if (typeId == "2") {
+                eventType = "Meeting";
+              } else if (typeId == "3") {
+                eventType = "Conference Room Booking";
               }
 
+              // Convert departments list to comma-separated string
+              String departmentsStr = _selectedDepartments
+                  .map((dept) => dept["zAttributesId"].toString())
+                  .where((id) => id != "-1")
+                  .join(",");
+
+              // Convert members list to comma-separated string
+              String membersStr = _selectedMembers
+                  .map((member) => member["zAttributesId"].toString())
+                  .where((id) => id != "-1")
+                  .join(",");
+
+              // Get project ID
+              String projectId = "";
+              if (_selectedProjects.isNotEmpty &&
+                  _selectedProjects.containsKey("zAttributesId")) {
+                projectId =
+                    _selectedProjects["zAttributesId"]?.toString() ?? "";
+              }
+
+              // Format date for task deadline or meeting/conference date
+              String dateStr = "";
+              String deadlineStr = "";
+              if (typeId == "1") {
+                deadlineStr = selectedDeadline?.toIso8601String() ?? "";
+              } else if (typeId == "2" || typeId == "3") {
+                dateStr = selectedDate?.toIso8601String() ?? "";
+              }
+
+              // Format time strings in HH:mm format (24-hour format)
+              String startTimeStr = "";
+              String endTimeStr = "";
+
+              // start time only for 2 & 3
+              if ((typeId == "1" ||  typeId == "2" || typeId == "3") &&
+                  selectedStartTime != null) {
+                startTimeStr =
+                    "${selectedStartTime!.hour.toString().padLeft(2, '0')}:${selectedStartTime!.minute.toString().padLeft(2, '0')}";
+              }
+
+              // end time for 1,2,3
               if ((typeId == "2" || typeId == "3") &&
-                  (selectedStartTime == null || selectedEndTime == null)) {
-                print("Please select start and end time");
-                return;
+                  selectedEndTime != null) {
+                endTimeStr =
+                    "${selectedEndTime!.hour.toString().padLeft(2, '0')}:${selectedEndTime!.minute.toString().padLeft(2, '0')}";
               }
 
-              if ((typeId == "1") && selectedDeadline == null) {
-                print("Please select deadline");
-                return;
-              }
+              // Get priority
+              String priorityStr =
+                  typeId == "1"
+                      ? (selectedPriority["DisplayName"]?.toString() ?? "")
+                      : "";
 
-              if ((typeId == "1") &&
-                  selectedPriority["zAttributesId"] == "-1") {
-                print("Please select priority");
-                return;
-              }
+              // Get room
+              String roomStr =
+                  typeId == "3" ? (selectedRoom["DisplayName"] ?? "") : "";
 
-              if (typeId == "3" && selectedRoom['zAttributedId'] == "-1") {
-                print("Please select room");
-                return;
-              }
-
-              final Map<String, String> payload = {
-                "typeId": typeId ?? "",
-                "title": _titleC.text,
-                "project": _projectC.text,
-                "departments": "",
-                "members": "",
-                "deadline":
-                    typeId == "1"
-                        ? (selectedDeadline?.toIso8601String() ?? "")
-                        : "",
-                "priorityId":
-                    typeId == "1"
-                        ? (selectedPriority["zAttributesId"] ?? "")
-                        : "",
-                "date":
-                    (typeId == "2" || typeId == "3")
-                        ? (selectedDate?.toIso8601String() ?? "")
-                        : "",
-                "startTime":
-                    (typeId == "2" || typeId == "3")
-                        ? (selectedStartTime != null
-                            ? selectedStartTime!.format(context)
-                            : "")
-                        : "",
-                "endTime":
-                    (typeId == "2" || typeId == "3")
-                        ? (selectedEndTime != null
-                            ? selectedEndTime!.format(context)
-                            : "")
-                        : "",
-                "roomId":
-                    typeId == "3" ? (selectedRoom["DisplayName"] ?? "") : "",
-                "description": _remarkC.text.trim(),
-              };
-
-              debugPrint("FORM PAYLOAD → $payload");
+              // Call the add event API
+              _calendarCubit.addEvent(
+                context: context,
+                type: eventType,
+                title: _titleC.text.trim(),
+                projects: projectId,
+                departments: departmentsStr,
+                members: membersStr,
+                date: dateStr,
+                deadlineDate: deadlineStr,
+                startTime: startTimeStr,
+                endTime: endTimeStr,
+                room: roomStr,
+                priority: priorityStr,
+                description: _remarkC.text.trim(),
+                document: selectedDocument,
+              );
             },
           ),
         ),

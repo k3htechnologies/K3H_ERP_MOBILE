@@ -347,8 +347,8 @@ class _DropdownListState extends State<DropdownList> {
 
   String searchText = '';
 
-  // For single select (radio button), store the selected ID
-  int? selectedRadioId;
+  // For single select (radio button), store the selected ID (can be int or String)
+  dynamic selectedRadioId;
 
   Future<void> _fetchData() async {
     if (isLoading) return; // Prevent multiple simultaneous calls
@@ -359,25 +359,36 @@ class _DropdownListState extends State<DropdownList> {
       value: searchText,
     );
 
-    List<Map<String, dynamic>> fetchedItems = List<Map<String, dynamic>>.from(
-      result['itemList'],
-    );
+    // Create new maps to avoid type conflicts
+    List<Map<String, dynamic>> fetchedItems = (result['itemList'] as List)
+        .map((e) => Map<String, dynamic>.from(e as Map))
+        .toList();
 
     // Mark API items as checked if already selected
-    for (var item in fetchedItems) {
+    for (int i = 0; i < fetchedItems.length; i++) {
+      final item = fetchedItems[i];
       if (widget.isMultiSelect) {
-        item['isChecked'] = widget.initialValue.any(
-          (selected) => selected['zAttributesId'] == item['zAttributesId'],
-        );
+        fetchedItems[i] = {
+          ...item,
+          'isChecked': widget.initialValue.any(
+            (selected) => selected['zAttributesId'] == item['zAttributesId'],
+          ),
+        };
       } else {
         // For single select, check if this is the selected item
         if (widget.initialValue.isNotEmpty &&
             widget.initialValue.first['zAttributesId'] ==
                 item['zAttributesId']) {
-          item['isChecked'] = true;
+          fetchedItems[i] = {
+            ...item,
+            'isChecked': true,
+          };
           selectedRadioId = item['zAttributesId'];
         } else {
-          item['isChecked'] = false;
+          fetchedItems[i] = {
+            ...item,
+            'isChecked': false,
+          };
         }
       }
     }
@@ -458,12 +469,19 @@ class _DropdownListState extends State<DropdownList> {
   void initState() {
     super.initState();
     searchC = TextEditingController();
-    initialIds =
-        widget.initialValue.map<int>((e) => e['zAttributesId']).toList();
+    initialIds = widget.initialValue
+        .where((e) => e['zAttributesId'] != null)
+        .map<int>((e) => e['zAttributesId'] is int 
+            ? e['zAttributesId'] 
+            : int.tryParse(e['zAttributesId'].toString()) ?? -1)
+        .toList();
 
     // For single select, set the initial selected ID
     if (!widget.isMultiSelect && widget.initialValue.isNotEmpty) {
-      selectedRadioId = widget.initialValue.first['zAttributesId'];
+      final firstItem = widget.initialValue.first;
+      if (firstItem['zAttributesId'] != null) {
+        selectedRadioId = firstItem['zAttributesId'];
+      }
     }
 
     // SCROLL CONTROLLER
@@ -482,19 +500,29 @@ class _DropdownListState extends State<DropdownList> {
           widget.dataList
               .map((item) => Map<String, dynamic>.from(item))
               .toList();
-      for (var item in tempDataListForSearch) {
+      for (int i = 0; i < tempDataListForSearch.length; i++) {
+        final item = tempDataListForSearch[i];
         if (widget.isMultiSelect) {
-          item['isChecked'] = widget.initialValue.any(
-            (selected) => selected['zAttributesId'] == item['zAttributesId'],
-          );
+          tempDataListForSearch[i] = {
+            ...item,
+            'isChecked': widget.initialValue.any(
+              (selected) => selected['zAttributesId'] == item['zAttributesId'],
+            ),
+          };
         } else {
           if (widget.initialValue.isNotEmpty &&
               widget.initialValue.first['zAttributesId'] ==
                   item['zAttributesId']) {
-            item['isChecked'] = true;
+            tempDataListForSearch[i] = {
+              ...item,
+              'isChecked': true,
+            };
             selectedRadioId = item['zAttributesId'];
           } else {
-            item['isChecked'] = false;
+            tempDataListForSearch[i] = {
+              ...item,
+              'isChecked': false,
+            };
           }
         }
       }
@@ -513,16 +541,33 @@ class _DropdownListState extends State<DropdownList> {
     setState(() {
       if (widget.isMultiSelect) {
         // Multi-select: toggle checkbox
-        item['isChecked'] = !(item['isChecked'] ?? false);
+        final index = tempDataListForSearch.indexWhere(
+          (e) => e['zAttributesId'] == item['zAttributesId'],
+        );
+        if (index != -1) {
+          tempDataListForSearch[index] = {
+            ...tempDataListForSearch[index],
+            'isChecked': !(tempDataListForSearch[index]['isChecked'] ?? false),
+          };
+        }
       } else {
         // Single select: radio button behavior
-        // Uncheck all items first
-        for (var listItem in tempDataListForSearch) {
-          listItem['isChecked'] = false;
+        // Uncheck all items first, then check the selected item
+        for (int i = 0; i < tempDataListForSearch.length; i++) {
+          final isSelected = tempDataListForSearch[i]['zAttributesId'] == item['zAttributesId'];
+          tempDataListForSearch[i] = {
+            ...tempDataListForSearch[i],
+            'isChecked': isSelected,
+          };
+          if (isSelected) {
+            selectedRadioId = item['zAttributesId'];
+          } else {
+            // Clear selection if this item was previously selected
+            if (selectedRadioId == item['zAttributesId']) {
+              selectedRadioId = null;
+            }
+          }
         }
-        // Check the selected item
-        item['isChecked'] = true;
-        selectedRadioId = item['zAttributesId'];
       }
     });
   }
@@ -606,7 +651,7 @@ class _DropdownListState extends State<DropdownList> {
                                               ? (item['isChecked'] ?? false
                                                   ? Icon(
                                                     Icons.check_box,
-                                                    color: AppColor.green,
+                                                    color: AppColor.primary,
                                                     size: 20,
                                                   )
                                                   : Icon(
@@ -641,48 +686,50 @@ class _DropdownListState extends State<DropdownList> {
                 ),
               ),
             ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            style: ButtonStyle(
-              fixedSize: WidgetStateProperty.all(const Size(30, 40)),
-              backgroundColor: WidgetStateProperty.all(AppColor.primary),
-            ),
-            onPressed: () {
-              if (widget.isMultiSelect) {
-                final selected =
-                    tempDataListForSearch
-                        .where((e) => e['isChecked'] ?? false)
-                        .toList();
-                if (widget.onSelectCallback != null) {
-                  widget.onSelectCallback!(selected);
-                } else {
-                  Navigator.of(context).pop(selected);
-                }
-              } else {
-                // For single select, return a list with one item
-                final selectedItem = tempDataListForSearch.firstWhere(
-                  (e) => e['isChecked'] == true,
-                  orElse: () => <String, dynamic>{},
-                );
-                if (selectedItem.isNotEmpty) {
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              style: ButtonStyle(
+                fixedSize: WidgetStateProperty.all(const Size(30, 40)),
+                backgroundColor: WidgetStateProperty.all(AppColor.primary),
+              ),
+              onPressed: () {
+                if (widget.isMultiSelect) {
+                  final selected =
+                      tempDataListForSearch
+                          .where((e) => e['isChecked'] ?? false)
+                          .toList();
                   if (widget.onSelectCallback != null) {
-                    widget.onSelectCallback!([selectedItem]);
+                    widget.onSelectCallback!(selected);
                   } else {
-                    Navigator.of(context).pop([selectedItem]);
+                    Navigator.of(context).pop(selected);
                   }
                 } else {
-                  if (widget.onSelectCallback != null) {
-                    widget.onSelectCallback!([]);
+                  // For single select, return a list with one item
+                  final selectedItem = tempDataListForSearch.firstWhere(
+                    (e) => e['isChecked'] == true,
+                    orElse: () => <String, dynamic>{},
+                  );
+                  if (selectedItem.isNotEmpty) {
+                    if (widget.onSelectCallback != null) {
+                      widget.onSelectCallback!([selectedItem]);
+                    } else {
+                      Navigator.of(context).pop([selectedItem]);
+                    }
                   } else {
-                    Navigator.of(context).pop([]);
+                    if (widget.onSelectCallback != null) {
+                      widget.onSelectCallback!([]);
+                    } else {
+                      Navigator.of(context).pop([]);
+                    }
                   }
                 }
-              }
-            },
-            child: Text(
-              'Select',
-              style: AppTextStyle.ts14M(color: AppColor.white),
+              },
+              child: Text(
+                'Select',
+                style: AppTextStyle.ts14M(color: AppColor.white),
+              ),
             ),
           ),
         ),
