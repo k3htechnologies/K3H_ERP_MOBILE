@@ -155,6 +155,8 @@ class AppRoutes {
   static String calendar = "/event";
   static String calendarDetail = "/calendarDetail";
   static String addDetailsCalendar = "/addDetailsCalendar";
+  // TASK
+  static String taskTransferHistory = "/taskTransferHistory";
 
   // MENU
   static String menu = "/menu";

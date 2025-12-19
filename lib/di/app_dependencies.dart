@@ -9,6 +9,7 @@ import 'feature_dependencies/masters/department_master.dependencies.dart';
 import 'feature_dependencies/masters/designation_master.dependencies.dart';
 import 'feature_dependencies/masters/employee_master.dependencies.dart';
 import 'feature_dependencies/project_management/approved_bank/approved_bank.dependencies.dart';
+import 'feature_dependencies/vendor_management/vendor_management.dependencies.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
@@ -25,6 +26,8 @@ void initDependencies() {
   registerDesignationMasterDependencies(serviceLocator);
   // EMPLOYEE MASTER DEPENDENCIES
   registerEmployeeMasterDependencies(serviceLocator);
+  // VENDOR MANAGEMENT DEPENDENCIES
+  registerVendorManagementDependencies(serviceLocator);
   // CONTENT DEPENDENCIES
   registerContentDependencies(serviceLocator);
   // APPROVED BANK DEPENDENCIES

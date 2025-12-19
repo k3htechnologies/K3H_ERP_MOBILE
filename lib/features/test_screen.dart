@@ -96,7 +96,7 @@ class TestScreen extends StatelessWidget {
                 onPressed: () {
                   DialogHelper.showProcessingOverlay(context);
                 },
-                icon: Icons.notifications_none,
+                icon: Icon(Icons.notifications_none,color: AppColor.primary,),
               ),
               Text(formatDateTimeAsDDMMMYYYY(DateTime.now())),
               GestureDetector(

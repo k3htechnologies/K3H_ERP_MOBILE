@@ -140,9 +140,8 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                           onPressed: () {
                             widget.onAddCallback!();
                           },
-                          icon: Icons.add,
+                          icon: Icon(Icons.add),
                           backgroundColor: AppColor.lightGreen,
-                          iconColor: AppColor.darkGreen,
                         )
                         : Container(),
                     widget.authorization.isAction &&
@@ -183,9 +182,8 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                               ],
                             );
                           },
-                          icon: Icons.file_download,
+                          icon: Icon(Icons.file_download),
                           backgroundColor: AppColor.lightRed,
-                          iconColor: AppColor.error,
                         )
                         : Container(),
                   ],

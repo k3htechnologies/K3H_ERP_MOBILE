@@ -3,19 +3,18 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/cubit/department_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -27,8 +26,7 @@ class DepartmentMasterScreen extends StatefulWidget {
       _DepartmentMasterMobileScreenState();
 }
 
-class _DepartmentMasterMobileScreenState
-    extends State<DepartmentMasterScreen> {
+class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
   // CUBIT
   late DepartmentMasterCubit _departmentMasterCubit;
 
@@ -245,7 +243,6 @@ class _DepartmentMasterMobileScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.greyBackground,
       appBar: CustomAppBar(
         screenTitle: 'Department',
         authorization: _routeAuthorizationModel,
@@ -290,132 +287,58 @@ class _DepartmentMasterMobileScreenState
               }
               var department = state.departmentList[index];
               return Container(
-                margin: EdgeInsets.only(bottom: 10),
-                decoration: BoxDecoration(
-                  color: AppColor.white,
-                  border: Border.all(
-                    color: AppColor.grey.withValues(alpha: 0.3),
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                margin: EdgeInsets.only(bottom: 20),
+                padding: EdgeInsets.all(12),
+                decoration: commonCardDecoration(),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      padding: EdgeInsets.only(top: 10, left: 8, right: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Department Name:",
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTextStyle.ts12R(
-                                    color: AppColor.grey,
-                                  ),
-                                ),
-                                Text(
-                                  department.departmentName,
-                                  style: AppTextStyle.ts14R(),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  "Created By/Date :",
-                                  style: AppTextStyle.ts12R(
-                                    color: AppColor.grey,
-                                  ),
-                                ),
-                                Text(
-                                  "${department.createdBy} \n${formatDateTimeAsDDMMMYYYY(department.createdDate)}",
-                                  style: AppTextStyle.ts14R(),
-                                ),
-                              ],
+                    Row(
+                      children: [
+                        Text(
+                          department.departmentName,
+                          style: AppTextStyle.ts14R(),
+                        ),
+                        Spacer(),
+                        Row(
+                          children: [
+                            Text("Code: ",style: AppTextStyle.ts12R(color: AppColor.grey),),
+                            Text(
+                              department.departmentCode,
+                              style: AppTextStyle.ts14R(),
                             ),
-                          ),
-                          Flexible(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Department Code :",
-                                  style: AppTextStyle.ts12R(
-                                    color: AppColor.grey,
-                                  ),
-                                ),
-                                Text(
-                                  department.departmentCode,
-                                  style: AppTextStyle.ts14R(),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  "Modified By/Date :",
-                                  style: AppTextStyle.ts12R(
-                                    color: AppColor.grey,
-                                  ),
-                                ),
-                                Text(
-                                  "${department.modifiedBy.isNotEmpty ? department.modifiedBy : "-"} \n${department.modifiedDate != null ? formatDateTimeAsDDMMMYYYY(department.modifiedDate!) : '-'}",
-                                  style: AppTextStyle.ts14R(),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                     ),
                     verticalSpacing(),
-                    Container(
-                      clipBehavior: Clip.hardEdge,
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColor.grey.withValues(alpha: 0.05),
-                        border: Border(
-                          top: BorderSide(
-                            color: AppColor.grey.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(12),
-                          bottomRight: Radius.circular(12),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              _showBottomSheetToAddUpdateDepartmentMaster(
-                                context,
-                                state,
-                                index: index,
-                                department: department,
-                              );
-                            },
-                            child: SvgPicture.asset(
-                              AppAssets.editIcon,
-                              height: 24,
+                    Row(
+                      children: [
+                        Row(
+                          children: [
+                            Text("Employee Count: ",style: AppTextStyle.ts12R(color: AppColor.grey),),
+                            Text(
+                              department.numberOfEmployee.toString(),
+                              style: AppTextStyle.ts14R(),
                             ),
-                          ),
-                          horizontalSpacing(width: 20),
-                          GestureDetector(
-                            onTap: () {
+                          ],
+                        ),
+                        Spacer(),
+                        Row(
+                          children: [
+                            CustomIconButton(onPressed: (){}, icon: Icon(Icons.edit,size: 18,),backgroundColor: AppColor.grey10,),
+                            horizontalSpacing(),
+                            CustomIconButton(onPressed: (){
                               _showPopupToDeleteDepartmentMaster(
                                 context,
                                 department,
                                 state.currentPage,
                                 index,
                               );
-                            },
-                            child: SvgPicture.asset(
-                              AppAssets.deleteIcon,
-                              height: 24,
-                            ),
-                          ),
-                        ],
-                      ),
+                            }, icon: Icon(Icons.delete,color: AppColor.error,size: 18,),backgroundColor: AppColor.lightRed,),
+                          ],
+                        )
+                      ],
                     ),
                   ],
                 ),

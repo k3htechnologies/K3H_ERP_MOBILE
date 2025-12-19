@@ -4,12 +4,12 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/calendar/data/datasource/calendar.datasource.dart';
-import 'package:k3h_erp_app/features/calendar/data/models/calendar_event.dart';
-import 'package:k3h_erp_app/features/calendar/data/repository/calendar.repository.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
+import 'package:k3h_erp_app/features/more/events/calendar/data/datasource/calendar.datasource.dart';
+import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart';
+import 'package:k3h_erp_app/features/more/events/calendar/data/repository/calendar.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -102,13 +102,13 @@ class CalendarCubit extends Cubit<CalendarState> {
     required String projects,
     required String departments,
     required String members,
-    required String startDate,
+    required String date,
     required String deadlineDate,
     required String startTime,
     required String endTime,
     required String room,
     required String priority,
-    required String remark,
+    required String description,
     required MultiFilePickerModel document,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -117,16 +117,16 @@ class CalendarCubit extends Cubit<CalendarState> {
       "EventId": "0",
       "Type": type,
       "Title": title,
-      "Projects": projects,
+      "ProjectId": projects,
       "Departments": departments,
       "Members": members,
-      "StartDate": startDate,
+      "Date": date,
       "DeadlineDate": deadlineDate,
       "StartTime": startTime,
       "EndTime": endTime,
       "Room": room,
       "Priority": priority,
-      "Remark": remark,
+      "Description": description,
     };
 
     List<Map<String, dynamic>> fileList = [];
@@ -178,13 +178,13 @@ class CalendarCubit extends Cubit<CalendarState> {
     required String projects,
     required String departments,
     required String members,
-    required String startDate,
+    required String date,
     required String deadlineDate,
     required String startTime,
     required String endTime,
     required String room,
     required String priority,
-    required String remark,
+    required String description,
     required MultiFilePickerModel document,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -197,13 +197,13 @@ class CalendarCubit extends Cubit<CalendarState> {
       "Projects": projects,
       "Departments": departments,
       "Members": members,
-      "StartDate": startDate,
+      "Date": date,
       "DeadlineDate": deadlineDate,
       "StartTime": startTime,
       "EndTime": endTime,
       "Room": room,
       "Priority": priority,
-      "Remark": remark,
+      "Description": description,
       "RemoveDocumentURL": document.deletedFileList,
     };
 

@@ -3,18 +3,16 @@ import 'package:k3h_erp_app/style/app_color.dart';
 
 class CustomIconButton extends StatelessWidget {
   final VoidCallback onPressed;
-  final IconData icon;
-  final Color? iconColor;
+  final Widget icon; // <--- changed
   final Color? backgroundColor;
   final double? size;
 
   const CustomIconButton({
     super.key,
     required this.onPressed,
-    required this.icon,
-    this.iconColor=AppColor.primary,
-    this.backgroundColor=AppColor.lightBlue,
-    this.size=16,
+    required this.icon,     // <--- widget now
+    this.backgroundColor = AppColor.lightBlue,
+    this.size = 16,
   });
 
   @override
@@ -26,8 +24,12 @@ class CustomIconButton extends StatelessWidget {
           color: backgroundColor,
           borderRadius: BorderRadius.circular(8),
         ),
-        padding: EdgeInsets.all(6),
-        child: Icon(icon,color: iconColor,size: size,),
+        padding: const EdgeInsets.all(4),
+        child: SizedBox(
+          height: size,
+          width: size,
+          child: icon, // <--- widget rendered here
+        ),
       ),
     );
   }

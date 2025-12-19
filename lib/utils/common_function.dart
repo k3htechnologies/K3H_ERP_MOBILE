@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/custom_file_preview_dialogue_content.dart';
 import 'package:open_file/open_file.dart';
@@ -105,8 +106,8 @@ Future<void> updateRouteAuthorization(List<ModuleModel> moduleData) async {
 }
 
 Map<String, AuthorizationModel> _processRouteAuthorizationModules(
-    List<ModuleModel> modules,
-    ) {
+  List<ModuleModel> modules,
+) {
   final updatedMap = <String, AuthorizationModel>{};
 
   for (var module in modules) {
@@ -121,7 +122,7 @@ Map<String, AuthorizationModel> _processRouteAuthorizationModules(
         for (var subSubModule in subModule.subSubModuleData) {
           updatedMap[subSubModule.path] = AuthorizationModel(
             isAccess:
-            subSubModule.isAction ||
+                subSubModule.isAction ||
                 subSubModule.isExport ||
                 subSubModule.isView,
             isAction: subSubModule.isAction,
@@ -154,10 +155,10 @@ Future showSuccessMessage(BuildContext context, {String? title}) async {
 
 // SHOW ERROR MESSAGE
 Future showErrorMessage(
-    BuildContext context,
-    String title,
-    String message,
-    ) async {
+  BuildContext context,
+  String title,
+  String message,
+) async {
   if (message.contains("Menu")) {
     DialogHelper.showMenuChangedErrorDialog(context: context);
   } else {
@@ -181,7 +182,9 @@ bool isValidMobileNumber(String value) {
 
 // DATE FORMATTERS
 String formatDateTimeAsDDMMMYYYY(DateTime d, {String? separator}) {
-  return DateFormat('dd${separator ?? '-'}MMM${separator ?? '-'}yyyy').format(d);
+  return DateFormat(
+    'dd${separator ?? '-'}MMM${separator ?? '-'}yyyy',
+  ).format(d);
 }
 
 // <---- EXPORT AND DOWNLOAD FILE FOR MOBILE ---->
@@ -205,17 +208,44 @@ Future<void> exportExcelOrPdfMobile(String base64, String fileName) async {
 }
 
 void showFilePreviewDialog(
-    BuildContext context,
-    List<String> urls, {
-      List<Uint8List>? fileBytes,
-    }) {
+  BuildContext context,
+  List<String> urls, {
+  List<Uint8List>? fileBytes,
+}) {
   showDialog(
     context: context,
     builder:
         (context) => Dialog(
-      insetPadding: const EdgeInsets.all(20),
-      backgroundColor: Colors.white,
-      child: CommonFileViewer(urls: urls, fileBytes: fileBytes),
-    ),
+          insetPadding: const EdgeInsets.all(20),
+          backgroundColor: Colors.white,
+          child: CommonFileViewer(urls: urls, fileBytes: fileBytes),
+        ),
   );
 }
+
+// <--- COMMON STYLE --->
+
+BoxDecoration commonCardDecoration() => BoxDecoration(
+  color: AppColor.white,
+  borderRadius: BorderRadius.circular(8),
+  boxShadow: [
+    BoxShadow(
+      color: AppColor.black.withValues(alpha: 0.05),
+      blurRadius: 2,
+      spreadRadius: 0,
+      offset: Offset(0, 2),
+    ),
+    BoxShadow(
+      color: AppColor.black.withValues(alpha: 0.0),
+      blurRadius: 0,
+      spreadRadius: 0,
+      offset: Offset(0, 2),
+    ),
+    BoxShadow(
+      color: AppColor.black.withValues(alpha: 0.0),
+      blurRadius: 0,
+      spreadRadius: 0,
+      offset: Offset(0, 0),
+    ),
+  ],
+);

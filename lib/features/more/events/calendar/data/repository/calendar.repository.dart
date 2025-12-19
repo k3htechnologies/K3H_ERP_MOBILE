@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
-import 'package:k3h_erp_app/features/calendar/data/datasource/calendar.datasource.dart';
+import 'package:k3h_erp_app/features/more/events/calendar/data/datasource/calendar.datasource.dart';
 
 abstract interface class CalendarRepository {
   Future<Either<Failure, Map<String, dynamic>>> getEventList({

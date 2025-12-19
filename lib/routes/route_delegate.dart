@@ -12,14 +12,14 @@ import 'package:k3h_erp_app/core/presentation/cubit/main_screen_cubit.dart';
 import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/core/presentation/pages/no_authorised_screen.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/calendar/presentation/pages/add_event_details_screen.dart';
-import 'package:k3h_erp_app/features/calendar/presentation/pages/calendar_screen.dart';
-import 'package:k3h_erp_app/features/calendar/presentation/cubit/calendar_cubit.dart';
-import 'package:k3h_erp_app/features/calendar/presentation/pages/calendar_date_detail_screen.dart';
 import 'package:k3h_erp_app/features/menu/presentation/pages/menu_screen.dart';
+import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart';
+import 'package:k3h_erp_app/features/more/events/calendar/presentation/cubit/calendar_cubit.dart';
+import 'package:k3h_erp_app/features/more/events/calendar/presentation/pages/add_event_details_screen.dart';
+import 'package:k3h_erp_app/features/more/events/calendar/presentation/pages/calendar_date_detail_screen.dart';
+import 'package:k3h_erp_app/features/more/events/calendar/presentation/pages/calendar_screen.dart';
+import 'package:k3h_erp_app/features/more/events/task/presentation/pages/task_transfer_history_screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
-import 'package:k3h_erp_app/features/calendar/data/models/calendar_event.dart'
-    as calendar_models;
 import 'package:k3h_erp_app/features/dashboard/dashboard_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_screen.dart';
 import 'package:k3h_erp_app/features/login/presentation/pages/login_screen.dart';
@@ -48,6 +48,8 @@ import 'package:k3h_erp_app/features/project_management/approved_bank/presentati
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_file_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_folder_screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
+import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
+import 'package:k3h_erp_app/features/vendor_management/presentation/pages/vendor_screen.dart';
 import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
@@ -292,7 +294,7 @@ final GoRouter goRouter = GoRouter(
           },
         ),
         // CALENDAR
-       /* GoRoute(
+        /* GoRoute(
           path: AppRoutes.calendar,
           name: AppRoutes.calendar,
           builder: (context, state) {
@@ -352,10 +354,7 @@ final GoRouter goRouter = GoRouter(
         ),*/
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => CalendarCubit(),
-              child: child,
-            );
+            return BlocProvider(create: (_) => CalendarCubit(), child: child);
           },
           routes: [
             GoRoute(
@@ -390,13 +389,13 @@ final GoRouter goRouter = GoRouter(
 
                   final eventsJson = (data['events'] as List<dynamic>? ?? []);
                   final events =
-                  eventsJson
-                      .map(
-                        (e) => calendar_models.CalendarEventModel.fromJson(
-                      Map<String, dynamic>.from(e as Map),
-                    ),
-                  )
-                      .toList();
+                      eventsJson
+                          .map(
+                            (e) => CalendarEventModel.fromJson(
+                              Map<String, dynamic>.from(e as Map),
+                            ),
+                          )
+                          .toList();
 
                   return CalendarDateDetailScreen(date: date, events: events);
                 } catch (_) {
@@ -408,6 +407,14 @@ final GoRouter goRouter = GoRouter(
               },
             ),
           ],
+        ),
+        // TASK TRANSFER
+        GoRoute(
+          path: AppRoutes.taskTransferHistory,
+          name: AppRoutes.taskTransferHistory,
+          builder: (context, state) {
+            return TaskTransferHistoryScreen();
+          },
         ),
         // MENU
         GoRoute(
@@ -501,6 +508,17 @@ final GoRouter goRouter = GoRouter(
               },
             ),
           ],
+        ),
+        GoRoute(
+          path: AppRoutes.vendor,
+          name: AppRoutes.vendor,
+          builder: (context, state) {
+            return BlocProvider(
+              create: (context) => VendorCubit(),
+              child: VendorScreen(),
+            );
+          },
+          routes: [],
         ),
         // INVENTORY
         GoRoute(

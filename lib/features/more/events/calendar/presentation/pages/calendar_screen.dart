@@ -8,13 +8,13 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/calendar/data/models/calendar_event.dart'
+import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart'
     show
         CalendarEventModel,
         CalendarEventType,
         eventTypeColor,
         CalendarEventTypeMapper;
-import 'package:k3h_erp_app/features/calendar/presentation/cubit/calendar_cubit.dart';
+import 'package:k3h_erp_app/features/more/events/calendar/presentation/cubit/calendar_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -148,18 +148,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
     setState(() {
       selectedDate = date;
     });
-    if (_selectedTabIndex == 1) {
-      final selectedEvents = _eventsForDate(source, date);
-      final payload = {
-        'date': date.toIso8601String(),
-        'events': selectedEvents.map((e) => e.toJson()).toList(),
-      };
-      final encrypted = EncryptionManager.encryptData(jsonEncode(payload));
-      context.pushNamed(
-        AppRoutes.calendarDetail,
-        queryParameters: {'data': Uri.encodeComponent(encrypted)},
-      );
-    }
+    final selectedEvents = _eventsForDate(source, date);
+    final payload = {
+      'date': date.toIso8601String(),
+      'events': selectedEvents.map((e) => e.toJson()).toList(),
+    };
+    final encrypted = EncryptionManager.encryptData(jsonEncode(payload));
+    context.pushNamed(
+      AppRoutes.calendarDetail,
+      queryParameters: {'data': Uri.encodeComponent(encrypted)},
+    );
   }
 
   // FILTER OVERLAY
@@ -186,9 +184,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(color: Colors.black26, blurRadius: 8),
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColor.black.withValues(alpha: .05),
+                            blurRadius: 0,
+                            spreadRadius: 2,
+                            offset: Offset(0, 2),
+                          ),
+                          BoxShadow(
+                            color: AppColor.black.withValues(alpha: .0),
+                            blurRadius: 0,
+                            spreadRadius: 0,
+                            offset: Offset(0, 0),
+                          ),
                         ],
                       ),
                       child: StatefulBuilder(
@@ -197,18 +206,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              /// Header
+                              // HEADER
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text(
-                                    "Sort By",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                    ),
-                                  ),
+                                  Text("Sort By", style: AppTextStyle.ts16SB()),
                                   InkWell(
                                     onTap: () {
                                       _overlayEntry?.remove();
@@ -219,9 +222,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 ],
                               ),
 
-                              const Divider(),
+                              Divider(color: AppColor.grey, thickness: .5),
 
-                              /// Radio options
+                              // RADIO OPTIONS
                               _buildRadio(
                                 title: "All",
                                 value: SortType.all,
@@ -266,7 +269,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 },
                               ),
                               _buildRadio(
-                                title: "Conference",
+                                title: "Conference Room",
                                 value: SortType.conference,
                                 groupValue: selectedSortType,
                                 onChanged: (value) {
@@ -302,7 +305,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       case SortType.meeting:
         return "Meeting";
       case SortType.conference:
-        return "Conference";
+        return "Conference Room";
       case SortType.all:
         return "Filter";
       default:
@@ -933,7 +936,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       }
 
                       return GestureDetector(
-                        onTap: () => _onDateSelected(currentDate, sourceEvents),
+                        onTap: () {
+                          _onDateSelected(currentDate, sourceEvents);
+                        },
                         child: _DayCell(
                           day: currentDate.day,
                           isToday: isToday,
@@ -1176,11 +1181,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
               ),
               Spacer(),
-              CustomIconButton(onPressed: () {}, icon: Icons.history),
+              CustomIconButton(
+                onPressed: () {
+                  goRouter.pushNamed(AppRoutes.taskTransferHistory);
+                },
+                icon: Icon(Icons.history),
+              ),
               horizontalSpacing(width: 4),
               CustomIconButton(
                 onPressed: () {},
-                icon: Icons.compare_arrows_outlined,
+                icon: Icon(Icons.compare_arrows_outlined),
               ),
             ],
           ),

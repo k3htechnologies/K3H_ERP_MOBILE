@@ -32,10 +32,9 @@ class CustomAppBarWithBackButton extends StatelessWidget
     return Padding(
       padding: const EdgeInsets.only(right: 10),
       child: CustomIconButton(
-        icon: icon,
+        icon: Icon(icon),
         onPressed: onTap,
         backgroundColor: backgroundColor,
-        iconColor: iconColor,
       ),
     );
   }
