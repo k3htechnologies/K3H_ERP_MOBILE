@@ -54,8 +54,12 @@ import 'package:k3h_erp_app/features/project_management/approved_bank/presentati
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_file_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_folder_screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
+import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
+import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor_add/vendor_add_cubit.dart';
+import 'package:k3h_erp_app/features/vendor_management/presentation/pages/add_vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/vendor_screen.dart';
+import 'package:k3h_erp_app/features/vendor_management/presentation/pages/view_details_vendor_screen.dart';
 import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
@@ -543,6 +547,7 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
+        // VENDOR
         GoRoute(
           path: AppRoutes.vendor,
           name: AppRoutes.vendor,
@@ -552,7 +557,50 @@ final GoRouter goRouter = GoRouter(
               child: VendorScreen(),
             );
           },
-          routes: [],
+          routes: [
+            GoRoute(
+              parentNavigatorKey: navigatorKey,
+              name: AppRoutes.addVendor,
+              path: AppRoutes.addVendor,
+              builder: (context, state) {
+                final queryParameterVendor =
+                    state.uri.queryParameters['vendor'];
+                final VendorModel? vendor =
+                    queryParameterVendor != null
+                        ? VendorModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterVendor),
+                            ),
+                          ),
+                        )
+                        : null;
+                return BlocProvider(
+                  create: (context) => VendorAddCubit(),
+                  child: AddVendorScreen(vendor: vendor),
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.viewVendorDetails,
+              name: AppRoutes.viewVendorDetails,
+              builder: (context, state) {
+                final queryParameterVendor =
+                state.uri.queryParameters['vendor'];
+                final VendorModel? vendor =
+                queryParameterVendor != null
+                    ? VendorModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterVendor),
+                    ),
+                  ),
+                )
+                    : null;
+                return ViewDetailsVendorScreen(vendor: vendor!);
+              },
+            ),
+          ],
         ),
         // INVENTORY
         GoRoute(

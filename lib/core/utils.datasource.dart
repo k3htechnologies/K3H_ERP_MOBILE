@@ -90,10 +90,12 @@ class UtilsDatasourceImpl implements UtilsDatasource {
       var networkResponse = await client.getRequestWithAuthentication(
         pullMaterialMasterSubMaterialMasterUOMMaster(projectId: projectId),
       );
+      // networkResponse["data"] contains the Data object from API response
+      final data = networkResponse["data"] as Map<String, dynamic>;
       return {
         "MaterialMasterSubMaterialMasterData":
-            networkResponse["MaterialMasterSubMaterialMasterData"],
-        "UomMasterData": networkResponse["UomMasterData"],
+            data["MaterialMasterSubMaterialMasterData"],
+        "UomMasterData": data["UomMasterData"],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

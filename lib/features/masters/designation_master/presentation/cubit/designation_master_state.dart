@@ -10,6 +10,8 @@ class DesignationMasterState extends BaseState {
   final List<ModuleModel> modulesPermissionsList;
   final bool isAllSelected;
   final int updateCounter; // Add counter to force state changes
+  final int?
+  currentDesignationId; // Track which designation the permissions are for
 
   const DesignationMasterState({
     super.isLoading,
@@ -23,6 +25,7 @@ class DesignationMasterState extends BaseState {
     required this.modulesPermissionsList,
     this.isAllSelected = false,
     this.updateCounter = 0,
+    this.currentDesignationId,
   });
 
   factory DesignationMasterState.initial() => DesignationMasterState(
@@ -35,6 +38,7 @@ class DesignationMasterState extends BaseState {
     isLoading: true,
     modulesPermissionsList: [],
     updateCounter: 0,
+    currentDesignationId: null,
   );
 
   DesignationMasterState copyWith({
@@ -50,6 +54,7 @@ class DesignationMasterState extends BaseState {
     List<ModuleModel>? modulesPermissionsList,
     bool? isAllSelected,
     int? updateCounter,
+    int? currentDesignationId,
   }) {
     return DesignationMasterState(
       isLoading: isLoading ?? this.isLoading,
@@ -60,10 +65,11 @@ class DesignationMasterState extends BaseState {
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       modulesPermissionsList:
-      modulesPermissionsList ?? this.modulesPermissionsList,
+          modulesPermissionsList ?? this.modulesPermissionsList,
       isAllSelected: isAllSelected ?? this.isAllSelected,
       stateType: stateType ?? this.stateType,
       updateCounter: updateCounter ?? this.updateCounter,
+      currentDesignationId: currentDesignationId ?? this.currentDesignationId,
     );
   }
 
@@ -80,5 +86,6 @@ class DesignationMasterState extends BaseState {
     isAllSelected,
     modulesPermissionsList,
     updateCounter,
+    currentDesignationId,
   ];
 }

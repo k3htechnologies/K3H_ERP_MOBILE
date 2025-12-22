@@ -51,14 +51,12 @@ class _CustomSubSubModuleTileState extends State<CustomSubSubModuleTile> {
                 ),
                 child: Row(
                   children: [
-                    SvgPicture.asset(
-                      widget.iconData,
-                      height: 18,
-                      colorFilter: ColorFilter.mode(
-                        widget.isActive
-                            ? AppColor.slightDarkBlue
-                            : AppColor.grey,
-                        BlendMode.srcIn,
+                    Container(
+                      height: 6,
+                      width: 6,
+                      decoration: BoxDecoration(
+                        color: AppColor.primary,
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
                     horizontalSpacing(width: 8),

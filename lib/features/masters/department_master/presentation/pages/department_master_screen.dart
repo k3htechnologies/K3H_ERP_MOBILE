@@ -148,6 +148,14 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             itemCount: _departmentMasterCubit.state.departmentList.length + 1,
             itemBuilder: (context, index) {
+              if (index == state.departmentList.length) {
+                return state.departmentList.length < state.totalNumberOfRecord
+                    ? Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    : const SizedBox.shrink();
+              }
               var department = state.departmentList[index];
               return Container(
                 margin: EdgeInsets.only(bottom: 10),

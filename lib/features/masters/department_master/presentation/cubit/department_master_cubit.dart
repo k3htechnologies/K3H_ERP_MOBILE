@@ -100,7 +100,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
             ),
           );
 
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: 'Department Added Successfully!!!');
       },
     );
   }
@@ -145,7 +145,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
             );
           }
 
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: 'Department Updated Successfully!!!');
       },
     );
   }
@@ -171,14 +171,14 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
         return;
       },
       (response) {
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: 'Department Deleted Successfully!!!');
         if (index != null) {
           final updatedList = List<DepartmentModel>.from(state.departmentList);
           updatedList.removeAt(index);
 
           emit(state.copyWith(departmentList: updatedList));
         } else {
-          getDepartmentList(context, pageNumber, pageSize);
+          getDepartmentList(context, state.currentPage, 10);
         }
       },
     );

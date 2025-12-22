@@ -1,6 +1,14 @@
 part of 'vendor_add_cubit.dart';
 
-@immutable
-sealed class VendorAddState {}
+class VendorAddState extends BaseState {
+  const VendorAddState({super.isLoading});
 
-final class VendorAddInitial extends VendorAddState {}
+  factory VendorAddState.initial() => VendorAddState(isLoading: true);
+
+  VendorAddState copyWith({bool? isLoading, String? errorMessage}) {
+    return VendorAddState(isLoading: isLoading ?? this.isLoading);
+  }
+
+  @override
+  List<Object?> get props => [];
+}

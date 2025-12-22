@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CustomModuleTile extends StatefulWidget {
@@ -28,6 +30,50 @@ class CustomModuleTile extends StatefulWidget {
 }
 
 class _CustomModuleTileState extends State<CustomModuleTile> {
+  // Helper method to get the correct icon path
+  String _getIconPath(String iconPath) {
+    // If the path already includes "assets/", use it as is
+    if (iconPath.startsWith('assets/')) {
+      return iconPath;
+    }
+    // Otherwise, prepend the sideDrawer path
+    return '${AppAssets.sideDrawerIconsPath}/$iconPath';
+  }
+
+  // Helper method to build the icon widget
+  Widget _buildIcon(String iconPath) {
+    final fullPath = _getIconPath(iconPath);
+    
+    // Check if it's an SVG file
+    if (iconPath.toLowerCase().endsWith('.svg')) {
+      return SvgPicture.asset(
+        fullPath,
+        height: 20,
+        width: 20,
+        fit: BoxFit.contain,
+        placeholderBuilder: (context) => Container(
+          height: 20,
+          width: 20,
+          color: Colors.grey[300],
+        ),
+      );
+    } else {
+      // PNG or other image formats
+      return Image.asset(
+        fullPath,
+        height: 20,
+        width: 20,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) => Container(
+          height: 20,
+          width: 20,
+          color: Colors.grey[300],
+          child: Icon(Icons.image_not_supported, size: 16, color: Colors.grey[600]),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasItems = widget.items != null && widget.items!.isNotEmpty;
@@ -44,7 +90,7 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
               ? ExpansionTile(
                 collapsedIconColor: AppColor.black,
                 iconColor: AppColor.black,
-                minTileHeight: 30,
+                minTileHeight: 60,
                 initiallyExpanded: widget.isExpanded,
                 childrenPadding: const EdgeInsets.only(left: 15.0),
 
@@ -54,7 +100,7 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
 
                 title: Row(
                   children: [
-                    Image.asset(widget.imagePath, height: 20),
+                    _buildIcon(widget.imagePath),
                     horizontalSpacing(),
                     Expanded(
                       child: Text(
@@ -78,7 +124,7 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
                 minTileHeight: 30,
                 title: Row(
                   children: [
-                    Image.asset(widget.imagePath, height: 20),
+                    _buildIcon(widget.imagePath),
                     horizontalSpacing(),
                     Expanded(
                       child: Text(

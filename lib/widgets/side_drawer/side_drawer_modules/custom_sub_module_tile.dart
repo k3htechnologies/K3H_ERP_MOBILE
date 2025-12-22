@@ -83,14 +83,12 @@ class _CustomSubModuleTileState extends State<CustomSubModuleTile> {
                         childrenPadding: const EdgeInsets.only(left: 15.0),
                         title: Row(
                           children: [
-                            SvgPicture.asset(
-                              widget.imagePath,
-                              height: 20,
-                              colorFilter: ColorFilter.mode(
-                                widget.isActive
-                                    ? AppColor.slightDarkBlue
-                                    : AppColor.grey,
-                                BlendMode.srcIn,
+                            Container(
+                              height: 6,
+                              width: 6,
+                              decoration: BoxDecoration(
+                                color: AppColor.primary,
+                                borderRadius: BorderRadius.circular(20),
                               ),
                             ),
                             const SizedBox(width: 8.0),
@@ -117,14 +115,12 @@ class _CustomSubModuleTileState extends State<CustomSubModuleTile> {
                         ),
                         title: Row(
                           children: [
-                            SvgPicture.asset(
-                              widget.imagePath,
-                              height: 20,
-                              colorFilter: ColorFilter.mode(
-                                widget.isActive
-                                    ? AppColor.slightDarkBlue
-                                    : AppColor.grey,
-                                BlendMode.srcIn,
+                            Container(
+                              height: 6,
+                              width: 6,
+                              decoration: BoxDecoration(
+                                color: AppColor.primary,
+                                borderRadius: BorderRadius.circular(20),
                               ),
                             ),
                             const SizedBox(width: 8),

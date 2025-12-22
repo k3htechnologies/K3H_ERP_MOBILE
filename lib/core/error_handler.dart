@@ -18,4 +18,8 @@ class ErrorHandler {
       return "Unexpected error occured";
     }
   }
+
+  static bool isMenuChangedException(error) {
+    return error is MenuChangedException;
+  }
 }

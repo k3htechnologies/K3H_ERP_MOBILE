@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/custom_file_preview_dialogue_content.dart';
+import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -144,33 +145,53 @@ Future logOutUser() async {
 }
 
 // SHOW SUCCESS MESSAGE
-Future showSuccessMessage(BuildContext context, {String? title}) async {
+Future showSuccessMessage(BuildContext context, {String? subTitle}) async {
   bool isPop = false;
-  Future.delayed(Duration(seconds: 2), () {
+  Future.delayed(Duration(seconds: 3), () {
     if (!isPop) goRouter.pop();
   });
-  await DialogHelper.successDialog(context, title: title);
+  CustomSnackBar.showTopSnackBar(
+    context,
+    title: "Success",
+    subtitle: subTitle,
+    isError: false,
+  );
   isPop = true;
 }
 
 // SHOW ERROR MESSAGE
 Future showErrorMessage(
-  BuildContext context,
-  String title,
-  String message,
-) async {
-  if (message.contains("Menu")) {
+    BuildContext context,
+    String title,
+    String message, {
+      bool isMenuChanged = false,
+    }) async {
+  // Check for menu/authorization changes
+  final lowerMessage = message.toLowerCase();
+  if (isMenuChanged ||
+      lowerMessage.contains("menu") ||
+      lowerMessage.contains("authorization") ||
+      lowerMessage.contains("access has been modified") ||
+      lowerMessage.contains("access modified"))
+  {
     DialogHelper.showMenuChangedErrorDialog(context: context);
-  } else {
+  }
+  else
+  {
     bool isPop = false;
-    Future.delayed(Duration(seconds: 2), () {
-      if (!isPop) goRouter.pop();
-    });
-    await DialogHelper.showErrorDialog(
-      context: context,
-      message: message,
+
+    // Future.delayed(const Duration(seconds: 3), () {
+    //   if (!isPop) goRouter.pop();
+    // });
+
+    CustomSnackBar.showTopSnackBar(
+      context,
       title: title,
+      subtitle: message,
+      isError: true,
     );
+
+    await Future.delayed(const Duration(seconds: 3));
     isPop = true;
   }
 }

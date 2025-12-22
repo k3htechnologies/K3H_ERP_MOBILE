@@ -1,15 +1,19 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/repository/designation_master.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 
 part 'designation_master_state.dart';
 
@@ -17,15 +21,14 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
   DesignationMasterCubit() : super(DesignationMasterState.initial());
 
   final DesignationMasterRepository _designationMasterRepository =
-  serviceLocator<DesignationMasterRepository>();
-
+      serviceLocator<DesignationMasterRepository>();
 
   // <---- GET DESIGNATION LIST ---->
   Future getDesignationList(
-      BuildContext context,
-      int pageNumber,
-      int pageSize,
-      ) async {
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+  ) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       "DesignationName": state.searchText,
@@ -37,24 +40,32 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
       queryParams: queryParams,
     );
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false, errorMessage: failure.message));
-        showErrorMessage(context, 'Error', failure.message);
+        showErrorMessage(
+          context,
+          'Error',
+          failure.message,
+          isMenuChanged: failure.isMenuChanged,
+        );
       },
-          (response) {
+      (response) {
         // Replace list when pageNumber == 1, otherwise append for pagination
-        List<DesignationMasterModel> updatedList = pageNumber == 1
-            ? List<DesignationMasterModel>.from(response['data'] as List<DesignationMasterModel>)
-            : List<DesignationMasterModel>.from(state.designationList)
+        List<DesignationMasterModel> updatedList =
+            pageNumber == 1
+                  ? List<DesignationMasterModel>.from(
+                    response['data'] as List<DesignationMasterModel>,
+                  )
+                  : List<DesignationMasterModel>.from(state.designationList)
               ..addAll(response['data'] as List<DesignationMasterModel>);
         emit(
           state.copyWith(
             isLoading: false,
             designationList: updatedList,
             totalNumberOfRecord:
-            response['totalNumberOfRecord'] == 0 && state.currentPage != 1
-                ? state.totalNumberOfRecord - 1
-                : response['totalNumberOfRecord'],
+                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
+                    ? state.totalNumberOfRecord - 1
+                    : response['totalNumberOfRecord'],
             currentPage: pageNumber,
           ),
         );
@@ -78,11 +89,16 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     );
     goRouter.pop();
     addResult.fold(
-          (failure) {
-        showErrorMessage(context, 'Error', failure.message);
+      (failure) {
+        showErrorMessage(
+          context,
+          'Error',
+          failure.message,
+          isMenuChanged: failure.isMenuChanged,
+        );
         return;
       },
-          (response) {
+      (response) {
         goRouter.pop();
         var list = [
           response['data'][0] as DesignationMasterModel,
@@ -93,12 +109,12 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
           state.copyWith(
             designationList: list,
             totalNumberOfRecord:
-            state.totalNumberOfRecord == -1
-                ? 1
-                : state.totalNumberOfRecord + 1,
+                state.totalNumberOfRecord == -1
+                    ? 1
+                    : state.totalNumberOfRecord + 1,
           ),
         );
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: 'Designation Added Successfully!!!');
       },
     );
   }
@@ -125,30 +141,33 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     );
     goRouter.pop();
     updateResult.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(errorMessage: failure.message));
-        showErrorMessage(context, 'Error', failure.message);
+        showErrorMessage(
+          context,
+          'Error',
+          failure.message,
+          isMenuChanged: failure.isMenuChanged,
+        );
         return;
       },
-          (response) {
+      (response) {
         goRouter.pop();
-        final updatedDesignation = response['data'][0] as DesignationMasterModel;
-        
+        final updatedDesignation =
+            response['data'][0] as DesignationMasterModel;
+
         // Check if list is not empty and index is valid before updating by index
         // This prevents RangeError when the cubit instance has an empty list
-        if (state.designationList.isNotEmpty && index < state.designationList.length) {
+        if (state.designationList.isNotEmpty &&
+            index < state.designationList.length) {
           final updatedList = List<DesignationMasterModel>.from(
             state.designationList,
           );
           updatedList[index] = updatedDesignation;
-          emit(
-            state.copyWith(
-              designationList: updatedList,
-            ),
-          );
+          emit(state.copyWith(designationList: updatedList));
         }
-        
-        showSuccessMessage(context);
+
+        showSuccessMessage(context, subTitle: 'Designation Updated Successfully!!!');
       },
     );
   }
@@ -169,23 +188,24 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     );
     goRouter.pop();
     deleteResult.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(errorMessage: failure.message));
-        showErrorMessage(context, 'Error', failure.message);
+        showErrorMessage(
+          context,
+          'Error',
+          failure.message,
+          isMenuChanged: failure.isMenuChanged,
+        );
         return;
       },
-          (response) {
-        showSuccessMessage(context);
+      (response) {
+        showSuccessMessage(context, subTitle: 'Designation Deleted Successfully!!!');
         if (index != null) {
           final updatedList = List<DesignationMasterModel>.from(
             state.designationList,
           );
           updatedList.removeAt(index);
-          emit(
-            state.copyWith(
-              designationList: updatedList,
-            ),
-          );
+          emit(state.copyWith(designationList: updatedList));
         } else {
           getDesignationList(context, pageNumber, pageSize);
         }
@@ -201,10 +221,10 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
 
   // <---- SORT DESIGNATION ---->
   Future sortDesignation(
-      BuildContext context,
-      String value,
-      String direction,
-      ) async {
+    BuildContext context,
+    String value,
+    String direction,
+  ) async {
     emit(
       state.copyWith(
         currentSortColumn: value,
@@ -222,31 +242,36 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
       queryParams:
-      state.searchText != ""
-          ? {"DesignationName": state.searchText, "ExportType": exportType}
-          : {"ExportType": exportType},
+          state.searchText != ""
+              ? {"DesignationName": state.searchText, "ExportType": exportType}
+              : {"ExportType": exportType},
     );
     goRouter.pop();
     result.fold(
-          (failure) {
-        showErrorMessage(context, 'Error', failure.message);
+      (failure) {
+        showErrorMessage(
+          context,
+          'Error',
+          failure.message,
+          isMenuChanged: failure.isMenuChanged,
+        );
       },
-          (response) {
-            exportExcelOrPdfMobile(
-              response["data"],
-              exportType.toLowerCase() == "pdf"
-                  ? "designation_${DateTime.now()}.pdf"
-                  : "designation_${DateTime.now()}.xlsx",
-            );
+      (response) {
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "designation_${DateTime.now()}.pdf"
+              : "designation_${DateTime.now()}.xlsx",
+        );
       },
     );
   }
 
   // <---- GET MODULES PERMISSIONS ---->
   Future getModulesPermissions(
-      BuildContext context,
-      int designationMasterId,
-      ) async {
+    BuildContext context,
+    int designationMasterId,
+  ) async {
     emit(
       state.copyWith(
         isLoading: true,
@@ -258,7 +283,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     );
 
     result.fold(
-          (failure) {
+      (failure) {
         emit(
           state.copyWith(
             isLoading: false,
@@ -267,33 +292,67 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
           ),
         );
       },
-          (response) async {
+      (response) async {
         List<ModuleModel> moduleList = response['data'];
+
+        // If we have existing data for the same designation, merge API response with local state
+        // to preserve unsaved user changes
+        List<ModuleModel> finalModuleList = moduleList;
+        if (state.currentDesignationId == designationMasterId &&
+            state.modulesPermissionsList.isNotEmpty &&
+            state.stateType == StateType.employeeMasterModuleAccessState) {
+          // Merge API data with existing local state to preserve unsaved changes
+          finalModuleList = _mergeModuleLists(
+            existingList: state.modulesPermissionsList,
+            apiList: moduleList,
+          );
+        }
+
         // Process modules directly (no need for compute as this is simple boolean logic)
-        for (var module in moduleList) {
+        for (var module in finalModuleList) {
           for (var subModule in module.subModuleData) {
             if (subModule.subSubModuleData.isEmpty) {
               subModule.isSelected =
-                  subModule.isView && subModule.isAction && subModule.isView;
+                  subModule.isView && subModule.isAction && subModule.isExport;
             } else {
+              // For submodules with sub-submodules, derive submodule's checkbox state
+              // from its sub-submodules: if ALL sub-submodules have a permission checked,
+              // then the submodule's checkbox should be checked
+              if (subModule.subSubModuleData.isNotEmpty) {
+                subModule.isAction = subModule.subSubModuleData.every(
+                  (subSubModule) => subSubModule.isAction,
+                );
+                subModule.isView = subModule.subSubModuleData.every(
+                  (subSubModule) => subSubModule.isView,
+                );
+                subModule.isExport = subModule.subSubModuleData.every(
+                  (subSubModule) => subSubModule.isExport,
+                );
+                // If action or export is checked, automatically check view as well
+                if (subModule.isAction || subModule.isExport) {
+                  subModule.isView = true;
+                }
+              }
+              // isSelected depends on whether all sub-submodules have all permissions
               subModule.isSelected = subModule.subSubModuleData.every(
-                    (subSubModule) =>
-                subSubModule.isView &&
+                (subSubModule) =>
+                    subSubModule.isView &&
                     subSubModule.isAction &&
-                    subSubModule.isView,
+                    subSubModule.isExport,
               );
             }
           }
           module.isSelected = module.subModuleData.every(
-                (subModule) => subModule.isSelected,
+            (subModule) => subModule.isSelected,
           );
         }
         emit(
           state.copyWith(
             isLoading: false,
-            modulesPermissionsList: moduleList,
-            isAllSelected: await isAllModulesSelected(moduleList),
+            modulesPermissionsList: finalModuleList,
+            isAllSelected: await isAllModulesSelected(finalModuleList),
             stateType: StateType.employeeMasterModuleAccessState,
+            currentDesignationId: designationMasterId,
           ),
         );
       },
@@ -318,8 +377,13 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
 
     goRouter.pop();
     result.fold(
-          (failure) {
-        showErrorMessage(context, "Error", failure.message);
+      (failure) {
+        showErrorMessage(
+          context,
+          "Error",
+          failure.message,
+          isMenuChanged: failure.isMenuChanged,
+        );
         emit(
           state.copyWith(
             isLoading: false,
@@ -328,26 +392,72 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
           ),
         );
       },
-          (response) async {
-        await showSuccessMessage(context);
+      (response) async {
+        // Check if the current user's designation matches the updated designation
+        // Do this check first before processing response
+        bool shouldShowAuthorizationDialog = false;
+        try {
+          final currentUserString = LocalStorageManager().getString(
+            StorageKey.currentUser,
+          );
+          if (currentUserString != null) {
+            final currentUser = UserModel.fromJson(
+              jsonDecode(currentUserString),
+            );
+            if (currentUser.designationMasterId == designationMasterId) {
+              shouldShowAuthorizationDialog = true;
+            }
+          }
+        } catch (e) {
+          // If there's an error getting current user, continue without showing dialog
+          developer.log('Error checking current user designation: $e');
+        }
+
+        await showSuccessMessage(context, subTitle: 'Access Updated Successfully!!!');
+
+        // Show authorization dialog immediately after success message if needed
+        if (shouldShowAuthorizationDialog && context.mounted) {
+          await DialogHelper.showMenuChangedErrorDialog(context: context);
+          return; // Don't continue with other operations if authorization dialog is shown
+        }
+
         List<ModuleModel> moduleList = response['data'];
         // Process modules directly (no need for compute as this is simple boolean logic)
         for (var module in moduleList) {
           for (var subModule in module.subModuleData) {
             if (subModule.subSubModuleData.isEmpty) {
               subModule.isSelected =
-                  subModule.isView && subModule.isAction && subModule.isView;
+                  subModule.isView && subModule.isAction && subModule.isExport;
             } else {
+              // For submodules with sub-submodules, derive submodule's checkbox state
+              // from its sub-submodules: if ALL sub-submodules have a permission checked,
+              // then the submodule's checkbox should be checked
+              if (subModule.subSubModuleData.isNotEmpty) {
+                subModule.isAction = subModule.subSubModuleData.every(
+                  (subSubModule) => subSubModule.isAction,
+                );
+                subModule.isView = subModule.subSubModuleData.every(
+                  (subSubModule) => subSubModule.isView,
+                );
+                subModule.isExport = subModule.subSubModuleData.every(
+                  (subSubModule) => subSubModule.isExport,
+                );
+                // If action or export is checked, automatically check view as well
+                if (subModule.isAction || subModule.isExport) {
+                  subModule.isView = true;
+                }
+              }
+              // isSelected depends on whether all sub-submodules have all permissions
               subModule.isSelected = subModule.subSubModuleData.every(
-                    (subSubModule) =>
-                subSubModule.isView &&
+                (subSubModule) =>
+                    subSubModule.isView &&
                     subSubModule.isAction &&
-                    subSubModule.isView,
+                    subSubModule.isExport,
               );
             }
           }
           module.isSelected = module.subModuleData.every(
-                (subModule) => subModule.isSelected,
+            (subModule) => subModule.isSelected,
           );
         }
         emit(
@@ -356,6 +466,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
             modulesPermissionsList: moduleList,
             isAllSelected: await isAllModulesSelected(moduleList),
             stateType: StateType.employeeMasterModuleAccessState,
+            currentDesignationId: designationMasterId,
           ),
         );
         if (context.mounted) {
@@ -367,8 +478,8 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
 
   // <---- CHECK IF ALL MODULES ARE SELECTED ---->
   Future<bool> isAllModulesSelected(
-      List<ModuleModel> modulesPermissionsList,
-      ) async {
+    List<ModuleModel> modulesPermissionsList,
+  ) async {
     // Process directly (no need for compute as this is simple boolean logic)
     return modulesPermissionsList.every(
       (module) => module.subModuleData.every(
@@ -458,46 +569,50 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
 
   // SELECT MODULE
   Future<void> updateRow(
-      int? moduleIndex,
-      int? subModuleIndex,
-      int? subSubModuleIndex,
-      bool value,
-      String? type,
-      ) async {
+    int? moduleIndex,
+    int? subModuleIndex,
+    int? subSubModuleIndex,
+    bool value,
+    String? type,
+  ) async {
     // Create a deep copy of the list to ensure new references
-    List<ModuleModel> newList = state.modulesPermissionsList.map((module) {
-      return ModuleModel(
-        modulesMasterId: module.modulesMasterId,
-        moduleName: module.moduleName,
-        icon: module.icon,
-        subModuleData: module.subModuleData.map((subModule) {
-          return SubModuleModel(
-            subModulesMasterId: subModule.subModulesMasterId,
-            subModuleName: subModule.subModuleName,
-            icon: subModule.icon,
-            path: subModule.path,
-            isAction: subModule.isAction,
-            isView: subModule.isView,
-            isExport: subModule.isExport,
-            isSelected: subModule.isSelected,
-            subSubModuleData: subModule.subSubModuleData.map((subSubModule) {
-              return SubSubModuleModel(
-                subSubModulesMasterId: subSubModule.subSubModulesMasterId,
-                subSubModuleName: subSubModule.subSubModuleName,
-                icon: subSubModule.icon,
-                path: subSubModule.path,
-                isDisplay: subSubModule.isDisplay,
-                isAction: subSubModule.isAction,
-                isView: subSubModule.isView,
-                isExport: subSubModule.isExport,
-              );
-            }).toList(),
+    List<ModuleModel> newList =
+        state.modulesPermissionsList.map((module) {
+          return ModuleModel(
+            modulesMasterId: module.modulesMasterId,
+            moduleName: module.moduleName,
+            icon: module.icon,
+            subModuleData:
+                module.subModuleData.map((subModule) {
+                  return SubModuleModel(
+                    subModulesMasterId: subModule.subModulesMasterId,
+                    subModuleName: subModule.subModuleName,
+                    icon: subModule.icon,
+                    path: subModule.path,
+                    isAction: subModule.isAction,
+                    isView: subModule.isView,
+                    isExport: subModule.isExport,
+                    isSelected: subModule.isSelected,
+                    subSubModuleData:
+                        subModule.subSubModuleData.map((subSubModule) {
+                          return SubSubModuleModel(
+                            subSubModulesMasterId:
+                                subSubModule.subSubModulesMasterId,
+                            subSubModuleName: subSubModule.subSubModuleName,
+                            icon: subSubModule.icon,
+                            path: subSubModule.path,
+                            isDisplay: subSubModule.isDisplay,
+                            isAction: subSubModule.isAction,
+                            isView: subSubModule.isView,
+                            isExport: subSubModule.isExport,
+                          );
+                        }).toList(),
+                  );
+                }).toList(),
+            isSelected: module.isSelected,
           );
-        }).toList(),
-        isSelected: module.isSelected,
-      );
-    }).toList();
-    
+        }).toList();
+
     List result = await updateList(
       newList,
       moduleIndex: moduleIndex,
@@ -513,46 +628,74 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
         isAllSelected: result[1],
         modulesPermissionsList: updatedList,
         stateType: StateType.employeeMasterModuleAccessState,
-        updateCounter: state.updateCounter + 1, // Increment counter to force state change
+        updateCounter:
+            state.updateCounter + 1, // Increment counter to force state change
       ),
     );
   }
 
   Future<List> updateList(
-      List<ModuleModel> list, {
-        int? moduleIndex,
-        int? subModuleIndex,
-        int? subSubModuleIndex,
-        required bool value,
-        String? type,
-      }) async {
+    List<ModuleModel> list, {
+    int? moduleIndex,
+    int? subModuleIndex,
+    int? subSubModuleIndex,
+    required bool value,
+    String? type,
+  }) async {
     // CASE 1: Updating SubSubModule permissions
     if (subSubModuleIndex != null && subModuleIndex != null) {
       ModuleModel moduleModel = list[moduleIndex!];
       SubModuleModel subModuleModel = moduleModel.subModuleData[subModuleIndex];
       SubSubModuleModel subSubModule =
-      subModuleModel.subSubModuleData[subSubModuleIndex];
+          subModuleModel.subSubModuleData[subSubModuleIndex];
 
       switch (type) {
         case "action":
           subSubModule.isAction = value;
+          // If action is checked, automatically check view as well
+          if (value) {
+            subSubModule.isView = true;
+          }
           break;
         case "export":
           subSubModule.isExport = value;
+          // If export is checked, automatically check view as well
+          if (value) {
+            subSubModule.isView = true;
+          }
           break;
         case "view":
           subSubModule.isView = value;
           break;
       }
 
+      // For submodules with sub-submodules, derive submodule's checkbox state
+      // from its sub-submodules: if ALL sub-submodules have a permission checked,
+      // then the submodule's checkbox is checked; if ANY is unchecked, submodule is unchecked
+      if (subModuleModel.subSubModuleData.isNotEmpty) {
+        subModuleModel.isAction = subModuleModel.subSubModuleData.every(
+          (subSubModule) => subSubModule.isAction,
+        );
+        subModuleModel.isView = subModuleModel.subSubModuleData.every(
+          (subSubModule) => subSubModule.isView,
+        );
+        subModuleModel.isExport = subModuleModel.subSubModuleData.every(
+          (subSubModule) => subSubModule.isExport,
+        );
+        // If action or export is checked, automatically check view as well
+        if (subModuleModel.isAction || subModuleModel.isExport) {
+          subModuleModel.isView = true;
+        }
+      }
+
       // Update the subModule isSelected based on ALL subSubModules
       subModuleModel.isSelected = subModuleModel.subSubModuleData.every(
-            (e) => e.isView && e.isAction && e.isExport,
+        (e) => e.isView && e.isAction && e.isExport,
       );
 
       // Update the module isSelected based on ALL subModules
       moduleModel.isSelected = moduleModel.subModuleData.every(
-            (e) => e.isSelected,
+        (e) => e.isSelected,
       );
     }
     // CASE 2: Updating SubModule permissions directly
@@ -565,16 +708,32 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
         switch (type) {
           case "action":
             subModuleModel.isAction = value;
+            // If action is checked, automatically check view as well
+            if (value) {
+              subModuleModel.isView = true;
+            }
             // Also update all sub-sub-modules' action checkboxes
             for (var subSubModule in subModuleModel.subSubModuleData) {
               subSubModule.isAction = value;
+              // If action is checked, automatically check view as well
+              if (value) {
+                subSubModule.isView = true;
+              }
             }
             break;
           case "export":
             subModuleModel.isExport = value;
+            // If export is checked, automatically check view as well
+            if (value) {
+              subModuleModel.isView = true;
+            }
             // Also update all sub-sub-modules' export checkboxes
             for (var subSubModule in subModuleModel.subSubModuleData) {
               subSubModule.isExport = value;
+              // If export is checked, automatically check view as well
+              if (value) {
+                subSubModule.isView = true;
+              }
             }
             break;
           case "view":
@@ -590,12 +749,27 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
           // No sub-sub-modules, check if all permissions are true
           subModuleModel.isSelected =
               subModuleModel.isView &&
-                  subModuleModel.isAction &&
-                  subModuleModel.isExport;
+              subModuleModel.isAction &&
+              subModuleModel.isExport;
         } else {
-          // Has sub-sub-modules, check if all sub-sub-modules have all permissions
+          // Has sub-sub-modules, derive submodule's checkbox state from sub-submodules
+          // and ensure isView is true if isAction or isExport is true
+          subModuleModel.isAction = subModuleModel.subSubModuleData.every(
+            (e) => e.isAction,
+          );
+          subModuleModel.isView = subModuleModel.subSubModuleData.every(
+            (e) => e.isView,
+          );
+          subModuleModel.isExport = subModuleModel.subSubModuleData.every(
+            (e) => e.isExport,
+          );
+          // If action or export is checked, automatically check view as well
+          if (subModuleModel.isAction || subModuleModel.isExport) {
+            subModuleModel.isView = true;
+          }
+          // isSelected depends on whether all sub-sub-modules have all permissions
           subModuleModel.isSelected = subModuleModel.subSubModuleData.every(
-                (e) => e.isView && e.isAction && e.isExport,
+            (e) => e.isView && e.isAction && e.isExport,
           );
         }
       } else {
@@ -614,7 +788,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
           }
           if (value) {
             subModuleModel.isSelected = subModuleModel.subSubModuleData.every(
-                  (e) => e.isView && e.isAction && e.isExport,
+              (e) => e.isView && e.isAction && e.isExport,
             );
           } else {
             subModuleModel.isSelected = value;
@@ -624,10 +798,10 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
 
       // Update module selection
       moduleModel.isSelected = moduleModel.subModuleData.every(
-            (e) => e.isSelected,
+        (e) => e.isSelected,
       );
     } else
-      // CASE 3: Updating Module permissions
+    // CASE 3: Updating Module permissions
     if (moduleIndex != null) {
       ModuleModel moduleModel = list[moduleIndex];
       // Toggle entire module (all submodules and sub-submodules)
@@ -679,5 +853,108 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     }
     // Process directly (no need for compute as this is simple boolean logic)
     return [list, list.every((e) => e.isSelected)];
+  }
+
+  // <---- MERGE MODULE LISTS TO PRESERVE UNSAVED CHANGES ---->
+  List<ModuleModel> _mergeModuleLists({
+    required List<ModuleModel> existingList,
+    required List<ModuleModel> apiList,
+  }) {
+    // Create a map of existing modules by ID for quick lookup
+    final Map<int, ModuleModel> existingModulesMap = {};
+    for (var module in existingList) {
+      existingModulesMap[module.modulesMasterId] = module;
+    }
+
+    // Merge API data with existing local state
+    List<ModuleModel> mergedList =
+        apiList.map((apiModule) {
+          final existingModule = existingModulesMap[apiModule.modulesMasterId];
+
+          // If module doesn't exist in local state, use API data
+          if (existingModule == null) {
+            return apiModule;
+          }
+
+          // Merge submodules
+          final Map<int, SubModuleModel> existingSubModulesMap = {};
+          for (var subModule in existingModule.subModuleData) {
+            existingSubModulesMap[subModule.subModulesMasterId] = subModule;
+          }
+
+          List<SubModuleModel> mergedSubModules =
+              apiModule.subModuleData.map((apiSubModule) {
+                final existingSubModule =
+                    existingSubModulesMap[apiSubModule.subModulesMasterId];
+
+                // If submodule doesn't exist in local state, use API data
+                if (existingSubModule == null) {
+                  return apiSubModule;
+                }
+
+                // Merge sub-submodules first
+                final Map<int, SubSubModuleModel> existingSubSubModulesMap = {};
+                for (var subSubModule in existingSubModule.subSubModuleData) {
+                  existingSubSubModulesMap[subSubModule.subSubModulesMasterId] =
+                      subSubModule;
+                }
+
+                List<SubSubModuleModel> mergedSubSubModules =
+                    apiSubModule.subSubModuleData.map((apiSubSubModule) {
+                      final existingSubSubModule =
+                          existingSubSubModulesMap[apiSubSubModule
+                              .subSubModulesMasterId];
+
+                      // If sub-submodule doesn't exist in local state, use API data
+                      if (existingSubSubModule == null) {
+                        return apiSubSubModule;
+                      }
+
+                      // Always preserve local changes to sub-submodule permissions
+                      // This ensures unsaved user changes are not lost when API is called
+                      apiSubSubModule.isAction = existingSubSubModule.isAction;
+                      apiSubSubModule.isView = existingSubSubModule.isView;
+                      apiSubSubModule.isExport = existingSubSubModule.isExport;
+
+                      return apiSubSubModule;
+                    }).toList();
+
+                // Update sub-submodules list
+                apiSubModule.subSubModuleData = mergedSubSubModules;
+
+                // For submodules with sub-submodules, ALWAYS derive submodule's checkbox state
+                // from its sub-submodules (don't preserve submodule's local state)
+                // If ALL sub-submodules have a permission checked, then submodule's checkbox is checked
+                // If ANY sub-submodule has a permission unchecked, then submodule's checkbox is unchecked
+                if (apiSubModule.subSubModuleData.isNotEmpty) {
+                  apiSubModule.isAction = apiSubModule.subSubModuleData.every(
+                    (subSubModule) => subSubModule.isAction,
+                  );
+                  apiSubModule.isView = apiSubModule.subSubModuleData.every(
+                    (subSubModule) => subSubModule.isView,
+                  );
+                  apiSubModule.isExport = apiSubModule.subSubModuleData.every(
+                    (subSubModule) => subSubModule.isExport,
+                  );
+                  // If action or export is checked, automatically check view as well
+                  if (apiSubModule.isAction || apiSubModule.isExport) {
+                    apiSubModule.isView = true;
+                  }
+                }
+
+                return apiSubModule;
+              }).toList();
+
+          // Create merged module
+          return ModuleModel(
+            modulesMasterId: apiModule.modulesMasterId,
+            moduleName: apiModule.moduleName,
+            icon: apiModule.icon,
+            subModuleData: mergedSubModules,
+            isSelected: apiModule.isSelected, // Will be recalculated later
+          );
+        }).toList();
+
+    return mergedList;
   }
 }

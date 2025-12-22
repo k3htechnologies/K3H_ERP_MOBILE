@@ -1,4 +1,8 @@
 class Failure {
   String message;
-  Failure({this.message = "An unexpected error occured"});
+  bool isMenuChanged;
+  Failure({
+    this.message = "An unexpected error occured",
+    this.isMenuChanged = false,
+  });
 }

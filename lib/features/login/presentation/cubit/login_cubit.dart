@@ -48,7 +48,7 @@ class LoginCubit extends Cubit<LoginState> {
         },
             (message) async {
           emit(state.copyWith(isLoading: false, isSendOtp: true));
-          await showSuccessMessage(context, title: message);
+          await showSuccessMessage(context, subTitle: message);
 
           goRouter.pushNamed(
             AppRoutes.otp,

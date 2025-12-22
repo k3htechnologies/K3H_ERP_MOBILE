@@ -31,10 +31,23 @@ class _ModuleAccessScreenState extends State<ModuleAccessScreen> {
   void initState() {
     super.initState();
     _designationMasterCubit = context.read<DesignationMasterCubit>();
-    _designationMasterCubit.getModulesPermissions(
-      context,
-      widget.designation.designationMasterId,
-    );
+    // Only fetch if we don't already have data for this specific designation,
+    // to preserve unsaved changes when navigating back
+    final currentState = _designationMasterCubit.state;
+    final currentDesignationId = widget.designation.designationMasterId;
+
+    // Only fetch if:
+    // 1. We don't have any data, OR
+    // 2. The state type doesn't match, OR
+    // 3. We have data but it's for a different designation
+    if (currentState.modulesPermissionsList.isEmpty ||
+        currentState.stateType != StateType.employeeMasterModuleAccessState ||
+        currentState.currentDesignationId != currentDesignationId) {
+      _designationMasterCubit.getModulesPermissions(
+        context,
+        currentDesignationId,
+      );
+    }
   }
 
   @override
@@ -64,25 +77,28 @@ class _ModuleAccessScreenState extends State<ModuleAccessScreen> {
             }
 
             return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 10,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+                children: [
                   // Designation Name Header
                   Text(
                     widget.designation.designationName,
                     style: AppTextStyle.ts16SB(),
                   ),
-          verticalSpacing(),
+                  verticalSpacing(),
                   // Select All Row
                   Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                      Text(
-                        'Select All',
-                        style: AppTextStyle.ts14M(),
-                      ),
-                      BlocBuilder<DesignationMasterCubit, DesignationMasterState>(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Select All', style: AppTextStyle.ts14M()),
+                      BlocBuilder<
+                        DesignationMasterCubit,
+                        DesignationMasterState
+                      >(
                         builder: (context, state) {
                           return CustomCheckBox(
                             key: ValueKey('selectAll_${state.isAllSelected}'),
@@ -99,8 +115,8 @@ class _ModuleAccessScreenState extends State<ModuleAccessScreen> {
                           );
                         },
                       ),
-                  ],
-                ),
+                    ],
+                  ),
                   verticalSpacing(),
                   // Search Bar
                   Container(
@@ -119,7 +135,9 @@ class _ModuleAccessScreenState extends State<ModuleAccessScreen> {
                             decoration: InputDecoration(
                               hintText: 'Search',
                               border: InputBorder.none,
-                              hintStyle: AppTextStyle.ts14R(color: AppColor.grey),
+                              hintStyle: AppTextStyle.ts14R(
+                                color: AppColor.grey,
+                              ),
                               isDense: true,
                               contentPadding: EdgeInsets.zero,
                             ),
@@ -136,31 +154,31 @@ class _ModuleAccessScreenState extends State<ModuleAccessScreen> {
                   // Modules List
                   Expanded(
                     child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (
-                          int i = 0;
-                          i < state.modulesPermissionsList.length;
-                          i++
-                        )
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: ModuleAccessTile(
-                              module: state.modulesPermissionsList[i],
-                              index: i,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (
+                            int i = 0;
+                            i < state.modulesPermissionsList.length;
+                            i++
+                          )
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: ModuleAccessTile(
+                                module: state.modulesPermissionsList[i],
+                                index: i,
+                              ),
                             ),
-                          ),
-                      ],
-                    ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
-                  ),
-                );
-              },
-            ),
-          ),
+              ),
+            );
+          },
+        ),
+      ),
       bottomNavigationBar: SafeArea(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -169,7 +187,7 @@ class _ModuleAccessScreenState extends State<ModuleAccessScreen> {
             onPressed: () async {
               await _designationMasterCubit.updateModulesPermissions(
                 designationMasterId: widget.designation.designationMasterId,
-                            context: context,
+                context: context,
               );
             },
           ),
@@ -195,7 +213,7 @@ class ModuleAccessTile extends StatefulWidget {
 class _ModuleAccessTileState extends State<ModuleAccessTile> {
   bool isExpanded = false;
   late DesignationMasterCubit _designationMasterCubit;
-  
+
   @override
   void initState() {
     super.initState();
@@ -214,10 +232,10 @@ class _ModuleAccessTileState extends State<ModuleAccessTile> {
         children: [
           InkWell(
             onTap: () {
-                      setState(() {
-                        isExpanded = !isExpanded;
-                      });
-                    },
+              setState(() {
+                isExpanded = !isExpanded;
+              });
+            },
             child: ColoredBox(
               color: Color(0xFFFCFCFC),
               child: Padding(
@@ -253,16 +271,25 @@ class _ModuleAccessTileState extends State<ModuleAccessTile> {
                     BlocBuilder<DesignationMasterCubit, DesignationMasterState>(
                       // Remove buildWhen to always rebuild on any state change
                       builder: (context, state) {
-                        if (state.modulesPermissionsList.length <= widget.index) {
+                        if (state.modulesPermissionsList.length <=
+                            widget.index) {
                           return SizedBox.shrink();
                         }
-                        final module = state.modulesPermissionsList[widget.index];
+                        final module =
+                            state.modulesPermissionsList[widget.index];
                         return CustomCheckBox(
-                          key: ValueKey('${module.moduleName}_${module.isSelected}'),
+                          key: ValueKey(
+                            '${module.moduleName}_${module.isSelected}',
+                          ),
                           isSelected: module.isSelected,
                           onChanged: (value) {
-                            _designationMasterCubit
-                                .updateRow(widget.index, null, null, value, null);
+                            _designationMasterCubit.updateRow(
+                              widget.index,
+                              null,
+                              null,
+                              value,
+                              null,
+                            );
                           },
                         );
                       },
@@ -280,15 +307,18 @@ class _ModuleAccessTileState extends State<ModuleAccessTile> {
                 if (state.modulesPermissionsList.length <= widget.index) {
                   return SizedBox.shrink();
                 }
-                
+
                 final module = state.modulesPermissionsList[widget.index];
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-            Container(height: 0.5, color: AppColor.grey30),
+                    Container(height: 0.5, color: AppColor.grey30),
                     // Column Headers Row
                     Container(
-                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 12,
+                      ),
                       color: AppColor.grey10,
                       child: Row(
                         children: [
@@ -321,9 +351,9 @@ class _ModuleAccessTileState extends State<ModuleAccessTile> {
                       ),
                     ),
                     for (int i = 0; i < module.subModuleData.length; i++)
-              SubModuleTile(
-                moduleIndex: widget.index,
-                subModuleIndex: i,
+                      SubModuleTile(
+                        moduleIndex: widget.index,
+                        subModuleIndex: i,
                         subModule: module.subModuleData[i],
                         isSubModuleSelected: module.subModuleData[i].isSelected,
                       ),
@@ -371,33 +401,40 @@ class _SubModuleTileState extends State<SubModuleTile> {
       builder: (context, state) {
         // Safety check
         if (state.modulesPermissionsList.length <= widget.moduleIndex ||
-            state.modulesPermissionsList[widget.moduleIndex].subModuleData.length <= widget.subModuleIndex) {
+            state
+                    .modulesPermissionsList[widget.moduleIndex]
+                    .subModuleData
+                    .length <=
+                widget.subModuleIndex) {
           return SizedBox.shrink();
         }
-        
-        final subModule = state.modulesPermissionsList[widget.moduleIndex]
-            .subModuleData[widget.subModuleIndex];
-        
+
+        final subModule =
+            state
+                .modulesPermissionsList[widget.moduleIndex]
+                .subModuleData[widget.subModuleIndex];
+
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
               child: Row(
-        children: [
+                children: [
                   // Sub-module name only (no checkbox for submodule) - with InkWell only on this part
                   Expanded(
                     flex: 2,
                     child: InkWell(
-                      onTap: subModule.subSubModuleData.isEmpty
-                    ? null
-                    : () {
-                      setState(() {
-                        isExpanded = !isExpanded;
-                      });
-                    },
-              child: Row(
-                children: [
+                      onTap:
+                          subModule.subSubModuleData.isEmpty
+                              ? null
+                              : () {
+                                setState(() {
+                                  isExpanded = !isExpanded;
+                                });
+                              },
+                      child: Row(
+                        children: [
                           // Expand arrow if has sub-sub-modules
                           if (subModule.subSubModuleData.isNotEmpty)
                             AnimatedRotation(
@@ -413,23 +450,25 @@ class _SubModuleTileState extends State<SubModuleTile> {
                           if (subModule.subSubModuleData.isNotEmpty)
                             horizontalSpacing(width: 8),
                           Expanded(
-                          child: Text(
+                            child: Text(
                               subModule.subModuleName,
-                            style: AppTextStyle.ts14R(),
+                              style: AppTextStyle.ts14R(),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
                   ),
                   // Action/Export/View checkboxes aligned in columns - NOT inside InkWell
                   Expanded(
                     flex: 3,
-                        child: Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
+                      children: [
                         CustomCheckBox(
-                          key: ValueKey('${widget.moduleIndex}_${widget.subModuleIndex}_action_${subModule.isAction}'),
+                          key: ValueKey(
+                            '${widget.moduleIndex}_${widget.subModuleIndex}_action_${subModule.isAction}',
+                          ),
                           isSelected: subModule.isAction,
                           onChanged: (value) {
                             _designationMasterCubit.updateRow(
@@ -442,7 +481,9 @@ class _SubModuleTileState extends State<SubModuleTile> {
                           },
                         ),
                         CustomCheckBox(
-                          key: ValueKey('${widget.moduleIndex}_${widget.subModuleIndex}_export_${subModule.isExport}'),
+                          key: ValueKey(
+                            '${widget.moduleIndex}_${widget.subModuleIndex}_export_${subModule.isExport}',
+                          ),
                           isSelected: subModule.isExport,
                           onChanged: (value) {
                             _designationMasterCubit.updateRow(
@@ -455,7 +496,9 @@ class _SubModuleTileState extends State<SubModuleTile> {
                           },
                         ),
                         CustomCheckBox(
-                          key: ValueKey('${widget.moduleIndex}_${widget.subModuleIndex}_view_${subModule.isView}'),
+                          key: ValueKey(
+                            '${widget.moduleIndex}_${widget.subModuleIndex}_view_${subModule.isView}',
+                          ),
                           isSelected: subModule.isView,
                           onChanged: (value) {
                             _designationMasterCubit.updateRow(
@@ -467,9 +510,9 @@ class _SubModuleTileState extends State<SubModuleTile> {
                             );
                           },
                         ),
-                          ],
-                        ),
-                      ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -477,44 +520,60 @@ class _SubModuleTileState extends State<SubModuleTile> {
             if (isExpanded && subModule.subSubModuleData.isNotEmpty)
               ...subModule.subSubModuleData.asMap().entries.map((entry) {
                 final i = entry.key;
-                return BlocBuilder<DesignationMasterCubit, DesignationMasterState>(
+                return BlocBuilder<
+                  DesignationMasterCubit,
+                  DesignationMasterState
+                >(
                   // Remove buildWhen to always rebuild on any state change
                   builder: (context, state) {
                     // Safety check
-                    if (state.modulesPermissionsList.length <= widget.moduleIndex ||
-                        state.modulesPermissionsList[widget.moduleIndex].subModuleData.length <= widget.subModuleIndex) {
+                    if (state.modulesPermissionsList.length <=
+                            widget.moduleIndex ||
+                        state
+                                .modulesPermissionsList[widget.moduleIndex]
+                                .subModuleData
+                                .length <=
+                            widget.subModuleIndex) {
                       return SizedBox.shrink();
                     }
-                    
-                    final currentSubModule = state.modulesPermissionsList[widget.moduleIndex]
-                        .subModuleData[widget.subModuleIndex];
-                    
+
+                    final currentSubModule =
+                        state
+                            .modulesPermissionsList[widget.moduleIndex]
+                            .subModuleData[widget.subModuleIndex];
+
                     if (currentSubModule.subSubModuleData.length <= i) {
                       return SizedBox.shrink();
                     }
-                    
-                    final currentSubSubModule = currentSubModule.subSubModuleData[i];
+
+                    final currentSubSubModule =
+                        currentSubModule.subSubModuleData[i];
                     return Container(
-                      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    child: Row(
-                      children: [
+                      padding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 12,
+                      ),
+                      child: Row(
+                        children: [
                           Expanded(
                             flex: 2,
-                          child: Padding(
+                            child: Padding(
                               padding: EdgeInsets.only(left: 40),
-                            child: Text(
+                              child: Text(
                                 currentSubSubModule.subSubModuleName,
-                              style: AppTextStyle.ts14R(),
+                                style: AppTextStyle.ts14R(),
                               ),
                             ),
                           ),
                           Expanded(
                             flex: 3,
-                          child: Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
+                              children: [
                                 CustomCheckBox(
-                                  key: ValueKey('${widget.moduleIndex}_${widget.subModuleIndex}_${i}_action_${currentSubSubModule.isAction}'),
+                                  key: ValueKey(
+                                    '${widget.moduleIndex}_${widget.subModuleIndex}_${i}_action_${currentSubSubModule.isAction}',
+                                  ),
                                   isSelected: currentSubSubModule.isAction,
                                   onChanged: (value) {
                                     _designationMasterCubit.updateRow(
@@ -527,7 +586,9 @@ class _SubModuleTileState extends State<SubModuleTile> {
                                   },
                                 ),
                                 CustomCheckBox(
-                                  key: ValueKey('${widget.moduleIndex}_${widget.subModuleIndex}_${i}_export_${currentSubSubModule.isExport}'),
+                                  key: ValueKey(
+                                    '${widget.moduleIndex}_${widget.subModuleIndex}_${i}_export_${currentSubSubModule.isExport}',
+                                  ),
                                   isSelected: currentSubSubModule.isExport,
                                   onChanged: (value) {
                                     _designationMasterCubit.updateRow(
@@ -540,7 +601,9 @@ class _SubModuleTileState extends State<SubModuleTile> {
                                   },
                                 ),
                                 CustomCheckBox(
-                                  key: ValueKey('${widget.moduleIndex}_${widget.subModuleIndex}_${i}_view_${currentSubSubModule.isView}'),
+                                  key: ValueKey(
+                                    '${widget.moduleIndex}_${widget.subModuleIndex}_${i}_view_${currentSubSubModule.isView}',
+                                  ),
                                   isSelected: currentSubSubModule.isView,
                                   onChanged: (value) {
                                     _designationMasterCubit.updateRow(
@@ -552,15 +615,15 @@ class _SubModuleTileState extends State<SubModuleTile> {
                                     );
                                   },
                                 ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
                     );
                   },
                 );
-              }).toList(),
+              }),
           ],
         );
       },
@@ -657,19 +720,21 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
             }
           },
           child: Container(
-                width: 22,
-                height: 22,
-                margin: EdgeInsets.all(2),
-                decoration: BoxDecoration(
+            width: 22,
+            height: 22,
+            margin: EdgeInsets.all(2),
+            decoration: BoxDecoration(
               color: widget.isSelected ? AppColor.green : AppColor.white,
-              border: widget.isSelected
-                          ? null
-                          : Border.all(color: AppColor.grey, width: 1.0),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-            child: widget.isSelected
-                        ? Icon(Icons.check, size: 18, color: AppColor.white)
-                        : null,
+              border:
+                  widget.isSelected
+                      ? null
+                      : Border.all(color: AppColor.grey, width: 1.0),
+              borderRadius: BorderRadius.circular(2),
+            ),
+            child:
+                widget.isSelected
+                    ? Icon(Icons.check, size: 18, color: AppColor.white)
+                    : null,
           ),
         ),
 

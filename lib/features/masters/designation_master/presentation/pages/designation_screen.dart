@@ -152,6 +152,14 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             itemCount: _designationMasterCubit.state.designationList.length + 1,
             itemBuilder: (context, index) {
+              if (index == state.designationList.length) {
+                return state.designationList.length < state.totalNumberOfRecord
+                    ? Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                    : const SizedBox.shrink();
+              }
               var designation = state.designationList[index];
               return Container(
                 padding: EdgeInsets.all(12),

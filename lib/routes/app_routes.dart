@@ -48,7 +48,7 @@ class AppRoutes {
   // VENDOR
   static String vendor = "/vendor";
   static String addVendor = "/addVendor";
-  static String viewVendorDetailsMobile = "/viewVendorDetailsMobile";
+  static String viewVendorDetails = "/viewVendorDetails";
 
   // INVENTORY
   static String inventory = "/inventory";

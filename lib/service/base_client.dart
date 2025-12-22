@@ -328,6 +328,26 @@ class BaseClient {
           options.headers["Authorization"] = "Bearer $token";
           return handler.next(options);
         },
+        onResponse: (response, handler) {
+          // Check if response indicates menu/authorization change
+          // This will throw MenuChangedException if detected, which will be caught by error handlers
+          try {
+            _checkForMenuChangeInResponse(response.data);
+          } catch (e) {
+            if (e is MenuChangedException) {
+              // Convert to error so it gets handled properly
+              return handler.reject(
+                DioException(
+                  requestOptions: response.requestOptions,
+                  response: response,
+                  type: DioExceptionType.badResponse,
+                  error: e,
+                ),
+              );
+            }
+          }
+          return handler.next(response);
+        },
         onError: (DioException e, handler) async {
           // HANDLE 403 → REFRESH TOKEN
           if (e.response?.statusCode == 403) {
@@ -339,11 +359,44 @@ class BaseClient {
             }
           }
 
+          // HANDLE 412 → MENU/AUTHORIZATION CHANGED
+          // Status code 412 (Precondition Failed) typically indicates menu/authorization change
+          if (e.response?.statusCode == 412) {
+            return handler.reject(
+              DioException(
+                requestOptions: e.requestOptions,
+                response: e.response,
+                type: DioExceptionType.badResponse,
+                error: MenuChangedException("Menu - Your access has been modified"),
+              ),
+            );
+          }
+
+          // Check error response for menu changes
+          if (e.response?.data != null) {
+            try {
+              _checkForMenuChangeInResponse(e.response!.data);
+            } catch (menuException) {
+              if (menuException is MenuChangedException) {
+                // Re-throw as DioException so it gets handled
+                return handler.reject(
+                  DioException(
+                    requestOptions: e.requestOptions,
+                    response: e.response,
+                    type: DioExceptionType.badResponse,
+                    error: menuException,
+                  ),
+                );
+              }
+            }
+          }
+
           return handler.next(e);
         },
       ),
     );
   }
+
 
   // --------------------------------------------------------------------------
   // GET WITHOUT AUTH
@@ -456,6 +509,13 @@ class BaseClient {
     log(response.statusCode.toString());
     log(response.data.toString());
 
+    // Check response headers for menu change indication
+    final headers = response.headers;
+    if (headers.value('x-menu-changed') == 'true' ||
+        headers.value('menu-changed') == 'true') {
+      throw MenuChangedException("Menu - Your access has been modified");
+    }
+
     switch (response.statusCode) {
       case 200:
         return _validateResponse(response.data);
@@ -468,6 +528,10 @@ class BaseClient {
           "Your session has expired due to inactivity.",
         );
 
+      case 412:
+        // Status code 412 (Precondition Failed) typically indicates menu/authorization change
+        throw MenuChangedException("Menu - Your access has been modified");
+
       case 404:
         throw BadRequestException("Invalid request");
 
@@ -477,7 +541,30 @@ class BaseClient {
   }
 
   dynamic _validateResponse(dynamic jsonResponse) {
+    // Check for menu/authorization changes in response FIRST
+    // This must be done before processing success/error
+    try {
+      _checkForMenuChangeInResponse(jsonResponse);
+    } catch (e) {
+      if (e is MenuChangedException) {
+        rethrow;
+      }
+    }
+
     if (jsonResponse["IsSuccess"]) {
+      // Also check success messages for menu change indication
+      if (jsonResponse.containsKey("SuccessMessage") &&
+          jsonResponse["SuccessMessage"] is List) {
+        final successList = jsonResponse["SuccessMessage"];
+        if (successList.isNotEmpty) {
+          final successMessage = successList[0].toString().toLowerCase();
+          if (successMessage.contains("menu") ||
+              successMessage.contains("authorization")) {
+            throw MenuChangedException("Menu - ${jsonResponse["SuccessMessage"][0]}");
+          }
+        }
+      }
+
       return {
         "totalNumberOfRecord": jsonResponse["TotalNumberOfRecord"],
         "data": jsonResponse["Data"],
@@ -490,9 +577,53 @@ class BaseClient {
       final errorList = jsonResponse["ErrorMessage"];
       final warnList = jsonResponse["WarningMessage"];
 
+      // Check if error/warning message indicates menu change
+      if (errorList.isNotEmpty) {
+        final errorMessage = errorList[0].toString();
+        if (errorMessage.toLowerCase().contains("menu") ||
+            errorMessage.toLowerCase().contains("authorization")) {
+          throw MenuChangedException("Menu - $errorMessage");
+        }
+      }
+      if (warnList.isNotEmpty) {
+        final warnMessage = warnList[0].toString();
+        if (warnMessage.toLowerCase().contains("menu") ||
+            warnMessage.toLowerCase().contains("authorization")) {
+          throw MenuChangedException("Menu - $warnMessage");
+        }
+      }
+
       throw BadRequestException(
         errorList.isNotEmpty ? errorList[0] : warnList[0],
       );
+    }
+  }
+
+  // Check if response indicates menu/authorization change
+  void _checkForMenuChangeInResponse(dynamic responseData) {
+    try {
+      if (responseData is Map<String, dynamic>) {
+        // Check if there's a specific flag indicating menu change
+        if (responseData.containsKey("IsMenuChanged") &&
+            responseData["IsMenuChanged"] == true) {
+          throw MenuChangedException("Menu - Your access has been modified");
+        }
+
+        // Check data field for menu change indication
+        if (responseData.containsKey("Data") && responseData["Data"] != null) {
+          final data = responseData["Data"];
+          if (data is Map<String, dynamic> &&
+              data.containsKey("IsMenuChanged") &&
+              data["IsMenuChanged"] == true) {
+            throw MenuChangedException("Menu - Your access has been modified");
+          }
+        }
+      }
+    } catch (e) {
+      if (e is MenuChangedException) {
+        rethrow;
+      }
+      // Ignore other errors in menu check
     }
   }
 
@@ -555,6 +686,22 @@ class BaseClient {
 
   // HANDLE COMMON DIO ERRORS
   dynamic _handleDioError(DioException e) {
+    // Check if the error is a MenuChangedException - this is the most important check
+    if (e.error is MenuChangedException) {
+      throw e.error as MenuChangedException;
+    }
+    
+    // Also check if the response data indicates menu change
+    if (e.response?.data != null) {
+      try {
+        _checkForMenuChangeInResponse(e.response!.data);
+      } catch (menuException) {
+        if (menuException is MenuChangedException) {
+          throw menuException;
+        }
+      }
+    }
+    
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout ||
         e.type == DioExceptionType.sendTimeout) {

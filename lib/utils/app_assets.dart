@@ -106,7 +106,7 @@ class AppAssets {
 
   // -- PROCUREMENT
   static const String procurementModule =
-      "$sideDrawerIconsPath/procurementModule.png";
+      "$sideDrawerIconsPath/procurementModule.svg";
   static const String invoiceSubmodule =
       "$sideDrawerIconsPath/invoiceSubmodule.svg";
   static const String reportsSubmodule =
@@ -115,8 +115,8 @@ class AppAssets {
       "$sideDrawerIconsPath/materialRequisitionSubmodule.svg";
   static const String contractRequisitionSubmodule =
       "$sideDrawerIconsPath/contractRequisitionSubmodule.svg";
-  static const String crmModule = "$sideDrawerIconsPath/crmModule.png";
-  static const String projectModule = "$sideDrawerIconsPath/projectModule.png";
+  static const String crmModule = "$sideDrawerIconsPath/crmModule.svg";
+  static const String projectModule = "$sideDrawerIconsPath/projectModule.svg";
   static const String reraSubmodule = "$sideDrawerIconsPath/reraSubmodule.svg";
   static const String approvedBankSubmodule =
       "$sideDrawerIconsPath/approvedBankSubmodule.svg";
@@ -129,7 +129,7 @@ class AppAssets {
 
   // -- INVENTORY
   static const String inventoryModule =
-      "$sideDrawerIconsPath/inventoryModule.png";
+      "$sideDrawerIconsPath/inventoryModule.svg";
   static const String apartment = "$svgPath/apartment.svg";
   static const String ladder = "$svgPath/ladder.svg";
   static const String wing = "$svgPath/wing.svg";
@@ -140,11 +140,11 @@ class AppAssets {
 
   // -- SETTINGS
   static const String settingsModule =
-      "$sideDrawerIconsPath/settingsModule.png";
+      "$sideDrawerIconsPath/settingsModule.svg";
 
   // -- REDEVELOPMENT
   static const String redevelopmentModule =
-      "$sideDrawerIconsPath/redevelopmentModule.png";
+      "$sideDrawerIconsPath/redevelopmentModule.svg";
 
   // -- COMPANY SETUP
   static const String companySetupSubmodule =

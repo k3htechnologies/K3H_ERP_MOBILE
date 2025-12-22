@@ -40,8 +40,17 @@ class VendorCubit extends Cubit<VendorState> {
         showErrorMessage(context, "Error Message", failure.message);
       },
       (response) {
-        List<VendorModel> updatedList = List.from(state.vendorList);
-        updatedList.addAll(response['data'] as List<VendorModel>);
+        // If pageNumber is 1, clear and replace the list completely to avoid duplicates
+        // For pagination (pageNumber > 1), append to existing list
+        List<VendorModel> updatedList;
+        if (pageNumber == 1) {
+          // Clear existing list first, then replace with fresh API data
+          updatedList = List<VendorModel>.from(response['data'] as List<VendorModel>);
+        } else {
+          // Pagination - append new items to existing list
+          updatedList = List<VendorModel>.from(state.vendorList)
+            ..addAll(response['data'] as List<VendorModel>);
+        }
         emit(
           state.copyWith(
             isLoading: false,
@@ -75,11 +84,18 @@ class VendorCubit extends Cubit<VendorState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: 'Vendor Deleted Successfully!!!');
         if (index != null) {
           final updatedList = List<VendorModel>.from(state.vendorList);
           updatedList.removeAt(index);
-          emit(state.copyWith(vendorList: updatedList));
+          emit(
+            state.copyWith(
+              vendorList: updatedList,
+              totalNumberOfRecord: state.totalNumberOfRecord > 0
+                  ? state.totalNumberOfRecord - 1
+                  : 0,
+            ),
+          );
         } else {
           getVendors(context, state.currentPage, 10);
         }

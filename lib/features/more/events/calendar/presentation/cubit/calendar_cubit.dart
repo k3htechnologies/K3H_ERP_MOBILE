@@ -182,14 +182,11 @@ class CalendarCubit extends Cubit<CalendarState> {
                     : state.totalNumberOfRecord + apiEvents.length,
           ),
         );
-        
-        // Show success message (it will handle navigation after 2 seconds)
+
         if (context.mounted) {
-          await showSuccessMessage(context);
+          await showSuccessMessage(context,subTitle: 'Event Added successfully.');
         }
-        
-        // After success message, refresh events list to get latest from server
-        // Use a wide date range (current month ± 1 month) to ensure we get the new event
+
         if (context.mounted) {
           final now = DateTime.now();
           final start = DateTime(now.year, now.month - 1, 1);
@@ -277,7 +274,7 @@ class CalendarCubit extends Cubit<CalendarState> {
                     : state.totalNumberOfRecord + apiEvents.length,
           ),
         );
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: 'Event Updated successfully.');
       },
     );
   }
@@ -310,7 +307,7 @@ class CalendarCubit extends Cubit<CalendarState> {
                     : 0,
           ),
         );
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: 'Event Deleted successfully.');
       },
     );
   }

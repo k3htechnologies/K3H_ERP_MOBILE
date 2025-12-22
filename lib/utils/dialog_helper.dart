@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class DialogHelper{
@@ -50,94 +51,27 @@ class DialogHelper{
     );
   }
 
-  // <---- SUCCESS DIALOG ---->
-  static Future successDialog(BuildContext context, {String? title}) async {
-    await showDialog(
-      context: context,
-      builder:
-          (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Center(
-          child: Container(
-            width: 400,
-            height: 200,
-            decoration: BoxDecoration(
-              color: AppColor.white,
-              border: Border.all(color: AppColor.green, width: 2),
-              borderRadius: BorderRadius.all(Radius.circular(20)),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(AppAssets.successLogo),
-                Text(
-                  title ?? "Success!",
-                  style: AppTextStyle.ts16R(color: AppColor.green),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+  // SUCCESS
+  static void showSuccessMessage(BuildContext context, {String? title}) {
+    CustomSnackBar.showTopSnackBar(
+      context,
+      title: "Success",
+      subtitle: "Success!",
+      isError: false,
     );
   }
 
-  // <---- ERROR DIALOG ---->
-  static Future<void> showErrorDialog({
+// ERROR
+  static void showErrorMessage({
     required BuildContext context,
     required String title,
     required String message,
-  }) async {
-    return await showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          insetPadding: EdgeInsets.zero,
-          backgroundColor: Colors.transparent,
-          child: Container(
-            height: 300,
-            width: 500,
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColor.yellow, width: 1),
-              color: AppColor.white,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 30.0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 18,
-                children: [
-                  Icon(
-                    Icons.warning_rounded,
-                    size: 100,
-                    color: AppColor.yellow,
-                  ),
-                  Text(
-                    title,
-                    style: AppTextStyle.ts20R(color: AppColor.yellow),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Expanded(
-                    child: Text(
-                      message,
-                      style: AppTextStyle.ts16R(color: AppColor.grey),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+  }) {
+    CustomSnackBar.showTopSnackBar(
+      context,
+      title: "Error",
+      subtitle: message,
+      isError: true,
     );
   }
 
@@ -169,7 +103,7 @@ class DialogHelper{
                 crossAxisAlignment: CrossAxisAlignment.center,
                 spacing: 10,
                 children: [
-                  Icon(Icons.warning_rounded, size: 80, color: AppColor.red),
+                  Icon(Icons.info_outline, size: 50, color: AppColor.red),
                   Text(
                     "Authorization Changed",
                     style: AppTextStyle.ts20R(color: AppColor.red),
