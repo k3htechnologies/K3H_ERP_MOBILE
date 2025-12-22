@@ -13,6 +13,9 @@ import 'package:k3h_erp_app/core/presentation/cubit/main_screen_cubit.dart';
 import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/core/presentation/pages/no_authorised_screen.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/module_access_screen.dart';
+import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
+import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
 import 'package:k3h_erp_app/features/menu/presentation/pages/menu_screen.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/presentation/cubit/calendar_cubit.dart';
@@ -236,18 +239,18 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final queryParameterDepartment =
                     state.uri.queryParameters['department'];
-                final DepartmentModel? department = queryParameterDepartment != null
-                    ? DepartmentModel.fromJson(
-                        jsonDecode(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(queryParameterDepartment),
+                final DepartmentModel? department =
+                    queryParameterDepartment != null
+                        ? DepartmentModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDepartment),
+                            ),
                           ),
-                        ),
-                      )
-                    : null;
-                final index = int.tryParse(
-                      state.uri.queryParameters['index'] ?? '',
-                    ) ?? 0;
+                        )
+                        : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
                 return BlocProvider(
                   create: (context) => DepartmentMasterCubit(),
                   child: AddDepartmentScreen(
@@ -269,6 +272,59 @@ final GoRouter goRouter = GoRouter(
               child: DesignationMasterScreen(),
             );
           },
+          routes: [
+            GoRoute(
+              parentNavigatorKey: navigatorKey,
+              name: AppRoutes.addDesignation,
+              path: AppRoutes.addDesignation,
+              builder: (context, state) {
+                final queryParameterDesignation =
+                    state.uri.queryParameters['designation'];
+                final DesignationMasterModel? designation =
+                    queryParameterDesignation != null
+                        ? DesignationMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDesignation),
+                            ),
+                          ),
+                        )
+                        : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return BlocProvider(
+                  create: (context) => DesignationMasterCubit(),
+                  child: AddDesignationScreen(
+                    designationMasterModel: designation,
+                    index: index,
+                  ),
+                );
+              },
+            ),
+            GoRoute(
+              parentNavigatorKey: navigatorKey,
+              path: AppRoutes.employeeModuleAccess,
+              name: AppRoutes.employeeModuleAccess,
+              builder: (context, state) {
+                final queryParameter = state.uri.queryParameters['designation'];
+                if (queryParameter == null) {
+                  return TestScreen();
+                }
+                final designationJson = jsonDecode(
+                  EncryptionManager.decryptData(
+                    Uri.decodeComponent(queryParameter),
+                  ),
+                );
+                final designation = DesignationMasterModel.fromJson(
+                  designationJson,
+                );
+                return BlocProvider(
+                  create: (context) => DesignationMasterCubit(),
+                  child: ModuleAccessScreen(designation: designation),
+                );
+              },
+            ),
+          ],
         ),
         // EMPLOYEE MASTER
         GoRoute(
@@ -363,7 +419,7 @@ final GoRouter goRouter = GoRouter(
 
                   final eventsJson = (data['events'] as List<dynamic>? ?? []);
                   final events = <CalendarEventModel>[];
-                  
+
                   for (var e in eventsJson) {
                     try {
                       final event = CalendarEventModel.fromJson(

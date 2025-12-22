@@ -9,6 +9,7 @@ class DesignationMasterState extends BaseState {
   final String currentSortDirection;
   final List<ModuleModel> modulesPermissionsList;
   final bool isAllSelected;
+  final int updateCounter; // Add counter to force state changes
 
   const DesignationMasterState({
     super.isLoading,
@@ -21,6 +22,7 @@ class DesignationMasterState extends BaseState {
     required this.currentSortDirection,
     required this.modulesPermissionsList,
     this.isAllSelected = false,
+    this.updateCounter = 0,
   });
 
   factory DesignationMasterState.initial() => DesignationMasterState(
@@ -32,6 +34,7 @@ class DesignationMasterState extends BaseState {
     currentSortDirection: "DESC",
     isLoading: true,
     modulesPermissionsList: [],
+    updateCounter: 0,
   );
 
   DesignationMasterState copyWith({
@@ -46,6 +49,7 @@ class DesignationMasterState extends BaseState {
     StateType? stateType,
     List<ModuleModel>? modulesPermissionsList,
     bool? isAllSelected,
+    int? updateCounter,
   }) {
     return DesignationMasterState(
       isLoading: isLoading ?? this.isLoading,
@@ -59,6 +63,7 @@ class DesignationMasterState extends BaseState {
       modulesPermissionsList ?? this.modulesPermissionsList,
       isAllSelected: isAllSelected ?? this.isAllSelected,
       stateType: stateType ?? this.stateType,
+      updateCounter: updateCounter ?? this.updateCounter,
     );
   }
 
@@ -74,5 +79,6 @@ class DesignationMasterState extends BaseState {
     stateType,
     isAllSelected,
     modulesPermissionsList,
+    updateCounter,
   ];
 }

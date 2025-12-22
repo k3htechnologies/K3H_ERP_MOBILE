@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
@@ -43,11 +42,11 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
         showErrorMessage(context, 'Error', failure.message);
       },
           (response) {
-        List<DesignationMasterModel> updatedList = List.from(
-          state.designationList,
-        );
-        // CONDITION TO CHECK IF THE PLATFORM IS MOBILE FOR PAGINATION
-        updatedList.addAll(response['data'] as List<DesignationMasterModel>);
+        // Replace list when pageNumber == 1, otherwise append for pagination
+        List<DesignationMasterModel> updatedList = pageNumber == 1
+            ? List<DesignationMasterModel>.from(response['data'] as List<DesignationMasterModel>)
+            : List<DesignationMasterModel>.from(state.designationList)
+              ..addAll(response['data'] as List<DesignationMasterModel>);
         emit(
           state.copyWith(
             isLoading: false,
@@ -80,7 +79,6 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     goRouter.pop();
     addResult.fold(
           (failure) {
-        emit(state.copyWith(errorMessage: failure.message));
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
@@ -133,16 +131,23 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
         return;
       },
           (response) {
-        final updatedList = List<DesignationMasterModel>.from(
-          state.designationList,
-        );
-        updatedList[index] = (response['data'][0] as DesignationMasterModel);
         goRouter.pop();
-        emit(
-          state.copyWith(
-            designationList: updatedList,
-          ),
-        );
+        final updatedDesignation = response['data'][0] as DesignationMasterModel;
+        
+        // Check if list is not empty and index is valid before updating by index
+        // This prevents RangeError when the cubit instance has an empty list
+        if (state.designationList.isNotEmpty && index < state.designationList.length) {
+          final updatedList = List<DesignationMasterModel>.from(
+            state.designationList,
+          );
+          updatedList[index] = updatedDesignation;
+          emit(
+            state.copyWith(
+              designationList: updatedList,
+            ),
+          );
+        }
+        
         showSuccessMessage(context);
       },
     );
@@ -264,26 +269,25 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
       },
           (response) async {
         List<ModuleModel> moduleList = response['data'];
-        await compute((_) {
-          for (var module in moduleList) {
-            for (var subModule in module.subModuleData) {
-              if (subModule.subSubModuleData.isEmpty) {
-                subModule.isSelected =
-                    subModule.isView && subModule.isAction && subModule.isView;
-              } else {
-                subModule.isSelected = subModule.subSubModuleData.every(
-                      (subSubModule) =>
-                  subSubModule.isView &&
-                      subSubModule.isAction &&
-                      subSubModule.isView,
-                );
-              }
+        // Process modules directly (no need for compute as this is simple boolean logic)
+        for (var module in moduleList) {
+          for (var subModule in module.subModuleData) {
+            if (subModule.subSubModuleData.isEmpty) {
+              subModule.isSelected =
+                  subModule.isView && subModule.isAction && subModule.isView;
+            } else {
+              subModule.isSelected = subModule.subSubModuleData.every(
+                    (subSubModule) =>
+                subSubModule.isView &&
+                    subSubModule.isAction &&
+                    subSubModule.isView,
+              );
             }
-            module.isSelected = module.subModuleData.every(
-                  (subModule) => subModule.isSelected,
-            );
           }
-        }, '');
+          module.isSelected = module.subModuleData.every(
+                (subModule) => subModule.isSelected,
+          );
+        }
         emit(
           state.copyWith(
             isLoading: false,
@@ -327,26 +331,25 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
           (response) async {
         await showSuccessMessage(context);
         List<ModuleModel> moduleList = response['data'];
-        await compute((_) {
-          for (var module in moduleList) {
-            for (var subModule in module.subModuleData) {
-              if (subModule.subSubModuleData.isEmpty) {
-                subModule.isSelected =
-                    subModule.isView && subModule.isAction && subModule.isView;
-              } else {
-                subModule.isSelected = subModule.subSubModuleData.every(
-                      (subSubModule) =>
-                  subSubModule.isView &&
-                      subSubModule.isAction &&
-                      subSubModule.isView,
-                );
-              }
+        // Process modules directly (no need for compute as this is simple boolean logic)
+        for (var module in moduleList) {
+          for (var subModule in module.subModuleData) {
+            if (subModule.subSubModuleData.isEmpty) {
+              subModule.isSelected =
+                  subModule.isView && subModule.isAction && subModule.isView;
+            } else {
+              subModule.isSelected = subModule.subSubModuleData.every(
+                    (subSubModule) =>
+                subSubModule.isView &&
+                    subSubModule.isAction &&
+                    subSubModule.isView,
+              );
             }
-            module.isSelected = module.subModuleData.every(
-                  (subModule) => subModule.isSelected,
-            );
           }
-        }, '');
+          module.isSelected = module.subModuleData.every(
+                (subModule) => subModule.isSelected,
+          );
+        }
         emit(
           state.copyWith(
             isLoading: false,
@@ -366,18 +369,16 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
   Future<bool> isAllModulesSelected(
       List<ModuleModel> modulesPermissionsList,
       ) async {
-    return await compute(
-          (_) => modulesPermissionsList.every(
-            (module) => module.subModuleData.every(
-              (subModule) => subModule.subSubModuleData.every(
-                (subSubModule) =>
-            subSubModule.isAction &&
-                subSubModule.isView &&
-                subSubModule.isExport,
-          ),
+    // Process directly (no need for compute as this is simple boolean logic)
+    return modulesPermissionsList.every(
+      (module) => module.subModuleData.every(
+        (subModule) => subModule.subSubModuleData.every(
+          (subSubModule) =>
+              subSubModule.isAction &&
+              subSubModule.isView &&
+              subSubModule.isExport,
         ),
       ),
-      '',
     );
   }
 
@@ -463,19 +464,56 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
       bool value,
       String? type,
       ) async {
+    // Create a deep copy of the list to ensure new references
+    List<ModuleModel> newList = state.modulesPermissionsList.map((module) {
+      return ModuleModel(
+        modulesMasterId: module.modulesMasterId,
+        moduleName: module.moduleName,
+        icon: module.icon,
+        subModuleData: module.subModuleData.map((subModule) {
+          return SubModuleModel(
+            subModulesMasterId: subModule.subModulesMasterId,
+            subModuleName: subModule.subModuleName,
+            icon: subModule.icon,
+            path: subModule.path,
+            isAction: subModule.isAction,
+            isView: subModule.isView,
+            isExport: subModule.isExport,
+            isSelected: subModule.isSelected,
+            subSubModuleData: subModule.subSubModuleData.map((subSubModule) {
+              return SubSubModuleModel(
+                subSubModulesMasterId: subSubModule.subSubModulesMasterId,
+                subSubModuleName: subSubModule.subSubModuleName,
+                icon: subSubModule.icon,
+                path: subSubModule.path,
+                isDisplay: subSubModule.isDisplay,
+                isAction: subSubModule.isAction,
+                isView: subSubModule.isView,
+                isExport: subSubModule.isExport,
+              );
+            }).toList(),
+          );
+        }).toList(),
+        isSelected: module.isSelected,
+      );
+    }).toList();
+    
     List result = await updateList(
-      List.from(state.modulesPermissionsList),
+      newList,
       moduleIndex: moduleIndex,
       subModuleIndex: subModuleIndex,
       subSubModuleIndex: subSubModuleIndex,
       value: value,
       type: type,
     );
+    // Force a new list instance to ensure state change is detected
+    final updatedList = List<ModuleModel>.from(result[0]);
     emit(
       state.copyWith(
         isAllSelected: result[1],
-        modulesPermissionsList: result[0],
+        modulesPermissionsList: updatedList,
         stateType: StateType.employeeMasterModuleAccessState,
+        updateCounter: state.updateCounter + 1, // Increment counter to force state change
       ),
     );
   }
@@ -523,23 +561,43 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
       SubModuleModel subModuleModel = moduleModel.subModuleData[subModuleIndex];
 
       if (type != null) {
-        // Update specific permission
+        // Update specific permission on sub-module
         switch (type) {
           case "action":
             subModuleModel.isAction = value;
+            // Also update all sub-sub-modules' action checkboxes
+            for (var subSubModule in subModuleModel.subSubModuleData) {
+              subSubModule.isAction = value;
+            }
             break;
           case "export":
             subModuleModel.isExport = value;
+            // Also update all sub-sub-modules' export checkboxes
+            for (var subSubModule in subModuleModel.subSubModuleData) {
+              subSubModule.isExport = value;
+            }
             break;
           case "view":
             subModuleModel.isView = value;
+            // Also update all sub-sub-modules' view checkboxes
+            for (var subSubModule in subModuleModel.subSubModuleData) {
+              subSubModule.isView = value;
+            }
             break;
         }
-        // Check if all permissions are true
-        subModuleModel.isSelected =
-            subModuleModel.isView &&
-                subModuleModel.isAction &&
-                subModuleModel.isExport;
+        // Update subModule isSelected based on all permissions and sub-sub-modules
+        if (subModuleModel.subSubModuleData.isEmpty) {
+          // No sub-sub-modules, check if all permissions are true
+          subModuleModel.isSelected =
+              subModuleModel.isView &&
+                  subModuleModel.isAction &&
+                  subModuleModel.isExport;
+        } else {
+          // Has sub-sub-modules, check if all sub-sub-modules have all permissions
+          subModuleModel.isSelected = subModuleModel.subSubModuleData.every(
+                (e) => e.isView && e.isAction && e.isExport,
+          );
+        }
       } else {
         if (subModuleModel.subSubModuleData.isEmpty) {
           // Update all permissions
@@ -604,19 +662,22 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
             subModule.isView = value;
             subModule.isSelected = value;
           } else {
-            // Has subSubModules — apply to all of them
+            // Has subSubModules — apply to all of them AND to the sub-module itself
+            subModule.isAction = value;
+            subModule.isExport = value;
+            subModule.isView = value;
             for (var subSubModule in subModule.subSubModuleData) {
               subSubModule.isAction = value;
               subSubModule.isExport = value;
               subSubModule.isView = value;
             }
-
-            // Mark subModule as selected only if all subSubModules meet condition
+            // Mark subModule as selected
             subModule.isSelected = value;
           }
         }
       }
     }
-    return [list, await compute((_) => list.every((e) => e.isSelected), '')];
+    // Process directly (no need for compute as this is simple boolean logic)
+    return [list, list.every((e) => e.isSelected)];
   }
 }

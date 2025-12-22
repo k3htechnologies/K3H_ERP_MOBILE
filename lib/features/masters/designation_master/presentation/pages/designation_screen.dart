@@ -1,23 +1,21 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/cubit/designation_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_floating_action_button.dart';
-import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class DesignationMasterScreen extends StatefulWidget {
@@ -28,8 +26,7 @@ class DesignationMasterScreen extends StatefulWidget {
       _DesignationMasterScreenState();
 }
 
-class _DesignationMasterScreenState
-    extends State<DesignationMasterScreen> {
+class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
   // CUBIT
   late DesignationMasterCubit _designationMasterCubit;
 
@@ -39,10 +36,6 @@ class _DesignationMasterScreenState
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
-  // FORM KEY
-  final GlobalKey<FormState> _designationMasterAddUpdateKey =
-      GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC, _designationC, _noticePeriodC;
@@ -96,127 +89,6 @@ class _DesignationMasterScreenState
     });
   }
 
-  // <--- CLEAR DESIGNATION ---->
-  void _clearDialogToAddUpdateDesignationMaster() {
-    _designationC.clear();
-    _noticePeriodC.clear();
-  }
-
-  // <---- PREFILL BOTTOM SHEET TO ADD/UPDATE DESIGNATION MASTER ---->
-  void _prefillBottomSheetToAddUpdateDesignationMaster(
-    DesignationMasterModel designation,
-  ) {
-    _designationC.text = designation.designationName;
-    _noticePeriodC.text = designation.noticePeriod.toString();
-  }
-
-  // <---- API CALL TO ADD/UPDATE DESIGNATION MASTER ---->
-  Future<void> _addUpdateDesignation(
-    DesignationMasterModel? designation, {
-    int index = 0,
-  }) async {
-    if (_designationMasterAddUpdateKey.currentState!.validate()) {
-      designation != null
-          ? _designationMasterCubit.updateDesignationMaster(
-            index: index,
-            designationMasterId: designation.designationMasterId,
-            uniqueKey: designation.uniquekey,
-            designationName: _designationC.text,
-            noticePeriod: _noticePeriodC.text,
-            context: context,
-          )
-          : _designationMasterCubit.addDesignationMaster(
-            designationName: _designationC.text,
-            noticePeriod: _noticePeriodC.text,
-            context: context,
-          );
-    }
-  }
-
-  // <---- BOTTOM SHEET TO ADD/UPDATE DESIGNATION MASTER ---->
-  Future<void> _showBottomSheetToAddUpdateDesignationMaster(
-    BuildContext context,
-    DesignationMasterState state, {
-    DesignationMasterModel? designation,
-    int? index,
-  }) async {
-    if (designation != null) {
-      _prefillBottomSheetToAddUpdateDesignationMaster(designation);
-    }
-    await DialogHelper.showCustomBottomSheet(
-      context,
-      "Add Designation",
-      Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-              left: 16,
-              right: 16,
-              top: 8,
-            ),
-            child: SingleChildScrollView(
-              child: Form(
-                key: _designationMasterAddUpdateKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Column(
-                      children: [
-                        CustomTextField(
-                          title: "Designation*",
-                          inputFormatterList: [
-                            LengthLimitingTextInputFormatter(50),
-                          ],
-                          textController: _designationC,
-                          validator: (value) {
-                            if (designation == null &&
-                                (value == null || value.isEmpty)) {
-                              return 'Designation is required';
-                            }
-                            return null;
-                          },
-                        ),
-                        CustomTextField(
-                          title: "Notice Period* (in days)",
-                          textController: _noticePeriodC,
-                          inputFormatterList: InputValidator.digit(3),
-                          validator: (value) {
-                            if (designation == null &&
-                                (value == null || value.trim().isEmpty)) {
-                              return 'Notice Period is required';
-                            }
-                            final numValue = int.tryParse(value ?? '');
-                            if (numValue == null ||
-                                numValue < 1 ||
-                                numValue > 365) {
-                              return 'Enter a valid number (1 to 365)';
-                            }
-                            return null;
-                          },
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: CustomButton.save(
-                        onPressed: () {
-                          _addUpdateDesignation(designation, index: index ?? 0);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-    _clearDialogToAddUpdateDesignationMaster();
-  }
-
   // <---- DELETE DESIGNATION ---->
   Future<void> _showPopupToDeleteDesignationMaster(
     int designationMasterId,
@@ -250,11 +122,13 @@ class _DesignationMasterScreenState
         onExportCallback: (value) {
           _designationMasterCubit.exportExcelPdf(context, value);
         },
-        onAddCallback:
-            () async => await _showBottomSheetToAddUpdateDesignationMaster(
-              context,
-              _designationMasterCubit.state,
-            ),
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addDesignation);
+          // Refresh list when returning from add screen
+          if (context.mounted) {
+            _designationMasterCubit.getDesignationList(context, 1, 10);
+          }
+        },
         onSearchSubmit: (value) {
           _designationMasterCubit.searchDesignation(context, value);
         },
@@ -275,181 +149,166 @@ class _DesignationMasterScreenState
           }
           return ListView.builder(
             controller: scrollController,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             itemCount: _designationMasterCubit.state.designationList.length + 1,
             itemBuilder: (context, index) {
-              if (index == state.designationList.length) {
-                return state.designationList.length < state.totalNumberOfRecord
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
               var designation = state.designationList[index];
               return Container(
+                padding: EdgeInsets.all(12),
                 margin: EdgeInsets.only(bottom: 10),
-                decoration: BoxDecoration(
-                  color: AppColor.white,
-                  border: Border.all(
-                    color: AppColor.grey.withValues(alpha: 0.3),
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                decoration: commonCardDecoration(),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: EdgeInsets.only(top: 10, left: 8, right: 8),
-                      child: Row(
-                        spacing: 10,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Designation :",
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTextStyle.ts12R(
-                                    color: AppColor.grey,
-                                  ),
-                                ),
-                                Text(
-                                  designation.designationName,
-                                  style: AppTextStyle.ts14R(),
-                                ),
-                              ],
-                            ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            designation.designationName,
+                            style: AppTextStyle.ts14R(),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Notice Period :",
-                                  style: AppTextStyle.ts12R(
-                                    color: AppColor.grey,
-                                  ),
-                                ),
-                                Text(
-                                  designation.noticePeriod.toString(),
-                                  style: AppTextStyle.ts14R(),
-                                ),
-                              ],
+                        ),
+                        horizontalSpacing(),
+                        Row(
+                          spacing: 5,
+                          children: [
+                            CustomIconButton(
+                              onPressed: () async {
+                                await goRouter.pushNamed(
+                                  AppRoutes.employeeModuleAccess,
+                                  queryParameters: {
+                                    "designation": Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(designation.toJson()),
+                                      ),
+                                    ),
+                                  },
+                                );
+                                if (context.mounted) {
+                                  _designationMasterCubit.getDesignationList(
+                                    context,
+                                    1,
+                                    10,
+                                  );
+                                }
+                              },
+                              icon: Icon(
+                                Icons.key,
+                                size: 16,
+                                color: AppColor.primary,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
+                            CustomIconButton(
+                              onPressed: () async {
+                                await goRouter.pushNamed(
+                                  AppRoutes.addDesignation,
+                                  queryParameters: {
+                                    'designation': Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(designation.toJson()),
+                                      ),
+                                    ),
+                                    'index': index.toString(),
+                                  },
+                                );
+                                if (context.mounted) {
+                                  _designationMasterCubit.getDesignationList(
+                                    context,
+                                    1,
+                                    10,
+                                  );
+                                }
+                              },
+                              icon: Icon(
+                                Icons.edit,
+                                size: 16,
+                                color: AppColor.grey,
+                              ),
+                              backgroundColor: AppColor.grey10,
+                            ),
+                            CustomIconButton(
+                              onPressed: () {
+                                _showPopupToDeleteDesignationMaster(
+                                  designation.designationMasterId,
+                                  designation.uniquekey,
+                                  index,
+                                );
+                              },
+                              icon: SvgPicture.asset(
+                                AppAssets.deleteIcon2,
+                                height: 16,
+                                colorFilter: ColorFilter.mode(
+                                  AppColor.error,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              backgroundColor: AppColor.lightRed,
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 10, left: 8, right: 8),
-                      child: Row(
-                        spacing: 10,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Created By/Date :",
-                                  style: AppTextStyle.ts12R(
-                                    color: AppColor.grey,
-                                  ),
-                                ),
-                                Text(
-                                  "${designation.createdBy} \n${formatDateTimeAsDDMMMYYYY(designation.createdDate)}",
-                                  style: AppTextStyle.ts14R(),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Modified By/Date :",
-                                  style: AppTextStyle.ts12R(
-                                    color: AppColor.grey,
-                                  ),
-                                ),
-                                Text(
-                                  "${designation.modifiedBy.isNotEmpty ? designation.modifiedBy : "-"} \n${designation.modifiedDate != null ? formatDateTimeAsDDMMMYYYY(designation.modifiedDate!) : '-'}",
-                                  style: AppTextStyle.ts14R(),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
                     verticalSpacing(),
                     Container(
-                      clipBehavior: Clip.hardEdge,
-                      padding: EdgeInsets.all(8),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
                       decoration: BoxDecoration(
-                        color: AppColor.grey.withValues(alpha: 0.05),
-                        border: Border(
-                          top: BorderSide(
-                            color: AppColor.grey.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(12),
-                          bottomRight: Radius.circular(12),
-                        ),
+                        color: AppColor.grey10,
+                        borderRadius: BorderRadius.circular(4),
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              _showBottomSheetToAddUpdateDesignationMaster(
-                                context,
-                                state,
-                                index: index,
-                                designation: designation,
-                              );
-                            },
-                            child: SvgPicture.asset(
-                              AppAssets.editIcon,
-                              height: 24,
-                            ),
+                          Text(
+                            "Notice Period: ",
+                            style: AppTextStyle.ts12R(color: AppColor.grey),
                           ),
-                          horizontalSpacing(width: 20),
-                          GestureDetector(
-                            onTap: () {
-                              _showPopupToDeleteDesignationMaster(
-                                designation.designationMasterId,
-                                designation.uniquekey,
-                                index,
-                              );
-                            },
-                            child: SvgPicture.asset(
-                              AppAssets.deleteIcon,
-                              height: 24,
-                            ),
+                          Text(
+                            designation.noticePeriod.toString(),
+                            style: AppTextStyle.ts14R(),
                           ),
                         ],
                       ),
+                    ),
+                    Divider(
+                      color: AppColor.primary.withValues(alpha: .5),
+                      thickness: .5,
+                      height: 25,
+                    ),
+                    Row(
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              "Employee Count: ",
+                              style: AppTextStyle.ts12R(color: AppColor.grey),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 6),
+                              decoration: BoxDecoration(
+                                color: AppColor.purple.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                designation.numberOfEmployee.toString(),
+                                style: AppTextStyle.ts14R(
+                                  color: AppColor.purple,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ],
                 ),
               );
             },
-          );
-        },
-      ),
-      floatingActionButton: CommonFloatingActionButton(
-        onPressed: () async {
-          await _showBottomSheetToAddUpdateDesignationMaster(
-            context,
-            _designationMasterCubit.state,
           );
         },
       ),

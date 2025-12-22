@@ -187,7 +187,11 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                                   );
                                 }
                               },
-                              icon: Icon(Icons.edit, size: 16),
+                              icon: Icon(
+                                Icons.edit,
+                                size: 16,
+                                color: AppColor.grey,
+                              ),
                               backgroundColor: AppColor.grey10,
                             ),
                             horizontalSpacing(),

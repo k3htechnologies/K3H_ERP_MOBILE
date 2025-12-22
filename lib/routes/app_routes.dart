@@ -16,6 +16,7 @@ class AppRoutes {
   static String addCompany = "/addCompany";
   static String viewCompanyMobile = "/viewCompanyMobile";
   static String designationMaster = "/designationMaster";
+  static String addDesignation = "/addDesignation";
   static String projectMaster = "/projectMaster";
   static String projectDetails = "projectDetails";
   static String globalProjectDetails = "/globalProjectDetails";
