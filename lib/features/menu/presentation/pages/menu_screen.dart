@@ -5,15 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
-import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
-import 'package:k3h_erp_app/widgets/side_drawer/side_drawer_modules/custom_module_tile.dart';
-import 'package:k3h_erp_app/widgets/side_drawer/side_drawer_modules/custom_sub_module_tile.dart';
-import 'package:k3h_erp_app/widgets/side_drawer/side_drawer_modules/custom_sub_sub_module_tile.dart';
+import 'package:k3h_erp_app/widgets/menu_list/menu_list_modules/custom_module_tile.dart';
+import 'package:k3h_erp_app/widgets/menu_list/menu_list_modules/custom_sub_module_tile.dart';
+import 'package:k3h_erp_app/widgets/menu_list/menu_list_modules/custom_sub_sub_module_tile.dart';
 
 void removeHiddenSubSubModules(List<ModuleModel> modules) {
   for (var module in modules) {
@@ -57,7 +56,6 @@ class MenuScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<ModuleModel> menuList = _getMenuList();
     final UserModel? user = _getUser();
-    final ProjectModel? project = _getSelectedProject();
 
     return Scaffold(
       appBar: AppBar(
@@ -175,12 +173,3 @@ class MenuScreen extends StatelessWidget {
   }
 }
 
-ProjectModel? _getSelectedProject() {
-  String? projectString = LocalStorageManager().getString(
-    StorageKey.selectedProject,
-  );
-  if (projectString == null) {
-    return null;
-  }
-  return ProjectModel.fromJson(jsonDecode(projectString));
-}

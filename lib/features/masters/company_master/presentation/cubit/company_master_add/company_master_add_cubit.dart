@@ -242,7 +242,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
           ),
         );
         goRouter.pop();
-        showSuccessMessage(context);
+        showSuccessMessage(context,subTitle: "Company added successfully");
       },
     );
   }
@@ -291,7 +291,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         companyPartner: currentList,
       ),
     );
-    showSuccessMessage(context);
+    showSuccessMessage(context,subTitle: "Company partner deleted successfully");
   }
 
   // <---- UPDATE COMPANY ---->
@@ -536,7 +536,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
           ),
         );
         goRouter.pop(response['data']);
-        showSuccessMessage(context);
+        showSuccessMessage(context,subTitle: "Company updated successfully");
       },
     );
   }

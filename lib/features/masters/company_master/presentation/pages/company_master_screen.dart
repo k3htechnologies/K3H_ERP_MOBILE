@@ -13,18 +13,17 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_floating_action_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CompanyMasterScreen extends StatefulWidget {
   const CompanyMasterScreen({super.key});
 
   @override
-  State<CompanyMasterScreen> createState() =>
-      _CompanyMasterMobileScreenState();
+  State<CompanyMasterScreen> createState() => _CompanyMasterMobileScreenState();
 }
 
 class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
@@ -47,7 +46,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     initialiseControllers();
     _companyMasterCubit = context.read<CompanyMasterCubit>();
     _routeAuthorizationModel =
-    Authorization.routeAuthorizationMap[AppRoutes.companyMaster]!;
+        Authorization.routeAuthorizationMap[AppRoutes.companyMaster]!;
     _companyMasterCubit.getCompanyMaster(context, 1, 10);
     // PAGINATION
     scrollController = ScrollController();
@@ -63,7 +62,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
   // PAGINATION
   void _onScroll() {
     if (scrollController.position.pixels >=
-        scrollController.position.maxScrollExtent - 100 &&
+            scrollController.position.maxScrollExtent - 100 &&
         !_companyMasterCubit.state.isLoading! &&
         _companyMasterCubit.state.companyList.length <
             _companyMasterCubit.state.totalNumberOfRecord) {
@@ -76,6 +75,29 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
           10,
         );
       });
+    }
+  }
+
+  // DELETE COMPANY DIALOG
+  void _showPopUpToDeleteVendor(
+    BuildContext context,
+    CompanyModel company,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      "You are about to delete a company ",
+      "Deleting this company will permanently remove its contents.",
+    );
+    if (result && context.mounted) {
+      _companyMasterCubit.deleteCompanyMaster(
+        context: context,
+        companyMasterId: company.companyId,
+        uniqueKey: company.uniquekey,
+        index: index,
+        pageNumber: _companyMasterCubit.state.currentPage,
+        pageSize: 10,
+      );
     }
   }
 
@@ -94,11 +116,8 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addCompany);
           if (context.mounted) {
-            _companyMasterCubit.getCompanyMaster(
-              context,
-              _companyMasterCubit.state.currentPage,
-              10,
-            );
+            // After add, reload from first page to avoid duplicate rows
+            _companyMasterCubit.getCompanyMaster(context, 1, 10);
           }
         },
         textController: _searchC,
@@ -118,152 +137,179 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
           }
           return ListView.builder(
             controller: scrollController,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            padding: EdgeInsets.symmetric(horizontal: 16),
             itemCount: _companyMasterCubit.state.companyList.length + 1,
             itemBuilder: (context, index) {
               if (index == state.companyList.length) {
                 return state.companyList.length < state.totalNumberOfRecord
                     ? Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                )
+                      padding: const EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
                     : const SizedBox.shrink();
               }
               var company = state.companyList[index];
               return Container(
+                padding: EdgeInsets.all(16),
                 margin: EdgeInsets.only(bottom: 10),
-                decoration: BoxDecoration(
-                  color: AppColor.white,
-                  border: Border.all(
-                    color: AppColor.grey.withValues(alpha: 0.3),
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Company Name:",
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyle.ts12R(color: AppColor.grey),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  spacing: 10.0,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      spacing: 10,
+                      children: [
+                        Flexible(
+                          child: GestureDetector(
+                            onTap: () async {
+                              await goRouter.pushNamed(
+                                AppRoutes.viewCompanyDetails,
+                                queryParameters: {
+                                  "company": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(company),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColor.lightBlue,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    company.companyName,
+                                    style: AppTextStyle.ts16M(
+                                      color: AppColor.primary,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  horizontalSpacing(),
+                                  Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: AppColor.primary,
+                                    size: 12,
+                                  ),
+                                ],
+                              ),
                             ),
-                            Text(
-                              company.companyName,
-                              style: AppTextStyle.ts14R(),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Company Type :",
-                              style: AppTextStyle.ts12R(color: AppColor.grey),
-                            ),
-                            Text(
-                              company.companyType,
-                              style: AppTextStyle.ts14R(),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-
-                      Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                        Row(
+                          spacing: 10,
                           children: [
-                            CustomButton(
-                              text: "View",
-                              backgroundColor: AppColor.slightDarkBlue,
-                              onPressed: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.viewCompanyMobile,
+                            CustomIconButton(
+                              onPressed: () async {
+                                await goRouter.pushNamed(
+                                  AppRoutes.addCompany,
                                   queryParameters: {
-                                    "company_master": Uri.encodeQueryComponent(
+                                    "company": Uri.encodeQueryComponent(
                                       EncryptionManager.encryptData(
-                                        jsonEncode(
-                                          _companyMasterCubit
-                                              .state
-                                              .companyList[index],
-                                        ),
+                                        jsonEncode(company),
                                       ),
                                     ),
                                   },
                                 );
+                                if (context.mounted) {
+                                  _companyMasterCubit.getCompanyMaster(
+                                    context,
+                                    1,
+                                    10,
+                                  );
+                                }
                               },
+                              icon: Icon(
+                                Icons.edit,
+                                size: 16,
+                                color: AppColor.grey,
+                              ),
+                              backgroundColor: AppColor.lightGrey,
                             ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                GestureDetector(
-                                  onTap: () async {
-                                    List<CompanyModel> data =
-                                    (await goRouter.pushNamed(
-                                      AppRoutes.addCompany,
-                                      extra: company,
-                                    )
-                                    as List<CompanyModel>);
-                                    _companyMasterCubit.updateCompany(
-                                      data[0],
-                                      index,
-                                    );
-                                  },
-                                  child: SvgPicture.asset(
-                                    AppAssets.editIcon,
-                                    height: 24,
-                                  ),
+                            CustomIconButton(
+                              onPressed: () {
+                                _showPopUpToDeleteVendor(
+                                  context,
+                                  company,
+                                  index,
+                                );
+                              },
+                              icon: SvgPicture.asset(
+                                AppAssets.deleteIcon2,
+                                height: 16,
+                                colorFilter: ColorFilter.mode(
+                                  AppColor.error,
+                                  BlendMode.srcIn,
                                 ),
-                                horizontalSpacing(width: 20),
-                                GestureDetector(
-                                  onTap: () async {
-                                    var result = await DialogHelper.deleteDialog(
-                                      context,
-                                      "You are about to delete a company_master ",
-                                      "Deleting this company_master will permanently remove its contents.",
-                                    );
-                                    if (result) {
-                                      final companyId =
-                                          state.companyList[index].companyId;
-                                      final uniqueKey =
-                                          state.companyList[index].uniquekey;
-                                      if (context.mounted) {
-                                        _companyMasterCubit.deleteCompanyMaster(
-                                          context: context,
-                                          companyMasterId: companyId,
-                                          uniqueKey: uniqueKey,
-                                          pageNumber: 1,
-                                          pageSize: 10,
-                                          index: index,
-                                        );
-                                      }
-                                    }
-                                  },
-                                  child: SvgPicture.asset(
-                                    AppAssets.deleteIcon,
-                                    height: 24,
-                                  ),
-                                ),
-                              ],
+                              ),
+                              backgroundColor: AppColor.lightRed,
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                    _buildRowTitleVale(
+                      title: "Company Type",
+                      value: company.companyType,
+                    ),
+                    _buildRowTitleVale(
+                      title: "Contact Person",
+                      value: company.contactPerson,
+                    ),
+                    _buildRowTitleVale(
+                      title: "Email ID",
+                      value: company.emailId,
+                    ),
+                  ],
                 ),
               );
             },
           );
         },
       ),
-      floatingActionButton: CommonFloatingActionButton(
-        onPressed: () {
-          goRouter.pushNamed(AppRoutes.addCompany);
-        },
+    );
+  }
+
+  Widget _buildRowTitleVale({required String title, required String value}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          // TITLE
+          SizedBox(
+            width: 140,
+            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
+          ),
+
+          // COLON
+          SizedBox(
+            width: 20,
+            child: Text(
+              ":",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColor.grey),
+            ),
+          ),
+
+          // VALUE
+          Expanded(
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyle.ts14R(),
+            ),
+          ),
+        ],
       ),
     );
   }

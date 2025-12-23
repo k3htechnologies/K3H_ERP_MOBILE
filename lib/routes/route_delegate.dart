@@ -37,8 +37,10 @@ import 'package:k3h_erp_app/features/marketing/content/presentation/pages/conten
 import 'package:k3h_erp_app/features/masters/company_master/presentation/cubit/company_master/company_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/cubit/company_master_add/company_master_add_cubit.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/add_company_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/add_company_partner_screen.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/company_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/company_master_view.dart';
+import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/view_company_partner_screen.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/cubit/department_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/add_department_screen.dart';
@@ -58,6 +60,8 @@ import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.d
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor_add/vendor_add_cubit.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/add_vendor_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/document_view_company_screen.dart';
+import 'package:k3h_erp_app/features/vendor_management/presentation/pages/documents_view_vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/view_details_vendor_screen.dart';
 import 'package:k3h_erp_app/main.dart';
@@ -196,20 +200,51 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addCompany,
               path: AppRoutes.addCompany,
               builder: (context, state) {
-                final CompanyModel? company = state.extra as CompanyModel?;
+                final queryParameterCompany =
+                    state.uri.queryParameters['company'];
+                final CompanyModel? companyModel =
+                    queryParameterCompany != null
+                        ? CompanyModel.fromJson(
+                            jsonDecode(
+                              EncryptionManager.decryptData(
+                                Uri.decodeQueryComponent(
+                                  queryParameterCompany,
+                                ),
+                              ),
+                            ),
+                          )
+                        : null;
                 return BlocProvider(
                   create: (context) => CompanyMasterAddCubit(),
-                  child: AddCompanyMasterScreen(company: company),
+                  child: AddCompanyMasterScreen(company: companyModel),
                 );
               },
             ),
             GoRoute(
               parentNavigatorKey: navigatorKey,
-              name: AppRoutes.viewCompanyMobile,
-              path: AppRoutes.viewCompanyMobile,
+              name: AppRoutes.addCompanyPartner,
+              path: AppRoutes.addCompanyPartner,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                final partner = extra['partner'] as CompanyPartnerModel?;
+                final index = extra['index'] as int?;
+                final cubit = extra['cubit'] as CompanyMasterAddCubit?;
+                return BlocProvider.value(
+                  value: cubit ?? context.read<CompanyMasterAddCubit>(),
+                  child: AddCompanyPartnerScreen(
+                    companyPartner: partner,
+                    index: index,
+                  ),
+                );
+              },
+            ),
+            GoRoute(
+              parentNavigatorKey: navigatorKey,
+              name: AppRoutes.viewCompanyDetails,
+              path: AppRoutes.viewCompanyDetails,
               builder: (context, state) {
                 final queryParameterVendor =
-                    state.uri.queryParameters['company_master'];
+                    state.uri.queryParameters['company'];
                 if (queryParameterVendor != null) {
                   final decodedJson = jsonDecode(
                     EncryptionManager.decryptData(
@@ -221,6 +256,45 @@ final GoRouter goRouter = GoRouter(
                 } else {
                   return Scaffold();
                 }
+              },
+            ),
+            GoRoute(
+              parentNavigatorKey: navigatorKey,
+              name: AppRoutes.viewCompanyDocument,
+              path: AppRoutes.viewVendorDocument,
+              builder: (context, state) {
+                final queryParameterVendor =
+                    state.uri.queryParameters['company'];
+                if (queryParameterVendor != null) {
+                  final decodedJson = jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(queryParameterVendor),
+                    ),
+                  );
+                  final companyModel = CompanyModel.fromJson(decodedJson);
+                  return DocumentsViewCompanyScreen(companyModel: companyModel);
+                } else {
+                  return Scaffold();
+                }
+              },
+            ),
+            GoRoute(
+              parentNavigatorKey: navigatorKey,
+              name: AppRoutes.viewCompanyPartner,
+              path: AppRoutes.viewCompanyPartner,
+              builder: (context, state) {
+                final queryParameterCompany =
+                    state.uri.queryParameters['company'];
+                if (queryParameterCompany != null) {
+                  final decodedJson = jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(queryParameterCompany),
+                    ),
+                  );
+                  final companyModel = CompanyModel.fromJson(decodedJson);
+                  return ViewCompanyPartnerScreen(company: companyModel);
+                }
+                return Scaffold();
               },
             ),
           ],
@@ -586,18 +660,37 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.viewVendorDetails,
               builder: (context, state) {
                 final queryParameterVendor =
-                state.uri.queryParameters['vendor'];
+                    state.uri.queryParameters['vendor'];
                 final VendorModel? vendor =
-                queryParameterVendor != null
-                    ? VendorModel.fromJson(
-                  jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeComponent(queryParameterVendor),
-                    ),
-                  ),
-                )
-                    : null;
+                    queryParameterVendor != null
+                        ? VendorModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterVendor),
+                            ),
+                          ),
+                        )
+                        : null;
                 return ViewDetailsVendorScreen(vendor: vendor!);
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.viewVendorDocument,
+              name: AppRoutes.viewVendorDocument,
+              builder: (context, state) {
+                final queryParameterVendor =
+                    state.uri.queryParameters['vendor'];
+                final VendorModel? vendor =
+                    queryParameterVendor != null
+                        ? VendorModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterVendor),
+                            ),
+                          ),
+                        )
+                        : null;
+                return DocumentsViewVendorScreen(vendorModel: vendor!);
               },
             ),
           ],

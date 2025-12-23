@@ -100,9 +100,6 @@ class AppAssets {
   static const String summaryIcon = "$svgPath/summaryIcon.svg";
 
   // SIDE DRAWER
-  // -- DASHBOARD
-  static const String dashboardModule =
-      "$sideDrawerIconsPath/dashboardModule.png";
 
   // -- PROCUREMENT
   static const String procurementModule =

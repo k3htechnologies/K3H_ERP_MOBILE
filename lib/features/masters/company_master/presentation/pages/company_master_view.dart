@@ -1,13 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:simple_circular_progress_bar/simple_circular_progress_bar.dart';
 
 class CompanyMasterViewScreen extends StatefulWidget {
   final CompanyModel? company;
@@ -20,542 +25,298 @@ class CompanyMasterViewScreen extends StatefulWidget {
 
 class _CompanyMasterViewMobileScreenState
     extends State<CompanyMasterViewScreen> {
-
-  // FILE SPECIFIC REUSABLE WIDGET
-  Widget _buildCommonCard({required String title, required Widget content}) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColor.white,
-        border: Border(
-          bottom: BorderSide(color: AppColor.grey.withValues(alpha: 0.3)),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColor.greyBackground,
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: 'Company',
+        authorization: AuthorizationModel(),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Column(
+            children: [
+              _buildBasicInformationSection(),
+              _buildRegistrationAndCompliance(),
+              _buildAddressSection(),
+              _buildDocumentSection(),
+              _buildActionDetailsSection(),
+            ],
+          ),
         ),
       ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          padding: EdgeInsets.all(16),
+          color: AppColor.white,
+          child: CustomButton(
+            text: "View Company Partner",
+            onPressed: () {
+              if (widget.company == null) return;
+              goRouter.pushNamed(
+                AppRoutes.viewCompanyPartner,
+                queryParameters: {
+                  "company": Uri.encodeQueryComponent(
+                    EncryptionManager.encryptData(
+                      jsonEncode(widget.company),
+                    ),
+                  ),
+                },
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTitle({required String title}) {
+    return Text(title, style: AppTextStyle.ts16SB(color: AppColor.black));
+  }
+
+  Widget _buildColumnTitleValue({
+    required String title,
+    required String value,
+  }) {
+    return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          verticalSpacing(),
-          Text(title, style: AppTextStyle.ts16R()),
-          verticalSpacing(),
-          content,
-          verticalSpacing(),
+          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
+          Text(value, style: AppTextStyle.ts14M(color: AppColor.black)),
         ],
       ),
     );
   }
 
-  Widget _buildRow({
-    required String title,
-    required String value,
-    String? valueUrl,
-    bool isUrl = false,
-    Function? onTap,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(
-          child: Text(title, style: AppTextStyle.ts12R(color: AppColor.grey)),
-        ),
-        Flexible(
-          child: GestureDetector(
-            onTap: () {
-              if (onTap != null) {
-                onTap();
-              }
-            },
-            child: Text(
-              value,
-              style: AppTextStyle.ts14R(
-                color: isUrl ? AppColor.slightDarkBlue : AppColor.black,
-              ).copyWith(
-                decoration: valueUrl != null ? TextDecoration.underline : null,
-                decorationColor: AppColor.slightDarkBlue,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCompanyPartnerCard({
-    required CompanyPartnerModel companyPartnerModel,
-  }) {
-    return StatefulBuilder(
-      builder: (context, localSetState) {
-        var isExpanded = ValueNotifier(false);
-
-        return ValueListenableBuilder<bool>(
-          valueListenable: isExpanded,
-          builder: (context, value, _) {
-            return Container(
-              margin: EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                color: AppColor.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColor.grey.withValues(alpha: 0.3)),
-              ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Column(
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundColor: Colors.pink.shade100,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Name :",
-                                    style: AppTextStyle.ts12R(
-                                      color: AppColor.grey,
-                                    ),
-                                  ),
-                                  Text(
-                                    companyPartnerModel.fullName,
-                                    style: AppTextStyle.ts14R(),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Spacer(),
-                            Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppColor.grey.withValues(
-                                          alpha: 0.4,
-                                        ),
-                                        spreadRadius: 2,
-                                        blurRadius: 20,
-                                        offset: Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: SizedBox(
-                                    width: 40,
-                                    height: 40,
-                                    child: SimpleCircularProgressBar(
-                                      progressColors: [AppColor.green],
-                                      maxValue: 100,
-                                      backStrokeWidth: 4,
-                                      progressStrokeWidth: 4,
-                                      valueNotifier: ValueNotifier(
-                                        companyPartnerModel.partnerPercentage,
-                                      ),
-                                      size: 60,
-                                      backColor: AppColor.grey.withValues(
-                                        alpha: 0.2,
-                                      ),
-                                      mergeMode: true,
-                                      onGetText:
-                                          (double value) => Text(
-                                        '${value.toInt()}%',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text("Share", style: AppTextStyle.ts12M()),
-                              ],
-                            ),
-                          ],
-                        ),
-                        verticalSpacing(),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Gender :",
-                                    style: AppTextStyle.ts12R(
-                                      color: AppColor.grey,
-                                    ),
-                                  ),
-                                  Text(
-                                    companyPartnerModel.gender,
-                                    style: AppTextStyle.ts14R(),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Spacer(),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Mobile Number :",
-                                    style: AppTextStyle.ts12R(
-                                      color: AppColor.grey,
-                                    ),
-                                  ),
-                                  Text(
-                                    companyPartnerModel.mobileNumber,
-                                    style: AppTextStyle.ts14R(),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  if (value)
-                    AnimatedSize(
-                      alignment: Alignment.centerLeft,
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.ease,
-                      child:
-                      isExpanded.value
-                          ? Padding(
-                        padding: EdgeInsets.all(12),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "DOB :",
-                                        style: AppTextStyle.ts12R(
-                                          color: AppColor.grey,
-                                        ),
-                                      ),
-                                      Text(
-                                        formatDateTimeAsDDMMMYYYY(
-                                          companyPartnerModel
-                                              .dateOfBirth,
-                                        ),
-                                        style: AppTextStyle.ts14R(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Spacer(),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Email Id :",
-                                        style: AppTextStyle.ts12R(
-                                          color: AppColor.grey,
-                                        ),
-                                      ),
-                                      Text(
-                                        (companyPartnerModel.emailId.isNotEmpty)?
-                                        companyPartnerModel.emailId:"-",
-                                        style: AppTextStyle.ts14R(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "PAN Card :",
-                                        style: AppTextStyle.ts12R(
-                                          color: AppColor.grey,
-                                        ),
-                                      ),
-                                      Text(
-                                        companyPartnerModel
-                                            .panNumber
-                                            .isNotEmpty
-                                            ? companyPartnerModel
-                                            .panNumber
-                                            : "-",
-                                        style: AppTextStyle.ts14R(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Spacer(),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Aadhaar Card :",
-                                        style: AppTextStyle.ts12R(
-                                          color: AppColor.grey,
-                                        ),
-                                      ),
-                                      Text(
-                                        companyPartnerModel
-                                            .aadharCardNumber
-                                            .isNotEmpty
-                                            ? companyPartnerModel
-                                            .aadharCardNumber
-                                            : "-",
-                                        style: AppTextStyle.ts14R(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
-                          : SizedBox.shrink(),
-                    ),
-
-                  Container(
-                    color: AppColor.grey.withValues(alpha: 0.05),
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {},
-                              child: SvgPicture.asset(
-                                AppAssets.editIcon,
-                                height: 24,
-                              ),
-                            ),
-                            horizontalSpacing(width: 20),
-                            GestureDetector(
-                              onTap: () {},
-                              child: SvgPicture.asset(
-                                AppAssets.deleteIcon,
-                                height: 24,
-                              ),
-                            ),
-                          ],
-                        ),
-                        GestureDetector(
-                          onTap: () => isExpanded.value = !isExpanded.value,
-                          child: AnimatedRotation(
-                            turns: isExpanded.value ? 0.5 : 0,
-                            duration: const Duration(milliseconds: 400),
-                            curve: Curves.easeInOut,
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: AppColor.primary),
-                                borderRadius: BorderRadius.circular(50),
-                              ),
-                              child: Icon(
-                                Icons.keyboard_arrow_down,
-                                size: 24,
-                                color: AppColor.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.greyBackground,
-      appBar: AppBar(
-        centerTitle: true,
-        leading: GestureDetector(
-          onTap: () {
-            goRouter.pop();
-          },
-          child: Icon(Icons.arrow_back_ios, color: AppColor.black),
-        ),
-        title: Text('View Details', style: AppTextStyle.ts16R()),
-      ),
-      body: ListView(
+  // BASIC INFORMATION
+  Widget _buildBasicInformationSection() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 10),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _buildTitle(title: "Basic Information"),
+          verticalSpacing(height: 15),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildColumnTitleValue(
+                title: "Company Name",
+                value: widget.company!.companyName,
+              ),
+              _buildColumnTitleValue(
+                title: "Company Type",
+                value: widget.company!.companyType,
+              ),
+            ],
+          ),
           verticalSpacing(),
-          // BASIC DETAILS
-          _buildCommonCard(
-            title: "Basic Details",
-            content: Column(
-              spacing: 12,
-              children: [
-                _buildRow(
-                  title: "Company Name :",
-                  value:(widget.company?.companyName != null &&
-                      widget.company!.companyName.isNotEmpty)? widget.company!.companyName:'-',
-                ),
-                _buildRow(
-                  title: "Company Type :",
-                  value:(widget.company?.companyType != null &&
-                      widget.company!.companyType.isNotEmpty)? widget.company!.companyType:'-',
-                ),
-                _buildRow(
-                  title: "Mobile Number :",
-                  value:(widget.company?.mobileNumber != null &&
-                      widget.company!.mobileNumber.isNotEmpty)? widget.company!.mobileNumber:'-',
-                ),
-                _buildRow(
-                  title: "Landline Number :",
-                  value:
-                  (widget.company?.landLineNumber != null &&
-                      widget.company!.landLineNumber.isNotEmpty)
-                      ?
-                  widget.company!.landLineNumber
-                      : "-",
-                ),
-                _buildRow(title: "Email :", value: widget.company!.emailId),
-              ],
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildColumnTitleValue(
+                title: "Contact Person",
+                value: widget.company!.contactPerson,
+              ),
+              _buildColumnTitleValue(
+                title: "E-mail ID",
+                value: widget.company!.emailId,
+              ),
+            ],
           ),
-          verticalSpacing(height: 4),
-          // GOVERNMENT IDENTIFIERS
-          _buildCommonCard(
-            title: "Government Identifiers",
-            content: Column(
-              spacing: 12,
-              children: [
-                _buildRow(
-                  title: "CIN Number :",
-                  value: widget.company?.cinNumber??'-',
-                  valueUrl: widget.company!.cinURL,
-                  isUrl: true,
-                  // onTap:
-                ),
-                _buildRow(
-                  title: "PAN Card Number :",
-                  value: widget.company?.panNumber??'-',
-                ),
-                _buildRow(
-                  title: "GST Certificate Number :",
-                  value:
-                  (widget.company?.gstNumber != null &&
-                      widget.company!.gstNumber.isNotEmpty)
-                      ? widget.company!.gstNumber
-                      : "-",
-                  valueUrl: widget.company!.gstCertificateURL,
-                  isUrl: true,
-                  // onTap:
-                ),
-                _buildRow(
-                  title: "RERA Number :",
-                  value: widget.company?.reraNumber??'-',
-                ),
-              ],
-            ),
+          verticalSpacing(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildColumnTitleValue(
+                title: "Mobile Number",
+                value: widget.company!.mobileNumber,
+              ),
+              _buildColumnTitleValue(
+                title: "Landline Number",
+                value:
+                    widget.company!.landLineNumber.isEmpty
+                        ? "-"
+                        : widget.company!.landLineNumber,
+              ),
+            ],
           ),
-          verticalSpacing(height: 4),
-          // ADDRESS
-          _buildCommonCard(
-            title: "Address",
-            content: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "State",
-                        style: AppTextStyle.ts12R(color: AppColor.grey),
-                      ),
-                      Text(
-                        widget.company?.stateName??'-',
-                        style: AppTextStyle.ts14R(),
-                      ),
-                    ],
-                  ),
-                ),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "District",
-                        style: AppTextStyle.ts12R(color: AppColor.grey),
-                      ),
-                      Text(
-                        widget.company?.districtName??'-',
-                        style: AppTextStyle.ts14R(),
-                      ),
-                    ],
-                  ),
-                ),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "City",
-                        style: AppTextStyle.ts12R(color: AppColor.grey),
-                      ),
-                      Text(
-                        (widget.company?.cityName!=null && widget.company!.cityName.isNotEmpty)? widget.company!.cityName:'-',
-                        style: AppTextStyle.ts14R(),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          verticalSpacing(height: 4),
+        ],
+      ),
+    );
+  }
 
-          // COMPANY PARTNERS
-          widget.company?.companyPartnerData != null
-              ?
-          _buildCommonCard(
-              title: "Company Partners",
-              content:
-              ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: widget.company!.companyPartnerData.length,
-                itemBuilder: (context, index) {
-                  final partner =
-                  widget.company!.companyPartnerData[index];
+  _buildRegistrationAndCompliance() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 10),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTitle(title: "Registration & Compliance"),
+          verticalSpacing(height: 15),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildColumnTitleValue(
+                title: "PAN Card Number",
+                value:
+                    widget.company!.panNumber.isEmpty
+                        ? "-"
+                        : widget.company!.panNumber,
+              ),
+              _buildColumnTitleValue(
+                title: "GST Number",
+                value:
+                    widget.company!.gstNumber.isEmpty
+                        ? "-"
+                        : widget.company!.gstNumber,
+              ),
+            ],
+          ),
+          verticalSpacing(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildColumnTitleValue(
+                title: "CIN Number",
+                value:
+                    widget.company!.cinNumber.isEmpty
+                        ? "-"
+                        : widget.company!.cinNumber,
+              ),
+              _buildColumnTitleValue(
+                title: "RERA Number",
+                value:
+                    widget.company!.reraNumber.isEmpty
+                        ? "-"
+                        : widget.company!.reraNumber,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
-                  return _buildCompanyPartnerCard(
-                    companyPartnerModel: partner,
-                  );
+  Widget _buildAddressSection() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 10),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTitle(title: "Address Details"),
+          verticalSpacing(height: 15),
+          Row(children: [_buildColumnTitleValue(title: "Address", value: "")]),
+          verticalSpacing(),
+          Row(
+            children: [
+              _buildColumnTitleValue(
+                title: "Country",
+                value: widget.company!.countryName,
+              ),
+              _buildColumnTitleValue(
+                title: "State",
+                value: widget.company!.stateName,
+              ),
+            ],
+          ),
+          verticalSpacing(),
+          Row(
+            children: [
+              _buildColumnTitleValue(
+                title: "District",
+                value: widget.company!.districtName,
+              ),
+              _buildColumnTitleValue(
+                title: "City",
+                value: widget.company!.cityName,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDocumentSection() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 10),
+      decoration: commonCardDecoration(),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildTitle(title: "Document"),
+          CustomIconButton(
+            onPressed: () async {
+              await goRouter.pushNamed(
+                AppRoutes.viewCompanyDocument,
+                queryParameters: {
+                  "company": Uri.encodeQueryComponent(
+                    EncryptionManager.encryptData(jsonEncode(widget.company)),
+                  ),
                 },
-              )
-          ):
-          Container(),
+              );
+            },
+            icon: Icon(Icons.file_copy, size: 16, color: AppColor.primary),
+            backgroundColor: AppColor.lightBlue,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionDetailsSection() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 10),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTitle(title: "Action Details"),
+          verticalSpacing(height: 15),
+          Row(
+            children: [
+              _buildColumnTitleValue(
+                title: "Created By",
+                value: widget.company!.createdBy,
+              ),
+              _buildColumnTitleValue(
+                title: "Created On",
+                value: formatDateTimeAsDDMMMYYYY(widget.company!.createdDate),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              _buildColumnTitleValue(
+                title: "Modified By",
+                value:
+                    widget.company!.modifiedBy.isEmpty
+                        ? "-"
+                        : widget.company!.modifiedBy,
+              ),
+              _buildColumnTitleValue(
+                title: "Modified On",
+                value:
+                    widget.company!.modifiedDate != null
+                        ? formatDateTimeAsDDMMMYYYY(
+                          widget.company!.modifiedDate!,
+                        )
+                        : "-",
+              ),
+            ],
+          ),
         ],
       ),
     );

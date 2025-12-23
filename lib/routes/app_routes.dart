@@ -14,7 +14,10 @@ class AppRoutes {
   static String addDepartment = "/addDepartment";
   static String companyMaster = "/companyMaster";
   static String addCompany = "/addCompany";
-  static String viewCompanyMobile = "/viewCompanyMobile";
+  static String addCompanyPartner = "addCompanyPartner";
+  static String viewCompanyDetails = "/viewCompanyDetails";
+  static String viewCompanyDocument = "/viewCompanyDocument";
+  static String viewCompanyPartner = "/viewCompanyPartner";
   static String designationMaster = "/designationMaster";
   static String addDesignation = "/addDesignation";
   static String projectMaster = "/projectMaster";
@@ -49,6 +52,7 @@ class AppRoutes {
   static String vendor = "/vendor";
   static String addVendor = "/addVendor";
   static String viewVendorDetails = "/viewVendorDetails";
+  static String viewVendorDocument = "/viewVendorDocument";
 
   // INVENTORY
   static String inventory = "/inventory";

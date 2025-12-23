@@ -33,7 +33,14 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     int pageNumber,
     int pageSize,
   ) async {
-    emit(state.copyWith(isLoading: true));
+    // Clear list on fresh load to avoid duplicates (e.g., after add)
+    emit(
+      state.copyWith(
+        isLoading: true,
+        companyList: pageNumber == 1 ? [] : state.companyList,
+        currentPage: pageNumber == 1 ? 1 : state.currentPage,
+      ),
+    );
     Map<String, dynamic> queryParams = {
       "CompanyName": state.searchText,
       "CompanyType": state.filterByCompanyType,
@@ -52,8 +59,19 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         showErrorMessage(context, "Error Message", failure.message);
       },
       (response) {
-        List<CompanyModel> updatedList = List.from(state.companyList);
-        updatedList.addAll(response['data'] as List<CompanyModel>);
+        final fetched = response['data'] as List<CompanyModel>;
+
+        // De-duplicate by uniquekey across existing + fetched.
+        Map<String, CompanyModel> map = {};
+        if (pageNumber > 1) {
+          for (final c in state.companyList) {
+            map[c.uniquekey] = c;
+          }
+        }
+        for (final c in fetched) {
+          map[c.uniquekey] = c;
+        }
+        final updatedList = map.values.toList();
         emit(
           state.copyWith(
             isLoading: false,
@@ -89,7 +107,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         showErrorMessage(context, "Error Message", failure.message);
       },
       (response) {
-        showSuccessMessage(context);
+        showSuccessMessage(context,subTitle: "Company deleted successfully");
         if (index != null) {
           final updatedList = List<CompanyModel>.from(state.companyList);
           updatedList.removeAt(index);
@@ -324,7 +342,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
           ),
         );
         goRouter.pop();
-        showSuccessMessage(context);
+        showSuccessMessage(context,subTitle: "Company added successfully");
       },
     );
   }

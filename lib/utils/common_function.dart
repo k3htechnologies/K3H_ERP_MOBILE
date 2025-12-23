@@ -161,29 +161,20 @@ Future showSuccessMessage(BuildContext context, {String? subTitle}) async {
 
 // SHOW ERROR MESSAGE
 Future showErrorMessage(
-    BuildContext context,
-    String title,
-    String message, {
-      bool isMenuChanged = false,
-    }) async {
+  BuildContext context,
+  String title,
+  String message, {
+  bool isMenuChanged = false,
+}) async {
   // Check for menu/authorization changes
   final lowerMessage = message.toLowerCase();
   if (isMenuChanged ||
       lowerMessage.contains("menu") ||
       lowerMessage.contains("authorization") ||
       lowerMessage.contains("access has been modified") ||
-      lowerMessage.contains("access modified"))
-  {
+      lowerMessage.contains("access modified")) {
     DialogHelper.showMenuChangedErrorDialog(context: context);
-  }
-  else
-  {
-    bool isPop = false;
-
-    // Future.delayed(const Duration(seconds: 3), () {
-    //   if (!isPop) goRouter.pop();
-    // });
-
+  } else {
     CustomSnackBar.showTopSnackBar(
       context,
       title: title,
@@ -192,7 +183,6 @@ Future showErrorMessage(
     );
 
     await Future.delayed(const Duration(seconds: 3));
-    isPop = true;
   }
 }
 
@@ -270,4 +260,3 @@ BoxDecoration commonCardDecoration() => BoxDecoration(
     ),
   ],
 );
-

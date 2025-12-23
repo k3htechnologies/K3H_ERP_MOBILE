@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -277,6 +279,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     if (selectedItems != null) {
       // Fetch materials from API to get full SubMaterialModel data
       final response = await _vendorAddCubit.getMaterialSubMaterialUOMMaster(
+        // ignore: use_build_context_synchronously
         context,
       );
 
@@ -402,17 +405,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
   Widget _buildSectionContainer(Widget child) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColor.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: commonCardDecoration(),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: child,

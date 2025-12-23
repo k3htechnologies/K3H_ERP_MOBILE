@@ -697,7 +697,7 @@ class BaseClient {
         _checkForMenuChangeInResponse(e.response!.data);
       } catch (menuException) {
         if (menuException is MenuChangedException) {
-          throw menuException;
+          rethrow;
         }
       }
     }
