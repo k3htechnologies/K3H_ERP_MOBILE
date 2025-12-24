@@ -48,10 +48,12 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
     );
   }
 
+  // BUILD TITLE WIDGET
   Widget _buildTitle({required String title}) {
     return Text(title, style: AppTextStyle.ts16SB(color: AppColor.black));
   }
 
+  // BUILD COLUMN TITLE AND VALUE WIDGET
   Widget _buildColumnTitleValue({
     required String title,
     required String value,
@@ -67,6 +69,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
     );
   }
 
+  // BUILD BASIC INFORMATION SECTION
   Widget _buildBasicInformationSection() {
     return Container(
       padding: EdgeInsets.all(16),
@@ -120,6 +123,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
     );
   }
 
+  // BUILD GOVERNMENT IDENTIFIERS SECTION
   Widget _buildGovernmentIdentifiersSection() {
     return Container(
       padding: EdgeInsets.all(16),
@@ -161,6 +165,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
     );
   }
 
+  // BUILD ADDRESS SECTION
   Widget _buildAddressSection() {
     return Container(
       padding: EdgeInsets.all(16),
@@ -209,7 +214,8 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
       ),
     );
   }
-  
+
+  // BUILD DOCUMENT SECTION
   Widget _buildDocumentSection() {
     return Container(
       padding: EdgeInsets.all(16),
@@ -236,6 +242,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
     );
   }
 
+  // BUILD MATERIAL AND CONTRACT SECTION
   Widget _buildMaterialAndContractSection() {
     return Container(
       padding: EdgeInsets.all(16),
@@ -267,6 +274,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
     );
   }
 
+  // BUILD ACTION DETAILS SECTION
   Widget _buildActionDetailsSection() {
     return Container(
       padding: EdgeInsets.all(16),

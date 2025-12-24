@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/login/data/repository/login.repository.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -22,6 +23,7 @@ class LoginCubit extends Cubit<LoginState> {
 
   final loginRepository = serviceLocator<LoginRepository>();
   final utilsRepository = serviceLocator<UtilsRepository>();
+  final employeeMasterRepository = serviceLocator<EmployeeMasterRepository>();
 
   final LocalStorageManager localStorage = LocalStorageManager();
 
@@ -93,9 +95,11 @@ class LoginCubit extends Cubit<LoginState> {
         emit(state.copyWith(user: user));
 
         // SAVE USER + TOKEN
-        localStorage.setString(StorageKey.currentUser, jsonEncode(user));
         localStorage.setString(StorageKey.authorizationToken, user.token);
         localStorage.setString(StorageKey.userUniqueKey, user.uniqueKey);
+
+        // Fetch complete employee data with all fields (bank details, reporting cycle, etc.)
+        await _fetchAndStoreCompleteEmployeeData(user);
 
 
         // ROUTING DECISION
@@ -116,6 +120,66 @@ class LoginCubit extends Cubit<LoginState> {
         }
       },
     );
+  }
+
+  // ------------------------------ FETCH COMPLETE EMPLOYEE DATA ------------------------------
+
+  Future<void> _fetchAndStoreCompleteEmployeeData(UserModel loginUser) async {
+    try {
+      // Fetch complete employee data using employee master API
+      final result = await employeeMasterRepository.getEmployeeMasterList(
+        pageNumber: 1,
+        pageSize: 1,
+        queryParams: {
+          "EmployeeId": loginUser.employeeId.toString(),
+        },
+      );
+
+      result.fold(
+        (failure) {
+          print('=== FAILED TO FETCH COMPLETE EMPLOYEE DATA ===');
+          print('Error: ${failure.message}');
+          print('Storing login user data as fallback');
+          // Fallback to login user data if fetch fails
+          localStorage.setString(StorageKey.currentUser, jsonEncode(loginUser));
+        },
+        (response) {
+          final employeeList = response['data'] as List<UserModel>;
+          if (employeeList.isNotEmpty) {
+            // Found complete employee data, merge with login data and store
+            final completeEmployee = employeeList.first;
+            print('=== FOUND COMPLETE EMPLOYEE DATA ===');
+            print('BankName: ${completeEmployee.bankName}');
+            print('BankBranchName: ${completeEmployee.bankBranchName}');
+            print('IFSCCode: ${completeEmployee.ifscCode}');
+            print('AccountNo: ${completeEmployee.accountNo}');
+            print('EmployeeReportingCycleData length: ${completeEmployee.employeeReportingCycleData.length}');
+            
+            // Merge login data (token, moduleData, projectData) with complete employee data
+            final mergedUserData = {
+              ...completeEmployee.toJson(),
+              "Token": loginUser.token, // Preserve token from login
+              "ModuleData": loginUser.moduleData.map((e) => e.toJson()).toList(), // Preserve module data
+              "ProjectData": loginUser.projectData.map((e) => e.toJson()).toList(), // Preserve project data
+            };
+            
+            localStorage.setString(StorageKey.currentUser, jsonEncode(mergedUserData));
+            print('=== STORED COMPLETE EMPLOYEE DATA ===');
+          } else {
+            print('=== NO EMPLOYEE DATA FOUND ===');
+            print('Storing login user data as fallback');
+            // Fallback to login user data
+            localStorage.setString(StorageKey.currentUser, jsonEncode(loginUser));
+          }
+        },
+      );
+    } catch (e) {
+      print('=== EXCEPTION FETCHING COMPLETE EMPLOYEE DATA ===');
+      print('Error: $e');
+      print('Storing login user data as fallback');
+      // Fallback to login user data on exception
+      localStorage.setString(StorageKey.currentUser, jsonEncode(loginUser));
+    }
   }
 
   // ------------------------------ EMPLOYEE MENU ------------------------------

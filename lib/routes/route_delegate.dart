@@ -23,6 +23,7 @@ import 'package:k3h_erp_app/features/more/events/calendar/presentation/pages/add
 import 'package:k3h_erp_app/features/more/events/calendar/presentation/pages/calendar_date_detail_screen.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/presentation/pages/calendar_screen.dart';
 import 'package:k3h_erp_app/features/more/events/task/presentation/pages/task_transfer_history_screen.dart';
+import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/dashboard_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_screen.dart';
@@ -48,7 +49,7 @@ import 'package:k3h_erp_app/features/masters/department_master/presentation/page
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/cubit/designation_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/designation_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/employee_master_cubit.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_form.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/add_employee_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_view_details_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_file/approved_bank_file_cubit.dart';
@@ -205,14 +206,12 @@ final GoRouter goRouter = GoRouter(
                 final CompanyModel? companyModel =
                     queryParameterCompany != null
                         ? CompanyModel.fromJson(
-                            jsonDecode(
-                              EncryptionManager.decryptData(
-                                Uri.decodeQueryComponent(
-                                  queryParameterCompany,
-                                ),
-                              ),
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeQueryComponent(queryParameterCompany),
                             ),
-                          )
+                          ),
+                        )
                         : null;
                 return BlocProvider(
                   create: (context) => CompanyMasterAddCubit(),
@@ -405,61 +404,65 @@ final GoRouter goRouter = GoRouter(
           ],
         ),
         // EMPLOYEE MASTER
-        GoRoute(
-          path: AppRoutes.employeeMaster,
-          name: AppRoutes.employeeMaster,
-          routes: [
-            GoRoute(
-              path: AppRoutes.addUpdateEmployeeMobile,
-              name: AppRoutes.addUpdateEmployeeMobile,
-              builder: (context, state) {
-                final employee = state.uri.queryParameters['employee'];
-                return BlocProvider(
-                  create: (context) => EmployeeMasterCubit(),
-                  child: EmployeeMasterFormScreen(
-                    employee:
-                        employee != null
-                            ? UserModel.fromJson(
-                              jsonDecode(
-                                EncryptionManager.decryptData(
-                                  Uri.decodeComponent(employee),
-                                ),
-                              ),
-                            )
-                            : null,
-                    index:
-                        int.tryParse(
-                          state.uri.queryParameters['index'] ?? '',
-                        ) ??
-                        0,
-                  ),
-                );
-              },
-            ),
-            GoRoute(
-              path: AppRoutes.employeeDetailsMobile,
-              name: AppRoutes.employeeDetailsMobile,
-              builder: (context, state) {
-                final employee = state.uri.queryParameters['employee'];
-                return EmployeeMasterViewDetailsScreen(
-                  employee: UserModel.fromJson(
-                    jsonDecode(
-                      EncryptionManager.decryptData(
-                        Uri.decodeComponent(employee!),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-          builder: (context, state) {
+        ShellRoute(
+          builder: (context, state, child) {
             return BlocProvider(
-              create: (context) => EmployeeMasterCubit(),
-              child: EmployeeMasterScreen(),
+              create: (_) => EmployeeMasterCubit(),
+              child: child,
             );
           },
+          routes: [
+            GoRoute(
+              path: AppRoutes.employeeMaster,
+              name: AppRoutes.employeeMaster,
+              builder: (context, state) {
+                return const EmployeeMasterScreen();
+              },
+              routes: [
+                GoRoute(
+                  path: AppRoutes.addUpdateEmployee,
+                  name: AppRoutes.addUpdateEmployee,
+                  builder: (context, state) {
+                    final employee = state.uri.queryParameters['employee'];
+                    final index =
+                        int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                    return AddEmployeeScreen(
+                      employee: employee != null
+                          ? UserModel.fromJson(
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(employee),
+                          ),
+                        ),
+                      )
+                          : null,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: AppRoutes.employeeViewDetails,
+                  name: AppRoutes.employeeViewDetails,
+                  builder: (context, state) {
+                    final employee = state.uri.queryParameters['employee'];
+
+                    return EmployeeMasterViewDetailsScreen(
+                      employee: UserModel.fromJson(
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(employee!),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
+        // CALENDAR
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(create: (_) => CalendarCubit(), child: child);
@@ -541,7 +544,10 @@ final GoRouter goRouter = GoRouter(
           path: AppRoutes.profile,
           name: AppRoutes.profile,
           builder: (context, state) {
-            return const ProfileScreen();
+            return BlocProvider(
+              create: (_) => ProfileCubit(),
+              child: ProfileScreen(),
+            );
           },
         ),
         // MARKETING CONTENT DOCUMENT

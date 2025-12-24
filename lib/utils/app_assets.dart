@@ -7,7 +7,6 @@ class AppAssets {
   static const String appLogo = '$pngPath/appLogo.png';
   static const String otpScreenImage = '$pngPath/otpScreenImage.png';
   static const String sampleCompanyImage = "$pngPath/sampleCompany.png";
-  static const String logoutImage = "$pngPath/logout.png";
   static const String moreImage = "$pngPath/more.png";
   static const String salesImage = "$pngPath/sales.png";
   static const String noDataImage = "$pngPath/noData.png";

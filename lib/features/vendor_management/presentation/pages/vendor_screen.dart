@@ -37,29 +37,8 @@ class _VendorScreenState extends State<VendorScreen> {
   late ScrollController scrollController;
   Timer? _debounce;
 
-  // TEXTEDITING CONTROLLERS
+  // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC;
-
-  // DELETE VENDOR DIALOG
-  void _showPopUpToDeleteVendor(
-    BuildContext context,
-    VendorModel vendor,
-    int index,
-  ) async {
-    var result = await DialogHelper.deleteDialog(
-      context,
-      "You are about to delete a vendor ",
-      "Deleting this vendor will permanently remove its contents.",
-    );
-    if (result && context.mounted) {
-      _vendorCubit.deleteVendor(
-        context: context,
-        vendorId: vendor.vendorId,
-        uniqueKey: vendor.uniquekey,
-        index: index,
-      );
-    }
-  }
 
   @override
   void initState() {
@@ -84,6 +63,28 @@ class _VendorScreenState extends State<VendorScreen> {
     scrollController.dispose();
   }
 
+  // DELETE VENDOR DIALOG
+  void _showPopUpToDeleteVendor(
+      BuildContext context,
+      VendorModel vendor,
+      int index,
+      ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      "You are about to delete a vendor ",
+      "Deleting this vendor will permanently remove its contents.",
+    );
+    if (result && context.mounted) {
+      _vendorCubit.deleteVendor(
+        context: context,
+        vendorId: vendor.vendorId,
+        uniqueKey: vendor.uniquekey,
+        index: index,
+      );
+    }
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
   }
@@ -109,6 +110,7 @@ class _VendorScreenState extends State<VendorScreen> {
     });
   }
 
+  // <---- BUILD ROW TITLE AND VALUE WIDGET ---->
   Widget _buildRowTitleVale({
     required String title,
     required String value,
@@ -161,8 +163,6 @@ class _VendorScreenState extends State<VendorScreen> {
         },
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addVendor);
-          // Always refresh to ensure we have the latest data
-          // getVendors with pageNumber 1 will replace the list completely
           if (context.mounted) {
             _vendorCubit.getVendors(context, 1, 10);
           }
@@ -224,12 +224,15 @@ class _VendorScreenState extends State<VendorScreen> {
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: 6,
+                                horizontal: 0,
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColor.lightBlue,
-                                borderRadius: BorderRadius.circular(4),
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: AppColor.primary
+                                  )
+                                )
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -242,8 +245,6 @@ class _VendorScreenState extends State<VendorScreen> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  horizontalSpacing(),
-                                  Icon(Icons.arrow_forward_ios,color: AppColor.primary,size: 12,)
                                 ],
                               ),
                             ),

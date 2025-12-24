@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/employee_master_cubit.dart';
@@ -11,10 +10,9 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_floating_action_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class EmployeeMasterScreen extends StatefulWidget {
@@ -102,7 +100,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
           _employeeMasterCubit.exportExcelPdf(context, value);
         },
         onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addUpdateEmployeeMobile);
+          goRouter.pushNamed(AppRoutes.addUpdateEmployee);
         },
         onSortOptionCallback: (value) async {
           _employeeMasterCubit.sortEmployee(context, value, "DESC");
@@ -121,7 +119,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
             }
 
             return ListView.builder(
-              padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+              padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               controller: _scrollController,
               itemCount: state.employeeMasterList.length + 1,
               itemBuilder: (context, index) {
@@ -135,125 +133,196 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                       : const SizedBox.shrink();
                 }
                 var employee = state.employeeMasterList[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
-                  child: Container(
-                    clipBehavior: Clip.hardEdge,
-                    decoration: BoxDecoration(
-                      color: AppColor.white,
-                      borderRadius: BorderRadius.circular(8.0),
-                      border: Border.all(color: AppColor.grey30),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0,
-                            vertical: 10.0,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Name & Designation :',
-                                style: AppTextStyle.ts12R(color: AppColor.grey),
-                              ),
-                              verticalSpacing(height: 2),
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text:
-                                          '${employee.firstName} ${employee.lastName} ',
-                                      style: AppTextStyle.ts16R(),
+                return Container(
+                  padding: EdgeInsets.all(16),
+                  margin: EdgeInsets.only(bottom: 10),
+                  clipBehavior: Clip.hardEdge,
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        spacing: 10,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () async {
+                                await goRouter.pushNamed(
+                                  AppRoutes.employeeViewDetails,
+                                  queryParameters: {
+                                    "employee": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(employee),
+                                      ),
                                     ),
-                                    TextSpan(
-                                      text: '(${employee.designation})',
-                                      style: AppTextStyle.ts14R(
-                                        color: AppColor.grey,
+                                  },
+                                );
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 0,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                    border: Border(
+                                        bottom: BorderSide(
+                                            color: AppColor.primary
+                                        )
+                                    )
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        employee.fullName,
+                                        style: AppTextStyle.ts16M(
+                                          color: AppColor.primary,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-
-                              verticalSpacing(height: 10),
-
-                              Text(
-                                'Contact Details :',
-                                style: AppTextStyle.ts12R(color: AppColor.grey),
-                              ),
-                              verticalSpacing(height: 2),
-                              Text(
-                                '${employee.personalMobileNumber} / ${employee.emailId}',
-                                style: AppTextStyle.ts14R(),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                        Container(height: 1, color: AppColor.grey30),
-                        ColoredBox(
-                          color: AppColor.grey5,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            spacing: 4,
+                          Row(
+                            spacing: 10,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 6.0),
-                                child: CustomButton.smallView(
-                                  onPressed: () {
-                                    goRouter.pushNamed(
-                                      AppRoutes.employeeDetailsMobile,
-                                      queryParameters: {
-                                        'employee': Uri.encodeComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(employee.toJson()),
-                                          ),
-                                        ),
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  goRouter.pushNamed(
-                                    AppRoutes.addUpdateEmployeeMobile,
+                              CustomIconButton(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addUpdateEmployee,
                                     queryParameters: {
-                                      'employee': Uri.encodeComponent(
+                                      "employee": Uri.encodeQueryComponent(
                                         EncryptionManager.encryptData(
-                                          jsonEncode(employee.toJson()),
+                                          jsonEncode(employee),
                                         ),
                                       ),
-
                                       'index': index.toString(),
                                     },
                                   );
+                                  debugPrint('Returned from Add/Update screen');
+                                  if (context.mounted) {
+                                    _employeeMasterCubit.getEmployeeMasterList(
+                                      context,
+                                      1,
+                                      10,
+                                    );
+                                  }
                                 },
-                                child: SvgPicture.asset(
-                                  AppAssets.editIcon,
-                                  height: 24.0,
-                                  width: 24.0,
+                                icon: Icon(
+                                  Icons.edit,
+                                  size: 16,
+                                  color: AppColor.grey,
                                 ),
+                                backgroundColor: AppColor.lightGrey,
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                      verticalSpacing(),
+                      Row(
+                        children: [
+                          // TITLE
+                          SizedBox(
+                            width: 130,
+                            child: Text("Employee Code", style: AppTextStyle.ts14R(color: AppColor.grey)),
+                          ),
+
+                          // COLON
+                          SizedBox(
+                            width: 20,
+                            child: Text(
+                              ":",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: AppColor.grey),
+                            ),
+                          ),
+
+                          // VALUE
+                          Flexible(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 5),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: AppColor.purple.withValues(alpha: .15),
+                              ),
+                              child: Text(
+                                employee.employeeCode,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyle.ts14R(color: AppColor.purple),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(),
+                      _buildRowTitleVale(
+                        title: "Designation",
+                        value: employee.designation,
+                      ),
+                      _buildRowTitleVale(
+                        title: "Department",
+                        value: employee.department,
+                      ),
+                      _buildRowTitleVale(
+                        title: "Contact Number",
+                        value: employee.personalMobileNumber,
+                      ),
+                      _buildRowTitleVale(
+                        title: "Reporting Person",
+                        value: employee.reportPersonName,
+                      ),
+                    ],
                   ),
                 );
               },
             );
           },
         ),
-      ),
-      floatingActionButton: CommonFloatingActionButton(
-        onPressed: () async {
-          goRouter.pushNamed(AppRoutes.addUpdateEmployeeMobile);
-        },
+      )
+    );
+  }
+
+  Widget _buildRowTitleVale({required String title, required String value}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          // TITLE
+          SizedBox(
+            width: 130,
+            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
+          ),
+
+          // COLON
+          SizedBox(
+            width: 20,
+            child: Text(
+              ":",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColor.grey),
+            ),
+          ),
+
+          // VALUE
+          Expanded(
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyle.ts14R(),
+            ),
+          ),
+        ],
       ),
     );
   }
+
 }

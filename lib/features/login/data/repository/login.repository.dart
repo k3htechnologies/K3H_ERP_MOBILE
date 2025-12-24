@@ -11,6 +11,11 @@ abstract interface class LoginRepository {
     required String mobileNumber,
     required String otp,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> validateOTPRawResponse({
+    required String mobileNumber,
+    required String otp,
+  });
 }
 
 class LoginRepositoryImpl implements LoginRepository {
@@ -39,6 +44,22 @@ class LoginRepositoryImpl implements LoginRepository {
   }) async {
     try {
       var result = await loginDatasource.apicallIsValidOTP(
+        mobileNumber: mobileNumber,
+        otp: otp,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> validateOTPRawResponse({
+    required String mobileNumber,
+    required String otp,
+  }) async {
+    try {
+      var result = await loginDatasource.apicallIsValidOTPRawResponse(
         mobileNumber: mobileNumber,
         otp: otp,
       );

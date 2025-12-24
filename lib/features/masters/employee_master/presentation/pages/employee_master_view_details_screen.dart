@@ -1,239 +1,576 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/employee_master_cubit.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class EmployeeMasterViewDetailsScreen extends StatelessWidget {
+class EmployeeMasterViewDetailsScreen extends StatefulWidget {
   final UserModel employee;
   const EmployeeMasterViewDetailsScreen({super.key, required this.employee});
 
-  Widget _header(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Text(title, style: AppTextStyle.ts16M()),
-    );
+  @override
+  State<EmployeeMasterViewDetailsScreen> createState() =>
+      _EmployeeMasterViewDetailsScreenState();
+}
+
+class _EmployeeMasterViewDetailsScreenState
+    extends State<EmployeeMasterViewDetailsScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 6, vsync: this);
+    _tabController.addListener(_handleTabChange);
   }
 
-  Widget _dataRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Row(
-        spacing: 10.0,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            '$label : ',
-            style: AppTextStyle.ts12R(color: AppColor.grey),
-            textAlign: TextAlign.start,
-          ),
-          Flexible(
-            child: Text(
-              value,
-              style: AppTextStyle.ts14R(),
-              textAlign: TextAlign.end,
-            ),
-          ),
-        ],
-      ),
-    );
+  void _handleTabChange() {
+    final index = _tabController.index;
+    if (index == 3) {
+      context
+          .read<EmployeeMasterCubit>()
+          .onTabChanged(index,widget.employee.employeeId);
+    }
   }
 
-  Widget _dataColumn(String label, String value) {
-    return Column(
-      spacing: 4.0,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('$label : ', style: AppTextStyle.ts12R(color: AppColor.grey)),
-        Text(value, style: AppTextStyle.ts14R()),
-      ],
-    );
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new, color: AppColor.black, size: 20),
-          onPressed: () {
-            goRouter.pop();
-          },
-        ),
-        centerTitle: true,
-        title: Text(
-          'View Details',
-          style: AppTextStyle.ts16R(),
-          textAlign: TextAlign.center,
-        ),
-      ),
-      backgroundColor: AppColor.greyBackground,
+    return BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBarWithBackButton(
+            screenTitle: "Employee",
+            authorization: AuthorizationModel(),
+          ),
+          body: SafeArea(
+            child: Column(
+              children: [
+                verticalSpacing(),
+                Container(
+                  height: 48,
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: AppColor.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: TabBar(
+                    tabAlignment: TabAlignment.start,
+                    controller: _tabController,
+                    isScrollable: true,
+                    labelColor: AppColor.primary,
+                    unselectedLabelColor: AppColor.grey,
+                    indicator: BoxDecoration(
+                      color: AppColor.lightBlue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    dividerColor: Colors.transparent,
+                    labelStyle: AppTextStyle.ts14M(),
+                    unselectedLabelStyle: AppTextStyle.ts14M(),
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.zero,
+                    tabs: const [
+                      Tab(text: 'Overview'),
+                      Tab(text: 'Document'),
+                      Tab(text: 'Assets'),
+                      Tab(text: 'Project'),
+                      Tab(text: 'Shift Policy'),
+                      Tab(text: 'Week Off Policy'),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildOverviewTab(widget.employee),
+                      _buildPlaceholderTab('Document'),
+                      _buildPlaceholderTab('Assets'),
+                      _buildProjectTab(
+                        state.projectList,
+                        state.isLoadingProjects,
+                      ),
+                      _buildPlaceholderTab('Shift Policy'),
+                      _buildPlaceholderTab('Week Off Policy'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
-      body: ListView(
+  Widget _buildInfoCard({
+    required String title,
+    required List<Map<String, String>> items,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          verticalSpacing(height: 20),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColor.white,
-              border: Border(
-                top: BorderSide(color: AppColor.grey30),
-                bottom: BorderSide(color: AppColor.grey30),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _header('Basic Details'),
-                  _dataRow('First Name', employee.firstName),
-                  _dataRow('Middle Name', employee.middleName),
-                  _dataRow('Last Name', employee.lastName),
-                  _dataRow('Gender', employee.gender),
-                  _dataRow('Marital Status', employee.maritalStatus),
-                  _dataRow('Blood Group', employee.bloodGroup),
-                  _dataRow(
-                    'DOB',
-                    employee.dateOfBirth != null
-                        ? formatDateTimeAsDDMMMYYYY(employee.dateOfBirth!)
-                        : '-',
-                  ),
-                  _dataRow('Office Email Id', employee.officeEmailId),
-                  _dataRow('Email Id', employee.emailId),
-                  _dataRow(
-                    'Personal Mobile Number',
-                    employee.personalMobileNumber,
-                  ),
-                  _dataRow(
-                    'Office / Landline Number',
-                    employee.officeMobileNumber,
-                  ),
-                  _dataRow('Employment Type', employee.employeeType),
-                  _dataRow(
-                    'Relation To Emergency Contact',
-                    employee.emergencyContactPersonRelationship,
-                  ),
-                  _dataRow(
-                    'Emergency Contact Number',
-                    employee.emergencyMobileNumber,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          verticalSpacing(height: 10),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColor.white,
-              border: Border(
-                top: BorderSide(color: AppColor.grey30),
-                bottom: BorderSide(color: AppColor.grey30),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _header('Employee Info Sheet'),
-                  _dataRow('Company Name', employee.companyName),
-                  _dataRow('Branch', employee.branch),
-                  _dataRow('Department', employee.department),
-                  _dataRow('Designation', employee.designation),
-                  _dataRow(
-                    'Joining Date',
-                    employee.joiningDate != null
-                        ? formatDateTimeAsDDMMMYYYY(employee.joiningDate!)
-                        : '-',
-                  ),
-                  _dataRow('Reporting Person', employee.reportPersonName),
-                ],
-              ),
-            ),
-          ),
-          verticalSpacing(height: 10),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColor.white,
-              border: Border(
-                top: BorderSide(color: AppColor.grey30),
-                bottom: BorderSide(color: AppColor.grey30),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _header('Address'),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: _dataColumn(
-                      'Communication Address',
-                      employee.communicationAddress,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: _dataColumn(
-                      'Permanent Address',
-                      employee.permanentAddress,
-                    ),
-                  ),
-                  Container(height: 1, color: AppColor.grey30),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Row(
-                      spacing: 10,
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: _dataColumn('State', employee.stateName),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: _dataColumn('District', employee.districtName),
-                        ),
-                        Expanded(child: _dataColumn('City', employee.cityName)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          verticalSpacing(height: 10),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColor.white,
-              border: Border(
-                top: BorderSide(color: AppColor.grey30),
-                bottom: BorderSide(color: AppColor.grey30),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _header('Bank Details'),
-                  _dataRow('Bank Name', employee.bankName),
-                  _dataRow('Account Number', employee.accountNo),
-                  _dataRow('Bank Branch Name', employee.bankBranchName),
-                  _dataRow('IFSC Code', employee.ifscCode),
-                ],
-              ),
-            ),
-          ),
-          verticalSpacing(height: 40),
+          Text(title, style: AppTextStyle.ts16SB()),
+          verticalSpacing(height: 12),
+          ..._buildInfoRows(items),
         ],
+      ),
+    );
+  }
+
+  List<Widget> _buildInfoRows(List<Map<String, String>> items) {
+    List<Widget> rows = [];
+    int i = 0;
+
+    while (i < items.length) {
+      final item = items[i];
+      final label = item['label'] ?? '';
+      final value = item['value'] ?? '';
+      final isFullWidth = item['fullWidth'] == 'true';
+
+      if (isFullWidth) {
+        rows.add(_buildInfoItem(label, value, isFullWidth: true));
+        if (i < items.length - 1) {
+          rows.add(verticalSpacing(height: 12));
+        }
+        i++;
+      } else {
+        // Try to pair with next item if available and not fullWidth
+        if (i + 1 < items.length && items[i + 1]['fullWidth'] != 'true') {
+          final nextItem = items[i + 1];
+          rows.add(
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _buildInfoItem(label, value)),
+                horizontalSpacing(width: 16),
+                Expanded(
+                  child: _buildInfoItem(
+                    nextItem['label'] ?? '',
+                    nextItem['value'] ?? '',
+                  ),
+                ),
+              ],
+            ),
+          );
+          if (i + 1 < items.length - 1) {
+            rows.add(verticalSpacing(height: 12));
+          }
+          i += 2;
+        } else {
+          rows.add(_buildInfoItem(label, value));
+          if (i < items.length - 1) {
+            rows.add(verticalSpacing(height: 12));
+          }
+          i++;
+        }
+      }
+    }
+
+    return rows;
+  }
+
+  String _getDisplayValue(String? value) {
+    if (value == null) return '-';
+    final trimmed = value.trim();
+    if (trimmed.isEmpty || trimmed.toLowerCase() == 'null') return '-';
+    return value;
+  }
+
+  Widget _buildInfoItem(
+    String label,
+    String? value, {
+    bool isFullWidth = false,
+  }) {
+    final displayValue = _getDisplayValue(value);
+
+    if (isFullWidth) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: AppTextStyle.ts14M(color: AppColor.grey)),
+          verticalSpacing(height: 4),
+          Text(displayValue, style: AppTextStyle.ts14R()),
+        ],
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: AppTextStyle.ts14M(color: AppColor.grey)),
+              verticalSpacing(height: 4),
+              Text(displayValue, style: AppTextStyle.ts14R()),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOverviewTab(UserModel user) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          verticalSpacing(),
+          _buildInfoCard(
+            title: 'Basic Information',
+            items: [
+              {'label': 'Employee Code', 'value': user.employeeCode},
+              {'label': 'Full Name', 'value': user.fullName},
+              {
+                'label': 'Date of Birth',
+                'value':
+                    user.dateOfBirth != null
+                        ? formatDateTimeAsDDMMMYYYY(user.dateOfBirth!)
+                        : '-',
+              },
+              {'label': 'Gender', 'value': user.gender},
+              {'label': 'Marital Status', 'value': user.maritalStatus},
+              {'label': 'Blood Group', 'value': user.bloodGroup},
+              {
+                'label': 'Communication Address',
+                'value': user.communicationAddress,
+                'fullWidth': 'true',
+              },
+              {
+                'label': 'Permanent Address',
+                'value': user.permanentAddress,
+                'fullWidth': 'true',
+              },
+            ],
+          ),
+          verticalSpacing(),
+          _buildInfoCard(
+            title: 'Contact Information',
+            items: [
+              {'label': 'Personal Mobile', 'value': user.personalMobileNumber},
+              {'label': 'Office Mobile', 'value': user.officeMobileNumber},
+              {'label': 'Email', 'value': user.emailId},
+              {'label': 'Office Email', 'value': user.officeEmailId},
+              {
+                'label': 'Emergency Contact',
+                'value': user.emergencyMobileNumber,
+              },
+            ],
+          ),
+          verticalSpacing(),
+          _buildInfoCard(
+            title: 'Professional Information',
+            items: [
+              {'label': 'Company', 'value': user.companyName},
+              {'label': 'Department', 'value': user.department},
+              {'label': 'Designation', 'value': user.designation},
+              {'label': 'Branch', 'value': user.branch},
+              {'label': 'Employee Type', 'value': user.employeeType},
+              {'label': 'Reporting To', 'value': user.reportPersonName},
+              if (user.joiningDate != null)
+                {
+                  'label': 'Joining Date',
+                  'value': formatDateTimeAsDDMMMYYYY(user.joiningDate!),
+                },
+            ],
+          ),
+          verticalSpacing(),
+          _buildInfoCard(
+            title: 'Address Information',
+            items: [
+              {'label': 'Country', 'value': user.countryName},
+              {'label': 'State', 'value': user.stateName},
+              {'label': 'District', 'value': user.districtName},
+              {'label': 'City', 'value': user.cityName},
+            ],
+          ),
+          verticalSpacing(),
+          if (_hasBankDetails(user))
+            _buildInfoCard(
+              title: 'Bank Details',
+              items: [
+                {'label': 'Bank Name', 'value': user.bankName},
+                {'label': 'Bank Branch', 'value': user.bankBranchName},
+                {'label': 'IFSC Code', 'value': user.ifscCode},
+                {'label': 'Account Number', 'value': user.accountNo},
+              ],
+            ),
+          if (_hasBankDetails(user)) verticalSpacing(),
+          if (user.employeeReportingCycleData.isNotEmpty)
+            _buildEmployeeReportingCycleCard(user.employeeReportingCycleData),
+          if (user.employeeReportingCycleData.isNotEmpty) verticalSpacing(),
+          verticalSpacing(height: 20),
+        ],
+      ),
+    );
+  }
+
+  bool _hasBankDetails(UserModel user) {
+    return user.bankName.trim().isNotEmpty ||
+        user.bankBranchName.trim().isNotEmpty ||
+        user.ifscCode.trim().isNotEmpty ||
+        user.accountNo.trim().isNotEmpty;
+  }
+
+  Widget _buildEmployeeReportingCycleCard(
+    List<Map<String, dynamic>> employeeReportingCycleData,
+  ) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Employee Reporting Cycle', style: AppTextStyle.ts16SB()),
+          verticalSpacing(height: 12),
+          ...employeeReportingCycleData.map((employee) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColor.greyBackground,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _getDisplayValue(
+                                employee['FullName']?.toString(),
+                              ),
+                              style: AppTextStyle.ts14SB(),
+                            ),
+                            verticalSpacing(height: 4),
+                            Text(
+                              _getDisplayValue(
+                                employee['Designation']?.toString(),
+                              ),
+                              style: AppTextStyle.ts12R(color: AppColor.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  verticalSpacing(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Employee Code',
+                              style: AppTextStyle.ts12M(color: AppColor.grey),
+                            ),
+                            verticalSpacing(height: 2),
+                            Text(
+                              _getDisplayValue(
+                                employee['EmployeeCode']?.toString(),
+                              ),
+                              style: AppTextStyle.ts12R(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Mobile',
+                              style: AppTextStyle.ts12M(color: AppColor.grey),
+                            ),
+                            verticalSpacing(height: 2),
+                            Text(
+                              _getDisplayValue(
+                                employee['PersonalMobileNumber']?.toString(),
+                              ),
+                              style: AppTextStyle.ts12R(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  verticalSpacing(height: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Email',
+                        style: AppTextStyle.ts12M(color: AppColor.grey),
+                      ),
+                      verticalSpacing(height: 2),
+                      Text(
+                        _getDisplayValue(employee['EmailId']?.toString()),
+                        style: AppTextStyle.ts12R(),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProjectTab(
+    List<ProjectModel> projectList,
+    bool isLoadingProjects,
+  ) {
+    if (isLoadingProjects) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (projectList.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Text(
+            "No projects found",
+            style: AppTextStyle.ts16M(color: AppColor.grey),
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: projectList.length,
+      itemBuilder: (context, index) {
+        final project = projectList[index];
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(12),
+          decoration: commonCardDecoration(),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (project.projectPhotoUrl.isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: NetworkImageWidget(
+                    imageUrl: project.projectPhotoUrl,
+                    width: 84,
+                    height: 69,
+                    fit: BoxFit.cover,
+                    borderRadius: BorderRadius.circular(8),
+                    errorWidget: Container(
+                      width: 84,
+                      height: 69,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.image_not_supported,
+                        size: 20,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ),
+                )
+              else
+                Container(
+                  width: 84,
+                  height: 69,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.image_not_supported,
+                    size: 20,
+                    color: Colors.grey[700],
+                  ),
+                ),
+              horizontalSpacing(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      project.projectName,
+                      style: AppTextStyle.ts14SB(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    verticalSpacing(height: 4),
+                    Text(
+                      project.projectLocation,
+                      style: AppTextStyle.ts12R(color: AppColor.grey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (project.ctsNumber.isNotEmpty) ...[
+                      verticalSpacing(height: 4),
+                      Text(
+                        'CTS: ${project.ctsNumber}',
+                        style: AppTextStyle.ts12R(color: AppColor.grey),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPlaceholderTab(String title) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Text(
+          "$title\n\nComing soon...",
+          textAlign: TextAlign.center,
+          style: AppTextStyle.ts16M(color: AppColor.grey),
+        ),
       ),
     );
   }

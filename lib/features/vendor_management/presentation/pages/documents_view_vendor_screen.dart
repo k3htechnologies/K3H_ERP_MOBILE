@@ -85,6 +85,7 @@ class DocumentsViewVendorScreen extends StatelessWidget {
     );
   }
 
+  // BUILD CONTAINER
   Widget _buildContainer({required String title, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,

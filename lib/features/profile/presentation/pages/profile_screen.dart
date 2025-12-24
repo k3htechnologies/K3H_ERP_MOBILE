@@ -1,54 +1,63 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/storage_key.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-UserModel? _getUser() {
-  String? userString = LocalStorageManager().getString(StorageKey.currentUser);
-  if (userString == null) {
-    return null;
-  }
-  return UserModel.fromJson(jsonDecode(userString));
-}
-
-ProjectModel? _getSelectedProject() {
-  String? projectString = LocalStorageManager().getString(
-    StorageKey.selectedProject,
-  );
-  if (projectString == null) {
-    return null;
-  }
-  return ProjectModel.fromJson(jsonDecode(projectString));
-}
-
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 6, vsync: this);
+    _tabController.addListener(_handleTabChange);
+  }
+
+  void _handleTabChange() {
+    if (!_tabController.indexIsChanging) {
+      context.read<ProfileCubit>().onTabChanged(_tabController.index, context);
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   Widget _buildHeader(UserModel user, ProjectModel? project) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: AppColor.primary.withValues(alpha: 0.1)),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: commonCardDecoration(),
       child: Row(
         children: [
           CircleAvatar(
-            radius: 40,
+            radius: 35,
             backgroundColor: AppColor.primary,
             child: Text(
               user.fullName.isNotEmpty ? user.fullName[0].toUpperCase() : 'U',
               style: AppTextStyle.ts24B(color: AppColor.white),
             ),
           ),
-          const SizedBox(width: 16),
+          horizontalSpacing(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,19 +69,27 @@ class ProfileScreen extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (user.designation.isNotEmpty) ...[
-                  const SizedBox(height: 4),
+                  verticalSpacing(height: 4),
                   Text(
                     user.designation,
-                    style: AppTextStyle.ts14R(color: AppColor.grey),
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
                   ),
                 ],
                 if (project != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    project.projectName,
-                    style: AppTextStyle.ts12R(color: AppColor.grey),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  verticalSpacing(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.business, size: 14, color: AppColor.grey),
+                      horizontalSpacing(width: 4),
+                      Expanded(
+                        child: Text(
+                          project.projectName,
+                          style: AppTextStyle.ts12R(color: AppColor.grey),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ],
@@ -83,38 +100,234 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Text(title, style: AppTextStyle.ts16SB()),
+  Widget _buildInfoCard({
+    required String title,
+    required List<Map<String, String>> items,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyle.ts16SB()),
+          verticalSpacing(height: 12),
+          ..._buildInfoRows(items),
+        ],
+      ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: AppColor.grey.withValues(alpha: 0.2),
-            width: 1,
-          ),
-        ),
-      ),
-      child: Row(
+  List<Widget> _buildInfoRows(List<Map<String, String>> items) {
+    List<Widget> rows = [];
+    int i = 0;
+
+    while (i < items.length) {
+      final item = items[i];
+      final label = item['label'] ?? '';
+      final value = item['value'] ?? '';
+      final isFullWidth = item['fullWidth'] == 'true';
+
+      if (isFullWidth) {
+        rows.add(_buildInfoItem(label, value, isFullWidth: true));
+        if (i < items.length - 1) {
+          rows.add(verticalSpacing(height: 12));
+        }
+        i++;
+      } else {
+        // Try to pair with next item if available and not fullWidth
+        if (i + 1 < items.length && items[i + 1]['fullWidth'] != 'true') {
+          final nextItem = items[i + 1];
+          rows.add(
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _buildInfoItem(label, value)),
+                horizontalSpacing(width: 16),
+                Expanded(
+                  child: _buildInfoItem(
+                    nextItem['label'] ?? '',
+                    nextItem['value'] ?? '',
+                  ),
+                ),
+              ],
+            ),
+          );
+          if (i + 1 < items.length - 1) {
+            rows.add(verticalSpacing(height: 12));
+          }
+          i += 2;
+        } else {
+          rows.add(_buildInfoItem(label, value));
+          if (i < items.length - 1) {
+            rows.add(verticalSpacing(height: 12));
+          }
+          i++;
+        }
+      }
+    }
+
+    return rows;
+  }
+
+  String _getDisplayValue(String? value) {
+    if (value == null) return '-';
+    final trimmed = value.trim();
+    if (trimmed.isEmpty || trimmed.toLowerCase() == 'null') return '-';
+    return value;
+  }
+
+  bool _hasBankDetails(UserModel user) {
+    return user.bankName.trim().isNotEmpty ||
+        user.bankBranchName.trim().isNotEmpty ||
+        user.ifscCode.trim().isNotEmpty ||
+        user.accountNo.trim().isNotEmpty;
+  }
+
+  Widget _buildInfoItem(
+    String label,
+    String? value, {
+    bool isFullWidth = false,
+  }) {
+    final displayValue = _getDisplayValue(value);
+
+    if (isFullWidth) {
+      return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 120,
-            child: Text(label, style: AppTextStyle.ts14R(color: AppColor.grey)),
+          Text(label, style: AppTextStyle.ts14M(color: AppColor.grey)),
+          verticalSpacing(height: 4),
+          Text(displayValue, style: AppTextStyle.ts14R()),
+        ],
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: AppTextStyle.ts14M(color: AppColor.grey)),
+              verticalSpacing(height: 4),
+              Text(displayValue, style: AppTextStyle.ts14R()),
+            ],
           ),
-          Expanded(
-            child: Text(
-              value.isNotEmpty ? value : '-',
-              style: AppTextStyle.ts14R(),
-              textAlign: TextAlign.end,
-            ),
-          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmployeeReportingCycleCard(
+    List<Map<String, dynamic>> employeeReportingCycleData,
+  ) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Employee Reporting Cycle', style: AppTextStyle.ts16SB()),
+          verticalSpacing(height: 12),
+          ...employeeReportingCycleData.map((employee) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColor.greyBackground,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _getDisplayValue(
+                                employee['FullName']?.toString(),
+                              ),
+                              style: AppTextStyle.ts14SB(),
+                            ),
+                            verticalSpacing(height: 4),
+                            Text(
+                              _getDisplayValue(
+                                employee['Designation']?.toString(),
+                              ),
+                              style: AppTextStyle.ts12R(color: AppColor.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  verticalSpacing(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Employee Code',
+                              style: AppTextStyle.ts12M(color: AppColor.grey),
+                            ),
+                            verticalSpacing(height: 2),
+                            Text(
+                              _getDisplayValue(
+                                employee['EmployeeCode']?.toString(),
+                              ),
+                              style: AppTextStyle.ts12R(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Mobile',
+                              style: AppTextStyle.ts12M(color: AppColor.grey),
+                            ),
+                            verticalSpacing(height: 2),
+                            Text(
+                              _getDisplayValue(
+                                employee['PersonalMobileNumber']?.toString(),
+                              ),
+                              style: AppTextStyle.ts12R(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  verticalSpacing(height: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Email',
+                        style: AppTextStyle.ts12M(color: AppColor.grey),
+                      ),
+                      verticalSpacing(height: 2),
+                      Text(
+                        _getDisplayValue(employee['EmailId']?.toString()),
+                        style: AppTextStyle.ts12R(),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -128,7 +341,7 @@ class ProfileScreen extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           decoration: BoxDecoration(
-            color: AppColor.error,
+            color: AppColor.primary,
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
@@ -142,7 +355,7 @@ class ProfileScreen extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(AppAssets.logoutImage),
+              Icon(Icons.logout, color: AppColor.white),
               const SizedBox(width: 8),
               Text(
                 "Log Out",
@@ -155,77 +368,313 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final user = _getUser();
-    final project = _getSelectedProject();
+  Widget _buildOverviewTab(UserModel user) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          verticalSpacing(),
+          _buildInfoCard(
+            title: 'Basic Information',
+            items: [
+              {'label': 'Employee Code', 'value': user.employeeCode},
+              {'label': 'Full Name', 'value': user.fullName},
+              {
+                'label': 'Date of Birth',
+                'value':
+                    user.dateOfBirth != null
+                        ? formatDateTimeAsDDMMMYYYY(user.dateOfBirth!)
+                        : '-',
+              },
+              {'label': 'Gender', 'value': user.gender},
+              {'label': 'Marital Status', 'value': user.maritalStatus},
+              {'label': 'Blood Group', 'value': user.bloodGroup},
+              {
+                'label': 'Communication Address',
+                'value': user.communicationAddress,
+                'fullWidth': 'true',
+              },
+              {
+                'label': 'Permanent Address',
+                'value': user.permanentAddress,
+                'fullWidth': 'true',
+              },
+            ],
+          ),
+          verticalSpacing(),
+          _buildInfoCard(
+            title: 'Contact Information',
+            items: [
+              {'label': 'Personal Mobile', 'value': user.personalMobileNumber},
+              {'label': 'Office Mobile', 'value': user.officeMobileNumber},
+              {'label': 'Email', 'value': user.emailId},
+              {'label': 'Office Email', 'value': user.officeEmailId},
+              {
+                'label': 'Emergency Contact',
+                'value': user.emergencyMobileNumber,
+              },
+            ],
+          ),
+          verticalSpacing(),
+          _buildInfoCard(
+            title: 'Professional Information',
+            items: [
+              {'label': 'Company', 'value': user.companyName},
+              {'label': 'Department', 'value': user.department},
+              {'label': 'Designation', 'value': user.designation},
+              {'label': 'Branch', 'value': user.branch},
+              {'label': 'Employee Type', 'value': user.employeeType},
+              {'label': 'Reporting To', 'value': user.reportPersonName},
+              if (user.joiningDate != null)
+                {
+                  'label': 'Joining Date',
+                  'value': formatDateTimeAsDDMMMYYYY(user.joiningDate!),
+                },
+            ],
+          ),
+          verticalSpacing(),
+          _buildInfoCard(
+            title: 'Address Information',
+            items: [
+              {'label': 'Country', 'value': user.countryName},
+              {'label': 'State', 'value': user.stateName},
+              {'label': 'District', 'value': user.districtName},
+              {'label': 'City', 'value': user.cityName},
+            ],
+          ),
+          verticalSpacing(),
+          if (_hasBankDetails(user))
+            _buildInfoCard(
+              title: 'Bank Details',
+              items: [
+                {'label': 'Bank Name', 'value': user.bankName},
+                {'label': 'Bank Branch', 'value': user.bankBranchName},
+                {'label': 'IFSC Code', 'value': user.ifscCode},
+                {'label': 'Account Number', 'value': user.accountNo},
+              ],
+            ),
+          if (_hasBankDetails(user)) verticalSpacing(),
+          if (user.employeeReportingCycleData.isNotEmpty)
+            _buildEmployeeReportingCycleCard(user.employeeReportingCycleData),
+          if (user.employeeReportingCycleData.isNotEmpty) verticalSpacing(),
+          _buildLogoutButton(context),
+          verticalSpacing(height: 20),
+        ],
+      ),
+    );
+  }
 
-    if (user == null) {
-      return Scaffold(
-        appBar: CustomAppBarWithBackButton(
-          screenTitle: "Profile",
-          authorization: AuthorizationModel(),
+  Widget _buildProjectTab(
+    List<ProjectModel> projectList,
+    bool isLoadingProjects,
+  ) {
+    if (isLoadingProjects) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: CircularProgressIndicator(),
         ),
-        body: const Center(child: Text("No user information found")),
       );
     }
 
-    return Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        screenTitle: "Profile",
-        authorization: AuthorizationModel(),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(user, project),
-            verticalSpacing(height: 20),
-            _buildSection('Personal Information'),
-            _buildInfoRow('Employee Code', user.employeeCode),
-            _buildInfoRow('Full Name', user.fullName),
-            _buildInfoRow('Gender', user.gender),
-            _buildInfoRow('Marital Status', user.maritalStatus),
-            _buildInfoRow(
-              'Date of Birth',
-              user.dateOfBirth != null
-                  ? formatDateTimeAsDDMMMYYYY(user.dateOfBirth!)
-                  : '-',
-            ),
-            _buildInfoRow('Blood Group', user.bloodGroup),
-            verticalSpacing(height: 20),
-            _buildSection('Contact Information'),
-            _buildInfoRow('Personal Mobile', user.personalMobileNumber),
-            _buildInfoRow('Office Mobile', user.officeMobileNumber),
-            _buildInfoRow('Email', user.emailId),
-            _buildInfoRow('Office Email', user.officeEmailId),
-            _buildInfoRow('Emergency Contact', user.emergencyMobileNumber),
-            verticalSpacing(height: 20),
-            _buildSection('Professional Information'),
-            _buildInfoRow('Department', user.department),
-            _buildInfoRow('Designation', user.designation),
-            _buildInfoRow('Branch', user.branch),
-            _buildInfoRow('Company', user.companyName),
-            _buildInfoRow('Employee Type', user.employeeType),
-            _buildInfoRow('Reporting To', user.reportPersonName),
-            if (user.joiningDate != null) ...[
-              _buildInfoRow(
-                'Joining Date',
-                formatDateTimeAsDDMMMYYYY(user.joiningDate!),
+    if (projectList.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Text(
+            "No projects found",
+            style: AppTextStyle.ts16M(color: AppColor.grey),
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: projectList.length,
+      itemBuilder: (context, index) {
+        final project = projectList[index];
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(12),
+          decoration: commonCardDecoration(),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (project.projectPhotoUrl.isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: NetworkImageWidget(
+                    imageUrl: project.projectPhotoUrl,
+                    width: 84,
+                    height: 69,
+                    fit: BoxFit.cover,
+                    borderRadius: BorderRadius.circular(8),
+                    errorWidget: Container(
+                      width: 84,
+                      height: 69,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.image_not_supported,
+                        size: 20,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ),
+                )
+              else
+                Container(
+                  width: 84,
+                  height: 69,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.image_not_supported,
+                    size: 20,
+                    color: Colors.grey[700],
+                  ),
+                ),
+              horizontalSpacing(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      project.projectName,
+                      style: AppTextStyle.ts14SB(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    verticalSpacing(height: 4),
+                    Text(
+                      project.projectLocation,
+                      style: AppTextStyle.ts12R(color: AppColor.grey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (project.ctsNumber.isNotEmpty) ...[
+                      verticalSpacing(height: 4),
+                      Text(
+                        'CTS: ${project.ctsNumber}',
+                        style: AppTextStyle.ts12R(color: AppColor.grey),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ],
-            verticalSpacing(height: 20),
-            _buildSection('Address Information'),
-            _buildInfoRow('Communication Address', user.communicationAddress),
-            _buildInfoRow('Permanent Address', user.permanentAddress),
-            _buildInfoRow('City', user.cityName),
-            _buildInfoRow('State', user.stateName),
-            _buildInfoRow('Country', user.countryName),
-            verticalSpacing(height: 20),
-            _buildLogoutButton(context),
-            verticalSpacing(height: 20),
-          ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPlaceholderTab(String title) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Text(
+          "$title\n\nComing soon...",
+          textAlign: TextAlign.center,
+          style: AppTextStyle.ts16M(color: AppColor.grey),
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => ProfileCubit(),
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) {
+          if (state.user == null) {
+            return Scaffold(
+              appBar: AppBar(
+                centerTitle: false,
+                automaticallyImplyLeading: false,
+                title: Text('Profile', style: AppTextStyle.ts16SB()),
+              ),
+              body: const Center(child: Text("No user information found")),
+            );
+          }
+
+          return Scaffold(
+            appBar: AppBar(
+              centerTitle: false,
+              automaticallyImplyLeading: false,
+              title: Text('Profile', style: AppTextStyle.ts16SB()),
+            ),
+            body: SafeArea(
+              child: Column(
+                children: [
+                  verticalSpacing(),
+                  _buildHeader(state.user!, state.selectedProject),
+                  verticalSpacing(),
+                  Container(
+                    height: 48,
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: AppColor.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: AppColor.grey.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: TabBar(
+                      tabAlignment: TabAlignment.start,
+                      controller: _tabController,
+                      isScrollable: true,
+                      labelColor: AppColor.primary,
+                      unselectedLabelColor: AppColor.grey,
+                      indicator: BoxDecoration(
+                        color: AppColor.lightBlue,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      dividerColor: Colors.transparent,
+                      labelStyle: AppTextStyle.ts14M(),
+                      unselectedLabelStyle: AppTextStyle.ts14M(),
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.zero,
+                      tabs: const [
+                        Tab(text: 'Overview'),
+                        Tab(text: 'Document'),
+                        Tab(text: 'Assets'),
+                        Tab(text: 'Project'),
+                        Tab(text: 'Shift Policy'),
+                        Tab(text: 'Week Off Policy'),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildOverviewTab(state.user!),
+                        _buildPlaceholderTab('Document'),
+                        _buildPlaceholderTab('Assets'),
+                        _buildProjectTab(
+                          state.projectList,
+                          state.isLoadingProjects,
+                        ),
+                        _buildPlaceholderTab('Shift Policy'),
+                        _buildPlaceholderTab('Week Off Policy'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

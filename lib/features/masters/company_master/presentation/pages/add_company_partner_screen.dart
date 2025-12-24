@@ -30,9 +30,11 @@ class AddCompanyPartnerScreen extends StatefulWidget {
 }
 
 class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
+  
+  // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
-  // controllers
+  // TEXT EDITING CONTROLLERS
   late TextEditingController _firstNameC;
   late TextEditingController _middleNameC;
   late TextEditingController _lastNameC;
@@ -40,25 +42,26 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
   late TextEditingController _emailC;
   late TextEditingController _percentageC;
   late TextEditingController _panC;
-  late TextEditingController _aadharC;
+  late TextEditingController _aadhaarC;
 
-  // dropdowns
+  // GENDER LIST
   final List<Map<String, dynamic>> genderList = const [
     {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "Male"},
     {"zAttributesId": 2, "DisplayName": "Female"},
     {"zAttributesId": 3, "DisplayName": "Other"},
   ];
+  // SELECTED GENDER
   late Map<String, dynamic> selectedGender;
   DateTime? dateOfBirth;
 
-  // files
+  // FILE PICKER VARIABLES
   MultiFilePickerModel panFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
   );
-  MultiFilePickerModel aadharFile = MultiFilePickerModel(
+  MultiFilePickerModel aadhaarFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
@@ -69,6 +72,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
     deletedFileList: "",
   );
 
+  // CUBIT
   late CompanyMasterAddCubit _cubit;
 
   @override
@@ -79,6 +83,20 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
     _prefill(widget.companyPartner);
   }
 
+  @override
+  void dispose() {
+    _firstNameC.dispose();
+    _middleNameC.dispose();
+    _lastNameC.dispose();
+    _mobileC.dispose();
+    _emailC.dispose();
+    _percentageC.dispose();
+    _panC.dispose();
+    _aadhaarC.dispose();
+    super.dispose();
+  }
+
+  // INITIALISE CONTROLLERS AND SET VALUES
   void _initControllers(CompanyPartnerModel? partner) {
     _firstNameC = TextEditingController(text: partner?.firstName);
     _middleNameC = TextEditingController(text: partner?.middleName);
@@ -89,11 +107,12 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
       text: partner?.partnerPercentage.toString(),
     );
     _panC = TextEditingController(text: partner?.panNumber);
-    _aadharC = TextEditingController(text: partner?.aadharCardNumber);
+    _aadhaarC = TextEditingController(text: partner?.aadharCardNumber);
     selectedGender = genderList.first;
     dateOfBirth = partner?.dateOfBirth;
   }
 
+  // PREFILL DATA
   void _prefill(CompanyPartnerModel? partner) {
     if (partner == null) {
       return;
@@ -110,10 +129,10 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
       (_) => Uint8List(0),
     );
 
-    aadharFile.fileNameList =
+    aadhaarFile.fileNameList =
         partner.aadharCardURL.isEmpty ? [] : partner.aadharCardURL.split(",");
-    aadharFile.fileBytesList = List.generate(
-      aadharFile.fileNameList.length,
+    aadhaarFile.fileBytesList = List.generate(
+      aadhaarFile.fileNameList.length,
       (_) => Uint8List(0),
     );
 
@@ -125,19 +144,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
     );
   }
 
-  @override
-  void dispose() {
-    _firstNameC.dispose();
-    _middleNameC.dispose();
-    _lastNameC.dispose();
-    _mobileC.dispose();
-    _emailC.dispose();
-    _percentageC.dispose();
-    _panC.dispose();
-    _aadharC.dispose();
-    super.dispose();
-  }
-
+  // SAVE FUNCTION
   void _save() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
@@ -157,7 +164,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
       emailId: _emailC.text.trim(),
       partnerPercentage: double.tryParse(_percentageC.text) ?? 0,
       panNumber: _panC.text,
-      aadharCardNumber: _aadharC.text,
+      aadharCardNumber: _aadhaarC.text,
       panCardURL: '',
       aadharCardURL: '',
       photoURL: '',
@@ -168,7 +175,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
       modifiedBy: widget.companyPartner?.modifiedBy ?? '',
       modifiedDate: DateTime.now(),
       panCardFile: panFile,
-      aadharCardFile: aadharFile,
+      aadharCardFile: aadhaarFile,
       photoFile: photoFile,
     );
 
@@ -370,7 +377,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                   CustomTextField(
                     title: 'Aadhaar Card Number',
                     isRequired: true,
-                    textController: _aadharC,
+                    textController: _aadhaarC,
                     inputFormatterList:
                         InputValidator.aadharNumberInputFormatter(),
                     validator: (value) {
@@ -385,19 +392,19 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload Aadhaar Card",
-                    initialFileList: aadharFile.fileNameList,
+                    initialFileList: aadhaarFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
-                      aadharFile.fileNameList = fileNameList;
-                      aadharFile.fileBytesList = bytesList;
+                      aadhaarFile.fileNameList = fileNameList;
+                      aadhaarFile.fileBytesList = bytesList;
                     },
                     onFileDeleteCallback: (
                       fileBytesList,
                       fileNameList,
                       deleted,
                     ) {
-                      aadharFile.fileBytesList = fileBytesList;
-                      aadharFile.fileNameList = fileNameList;
-                      aadharFile.deletedFileList = deleted;
+                      aadhaarFile.fileBytesList = fileBytesList;
+                      aadhaarFile.fileNameList = fileNameList;
+                      aadhaarFile.deletedFileList = deleted;
                     },
                   ),
                   CustomMultiFilePicker(

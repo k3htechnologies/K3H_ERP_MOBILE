@@ -7,19 +7,26 @@ class CustomPaginationDropDownWidget extends StatefulWidget {
   final Future<Map<String, dynamic>> Function(int pageNumber, {String? value})
   dataFetchCallBack;
   final Function(Map<String, dynamic>) onSelected;
+
+  // 🔒 KEPT AS-IS
+  final List<Map<String, dynamic>>? dataList;
+
   final String? title;
+  final bool isRequired;
   final String? Function(Map<String, dynamic>?)? validator;
   final Map<String, dynamic>? initialValue;
-  final List<Map<String, dynamic>>? dataList;
+  final String? hintText;
 
   const CustomPaginationDropDownWidget({
     super.key,
     required this.dataFetchCallBack,
     required this.onSelected,
+    this.dataList,
     this.title,
+    this.isRequired = false,
     this.validator,
     this.initialValue,
-    this.dataList,
+    this.hintText,
   });
 
   @override
@@ -41,240 +48,166 @@ class _CustomPaginationDropDownWidgetState
   }
 
   Future<List<Map<String, dynamic>>> _fetchData(
-      String? filter,
-      LoadProps props,
-      ) async {
+    String? filter,
+    LoadProps props,
+  ) async {
     if (searchText != filter) {
       currentPage = 1;
       searchText = filter;
     }
-    final result = await widget.dataFetchCallBack(currentPage++, value: filter);
-    totalNumberOfRecord = result["totalNumberOfRecord"];
-    final fetchedItems = List<Map<String, dynamic>>.from(result["itemList"]);
 
-    return fetchedItems;
+    final result = await widget.dataFetchCallBack(currentPage++, value: filter);
+
+    totalNumberOfRecord = result["totalNumberOfRecord"];
+    return List<Map<String, dynamic>>.from(result["itemList"]);
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 4,
       children: [
         if (widget.title != null)
-          Text(widget.title!, style: AppTextStyle.ts14R()),
+          Row(
+            children: [
+              Text(widget.title!, style: AppTextStyle.ts14R()),
+              if (widget.isRequired)
+                Text("*", style: AppTextStyle.ts14R(color: AppColor.error)),
+            ],
+          ),
+
+        const SizedBox(height: 4),
 
         FormField<Map<String, dynamic>>(
           initialValue: selectedItem,
           validator: widget.validator,
-          builder: (FormFieldState<Map<String, dynamic>> formFieldState) {
+          builder: (formFieldState) {
             final hasError = formFieldState.hasError;
+
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                InputDecorator(
-                  decoration: InputDecoration(
-                    isDense: true,
-                    errorText: null,
-                    helperText: null,
-                    counterText: '',
-
-                    hintStyle: AppTextStyle.ts14R().copyWith(
-                      color: AppColor.grey,
+                Container(
+                  height: 45,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: hasError ? AppColor.error : AppColor.grey30,
+                      width: 1,
                     ),
-                    contentPadding: EdgeInsets.zero,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6.0),
-                      borderSide: BorderSide(
-                        color:
-                        formFieldState.hasError
-                            ? AppColor.error
-                            : AppColor.grey30,
-                        width: 1.0,
-                      ),
-                    ),
-                    errorBorder: InputBorder.none,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6.0),
-                      borderSide: BorderSide(
-                        color:
-                        formFieldState.hasError
-                            ? AppColor.error
-                            : AppColor.grey30,
-                        width: 1.0,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6.0),
-                      borderSide: BorderSide(
-                        color:
-                        formFieldState.hasError
-                            ? AppColor.error
-                            : AppColor.grey30,
-                        width: 1.0,
-                      ),
-                    ),
-
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                      borderSide: BorderSide(
-                        color:
-                        formFieldState.hasError
-                            ? AppColor.error
-                            : (AppColor.grey30),
-                        width: 1.0,
-                      ),
-                    ),
-                    errorStyle: const TextStyle(
-                      height: 0,
-                    ), // hide inline error text
+                    color: AppColor.white,
                   ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color:
-                        formFieldState.hasError
-                            ? AppColor.error
-                            : (AppColor.grey30),
-                      ),
-                      borderRadius: BorderRadius.circular(6.0),
-                      color: AppColor.white,
-                    ),
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        cardColor: AppColor.white,
-                        textSelectionTheme: TextSelectionThemeData(
-                          cursorColor: AppColor.black,
-                        ),
-                        hoverColor: AppColor.grey10,
-                      ),
-                      child: DropdownSearch<Map<String, dynamic>>(
-                        items: (filter, props) => _fetchData(filter, props!),
-                        selectedItem: selectedItem,
-                        itemAsString: (item) => item["DisplayName"] ?? '',
-                        compareFn: (item, selectedItem) {
-                          return item["DisplayName"] ==
-                              selectedItem["DisplayName"];
-                        },
+                  child: DropdownSearch<Map<String, dynamic>>(
+                    items: (filter, props) => _fetchData(filter, props!),
 
-                        suffixProps: DropdownSuffixProps(
-                          dropdownButtonProps: DropdownButtonProps(
-                            iconOpened: Icon(
-                              Icons.keyboard_arrow_up_rounded,
-                              size: 24,
-                              color: AppColor.black,
-                            ),
-                            iconClosed: Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              size: 24,
-                              color: AppColor.black,
-                            ),
-                          ),
+                    selectedItem: selectedItem,
+
+                    itemAsString: (item) => item["DisplayName"] ?? '',
+
+                    compareFn: (a, b) => a["DisplayName"] == b["DisplayName"],
+
+                    decoratorProps: DropDownDecoratorProps(
+                      baseStyle: AppTextStyle.ts14R(),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        errorBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                        isDense: true,
+                        hintText: widget.hintText ?? 'Select',
+                        hintStyle: AppTextStyle.ts14R().copyWith(
+                          color: AppColor.grey,
                         ),
-                        decoratorProps: DropDownDecoratorProps(
-                          baseStyle: AppTextStyle.ts14R(),
-                          decoration: InputDecoration(
-                            isDense: true,
-                            error: null,
-                            errorText: null, // must be null
-                            helperText: null,
-                            counterText: '',
-                            hintStyle: AppTextStyle.ts14R().copyWith(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 15,
+                        ),
+                      ),
+                    ),
+
+                    popupProps: PopupProps.menu(
+                      showSearchBox: true,
+                      disableFilter: true,
+                      searchFieldProps: TextFieldProps(
+                        decoration: InputDecoration(
+                          hintText: 'Search...',
+                          hintStyle: AppTextStyle.ts14R().copyWith(color: AppColor.black),
+                          isDense: true,
+                          prefixIcon: Icon(Icons.search, color: AppColor.black),
+                          filled: true,
+                          fillColor: AppColor.lightGrey.withValues(alpha: .3),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                            borderSide: BorderSide(
                               color: AppColor.grey,
+                              width: .5,
                             ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10.0,
-                              vertical: 15.0,
+                          ),
+
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                            borderSide: BorderSide(
+                              color: AppColor.grey,
+                              width: .5,
                             ),
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            errorBorder: InputBorder.none,
-                            disabledBorder: InputBorder.none,
+                          ),
+
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                            borderSide: BorderSide(
+                              color: AppColor.grey,
+                              width: .5,
+                            ),
+                          ),
+
+                          disabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                            borderSide: BorderSide(
+                              color: AppColor.grey,
+                              width: .5,
+                            ),
                           ),
                         ),
-                        popupProps: PopupProps.menu(
-                          showSearchBox: true,
-                          searchDelay: const Duration(milliseconds: 250),
-                          searchFieldProps: TextFieldProps(
-                            decoration: const InputDecoration(
-                              hintText: 'Search...',
-                              isDense: true,
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: AppColor.black,
-                                ), // Set focused border color to black
-                              ),
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                          disableFilter: true,
-                          listViewProps: const ListViewProps(
-                            padding: EdgeInsets.zero,
-                          ),
-                          loadingBuilder: (context, searchEntry) {
-                            return SizedBox(
-                              height: 100,
+                      ),
+                      infiniteScrollProps: InfiniteScrollProps(
+                        loadProps: LoadProps(take: 10),
+                        loadingMoreBuilder:
+                            (context, _) => const Padding(
+                              padding: EdgeInsets.all(16),
                               child: Center(
                                 child: CircularProgressIndicator(
-                                  color: AppColor.grey,
-                                  strokeWidth: 2.0,
+                                  strokeWidth: 2,
                                 ),
                               ),
-                            );
-                          },
-                          itemBuilder: (context, item, isDisabled, isSelected) {
-                            return ListTile(
-                              dense: true,
-                              title: Text(
-                                (item['DisplayName'] ?? '').toString(),
-                              ),
-                              tileColor:
-                              isSelected ? Colors.grey.shade200 : null,
-                              enabled: !isDisabled,
-                            );
-                          },
-                          infiniteScrollProps: InfiniteScrollProps(
-                            loadProps: LoadProps(take: 10),
-                            loadingMoreBuilder: (context, searchEntry) {
-                              return SizedBox(
-                                height: 100,
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    color: AppColor.grey,
-                                    strokeWidth: 2.0,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              selectedItem = value;
-                            });
-                            formFieldState.didChange(value);
-                            widget.onSelected(value);
-                          }
-                        },
-
-                        onBeforePopupOpening: (selectedItem) async {
-                          currentPage = 1;
-                          return true; // must return true to allow opening
-                        },
+                            ),
                       ),
                     ),
+
+                    onChanged: (value) {
+                      if (value == null) return;
+                      setState(() {
+                        selectedItem = value;
+                      });
+                      formFieldState.didChange(value);
+                      widget.onSelected(value);
+                    },
+
+                    onBeforePopupOpening: (selectedItem) async {
+                      currentPage = 1;
+                      return true;
+                    },
                   ),
                 ),
+
                 hasError
                     ? Padding(
-                  padding: const EdgeInsets.only(left: 12.0, top: 4.0),
-                  child: Text(
-                    formFieldState.errorText ?? '',
-                    style: AppTextStyle.ts14R(color: AppColor.error),
-                  ),
-                )
+                      padding: const EdgeInsets.only(left: 12, top: 2),
+                      child: Text(
+                        formFieldState.errorText ?? '',
+                        style: AppTextStyle.ts12R(color: AppColor.error),
+                      ),
+                    )
                     : const SizedBox(height: 18),
               ],
             );

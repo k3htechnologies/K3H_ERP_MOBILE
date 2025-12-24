@@ -34,14 +34,14 @@ class AddVendorScreen extends StatefulWidget {
 }
 
 class _AddVendorScreenState extends State<AddVendorScreen> {
-  // BLOC
+  // CUBIT
   late VendorAddCubit _vendorAddCubit;
 
   // FORM KEYS (one per section)
   final _formKeys = [
-    GlobalKey<FormState>(), // Basic details
-    GlobalKey<FormState>(), // Government identifiers
-    GlobalKey<FormState>(), // Address details
+    GlobalKey<FormState>(), // BASIC DETAILS
+    GlobalKey<FormState>(), // GOVERNMENT IDENTIFIERS
+    GlobalKey<FormState>(), // ADDRESS
   ];
 
   // TEXT EDITING CONTROLLERS
@@ -49,7 +49,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
       companyNameC,
       mobileC,
       emailC,
-      aadharC,
+      aadhaarC,
       panC,
       gstC,
       addressC,
@@ -67,7 +67,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
   late Map<String, dynamic> selectedCompanyType;
 
   // STRINGS TO STORE THE PICKED FILE PATH
-  MultiFilePickerModel aadharCard = MultiFilePickerModel(
+  MultiFilePickerModel aadhaarCard = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
@@ -121,27 +121,12 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     subMaterialListForSelectionWithSearch.dispose();
   }
 
-  void initializeTextEditingControllers() {
-    nameC = TextEditingController();
-    companyNameC = TextEditingController();
-    mobileC = TextEditingController();
-    emailC = TextEditingController();
-    aadharC = TextEditingController();
-    panC = TextEditingController();
-    gstC = TextEditingController();
-    addressC = TextEditingController();
-    searchC = TextEditingController();
-  }
-
-  void initializeDropdown() {
-    selectedCompanyType = companyTypeList[0];
-  }
-
+  // --------------------------- DISPOSE CONTROLLERS --------------------------- //
   void disposeControllers() {
     nameC.dispose();
     mobileC.dispose();
     emailC.dispose();
-    aadharC.dispose();
+    aadhaarC.dispose();
     panC.dispose();
     gstC.dispose();
     addressC.dispose();
@@ -149,6 +134,25 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     searchC.dispose();
   }
 
+  // --------------------------- INITIALIZATION METHODS --------------------------- //
+  void initializeTextEditingControllers() {
+    nameC = TextEditingController();
+    companyNameC = TextEditingController();
+    mobileC = TextEditingController();
+    emailC = TextEditingController();
+    aadhaarC = TextEditingController();
+    panC = TextEditingController();
+    gstC = TextEditingController();
+    addressC = TextEditingController();
+    searchC = TextEditingController();
+  }
+
+  // INITIALIZE DROPDOWN VARIABLES
+  void initializeDropdown() {
+    selectedCompanyType = companyTypeList[0];
+  }
+
+  // --------------------------- FETCHING METHODS --------------------------- //
   Future<void> getMaterialList() async {
     var response = await _vendorAddCubit.getMaterialSubMaterialUOMMaster(
       context,
@@ -169,12 +173,13 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     ];
   }
 
+  // --------------------------- PREFILL METHODS --------------------------- //
   Future prefillVendorDetails(VendorModel vendor) async {
     nameC.text = vendor.vendorName;
     companyNameC.text = vendor.companyName;
     mobileC.text = vendor.mobileNumber;
     emailC.text = vendor.emailId;
-    aadharC.text = vendor.aadharCardNumber;
+    aadhaarC.text = vendor.aadharCardNumber;
     panC.text = vendor.panCardNumber;
     gstC.text = vendor.gstNumber;
     addressC.text = vendor.address;
@@ -184,10 +189,10 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
       orElse: () => companyTypeList.first,
     );
 
-    aadharCard.fileNameList =
+    aadhaarCard.fileNameList =
         vendor.aadharCardUrl == "" ? [] : vendor.aadharCardUrl.split(",");
-    aadharCard.fileBytesList = List.generate(
-      aadharCard.fileNameList.length,
+    aadhaarCard.fileBytesList = List.generate(
+      aadhaarCard.fileNameList.length,
       (_) => Uint8List(0),
     );
 
@@ -213,8 +218,8 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     );
   }
 
+  // --------------------------- SHOW DIALOG METHODS --------------------------- //
   Future showDialogToAddMaterialSubMaterialForVendor() async {
-    // Convert currently selected sub-materials to initial value format
     final initialValue =
         subMaterialListForSelection.map((subMaterial) {
           return {
@@ -225,7 +230,6 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
           };
         }).toList();
 
-    // Show the multi-select bottom sheet - fetch data from API dynamically
     final selectedItems = await CustomMultipleSelectPopup.showBottomSheet(
       context: context,
       title: "Add Materials and Sub-Materials",
@@ -233,7 +237,6 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
       initialValue: initialValue,
       isMultiSelect: true,
       dataFetchCallBack: (pageNumber, {String? value}) async {
-        // Fetch materials from API
         final response = await _vendorAddCubit.getMaterialSubMaterialUOMMaster(
           context,
         );
@@ -245,12 +248,10 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
           };
         }
 
-        // Get all sub-materials from the response
         final allSubMaterials =
             response["MaterialMasterSubMaterialMasterData"]
                 as List<SubMaterialModel>;
 
-        // Convert to Map format - include material name in DisplayName
         List<Map<String, dynamic>> dataList =
             allSubMaterials.map((subMaterial) {
               return {
@@ -262,7 +263,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
               };
             }).toList();
 
-        // Apply search filter if provided
+        // APPLY FILTER IF PROVIDED
         if (value != null && value.isNotEmpty) {
           dataList =
               dataList.where((item) {
@@ -277,7 +278,6 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     );
 
     if (selectedItems != null) {
-      // Fetch materials from API to get full SubMaterialModel data
       final response = await _vendorAddCubit.getMaterialSubMaterialUOMMaster(
         // ignore: use_build_context_synchronously
         context,
@@ -300,8 +300,6 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
                 s.subMaterialMasterId == subMaterialId &&
                 s.materialMasterId == materialId,
             orElse: () {
-              // Fallback: create from selected item data
-              // Find a sub-material with same materialId to get UOM info
               final sameMaterialSubMaterial = allSubMaterials.firstWhere(
                 (s) => s.materialMasterId == materialId,
                 orElse:
@@ -331,7 +329,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
           selectedSubMaterials.add(subMaterial);
         }
 
-        // Update the selected list
+        // UPDATE SELECTED LIST
         setState(() {
           subMaterialListForSelection = selectedSubMaterials;
           _searchMaterial();
@@ -400,8 +398,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     );
   }
 
-  // ------------------------- UI SECTION BUILDERS ------------------------- //
-
+  // BUILD SECTION CONTAINER
   Widget _buildSectionContainer(Widget child) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16),
@@ -413,6 +410,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     );
   }
 
+  // BUILD SECTION HEADER
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
@@ -420,6 +418,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     );
   }
 
+  // BUILD BASIC DETAILS SECTION
   Widget _buildBasicDetailsSection() {
     return Form(
       key: _formKeys[0],
@@ -520,6 +519,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     );
   }
 
+  // BUILD GOVERNMENT IDENTIFIERS SECTION
   Widget _buildGovernmentIdentifiersSection() {
     return Form(
       key: _formKeys[1],
@@ -529,7 +529,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
           _buildSectionHeader('Government Identifiers'),
           CustomTextField(
             inputFormatterList: InputValidator.aadharNumberInputFormatter(),
-            textController: aadharC,
+            textController: aadhaarC,
             title: "Aadhaar Card Number",
             hint: "Enter Aadhaar Card Number",
             isRequired: true,
@@ -545,12 +545,12 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
           ),
           CustomMultiFilePicker(
             maxFiles: 3,
-            initialFileList: aadharCard.fileNameList,
+            initialFileList: aadhaarCard.fileNameList,
             title: "Upload Aadhaar Card",
             isRequired: true,
             onFilePickedCallback: (bytesList, fileList) {
-              aadharCard.fileBytesList = bytesList;
-              aadharCard.fileNameList = fileList;
+              aadhaarCard.fileBytesList = bytesList;
+              aadhaarCard.fileNameList = fileList;
             },
             validator: (file) {
               if (file == null || file.isEmpty) {
@@ -559,9 +559,9 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
               return null;
             },
             onFileDeleteCallback: (fileBytesList, fileNamelist, deletedFiles) {
-              aadharCard.fileBytesList = fileBytesList;
-              aadharCard.fileNameList = fileNamelist;
-              aadharCard.deletedFileList = deletedFiles;
+              aadhaarCard.fileBytesList = fileBytesList;
+              aadhaarCard.fileNameList = fileNamelist;
+              aadhaarCard.deletedFileList = deletedFiles;
             },
           ),
           CustomTextField(
@@ -644,6 +644,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     );
   }
 
+  // BUILD ADDRESS SECTION
   Widget _buildAddressSection() {
     return Form(
       key: _formKeys[2],
@@ -684,6 +685,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     );
   }
 
+  // BUILD MATERIAL AND CONTRACT SECTION SLIVERS
   List<Widget> _buildMaterialAndContractSectionSlivers() {
     return [
       SliverToBoxAdapter(
@@ -699,7 +701,9 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Row(
                   children: [
-                    Expanded(child: Text("Select:", style: AppTextStyle.ts14M())),
+                    Expanded(
+                      child: Text("Select:", style: AppTextStyle.ts14M()),
+                    ),
 
                     // MATERIAL
                     Expanded(
@@ -801,9 +805,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
         valueListenable: subMaterialListForSelectionWithSearch,
         builder: (context, value, child) {
           if (value.isEmpty) {
-            return SliverToBoxAdapter(
-              child: SizedBox()
-            );
+            return SliverToBoxAdapter(child: SizedBox());
           }
 
           // Use for-loop grouping logic as provided
@@ -936,7 +938,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
         vendorName: nameC.value.text,
         mobileNumber: mobileC.value.text,
         emailId: emailC.value.text,
-        aadharCardNumber: aadharC.value.text,
+        aadharCardNumber: aadhaarC.value.text,
         panCardNumber: panC.value.text,
         gstNumber: gstC.value.text,
         address: addressC.value.text,
@@ -946,7 +948,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
         cityMasterId: cityMasterId,
         subMaterialIds: selectedSubMaterialCommaSeperatedIds,
         contractIds: '',
-        aadharCard: aadharCard,
+        aadharCard: aadhaarCard,
         panCard: panCard,
         gstCertificate: gstCertificate,
       );
@@ -959,7 +961,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
         vendorName: nameC.value.text,
         mobileNumber: mobileC.value.text,
         emailId: emailC.value.text,
-        aadharCardNumber: aadharC.value.text,
+        aadharCardNumber: aadhaarC.value.text,
         panCardNumber: panC.value.text,
         gstNumber: gstC.value.text,
         address: addressC.value.text,
@@ -969,7 +971,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
         cityMasterId: cityMasterId,
         subMaterialIds: selectedSubMaterialCommaSeperatedIds,
         contractIds: '',
-        aadharCard: aadharCard,
+        aadharCard: aadhaarCard,
         panCard: panCard,
         gstCertificate: gstCertificate,
       );

@@ -62,6 +62,7 @@ class UserModel {
   String token;
   List<ModuleModel> moduleData;
   List<ProjectModel> projectData;
+  List<Map<String, dynamic>> employeeReportingCycleData;
   bool isSelected;
   // VARIABLE USED IN PROJECT MASTER FOR HANDLING THE STATE OF SELECTED EMPLOYEE
 
@@ -125,6 +126,7 @@ class UserModel {
     required this.token,
     required this.moduleData,
     required this.projectData,
+    required this.employeeReportingCycleData,
     this.isSelected = false,
   });
 
@@ -213,6 +215,13 @@ class UserModel {
       projectData: List<ProjectModel>.from(
         json["ProjectData"].map((x) => ProjectModel.fromJson(x)),
       ),
+      employeeReportingCycleData: json["EmployeeReportingCycleData"] != null
+          ? List<Map<String, dynamic>>.from(
+              json["EmployeeReportingCycleData"].map(
+                (x) => Map<String, dynamic>.from(x as Map),
+              ),
+            )
+          : [],
       isSelected: false
   );
 
@@ -276,5 +285,6 @@ class UserModel {
     "Token": token,
     "ModuleData": List<dynamic>.from(moduleData.map((x) => x.toJson())),
     "ProjectData": List<dynamic>.from(projectData.map((x) => x.toJson())),
+    "EmployeeReportingCycleData": employeeReportingCycleData,
   };
 }

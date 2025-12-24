@@ -25,8 +25,8 @@ class AppRoutes {
   static String globalProjectDetails = "/globalProjectDetails";
   static String projectMasterAccess = "/projectMasterAccess";
   static String employeeMaster = "/employeeMaster";
-  static String addUpdateEmployeeMobile = "/addUpdateEmployeeMobile";
-  static String employeeDetailsMobile = "/employeeDetailsMobile";
+  static String addUpdateEmployee = "/addUpdateEmployee";
+  static String employeeViewDetails = "/employeeViewDetails";
   static String employeeModuleAccess = "/employeeModuleAccess";
   static String selectEmployeeMobile = "/selectEmployeeMobile";
   static String selectCompanyMobile = "/selectCompanyMobile";

@@ -14,8 +14,10 @@ part 'vendor_state.dart';
 class VendorCubit extends Cubit<VendorState> {
   VendorCubit() : super(VendorState.initial());
 
+  // VENDOR REPOSITORY
   VendorRepository vendorRepository = serviceLocator<VendorRepository>();
 
+  // COMPANY MASTER REPOSITORY
   CompanyMasterRepository companyMasterRepository =
       serviceLocator<CompanyMasterRepository>();
 

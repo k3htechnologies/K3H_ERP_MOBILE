@@ -96,6 +96,7 @@ class DocumentsViewCompanyScreen extends StatelessWidget {
     );
   }
 
+  // BUILD COMMON CONTAINER
   Widget _buildContainer({required String title, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,

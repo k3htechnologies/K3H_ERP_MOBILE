@@ -72,6 +72,7 @@ class _CompanyMasterViewMobileScreenState
     );
   }
 
+  // BUILD TITLE WIDGET
   Widget _buildTitle({required String title}) {
     return Text(title, style: AppTextStyle.ts16SB(color: AppColor.black));
   }
@@ -91,7 +92,7 @@ class _CompanyMasterViewMobileScreenState
     );
   }
 
-  // BASIC INFORMATION
+  // BASIC INFORMATION SECTION
   Widget _buildBasicInformationSection() {
     return Container(
       padding: EdgeInsets.all(16),
@@ -151,6 +152,7 @@ class _CompanyMasterViewMobileScreenState
     );
   }
 
+  // REGISTRATION AND COMPLIANCE SECTION
   _buildRegistrationAndCompliance() {
     return Container(
       padding: EdgeInsets.all(16),
@@ -205,6 +207,7 @@ class _CompanyMasterViewMobileScreenState
     );
   }
 
+  // ADDRESS SECTION
   Widget _buildAddressSection() {
     return Container(
       padding: EdgeInsets.all(16),
@@ -247,6 +250,7 @@ class _CompanyMasterViewMobileScreenState
     );
   }
 
+  // DOCUMENT SECTION
   Widget _buildDocumentSection() {
     return Container(
       padding: EdgeInsets.all(16),
@@ -275,6 +279,7 @@ class _CompanyMasterViewMobileScreenState
     );
   }
 
+  // ACTION DETAILS SECTION
   Widget _buildActionDetailsSection() {
     return Container(
       padding: EdgeInsets.all(16),

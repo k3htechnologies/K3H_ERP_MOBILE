@@ -61,7 +61,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
       (response) {
         final fetched = response['data'] as List<CompanyModel>;
 
-        // De-duplicate by uniquekey across existing + fetched.
         Map<String, CompanyModel> map = {};
         if (pageNumber > 1) {
           for (final c in state.companyList) {
@@ -374,7 +373,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
   // <---- SEARCH COMPANY ---->
   Future searchCompany(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, companyList: []));
-    await getCompanyMaster(context, 1, 20);
+    await getCompanyMaster(context, 1, 10);
   }
 
   // <---- SORT COMPANY ---->

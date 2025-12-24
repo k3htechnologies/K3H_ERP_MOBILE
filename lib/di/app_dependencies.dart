@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/marketing/content/content.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/project_master.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/profile/profile.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
@@ -17,24 +18,26 @@ final GetIt serviceLocator = GetIt.instance;
 void initDependencies() {
   // UTILS
   registerUtilsDependencies(serviceLocator);
+  // COMPANY MASTER DEPENDENCIES (must be before EMPLOYEE MASTER as EmployeeMasterCubit depends on it)
+  registerCompanyMasterDependencies(serviceLocator);
+  // DEPARTMENT MASTER DEPENDENCIES (must be before EMPLOYEE MASTER as EmployeeMasterCubit depends on it)
+  registerDepartmentMasterDependencies(serviceLocator);
+  // DESIGNATION MASTER DEPENDENCIES (must be before EMPLOYEE MASTER as EmployeeMasterCubit depends on it)
+  registerDesignationMasterDependencies(serviceLocator);
+  // PROJECT MASTER DEPENDENCIES (must be before PROFILE as ProfileCubit depends on it, and before calendar as calendar depends on it)
+  registerProjectMasterDependencies(serviceLocator);
+  // EMPLOYEE MASTER DEPENDENCIES (must be before LOGIN as LoginCubit depends on it)
+  registerEmployeeMasterDependencies(serviceLocator);
   // LOGIN
   registerLoginDependencies(serviceLocator);
-  // COMPANY MASTER DEPENDENCIES
-  registerCompanyMasterDependencies(serviceLocator);
-  // DEPARTMENT MASTER DEPENDENCIES
-  registerDepartmentMasterDependencies(serviceLocator);
-  // DESIGNATION MASTER DEPENDENCIES
-  registerDesignationMasterDependencies(serviceLocator);
-  // EMPLOYEE MASTER DEPENDENCIES
-  registerEmployeeMasterDependencies(serviceLocator);
+  // PROFILE DEPENDENCIES
+  registerProfileDependencies(serviceLocator);
   // VENDOR MANAGEMENT DEPENDENCIES
   registerVendorManagementDependencies(serviceLocator);
   // CONTENT DEPENDENCIES
   registerContentDependencies(serviceLocator);
   // APPROVED BANK DEPENDENCIES
   registerApprovedBankDependencies(serviceLocator);
-  // PROJECT MASTER DEPENDENCIES (must be before calendar as calendar depends on it)
-  registerProjectMasterDependencies(serviceLocator);
   // CALENDAR DEPENDENCIES
   registerCalendarDependencies(serviceLocator);
 }

@@ -12,14 +12,12 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
-import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -60,7 +58,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       _companyPartnerPanNumberC,
       _companyPartnerAadharNumberC;
 
-  // COMPANY TYPE DROPDOWN
+  // COMPANY TYPE LIST
   List<Map<String, dynamic>> companyTypeList = [
     {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "LLP"},
@@ -83,7 +81,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     GlobalKey<FormState>(), // Address
     GlobalKey<FormState>(), // Company verification documents
   ];
-  final _companyPartnerFormKey = GlobalKey<FormState>();
 
   // INITIAL STATE/DISTRICT/CITY ID
   int stateMasterId = -1;
@@ -313,111 +310,84 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     }
   }
 
-  // PREFILL COMPANY PARTNER DETAILS
-  void _prefillCompanyPartnerData(CompanyPartnerModel companyPartner) {
-    _companyPartnerFirstNameC.text = companyPartner.firstName;
-    _companyPartnerLastNameC.text = companyPartner.lastName;
-    _companyPartnerMiddleNameC.text = companyPartner.middleName;
-    _companyPartnerEmailC.text = companyPartner.emailId;
-    _companyPartnerMobileNumberC.text = companyPartner.mobileNumber;
-    _companyPartnerPercentageC.text =
-        companyPartner.partnerPercentage.toString();
-    _companyPartnerPanNumberC.text = companyPartner.panNumber;
-    _companyPartnerAadharNumberC.text = companyPartner.aadharCardNumber;
-    dateOfBirth = companyPartner.dateOfBirth;
-    selectedGender = genderList.firstWhere(
-      (element) => element['DisplayName'] == companyPartner.gender,
-      orElse: () => genderList.first,
-    );
-
-    if (companyPartner.panCardFile != null) {
-      selectedPANForPopUpFile.fileBytesList =
-          companyPartner.panCardFile!.fileBytesList;
-      selectedPANForPopUpFile.deletedFileList =
-          companyPartner.panCardFile!.deletedFileList;
-      selectedPANForPopUpFile.fileNameList =
-          companyPartner.panCardFile!.fileNameList;
-    } else {
-      selectedPANForPopUpFile.fileNameList =
-          companyPartner.panCardURL == ""
-              ? []
-              : companyPartner.panCardURL.split(",");
-
-      selectedPANForPopUpFile.fileBytesList = List.generate(
-        selectedPANForPopUpFile.fileNameList.length,
-        (_) => Uint8List(0),
-      );
-    }
-
-    if (companyPartner.aadharCardFile != null) {
-      selectedAadharForPopUpFile.fileBytesList =
-          companyPartner.aadharCardFile!.fileBytesList;
-      selectedAadharForPopUpFile.deletedFileList =
-          companyPartner.aadharCardFile!.deletedFileList;
-      selectedAadharForPopUpFile.fileNameList =
-          companyPartner.aadharCardFile!.fileNameList;
-    } else {
-      selectedAadharForPopUpFile.fileNameList =
-          companyPartner.aadharCardURL == ""
-              ? []
-              : companyPartner.aadharCardURL.split(",");
-
-      selectedAadharForPopUpFile.fileBytesList = List.generate(
-        selectedAadharForPopUpFile.fileNameList.length,
-        (_) => Uint8List(0),
-      );
-    }
-
-    if (companyPartner.photoFile != null) {
-      selectedPhotoForPopUpFile.fileBytesList =
-          companyPartner.photoFile!.fileBytesList;
-      selectedPhotoForPopUpFile.deletedFileList =
-          companyPartner.photoFile!.deletedFileList;
-      selectedPhotoForPopUpFile.fileNameList =
-          companyPartner.photoFile!.fileNameList;
-    } else {
-      selectedPhotoForPopUpFile.fileNameList =
-          companyPartner.photoURL == ""
-              ? []
-              : companyPartner.photoURL.split(",");
-
-      selectedPhotoForPopUpFile.fileBytesList = List.generate(
-        selectedPhotoForPopUpFile.fileNameList.length,
-        (_) => Uint8List(0),
-      );
-    }
-  }
-
-  // RESET COMPANY PARTNER BOTTOM SHEET DETAILS
-  void _resetCompanyPartnerPopup() {
-    _companyPartnerFirstNameC.clear();
-    _companyPartnerMiddleNameC.clear();
-    _companyPartnerLastNameC.clear();
-    _companyPartnerMobileNumberC.clear();
-    _companyPartnerEmailC.clear();
-    _companyPartnerPercentageC.clear();
-    _companyPartnerPanNumberC.clear();
-    _companyPartnerAadharNumberC.clear();
-
-    selectedGender = genderList[0];
-    dateOfBirth = null;
-
-    selectedAadharForPopUpFile = MultiFilePickerModel(
-      fileBytesList: [],
-      fileNameList: [],
-      deletedFileList: "",
-    );
-
-    selectedPANForPopUpFile = MultiFilePickerModel(
-      fileBytesList: [],
-      fileNameList: [],
-      deletedFileList: "",
-    );
-
-    selectedPhotoForPopUpFile = MultiFilePickerModel(
-      fileBytesList: [],
-      fileNameList: [],
-      deletedFileList: "",
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: "Company",
+        authorization: AuthorizationModel(),
+      ),
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    widget.company == null ? "Add Company" : "Edit Company",
+                    style: AppTextStyle.ts16SB(),
+                  ),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: _buildSectionContainer(_buildBasicDetailsSection()),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 12)),
+            SliverToBoxAdapter(
+              child: _buildSectionContainer(
+                _buildGovernmentIdentifiersSection(),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: _buildSectionContainer(_buildAddressSection()),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 12)),
+            SliverToBoxAdapter(
+              child: _buildSectionContainer(
+                _buildCompanyVerificationDocumentSection(),
+              ),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 12)),
+            SliverToBoxAdapter(
+              child: _buildSectionContainer(_buildCompanyPartnerSection()),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 20)),
+            SliverToBoxAdapter(child: SizedBox(height: 50)), // padding bottom
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          padding: EdgeInsets.all(16),
+          child: Row(
+            spacing: 12,
+            children: [
+              Expanded(
+                child: CustomButton(
+                  text: widget.company == null ? 'Save' : 'Update',
+                  onPressed: _handleSubmit,
+                  backgroundColor: AppColor.primary,
+                ),
+              ),
+              Expanded(
+                child: CustomButton(
+                  text: 'Add Company Partner',
+                  onPressed: () async {
+                    goRouter.pushNamed(
+                      AppRoutes.addCompanyPartner,
+                      extra: {"cubit": _companyMasterAddCubit},
+                    );
+                  },
+                  backgroundColor: AppColor.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -804,457 +774,15 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                   .entries
                   .map(
                     (entry) => _buildCompanyPartnerCard(
-                      key: ValueKey(entry.value.hashCode),
-                      companyPartnerModel: entry.value,
-                      index: entry.key,
-                    ),
-                  ),
+                  key: ValueKey(entry.value.hashCode),
+                  companyPartnerModel: entry.value,
+                  index: entry.key,
+                ),
+              ),
           ],
         );
       },
     );
-  }
-
-  // ADD COMPANY PARTNER BOTTOM SHEET
-  void addCompanyPartnerBottomSheet({
-    CompanyPartnerModel? companyPartnerData,
-    int? index,
-  }) async {
-    if (companyPartnerData != null) {
-      _prefillCompanyPartnerData(companyPartnerData);
-    }
-    await DialogHelper.showCustomBottomSheet(
-      context,
-      "Company Partner Details",
-      SingleChildScrollView(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom, // keyboard handling
-          left: 16,
-          right: 16,
-          top: 8,
-        ),
-        child: Form(
-          key: _companyPartnerFormKey,
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      title: 'First Name*',
-                      textController: _companyPartnerFirstNameC,
-                      inputFormatterList: InputValidator.textOnly(50),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "First Name is required";
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  horizontalSpacing(),
-                  Expanded(
-                    child: CustomTextField(
-                      title: 'Middle Name*',
-                      textController: _companyPartnerMiddleNameC,
-                      inputFormatterList: InputValidator.textOnly(50),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Middle Name is required";
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      title: 'Last Name*',
-                      textController: _companyPartnerLastNameC,
-                      inputFormatterList: InputValidator.textOnly(50),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Last Name is required";
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  horizontalSpacing(),
-                  Expanded(
-                    child: CustomDatePicker(
-                      title: "DOB*",
-                      initialDate: dateOfBirth,
-                      setValue: (value) {
-                        dateOfBirth = value;
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return "Date of Birth is required";
-                        }
-                        if (!InputValidator.isValidAge(value)) {
-                          return 'Age should be greater than or equal to 18.';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomDropDownWidget(
-                      title: "Gender*",
-                      initialValue: selectedGender,
-                      dataList: genderList,
-                      onSelected: (value) {
-                        selectedGender = value;
-                      },
-                      validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
-                          return 'Gender is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  horizontalSpacing(),
-                  Expanded(
-                    child: CustomTextField(
-                      title: 'Mobile Number*',
-                      textController: _companyPartnerMobileNumberC,
-                      validator: (value) {
-                        if (value == null) {
-                          return "Mobile is required";
-                        }
-                        if (!InputValidator.isValidMobileNumber(value)) {
-                          return "Invalid mobile number";
-                        }
-                        return null;
-                      },
-                      inputFormatterList: InputValidator.digit(10),
-                      prefixWidget: IntrinsicHeight(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-
-                          children: [
-                            SizedBox(width: 10),
-                            Text("+91"),
-                            VerticalDivider(
-                              color: AppColor.black,
-                              thickness: 0.5,
-                              width: 15,
-                              indent: 5,
-                              endIndent: 5,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      title: 'Email Id*',
-                      textController: _companyPartnerEmailC,
-                      inputFormatterList: InputValidator.emailInputFormatters(),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Email Id is required";
-                        }
-                        if (!InputValidator.isValidEmail(value)) {
-                          return "Invalid email address";
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  horizontalSpacing(),
-                  Expanded(
-                    child: CustomTextField(
-                      title: 'Partner Percentage*',
-                      textController: _companyPartnerPercentageC,
-                      inputFormatterList: [
-                        FilteringTextInputFormatter.allow(
-                          RegExp(r'^\d{0,3}(\.\d{0,2})?$'),
-                        ),
-                      ],
-
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Partner percentage is required";
-                        }
-
-                        final parsed = double.tryParse(value);
-                        if (parsed == null || parsed <= 0 || parsed > 100) {
-                          return "Enter a valid percentage between 1 and 100";
-                        }
-
-                        // ✅ Check if editing
-                        final isEdit = index != null;
-                        double currentEditingValue = 0;
-
-                        if (isEdit) {
-                          currentEditingValue =
-                              _companyMasterAddCubit
-                                  .state
-                                  .companyPartner[index]
-                                  .partnerPercentage;
-                        }
-
-                        final totalPercentage = _companyMasterAddCubit
-                            .state
-                            .companyPartner
-                            .map((e) => e.partnerPercentage)
-                            .fold<double>(0, (prev, element) => prev + element);
-
-                        final adjustedTotal =
-                            totalPercentage - currentEditingValue;
-
-                        if (adjustedTotal + parsed > 100) {
-                          final available = 100 - adjustedTotal;
-                          return "Only $available% is available to allocate";
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      title: 'PAN Number',
-                      textController: _companyPartnerPanNumberC,
-                      inputFormatterList: InputValidator.panInputFormatters(),
-                      validator: (value) {
-                        if (selectedPANForPopUpFile.fileBytesList.isNotEmpty &&
-                            (value == null || value.trim().isEmpty)) {
-                          return "PAN Number is required";
-                        }
-                        if (value != null &&
-                            value.trim().isNotEmpty &&
-                            !InputValidator.isValidPAN(value)) {
-                          return "Invalid PAN Number";
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  horizontalSpacing(),
-                  Expanded(
-                    child: CustomMultiFilePicker(
-                      title: "Upload Pan Number",
-                      initialFileList: selectedPANForPopUpFile.fileNameList,
-                      onFilePickedCallback: (bytesList, fileNameList) {
-                        selectedPANForPopUpFile.fileNameList = fileNameList;
-                        selectedPANForPopUpFile.fileBytesList = bytesList;
-                      },
-                      onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deletedFile,
-                      ) {
-                        selectedPANForPopUpFile.fileNameList = fileNameList;
-                        selectedPANForPopUpFile.fileBytesList = fileBytesList;
-                        selectedPANForPopUpFile.deletedFileList = deletedFile;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      title: 'Aadhaar Card Number*',
-                      textController: _companyPartnerAadharNumberC,
-                      inputFormatterList:
-                          InputValidator.aadharNumberInputFormatter(),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Aadhaar Card Number is required";
-                        }
-
-                        if (selectedAadharForPopUpFile
-                                .fileBytesList
-                                .isNotEmpty &&
-                            value.trim().isEmpty) {
-                          return "Aadhaar Card Number is required";
-                        }
-
-                        final enteredAadhar = value.trim();
-
-                        if (!InputValidator.isValidAadharNumber(
-                          enteredAadhar,
-                        )) {
-                          return "Invalid Aadhaar Card Number";
-                        }
-
-                        final isDuplicate = _companyMasterAddCubit
-                            .state
-                            .companyPartner
-                            .any((e) {
-                              final isSameIndex =
-                                  index != null &&
-                                  _companyMasterAddCubit.state.companyPartner
-                                          .indexOf(e) ==
-                                      index;
-                              return e.aadharCardNumber == enteredAadhar &&
-                                  !isSameIndex;
-                            });
-
-                        if (isDuplicate) {
-                          return "Aadhaar Card Number already exists";
-                        }
-
-                        return null;
-                      },
-                    ),
-                  ),
-                  horizontalSpacing(),
-                  Expanded(
-                    child: CustomMultiFilePicker(
-                      title: "Upload Aadhaar Card",
-                      initialFileList: selectedAadharForPopUpFile.fileNameList,
-                      onFilePickedCallback: (bytesList, fileNameList) {
-                        selectedAadharForPopUpFile.fileNameList = fileNameList;
-                        selectedAadharForPopUpFile.fileBytesList = bytesList;
-                      },
-                      onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deletedFile,
-                      ) {
-                        selectedAadharForPopUpFile.fileNameList = fileNameList;
-                        selectedAadharForPopUpFile.fileBytesList =
-                            fileBytesList;
-                        selectedAadharForPopUpFile.deletedFileList =
-                            deletedFile;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              CustomMultiFilePicker(
-                title: "Upload Photo",
-                initialFileList: selectedPhotoForPopUpFile.fileNameList,
-                onFilePickedCallback: (bytesList, fileNameList) {
-                  selectedPhotoForPopUpFile.fileNameList = fileNameList;
-                  selectedPhotoForPopUpFile.fileBytesList = bytesList;
-                },
-                onFileDeleteCallback: (
-                  fileBytesList,
-                  fileNameList,
-                  deletedFile,
-                ) {
-                  selectedPhotoForPopUpFile.fileNameList = fileNameList;
-                  selectedPhotoForPopUpFile.fileBytesList = fileBytesList;
-                  selectedPhotoForPopUpFile.deletedFileList = deletedFile;
-                },
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: CustomButton.save(
-                  onPressed: () {
-                    if (_companyPartnerFormKey.currentState!.validate()) {
-                      if (companyPartnerData != null) {
-                        _companyMasterAddCubit.addUpdateCompanyPartnerData(
-                          context: context,
-                          CompanyPartnerModel(
-                            companyPartnerId:
-                                companyPartnerData.companyPartnerId,
-                            firstName: _companyPartnerFirstNameC.text.trim(),
-                            middleName: _companyPartnerMiddleNameC.text.trim(),
-                            lastName: _companyPartnerLastNameC.text.trim(),
-                            fullName:
-                                "${_companyPartnerFirstNameC.text.trim()} ${_companyPartnerMiddleNameC.text.trim()} ${_companyPartnerLastNameC.text.trim()}",
-                            dateOfBirth: dateOfBirth!,
-                            emailId: _companyPartnerEmailC.text.trim(),
-                            gender: selectedGender['DisplayName'],
-                            mobileNumber: _companyPartnerMobileNumberC.text,
-                            partnerPercentage:
-                                double.tryParse(
-                                  _companyPartnerPercentageC.text,
-                                ) ??
-                                0.0,
-                            panNumber: _companyPartnerPanNumberC.text,
-                            aadharCardNumber: _companyPartnerAadharNumberC.text,
-                            uniquekey: companyPartnerData.uniquekey,
-                            companyId: companyPartnerData.companyId,
-                            panCardURL: '',
-                            aadharCardURL: '',
-                            photoURL: '',
-                            createdById: companyPartnerData.createdById,
-                            createdBy: companyPartnerData.createdBy,
-                            createdDate: companyPartnerData.createdDate,
-                            modifiedById: companyPartnerData.modifiedById,
-                            modifiedBy: companyPartnerData.modifiedBy,
-                            modifiedDate: companyPartnerData.modifiedDate,
-                            panCardFile: selectedPANForPopUpFile,
-                            aadharCardFile: selectedAadharForPopUpFile,
-                            photoFile: selectedPhotoForPopUpFile,
-                          ),
-                          index: index,
-                        );
-                      } else {
-                        _companyMasterAddCubit.addUpdateCompanyPartnerData(
-                          context: context,
-                          CompanyPartnerModel(
-                            companyPartnerId: 0,
-                            firstName: _companyPartnerFirstNameC.text.trim(),
-                            middleName: _companyPartnerMiddleNameC.text.trim(),
-                            lastName: _companyPartnerLastNameC.text.trim(),
-                            fullName:
-                                "${_companyPartnerFirstNameC.text.trim()} ${_companyPartnerMiddleNameC.text.trim()} ${_companyPartnerLastNameC.text.trim()}",
-                            dateOfBirth: dateOfBirth!,
-                            emailId: _companyPartnerEmailC.text.trim(),
-                            gender: selectedGender['DisplayName'],
-                            mobileNumber: _companyPartnerMobileNumberC.text,
-                            partnerPercentage:
-                                double.tryParse(
-                                  _companyPartnerPercentageC.text,
-                                ) ??
-                                0.0,
-                            panNumber: _companyPartnerPanNumberC.text,
-                            aadharCardNumber: _companyPartnerAadharNumberC.text,
-                            uniquekey: '',
-                            companyId: widget.company?.companyId ?? 0,
-                            panCardURL: '',
-                            aadharCardURL: '',
-                            photoURL: '',
-                            createdById: -1,
-                            createdBy: '',
-                            createdDate: DateTime.now(),
-                            modifiedById: -1,
-                            modifiedBy: '',
-                            modifiedDate: DateTime.now(),
-                            panCardFile: selectedPANForPopUpFile,
-                            aadharCardFile: selectedAadharForPopUpFile,
-                            photoFile: selectedPhotoForPopUpFile,
-                          ),
-                        );
-                      }
-                      goRouter.pop();
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    _resetCompanyPartnerPopup();
   }
 
   // --------------------------- SUBMIT HANDLER --------------------------- //
@@ -1427,84 +955,4 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        screenTitle: "Company",
-        authorization: AuthorizationModel(),
-      ),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    widget.company == null ? "Add Company" : "Edit Company",
-                    style: AppTextStyle.ts16SB(),
-                  ),
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: _buildSectionContainer(_buildBasicDetailsSection()),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 12)),
-            SliverToBoxAdapter(
-              child: _buildSectionContainer(
-                _buildGovernmentIdentifiersSection(),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: _buildSectionContainer(_buildAddressSection()),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 12)),
-            SliverToBoxAdapter(
-              child: _buildSectionContainer(
-                _buildCompanyVerificationDocumentSection(),
-              ),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 12)),
-            SliverToBoxAdapter(
-              child: _buildSectionContainer(_buildCompanyPartnerSection()),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 20)),
-            SliverToBoxAdapter(child: SizedBox(height: 50)), // padding bottom
-          ],
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          padding: EdgeInsets.all(16),
-          child: Row(
-            spacing: 12,
-            children: [
-              Expanded(
-                child: CustomButton(
-                  text: widget.company == null ? 'Save' : 'Update',
-                  onPressed: _handleSubmit,
-                  backgroundColor: AppColor.primary,
-                ),
-              ),
-              Expanded(
-                child: CustomButton(
-                  text: 'Add Company Partner',
-                  onPressed: () async {
-                    goRouter.pushNamed(
-                      AppRoutes.addCompanyPartner,
-                      extra: {"cubit": _companyMasterAddCubit},
-                    );
-                  },
-                  backgroundColor: AppColor.primary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }

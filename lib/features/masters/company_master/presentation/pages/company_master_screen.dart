@@ -27,7 +27,7 @@ class CompanyMasterScreen extends StatefulWidget {
 }
 
 class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
-  // BLOC
+  // CUBIT
   late CompanyMasterCubit _companyMasterCubit;
 
   // AUTHORIZATION
@@ -279,6 +279,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     );
   }
 
+  // BUILD ROW TITLE VALUE
   Widget _buildRowTitleVale({required String title, required String value}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),

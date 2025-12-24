@@ -14,6 +14,10 @@ class EmployeeMasterState extends BaseState {
   final String currentSortDirection;
   final String filterDepartmentName;
   final String filterDesignationName;
+  final ProjectModel? selectedProject;
+  final List<ProjectModel> projectList;
+  final bool isLoadingProjects;
+  final int currentTabIndex;
 
   const EmployeeMasterState({
     super.isLoading,
@@ -31,6 +35,10 @@ class EmployeeMasterState extends BaseState {
     required this.currentSortDirection,
     required this.filterDepartmentName,
     required this.filterDesignationName,
+    this.selectedProject,
+    required this.projectList,
+    required this.isLoadingProjects,
+    required this.currentTabIndex,
   });
 
   factory EmployeeMasterState.initial() => EmployeeMasterState(
@@ -48,6 +56,10 @@ class EmployeeMasterState extends BaseState {
     filterDepartmentName: "",
     filterDesignationName: "",
     isLoading: true,
+    selectedProject: null,
+    projectList: [],
+    isLoadingProjects: false,
+    currentTabIndex: 0,
   );
 
   EmployeeMasterState copyWith({
@@ -68,6 +80,10 @@ class EmployeeMasterState extends BaseState {
     String? currentSortDirection,
     String? filterDepartmentName,
     String? filterDesignationName,
+    ProjectModel? selectedProject,
+    List<ProjectModel>? projectList,
+    bool? isLoadingProjects,
+    int? currentTabIndex,
   }) {
     return EmployeeMasterState(
       isLoading: isLoading ?? this.isLoading,
@@ -86,6 +102,10 @@ class EmployeeMasterState extends BaseState {
       filterDepartmentName: filterDepartmentName ?? this.filterDepartmentName,
       filterDesignationName:
       filterDesignationName ?? this.filterDesignationName,
+      selectedProject: selectedProject ?? this.selectedProject,
+      projectList: projectList ?? this.projectList,
+      isLoadingProjects: isLoadingProjects ?? this.isLoadingProjects,
+      currentTabIndex: currentTabIndex ?? this.currentTabIndex,
     );
   }
 
@@ -104,6 +124,10 @@ class EmployeeMasterState extends BaseState {
     currentSortDirection,
     filterDepartmentName,
     filterDesignationName,
+    selectedProject,
+    projectList,
+    isLoadingProjects,
+    currentTabIndex,
   ];
 
 }

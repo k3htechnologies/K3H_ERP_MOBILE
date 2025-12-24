@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/branch.model.dart';
 import 'package:k3h_erp_app/core/models/city.model.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/company_master/data/repository/company_master_repository.dart';
@@ -13,6 +14,7 @@ import 'package:k3h_erp_app/features/masters/department_master/data/repository/d
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/repository/designation_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -30,6 +32,8 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
       serviceLocator<DepartmentMasterRepository>();
   DesignationMasterRepository designationRepository =
       serviceLocator<DesignationMasterRepository>();
+  final ProjectMasterRepository _projectMasterRepository =
+      serviceLocator<ProjectMasterRepository>();
 
   // <---- FILTER EMPLOYEE ---->
   Future filterEmployee({
@@ -71,8 +75,11 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
         showErrorMessage(context, 'Error Message', failure.message);
       },
       (response) {
-        List<UserModel> updatedList = List.from(state.employeeMasterList);
-        updatedList.addAll(response['data'] as List<UserModel>);
+        List<UserModel> updatedList =
+            pageNumber == 1
+                  ? List<UserModel>.from(response['data'] as List<UserModel>)
+                  : List<UserModel>.from(state.employeeMasterList)
+              ..addAll(response['data'] as List<UserModel>);
         emit(
           state.copyWith(
             isLoading: false,
@@ -182,7 +189,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
                     : state.totalNumberOfRecord + 1,
           ),
         );
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: "Employee Added Successfully");
       },
     );
   }
@@ -265,17 +272,21 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
     goRouter.pop();
     updateResult.fold(
-      (failure) async {
+      (failure) {
         emit(state.copyWith(errorMessage: failure.message));
-        await showErrorMessage(context, 'Error Message', failure.message);
+        showErrorMessage(context, 'Error Message', failure.message);
         return;
       },
       (response) {
-        final updatedList = List<UserModel>.from(state.employeeMasterList);
-        updatedList[index] = response['data'][0] as UserModel;
         goRouter.pop();
-        emit(state.copyWith(employeeMasterList: updatedList));
-        showSuccessMessage(context);
+        final updatedEmployee = response['data'][0] as UserModel;
+        if (state.employeeMasterList.isNotEmpty &&
+            index < state.employeeMasterList.length) {
+          final updatedList = List<UserModel>.from(state.employeeMasterList);
+          updatedList[index] = updatedEmployee;
+          emit(state.copyWith(employeeMasterList: updatedList));
+        }
+        showSuccessMessage(context, subTitle: "Employee Updated Successfully");
       },
     );
   }
@@ -514,5 +525,35 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
         );
       },
     );
+  }
+
+  Future<void> fetchEmployeeProjects(int employeeId) async {
+    emit(state.copyWith(isLoadingProjects: true));
+
+    final result = await _projectMasterRepository.getProjectList(
+      pageNumber: 1,
+      pageSize: 100,
+      queryParams: {"EmployeeId": employeeId},
+    );
+
+    result.fold(
+      (_) {
+        emit(state.copyWith(projectList: [], isLoadingProjects: false));
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            projectList: response['data'] as List<ProjectModel>,
+            isLoadingProjects: false,
+          ),
+        );
+      },
+    );
+  }
+
+  void onTabChanged(int index, int employeeId) {
+    if (index == 3 && state.projectList.isEmpty) {
+      fetchEmployeeProjects(employeeId);
+    }
   }
 }
