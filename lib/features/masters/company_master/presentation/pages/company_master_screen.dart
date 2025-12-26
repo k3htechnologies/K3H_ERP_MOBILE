@@ -176,12 +176,15 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: 6,
+                                horizontal: 0,
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColor.lightBlue,
-                                borderRadius: BorderRadius.circular(4),
+                                  border: Border(
+                                      bottom: BorderSide(
+                                          color: AppColor.primary
+                                      )
+                                  )
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -193,12 +196,6 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                  ),
-                                  horizontalSpacing(),
-                                  Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: AppColor.primary,
-                                    size: 12,
                                   ),
                                 ],
                               ),

@@ -27,15 +27,15 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
 
   // PROJECT MASTER REPO
   final ProjectMasterRepository _projectMasterRepository =
-  serviceLocator<ProjectMasterRepository>();
+      serviceLocator<ProjectMasterRepository>();
 
   // COMPANY MASTER REPO
   final CompanyMasterRepository companyMasterRepository =
-  serviceLocator<CompanyMasterRepository>();
+      serviceLocator<CompanyMasterRepository>();
 
   // EMPLOYEE MASTER REPO
   final EmployeeMasterRepository employeeMasterRepository =
-  serviceLocator<EmployeeMasterRepository>();
+      serviceLocator<EmployeeMasterRepository>();
 
   // EMPLOYEE MASTER REPO
   // final ApprovalRepository approvalRepository =
@@ -62,27 +62,45 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required BuildContext context,
     required int pageNumber,
   }) async {
-    emit(state.copyWith(isLoading: true));
+    emit(
+      state.copyWith(
+        isLoading: true,
+        projectList: pageNumber == 1 ? [] : state.projectList,
+        currentPage: pageNumber == 1 ? 1 : state.currentPage,
+      ),
+    );
     var result = await _projectMasterRepository.getProjectList(
       pageNumber: pageNumber,
       pageSize: state.pageSize,
       queryParams:
-      state.searchText != "" ? {"ProjectName": state.searchText} : null,
+          state.searchText != "" ? {"ProjectName": state.searchText} : null,
     );
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
+        final fetched = response['data'] as List<ProjectModel>;
+
+        Map<String, ProjectModel> map = {};
+        if (pageNumber > 1) {
+          for (final c in state.projectList) {
+            map[c.uniquekey] = c;
+          }
+        }
+        for (final c in fetched) {
+          map[c.uniquekey] = c;
+        }
+        final updatedList = map.values.toList();
         emit(
           state.copyWith(
             isLoading: false,
-            projectList: response['data'] as List<ProjectModel>,
+            projectList: updatedList,
             totalNumberOfRecord:
-            response['totalNumberOfRecord'] == 0 && state.currentPage != 1
-                ? state.totalNumberOfRecord - 1
-                : response['totalNumberOfRecord'],
+                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
+                    ? state.totalNumberOfRecord - 1
+                    : response['totalNumberOfRecord'],
             currentPage: pageNumber,
           ),
         );
@@ -168,11 +186,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
     goRouter.pop();
     addResult.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith());
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         goRouter.pop();
         emit(
           state.copyWith(
@@ -184,7 +202,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
           ),
         );
 
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: 'Project Added Successfully!!!');
       },
     );
   }
@@ -272,11 +290,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
     goRouter.pop();
     addResult.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith());
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) async {
+      (response) async {
         final updatedList = List<ProjectModel>.from(state.projectList);
         updatedList[index] = (response['data'][0] as ProjectModel);
         goRouter.pop();
@@ -285,7 +303,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         // Update project in local storage
         await _updateProjectInLocalStorage(response['data'][0] as ProjectModel);
         if (context.mounted) {
-          showSuccessMessage(context);
+          showSuccessMessage(context, subTitle: 'Project Updated Successfully!!!');
         }
       },
     );
@@ -303,13 +321,13 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         // Parse the existing project list from local storage
         final List<dynamic> projectListJson = jsonDecode(projectListString);
         final List<ProjectModel> projectList =
-        projectListJson
-            .map((e) => ProjectModel.fromJson(e as Map<String, dynamic>))
-            .toList();
+            projectListJson
+                .map((e) => ProjectModel.fromJson(e as Map<String, dynamic>))
+                .toList();
 
         // Find and update the project with the same projectId
         final projectIndex = projectList.indexWhere(
-              (project) => project.projectId == updatedProject.projectId,
+          (project) => project.projectId == updatedProject.projectId,
         );
 
         if (projectIndex != -1) {
@@ -356,11 +374,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
     List<CompanyModel> companyList = [];
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false, errorMessage: failure.message));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         companyList =
             (response['data'] as List)
                 .map((e) => CompanyModel.fromJson(e as Map<String, dynamic>))
@@ -387,21 +405,21 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       projectId: projectId,
     );
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false, errorMessage: failure.message));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         emit(
           state.copyWith(
             isLoading: false,
             bankByProject:
-            (response['data'] as List)
-                .map(
-                  (e) =>
-                  BankDetailsModel.fromJson(e as Map<String, dynamic>),
-            )
-                .toList(),
+                (response['data'] as List)
+                    .map(
+                      (e) =>
+                          BankDetailsModel.fromJson(e as Map<String, dynamic>),
+                    )
+                    .toList(),
           ),
         );
       },
@@ -419,11 +437,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
     List<UserModel> employeeList = [];
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         employeeList =
             (response['data'] as List)
                 .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
@@ -452,10 +470,10 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
     goRouter.pop();
     result.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         goRouter.pop();
         getProjectWithBankDetails(projectId: projectId, context: context);
         showSuccessMessage(context);
@@ -478,11 +496,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
     goRouter.pop();
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         emit(state.copyWith(isLoading: false));
         getProjectWithBankDetails(
           projectId: projectId.toString(),
@@ -512,11 +530,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     List<CompanyModel> companyList = [];
 
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         final rawList = response['data'] as List<CompanyModel>;
         final totalRecords = response['totalNumberOfRecord'] as int;
         emit(
@@ -534,28 +552,28 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
 
   // <---- BANK DROPDOWN ---->
   Future<Map<String, dynamic>> getBankList(
-      int pageNumber, {
-        String? value,
-      }) async {
+    int pageNumber, {
+    String? value,
+  }) async {
     var result = await employeeMasterRepository.getBankList(
       pageNumber: pageNumber,
       pageSize: 10,
       query: {'BankName': value ?? ''},
     );
     return result.fold(
-          (failure) {
+      (failure) {
         return {"itemList": <Map<String, dynamic>>[], "totalNumberOfRecord": 0};
       },
-          (response) {
+      (response) {
         return {
           "itemList": List<Map<String, dynamic>>.from(
             (response['data'] as List<dynamic>)
                 .map(
                   (e) => {
-                "zAttributesId": e["BankListMasterId"],
-                "DisplayName": e["BankNameWithCode"],
-              },
-            )
+                    "zAttributesId": e["BankListMasterId"],
+                    "DisplayName": e["BankNameWithCode"],
+                  },
+                )
                 .toList(),
           ),
           "totalNumberOfRecord": response["totalNumberOfRecord"],
@@ -583,11 +601,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     List<UserModel> employeeList = [];
 
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         final rawList = response['data'] as List<UserModel>;
         final totalRecords = response['totalNumberOfRecord'] as int;
         emit(
@@ -621,11 +639,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       requestBody: requestBody,
     );
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) async {
+      (response) async {
         emit(state.copyWith(isLoading: false));
         getProjectWithCompany(projectId: projectId, context: context);
         await showSuccessMessage(context);
@@ -654,12 +672,12 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
     emit(state.copyWith(isLoading: false));
     result.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) async {
+      (response) async {
         await showSuccessMessage(context);
-        if(context.mounted) {
+        if (context.mounted) {
           getProjectWithEmployee(projectId: projectId, context: context);
         }
         if (onSuccess != null) onSuccess();
@@ -705,11 +723,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
     goRouter.pop();
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         emit(state.copyWith(isLoading: false));
         getProjectWithEmployee(
           context: context,
@@ -799,29 +817,29 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   }*/
 
   // <---- SEARCH PROJECT ---->
-  /*Future searchProject(BuildContext context, String value) async {
+  Future searchProject(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, projectList: []));
     await getProjectList(context: context, pageNumber: 1);
   }
 
   // <---- EXPORT EXCEL OR PDF ---->
   Future exportExcelPdf(BuildContext context, String exportType) async {
-    DialogHelper.showProcessingDialog(context);
+    DialogHelper.showProcessingOverlay(context);
     var result = await _projectMasterRepository.exportProject(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
       queryParams:
-      state.searchText != ""
-          ? {"ProjectName": state.searchText, "ExportType": exportType}
-          : {"ExportType": exportType},
+          state.searchText != ""
+              ? {"ProjectName": state.searchText, "ExportType": exportType}
+              : {"ExportType": exportType},
     );
     goRouter.pop();
     result.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, 'Error', failure.message);
       },
-          (response) {
-        exportExcelorPdf(
+      (response) {
+        exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
               ? "project_${DateTime.now()}.pdf"
@@ -831,7 +849,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- PULL MODULE WORK FLOW LIST ---->
+  /*// <---- PULL MODULE WORK FLOW LIST ---->
   Future<void> getModuleWorkFlowApprovalList({
     required BuildContext context,
     required int projectId,

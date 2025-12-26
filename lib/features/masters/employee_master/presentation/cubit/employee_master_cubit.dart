@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/branch.model.dart';
 import 'package:k3h_erp_app/core/models/city.model.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -13,6 +14,10 @@ import 'package:k3h_erp_app/features/masters/department_master/data/model/depart
 import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/repository/designation_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/asset_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_document.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/shift_management_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -58,37 +63,188 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     int pageSize,
   ) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {
-      "EmployeeName": state.searchText,
-      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
-      "DepartmentName": state.filterDepartmentName,
-      "DesignationName": state.filterDesignationName,
-    };
-    var result = await employeeMasterRepository.getEmployeeMasterList(
+
+    final result = await employeeMasterRepository.getEmployeeMasterList(
       pageNumber: pageNumber,
       pageSize: pageSize,
-      queryParams: queryParams,
+      queryParams: {
+        "EmployeeName": state.searchText,
+        "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+        "DepartmentName": state.filterDepartmentName,
+        "DesignationName": state.filterDesignationName,
+      },
     );
+
     result.fold(
       (failure) {
-        emit(state.copyWith(isLoading: false, errorMessage: failure.message));
-        showErrorMessage(context, 'Error Message', failure.message);
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        List<UserModel> updatedList =
+        List<UserModel> newList =
             pageNumber == 1
-                  ? List<UserModel>.from(response['data'] as List<UserModel>)
-                  : List<UserModel>.from(state.employeeMasterList)
-              ..addAll(response['data'] as List<UserModel>);
+                ? List<UserModel>.from(response['data'])
+                : [...state.employeeMasterList, ...response['data']];
+
         emit(
           state.copyWith(
             isLoading: false,
-            employeeMasterList: updatedList,
-            totalNumberOfRecord:
-                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
-                    ? state.totalNumberOfRecord - 1
-                    : response['totalNumberOfRecord'],
+            employeeMasterList: newList,
             currentPage: pageNumber,
+            totalNumberOfRecord: response['totalNumberOfRecord'],
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET EMPLOYEE DOCUMENT LIST ---->
+  Future getEmployeeDocumentList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await employeeMasterRepository.getEmployeeDocumentList(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      queryParams: {"EmployeeId": employeeId},
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        List<EmployeeDocumentModel> newList =
+            pageNumber == 1
+                ? List<EmployeeDocumentModel>.from(response['data'])
+                : [...state.employeeDocumentList, ...response['data']];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            employeeDocumentList: newList,
+            currentPage: pageNumber,
+            totalNumberOfRecord: response['totalNumberOfRecord'],
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET EMPLOYEE ASSET LIST ---->
+  Future getEmployeeAssetList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await employeeMasterRepository.getEmployeeAssetList(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      queryParams: {"EmployeeId": employeeId},
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        List<AssetMappingModel> newList =
+            pageNumber == 1
+                ? List<AssetMappingModel>.from(response['data'])
+                : [...state.assetMappingList, ...response['data']];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            assetMappingList: newList,
+            currentPage: pageNumber,
+            totalNumberOfRecord: response['totalNumberOfRecord'],
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET EMPLOYEE SHIFT MANAGEMENT LIST ---->
+  Future getShiftManagementList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await employeeMasterRepository
+        .getEmployeeShiftManagementList(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: {"EmployeeId": employeeId},
+        );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        List<ShiftManagementMappingModel> newList =
+            pageNumber == 1
+                ? List<ShiftManagementMappingModel>.from(response['data'])
+                : [...state.shiftManagementList, ...response['data']];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            shiftManagementList: newList,
+            currentPage: pageNumber,
+            totalNumberOfRecord: response['totalNumberOfRecord'],
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET EMPLOYEE WEEK OFF MAPPING LIST ---->
+  Future getWeekOffMappingList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await employeeMasterRepository.getEmployeeWeekOffMappingList(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      queryParams: {"EmployeeId": employeeId},
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        List<WeekOffMappingModel> newList =
+            pageNumber == 1
+                ? List<WeekOffMappingModel>.from(response['data'])
+                : [...state.weekOffMappingList, ...response['data']];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            weekOffMappingList: newList,
+            currentPage: pageNumber,
+            totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
         );
       },
@@ -287,6 +443,56 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
           emit(state.copyWith(employeeMasterList: updatedList));
         }
         showSuccessMessage(context, subTitle: "Employee Updated Successfully");
+      },
+    );
+  }
+
+  // <---- UPDATE EMPLOYEE DOCUMENT ---->
+  Future updateEmployeeDocument({
+    required BuildContext context,
+    required int employeeDocumentId,
+    required String uniqueKey,
+    required String employeeId,
+    required String documentName,
+    required String removeDocumentURL,
+    required MultiFilePickerModel files,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> requestBody = {
+      'EmployeeDocumentId': employeeDocumentId.toString(),
+      'UniqueKey': uniqueKey,
+      "EmployeeId": employeeId,
+      "DocumentName": documentName,
+      "RemoveDocumentURL": removeDocumentURL,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < files.fileNameList.length; i++) {
+      if (files.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "DocumentURL",
+        "value": files.fileBytesList[i],
+        "fileName": files.fileNameList[i],
+      });
+    }
+
+    var updateResult = await employeeMasterRepository.addUpdateEmployeeDocument(
+      requestBody: requestBody,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    updateResult.fold(
+      (failure) {
+        emit(state.copyWith(errorMessage: failure.message));
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) async {
+        showSuccessMessage(context, subTitle: response["successMessage"]);
+        await getEmployeeDocumentList(context, 1, 100, int.parse(employeeId));
       },
     );
   }
@@ -527,7 +733,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  Future<void> fetchEmployeeProjects(int employeeId) async {
+  Future<void> getEmployeeProjects(int employeeId) async {
     emit(state.copyWith(isLoadingProjects: true));
 
     final result = await _projectMasterRepository.getProjectList(
@@ -551,9 +757,23 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  void onTabChanged(int index, int employeeId) {
+  void onTabChanged(BuildContext context, int index, int employeeId) {
+    if (index == 1) {
+      getEmployeeDocumentList(context, 1, 100, employeeId);
+    }
+    if (index == 2) {
+      getEmployeeAssetList(context, 1, 100, employeeId);
+    }
     if (index == 3 && state.projectList.isEmpty) {
-      fetchEmployeeProjects(employeeId);
+      getEmployeeProjects(employeeId);
+    }
+    if (index == 4) {
+      getShiftManagementList(context, 1, 100, employeeId);
+    }
+    if (index == 4) {
+      getWeekOffMappingList(context, 1, 100, employeeId);
+    } else {
+      return;
     }
   }
 }

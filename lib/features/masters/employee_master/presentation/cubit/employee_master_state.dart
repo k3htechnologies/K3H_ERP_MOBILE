@@ -2,6 +2,10 @@ part of 'employee_master_cubit.dart';
 
 class EmployeeMasterState extends BaseState {
   final List<UserModel> employeeMasterList;
+  final List<EmployeeDocumentModel> employeeDocumentList;
+  final List<AssetMappingModel> assetMappingList;
+  final List<ShiftManagementMappingModel> shiftManagementList;
+  final List<WeekOffMappingModel> weekOffMappingList;
   final Map<int, List<CityModel>> stateMap;
   final Map<int, List<CityModel>> districtMap;
   final List<Map<String, dynamic>> stateList;
@@ -23,6 +27,10 @@ class EmployeeMasterState extends BaseState {
     super.isLoading,
     super.stateType,
     required this.employeeMasterList,
+    required this.employeeDocumentList,
+    required this.assetMappingList,
+    required this.shiftManagementList,
+    required this.weekOffMappingList,
     this.stateMap = const {},
     this.districtMap = const {},
     required this.stateList,
@@ -43,6 +51,10 @@ class EmployeeMasterState extends BaseState {
 
   factory EmployeeMasterState.initial() => EmployeeMasterState(
     employeeMasterList: [],
+    employeeDocumentList: [],
+    assetMappingList: [],
+    shiftManagementList: [],
+    weekOffMappingList: [],
     stateMap: {},
     districtMap: {},
     stateList: [],
@@ -67,6 +79,10 @@ class EmployeeMasterState extends BaseState {
     StateType? stateType,
     String? errorMessage,
     List<UserModel>? employeeMasterList,
+    List<EmployeeDocumentModel>? employeeDocumentList,
+    List<AssetMappingModel>? assetMappingList,
+    List<ShiftManagementMappingModel>? shiftManagementList,
+    List<WeekOffMappingModel>? weekOffMappingList,
     bool? isAllSelected,
     Map<int, List<CityModel>>? stateMap,
     Map<int, List<CityModel>>? districtMap,
@@ -89,6 +105,10 @@ class EmployeeMasterState extends BaseState {
       isLoading: isLoading ?? this.isLoading,
       stateType: stateType ?? this.stateType,
       employeeMasterList: employeeMasterList ?? this.employeeMasterList,
+      employeeDocumentList: employeeDocumentList ?? this.employeeDocumentList,
+      assetMappingList: assetMappingList ?? this.assetMappingList,
+      shiftManagementList: shiftManagementList ?? this.shiftManagementList,
+      weekOffMappingList: weekOffMappingList ?? this.weekOffMappingList,
       stateMap: stateMap ?? this.stateMap,
       districtMap: districtMap ?? this.districtMap,
       stateList: stateList ?? this.stateList,
@@ -112,6 +132,10 @@ class EmployeeMasterState extends BaseState {
   @override
   List<Object?> get props => [
     employeeMasterList,
+    employeeDocumentList,
+    assetMappingList,
+    shiftManagementList,
+    weekOffMappingList,
     stateMap,
     districtMap,
     stateList,

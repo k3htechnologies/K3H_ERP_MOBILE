@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/employee_master_cubit.dart';
-import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/presentation/widgets/employee_document_dialog.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -26,6 +28,7 @@ class _EmployeeMasterViewDetailsScreenState
     extends State<EmployeeMasterViewDetailsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _lastTabIndex = 0;
 
   @override
   void initState() {
@@ -36,11 +39,15 @@ class _EmployeeMasterViewDetailsScreenState
 
   void _handleTabChange() {
     final index = _tabController.index;
-    if (index == 3) {
-      context
-          .read<EmployeeMasterCubit>()
-          .onTabChanged(index,widget.employee.employeeId);
-    }
+    if (index == _lastTabIndex) return;
+
+    _lastTabIndex = index;
+
+    context.read<EmployeeMasterCubit>().onTabChanged(
+      context,
+      index,
+      widget.employee.employeeId,
+    );
   }
 
   @override
@@ -103,14 +110,14 @@ class _EmployeeMasterViewDetailsScreenState
                     controller: _tabController,
                     children: [
                       _buildOverviewTab(widget.employee),
-                      _buildPlaceholderTab('Document'),
-                      _buildPlaceholderTab('Assets'),
+                      _buildDocumentTab(),
+                      _buildAssetTab(),
                       _buildProjectTab(
                         state.projectList,
                         state.isLoadingProjects,
                       ),
-                      _buildPlaceholderTab('Shift Policy'),
-                      _buildPlaceholderTab('Week Off Policy'),
+                      _buildShiftPolicyTab(),
+                      _buildWeekOffPolicyTab(),
                     ],
                   ),
                 ),
@@ -158,7 +165,6 @@ class _EmployeeMasterViewDetailsScreenState
         }
         i++;
       } else {
-        // Try to pair with next item if available and not fullWidth
         if (i + 1 < items.length && items[i + 1]['fullWidth'] != 'true') {
           final nextItem = items[i + 1];
           rows.add(
@@ -300,6 +306,9 @@ class _EmployeeMasterViewDetailsScreenState
             ],
           ),
           verticalSpacing(),
+          if (user.employeeReportingCycleData.isNotEmpty)
+            _buildEmployeeReportingCycleCard(user.employeeReportingCycleData),
+          verticalSpacing(),
           _buildInfoCard(
             title: 'Address Information',
             items: [
@@ -321,11 +330,605 @@ class _EmployeeMasterViewDetailsScreenState
               ],
             ),
           if (_hasBankDetails(user)) verticalSpacing(),
-          if (user.employeeReportingCycleData.isNotEmpty)
-            _buildEmployeeReportingCycleCard(user.employeeReportingCycleData),
-          if (user.employeeReportingCycleData.isNotEmpty) verticalSpacing(),
           verticalSpacing(height: 20),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDocumentTab() {
+    return SingleChildScrollView(
+      child: BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
+        builder: (context, state) {
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            itemCount: state.employeeDocumentList.length,
+            itemBuilder: (context, index) {
+              final doc = state.employeeDocumentList[index];
+
+              final urls =
+                  doc.documentUrl.isEmpty
+                      ? <String>[]
+                      : doc.documentUrl.split(',');
+
+              final isFresh = urls.isEmpty;
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Row(
+                  children: [
+                    Text(doc.documentName, style: AppTextStyle.ts14SB()),
+                    const Spacer(),
+
+                    CustomIconButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: true,
+                          builder:
+                              (_) => EmployeeDocumentDialog(
+                                title: doc.documentName,
+                                urls: urls,
+                                isFreshAdd: isFresh,
+
+                                // ➕ ADD / UPLOAD
+                                addDocument: (pickedFiles) async {
+                                  final files = MultiFilePickerModel(
+                                    fileNameList:
+                                        pickedFiles.map((e) => e.name).toList(),
+                                    fileBytesList:
+                                        pickedFiles
+                                            .where((e) => e.bytes != null)
+                                            .map((e) => e.bytes!)
+                                            .toList(),
+                                    deletedFileList: "",
+                                  );
+
+                                  await context
+                                      .read<EmployeeMasterCubit>()
+                                      .updateEmployeeDocument(
+                                        context: context,
+                                        employeeDocumentId:
+                                            doc.employeeDocumentId,
+                                        uniqueKey: doc.uniquekey,
+                                        employeeId: doc.employeeId.toString(),
+                                        documentName: doc.documentName,
+                                        removeDocumentURL: "",
+                                        files: files,
+                                      );
+                                },
+
+                                // 🗑 DELETE
+                                deleteDocument: (removeUrl) async {
+                                  final files = MultiFilePickerModel(
+                                    fileNameList: [],
+                                    fileBytesList: [],
+                                    deletedFileList: removeUrl, // ✅ FIXED
+                                  );
+
+                                  await context
+                                      .read<EmployeeMasterCubit>()
+                                      .updateEmployeeDocument(
+                                        context: context,
+                                        employeeDocumentId:
+                                            doc.employeeDocumentId,
+                                        uniqueKey: doc.uniquekey,
+                                        employeeId: doc.employeeId.toString(),
+                                        documentName: doc.documentName,
+                                        removeDocumentURL: removeUrl,
+                                        files: files,
+                                      );
+                                },
+                              ),
+                        );
+                      },
+                      icon: Icon(
+                        Icons.remove_red_eye,
+                        size: 16,
+                        color: isFresh ? AppColor.grey : AppColor.primary,
+                      ),
+                      backgroundColor:
+                          isFresh ? AppColor.lightGrey : AppColor.lightBlue,
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildAssetTab() {
+    return SingleChildScrollView(
+      child: BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
+        builder: (context, state) {
+          return state.assetMappingList.isNotEmpty
+              ? ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                itemCount: state.assetMappingList.length,
+                itemBuilder: (context, index) {
+                  final asset = state.assetMappingList[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(asset.assetName, style: AppTextStyle.ts14SB()),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Asset Code",
+                                  asset.assetCode,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Asset Brand",
+                                  asset.assetBrand,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Asset Model",
+                                  asset.assetModel,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Asset Type",
+                                  asset.assetType,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Serial Number",
+                                  asset.serialNumber,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem("Status", asset.status),
+                              ),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Text("Purchase Details", style: AppTextStyle.ts14SB()),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Purchase Date",
+                                  formatDateTimeAsDDMMMYYYY(asset.purchaseDate),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Asset Cost",
+                                  asset.assetCost.toString(),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Warranty Expiry Date",
+                                  formatDateTimeAsDDMMMYYYY(
+                                    asset.warrantyExpiryDate,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Supplier Name",
+                                  asset.supplierName,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              )
+              : SizedBox(
+                height: getActualHeight(context) * 0.7,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      AppAssets.noDataImage,
+                      width: 150.0,
+                      height: 150.0,
+                    ),
+                    verticalSpacing(),
+                    Text("No Data Available!", style: AppTextStyle.ts14B()),
+                  ],
+                ),
+              );
+        },
+      ),
+    );
+  }
+
+  Widget _buildShiftPolicyTab() {
+    return SingleChildScrollView(
+      child: BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
+        builder: (context, state) {
+          return state.shiftManagementList.isNotEmpty
+              ? ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                itemCount: state.shiftManagementList.length,
+                itemBuilder: (context, index) {
+                  final shiftManagement = state.shiftManagementList[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Shift Policy Details",
+                          style: AppTextStyle.ts14SB(),
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Employee Name",
+                                  shiftManagement.employeeName,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Department Name",
+                                  shiftManagement.departmentName,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Shift Type",
+                                  shiftManagement.shiftName,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Shift Code",
+                                  shiftManagement.shiftCode,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Shift Begin Time",
+                                  shiftManagement.shiftBeginTime,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Shift End Time",
+                                  shiftManagement.shiftEndTime,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Shift Duration Time",
+                                  shiftManagement.shiftDurationTime,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Shift Work Duration",
+                                  shiftManagement.shiftWorkDurationTime,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Remark",
+                                  shiftManagement.remarks,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              )
+              : SizedBox(
+                height: getActualHeight(context) * 0.7,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      AppAssets.noDataImage,
+                      width: 150.0,
+                      height: 150.0,
+                    ),
+                    verticalSpacing(),
+                    Text("No Data Available!", style: AppTextStyle.ts14B()),
+                  ],
+                ),
+              );
+        },
+      ),
+    );
+  }
+
+  Widget _buildWeekOffPolicyTab() {
+    return SingleChildScrollView(
+      child: BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
+        builder: (context, state) {
+          return state.weekOffMappingList.isNotEmpty
+              ? ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                itemCount: state.weekOffMappingList.length,
+                itemBuilder: (context, index) {
+                  final weekOffMapping = state.weekOffMappingList[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Week Off Policy", style: AppTextStyle.ts14SB()),
+                        verticalSpacing(),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Employee Name",
+                                  weekOffMapping.employeeName,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Department Name",
+                                  weekOffMapping.departmentName,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Week Off Policy Name",
+                                  weekOffMapping.weekOffPolicyName,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Week Off Policy Code",
+                                  weekOffMapping.weekOffPolicyCode,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Week Days",
+                                  weekOffMapping.weekDays.toString(),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Week Days Starts On",
+                                  weekOffMapping.weekDaysStartsOn,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Week Off",
+                                  weekOffMapping.weeklyOff,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Week Off 2",
+                                  weekOffMapping.weeklyOff2,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Not Applicable Months",
+                                  weekOffMapping.notApplicableForMonths,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: _buildInfoItem(
+                                  "Week Off 2 Type",
+                                  weekOffMapping.weeklyOff2Type,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              )
+              : SizedBox(
+                height: getActualHeight(context) * 0.7,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      AppAssets.noDataImage,
+                      width: 150.0,
+                      height: 150.0,
+                    ),
+                    verticalSpacing(),
+                    Text("No Data Available!", style: AppTextStyle.ts14B()),
+                  ],
+                ),
+              );
+        },
       ),
     );
   }
@@ -347,99 +950,64 @@ class _EmployeeMasterViewDetailsScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Employee Reporting Cycle', style: AppTextStyle.ts16SB()),
+          Text('Reporting Structure', style: AppTextStyle.ts16SB()),
           verticalSpacing(height: 12),
           ...employeeReportingCycleData.map((employee) {
             return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColor.greyBackground,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
+                  Expanded(
+                    child: Row(
+                      spacing: 10,
+                      children: [
+                        Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            color: AppColor.lightGrey,
+                            border: Border.all(
+                              color: AppColor.grey.withValues(alpha: .5),
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          child: Center(
+                            child: Text(
+                              employee["FullName"][0],
+                              style: AppTextStyle.ts16SB(),
+                            ),
+                          ),
+                        ),
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _getDisplayValue(
-                                employee['FullName']?.toString(),
-                              ),
+                              employee["FullName"],
                               style: AppTextStyle.ts14SB(),
                             ),
-                            verticalSpacing(height: 4),
                             Text(
-                              _getDisplayValue(
-                                employee['Designation']?.toString(),
-                              ),
+                              employee["Designation"],
                               style: AppTextStyle.ts12R(color: AppColor.grey),
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  verticalSpacing(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Employee Code',
-                              style: AppTextStyle.ts12M(color: AppColor.grey),
-                            ),
-                            verticalSpacing(height: 2),
-                            Text(
-                              _getDisplayValue(
-                                employee['EmployeeCode']?.toString(),
-                              ),
-                              style: AppTextStyle.ts12R(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Mobile',
-                              style: AppTextStyle.ts12M(color: AppColor.grey),
-                            ),
-                            verticalSpacing(height: 2),
-                            Text(
-                              _getDisplayValue(
-                                employee['PersonalMobileNumber']?.toString(),
-                              ),
-                              style: AppTextStyle.ts12R(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(height: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Email',
-                        style: AppTextStyle.ts12M(color: AppColor.grey),
-                      ),
-                      verticalSpacing(height: 2),
-                      Text(
-                        _getDisplayValue(employee['EmailId']?.toString()),
-                        style: AppTextStyle.ts12R(),
-                      ),
-                    ],
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColor.purple.withValues(alpha: .3),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    child: Text(
+                      employee["EmployeeCode"],
+                      style: AppTextStyle.ts12R(color: AppColor.purple),
+                    ),
                   ),
                 ],
               ),
@@ -559,19 +1127,6 @@ class _EmployeeMasterViewDetailsScreenState
           ),
         );
       },
-    );
-  }
-
-  Widget _buildPlaceholderTab(String title) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Text(
-          "$title\n\nComing soon...",
-          textAlign: TextAlign.center,
-          style: AppTextStyle.ts16M(color: AppColor.grey),
-        ),
-      ),
     );
   }
 }

@@ -1,6 +1,11 @@
 import 'package:k3h_erp_app/core/models/branch.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/asset_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_document.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/shift_management_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
+import 'package:k3h_erp_app/service/exceptions.dart';
 
 abstract interface class EmployeeMasterDataSource {
   Future<Map<String, dynamic>> apiCallToPullEmployeeMaster({
@@ -8,8 +13,38 @@ abstract interface class EmployeeMasterDataSource {
     required int pageSize,
     Map<String, dynamic>? query,
   });
+
+  Future<Map<String, dynamic>> apiCallToPullEmployeeDocument({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? query,
+  });
+
+  Future<Map<String, dynamic>> apiCallToPullEmployeeAsset({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? query,
+  });
+
+  Future<Map<String, dynamic>> apiCallToPullEmployeeShiftManagementMapping({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? query,
+  });
+
+  Future<Map<String, dynamic>> apiCallToPullEmployeeWeekOffMapping({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? query,
+  });
+
   Future<Map<String, dynamic>> apiCallToAddUpdateEmployeeMaster({
     required Map<String, dynamic> requestBody,
+  });
+
+  Future<Map<String, dynamic>> apiCallToAddUpdateEmployeeDocument({
+    required Map<String, String> requestBody,
+    required List<Map<String, dynamic>> fileList,
   });
 
   Future<Map<String, dynamic>> apicallPullBankListMaster({
@@ -66,6 +101,187 @@ class EmployeeMasterDataSourceImpl extends EmployeeMasterDataSource {
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallToPullEmployeeMaster(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          query: query,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallToPullEmployeeDocument({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? query,
+  }) async {
+    String pullEmployeeDocumentUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "EmployeeDocument/PullEmployeeDocument?PageSize=$pageSize&PageNumber=$pageNumber";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullEmployeeDocumentUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: query,
+        ),
+      );
+      return {
+        'data': List<EmployeeDocumentModel>.from(
+          networkResponse['data'].map((e) => EmployeeDocumentModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallToPullEmployeeDocument(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          query: query,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallToPullEmployeeAsset({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? query,
+  }) async {
+    String pullEmployeeAssetUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "AssetMasterMappingMapping/PullAssetMasterMapping?PageSize=$pageSize&PageNumber=$pageNumber";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullEmployeeAssetUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: query,
+        ),
+      );
+      return {
+        'data': List<AssetMappingModel>.from(
+          networkResponse['data'].map((e) => AssetMappingModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallToPullEmployeeAsset(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          query: query,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallToPullEmployeeShiftManagementMapping({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? query,
+  }) async {
+    String pullEmployeeShiftManagementUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "ShiftManagementMasterMapping/PullShiftManagementMasterMapping?PageSize=$pageSize&PageNumber=$pageNumber";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullEmployeeShiftManagementUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: query,
+        ),
+      );
+      return {
+        'data': List<ShiftManagementMappingModel>.from(
+          networkResponse['data'].map(
+            (e) => ShiftManagementMappingModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallToPullEmployeeShiftManagementMapping(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          query: query,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallToPullEmployeeWeekOffMapping({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? query,
+  }) async {
+    String pullEmployeeShiftManagementUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "WeekOffPolicyMasterMapping/PullWeekOffPolicyMasterMapping?PageSize=$pageSize&PageNumber=$pageNumber";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullEmployeeShiftManagementUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: query,
+        ),
+      );
+      return {
+        'data': List<WeekOffMappingModel>.from(
+          networkResponse['data'].map((e) => WeekOffMappingModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallToPullEmployeeWeekOffMapping(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          query: query,
+        );
+      }
       rethrow;
     }
   }
@@ -88,6 +304,41 @@ class EmployeeMasterDataSourceImpl extends EmployeeMasterDataSource {
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallToAddUpdateEmployeeMaster(requestBody: requestBody);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallToAddUpdateEmployeeDocument({
+    required Map<String, String> requestBody,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    String addUpdateEmployee = 'EmployeeDocument/AddUpdateEmployeeDocument';
+
+    try {
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            addUpdateEmployee,
+            fileList,
+            requestBody,
+          );
+      return {
+        'data': List<EmployeeDocumentModel>.from(
+          networkResponse['data'].map((e) => EmployeeDocumentModel.fromJson(e)),
+        ),
+        'successMessage': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallToAddUpdateEmployeeDocument(
+          requestBody: requestBody,
+          fileList: fileList,
+        );
+      }
       rethrow;
     }
   }
@@ -122,6 +373,13 @@ class EmployeeMasterDataSourceImpl extends EmployeeMasterDataSource {
         "totalNumberOfRecord": networkResponse["totalNumberOfRecord"],
       };
     } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullBankListMaster(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          query: query,
+        );
+      }
       rethrow;
     }
   }
@@ -158,6 +416,13 @@ class EmployeeMasterDataSourceImpl extends EmployeeMasterDataSource {
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullBranchMaster(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          query: query,
+        );
+      }
       rethrow;
     }
   }
@@ -192,6 +457,13 @@ class EmployeeMasterDataSourceImpl extends EmployeeMasterDataSource {
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullEmployeeMasterForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
+      }
       rethrow;
     }
   }

@@ -16,6 +16,9 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
+import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_project_screen.dart';
+import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/project_master_screen.dart';
 import 'package:k3h_erp_app/features/menu/presentation/pages/menu_screen.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/presentation/cubit/calendar_cubit.dart';
@@ -425,18 +428,22 @@ final GoRouter goRouter = GoRouter(
                   builder: (context, state) {
                     final employee = state.uri.queryParameters['employee'];
                     final index =
-                        int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
 
                     return AddEmployeeScreen(
-                      employee: employee != null
-                          ? UserModel.fromJson(
-                        jsonDecode(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(employee),
-                          ),
-                        ),
-                      )
-                          : null,
+                      employee:
+                          employee != null
+                              ? UserModel.fromJson(
+                                jsonDecode(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeComponent(employee),
+                                  ),
+                                ),
+                              )
+                              : null,
                       index: index,
                     );
                   },
@@ -459,6 +466,45 @@ final GoRouter goRouter = GoRouter(
                   },
                 ),
               ],
+            ),
+          ],
+        ),
+        // PROJECT MANAGEMENT
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => ProjectMasterCubit()..getProjectList(context: context, pageNumber: 1),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              path: AppRoutes.projectMaster,
+              name: AppRoutes.projectMaster,
+              builder: (context, state) {
+                return ProjectMasterScreen();
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addProjectMaster,
+              name: AppRoutes.addProjectMaster,
+              builder: (context, state) {
+                final queryParameterProject =
+                    state.uri.queryParameters['project'];
+                final ProjectModel? project =
+                    queryParameterProject != null
+                        ? ProjectModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterProject),
+                            ),
+                          ),
+                        )
+                        : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return AddProjectScreen(project: project, index: index);
+              },
             ),
           ],
         ),

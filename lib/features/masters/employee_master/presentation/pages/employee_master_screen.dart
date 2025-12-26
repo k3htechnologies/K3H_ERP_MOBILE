@@ -121,9 +121,9 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
             return ListView.builder(
               padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               controller: _scrollController,
-              itemCount: state.employeeMasterList.length + 1,
+              itemCount: _employeeMasterCubit.state.employeeMasterList.length + 1,
               itemBuilder: (context, index) {
-                if (index == state.employeeMasterList.length) {
+                if (index == _employeeMasterCubit.state.employeeMasterList.length) {
                   return state.employeeMasterList.length <
                           state.totalNumberOfRecord
                       ? Padding(

@@ -27,6 +27,33 @@ class InputValidator {
     ];
   }
 
+  static List<TextInputFormatter> decimal(int decimalPlaces) {
+    return [
+      TextInputFormatter.withFunction((oldValue, newValue) {
+        final text = newValue.text;
+
+        if (text.isEmpty) return newValue;
+
+        final regex = RegExp(r'^\d*\.?\d*$');
+        if (!regex.hasMatch(text)) return oldValue;
+
+        final parts = text.split('.');
+        final beforeDecimal = parts[0];
+        final afterDecimal = parts.length > 1 ? parts[1] : '';
+
+        // Allow up to 9 digits before decimal
+        if (beforeDecimal.length > 9) return oldValue;
+
+        // Allow up to `decimalPlaces` digits after decimal
+        if (text.contains('.') && afterDecimal.length > decimalPlaces) {
+          return oldValue;
+        }
+
+        return newValue;
+      }),
+    ];
+  }
+
   static bool isValidMobileNumber(String mobileNumber) {
     RegExp mobileRegExp = RegExp(r'^[9876]\d{9}$');
     if (mobileNumber == "" || !mobileRegExp.hasMatch(mobileNumber)) {

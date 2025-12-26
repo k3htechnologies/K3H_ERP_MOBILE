@@ -9,8 +9,38 @@ abstract interface class EmployeeMasterRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> getEmployeeDocumentList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> getEmployeeAssetList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> getEmployeeShiftManagementList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> getEmployeeWeekOffMappingList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+
   Future<Either<Failure, Map<String, dynamic>>> addUpdateEmployeeMaster({
     required Map<String, dynamic> requestBody,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateEmployeeDocument({
+    required Map<String, String> requestBody,
+    required List<Map<String, dynamic>> fileList,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> getBankList({
@@ -54,12 +84,103 @@ class EmployeeMasterRepositoryImp implements EmployeeMasterRepository {
   }
 
   @override
+  Future<Either<Failure, Map<String, dynamic>>> getEmployeeDocumentList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await employeeMasterDataSource.apiCallToPullEmployeeDocument(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        query: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getEmployeeAssetList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await employeeMasterDataSource.apiCallToPullEmployeeAsset(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        query: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getEmployeeShiftManagementList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await employeeMasterDataSource
+          .apiCallToPullEmployeeShiftManagementMapping(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            query: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getEmployeeWeekOffMappingList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await employeeMasterDataSource
+          .apiCallToPullEmployeeWeekOffMapping(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            query: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
   Future<Either<Failure, Map<String, dynamic>>> addUpdateEmployeeMaster({
     required Map<String, dynamic> requestBody,
   }) async {
     try {
       var result = await employeeMasterDataSource
           .apiCallToAddUpdateEmployeeMaster(requestBody: requestBody);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateEmployeeDocument({
+    required Map<String, String> requestBody,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      var result = await employeeMasterDataSource
+          .apiCallToAddUpdateEmployeeDocument(
+            requestBody: requestBody,
+            fileList: fileList,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
