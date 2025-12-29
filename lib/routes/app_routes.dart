@@ -22,7 +22,7 @@ class AppRoutes {
   static String addDesignation = "/addDesignation";
   static String projectMaster = "/projectMaster";
   static String addProjectMaster = "/addProjectMaster";
-  static String projectDetails = "projectDetails";
+  static String projectDetails = "/projectDetails";
   static String globalProjectDetails = "/globalProjectDetails";
   static String projectMasterAccess = "/projectMasterAccess";
   static String employeeMaster = "/employeeMaster";

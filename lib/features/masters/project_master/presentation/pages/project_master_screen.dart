@@ -43,6 +43,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.projectMaster]!;
     _projectMasterCubit = BlocProvider.of<ProjectMasterCubit>(context);
+    _projectMasterCubit.getProjectList(context: context, pageNumber: 1);
     _onScroll();
   }
 
@@ -131,17 +132,17 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                       children: [
                         Flexible(
                           child: GestureDetector(
-                            onTap: () async {
-                              // await goRouter.pushNamed(
-                              //   AppRoutes.viewCompanyDetails,
-                              //   queryParameters: {
-                              //     "company": Uri.encodeQueryComponent(
-                              //       EncryptionManager.encryptData(
-                              //         jsonEncode(company),
-                              //       ),
-                              //     ),
-                              //   },
-                              // );
+                            onTap: () {
+                              goRouter.pushNamed(
+                                AppRoutes.projectDetails,
+                                queryParameters: {
+                                  "project": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(project),
+                                    ),
+                                  ),
+                                },
+                              );
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(

@@ -849,6 +849,22 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
+  void onTabChanged(BuildContext context, int index,) {
+    if (index == 1) {
+    }
+    if (index == 2) {
+
+    }
+    if (index == 3) {
+    }
+    if (index == 4) {
+    }
+    if (index == 4) {
+    } else {
+      return;
+    }
+  }
+
   /*// <---- PULL MODULE WORK FLOW LIST ---->
   Future<void> getModuleWorkFlowApprovalList({
     required BuildContext context,

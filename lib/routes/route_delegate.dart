@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/features/masters/designation_master/data/model/desig
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_project_screen.dart';
+import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/project_details_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/project_master_screen.dart';
 import 'package:k3h_erp_app/features/menu/presentation/pages/menu_screen.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart';
@@ -473,7 +474,9 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
-              create: (_) => ProjectMasterCubit()..getProjectList(context: context, pageNumber: 1),
+              create:
+                  (_) =>
+                      ProjectMasterCubit(),
               child: child,
             );
           },
@@ -504,6 +507,25 @@ final GoRouter goRouter = GoRouter(
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
                 return AddProjectScreen(project: project, index: index);
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.projectDetails,
+              name: AppRoutes.projectDetails,
+              builder: (context, state) {
+                final queryParameterProject =
+                    state.uri.queryParameters['project'];
+                final ProjectModel? project =
+                    queryParameterProject != null
+                        ? ProjectModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterProject),
+                            ),
+                          ),
+                        )
+                        : null;
+                return ProjectDetailsScreen(project: project!);
               },
             ),
           ],
