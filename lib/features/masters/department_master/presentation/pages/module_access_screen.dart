@@ -181,6 +181,7 @@ class _ModuleAccessScreenState extends State<ModuleAccessScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
+          height: 70,
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: CustomButton(
             text: 'Update',

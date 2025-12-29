@@ -627,6 +627,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
+          height: 70,
           color: AppColor.white,
           padding: EdgeInsets.all(16),
           child: CustomButton(

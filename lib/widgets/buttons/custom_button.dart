@@ -12,7 +12,6 @@ class CustomButton extends StatelessWidget {
   final EdgeInsets padding;
   final Widget? leading;
   final double elevation;
-  final double height;
   final bool isDisable;
   final VoidCallback? onPressed;
   final Color? borderColor;
@@ -26,10 +25,9 @@ class CustomButton extends StatelessWidget {
     this.backgroundColor = AppColor.primary,
     this.textColor = AppColor.white,
     this.borderRadius = 6,
-    this.padding = const EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
+    this.padding = const EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
     this.leading,
     this.elevation = 5.0,
-    this.height = 44.0,
     this.isDisable = false,
     required this.onPressed,
     this.borderColor,
@@ -149,7 +147,6 @@ class CustomButton extends StatelessWidget {
     backgroundColor: AppColor.info,
     textColor: AppColor.white,
     borderRadius: 10.0,
-    height: 30.0,
     titleTextStyle: AppTextStyle.ts14M(color: AppColor.white),
     elevation: 3.0,
     padding: EdgeInsets.symmetric(horizontal: 10.0),
@@ -173,6 +170,7 @@ class CustomButton extends StatelessWidget {
     onPressed: onPressed,
     text: 'Cancel',
     backgroundColor: Colors.transparent,
+    padding: EdgeInsets.symmetric(horizontal: 12,vertical: 8),
     textColor: AppColor.grey,
     borderColor: AppColor.grey,
     elevation: 0,

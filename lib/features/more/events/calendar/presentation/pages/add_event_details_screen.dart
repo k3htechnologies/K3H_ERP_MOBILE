@@ -442,6 +442,7 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
       bottomNavigationBar: SafeArea(
         child: Container(
           color: AppColor.white,
+          height: 40,
           margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
           child: CustomButton(
             text: "Add",

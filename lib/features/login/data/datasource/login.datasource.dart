@@ -81,19 +81,6 @@ class LoginDatasourceImpl implements LoginDatasource {
 
       final rawData = networkResponse["data"][0] as Map<String, dynamic>;
       
-      // Debug logging
-      print('=== RAW API RESPONSE ===');
-      print('BankName: ${rawData["BankName"]}');
-      print('BankBranchName: ${rawData["BankBranchName"]}');
-      print('IFSCCode: ${rawData["IFSCCode"]}');
-      print('AccountNo: ${rawData["AccountNo"]}');
-      print('EmployeeReportingCycleData: ${rawData["EmployeeReportingCycleData"]}');
-      print('Has EmployeeReportingCycleData: ${rawData.containsKey("EmployeeReportingCycleData")}');
-      print('EmployeeReportingCycleData type: ${rawData["EmployeeReportingCycleData"]?.runtimeType}');
-      print('EmployeeReportingCycleData is null: ${rawData["EmployeeReportingCycleData"] == null}');
-      print('EmployeeReportingCycleData isEmpty: ${(rawData["EmployeeReportingCycleData"] as List?)?.isEmpty ?? "N/A"}');
-      print('=======================');
-      
       return rawData;
     } catch (error) {
       rethrow;

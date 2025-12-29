@@ -1,20 +1,34 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/bank_details.model.dart';
+import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProjectDetailsScreen extends StatefulWidget {
   final ProjectModel project;
+
   const ProjectDetailsScreen({super.key, required this.project});
 
   @override
@@ -31,9 +45,21 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
   int currentIndex = 0;
   late final List<String> projectImages;
 
+  // PAGINATION
+  late ScrollController employeeScrollController;
+  late ScrollController companyScrollController;
+  late ScrollController bankScrollController;
+  Timer? _debounce;
+  Timer? _companyDebounce;
+  Timer? _bankDebounce;
+
+  late ProjectMasterCubit _projectMasterCubit;
+
   @override
   void initState() {
     super.initState();
+
+    _projectMasterCubit = context.read<ProjectMasterCubit>();
 
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(_handleTabChange);
@@ -48,6 +74,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
             .map((e) => e.trim())
             .where((e) => e.isNotEmpty)
             .toList();
+
+    _onScroll();
+    _onCompanyScroll();
+    _onBankScroll();
   }
 
   void _handleTabChange() {
@@ -56,13 +86,95 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
 
     _lastTabIndex = index;
 
-    context.read<ProjectMasterCubit>().onTabChanged(context, index);
+    context.read<ProjectMasterCubit>().onTabChanged(
+      context,
+      index,
+      projectId: widget.project.projectId.toString(),
+    );
+  }
+
+  // <---- PAGINATION ---->
+  void _onScroll() {
+    employeeScrollController = ScrollController();
+    employeeScrollController.addListener(() {
+      final cubit = context.read<ProjectMasterCubit>();
+      const int pageSize = 10;
+      final int totalPages =
+          (cubit.state.employeeByProject.length / pageSize).ceil();
+
+      if (employeeScrollController.position.pixels >=
+              employeeScrollController.position.maxScrollExtent - 100 &&
+          !cubit.state.isLoading! &&
+          cubit.state.currentPageEmployee < totalPages) {
+        // TO HANDLE MULTIPLE TIME API CALLS
+        if (_debounce?.isActive ?? false) _debounce?.cancel();
+        _debounce = Timer(const Duration(milliseconds: 300), () {
+          cubit.loadMoreEmployees();
+        });
+      }
+    });
+  }
+
+  // <---- COMPANY PAGINATION ---->
+  void _onCompanyScroll() {
+    companyScrollController = ScrollController();
+    companyScrollController.addListener(() {
+      final cubit = context.read<ProjectMasterCubit>();
+      const int pageSize = 10;
+      final int totalPages =
+          (cubit.state.companyByProject.length / pageSize).ceil();
+
+      if (companyScrollController.position.pixels >=
+              companyScrollController.position.maxScrollExtent - 100 &&
+          !cubit.state.isLoading! &&
+          cubit.state.currentPageCompany < totalPages) {
+        // TO HANDLE MULTIPLE TIME API CALLS
+        if (_companyDebounce?.isActive ?? false) _companyDebounce?.cancel();
+        _companyDebounce = Timer(const Duration(milliseconds: 300), () {
+          cubit.loadMoreCompanies();
+        });
+      }
+    });
+  }
+
+  // <---- BANK PAGINATION ---->
+  void _onBankScroll() {
+    bankScrollController = ScrollController();
+    bankScrollController.addListener(() {
+      if (!bankScrollController.hasClients) return;
+
+      final cubit = context.read<ProjectMasterCubit>();
+      final bankList = cubit.state.bankByProject;
+      final currentPage = cubit.state.currentPageBank;
+
+      if (bankList.isEmpty) return;
+
+      const int pageSize = 10;
+      final int totalPages = (bankList.length / pageSize).ceil();
+
+      if (bankScrollController.position.pixels >=
+              bankScrollController.position.maxScrollExtent - 100 &&
+          !(cubit.state.isLoading ?? false) &&
+          currentPage < totalPages) {
+        // TO HANDLE MULTIPLE TIME API CALLS
+        if (_bankDebounce?.isActive ?? false) _bankDebounce?.cancel();
+        _bankDebounce = Timer(const Duration(milliseconds: 300), () {
+          cubit.loadMoreBanks();
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
     pageController.dispose();
     _tabController.dispose();
+    employeeScrollController.dispose();
+    companyScrollController.dispose();
+    bankScrollController.dispose();
+    _debounce?.cancel();
+    _companyDebounce?.cancel();
+    _bankDebounce?.cancel();
     super.dispose();
   }
 
@@ -119,8 +231,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 children: [
                   _overviewSection(),
                   _employeeSection(),
-                  Center(child: Text("Bank Details")),
-                  Center(child: Text("Company")),
+                  _bankSection(),
+                  _companySection(),
                 ],
               ),
             ),
@@ -534,35 +646,148 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
 
   // EMPLOYEE
   Widget _employeeSection() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Text("Update Employee Details", style: AppTextStyle.ts16SB()),
-              Spacer(),
-              CustomButton(
-                text: "Add",
-                onPressed: () {},
-                leading: Icon(Icons.add, color: AppColor.white, size: 16),
-                backgroundColor: AppColor.primary,
-                padding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),
+    return BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
+      builder: (context, state) {
+        if ((state.isLoading ?? true) && state.employeeByProject.isEmpty) {
+          return Center(child: loader());
+        }
+        if (state.employeeByProject.isEmpty) {
+          return Center(child: noDataWidget());
+        }
+
+        final paginatedEmployees =
+            _projectMasterCubit.getPaginatedEmployeeList();
+        const int pageSize = 10;
+        final int totalPages =
+            (state.employeeByProject.length / pageSize).ceil();
+        final bool hasMore = state.currentPageEmployee < totalPages;
+
+        return Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(
+                children: [
+                  Text("Update Employee Details", style: AppTextStyle.ts16SB()),
+                  Spacer(),
+                  CustomButton(
+                    text: "Add",
+                    onPressed: () {
+                      _showEmployeeSelectionBottomSheet(context);
+                    },
+                    leading: Icon(Icons.add, color: AppColor.white, size: 16),
+                    backgroundColor: AppColor.primary,
+                    padding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),
+                  ),
+                ],
               ),
-            ],
-          ),
-          verticalSpacing(),
-          BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
-            builder: (context, state) {
-              return ListView.builder(
+            ),
+            Expanded(
+              child: ListView.builder(
+                controller: employeeScrollController,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                itemCount: paginatedEmployees.length + (hasMore ? 1 : 0),
                 itemBuilder: (context, index) {
-                  return Text(state.employeeByProject[index].fullName);
+                  if (index == paginatedEmployees.length) {
+                    return Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  var employee = paginatedEmployees[index];
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 10),
+                    padding: EdgeInsets.all(12),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                employee.fullName,
+                                style: AppTextStyle.ts16SB(),
+                              ),
+                            ),
+                            CustomIconButton.delete(
+                              onPressed: () {
+                                _showDeleteEmployeeDialog(context, employee);
+                              },
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            _buildColumTitleVale(
+                              title: "Employee Code",
+                              value: employee.employeeCode,
+                            ),
+                            _buildColumTitleVale(
+                              title: "Reporting Person",
+                              value: employee.reportPersonName,
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            _buildColumTitleVale(
+                              title: "Designation",
+                              value: employee.designation,
+                            ),
+                            _buildColumTitleVale(
+                              title: "Department",
+                              value: employee.department,
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            _buildColumTitleVale(
+                              title: "E-mail ID",
+                              value: employee.emailId,
+                            ),
+                            _buildColumTitleVale(
+                              title: "Contact Number",
+                              value: employee.personalMobileNumber,
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            _buildColumTitleVale(
+                              title: "Joining Date",
+                              value:
+                                  employee.joiningDate != null
+                                      ? formatDateTimeAsDDMMMYYYY(
+                                        employee.joiningDate!,
+                                      )
+                                      : "-",
+                            ),
+                            _buildColumTitleVale(
+                              title: "Last Login",
+                              value:
+                                  employee.lastLogin != null
+                                      ? formatDateTimeAsDDMMMYYYY(
+                                        employee.lastLogin!,
+                                      )
+                                      : "-",
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
                 },
-              );
-            },
-          ),
-        ],
-      ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -578,5 +803,520 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
         ],
       ),
     );
+  }
+
+  // <---- SHOW EMPLOYEE SELECTION BOTTOM SHEET ---->
+  Future<void> _showEmployeeSelectionBottomSheet(BuildContext context) async {
+    final currentEmployees = _projectMasterCubit.state.employeeByProject;
+    final initialValue =
+        currentEmployees
+            .map(
+              (employee) => {
+                'zAttributesId': employee.employeeId,
+                'DisplayName': employee.fullName,
+              },
+            )
+            .toList();
+
+    final selectedEmployees = await CustomMultipleSelectPopup.showBottomSheet(
+      context: context,
+      title: 'Select Employees',
+      isMultiSelect: true,
+      initialValue: initialValue,
+      dataFetchCallBack: (int pageNumber, {String? value}) async {
+        final employeeList = await _projectMasterCubit.getEmployeeMasterList(
+          pageNumber: pageNumber,
+          pageSize: 10,
+          context: context,
+          queryParams:
+              value != null && value.isNotEmpty
+                  ? {"EmployeeName": value}
+                  : null,
+        );
+
+        return {
+          "itemList":
+              employeeList
+                  .map(
+                    (employee) => {
+                      "zAttributesId": employee.employeeId,
+                      "DisplayName": employee.fullName,
+                    },
+                  )
+                  .toList(),
+          "totalNumberOfRecord":
+              _projectMasterCubit.state.totalNumberOfRecordEmployee,
+        };
+      },
+    );
+
+    if (selectedEmployees != null) {
+      if (selectedEmployees.isEmpty) {
+        showErrorMessage(
+          context,
+          "Error",
+          "At least one employee must be selected",
+        );
+        return;
+      }
+
+      final selectedEmployeeIds =
+          selectedEmployees.map((e) => e['zAttributesId'] as int).toList();
+
+      await _projectMasterCubit.addUpdateProjectWithEmployee(
+        projectId: widget.project.projectId.toString(),
+        uniqueKey: widget.project.uniquekey,
+        selectedEmployeeIds: selectedEmployeeIds,
+        context: context,
+      );
+    }
+  }
+
+  // <---- SHOW DELETE EMPLOYEE DIALOG ---->
+  Future<void> _showDeleteEmployeeDialog(
+    BuildContext context,
+    UserModel employee,
+  ) async {
+    final result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to remove an employee from this project?',
+      'Removing this employee will permanently remove them from the project.',
+    );
+    if (result && context.mounted) {
+      final cubit = context.read<ProjectMasterCubit>();
+      await cubit.deleteProjectWithEmployee(
+        context: context,
+        projectId: widget.project.projectId,
+        uniquekey: widget.project.uniquekey,
+        employeeId: employee.employeeId.toString(),
+      );
+    }
+  }
+
+  // COMPANY
+  Widget _companySection() {
+    return BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
+      builder: (context, state) {
+        if ((state.isLoading ?? true) && state.companyByProject.isEmpty) {
+          return Center(child: loader());
+        }
+        if (state.companyByProject.isEmpty) {
+          return Center(child: noDataWidget());
+        }
+
+        final paginatedCompanies =
+            _projectMasterCubit.getPaginatedCompanyList();
+        const int pageSize = 10;
+        final int totalPages =
+            (state.companyByProject.length / pageSize).ceil();
+        final bool hasMore = state.currentPageCompany < totalPages;
+
+        return Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(
+                children: [
+                  Text("Update Company Details", style: AppTextStyle.ts16SB()),
+                  Spacer(),
+                  CustomButton(
+                    text: "Add",
+                    onPressed: () {
+                      _showCompanySelectionBottomSheet(context);
+                    },
+                    leading: Icon(Icons.add, color: AppColor.white, size: 16),
+                    backgroundColor: AppColor.primary,
+                    padding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                controller: companyScrollController,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                itemCount: paginatedCompanies.length + (hasMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == paginatedCompanies.length) {
+                    return Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  var company = paginatedCompanies[index];
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 10),
+                    padding: EdgeInsets.all(12),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                company.companyName,
+                                style: AppTextStyle.ts16SB(),
+                              ),
+                            ),
+                            CustomIconButton.delete(
+                              onPressed: () {
+                                _showDeleteCompanyDialog(context, company);
+                              },
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildColumTitleVale(
+                              title: "Company Type",
+                              value: company.companyType,
+                            ),
+                            _buildColumTitleVale(
+                              title: "Contact Person",
+                              value: company.contactPerson,
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildColumTitleVale(
+                              title: "Contact Number",
+                              value: company.mobileNumber,
+                            ),
+                            _buildColumTitleVale(
+                              title: "City",
+                              value: company.cityName,
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          children: [
+                            _buildColumTitleVale(
+                              title: "GST Number",
+                              value:
+                                  company.gstNumber.isNotEmpty
+                                      ? company.gstNumber
+                                      : "-",
+                            ),
+                            _buildColumTitleVale(
+                              title: "PAN Number",
+                              value:
+                                  company.panNumber.isNotEmpty
+                                      ? company.panNumber
+                                      : "-",
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // BANK
+  Widget _bankSection() {
+    return BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
+      builder: (context, state) {
+        final bankList = state.bankByProject;
+        final currentPage = state.currentPageBank;
+
+        if ((state.isLoading ?? true) && bankList.isEmpty) {
+          return Center(child: loader());
+        }
+        if (bankList.isEmpty) {
+          return Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  children: [
+                    Text("Update Bank Details", style: AppTextStyle.ts16SB()),
+                    Spacer(),
+                    CustomButton(
+                      onPressed: () {
+                        _navigateToAddBankDetails(context);
+                      },
+                      text: "Add",
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      backgroundColor: AppColor.primary,
+                      leading: Icon(Icons.add, color: AppColor.white, size: 16),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(child: Center(child: noDataWidget())),
+            ],
+          );
+        }
+
+        final paginatedBanks = _projectMasterCubit.getPaginatedBankList();
+        const int pageSize = 10;
+        final int totalPages = (bankList.length / pageSize).ceil();
+        final bool hasMore = currentPage < totalPages;
+
+        return Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(
+                children: [
+                  Text("Update Bank Details", style: AppTextStyle.ts16SB()),
+                  Spacer(),
+                  CustomButton(
+                    onPressed: () {
+                      _navigateToAddBankDetails(context);
+                    },
+                    text: "Add",
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    backgroundColor: AppColor.primary,
+                    leading: Icon(Icons.add, color: AppColor.white, size: 16),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                controller: bankScrollController,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                itemCount: paginatedBanks.length + (hasMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == paginatedBanks.length) {
+                    return Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  var bank = paginatedBanks[index];
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 10),
+                    padding: EdgeInsets.all(12),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                bank.bankName,
+                                style: AppTextStyle.ts16SB(),
+                              ),
+                            ),
+                            horizontalSpacing(),
+                            Row(
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () {
+                                    _navigateToEditBankDetails(context, bank);
+                                  },
+                                ),
+                                horizontalSpacing(),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showDeleteBankDialog(context, bank);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildColumTitleVale(
+                              title: "Account Holder Name",
+                              value: bank.beneficiaryAccountHolderName,
+                            ),
+                            _buildColumTitleVale(
+                              title: "Account Number",
+                              value: bank.accountNumber,
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildColumTitleVale(
+                              title: "IFSC Code",
+                              value: bank.ifscCode,
+                            ),
+                            _buildColumTitleVale(
+                              title: "Branch",
+                              value: bank.branch,
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildColumTitleVale(
+                              title: "Account Type",
+                              value: bank.acType,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // <---- SHOW COMPANY SELECTION BOTTOM SHEET ---->
+  Future<void> _showCompanySelectionBottomSheet(BuildContext context) async {
+    final currentCompanies = _projectMasterCubit.state.companyByProject;
+    final initialValue =
+        currentCompanies
+            .map(
+              (company) => {
+                'zAttributesId': company.companyId,
+                'DisplayName': company.companyName,
+              },
+            )
+            .toList();
+
+    final selectedCompanies = await CustomMultipleSelectPopup.showBottomSheet(
+      context: context,
+      title: 'Select Companies',
+      isMultiSelect: false,
+      initialValue: initialValue,
+      dataFetchCallBack: (int pageNumber, {String? value}) async {
+        final companyList = await _projectMasterCubit.getCompanies(
+          pageNumber: pageNumber,
+          pageSize: 10,
+          context: context,
+          queryParams:
+              value != null && value.isNotEmpty ? {"CompanyName": value} : null,
+        );
+
+        return {
+          "itemList":
+              companyList
+                  .map(
+                    (company) => {
+                      "zAttributesId": company.companyId,
+                      "DisplayName": company.companyName,
+                    },
+                  )
+                  .toList(),
+          "totalNumberOfRecord":
+              _projectMasterCubit.state.totalNumberOfRecordCompany,
+        };
+      },
+    );
+
+    if (selectedCompanies != null && selectedCompanies.isNotEmpty) {
+      final selectedCompanyIds =
+          selectedCompanies.map((e) => e['zAttributesId'] as int).toList();
+
+      await _projectMasterCubit.addUpdateProjectWithCompany(
+        projectId: widget.project.projectId.toString(),
+        uniqueKey: widget.project.uniquekey,
+        selectedCompanyIds: selectedCompanyIds,
+        context: context,
+        onSuccess: () {},
+      );
+    }
+  }
+
+  // <---- SHOW DELETE COMPANY DIALOG ---->
+  Future<void> _showDeleteCompanyDialog(
+    BuildContext context,
+    CompanyModel company,
+  ) async {
+    final result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to remove a company from this project?',
+      'Removing this company will permanently remove them from the project.',
+    );
+    if (result && context.mounted) {
+      final remainingCompanies =
+          _projectMasterCubit.state.companyByProject
+              .where((c) => c.companyId != company.companyId)
+              .map((c) => c.companyId)
+              .toList();
+
+      await _projectMasterCubit.addUpdateProjectWithCompany(
+        projectId: widget.project.projectId.toString(),
+        uniqueKey: widget.project.uniquekey,
+        selectedCompanyIds: remainingCompanies,
+        context: context,
+        onSuccess: () {},
+      );
+    }
+  }
+
+  // <---- NAVIGATE TO ADD BANK DETAILS SCREEN ---->
+  void _navigateToAddBankDetails(BuildContext context) {
+    final projectJson = jsonEncode(widget.project.toJson());
+    final encryptedProject = EncryptionManager.encryptData(projectJson);
+
+    context.pushNamed(
+      AppRoutes.addBankDetails,
+      queryParameters: {'project': Uri.encodeComponent(encryptedProject)},
+    );
+  }
+
+  // <---- NAVIGATE TO EDIT BANK DETAILS SCREEN ---->
+  void _navigateToEditBankDetails(BuildContext context, BankDetailsModel bank) {
+    final projectJson = jsonEncode(widget.project.toJson());
+    final encryptedProject = EncryptionManager.encryptData(projectJson);
+
+    final bankJson = jsonEncode(bank.toJson());
+    final encryptedBank = EncryptionManager.encryptData(bankJson);
+
+    context.pushNamed(
+      AppRoutes.addBankDetails,
+      queryParameters: {
+        'project': Uri.encodeComponent(encryptedProject),
+        'bank': Uri.encodeComponent(encryptedBank),
+      },
+    );
+  }
+
+  // <---- SHOW DELETE BANK DIALOG ---->
+  Future<void> _showDeleteBankDialog(
+    BuildContext context,
+    BankDetailsModel bank,
+  ) async {
+    final result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to remove a bank from this project?',
+      'Removing this bank will permanently remove it from the project.',
+    );
+    if (result && context.mounted) {
+      final cubit = context.read<ProjectMasterCubit>();
+      await cubit.deleteProjectWithBankDetails(
+        context: context,
+        projectWithBankDetailsId: bank.projectWithBankDetailsId,
+        uniqueKey: bank.uniquekey,
+        projectId: bank.projectId,
+      );
+    }
   }
 }

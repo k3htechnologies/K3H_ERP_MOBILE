@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/cubit/company_master_add/company_master_add_cubit.dart';
@@ -10,7 +9,6 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -361,18 +359,19 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
+          height: 77,
           padding: EdgeInsets.all(16),
           child: Row(
             spacing: 12,
             children: [
-              Expanded(
+              Flexible(
                 child: CustomButton(
                   text: widget.company == null ? 'Save' : 'Update',
                   onPressed: _handleSubmit,
                   backgroundColor: AppColor.primary,
                 ),
               ),
-              Expanded(
+              Flexible(
                 child: CustomButton(
                   text: 'Add Company Partner',
                   onPressed: () async {
@@ -880,7 +879,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
               ),
               Row(
                 children: [
-                  CustomIconButton(
+                  CustomIconButton.edit(
                     onPressed: () {
                       goRouter.pushNamed(
                         AppRoutes.addCompanyPartner,
@@ -891,11 +890,9 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                         },
                       );
                     },
-                    icon: const Icon(Icons.edit, size: 16),
-                    backgroundColor: AppColor.lightGrey,
                   ),
                   horizontalSpacing(width: 8),
-                  CustomIconButton(
+                  CustomIconButton.delete(
                     onPressed: () {
                       if (index != null) {
                         _companyMasterAddCubit.deleteCompanyPartnerData(
@@ -904,15 +901,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                         );
                       }
                     },
-                    icon: SvgPicture.asset(
-                      AppAssets.deleteIcon2,
-                      height: 16,
-                      colorFilter: ColorFilter.mode(
-                        AppColor.red,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                    backgroundColor: AppColor.lightRed,
                   ),
                 ],
               ),

@@ -137,25 +137,14 @@ class LoginCubit extends Cubit<LoginState> {
 
       result.fold(
         (failure) {
-          print('=== FAILED TO FETCH COMPLETE EMPLOYEE DATA ===');
-          print('Error: ${failure.message}');
-          print('Storing login user data as fallback');
           // Fallback to login user data if fetch fails
           localStorage.setString(StorageKey.currentUser, jsonEncode(loginUser));
         },
         (response) {
           final employeeList = response['data'] as List<UserModel>;
           if (employeeList.isNotEmpty) {
-            // Found complete employee data, merge with login data and store
             final completeEmployee = employeeList.first;
-            print('=== FOUND COMPLETE EMPLOYEE DATA ===');
-            print('BankName: ${completeEmployee.bankName}');
-            print('BankBranchName: ${completeEmployee.bankBranchName}');
-            print('IFSCCode: ${completeEmployee.ifscCode}');
-            print('AccountNo: ${completeEmployee.accountNo}');
-            print('EmployeeReportingCycleData length: ${completeEmployee.employeeReportingCycleData.length}');
             
-            // Merge login data (token, moduleData, projectData) with complete employee data
             final mergedUserData = {
               ...completeEmployee.toJson(),
               "Token": loginUser.token, // Preserve token from login
@@ -164,20 +153,12 @@ class LoginCubit extends Cubit<LoginState> {
             };
             
             localStorage.setString(StorageKey.currentUser, jsonEncode(mergedUserData));
-            print('=== STORED COMPLETE EMPLOYEE DATA ===');
           } else {
-            print('=== NO EMPLOYEE DATA FOUND ===');
-            print('Storing login user data as fallback');
-            // Fallback to login user data
             localStorage.setString(StorageKey.currentUser, jsonEncode(loginUser));
           }
         },
       );
     } catch (e) {
-      print('=== EXCEPTION FETCHING COMPLETE EMPLOYEE DATA ===');
-      print('Error: $e');
-      print('Storing login user data as fallback');
-      // Fallback to login user data on exception
       localStorage.setString(StorageKey.currentUser, jsonEncode(loginUser));
     }
   }

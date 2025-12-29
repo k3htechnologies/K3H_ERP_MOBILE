@@ -920,6 +920,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
+          height: 80,
           padding: EdgeInsets.all(16),
           child: CustomButton(
             text: widget.employee == null ? 'Save' : 'Update',

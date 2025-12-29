@@ -173,7 +173,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                         Row(
                           spacing: 10,
                           children: [
-                            CustomIconButton(
+                            CustomIconButton.edit(
                               onPressed: () async {
                                 await goRouter.pushNamed(
                                   AppRoutes.addProjectMaster,
@@ -193,12 +193,6 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                                   );
                                 }
                               },
-                              icon: Icon(
-                                Icons.edit,
-                                size: 16,
-                                color: AppColor.grey,
-                              ),
-                              backgroundColor: AppColor.lightGrey,
                             ),
                             CustomIconButton(
                               onPressed: () {},

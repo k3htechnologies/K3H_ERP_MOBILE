@@ -13,8 +13,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class DialogHelper{
-
+class DialogHelper {
   // <----PROCESSING DIALOG ---->
   static void showProcessingOverlay(BuildContext context) {
     showGeneralDialog(
@@ -40,9 +39,7 @@ class DialogHelper{
           child: Stack(
             children: [
               child,
-              const Center(
-                child: CircularProgressIndicator(strokeWidth: 3),
-              ),
+              const Center(child: CircularProgressIndicator(strokeWidth: 3)),
             ],
           ),
         );
@@ -60,7 +57,7 @@ class DialogHelper{
     );
   }
 
-// ERROR
+  // ERROR
   static void showErrorMessage({
     required BuildContext context,
     required String title,
@@ -137,10 +134,10 @@ class DialogHelper{
 
   // <---- DELETE DIALOG ---->
   static Future<bool> deleteDialog(
-      BuildContext context,
-      String title,
-      String subTitle,
-      ) async {
+    BuildContext context,
+    String title,
+    String subTitle,
+  ) async {
     return await showDialog(
       context: context,
       barrierDismissible: false,
@@ -192,6 +189,10 @@ class DialogHelper{
                           textColor: AppColor.white,
                           onPressed: () => goRouter.pop(true),
                           text: "Confirm",
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 9,
+                          ),
                         ),
                       ),
                     ],
@@ -207,56 +208,53 @@ class DialogHelper{
 
   // BOTTOM SHEET
   static Future showCustomBottomSheet(
-      BuildContext context,
-      String title,
-      Widget contentWidget,
-      ) async {
+    BuildContext context,
+    String title,
+    Widget contentWidget,
+  ) async {
     return await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder:
           (BuildContext context) => Container(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        width: getActualWidth(context),
-        height: getActualHeight(context) * 0.50,
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20.0),
-            topRight: Radius.circular(20.0),
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            width: getActualWidth(context),
+            height: getActualHeight(context) * 0.50,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20.0),
+                topRight: Radius.circular(20.0),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  margin: EdgeInsets.symmetric(vertical: 6),
+                  height: 5,
+                  width: 60,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: AppColor.grey,
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text(title, style: AppTextStyle.ts16SB()),
+                  ),
+                ),
+                Divider(color: AppColor.grey, thickness: .3),
+                Expanded(child: contentWidget),
+                verticalSpacing(height: 10.0),
+              ],
+            ),
           ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              alignment: Alignment.center,
-              margin: EdgeInsets.symmetric(vertical: 6),
-              height: 5,
-              width: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: AppColor.grey,
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.only(top: 10),
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(title, style: AppTextStyle.ts16SB()),
-              ),
-            ),
-            Divider(color: AppColor.grey,thickness: .3,),
-            Expanded(
-              child: contentWidget,
-            ),
-            verticalSpacing(height: 10.0),
-          ],
-        ),
-      ),
     );
   }
-
 }

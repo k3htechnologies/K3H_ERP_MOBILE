@@ -161,6 +161,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
       bottomNavigationBar: SafeArea(
         child: Container(
           color: AppColor.white,
+          height: 80,
           padding: EdgeInsets.all(16),
           child: CustomButton(
             leading:

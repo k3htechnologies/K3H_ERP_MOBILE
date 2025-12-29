@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
-import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -576,24 +576,430 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildPlaceholderTab(String title) {
+  Widget _buildAssetTab() {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        if (state.isLoading == true && state.assetMappingList.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (state.assetMappingList.isEmpty) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: Text(
-          "$title\n\nComing soon...",
-          textAlign: TextAlign.center,
-          style: AppTextStyle.ts16M(color: AppColor.grey),
-        ),
-      ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    AppAssets.noDataImage,
+                    width: 150.0,
+                    height: 150.0,
+                  ),
+                  verticalSpacing(),
+                  Text(
+                    "No Data Available!",
+                    style: AppTextStyle.ts14B(),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return SingleChildScrollView(
+          child: ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            itemCount: state.assetMappingList.length,
+            itemBuilder: (context, index) {
+              final asset = state.assetMappingList[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(asset.assetName, style: AppTextStyle.ts14SB()),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem("Asset Code", asset.assetCode),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: _buildInfoItem("Asset Brand", asset.assetBrand),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem("Asset Model", asset.assetModel),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: _buildInfoItem("Asset Type", asset.assetType),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem("Serial Number", asset.serialNumber),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: _buildInfoItem("Status", asset.status),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Text("Purchase Details", style: AppTextStyle.ts14SB()),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Purchase Date",
+                            formatDateTimeAsDDMMMYYYY(asset.purchaseDate),
+                          ),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Asset Cost",
+                            asset.assetCost.toString(),
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Warranty Expiry Date",
+                            formatDateTimeAsDDMMMYYYY(asset.warrantyExpiryDate),
+                          ),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: _buildInfoItem("Supplier Name", asset.supplierName),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildShiftPolicyTab() {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        if (state.isLoading == true && state.shiftManagementList.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (state.shiftManagementList.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    AppAssets.noDataImage,
+                    width: 150.0,
+                    height: 150.0,
+                  ),
+                  verticalSpacing(),
+                  Text(
+                    "No Data Available!",
+                    style: AppTextStyle.ts14B(),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return SingleChildScrollView(
+          child: ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            itemCount: state.shiftManagementList.length,
+            itemBuilder: (context, index) {
+              final shiftManagement = state.shiftManagementList[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Shift Policy Details",
+                      style: AppTextStyle.ts14SB(),
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Employee Name",
+                            shiftManagement.employeeName,
+                          ),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Department Name",
+                            shiftManagement.departmentName,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Shift Type",
+                            shiftManagement.shiftName,
+                          ),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Shift Code",
+                            shiftManagement.shiftCode,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Shift Begin Time",
+                            shiftManagement.shiftBeginTime,
+                          ),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Shift End Time",
+                            shiftManagement.shiftEndTime,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Shift Duration Time",
+                            shiftManagement.shiftDurationTime,
+                          ),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Shift Work Duration",
+                            shiftManagement.shiftWorkDurationTime,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    _buildInfoItem("Remark", shiftManagement.remarks),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildWeekOffPolicyTab() {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        if (state.isLoading == true && state.weekOffMappingList.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (state.weekOffMappingList.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    AppAssets.noDataImage,
+                    width: 150.0,
+                    height: 150.0,
+                  ),
+                  verticalSpacing(),
+                  Text(
+                    "No Data Available!",
+                    style: AppTextStyle.ts14B(),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return SingleChildScrollView(
+          child: ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            itemCount: state.weekOffMappingList.length,
+            itemBuilder: (context, index) {
+              final weekOffMapping = state.weekOffMappingList[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Week Off Policy", style: AppTextStyle.ts14SB()),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Employee Name",
+                            weekOffMapping.employeeName,
+                          ),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Department Name",
+                            weekOffMapping.departmentName,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Week Off Policy Name",
+                            weekOffMapping.weekOffPolicyName,
+                          ),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Week Off Policy Code",
+                            weekOffMapping.weekOffPolicyCode,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Week Days",
+                            weekOffMapping.weekDays.toString(),
+                          ),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Week Days Starts On",
+                            weekOffMapping.weekDaysStartsOn,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Week Off",
+                            weekOffMapping.weeklyOff,
+                          ),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Week Off 2",
+                            weekOffMapping.weeklyOff2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Not Applicable Months",
+                            weekOffMapping.notApplicableForMonths,
+                          ),
+                        ),
+                        horizontalSpacing(width: 16),
+                        Expanded(
+                          child: _buildInfoItem(
+                            "Week Off 2 Type",
+                            weekOffMapping.weeklyOff2Type,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ProfileCubit(),
-      child: BlocBuilder<ProfileCubit, ProfileState>(
+    return BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
           if (state.user == null) {
             return Scaffold(
@@ -659,14 +1065,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                       controller: _tabController,
                       children: [
                         _buildOverviewTab(state.user!),
-                        _buildPlaceholderTab('Document'),
-                        _buildPlaceholderTab('Assets'),
+                        _buildDocumentTab(),
+                        _buildAssetTab(),
                         _buildProjectTab(
                           state.projectList,
                           state.isLoadingProjects,
                         ),
-                        _buildPlaceholderTab('Shift Policy'),
-                        _buildPlaceholderTab('Week Off Policy'),
+                        _buildShiftPolicyTab(),
+                        _buildWeekOffPolicyTab(),
                       ],
                     ),
                   ),
@@ -675,7 +1081,81 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           );
         },
-      ),
     );
   }
+
+  Widget _buildDocumentTab() {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) {
+        if (state.isLoading == true && state.employeeDocumentList.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (state.employeeDocumentList.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Text(
+                "No documents found",
+                style: AppTextStyle.ts16M(color: AppColor.grey),
+              ),
+            ),
+          );
+        }
+
+        return SingleChildScrollView(
+          child: ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            itemCount: state.employeeDocumentList.length,
+            itemBuilder: (context, index) {
+              final doc = state.employeeDocumentList[index];
+
+              final hasDocument = doc.documentUrl.isNotEmpty;
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Row(
+                  children: [
+                    Text(doc.documentName, style: AppTextStyle.ts14SB()),
+                    const Spacer(),
+                    CustomIconButton(
+                      onPressed: () {
+                        if (!hasDocument) {
+                          CustomSnackBar.showTopSnackBar(
+                            context,
+                            title: "Document not available",
+                            subtitle: "${doc.documentName} is not available",
+                            isError: true,
+                          );
+                        }else{
+                          showFilePreviewDialog(context, doc.documentUrl.split(","));
+                        }
+                      },
+                      icon: Icon(
+                        Icons.remove_red_eye,
+                        size: 16,
+                        color: hasDocument ? AppColor.primary : AppColor.grey,
+                      ),
+                      backgroundColor:
+                          hasDocument ? AppColor.lightBlue : AppColor.lightGrey,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          );
+        },
+    );
+  }
+
 }

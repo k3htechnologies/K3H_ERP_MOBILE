@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -12,7 +11,6 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
@@ -205,7 +203,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                         Row(
                           spacing: 10,
                           children: [
-                            CustomIconButton(
+                            CustomIconButton.edit(
                               onPressed: () async {
                                 await goRouter.pushNamed(
                                   AppRoutes.addCompany,
@@ -225,14 +223,8 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                                   );
                                 }
                               },
-                              icon: Icon(
-                                Icons.edit,
-                                size: 16,
-                                color: AppColor.grey,
-                              ),
-                              backgroundColor: AppColor.lightGrey,
                             ),
-                            CustomIconButton(
+                            CustomIconButton.delete(
                               onPressed: () {
                                 _showPopUpToDeleteVendor(
                                   context,
@@ -240,15 +232,6 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                                   index,
                                 );
                               },
-                              icon: SvgPicture.asset(
-                                AppAssets.deleteIcon2,
-                                height: 16,
-                                colorFilter: ColorFilter.mode(
-                                  AppColor.error,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                              backgroundColor: AppColor.lightRed,
                             ),
                           ],
                         ),

@@ -387,6 +387,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
+          height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
             text: widget.vendor == null ? 'Add Vendor' : 'Update Vendor',

@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:k3h_erp_app/core/models/bank_details.model.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
@@ -17,6 +18,7 @@ import 'package:k3h_erp_app/features/masters/department_master/presentation/page
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_bank_details_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_project_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/project_details_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/project_master_screen.dart';
@@ -52,6 +54,8 @@ import 'package:k3h_erp_app/features/masters/department_master/presentation/page
 import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/department_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/cubit/designation_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/designation_screen.dart';
+import 'package:k3h_erp_app/features/masters/bank_list_master/presentation/cubit/bank_list_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/bank_list_master/presentation/pages/bank_list_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/employee_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/add_employee_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_screen.dart';
@@ -343,6 +347,17 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
+        // BANK LIST MASTER
+        GoRoute(
+          name: AppRoutes.bankListMaster,
+          path: AppRoutes.bankListMaster,
+          builder: (context, state) {
+            return BlocProvider(
+              create: (context) => BankListMasterCubit(),
+              child: BankListScreen(),
+            );
+          },
+        ),
         // DESIGNATION MASTER
         GoRoute(
           name: AppRoutes.designationMaster,
@@ -527,6 +542,42 @@ final GoRouter goRouter = GoRouter(
                         : null;
                 return ProjectDetailsScreen(project: project!);
               },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.addBankDetails,
+                  path: AppRoutes.addBankDetails,
+                  builder: (context, state) {
+                    final queryParameterProject =
+                        state.uri.queryParameters['project'];
+                    final ProjectModel? project =
+                        queryParameterProject != null
+                            ? ProjectModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterProject),
+                                ),
+                              ),
+                            )
+                            : null;
+                    final queryParameterBank =
+                        state.uri.queryParameters['bank'];
+                    final BankDetailsModel? bankDetailsModel =
+                        queryParameterBank != null
+                            ? BankDetailsModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterBank),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return AddBankDetailsScreen(
+                      bankDetailsModel: bankDetailsModel,
+                      project: project!,
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),

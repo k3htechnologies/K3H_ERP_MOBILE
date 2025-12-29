@@ -7,7 +7,13 @@ import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/asset_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_document.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/shift_management_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/week_off_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 
@@ -20,6 +26,8 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   final ProjectMasterRepository _projectMasterRepository =
       serviceLocator<ProjectMasterRepository>();
+  final EmployeeMasterRepository _employeeMasterRepository =
+      serviceLocator<EmployeeMasterRepository>();
 
   void _loadUserData() {
     final user = _getUser();
@@ -102,13 +110,184 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   void onTabChanged(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndex: index));
-    if (index == 3 && state.user != null) {
-      // Project tab is selected (index 3)
-      // Only fetch if we want to refresh, otherwise use existing projectList
+    if (state.user == null) return;
+
+    final employeeId = state.user!.employeeId;
+
+    if (index == 1) {
+      // Document tab
+      getEmployeeDocumentList(context, 1, 100, employeeId);
+    } else if (index == 2) {
+      // Assets tab
+      getEmployeeAssetList(context, 1, 100, employeeId);
+    } else if (index == 3) {
+      // Project tab
       if (state.projectList.isEmpty && state.user!.projectData.isNotEmpty) {
         fetchProjects(context);
       }
+    } else if (index == 4) {
+      // Shift Policy tab
+      getShiftManagementList(context, 1, 100, employeeId);
+    } else if (index == 5) {
+      // Week Off Policy tab
+      getWeekOffMappingList(context, 1, 100, employeeId);
     }
+  }
+
+  // <---- GET EMPLOYEE DOCUMENT LIST ---->
+  Future getEmployeeDocumentList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await _employeeMasterRepository.getEmployeeDocumentList(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      queryParams: {"EmployeeId": employeeId},
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final dataList = response['data'] as List<EmployeeDocumentModel>;
+
+        print("hahaha==> $dataList");
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            employeeDocumentList: dataList,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET EMPLOYEE ASSET LIST ---->
+  Future getEmployeeAssetList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await _employeeMasterRepository.getEmployeeAssetList(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      queryParams: {"EmployeeId": employeeId},
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final dataList = response['data'] as List;
+        List<AssetMappingModel> newList =
+            pageNumber == 1
+                ? List<AssetMappingModel>.from(dataList)
+                : [
+                    ...state.assetMappingList,
+                    ...List<AssetMappingModel>.from(dataList)
+                  ];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            assetMappingList: newList,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET EMPLOYEE SHIFT MANAGEMENT LIST ---->
+  Future getShiftManagementList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await _employeeMasterRepository
+        .getEmployeeShiftManagementList(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: {"EmployeeId": employeeId},
+        );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final dataList = response['data'] as List;
+        List<ShiftManagementMappingModel> newList =
+            pageNumber == 1
+                ? List<ShiftManagementMappingModel>.from(dataList)
+                : [
+                    ...state.shiftManagementList,
+                    ...List<ShiftManagementMappingModel>.from(dataList)
+                  ];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            shiftManagementList: newList,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET EMPLOYEE WEEK OFF MAPPING LIST ---->
+  Future getWeekOffMappingList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await _employeeMasterRepository.getEmployeeWeekOffMappingList(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      queryParams: {"EmployeeId": employeeId},
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final dataList = response['data'] as List;
+        List<WeekOffMappingModel> newList =
+            pageNumber == 1
+                ? List<WeekOffMappingModel>.from(dataList)
+                : [
+                    ...state.weekOffMappingList,
+                    ...List<WeekOffMappingModel>.from(dataList)
+                  ];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            weekOffMappingList: newList,
+          ),
+        );
+      },
+    );
   }
 }
 

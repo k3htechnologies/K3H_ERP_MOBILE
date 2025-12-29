@@ -20,11 +20,13 @@ class AppRoutes {
   static String viewCompanyPartner = "/viewCompanyPartner";
   static String designationMaster = "/designationMaster";
   static String addDesignation = "/addDesignation";
+  static String bankListMaster = "/bankListMaster";
   static String projectMaster = "/projectMaster";
   static String addProjectMaster = "/addProjectMaster";
   static String projectDetails = "/projectDetails";
   static String globalProjectDetails = "/globalProjectDetails";
   static String projectMasterAccess = "/projectMasterAccess";
+  static String addBankDetails = "/addBankDetails";
   static String employeeMaster = "/employeeMaster";
   static String addUpdateEmployee = "/addUpdateEmployee";
   static String employeeViewDetails = "/employeeViewDetails";

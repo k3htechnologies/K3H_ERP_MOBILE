@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 
 class CustomIconButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -14,6 +16,41 @@ class CustomIconButton extends StatelessWidget {
     this.backgroundColor = AppColor.lightBlue,
     this.size = 16,
   });
+
+  // === Named Constructor for Edit Icon Button ===
+  CustomIconButton.edit({
+    Key? key,
+    required VoidCallback onPressed,
+  }) : this(
+          key: key,
+          onPressed: onPressed,
+          icon: const Icon(
+            Icons.edit,
+            size: 16,
+            color: AppColor.grey,
+          ),
+          backgroundColor: AppColor.lightGrey,
+          size: 16,
+        );
+
+  // === Named Constructor for Delete Icon Button ===
+  CustomIconButton.delete({
+    Key? key,
+    required VoidCallback onPressed,
+  }) : this(
+          key: key,
+          onPressed: onPressed,
+          icon: SvgPicture.asset(
+            AppAssets.deleteIcon2,
+            height: 16,
+            colorFilter: const ColorFilter.mode(
+              AppColor.error,
+              BlendMode.srcIn,
+            ),
+          ),
+          backgroundColor: AppColor.lightRed,
+          size: 16,
+        );
 
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,5 @@
+import 'package:k3h_erp_app/utils/common_function.dart';
+
 class BankDetailsModel {
   int projectWithBankDetailsId;
   String uniquekey;
@@ -39,22 +41,24 @@ class BankDetailsModel {
 
   factory BankDetailsModel.fromJson(Map<String, dynamic> json) =>
       BankDetailsModel(
-        projectWithBankDetailsId: json["ProjectWithBankDetailsId"],
-        uniquekey: json["Uniquekey"],
-        projectId: json["ProjectId"],
-        projectName: json["ProjectName"],
-        beneficiaryAccountHolderName: json["BeneficiaryAccountHolderName"],
-        bankListMasterId: json["BankListMasterId"],
-        bankName: json["BankName"],
-        accountNumber: json["AccountNumber"],
-        branch: json["Branch"],
-        ifscCode: json["IFSCCode"],
-        acType: json["AcType"],
-        createdById: json["CreatedById"],
-        createdBy: json["CreatedBy"],
-        createdDate: DateTime.parse(json["CreatedDate"]),
-        modifiedById: json["ModifiedById"],
-        modifiedBy: json["ModifiedBy"],
+        projectWithBankDetailsId: parseValue<int>(json, "ProjectWithBankDetailsId"),
+        uniquekey: parseValue<String>(json, "Uniquekey"),
+        projectId: parseValue<int>(json, "ProjectId"),
+        projectName: parseValue<String>(json, "ProjectName"),
+        beneficiaryAccountHolderName: parseValue<String>(json, "BeneficiaryAccountHolderName"),
+        bankListMasterId: parseValue<int>(json, "BankListMasterId"),
+        bankName: parseValue<String>(json, "BankName"),
+        accountNumber: parseValue<String>(json, "AccountNumber"),
+        branch: parseValue<String>(json, "Branch"),
+        ifscCode: parseValue<String>(json, "IFSCCode"),
+        acType: parseValue<String>(json, "AcType"),
+        createdById: parseValue<int>(json, "CreatedById"),
+        createdBy: parseValue<String>(json, "CreatedBy"),
+        createdDate: json["CreatedDate"] != null
+            ? DateTime.parse(json["CreatedDate"])
+            : DateTime.now(),
+        modifiedById: parseValue<int>(json, "ModifiedById"),
+        modifiedBy: parseValue<String>(json, "ModifiedBy"),
         modifiedDate: json["ModifiedDate"],
       );
 

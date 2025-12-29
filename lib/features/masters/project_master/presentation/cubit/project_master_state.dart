@@ -17,6 +17,7 @@ class ProjectMasterState extends BaseState {
   final int currentPage;
   final int currentPageEmployee;
   final int currentPageCompany;
+  final int currentPageBank;
   final int pageSize;
   final String searchText;
   final bool isAllSelected;
@@ -34,6 +35,7 @@ class ProjectMasterState extends BaseState {
     required this.currentPage,
     required this.currentPageEmployee,
     required this.currentPageCompany,
+    required this.currentPageBank,
     required this.pageSize,
     required this.searchText,
     this.isAllSelected = false,
@@ -53,6 +55,7 @@ class ProjectMasterState extends BaseState {
     currentPage: 1,
     currentPageEmployee: 1,
     currentPageCompany: 1,
+    currentPageBank: 1,
     pageSize: 20,
     searchText: "",
     isLoading: true,
@@ -75,6 +78,7 @@ class ProjectMasterState extends BaseState {
     int? currentPage,
     int? currentPageEmployee,
     int? currentPageCompany,
+    int? currentPageBank,
     int? pageSize,
     String? searchText,
   }) {
@@ -97,6 +101,7 @@ class ProjectMasterState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       currentPageEmployee: currentPageEmployee ?? this.currentPageEmployee,
       currentPageCompany: currentPageCompany ?? this.currentPageCompany,
+      currentPageBank: currentPageBank ?? this.currentPageBank,
       pageSize: pageSize ?? this.pageSize,
       searchText: searchText ?? this.searchText,
       isLoading: isLoading ?? this.isLoading,
@@ -120,6 +125,7 @@ class ProjectMasterState extends BaseState {
     currentPage,
     currentPageEmployee,
     currentPageCompany,
+    currentPageBank,
     pageSize,
     searchText,
   ];

@@ -192,7 +192,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                           Row(
                             spacing: 10,
                             children: [
-                              CustomIconButton(
+                              CustomIconButton.edit(
                                 onPressed: () async {
                                   await goRouter.pushNamed(
                                     AppRoutes.addUpdateEmployee,
@@ -205,7 +205,6 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                                       'index': index.toString(),
                                     },
                                   );
-                                  debugPrint('Returned from Add/Update screen');
                                   if (context.mounted) {
                                     _employeeMasterCubit.getEmployeeMasterList(
                                       context,
@@ -214,12 +213,6 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                                     );
                                   }
                                 },
-                                icon: Icon(
-                                  Icons.edit,
-                                  size: 16,
-                                  color: AppColor.grey,
-                                ),
-                                backgroundColor: AppColor.lightGrey,
                               ),
                             ],
                           ),

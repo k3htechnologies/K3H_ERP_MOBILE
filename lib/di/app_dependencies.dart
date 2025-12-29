@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
 import 'feature_dependencies/login/login.dependencies.dart';
+import 'feature_dependencies/masters/bank_list_master.dependencies.dart';
 import 'feature_dependencies/masters/company_master_dependencies.dart';
 import 'feature_dependencies/masters/department_master.dependencies.dart';
 import 'feature_dependencies/masters/designation_master.dependencies.dart';
@@ -28,6 +29,8 @@ void initDependencies() {
   registerProjectMasterDependencies(serviceLocator);
   // EMPLOYEE MASTER DEPENDENCIES (must be before LOGIN as LoginCubit depends on it)
   registerEmployeeMasterDependencies(serviceLocator);
+  // BANK LIST MASTER DEPENDENCIES (must be after EMPLOYEE MASTER as BankListMasterCubit depends on EmployeeMasterRepository)
+  registerBankListMasterDependencies(serviceLocator);
   // LOGIN
   registerLoginDependencies(serviceLocator);
   // PROFILE DEPENDENCIES
