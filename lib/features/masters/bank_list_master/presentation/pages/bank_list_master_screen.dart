@@ -126,24 +126,4 @@ class _BankListScreenState extends State<BankListScreen> {
     );
   }
 
-  Widget _buildInfoItem(String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 120,
-          child: Text(
-            "$label: ",
-            style: AppTextStyle.ts12R(color: AppColor.grey),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: AppTextStyle.ts12R(),
-          ),
-        ),
-      ],
-    );
-  }
 }
