@@ -1,0 +1,330 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/data/model/asset_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/cubit/asset_master_cubit.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+class AddAssetMasterScreen extends StatefulWidget {
+  final AssetMasterModel? asset;
+  final int index;
+  const AddAssetMasterScreen({
+    super.key,
+    this.asset,
+    this.index = 0,
+  });
+
+  @override
+  State<AddAssetMasterScreen> createState() => _AddAssetMasterScreenState();
+}
+
+class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
+  // CUBIT
+  late AssetMasterCubit _assetMasterCubit;
+
+  // FORM KEY
+  final _formKey = GlobalKey<FormState>();
+
+  // TEXT EDITING CONTROLLERS
+  late TextEditingController _assetNameC;
+  late TextEditingController _assetCodeC;
+  late TextEditingController _assetTypeC;
+  late TextEditingController _assetModelC;
+  late TextEditingController _assetBrandC;
+  late TextEditingController _serialNumberC;
+  late TextEditingController _supplierNameC;
+  late TextEditingController _assetCostC;
+
+  // DATE PICKERS
+  DateTime? _purchaseDate;
+  DateTime? _warrantyExpiryDate;
+
+  // AUTHORIZATION
+  late AuthorizationModel _routeAuthorizationModel;
+
+  bool get _isEditMode => widget.asset != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _assetMasterCubit = context.read<AssetMasterCubit>();
+    _routeAuthorizationModel = AuthorizationModel();
+    _initializeTextEditingControllers();
+    if (widget.asset != null) {
+      _populateFormFields(widget.asset!);
+    }
+  }
+
+  @override
+  void dispose() {
+    _disposeTextEditingControllers();
+    super.dispose();
+  }
+
+  void _initializeTextEditingControllers() {
+    _assetNameC = TextEditingController();
+    _assetCodeC = TextEditingController();
+    _assetTypeC = TextEditingController();
+    _assetModelC = TextEditingController();
+    _assetBrandC = TextEditingController();
+    _serialNumberC = TextEditingController();
+    _supplierNameC = TextEditingController();
+    _assetCostC = TextEditingController();
+  }
+
+  void _disposeTextEditingControllers() {
+    _assetNameC.dispose();
+    _assetCodeC.dispose();
+    _assetTypeC.dispose();
+    _assetModelC.dispose();
+    _assetBrandC.dispose();
+    _serialNumberC.dispose();
+    _supplierNameC.dispose();
+    _assetCostC.dispose();
+  }
+
+
+  void _populateFormFields(AssetMasterModel asset) {
+    _assetNameC.text = asset.assetName;
+    _assetCodeC.text = asset.assetCode;
+    _assetTypeC.text = asset.assetType;
+    _assetModelC.text = asset.assetModel;
+    _assetBrandC.text = asset.assetBrand;
+    _serialNumberC.text = asset.serialNumber;
+    _supplierNameC.text = asset.supplierName;
+    _assetCostC.text = asset.assetCost.toString();
+    _purchaseDate = asset.purchaseDate;
+    _warrantyExpiryDate = asset.warrantyExpiryDate;
+  }
+
+  void _submitForm() {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_purchaseDate == null) {
+      showErrorMessage(context, 'Error', 'Purchase Date is required');
+      return;
+    }
+
+    if (_isEditMode && widget.asset != null) {
+      _assetMasterCubit.updateAsset(
+        index: widget.index,
+        context: context,
+        assetMasterId: widget.asset!.assetMasterId,
+        uniqueKey: widget.asset!.uniquekey,
+        assetName: _assetNameC.text.trim(),
+        assetCode: _assetCodeC.text.trim(),
+        assetType: _assetTypeC.text.trim(),
+        assetModel: _assetModelC.text.trim(),
+        assetBrand: _assetBrandC.text.trim(),
+        serialNumber: _serialNumberC.text.trim(),
+        supplierName: _supplierNameC.text.trim(),
+        assetPurchaseDate: _purchaseDate!,
+        assetCost: _assetCostC.text.trim(),
+        warrantyDate: _warrantyExpiryDate,
+      );
+    } else {
+      _assetMasterCubit.addAsset(
+        context: context,
+        assetName: _assetNameC.text.trim(),
+        assetCode: _assetCodeC.text.trim(),
+        assetType: _assetTypeC.text.trim(),
+        assetModel: _assetModelC.text.trim(),
+        assetBrand: _assetBrandC.text.trim(),
+        serialNumber: _serialNumberC.text.trim(),
+        supplierName: _supplierNameC.text.trim(),
+        assetPurchaseDate: _purchaseDate!,
+        assetCost: _assetCostC.text.trim(),
+        warrantyDate: _warrantyExpiryDate,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColor.lightGreyBackground,
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: _isEditMode ? "Edit Asset" : "Add Asset",
+        authorization: _routeAuthorizationModel,
+      ),
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomTextField(
+                title: 'Asset Name',
+                textController: _assetNameC,
+                hint: "Enter Asset Name",
+                inputFormatterList: InputValidator.textOnly(100),
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Asset Name is required";
+                  }
+                  return null;
+                },
+              ),
+              verticalSpacing(height: 16),
+              CustomTextField(
+                title: 'Asset Code',
+                textController: _assetCodeC,
+                hint: "Enter Asset Code",
+                inputFormatterList: InputValidator.textDigit(50),
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Asset Code is required";
+                  }
+                  return null;
+                },
+              ),
+              verticalSpacing(height: 16),
+              CustomTextField(
+                title: 'Asset Type',
+                textController: _assetTypeC,
+                hint: "Enter Asset Type",
+                inputFormatterList: InputValidator.textOnly(50),
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Asset Type is required";
+                  }
+                  return null;
+                },
+              ),
+              verticalSpacing(height: 16),
+              CustomTextField(
+                title: 'Brand',
+                textController: _assetBrandC,
+                hint: "Enter Brand",
+                inputFormatterList: InputValidator.textOnly(50),
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Brand is required";
+                  }
+                  return null;
+                },
+              ),
+              verticalSpacing(height: 16),
+              CustomTextField(
+                title: 'Model',
+                textController: _assetModelC,
+                hint: "Enter Model",
+                inputFormatterList: InputValidator.textDigit(50),
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Model is required";
+                  }
+                  return null;
+                },
+              ),
+              verticalSpacing(height: 16),
+              CustomTextField(
+                title: 'Serial Number',
+                textController: _serialNumberC,
+                hint: "Enter Serial Number",
+                inputFormatterList: InputValidator.textDigit(100),
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Serial Number is required";
+                  }
+                  return null;
+                },
+              ),
+              verticalSpacing(height: 16),
+              CustomTextField(
+                title: 'Supplier Name',
+                textController: _supplierNameC,
+                hint: "Enter Supplier Name",
+                inputFormatterList: InputValidator.textOnly(100),
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Supplier Name is required";
+                  }
+                  return null;
+                },
+              ),
+              verticalSpacing(height: 16),
+              CustomDatePicker(
+                title: 'Purchase Date',
+                initialDate: _purchaseDate,
+                isRequired: true,
+                setValue: (date) {
+                  setState(() {
+                    _purchaseDate = date;
+                  });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return "Purchase Date is required";
+                  }
+                  return null;
+                },
+              ),
+              verticalSpacing(height: 16),
+              CustomDatePicker(
+                title: 'Warranty Expiry Date',
+                isRequired: true,
+                initialDate: _warrantyExpiryDate,
+                startDate: _purchaseDate,
+                setValue: (date) {
+                  setState(() {
+                    _warrantyExpiryDate = date;
+                  });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return "Warranty Date is required";
+                  }
+                  return null;
+                },
+              ),
+              verticalSpacing(height: 16),
+              CustomTextField(
+                title: 'Asset Cost',
+                textController: _assetCostC,
+                hint: "Enter Asset Cost",
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                inputFormatterList: InputValidator.decimal(2),
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Asset Cost is required";
+                  }
+                  final cost = double.tryParse(value);
+                  if (cost == null || cost < 0) {
+                    return "Please enter a valid cost";
+                  }
+                  return null;
+                },
+              ),
+              verticalSpacing(height: 24),
+              CustomButton(
+                text: _isEditMode ? "Update Asset" : "Add Asset",
+                onPressed: _submitForm,
+              ),
+              verticalSpacing(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+

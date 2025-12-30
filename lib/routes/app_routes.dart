@@ -99,7 +99,9 @@ class AppRoutes {
 
   // HRM
   static String assetMaster = "/assetMaster";
+  static String addAssetMaster = "/addAssetMaster";
   static String assetMappingMaster = "/assetMappingMaster";
+  static String addAssetMappingMaster = "/addAssetMappingMaster";
   static String branchMaster = "/branchMaster";
   static String branchAssociation = "/branchAssociationsMaster";
   static String leaveType = "/leaveTypeMaster";

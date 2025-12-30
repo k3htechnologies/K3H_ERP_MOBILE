@@ -6,6 +6,8 @@ import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
 import 'feature_dependencies/login/login.dependencies.dart';
+import 'feature_dependencies/masters/asset_master.dependencies.dart';
+import 'feature_dependencies/masters/asset_mapping_master.dependencies.dart';
 import 'feature_dependencies/masters/bank_list_master.dependencies.dart';
 import 'feature_dependencies/masters/company_master_dependencies.dart';
 import 'feature_dependencies/masters/department_master.dependencies.dart';
@@ -37,6 +39,10 @@ void initDependencies() {
   registerBankListMasterDependencies(serviceLocator);
   // TERMS AND CONDITIONS MASTER DEPENDENCIES
   registerTermsAndConditionsMasterDependencies(serviceLocator);
+  // ASSET MASTER DEPENDENCIES
+  registerAssetMasterDependencies(serviceLocator);
+  // ASSET MAPPING MASTER DEPENDENCIES
+  registerAssetMappingMasterDependencies(serviceLocator);
   // MATERIAL MASTER DEPENDENCIES
   registerMaterialMasterDependencies(serviceLocator);
   // SUB MATERIAL MASTER DEPENDENCIES

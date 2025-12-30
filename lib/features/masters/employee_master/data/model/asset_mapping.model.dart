@@ -132,6 +132,6 @@ class AssetMappingModel {
     "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate!.toIso8601String(),
+    "ModifiedDate": modifiedDate?.toIso8601String(),
   };
 }

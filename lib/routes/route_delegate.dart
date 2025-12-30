@@ -70,6 +70,14 @@ import 'package:k3h_erp_app/features/masters/designation_master/presentation/cub
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/designation_screen.dart';
 import 'package:k3h_erp_app/features/masters/bank_list_master/presentation/cubit/bank_list_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/bank_list_master/presentation/pages/bank_list_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/data/model/asset_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/cubit/asset_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/pages/add_asset_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/pages/asset_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/asset_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/cubit/asset_mapping_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/pages/add_asset_mapping_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/pages/asset_mapping_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/employee_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/add_employee_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_screen.dart';
@@ -480,6 +488,82 @@ final GoRouter goRouter = GoRouter(
                 termsAndConditions: termsAndCondition,
                 index: index,
                 tabIndex: tabIndex,
+              ),
+            );
+          },
+        ),
+        // ASSET MASTER
+        GoRoute(
+          name: AppRoutes.assetMaster,
+          path: AppRoutes.assetMaster,
+          builder: (context, state) {
+            return BlocProvider.value(
+              value: serviceLocator<AssetMasterCubit>(),
+              child: const AssetMasterScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          name: AppRoutes.addAssetMaster,
+          path: AppRoutes.addAssetMaster,
+          builder: (context, state) {
+            final queryParameterAsset =
+                state.uri.queryParameters['asset'];
+            final AssetMasterModel? asset =
+                queryParameterAsset != null
+                    ? AssetMasterModel.fromJson(
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterAsset),
+                          ),
+                        ),
+                      )
+                    : null;
+            final index =
+                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+            return BlocProvider.value(
+              value: serviceLocator<AssetMasterCubit>(),
+              child: AddAssetMasterScreen(
+                asset: asset,
+                index: index,
+              ),
+            );
+          },
+        ),
+        // ASSET MAPPING MASTER
+        GoRoute(
+          name: AppRoutes.assetMappingMaster,
+          path: AppRoutes.assetMappingMaster,
+          builder: (context, state) {
+            return BlocProvider.value(
+              value: serviceLocator<AssetMappingMasterCubit>(),
+              child: const AssetMappingMasterScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          name: AppRoutes.addAssetMappingMaster,
+          path: AppRoutes.addAssetMappingMaster,
+          builder: (context, state) {
+            final queryParameterAssetMapping =
+                state.uri.queryParameters['assetMapping'];
+            final AssetMappingModel? assetMapping =
+                queryParameterAssetMapping != null
+                    ? AssetMappingModel.fromJson(
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterAssetMapping),
+                          ),
+                        ),
+                      )
+                    : null;
+            final index =
+                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+            return BlocProvider.value(
+              value: serviceLocator<AssetMappingMasterCubit>(),
+              child: AddAssetMappingMasterScreen(
+                assetMapping: assetMapping,
+                index: index,
               ),
             );
           },
