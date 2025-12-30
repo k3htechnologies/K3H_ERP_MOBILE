@@ -48,7 +48,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     _assetMappingMasterCubit.getAssetMappingList(
       context: context,
       pageNumber: 1,
-      pageSize: 15,
+      pageSize: 10,
     );
   }
 
@@ -78,7 +78,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
           _assetMappingMasterCubit.getAssetMappingList(
             context: context,
             pageNumber: _assetMappingMasterCubit.state.currentPage + 1,
-            pageSize: 15,
+            pageSize: 10,
           );
         });
       }
@@ -176,7 +176,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                                   _assetMappingMasterCubit.getAssetMappingList(
                                     context: context,
                                     pageNumber: 1,
-                                    pageSize: 15,
+                                    pageSize: 10,
                                   );
                                 }
                               },

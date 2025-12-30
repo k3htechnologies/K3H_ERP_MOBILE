@@ -109,60 +109,64 @@ class _AddAssetMappingMasterScreenState extends State<AddAssetMappingMasterScree
     _remarksC.text = assetMapping.remarks;
   }
 
-  Future<Map<String, dynamic>> _fetchEmployees(int pageNumber, {String? value}) async {
+  Future<Map<String, dynamic>> _fetchEmployees(
+      int pageNumber, {
+        String? value,
+      }) async {
     final result = await _employeeMasterRepository.getEmployeeMasterList(
       pageNumber: pageNumber,
       pageSize: 15,
-      queryParams: value != null && value.isNotEmpty ? {"EmployeeName": value} : {},
+      queryParams:
+      value != null && value.isNotEmpty ? {"EmployeeName": value} : {},
     );
-    
+
     return result.fold(
-      (failure) => {
+          (failure) => {
         "itemList": <Map<String, dynamic>>[],
         "totalNumberOfRecord": 0,
       },
-      (response) {
-        final employees = response['data'] as List;
+          (response) {
+        final employees = response['data'] as List<UserModel>;
+
         return {
-          "itemList": employees
-              .map((e) {
-                final employee = UserModel.fromJson(e as Map<String, dynamic>);
-                return {
-                  "zAttributesId": employee.employeeId,
-                  "DisplayName": employee.fullName,
-                };
-              })
-              .toList(),
+          "itemList": employees.map((employee) {
+            return {
+              "zAttributesId": employee.employeeId,
+              "DisplayName": employee.fullName,
+            };
+          }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
       },
     );
   }
 
-  Future<Map<String, dynamic>> _fetchAssets(int pageNumber, {String? value}) async {
+  Future<Map<String, dynamic>> _fetchAssets(
+      int pageNumber, {
+        String? value,
+      }) async {
     final result = await _assetMasterRepository.getAssetList(
       pageNumber: pageNumber,
       pageSize: 15,
-      queryParams: value != null && value.isNotEmpty ? {"AssetName": value} : {},
+      queryParams:
+      value != null && value.isNotEmpty ? {"AssetName": value} : {},
     );
-    
+
     return result.fold(
-      (failure) => {
+          (failure) => {
         "itemList": <Map<String, dynamic>>[],
         "totalNumberOfRecord": 0,
       },
-      (response) {
-        final assets = response['data'] as List;
+          (response) {
+        final assets = response['data'] as List<AssetMasterModel>;
+
         return {
-          "itemList": assets
-              .map((e) {
-                final asset = AssetMasterModel.fromJson(e as Map<String, dynamic>);
-                return {
-                  "zAttributesId": asset.assetMasterId,
-                  "DisplayName": "${asset.assetName} (${asset.assetCode})",
-                };
-              })
-              .toList(),
+          "itemList": assets.map((asset) {
+            return {
+              "zAttributesId": asset.assetMasterId,
+              "DisplayName": "${asset.assetName} (${asset.assetCode})",
+            };
+          }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
       },
@@ -348,17 +352,17 @@ class _AddAssetMappingMasterScreenState extends State<AddAssetMappingMasterScree
                     CustomTextField(
                       title: 'Remarks',
                       textController: _remarksC,
+                      isRequired: true,
                       hint: "Enter Remarks",
                       inputFormatterList: InputValidator.textOnly(500),
+                      minLines: 3,
                       maxLines: 3,
                       validator: (value) {
+                        if(value == null || value.trim().isEmpty){
+                          return "Remarks is required";
+                        }
                         return null;
                       },
-                    ),
-                    verticalSpacing(height: 24),
-                    CustomButton(
-                      text: _isEditMode ? "Update Asset Mapping" : "Add Asset Mapping",
-                      onPressed: _submitForm,
                     ),
                     verticalSpacing(height: 16),
                   ],
@@ -366,6 +370,16 @@ class _AddAssetMappingMasterScreenState extends State<AddAssetMappingMasterScree
               ),
             );
         },
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 70,
+          padding: EdgeInsets.all(16),
+          child: CustomButton(
+            text: _isEditMode ? "Update Asset Mapping" : "Add Asset Mapping",
+            onPressed: _submitForm,
+          ),
+        ),
       ),
     );
   }

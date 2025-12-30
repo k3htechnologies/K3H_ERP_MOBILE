@@ -39,7 +39,7 @@ class SearchWidget extends StatelessWidget {
             AppAssets.searchIcon,
             width: 24,
             height: 24,
-            colorFilter: ColorFilter.mode( AppColor.grey, BlendMode.srcIn),
+            colorFilter: ColorFilter.mode( AppColor.primary.withValues(alpha: .6), BlendMode.srcIn),
           ),
           Expanded(
             child: TextField(

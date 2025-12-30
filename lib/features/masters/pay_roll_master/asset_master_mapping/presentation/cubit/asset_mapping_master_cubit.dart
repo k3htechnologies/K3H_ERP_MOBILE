@@ -16,9 +16,6 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
   final AssetMasterMappingRepository assetMasterMappingRepository =
       serviceLocator<AssetMasterMappingRepository>();
 
-  // Track request ID to ignore stale responses
-  int _requestId = 0;
-
   void resetState() {
     emit(AssetMappingMasterState.initial());
   }
@@ -40,15 +37,15 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
     required int pageNumber,
     required int pageSize,
   }) async {
-    // Increment request ID to track the latest request
-    _requestId++;
-    final currentRequestId = _requestId;
+
 
     emit(state.copyWith(isLoading: true));
+
     var queryParams = {
       "EmployeeName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
+
     var result = await assetMasterMappingRepository.getAssetMasterMappedList(
       pageNumber: pageNumber,
       pageSize: pageSize,
@@ -56,35 +53,24 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
     );
 
     result.fold(
-      (failure) {
-        // Ignore stale failures from previous requests
-        if (currentRequestId != _requestId) {
-          return;
-        }
+          (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
-      (response) {
-        // Ignore stale responses from previous requests
-        if (currentRequestId != _requestId) {
-          return;
-        }
+          (response) {
+        final List<AssetMappingModel> newData =
+        List<AssetMappingModel>.from(response['data'] ?? []);
 
-        List<AssetMappingModel> updatedList =
-            pageNumber == 1
-                  ? List<AssetMappingModel>.from(
-                    response['data'] as List<AssetMappingModel>,
-                  )
-                  : List<AssetMappingModel>.from(state.assetMappingList)
-              ..addAll(response['data'] as List<AssetMappingModel>);
+        final List<AssetMappingModel> updatedList =
+        pageNumber == 1
+            ? newData
+            : [...state.assetMappingList, ...newData];
+
         emit(
           state.copyWith(
             assetMappingList: updatedList,
             isLoading: false,
-            totalNumberOfRecord:
-                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
-                    ? state.totalNumberOfRecord - 1
-                    : response['totalNumberOfRecord'],
+            totalNumberOfRecord: response['totalNumberOfRecord'],
             currentPage: pageNumber,
           ),
         );
