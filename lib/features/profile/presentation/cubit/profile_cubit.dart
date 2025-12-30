@@ -33,17 +33,20 @@ class ProfileCubit extends Cubit<ProfileState> {
     final user = _getUser();
     final project = _getSelectedProject();
     if (user != null) {
-      emit(state.copyWith(
-        user: user,
-        selectedProject: project,
-        projectList: user.projectData, // Initialize with user's projectData
-      ));
+      emit(
+        state.copyWith(
+          user: user,
+          selectedProject: project,
+          projectList: user.projectData, // Initialize with user's projectData
+        ),
+      );
     }
   }
 
   UserModel? _getUser() {
-    String? userString =
-        LocalStorageManager().getString(StorageKey.currentUser);
+    String? userString = LocalStorageManager().getString(
+      StorageKey.currentUser,
+    );
     if (userString == null) {
       return null;
     }
@@ -62,7 +65,8 @@ class ProfileCubit extends Cubit<ProfileState> {
     emit(state.copyWith(isLoadingProjects: true));
 
     try {
-      final projectIds = state.user!.projectData.map((p) => p.projectId).toList();
+      final projectIds =
+          state.user!.projectData.map((p) => p.projectId).toList();
 
       final result = await _projectMasterRepository.getProjectList(
         pageNumber: 1,
@@ -72,39 +76,50 @@ class ProfileCubit extends Cubit<ProfileState> {
 
       result.fold(
         (failure) {
-          emit(state.copyWith(
-            projectList: state.user!.projectData,
-            isLoadingProjects: false,
-          ));
+          emit(
+            state.copyWith(
+              projectList: state.user!.projectData,
+              isLoadingProjects: false,
+            ),
+          );
         },
         (response) {
           final allProjects = response['data'] as List<ProjectModel>;
           if (allProjects.isEmpty) {
             // If API returns empty, use user's projectData
-            emit(state.copyWith(
-              projectList: state.user!.projectData,
-              isLoadingProjects: false,
-            ));
+            emit(
+              state.copyWith(
+                projectList: state.user!.projectData,
+                isLoadingProjects: false,
+              ),
+            );
             return;
           }
-          
+
           final filteredProjects =
-              allProjects.where((p) => projectIds.contains(p.projectId)).toList();
+              allProjects
+                  .where((p) => projectIds.contains(p.projectId))
+                  .toList();
 
           // Use filtered projects if found, otherwise fallback to user's projectData
-          emit(state.copyWith(
-            projectList: filteredProjects.isNotEmpty
-                ? filteredProjects
-                : state.user!.projectData,
-            isLoadingProjects: false,
-          ));
+          emit(
+            state.copyWith(
+              projectList:
+                  filteredProjects.isNotEmpty
+                      ? filteredProjects
+                      : state.user!.projectData,
+              isLoadingProjects: false,
+            ),
+          );
         },
       );
     } catch (e) {
-      emit(state.copyWith(
-        projectList: state.user?.projectData ?? [],
-        isLoadingProjects: false,
-      ));
+      emit(
+        state.copyWith(
+          projectList: state.user?.projectData ?? [],
+          isLoadingProjects: false,
+        ),
+      );
     }
   }
 
@@ -157,14 +172,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       (response) {
         final dataList = response['data'] as List<EmployeeDocumentModel>;
 
-        print("hahaha==> $dataList");
-
-        emit(
-          state.copyWith(
-            isLoading: false,
-            employeeDocumentList: dataList,
-          ),
-        );
+        emit(state.copyWith(isLoading: false, employeeDocumentList: dataList));
       },
     );
   }
@@ -195,16 +203,11 @@ class ProfileCubit extends Cubit<ProfileState> {
             pageNumber == 1
                 ? List<AssetMappingModel>.from(dataList)
                 : [
-                    ...state.assetMappingList,
-                    ...List<AssetMappingModel>.from(dataList)
-                  ];
+                  ...state.assetMappingList,
+                  ...List<AssetMappingModel>.from(dataList),
+                ];
 
-        emit(
-          state.copyWith(
-            isLoading: false,
-            assetMappingList: newList,
-          ),
-        );
+        emit(state.copyWith(isLoading: false, assetMappingList: newList));
       },
     );
   }
@@ -236,16 +239,11 @@ class ProfileCubit extends Cubit<ProfileState> {
             pageNumber == 1
                 ? List<ShiftManagementMappingModel>.from(dataList)
                 : [
-                    ...state.shiftManagementList,
-                    ...List<ShiftManagementMappingModel>.from(dataList)
-                  ];
+                  ...state.shiftManagementList,
+                  ...List<ShiftManagementMappingModel>.from(dataList),
+                ];
 
-        emit(
-          state.copyWith(
-            isLoading: false,
-            shiftManagementList: newList,
-          ),
-        );
+        emit(state.copyWith(isLoading: false, shiftManagementList: newList));
       },
     );
   }
@@ -259,11 +257,12 @@ class ProfileCubit extends Cubit<ProfileState> {
   ) async {
     emit(state.copyWith(isLoading: true));
 
-    final result = await _employeeMasterRepository.getEmployeeWeekOffMappingList(
-      pageNumber: pageNumber,
-      pageSize: pageSize,
-      queryParams: {"EmployeeId": employeeId},
-    );
+    final result = await _employeeMasterRepository
+        .getEmployeeWeekOffMappingList(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: {"EmployeeId": employeeId},
+        );
 
     result.fold(
       (failure) {
@@ -276,18 +275,12 @@ class ProfileCubit extends Cubit<ProfileState> {
             pageNumber == 1
                 ? List<WeekOffMappingModel>.from(dataList)
                 : [
-                    ...state.weekOffMappingList,
-                    ...List<WeekOffMappingModel>.from(dataList)
-                  ];
+                  ...state.weekOffMappingList,
+                  ...List<WeekOffMappingModel>.from(dataList),
+                ];
 
-        emit(
-          state.copyWith(
-            isLoading: false,
-            weekOffMappingList: newList,
-          ),
-        );
+        emit(state.copyWith(isLoading: false, weekOffMappingList: newList));
       },
     );
   }
 }
-

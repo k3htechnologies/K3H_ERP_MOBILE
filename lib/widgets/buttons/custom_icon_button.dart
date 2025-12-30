@@ -18,7 +18,7 @@ class CustomIconButton extends StatelessWidget {
   });
 
   // === Named Constructor for Edit Icon Button ===
-  CustomIconButton.edit({
+  const CustomIconButton.edit({
     Key? key,
     required VoidCallback onPressed,
   }) : this(
