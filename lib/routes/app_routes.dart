@@ -34,14 +34,17 @@ class AppRoutes {
   static String selectEmployeeMobile = "/selectEmployeeMobile";
   static String selectCompanyMobile = "/selectCompanyMobile";
   static String termsAndConditions = "/tnc";
+  static String addTermsAndConditions = "/addTnc";
   static String rera = "/rera";
 
   // PROCUREMENT MASTER
   static String materialMaster = "/materialMaster";
+  static String addMaterialMaster = "/addMaterialMaster";
   static String uomMaster = "/uomMaster";
   static String activityMaster = "/activityMaster";
   static String contractMaster = "/contractMaster";
   static String subMaterialMaster = "/subMaterialMaster";
+  static String addSubMaterialMaster = "/addSubMaterialMaster";
 
   // PROCUREMENT
   static String materialRequisition = "/materialRequisition";

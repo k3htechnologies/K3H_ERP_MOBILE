@@ -6,4 +6,5 @@ class StorageKey {
   static String moduleAction = "MODULE_ACTION";
   static String projectList = "PROJECT_LIST";
   static String userUniqueKey = "USER_UNIQUE_KEY";
+  static String lastActiveRoute = "LAST_ACTIVE_ROUTE";
 }

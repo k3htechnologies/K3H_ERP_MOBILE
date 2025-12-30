@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
@@ -49,8 +48,41 @@ void closeAllOverlays(BuildContext context) {
   SortOverlayMenu.close();
 }
 
-class MenuScreen extends StatelessWidget {
+class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
+
+  @override
+  State<MenuScreen> createState() => _MenuScreenState();
+}
+
+class _MenuScreenState extends State<MenuScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Listen to route changes
+    goRouter.routerDelegate.addListener(_onRouteChanged);
+  }
+
+  @override
+  void dispose() {
+    goRouter.routerDelegate.removeListener(_onRouteChanged);
+    super.dispose();
+  }
+
+  void _onRouteChanged() {
+    // Rebuild when route changes and update last active route
+    if (mounted) {
+      final config = goRouter.routerDelegate.currentConfiguration;
+      if (config.isNotEmpty) {
+        final currentPath = config.uri.path;
+        // Save the current route if it's not the menu route
+        if (currentPath != '/menu') {
+          LocalStorageManager().setString(StorageKey.lastActiveRoute, currentPath);
+        }
+      }
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,11 +140,42 @@ class MenuScreen extends StatelessWidget {
     );
   }
 
+  String _getCurrentPath() {
+    try {
+      // Get the current route from router delegate
+      final config = goRouter.routerDelegate.currentConfiguration;
+      if (config.isNotEmpty) {
+        final uri = config.uri;
+        String currentPath = uri.path;
+        
+        // If we're on the menu screen (/menu), try to get the last active route
+        // from storage (this is set when navigating away from menu)
+        if (currentPath == '/menu') {
+          final lastRoute = LocalStorageManager().getString(StorageKey.lastActiveRoute);
+          if (lastRoute != null && lastRoute.isNotEmpty) {
+            return lastRoute;
+          }
+        } else {
+          // Save the current route as the last active route (when not on menu)
+          LocalStorageManager().setString(StorageKey.lastActiveRoute, currentPath);
+        }
+        
+        return currentPath;
+      }
+    } catch (e) {
+      // Error getting current path
+    }
+    return '';
+  }
+
   Widget _buildSubModuleTile(
     BuildContext context,
     SubModuleModel sub, {
     bool isLast = false,
   }) {
+    final currentPath = _getCurrentPath();
+    final isActive = _isRouteActive(currentPath, sub.path);
+    
     if (sub.subSubModuleData.isEmpty) {
       return CustomSubModuleTile(
         title: sub.subModuleName,
@@ -123,12 +186,12 @@ class MenuScreen extends StatelessWidget {
         },
         isExpanded: false,
         isLast: isLast,
-        isActive: GoRouterState.of(context).uri.toString() == sub.path,
+        isActive: isActive,
       );
     }
 
     bool isCurrentSubmoduleActive = sub.subSubModuleData.any(
-      (subSub) => GoRouterState.of(context).uri.toString() == subSub.path,
+      (subSub) => _isRouteActive(currentPath, subSub.path),
     );
     return CustomSubModuleTile(
       title: sub.subModuleName,
@@ -153,6 +216,9 @@ class MenuScreen extends StatelessWidget {
     SubSubModuleModel subSub, {
     bool isLast = false,
   }) {
+    final currentPath = _getCurrentPath();
+    final isActive = _isRouteActive(currentPath, subSub.path);
+    
     return CustomSubSubModuleTile(
       title: subSub.subSubModuleName,
       iconData: subSub.icon,
@@ -161,15 +227,21 @@ class MenuScreen extends StatelessWidget {
         closeAllOverlays(context);
       },
       isLast: isLast,
-      isActive: GoRouterState.of(context).uri.toString() == subSub.path,
+      isActive: isActive,
     );
   }
 
   bool _isActiveModule(BuildContext context, SubModuleModel sub) {
-    return sub.path == GoRouterState.of(context).uri.toString() ||
+    final currentPath = _getCurrentPath();
+    return _isRouteActive(currentPath, sub.path) ||
         sub.subSubModuleData.any(
-          (subSub) => subSub.path == GoRouterState.of(context).uri.toString(),
+          (subSub) => _isRouteActive(currentPath, subSub.path),
         );
+  }
+
+  bool _isRouteActive(String currentPath, String routePath) {
+    // Exact match - use path only (ignore query parameters)
+    return currentPath == routePath;
   }
 }
 

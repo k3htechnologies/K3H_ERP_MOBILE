@@ -17,11 +17,25 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/material_master/data/model/material_master.model.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/cubit/material_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/pages/add_material_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/pages/material_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/data/model/sub_material_master.model.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/presentation/cubit/sub_material_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/presentation/pages/add_sub_material_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/presentation/pages/sub_material_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/umo_master/presentation/cubit/umo_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/umo_master/presentation/umo_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_bank_details_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_project_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/project_details_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/project_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
+import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/cubit/terms_and_conditions_cubit.dart';
+import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/add_terms_and_conditions_screen.dart';
+import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_screen.dart';
 import 'package:k3h_erp_app/features/menu/presentation/pages/menu_screen.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/presentation/cubit/calendar_cubit.dart';
@@ -73,6 +87,7 @@ import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/d
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/documents_view_vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/view_details_vendor_screen.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
@@ -108,6 +123,11 @@ final GoRouter goRouter = GoRouter(
   navigatorKey: navigatorKey,
   initialLocation: AppRoutes.splashScreen,
   redirect: (context, state) {
+    // Track the current route for menu highlighting
+    final currentPath = state.uri.path;
+    if (currentPath != AppRoutes.menu && currentPath.isNotEmpty) {
+      LocalStorageManager().setString(StorageKey.lastActiveRoute, currentPath);
+    }
     return authenticateAndAuthorizeRoute(state);
   },
   routes: [
@@ -347,17 +367,6 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-        // BANK LIST MASTER
-        GoRoute(
-          name: AppRoutes.bankListMaster,
-          path: AppRoutes.bankListMaster,
-          builder: (context, state) {
-            return BlocProvider(
-              create: (context) => BankListMasterCubit(),
-              child: BankListScreen(),
-            );
-          },
-        ),
         // DESIGNATION MASTER
         GoRoute(
           name: AppRoutes.designationMaster,
@@ -421,6 +430,59 @@ final GoRouter goRouter = GoRouter(
               },
             ),
           ],
+        ),
+        // BANK LIST MASTER
+        GoRoute(
+          name: AppRoutes.bankListMaster,
+          path: AppRoutes.bankListMaster,
+          builder: (context, state) {
+            return BlocProvider(
+              create: (context) => BankListMasterCubit(),
+              child: BankListScreen(),
+            );
+          },
+        ),
+        // TERMS AND CONDITIONS MASTER
+        GoRoute(
+          name: AppRoutes.termsAndConditions,
+          path: AppRoutes.termsAndConditions,
+          builder: (context, state) {
+            return BlocProvider(
+              create: (context) => TermsAndConditionsCubit(),
+              child: TermsAndConditionsScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          name: AppRoutes.addTermsAndConditions,
+          path: AppRoutes.addTermsAndConditions,
+          builder: (context, state) {
+            final queryParameterTnc =
+                state.uri.queryParameters['termsAndCondition'];
+            final TermsAndConditionsModel? termsAndCondition =
+                queryParameterTnc != null
+                    ? TermsAndConditionsModel.fromJson(
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterTnc),
+                          ),
+                        ),
+                      )
+                    : null;
+            final index =
+                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+            final tabIndex =
+                int.tryParse(state.uri.queryParameters['tabIndex'] ?? '0') ?? 0;
+            // Use BlocProvider.value with service locator to get the singleton instance
+            return BlocProvider.value(
+              value: serviceLocator<TermsAndConditionsCubit>(),
+              child: AddTermsAndConditionsScreen(
+                termsAndConditions: termsAndCondition,
+                index: index,
+                tabIndex: tabIndex,
+              ),
+            );
+          },
         ),
         // EMPLOYEE MASTER
         ShellRoute(
@@ -580,6 +642,90 @@ final GoRouter goRouter = GoRouter(
               ],
             ),
           ],
+        ),
+        GoRoute(
+          name: AppRoutes.materialMaster,
+          path: AppRoutes.materialMaster,
+          builder: (context, state) {
+            return BlocProvider.value(
+              value: serviceLocator<MaterialMasterCubit>(),
+              child: MaterialMasterScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          name: AppRoutes.addMaterialMaster,
+          path: AppRoutes.addMaterialMaster,
+          builder: (context, state) {
+            final queryParameterMaterial =
+                state.uri.queryParameters['material'];
+            final MaterialMasterModel? material = queryParameterMaterial != null
+                ? MaterialMasterModel.fromJson(
+                    jsonDecode(
+                      EncryptionManager.decryptData(
+                        Uri.decodeQueryComponent(queryParameterMaterial),
+                      ),
+                    ),
+                  )
+                : null;
+            final index =
+                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+            // Use BlocProvider.value with service locator to get the singleton instance
+            return BlocProvider.value(
+              value: serviceLocator<MaterialMasterCubit>(),
+              child: AddMaterialMasterScreen(
+                material: material,
+                index: index,
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          name: AppRoutes.uomMaster,
+          path: AppRoutes.uomMaster,
+          builder: (context, state) {
+            return BlocProvider.value(
+              value: serviceLocator<UOMMasterCubit>(),
+              child: UOMMasterScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          name: AppRoutes.subMaterialMaster,
+          path: AppRoutes.subMaterialMaster,
+          builder: (context, state) {
+            return BlocProvider.value(
+              value: serviceLocator<SubMaterialMasterCubit>(),
+              child: SubMaterialMasterScreen(),
+            );
+          },
+        ),
+        GoRoute(
+          name: AppRoutes.addSubMaterialMaster,
+          path: AppRoutes.addSubMaterialMaster,
+          builder: (context, state) {
+            final queryParameterSubMaterial =
+                state.uri.queryParameters['subMaterial'];
+            final SubMaterialMasterModel? subMaterial =
+                queryParameterSubMaterial != null
+                    ? SubMaterialMasterModel.fromJson(
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeQueryComponent(queryParameterSubMaterial),
+                          ),
+                        ),
+                      )
+                    : null;
+            final index =
+                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+            return BlocProvider.value(
+              value: serviceLocator<SubMaterialMasterCubit>(),
+              child: AddSubMaterialMasterScreen(
+                subMaterial: subMaterial,
+                index: index,
+              ),
+            );
+          },
         ),
         // CALENDAR
         ShellRoute(

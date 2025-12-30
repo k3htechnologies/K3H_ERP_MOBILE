@@ -11,6 +11,10 @@ import 'feature_dependencies/masters/company_master_dependencies.dart';
 import 'feature_dependencies/masters/department_master.dependencies.dart';
 import 'feature_dependencies/masters/designation_master.dependencies.dart';
 import 'feature_dependencies/masters/employee_master.dependencies.dart';
+import 'feature_dependencies/masters/material_master.dependencies.dart';
+import 'feature_dependencies/masters/sub_material_master.dependencies.dart';
+import 'feature_dependencies/masters/terms_and_condition.dependencies.dart';
+import 'feature_dependencies/masters/uom_master.dependencies.dart';
 import 'feature_dependencies/project_management/approved_bank/approved_bank.dependencies.dart';
 import 'feature_dependencies/vendor_management/vendor_management.dependencies.dart';
 
@@ -31,6 +35,14 @@ void initDependencies() {
   registerEmployeeMasterDependencies(serviceLocator);
   // BANK LIST MASTER DEPENDENCIES (must be after EMPLOYEE MASTER as BankListMasterCubit depends on EmployeeMasterRepository)
   registerBankListMasterDependencies(serviceLocator);
+  // TERMS AND CONDITIONS MASTER DEPENDENCIES
+  registerTermsAndConditionsMasterDependencies(serviceLocator);
+  // MATERIAL MASTER DEPENDENCIES
+  registerMaterialMasterDependencies(serviceLocator);
+  // SUB MATERIAL MASTER DEPENDENCIES
+  registerSubMaterialMasterDependencies(serviceLocator);
+  // UOM MASTER DEPENDENCIES
+  registerUOMMasterDependencies(serviceLocator);
   // LOGIN
   registerLoginDependencies(serviceLocator);
   // PROFILE DEPENDENCIES

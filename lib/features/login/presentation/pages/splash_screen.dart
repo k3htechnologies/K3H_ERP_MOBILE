@@ -87,16 +87,7 @@ class _SplashMobileScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            Image.asset(AppAssets.splashLogoGif),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10.0),
-              child: Text("Technologies", style: AppTextStyle.ts14R()),
-            ),
-          ],
-        ),
+        child: Image.asset(AppAssets.splashLogoGif),
       ),
     );
   }

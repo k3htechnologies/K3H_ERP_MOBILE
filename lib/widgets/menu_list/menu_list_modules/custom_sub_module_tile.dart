@@ -99,7 +99,7 @@ class _CustomSubModuleTileState extends State<CustomSubModuleTile> {
                                 style: AppTextStyle.ts14R(
                                   color:
                                       widget.isActive
-                                          ? AppColor.slightDarkBlue
+                                          ? AppColor.primary
                                           : null,
                                 ),
                               ),
@@ -131,7 +131,7 @@ class _CustomSubModuleTileState extends State<CustomSubModuleTile> {
                                 style: AppTextStyle.ts14R(
                                   color:
                                       widget.isActive
-                                          ? AppColor.slightDarkBlue
+                                          ? AppColor.primary
                                           : null,
                                 ),
                               ),

@@ -1,0 +1,563 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
+import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/cubit/terms_and_conditions_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+class TermsAndConditionsScreen extends StatefulWidget {
+  const TermsAndConditionsScreen({super.key});
+
+  @override
+  State<TermsAndConditionsScreen> createState() =>
+      _TermsAndConditionsScreenState();
+}
+
+class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
+    with SingleTickerProviderStateMixin {
+  // CUBIT
+  late TermsAndConditionsCubit _termsAndConditionsCubit;
+
+  // TEXT CONTROLLER
+  late TextEditingController _searchC;
+
+  // PROJECT
+  late ProjectModel project;
+
+  // AUTHORIZATION
+  late AuthorizationModel _routeAuthorizationModel;
+
+  // TAB CONTROLLER
+  late TabController _tabController;
+
+  // SCROLL CONTROLLERS
+  late ScrollController _materialRequisitionScrollController;
+  late ScrollController _bookingScrollController;
+
+  // DEBOUNCE TIMER
+  Timer? _materialRequisitionDebounce;
+  Timer? _bookingDebounce;
+
+  @override
+  void initState() {
+    super.initState();
+    _termsAndConditionsCubit = BlocProvider.of<TermsAndConditionsCubit>(
+      context,
+    );
+    _searchC = TextEditingController();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_handleTabChange);
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.termsAndConditions]!;
+    project = getProject();
+
+    // Initialize scroll controllers
+    _materialRequisitionScrollController = ScrollController();
+    _bookingScrollController = ScrollController();
+
+    // Add scroll listeners for pagination
+    _materialRequisitionScrollController.addListener(
+      _onMaterialRequisitionScroll,
+    );
+    _bookingScrollController.addListener(_onBookingScroll);
+
+    // Load initial data
+    _termsAndConditionsCubit.getMaterialRequisitionTermsAndConditionList(
+      context,
+      1,
+      10,
+    );
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _searchC.dispose();
+    _materialRequisitionScrollController.dispose();
+    _bookingScrollController.dispose();
+    _materialRequisitionDebounce?.cancel();
+    _bookingDebounce?.cancel();
+    super.dispose();
+  }
+
+  void _handleTabChange() {
+    if (!_tabController.indexIsChanging) {
+      _termsAndConditionsCubit.onTabChanged(_tabController.index, context);
+    }
+  }
+
+  // PAGINATION - MATERIAL REQUISITION
+  void _onMaterialRequisitionScroll() {
+    if (_materialRequisitionScrollController.position.pixels >=
+            _materialRequisitionScrollController.position.maxScrollExtent -
+                100 &&
+        !_termsAndConditionsCubit.state.isLoading! &&
+        _termsAndConditionsCubit
+                .state
+                .materialRequisitionTermsAndConditionsList
+                .length <
+            _termsAndConditionsCubit
+                .state
+                .materialRequisitionTotalNumberOfRecordTermsAndConditions) {
+      if (_materialRequisitionDebounce?.isActive ?? false) {
+        _materialRequisitionDebounce?.cancel();
+      }
+      _materialRequisitionDebounce = Timer(
+        const Duration(milliseconds: 300),
+        () {
+          _termsAndConditionsCubit.getMaterialRequisitionTermsAndConditionList(
+            context,
+            _termsAndConditionsCubit
+                    .state
+                    .materialRequisitionCurrentPageTermsAndConditions +
+                1,
+            10,
+          );
+        },
+      );
+    }
+  }
+
+  // PAGINATION - BOOKING
+  void _onBookingScroll() {
+    if (_bookingScrollController.position.pixels >=
+            _bookingScrollController.position.maxScrollExtent - 100 &&
+        !_termsAndConditionsCubit.state.isLoading! &&
+        _termsAndConditionsCubit.state.bookingTermsAndConditionsList.length <
+            _termsAndConditionsCubit
+                .state
+                .bookingTotalNumberOfRecordTermsAndConditions) {
+      if (_bookingDebounce?.isActive ?? false) {
+        _bookingDebounce?.cancel();
+      }
+      _bookingDebounce = Timer(const Duration(milliseconds: 300), () {
+        _termsAndConditionsCubit.getBookingTermsAndConditionList(
+          context,
+          _termsAndConditionsCubit.state.bookingCurrentPageTermsAndConditions +
+              1,
+          10,
+        );
+      });
+    }
+  }
+
+  // DELETE DIALOG - MATERIAL REQUISITION
+  Future<void> _showDeleteDialogMaterialRequisition(
+    BuildContext context,
+    TermsAndConditionsModel termsAndCondition,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a terms and condition?',
+      'Deleting this terms and condition will permanently remove its contents.',
+    );
+    if (result == true && context.mounted) {
+      _termsAndConditionsCubit.deleteMaterialRequisition(
+        context: context,
+        termsAndConditionsMasterId:
+            termsAndCondition.termsAndConditionsMasterId,
+        uniqueKey: termsAndCondition.uniquekey,
+        pageNumber:
+            _termsAndConditionsCubit
+                .state
+                .materialRequisitionCurrentPageTermsAndConditions,
+        pageSize: 10,
+        index: index,
+      );
+    }
+  }
+
+  // DELETE DIALOG - BOOKING
+  Future<void> _showDeleteDialogBooking(
+    BuildContext context,
+    TermsAndConditionsModel termsAndCondition,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a terms and condition?',
+      'Deleting this terms and condition will permanently remove its contents.',
+    );
+    if (result == true && context.mounted) {
+      _termsAndConditionsCubit.deleteBooking(
+        context: context,
+        termsAndConditionsMasterId:
+            termsAndCondition.termsAndConditionsMasterId,
+        uniqueKey: termsAndCondition.uniquekey,
+        pageNumber:
+            _termsAndConditionsCubit.state.bookingCurrentPageTermsAndConditions,
+        pageSize: 10,
+        index: index,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBar(
+        screenTitle: "Terms And Conditions",
+        authorization: _routeAuthorizationModel,
+        onSearchSubmit: (value) {
+          if (_termsAndConditionsCubit.state.currentTabIndex == 0) {
+            _termsAndConditionsCubit.searchMaterialRequisition(context, value);
+          } else {
+            _termsAndConditionsCubit.searchBooking(context, value);
+          }
+        },
+        textController: _searchC,
+        onAddCallback: () {
+          goRouter.pushNamed(
+            AppRoutes.addTermsAndConditions,
+            queryParameters: {
+              'tabIndex':
+                  _termsAndConditionsCubit.state.currentTabIndex.toString(),
+            },
+          );
+        },
+        onExportCallback: (value) {
+          if (_termsAndConditionsCubit.state.currentTabIndex == 0) {
+            _termsAndConditionsCubit.exportExcelPdfMaterialRequisition(
+              context,
+              value,
+            );
+          } else {
+            _termsAndConditionsCubit.exportExcelPdfBooking(context, value);
+          }
+        },
+        onSortOptionCallback: (value) async {
+          if (_termsAndConditionsCubit.state.currentTabIndex == 0) {
+            await _termsAndConditionsCubit.sortMaterialRequisition(
+              context,
+              value,
+              "DESC",
+            );
+          } else {
+            await _termsAndConditionsCubit.sortBooking(context, value, "DESC");
+          }
+        },
+        sortOptionList: ["Created Date", "Title"],
+        initialSortType: "Created Date",
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              height: 48,
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColor.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
+              ),
+              child: TabBar(
+                tabAlignment: TabAlignment.start,
+                controller: _tabController,
+                isScrollable: true,
+                labelColor: AppColor.primary,
+                unselectedLabelColor: AppColor.grey,
+                indicator: BoxDecoration(
+                  color: AppColor.lightBlue,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                dividerColor: Colors.transparent,
+                labelStyle: AppTextStyle.ts14M(),
+                unselectedLabelStyle: AppTextStyle.ts14M(),
+                labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.zero,
+                tabs: const [
+                  Tab(text: 'Material Requisition'),
+                  Tab(text: 'Booking'),
+                ],
+              ),
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  // MATERIAL REQUISITION TAB
+                  BlocBuilder<TermsAndConditionsCubit, TermsAndConditionsState>(
+                    builder: (context, state) {
+                      if ((state.isLoading ?? true) &&
+                          state
+                              .materialRequisitionTermsAndConditionsList
+                              .isEmpty) {
+                        return Center(child: loader());
+                      }
+                      if (state
+                          .materialRequisitionTermsAndConditionsList
+                          .isEmpty) {
+                        return Center(child: noDataWidget());
+                      }
+                      return ListView.builder(
+                        controller: _materialRequisitionScrollController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        itemCount:
+                            state
+                                .materialRequisitionTermsAndConditionsList
+                                .length +
+                            1,
+                        itemBuilder: (context, index) {
+                          if (index ==
+                              state
+                                  .materialRequisitionTermsAndConditionsList
+                                  .length) {
+                            return state
+                                        .materialRequisitionTermsAndConditionsList
+                                        .length <
+                                    state
+                                        .materialRequisitionTotalNumberOfRecordTermsAndConditions
+                                ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                                : const SizedBox.shrink();
+                          }
+                          var termsAndCondition =
+                              state
+                                  .materialRequisitionTermsAndConditionsList[index];
+                          return _buildTermsAndConditionCard(
+                            termsAndCondition: termsAndCondition,
+                            index: index,
+                            isMaterialRequisition: true,
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  // BOOKING TAB
+                  BlocBuilder<TermsAndConditionsCubit, TermsAndConditionsState>(
+                    builder: (context, state) {
+                      if ((state.isLoading ?? true) &&
+                          state.bookingTermsAndConditionsList.isEmpty) {
+                        return Center(child: loader());
+                      }
+                      if (state.bookingTermsAndConditionsList.isEmpty) {
+                        return Center(child: noDataWidget());
+                      }
+                      return ListView.builder(
+                        controller: _bookingScrollController,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        itemCount:
+                            state.bookingTermsAndConditionsList.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index ==
+                              state.bookingTermsAndConditionsList.length) {
+                            return state.bookingTermsAndConditionsList.length <
+                                    state
+                                        .bookingTotalNumberOfRecordTermsAndConditions
+                                ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                                : const SizedBox.shrink();
+                          }
+                          var termsAndCondition =
+                              state.bookingTermsAndConditionsList[index];
+                          return _buildTermsAndConditionCard(
+                            termsAndCondition: termsAndCondition,
+                            index: index,
+                            isMaterialRequisition: false,
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTermsAndConditionCard({
+    required TermsAndConditionsModel termsAndCondition,
+    required int index,
+    required bool isMaterialRequisition,
+  }) {
+    final isHtml =
+        termsAndCondition.description.contains('<') &&
+        termsAndCondition.description.contains('>');
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  termsAndCondition.title,
+                  style: AppTextStyle.ts16M(color: AppColor.primary),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomIconButton.edit(
+                    onPressed: () async {
+                      await goRouter.pushNamed(
+                        AppRoutes.addTermsAndConditions,
+                        queryParameters: {
+                          "termsAndCondition": Uri.encodeQueryComponent(
+                            EncryptionManager.encryptData(
+                              jsonEncode(termsAndCondition.toJson()),
+                            ),
+                          ),
+                          'index': index.toString(),
+                          'tabIndex': isMaterialRequisition ? '0' : '1',
+                        },
+                      );
+                      if (context.mounted) {
+                        if (isMaterialRequisition && mounted) {
+                          _termsAndConditionsCubit
+                              .getMaterialRequisitionTermsAndConditionList(
+                                context,
+                                1,
+                                10,
+                              );
+                        } else {
+                          if (mounted) {
+                            _termsAndConditionsCubit
+                                .getBookingTermsAndConditionList(
+                                  context,
+                                  1,
+                                  10,
+                                );
+                          }
+                        }
+                      }
+                    },
+                  ),
+                  horizontalSpacing(),
+                  CustomIconButton.delete(
+                    onPressed: () {
+                      if (isMaterialRequisition) {
+                        _showDeleteDialogMaterialRequisition(
+                          context,
+                          termsAndCondition,
+                          index,
+                        );
+                      } else {
+                        _showDeleteDialogBooking(
+                          context,
+                          termsAndCondition,
+                          index,
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          verticalSpacing(height: 12),
+          if (termsAndCondition.description.isNotEmpty)
+            isHtml
+                ? Html(
+                  data: termsAndCondition.description,
+                  style: {
+                    "body": Style(
+                      fontSize: FontSize(14),
+                      margin: Margins.zero,
+                      padding: HtmlPaddings.zero,
+                    ),
+                  },
+                )
+                : Text(
+                  termsAndCondition.description,
+                  style: AppTextStyle.ts14R(color: AppColor.grey),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+          verticalSpacing(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildInfoChip(
+                label: "Created By",
+                value: termsAndCondition.createdBy,
+              ),
+              _buildInfoChip(
+                label: "Created Date",
+                value: formatDateTimeAsDDMMMYYYY(termsAndCondition.createdDate),
+              ),
+            ],
+          ),
+          if (termsAndCondition.modifiedDate != null) ...[
+            verticalSpacing(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildInfoChip(
+                  label: "Modified By",
+                  value: termsAndCondition.modifiedBy,
+                ),
+                _buildInfoChip(
+                  label: "Modified Date",
+                  value: formatDateTimeAsDDMMMYYYY(
+                    termsAndCondition.modifiedDate!,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoChip({required String label, required String value}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColor.grey10,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text("$label: ", style: AppTextStyle.ts12R(color: AppColor.grey)),
+          Flexible(child: Text(value, style: AppTextStyle.ts12R())),
+        ],
+      ),
+    );
+  }
+}

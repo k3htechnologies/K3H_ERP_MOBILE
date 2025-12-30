@@ -80,6 +80,8 @@ dependencies:
   flutter_html: ^3.0.0-beta.2
   # SHIMMER EFFECT FOR IMAGES
   shimmer: ^3.0.0
+  # LAUNCH ICON
+  flutter_launcher_icons: ^0.14.4
 
 # DEV DEPENDENCIES
 dev_dependencies:
@@ -90,6 +92,11 @@ dev_dependencies:
   change_app_package_name: ^1.5.0
   envied_generator: ^1.1.1
   build_runner: ^2.4.15
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/appLogo.png"
 
 
 flutter:
