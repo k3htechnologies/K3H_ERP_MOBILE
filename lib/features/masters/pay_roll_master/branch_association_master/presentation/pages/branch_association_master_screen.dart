@@ -95,7 +95,9 @@ class _BranchAssociationMasterScreenState
         screenTitle: "Branch Association Master",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
-        onSearchSubmit: (value) {},
+        onSearchSubmit: (value) {
+          _branchAssociationMasterCubit.searchAssetMapping(value, context);
+        },
         onAddCallback: () {
           goRouter.pushNamed(AppRoutes.addBranchAssociation);
         },

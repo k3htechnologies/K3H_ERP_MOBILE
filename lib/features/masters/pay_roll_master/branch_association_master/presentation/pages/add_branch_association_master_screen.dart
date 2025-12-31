@@ -121,7 +121,8 @@ class _AddBranchAssociationMasterScreenState
         context: context,
         branchAssociationsId: widget.branchAssociation!.branchAssociationsId,
         employeeId: _selectedEmployee.first['zAttributesId'],
-        branchMasterId: _selectedBranch.first['zAttributesId'].t,
+        branchMasterId: int.parse(_selectedBranch.first['zAttributesId'].toString()),
+        uniqueKey: widget.branchAssociation!.uniquekey,
       );
     } else {
       _branchAssociationMasterCubit.addBranchAssociation(

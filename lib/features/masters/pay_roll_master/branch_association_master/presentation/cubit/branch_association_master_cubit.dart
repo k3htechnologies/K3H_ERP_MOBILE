@@ -122,10 +122,12 @@ class BranchAssociationMasterCubit extends Cubit<BranchAssociationMasterState> {
     required int branchMasterId,
     required int employeeId,
     required int branchAssociationsId,
+    required String uniqueKey,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var body = {
       "BranchAssociationsId": branchAssociationsId,
+      "UniqueKey": uniqueKey,
       "BranchMasterId": branchMasterId.toString(),
       "EmployeeId": employeeId,
     };
