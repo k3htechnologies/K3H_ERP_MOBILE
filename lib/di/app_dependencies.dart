@@ -9,6 +9,8 @@ import 'feature_dependencies/login/login.dependencies.dart';
 import 'feature_dependencies/masters/asset_master.dependencies.dart';
 import 'feature_dependencies/masters/asset_mapping_master.dependencies.dart';
 import 'feature_dependencies/masters/bank_list_master.dependencies.dart';
+import 'feature_dependencies/masters/branch_association_master.dependencies.dart';
+import 'feature_dependencies/masters/branch_master.dependencies.dart';
 import 'feature_dependencies/masters/company_master_dependencies.dart';
 import 'feature_dependencies/masters/department_master.dependencies.dart';
 import 'feature_dependencies/masters/designation_master.dependencies.dart';
@@ -43,6 +45,10 @@ void initDependencies() {
   registerAssetMasterDependencies(serviceLocator);
   // ASSET MAPPING MASTER DEPENDENCIES
   registerAssetMappingMasterDependencies(serviceLocator);
+  // BRANCH MASTER DEPENDENCIES
+  registerBranchMasterDependencies(serviceLocator);
+  // BRANCH ASSOCIATION MASTER DEPENDENCIES
+  registerBranchAssociationMasterDependencies(serviceLocator);
   // MATERIAL MASTER DEPENDENCIES
   registerMaterialMasterDependencies(serviceLocator);
   // SUB MATERIAL MASTER DEPENDENCIES

@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/asset_mapping.model.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/cubit/asset_mapping_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/data/model/branch_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/presentation/cubit/branch_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -16,17 +17,16 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class AssetMappingMasterScreen extends StatefulWidget {
-  const AssetMappingMasterScreen({super.key});
+class BranchMasterScreen extends StatefulWidget {
+  const BranchMasterScreen({super.key});
 
   @override
-  State<AssetMappingMasterScreen> createState() =>
-      _AssetMappingMasterScreenState();
+  State<BranchMasterScreen> createState() => _BranchMasterScreenState();
 }
 
-class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
+class _BranchMasterScreenState extends State<BranchMasterScreen> {
   // CUBIT
-  late AssetMappingMasterCubit _assetMappingMasterCubit;
+  late BranchMasterCubit _branchMasterCubit;
 
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
@@ -41,17 +41,22 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
   @override
   void initState() {
     super.initState();
-    _assetMappingMasterCubit = context.read<AssetMappingMasterCubit>();
+    _branchMasterCubit = context.read<BranchMasterCubit>();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.assetMappingMaster] ??
+        Authorization.routeAuthorizationMap[AppRoutes.branchMaster] ??
         AuthorizationModel();
     _initializeTextEditingController();
     _onScroll();
-    _assetMappingMasterCubit.getAssetMappingList(
+    _branchMasterCubit.getBranchList(
       context: context,
       pageNumber: 1,
       pageSize: 10,
     );
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLERS
+  void _initializeTextEditingController() {
+    _searchC = TextEditingController();
   }
 
   @override
@@ -61,25 +66,21 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     super.dispose();
   }
 
-  void _initializeTextEditingController() {
-    _searchC = TextEditingController();
-  }
-
   // <---- PAGINATION ---->
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
-          !(_assetMappingMasterCubit.state.isLoading ?? false) &&
-          _assetMappingMasterCubit.state.assetMappingList.length <
-              _assetMappingMasterCubit.state.totalNumberOfRecord) {
+          !(_branchMasterCubit.state.isLoading ?? false) &&
+          _branchMasterCubit.state.branchList.length <
+              _branchMasterCubit.state.totalNumberOfRecord) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _assetMappingMasterCubit.getAssetMappingList(
+          _branchMasterCubit.getBranchList(
             context: context,
-            pageNumber: _assetMappingMasterCubit.state.currentPage + 1,
+            pageNumber: _branchMasterCubit.state.currentPage + 1,
             pageSize: 10,
           );
         });
@@ -90,7 +91,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
   // <---- DELETE ASSET MAPPING ---->
   Future<void> _showPopupToDeleteAssetMappingMaster(
     BuildContext context,
-    AssetMappingModel obj,
+    BranchMasterModel obj,
     int currentPage,
     int index,
   ) async {
@@ -100,50 +101,53 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
       'Deleting this Asset Mapping will permanently remove its contents.',
     );
     if (result && context.mounted) {
-      _assetMappingMasterCubit.deleteAssetMapping(currentPage, obj, context);
+      _branchMasterCubit.deleteBranchMaster(
+        context: context,
+        branchMasterId: obj.branchMasterId,
+        uniqueKey: obj.uniquekey,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBar(
-        screenTitle: "Asset Mapping Master",
+        screenTitle: "Branch Master",
         authorization: _routeAuthorizationModel,
         onSearchSubmit: (value) {
-          _assetMappingMasterCubit.searchAssetMapping(value, context);
+          _branchMasterCubit.searchBranch(value, context);
         },
         textController: _searchC,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addAssetMappingMaster);
+        onAddCallback: (){
+          goRouter.pushNamed(AppRoutes.addBranchMaster);
         },
         onExportCallback: (value) {
-          _assetMappingMasterCubit.exportExcelPdf(context, value);
+          _branchMasterCubit.exportExcelPdf(context, value);
         },
       ),
-      body: BlocBuilder<AssetMappingMasterCubit, AssetMappingMasterState>(
+      body: BlocBuilder<BranchMasterCubit, BranchMasterState>(
         builder: (context, state) {
-          if ((state.isLoading ?? true) && state.assetMappingList.isEmpty) {
+          if ((state.isLoading ?? true) && state.branchList.isEmpty) {
             return Center(child: loader());
           }
-          if (state.assetMappingList.isEmpty) {
+          if (state.branchList.isEmpty) {
             return Center(child: noDataWidget());
           }
           return ListView.builder(
             controller: scrollController,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.assetMappingList.length + 1,
+            itemCount: state.branchList.length + 1,
             itemBuilder: (context, index) {
-              if (index == state.assetMappingList.length) {
-                return state.assetMappingList.length < state.totalNumberOfRecord
+              if (index == state.branchList.length) {
+                return state.branchList.length < state.totalNumberOfRecord
                     ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
+                  padding: EdgeInsets.all(16),
+                  child: Center(child: CircularProgressIndicator()),
+                )
                     : const SizedBox.shrink();
               }
-              var assetMapping = state.assetMappingList[index];
+              var branch = state.branchList[index];
               return Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.all(12),
@@ -158,11 +162,11 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                           child: GestureDetector(
                             onTap: () {
                               goRouter.pushNamed(
-                                AppRoutes.viewAssetMappingMaster,
+                                AppRoutes.viewBranchMaster,
                                 queryParameters: {
-                                  "assetMapping": Uri.encodeQueryComponent(
+                                  "branchMaster": Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
-                                      jsonEncode(assetMapping.toJson()),
+                                      jsonEncode(branch.toJson()),
                                     ),
                                   ),
                                 },
@@ -179,7 +183,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                                 ),
                               ),
                               child: Text(
-                                assetMapping.assetName,
+                                branch.branchName,
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
                                 ),
@@ -194,20 +198,20 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                             CustomIconButton.edit(
                               onPressed: () async {
                                 await goRouter.pushNamed(
-                                  AppRoutes.addAssetMappingMaster,
+                                  AppRoutes.addBranchMaster,
                                   queryParameters: {
-                                    "assetMapping": Uri.encodeQueryComponent(
+                                    "branchMaster": Uri.encodeQueryComponent(
                                       EncryptionManager.encryptData(
-                                        jsonEncode(assetMapping.toJson()),
+                                        jsonEncode(branch.toJson()),
                                       ),
                                     ),
                                     'index': index.toString(),
                                   },
                                 );
                                 if (context.mounted) {
-                                  _assetMappingMasterCubit.getAssetMappingList(
+                                  _branchMasterCubit.getBranchList(
                                     context: context,
-                                    pageNumber: state.currentPage,
+                                    pageNumber: 1,
                                     pageSize: 10,
                                   );
                                 }
@@ -218,7 +222,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                               onPressed: () {
                                 _showPopupToDeleteAssetMappingMaster(
                                   context,
-                                  assetMapping,
+                                  branch,
                                   state.currentPage,
                                   index,
                                 );
@@ -230,29 +234,17 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                     ),
                     verticalSpacing(height: 8),
                     _buildRowTitleValue(
-                      title: "Employee",
-                      value: assetMapping.employeeName,
+                      title: "Branch Code",
+                      value: branch.branchCode,
                     ),
                     _buildRowTitleValue(
-                      title: "Assigned Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        assetMapping.assignedDate,
-                      ),
+                      title: "Location",
+                      value: branch.location,
                     ),
                     _buildRowTitleValue(
-                      title: "Return Date",
-                      value: formatDateTimeAsDDMMMYYYY(assetMapping.returnDate),
+                      title: "Employee Count",
+                      value: branch.numberOfEmployee.toString(),
                     ),
-                    if (assetMapping.conditionOnIssue.isNotEmpty)
-                      _buildRowTitleValue(
-                        title: "Condition on Issue",
-                        value: assetMapping.conditionOnIssue,
-                      ),
-                    if (assetMapping.conditionOnReturn.isNotEmpty)
-                      _buildRowTitleValue(
-                        title: "Condition on Return",
-                        value: assetMapping.conditionOnReturn,
-                      ),
                   ],
                 ),
               );
@@ -260,6 +252,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
           );
         },
       ),
+
     );
   }
 

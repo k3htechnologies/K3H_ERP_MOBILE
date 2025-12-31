@@ -14,15 +14,14 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
   AssetMasterCubit() : super(AssetMasterState.initial());
 
   final AssetMasterRepository assetMasterRepository =
-      serviceLocator<AssetMasterRepository>();
+  serviceLocator<AssetMasterRepository>();
 
-  // Track request ID to ignore stale responses
-  int _requestId = 0;
-
+  // <---- RESET STATE ---->
   void resetState() {
     emit(AssetMasterState.initial());
   }
 
+  // <---- SEARCH ASSET ---->
   void searchAsset(String value, BuildContext context) {
     emit(
       state.copyWith(
@@ -32,85 +31,75 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
         currentPage: 1,
       ),
     );
-    getAssetsList(context: context, pageNumber: 1, pageSize: 10);
-  }
 
-  void sortAssetList(
-    BuildContext context,
-    String sortDirection,
-    String sortColumn,
-  ) {
-    emit(
-      state.copyWith(
-        isLoading: true,
-        currentSortColumn: sortColumn,
-        currentSortDirection: sortDirection,
-      ),
-    );
     getAssetsList(
       context: context,
-      pageNumber: state.currentPage,
-      pageSize: 20,
+      pageNumber: 1,
+      pageSize: 10,
     );
   }
 
+  // <---- SORT ASSET ---->
+  void sortAssetList(
+      BuildContext context,
+      String sortDirection,
+      String sortColumn,
+      ) {
+    emit(
+      state.copyWith(
+        currentSortColumn: sortColumn,
+        currentSortDirection: sortDirection,
+        assetList: [],
+        isLoading: true,
+        currentPage: 1,
+      ),
+    );
+
+    getAssetsList(
+      context: context,
+      pageNumber: 1,
+      pageSize: 10,
+    );
+  }
+
+  // <---- GET ASSET LIST ---->
   Future getAssetsList({
     required BuildContext context,
     required int pageNumber,
     required int pageSize,
   }) async {
-    // Increment request ID to track the latest request
-    _requestId++;
-    final currentRequestId = _requestId;
-
     emit(state.copyWith(isLoading: true));
-    var queryParams = {
+
+    final queryParams = {
       "AssetName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
-    var result = await assetMasterRepository.getAssetList(
+
+    final result = await assetMasterRepository.getAssetList(
       pageNumber: pageNumber,
       pageSize: pageSize,
       queryParams: queryParams,
     );
 
     result.fold(
-      (failure) {
-        // Ignore stale failures from previous requests
-        if (currentRequestId != _requestId) {
-          return;
-        }
+          (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
-      (response) {
-        // Ignore stale responses from previous requests
-        if (currentRequestId != _requestId) {
-          return;
-        }
+          (response) {
+        final List<AssetMasterModel> newData =
+        List<AssetMasterModel>.from(response['data'] ?? []);
 
-        final dataList = response['data'];
-        List<AssetMasterModel> mappedList;
-        if (dataList is List<AssetMasterModel>) {
-          mappedList = dataList;
-        } else if (dataList is List) {
-          mappedList = dataList
-              .map((e) => AssetMasterModel.fromJson(e as Map<String, dynamic>))
-              .toList();
-        } else {
-          mappedList = [];
-        }
-        List<AssetMasterModel> updatedList = pageNumber == 1
-            ? mappedList
-            : [...state.assetList, ...mappedList];
+        final List<AssetMasterModel> updatedList =
+        pageNumber == 1
+            ? newData
+            : [...state.assetList, ...newData];
+
         emit(
           state.copyWith(
             assetList: updatedList,
             isLoading: false,
-            totalNumberOfRecord:
-                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
-                    ? state.totalNumberOfRecord - 1
-                    : response['totalNumberOfRecord'],
+            totalNumberOfRecord: response['totalNumberOfRecord'],
             currentPage: pageNumber,
           ),
         );
@@ -118,6 +107,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     );
   }
 
+  // <---- ADD ASSET ---->
   Future addAsset({
     required BuildContext context,
     required String assetName,
@@ -132,7 +122,8 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     DateTime? warrantyDate,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-    var body = {
+
+    final body = {
       "AssetMasterId": 0,
       "AssetCode": assetCode,
       "AssetName": assetName,
@@ -146,30 +137,36 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
       if (warrantyDate != null)
         "WarrantyExpiryDate": warrantyDate.toIso8601String(),
     };
-    var result = await assetMasterRepository.addUpdateAsset(body: body);
-    goRouter.pop();
-    result.fold(
-      (failure) {
-        showErrorMessage(context, 'Error', failure.message);
-        return;
-      },
-      (success) {
-        goRouter.pop();
-        showSuccessMessage(context, subTitle: 'Asset Added Successfully');
 
+    final result =
+    await assetMasterRepository.addUpdateAsset(body: body);
+
+    goRouter.pop();
+
+    result.fold(
+          (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+          (response) {
+        goRouter.pop();
+
+        final newAsset = response['data'] as AssetMasterModel;
         emit(
           state.copyWith(
-            assetList: [
-              success['data'] as AssetMasterModel,
-              ...state.assetList,
-            ],
-            totalNumberOfRecord: success['totalNumberOfRecord'],
+            assetList: [newAsset, ...state.assetList],
+            totalNumberOfRecord: state.totalNumberOfRecord + 1,
           ),
+        );
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Asset Added Successfully',
         );
       },
     );
   }
 
+  // <---- UPDATE ASSET ---->
   Future updateAsset({
     required int index,
     required BuildContext context,
@@ -187,7 +184,8 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     DateTime? warrantyDate,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-    var body = {
+
+    final body = {
       "AssetMasterId": assetMasterId,
       "UniqueKey": uniqueKey,
       "AssetCode": assetCode,
@@ -202,47 +200,60 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
       if (warrantyDate != null)
         "WarrantyExpiryDate": warrantyDate.toIso8601String(),
     };
-    var result = await assetMasterRepository.addUpdateAsset(body: body);
-    goRouter.pop();
-    result.fold(
-      (failure) {
-        showErrorMessage(context, 'Error', failure.message);
-        return;
-      },
-      (success) {
-        goRouter.pop();
-        final updatedList = List<AssetMasterModel>.from(state.assetList);
-        updatedList[index] = success['data'] as AssetMasterModel;
-        showSuccessMessage(context, subTitle: "Asset Updated Successfully");
 
-        emit(
-          state.copyWith(
-            assetList: updatedList,
-            totalNumberOfRecord: success['totalNumberOfRecord'],
-          ),
+    final result =
+    await assetMasterRepository.addUpdateAsset(body: body);
+
+    goRouter.pop();
+
+    result.fold(
+          (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+          (response) {
+        goRouter.pop();
+
+        if (index < state.assetList.length) {
+          final updatedList =
+          List<AssetMasterModel>.from(state.assetList);
+          updatedList[index] = response['data'] as AssetMasterModel;
+
+          emit(state.copyWith(assetList: updatedList));
+        }
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Asset Updated Successfully',
         );
       },
     );
   }
 
+
+  // <---- DELETE ASSET ---->
   Future deleteAsset(
-    int index,
-    AssetMasterModel asset,
-    BuildContext context,
-  ) async {
+      AssetMasterModel asset,
+      BuildContext context,
+      ) async {
     DialogHelper.showProcessingOverlay(context);
-    var result = await assetMasterRepository.deleteAsset(
+
+    final result = await assetMasterRepository.deleteAsset(
       assetMasterId: asset.assetMasterId,
       uniqueKey: asset.uniquekey,
     );
+
     goRouter.pop();
+
     result.fold(
-      (failure) {
+          (failure) {
         showErrorMessage(context, "Error", failure.message);
-        return;
       },
-      (success) {
-        showSuccessMessage(context, subTitle: "Asset Deleted Successfully");
+          (success) {
+        showSuccessMessage(
+          context,
+          subTitle: "Asset Deleted Successfully",
+        );
+
         getAssetsList(
           context: context,
           pageNumber: state.currentPage,
@@ -252,24 +263,31 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     );
   }
 
+  // <---- EXPORT ---->
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
-    var result = await assetMasterRepository.exportAsset(
+
+    final result = await assetMasterRepository.exportAsset(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
-      queryParams: {"ExportType": exportType, "AssetName": state.searchText},
+      queryParams: {
+        "ExportType": exportType,
+        "AssetName": state.searchText,
+      },
     );
+
     goRouter.pop();
+
     result.fold(
-      (failure) {
+          (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
-      (success) {
+          (success) {
         exportExcelOrPdfMobile(
           success["data"],
           exportType.toLowerCase() == "pdf"
-              ? "branch_${DateTime.now()}.pdf"
-              : "branch_${DateTime.now()}.xlsx",
+              ? "asset_${DateTime.now()}.pdf"
+              : "asset_${DateTime.now()}.xlsx",
         );
       },
     );

@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -42,10 +43,14 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     _assetMasterCubit = context.read<AssetMasterCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.assetMaster] ??
-            AuthorizationModel();
+        AuthorizationModel();
     _initializeTextEditingController();
     _onScroll();
-    _assetMasterCubit.getAssetsList(context: context, pageNumber: 1, pageSize: 15);
+    _assetMasterCubit.getAssetsList(
+      context: context,
+      pageNumber: 1,
+      pageSize: 15,
+    );
   }
 
   @override
@@ -55,6 +60,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     super.dispose();
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
   }
@@ -79,6 +85,23 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
         });
       }
     });
+  }
+
+  // <---- DELETE ASSET MAPPING ---->
+  Future<void> _showPopupToDeleteAssetMaster(
+      BuildContext context,
+      AssetMasterModel obj,
+      int currentPage,
+      int index,
+      ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a Asset Mapping?',
+      'Deleting this Asset Mapping will permanently remove its contents.',
+    );
+    if (result && context.mounted) {
+      _assetMasterCubit.deleteAsset( obj, context);
+    }
   }
 
   @override
@@ -115,9 +138,9 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
               if (index == state.assetList.length) {
                 return state.assetList.length < state.totalNumberOfRecord
                     ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
                     : const SizedBox.shrink();
               }
               var asset = state.assetList[index];
@@ -131,11 +154,31 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
+                        Flexible(
+                          child: GestureDetector(
+                            onTap: () {
+                              goRouter.pushNamed(
+                                AppRoutes.viewAssetMaster,
+                                queryParameters: {
+                                  "asset": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(asset.toJson()),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 0,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: AppColor.primary),
+                                ),
+                              ),
+                              child: Text(
                                 asset.assetName,
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
@@ -143,14 +186,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              if (asset.assetCode.isNotEmpty)
-                                Text(
-                                  asset.assetCode,
-                                  style: AppTextStyle.ts12R(
-                                    color: AppColor.grey,
-                                  ),
-                                ),
-                            ],
+                            ),
                           ),
                         ),
                         Row(
@@ -180,7 +216,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                             const SizedBox(width: 8),
                             CustomIconButton.delete(
                               onPressed: () {
-                                _showDeleteDialog(asset, index);
+                                _showPopupToDeleteAssetMaster(context, asset, state.currentPage, index);
                               },
                             ),
                           ],
@@ -220,7 +256,9 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                     if (asset.warrantyExpiryDate != null)
                       _buildRowTitleValue(
                         title: "Warranty Expiry",
-                        value: formatDateTimeAsDDMMMYYYY(asset.warrantyExpiryDate!),
+                        value: formatDateTimeAsDDMMMYYYY(
+                          asset.warrantyExpiryDate!,
+                        ),
                       ),
                     _buildStatusWidget(asset.status),
                   ],
@@ -244,10 +282,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
           // TITLE
           SizedBox(
             width: 120,
-            child: Text(
-              title,
-              style: AppTextStyle.ts14R(color: AppColor.grey),
-            ),
+            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
           ),
 
           // COLON
@@ -312,43 +347,4 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     );
   }
 
-  void _showDeleteDialog(AssetMasterModel asset, int index) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Delete Asset',
-            style: AppTextStyle.ts16M(),
-          ),
-          content: Text(
-            'Are you sure you want to delete ${asset.assetName}?',
-            style: AppTextStyle.ts14R(),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'Cancel',
-                style: AppTextStyle.ts14R(color: AppColor.grey),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _assetMasterCubit.deleteAsset(index, asset, context);
-              },
-              child: Text(
-                'Delete',
-                style: AppTextStyle.ts14R(color: AppColor.error),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
-

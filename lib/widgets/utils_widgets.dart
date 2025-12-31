@@ -55,7 +55,7 @@ Widget loader() {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset("assets/images/logo.png", width: 100, height: 100),
+              Image.asset("assets/images/appLogo.png", width: 100, height: 100),
               verticalSpacing(),
               CircularProgressIndicator(
                 color: AppColor.primary,

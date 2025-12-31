@@ -315,12 +315,17 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
                 },
               ),
               verticalSpacing(height: 24),
-              CustomButton(
-                text: _isEditMode ? "Update Asset" : "Add Asset",
-                onPressed: _submitForm,
-              ),
-              verticalSpacing(height: 16),
             ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 70,
+          padding: EdgeInsets.all(16),
+          child:  CustomButton(
+            text: _isEditMode ? "Update Asset" : "Add Asset",
+            onPressed: _submitForm,
           ),
         ),
       ),

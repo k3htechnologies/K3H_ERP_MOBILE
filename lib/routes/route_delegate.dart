@@ -17,6 +17,17 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/pages/asset_master_view_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/pages/asset_mapping_master_view_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/data/model/branch_association_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/presentation/cubit/branch_association_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/presentation/pages/add_branch_association_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/presentation/pages/branch_association_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/data/model/branch_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/presentation/cubit/branch_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/presentation/pages/add_branch_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/presentation/pages/branch_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/presentation/pages/branch_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/data/model/material_master.model.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/cubit/material_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/pages/add_material_master_screen.dart';
@@ -470,12 +481,12 @@ final GoRouter goRouter = GoRouter(
             final TermsAndConditionsModel? termsAndCondition =
                 queryParameterTnc != null
                     ? TermsAndConditionsModel.fromJson(
-                        jsonDecode(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(queryParameterTnc),
-                          ),
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterTnc),
                         ),
-                      )
+                      ),
+                    )
                     : null;
             final index =
                 int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
@@ -493,80 +504,241 @@ final GoRouter goRouter = GoRouter(
           },
         ),
         // ASSET MASTER
-        GoRoute(
-          name: AppRoutes.assetMaster,
-          path: AppRoutes.assetMaster,
-          builder: (context, state) {
-            return BlocProvider.value(
-              value: serviceLocator<AssetMasterCubit>(),
-              child: const AssetMasterScreen(),
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => serviceLocator<AssetMasterCubit>(),
+              child: child,
             );
           },
-        ),
-        GoRoute(
-          name: AppRoutes.addAssetMaster,
-          path: AppRoutes.addAssetMaster,
-          builder: (context, state) {
-            final queryParameterAsset =
-                state.uri.queryParameters['asset'];
-            final AssetMasterModel? asset =
-                queryParameterAsset != null
-                    ? AssetMasterModel.fromJson(
-                        jsonDecode(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(queryParameterAsset),
+          routes: [
+            GoRoute(
+              name: AppRoutes.assetMaster,
+              path: AppRoutes.assetMaster,
+              builder: (context, state) {
+                return const AssetMasterScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addAssetMaster,
+              path: AppRoutes.addAssetMaster,
+              builder: (context, state) {
+                final queryParameterAsset = state.uri.queryParameters['asset'];
+
+                final AssetMasterModel? asset =
+                    queryParameterAsset != null
+                        ? AssetMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterAsset),
+                            ),
                           ),
-                        ),
-                      )
-                    : null;
-            final index =
-                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-            return BlocProvider.value(
-              value: serviceLocator<AssetMasterCubit>(),
-              child: AddAssetMasterScreen(
-                asset: asset,
-                index: index,
-              ),
-            );
-          },
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddAssetMasterScreen(asset: asset, index: index);
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewAssetMaster,
+              path: AppRoutes.viewAssetMaster,
+              builder: (context, state) {
+                final queryParameterAsset = state.uri.queryParameters['asset'];
+
+                final AssetMasterModel? assetMaster =
+                    queryParameterAsset != null
+                        ? AssetMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterAsset),
+                            ),
+                          ),
+                        )
+                        : null;
+                return AssetMasterViewScreen(assetMaster: assetMaster!);
+              },
+            ),
+          ],
         ),
         // ASSET MAPPING MASTER
-        GoRoute(
-          name: AppRoutes.assetMappingMaster,
-          path: AppRoutes.assetMappingMaster,
-          builder: (context, state) {
-            return BlocProvider.value(
-              value: serviceLocator<AssetMappingMasterCubit>(),
-              child: const AssetMappingMasterScreen(),
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => serviceLocator<AssetMappingMasterCubit>(),
+              child: child,
             );
           },
-        ),
-        GoRoute(
-          name: AppRoutes.addAssetMappingMaster,
-          path: AppRoutes.addAssetMappingMaster,
-          builder: (context, state) {
-            final queryParameterAssetMapping =
-                state.uri.queryParameters['assetMapping'];
-            final AssetMappingModel? assetMapping =
-                queryParameterAssetMapping != null
-                    ? AssetMappingModel.fromJson(
-                        jsonDecode(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(queryParameterAssetMapping),
+          routes: [
+            GoRoute(
+              name: AppRoutes.assetMappingMaster,
+              path: AppRoutes.assetMappingMaster,
+              builder: (context, state) {
+                return const AssetMappingMasterScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addAssetMappingMaster,
+              path: AppRoutes.addAssetMappingMaster,
+              builder: (context, state) {
+                final queryParameterAssetMapping =
+                    state.uri.queryParameters['assetMapping'];
+
+                final AssetMappingModel? assetMapping =
+                    queryParameterAssetMapping != null
+                        ? AssetMappingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterAssetMapping),
+                            ),
                           ),
-                        ),
-                      )
-                    : null;
-            final index =
-                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-            return BlocProvider.value(
-              value: serviceLocator<AssetMappingMasterCubit>(),
-              child: AddAssetMappingMasterScreen(
-                assetMapping: assetMapping,
-                index: index,
-              ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddAssetMappingMasterScreen(
+                  assetMapping: assetMapping,
+                  index: index,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewAssetMappingMaster,
+              path: AppRoutes.viewAssetMappingMaster,
+              builder: (context, state) {
+                final queryParameterAssetMapping =
+                    state.uri.queryParameters['assetMapping'];
+                final AssetMappingModel? assetMapping =
+                    queryParameterAssetMapping != null
+                        ? AssetMappingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterAssetMapping),
+                            ),
+                          ),
+                        )
+                        : null;
+                return AssetMappingMasterViewScreen(
+                  assetMapping: assetMapping!,
+                );
+              },
+            ),
+          ],
+        ),
+        // BRANCH MASTER
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => serviceLocator<BranchMasterCubit>(),
+              child: child,
             );
           },
+          routes: [
+            GoRoute(
+              name: AppRoutes.branchMaster,
+              path: AppRoutes.branchMaster,
+              builder: (context, state) {
+                return const BranchMasterScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addBranchMaster,
+              path: AppRoutes.addBranchMaster,
+              builder: (context, state) {
+                final queryParameterBranchMaster =
+                    state.uri.queryParameters['branchMaster'];
+
+                final BranchMasterModel? branchMaster =
+                    queryParameterBranchMaster != null
+                        ? BranchMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterBranchMaster),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddBranchMasterScreen(
+                  branch: branchMaster,
+                  index: index,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewBranchMaster,
+              path: AppRoutes.viewBranchMaster,
+              builder: (context, state) {
+                final queryParameterBranchMaster =
+                    state.uri.queryParameters['branchMaster'];
+                final BranchMasterModel? branchMaster =
+                    queryParameterBranchMaster != null
+                        ? BranchMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterBranchMaster),
+                            ),
+                          ),
+                        )
+                        : null;
+                return BranchMasterViewScreen(branch: branchMaster!);
+              },
+            ),
+          ],
+        ),
+        // BRANCH ASSOCIATION MASTER
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => serviceLocator<BranchAssociationMasterCubit>(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.branchAssociation,
+              path: AppRoutes.branchAssociation,
+              builder: (context, state) {
+                return const BranchAssociationMasterScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addBranchAssociation,
+              path: AppRoutes.addBranchAssociation,
+              builder: (context, state) {
+                final queryParameterBranchAssociationMaster =
+                    state.uri.queryParameters['branchAssociation'];
+
+                final BranchAssociationModel? branchAssociation =
+                    queryParameterBranchAssociationMaster != null
+                        ? BranchAssociationModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(
+                                queryParameterBranchAssociationMaster,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddBranchAssociationMasterScreen(
+                  branchAssociation: branchAssociation,
+                  index: index,
+                );
+              },
+            ),
+          ],
         ),
         // EMPLOYEE MASTER
         ShellRoute(
@@ -635,9 +807,7 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
-              create:
-                  (_) =>
-                      ProjectMasterCubit(),
+              create: (_) => ProjectMasterCubit(),
               child: child,
             );
           },
@@ -743,24 +913,22 @@ final GoRouter goRouter = GoRouter(
           builder: (context, state) {
             final queryParameterMaterial =
                 state.uri.queryParameters['material'];
-            final MaterialMasterModel? material = queryParameterMaterial != null
-                ? MaterialMasterModel.fromJson(
-                    jsonDecode(
-                      EncryptionManager.decryptData(
-                        Uri.decodeQueryComponent(queryParameterMaterial),
+            final MaterialMasterModel? material =
+                queryParameterMaterial != null
+                    ? MaterialMasterModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeQueryComponent(queryParameterMaterial),
+                        ),
                       ),
-                    ),
-                  )
-                : null;
+                    )
+                    : null;
             final index =
                 int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
             // Use BlocProvider.value with service locator to get the singleton instance
             return BlocProvider.value(
               value: serviceLocator<MaterialMasterCubit>(),
-              child: AddMaterialMasterScreen(
-                material: material,
-                index: index,
-              ),
+              child: AddMaterialMasterScreen(material: material, index: index),
             );
           },
         ),
@@ -793,12 +961,12 @@ final GoRouter goRouter = GoRouter(
             final SubMaterialMasterModel? subMaterial =
                 queryParameterSubMaterial != null
                     ? SubMaterialMasterModel.fromJson(
-                        jsonDecode(
-                          EncryptionManager.decryptData(
-                            Uri.decodeQueryComponent(queryParameterSubMaterial),
-                          ),
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeQueryComponent(queryParameterSubMaterial),
                         ),
-                      )
+                      ),
+                    )
                     : null;
             final index =
                 int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;

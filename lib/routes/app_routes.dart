@@ -100,10 +100,15 @@ class AppRoutes {
   // HRM
   static String assetMaster = "/assetMaster";
   static String addAssetMaster = "/addAssetMaster";
+  static String viewAssetMaster = "/viewAssetMaster";
   static String assetMappingMaster = "/assetMappingMaster";
   static String addAssetMappingMaster = "/addAssetMappingMaster";
+  static String viewAssetMappingMaster = "/viewAssetMappingMaster";
   static String branchMaster = "/branchMaster";
+  static String addBranchMaster = "/addBranchMaster";
+  static String viewBranchMaster = "/viewBranchMaster";
   static String branchAssociation = "/branchAssociationsMaster";
+  static String addBranchAssociation = "/addBranchAssociationsMaster";
   static String leaveType = "/leaveTypeMaster";
   static String leaveEncashmentMaster = "/leaveEncashmentMaster";
   static String holidayMaster = "/holidayMaster";
