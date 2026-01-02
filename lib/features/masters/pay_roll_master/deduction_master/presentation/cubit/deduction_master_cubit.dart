@@ -40,7 +40,7 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
     emit(state.copyWith(isLoading: true));
 
     var queryParams = {
-      "EmployeeName": state.searchText,
+      "Name": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 
@@ -78,11 +78,11 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
     required BuildContext context,
     required String name,
     required String type,
-    required int value,
+    required double value,
     required int branchMasterId,
     required int stateMasterId,
-    required int minSalary,
-    required int maxSalary,
+    required double minSalary,
+    required double maxSalary,
     required String gender,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -127,11 +127,11 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
     required String uniqueKey,
     required String name,
     required String type,
-    required int value,
+    required double value,
     required int branchMasterId,
     required int stateMasterId,
-    required int minSalary,
-    required int maxSalary,
+    required double minSalary,
+    required double maxSalary,
     required String gender,
   }) async {
     DialogHelper.showProcessingOverlay(context);

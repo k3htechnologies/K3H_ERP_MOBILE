@@ -154,9 +154,6 @@ class _RichTextInputState extends State<RichTextInput> {
   void _parseHtmlAndSetFormatting(String html) {
     String plainText = html;
 
-    // Debug: Print incoming HTML
-    print('Parsing HTML: $html');
-
     // Check for bold
     if (html.contains('<b>') && html.contains('</b>')) {
       _isBold = true;
@@ -226,10 +223,6 @@ class _RichTextInputState extends State<RichTextInput> {
 
     _controller.text = plainText;
 
-    // Debug: Print formatting states
-    print(
-      'Parsed HTML - Bold: $_isBold, Italic: $_isItalic, Underline: $_isUnderlined, Strikethrough: $_isStrikethrough',
-    );
   }
 
   Color _parseHexColor(String hexColor) {

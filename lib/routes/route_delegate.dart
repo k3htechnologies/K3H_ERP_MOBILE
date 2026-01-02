@@ -28,6 +28,22 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/prese
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/presentation/pages/add_branch_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/presentation/pages/branch_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/presentation/pages/branch_master_view_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/deduction_master/data/model/deduction_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/deduction_master/presentation/cubit/deduction_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/deduction_master/presentation/pages/add_deduction_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/deduction_master/presentation/pages/deduction_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/earning_master/data/model/earning_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/earning_master/presentation/cubit/earning_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/earning_master/presentation/pages/add_earning_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/earning_master/presentation/pages/earning_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_mapping_master/data/model/holiday_mapping_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_mapping_master/presentation/cubit/holiday_mapping_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_mapping_master/presentation/pages/add_holiday_mapping_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_mapping_master/presentation/pages/holiday_mapping_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/data/model/holiday_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/presentation/cubit/holiday_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/presentation/pages/add_holiday_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/presentation/pages/holiday_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/data/model/material_master.model.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/cubit/material_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/pages/add_material_master_screen.dart';
@@ -734,6 +750,190 @@ final GoRouter goRouter = GoRouter(
 
                 return AddBranchAssociationMasterScreen(
                   branchAssociation: branchAssociation,
+                  index: index,
+                );
+              },
+            ),
+          ],
+        ),
+        // DEDUCTION MASTER
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => serviceLocator<DeductionMasterCubit>(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.deductionMaster,
+              path: AppRoutes.deductionMaster,
+              builder: (context, state) {
+                return const DeductionMasterScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addDeductionMaster,
+              path: AppRoutes.addDeductionMaster,
+              builder: (context, state) {
+                final queryParameterDeductionMaster =
+                    state.uri.queryParameters['deduction'];
+
+                final DeductionMasterModel? deduction =
+                    queryParameterDeductionMaster != null
+                        ? DeductionMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(
+                                queryParameterDeductionMaster,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddDeductionMasterScreen(
+                  deductionMasterModel: deduction,
+                  index: index,
+                );
+              },
+            ),
+          ],
+        ),
+        // EARNING MASTER
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => serviceLocator<EarningMasterCubit>(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.earningMaster,
+              path: AppRoutes.earningMaster,
+              builder: (context, state) {
+                return const EarningMasterScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addEarningMaster,
+              path: AppRoutes.addEarningMaster,
+              builder: (context, state) {
+                final queryParameterEarningMaster =
+                    state.uri.queryParameters['earning'];
+
+                final EarningMasterModel? earning =
+                    queryParameterEarningMaster != null
+                        ? EarningMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterEarningMaster),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddEarningMasterScreen(
+                  earningMasterModel: earning,
+                  index: index,
+                );
+              },
+            ),
+          ],
+        ),
+        // HOLIDAY MASTER
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => serviceLocator<HolidayMasterCubit>(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.holidayMaster,
+              path: AppRoutes.holidayMaster,
+              builder: (context, state) {
+                return const HolidayMasterScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addHolidayMaster,
+              path: AppRoutes.addHolidayMaster,
+              builder: (context, state) {
+                final queryParameterHolidayMaster =
+                    state.uri.queryParameters['holiday'];
+
+                final HolidayMasterModel? holiday =
+                    queryParameterHolidayMaster != null
+                        ? HolidayMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterHolidayMaster),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddHolidayMasterScreen(
+                  holidayMaster: holiday,
+                  index: index,
+                );
+              },
+            ),
+          ],
+        ),
+        // HOLIDAY MAPPING MASTER
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => serviceLocator<HolidayMappingMasterCubit>(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.holidayMappingMaster,
+              path: AppRoutes.holidayMappingMaster,
+              builder: (context, state) {
+                return const HolidayMappingMasterScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addHolidayMappingMaster,
+              path: AppRoutes.addHolidayMappingMaster,
+              builder: (context, state) {
+                final queryParameterHolidayMappingMaster =
+                    state.uri.queryParameters['holidayMapping'];
+
+                final HolidayMappingModel? holidayMapping =
+                    queryParameterHolidayMappingMaster != null
+                        ? HolidayMappingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(
+                                queryParameterHolidayMappingMaster,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddHolidayMappingMasterScreen(
+                  holidayMapping: holidayMapping,
                   index: index,
                 );
               },

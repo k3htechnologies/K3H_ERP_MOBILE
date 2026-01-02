@@ -1,18 +1,13 @@
 import 'package:k3h_erp_app/utils/common_function.dart';
 
-class DeductionMasterModel {
-  int deductionMasterId;
+class EarningMasterModel {
+  int earningMasterId;
   String uniquekey;
   String name;
   String type;
   double value;
   int branchMasterId;
   String branchName;
-  double minSalary;
-  double maxSalary;
-  String gender;
-  int stateMasterId;
-  String stateName;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -20,19 +15,14 @@ class DeductionMasterModel {
   String modifiedBy;
   DateTime? modifiedDate;
 
-  DeductionMasterModel({
-    required this.deductionMasterId,
+  EarningMasterModel({
+    required this.earningMasterId,
     required this.uniquekey,
     required this.name,
     required this.type,
     required this.value,
     required this.branchMasterId,
     required this.branchName,
-    required this.minSalary,
-    required this.maxSalary,
-    required this.gender,
-    required this.stateMasterId,
-    required this.stateName,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -41,20 +31,15 @@ class DeductionMasterModel {
     required this.modifiedDate,
   });
 
-  factory DeductionMasterModel.fromJson(Map<String, dynamic> json) =>
-      DeductionMasterModel(
-        deductionMasterId: json["DeductionMasterId"],
+  factory EarningMasterModel.fromJson(Map<String, dynamic> json) =>
+      EarningMasterModel(
+        earningMasterId: parseValue<int>(json, "EarningMasterId"),
         uniquekey: parseValue<String>(json, "Uniquekey"),
         name: parseValue<String>(json, "Name"),
         type: parseValue<String>(json, "Type"),
         value: parseValue<double>(json, "Value"),
         branchMasterId: parseValue<int>(json, "BranchMasterId"),
         branchName: parseValue<String>(json, "BranchName"),
-        minSalary: parseValue<double>(json, "MinSalary"),
-        maxSalary: parseValue<double>(json, "MaxSalary"),
-        gender: parseValue<String>(json, "Gender"),
-        stateMasterId: parseValue<int>(json, "StateMasterId"),
-        stateName: parseValue<String>(json, "StateName"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -67,18 +52,13 @@ class DeductionMasterModel {
       );
 
   Map<String, dynamic> toJson() => {
-    "DeductionMasterId": deductionMasterId,
+    "EarningMasterId": earningMasterId,
     "Uniquekey": uniquekey,
     "Name": name,
     "Type": type,
     "Value": value,
     "BranchMasterId": branchMasterId,
     "BranchName": branchName,
-    "MinSalary": minSalary,
-    "MaxSalary": maxSalary,
-    "Gender": gender,
-    "StateMasterId": stateMasterId,
-    "StateName": stateName,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

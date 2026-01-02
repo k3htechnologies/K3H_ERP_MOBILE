@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/marketing/content/content.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/masters/holiday_mapping_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/project_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/profile/profile.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
@@ -12,9 +13,12 @@ import 'feature_dependencies/masters/bank_list_master.dependencies.dart';
 import 'feature_dependencies/masters/branch_association_master.dependencies.dart';
 import 'feature_dependencies/masters/branch_master.dependencies.dart';
 import 'feature_dependencies/masters/company_master_dependencies.dart';
+import 'feature_dependencies/masters/deduction_master.dependencies.dart';
 import 'feature_dependencies/masters/department_master.dependencies.dart';
 import 'feature_dependencies/masters/designation_master.dependencies.dart';
+import 'feature_dependencies/masters/earning_master.dependencies.dart';
 import 'feature_dependencies/masters/employee_master.dependencies.dart';
+import 'feature_dependencies/masters/holiday_master.dependencies.dart';
 import 'feature_dependencies/masters/material_master.dependencies.dart';
 import 'feature_dependencies/masters/sub_material_master.dependencies.dart';
 import 'feature_dependencies/masters/terms_and_condition.dependencies.dart';
@@ -49,6 +53,14 @@ void initDependencies() {
   registerBranchMasterDependencies(serviceLocator);
   // BRANCH ASSOCIATION MASTER DEPENDENCIES
   registerBranchAssociationMasterDependencies(serviceLocator);
+  // DEDUCTION MASTER DEPENDENCIES
+  registerDeductionMasterDependencies(serviceLocator);
+  // EARNING MASTER DEPENDENCIES
+  registerEarningMasterDependencies(serviceLocator);
+  // HOLIDAY MASTER DEPENDENCIES
+  registerHolidayMasterDependencies(serviceLocator);
+  // HOLIDAY MAPPING MASTER DEPENDENCIES
+  registerHolidayMappingMasterDependencies(serviceLocator);
   // MATERIAL MASTER DEPENDENCIES
   registerMaterialMasterDependencies(serviceLocator);
   // SUB MATERIAL MASTER DEPENDENCIES

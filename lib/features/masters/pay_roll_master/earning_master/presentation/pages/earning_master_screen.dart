@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/asset_mapping.model.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/cubit/asset_mapping_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/earning_master/data/model/earning_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/earning_master/presentation/cubit/earning_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -16,38 +17,37 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class AssetMappingMasterScreen extends StatefulWidget {
-  const AssetMappingMasterScreen({super.key});
+class EarningMasterScreen extends StatefulWidget {
+  const EarningMasterScreen({super.key});
 
   @override
-  State<AssetMappingMasterScreen> createState() =>
-      _AssetMappingMasterScreenState();
+  State<EarningMasterScreen> createState() => _EarningMasterScreenState();
 }
 
-class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
+class _EarningMasterScreenState extends State<EarningMasterScreen> {
   // CUBIT
-  late AssetMappingMasterCubit _assetMappingMasterCubit;
+  late EarningMasterCubit _earningMasterCubit;
 
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
+
+  // TEXT EDITING CONTROLLERS
+  late TextEditingController _searchC;
 
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
 
-  // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC;
-
   @override
   void initState() {
     super.initState();
-    _assetMappingMasterCubit = context.read<AssetMappingMasterCubit>();
-    _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.assetMappingMaster] ??
-        AuthorizationModel();
     _initializeTextEditingController();
+    _earningMasterCubit = context.read<EarningMasterCubit>();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.earningMaster] ??
+        AuthorizationModel();
     _onScroll();
-    _assetMappingMasterCubit.getAssetMappingList(
+    _earningMasterCubit.getEarningList(
       context: context,
       pageNumber: 1,
       pageSize: 10,
@@ -56,11 +56,12 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
 
   @override
   void dispose() {
-    scrollController.dispose();
-    _searchC.dispose();
     super.dispose();
+    _searchC.dispose();
+    scrollController.dispose();
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
   }
@@ -71,15 +72,15 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
-          !(_assetMappingMasterCubit.state.isLoading ?? false) &&
-          _assetMappingMasterCubit.state.assetMappingList.length <
-              _assetMappingMasterCubit.state.totalNumberOfRecord) {
+          !(_earningMasterCubit.state.isLoading ?? false) &&
+          _earningMasterCubit.state.earningList.length <
+              _earningMasterCubit.state.totalNumberOfRecord) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _assetMappingMasterCubit.getAssetMappingList(
+          _earningMasterCubit.getEarningList(
             context: context,
-            pageNumber: _assetMappingMasterCubit.state.currentPage + 1,
+            pageNumber: _earningMasterCubit.state.currentPage + 1,
             pageSize: 10,
           );
         });
@@ -87,10 +88,10 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     });
   }
 
-  // <---- DELETE ASSET MAPPING ---->
-  Future<void> _showPopupToDeleteAssetMappingMaster(
+  // <---- DELETE EARNING ---->
+  Future<void> _showPopupToDeleteEarningMaster(
     BuildContext context,
-    AssetMappingModel obj,
+    EarningMasterModel obj,
     int currentPage,
     int index,
   ) async {
@@ -100,7 +101,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
       'Deleting this Asset Mapping will permanently remove its contents.',
     );
     if (result && context.mounted) {
-      _assetMappingMasterCubit.deleteAssetMapping(currentPage, obj, context);
+      _earningMasterCubit.deleteEarning(currentPage, obj, context);
     }
   }
 
@@ -108,41 +109,41 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "Asset Mapping Master",
+        screenTitle: "Earning",
         authorization: _routeAuthorizationModel,
+        onAddCallback: () {
+          goRouter.pushNamed(AppRoutes.addEarningMaster);
+        },
         onSearchSubmit: (value) {
-          _assetMappingMasterCubit.searchAssetMapping(value, context);
+          _earningMasterCubit.searchEarning(value, context);
         },
         textController: _searchC,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addAssetMappingMaster);
-        },
         onExportCallback: (value) {
-          _assetMappingMasterCubit.exportExcelPdf(context, value);
+          _earningMasterCubit.exportExcelPdf(context, value);
         },
       ),
-      body: BlocBuilder<AssetMappingMasterCubit, AssetMappingMasterState>(
+      body: BlocBuilder<EarningMasterCubit, EarningMasterState>(
         builder: (context, state) {
-          if ((state.isLoading ?? true) && state.assetMappingList.isEmpty) {
+          if ((state.isLoading ?? true) && state.earningList.isEmpty) {
             return Center(child: loader());
           }
-          if (state.assetMappingList.isEmpty) {
+          if (state.earningList.isEmpty) {
             return Center(child: noDataWidget());
           }
           return ListView.builder(
             controller: scrollController,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.assetMappingList.length + 1,
+            itemCount: state.earningList.length + 1,
             itemBuilder: (context, index) {
-              if (index == state.assetMappingList.length) {
-                return state.assetMappingList.length < state.totalNumberOfRecord
+              if (index == state.earningList.length) {
+                return state.earningList.length < state.totalNumberOfRecord
                     ? const Padding(
                       padding: EdgeInsets.all(16),
                       child: Center(child: CircularProgressIndicator()),
                     )
                     : const SizedBox.shrink();
               }
-              var assetMapping = state.assetMappingList[index];
+              var earning = state.earningList[index];
               return Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.all(12),
@@ -154,37 +155,23 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.viewAssetMappingMaster,
-                                queryParameters: {
-                                  "assetMapping": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(assetMapping.toJson()),
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 0,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(color: AppColor.primary),
                               ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
+                            ),
+                            child: Text(
+                              earning.name,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
                               ),
-                              child: Text(
-                                assetMapping.assetName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),
@@ -193,18 +180,18 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                             CustomIconButton.edit(
                               onPressed: () async {
                                 await goRouter.pushNamed(
-                                  AppRoutes.addAssetMappingMaster,
+                                  AppRoutes.addEarningMaster,
                                   queryParameters: {
-                                    "assetMapping": Uri.encodeQueryComponent(
+                                    "earning": Uri.encodeQueryComponent(
                                       EncryptionManager.encryptData(
-                                        jsonEncode(assetMapping.toJson()),
+                                        jsonEncode(earning.toJson()),
                                       ),
                                     ),
                                     'index': index.toString(),
                                   },
                                 );
                                 if (context.mounted) {
-                                  _assetMappingMasterCubit.getAssetMappingList(
+                                  _earningMasterCubit.getEarningList(
                                     context: context,
                                     pageNumber: state.currentPage,
                                     pageSize: 10,
@@ -215,9 +202,9 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                             const SizedBox(width: 8),
                             CustomIconButton.delete(
                               onPressed: () {
-                                _showPopupToDeleteAssetMappingMaster(
+                                _showPopupToDeleteEarningMaster(
                                   context,
-                                  assetMapping,
+                                  earning,
                                   state.currentPage,
                                   index,
                                 );
@@ -228,30 +215,15 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                       ],
                     ),
                     verticalSpacing(height: 8),
+                    _buildRowTitleValue(title: "Type", value: earning.type),
                     _buildRowTitleValue(
-                      title: "Employee",
-                      value: assetMapping.employeeName,
+                      title: "Value",
+                      value: "₹ ${earning.value}",
                     ),
                     _buildRowTitleValue(
-                      title: "Assigned Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        assetMapping.assignedDate,
-                      ),
+                      title: "Branch Name",
+                      value: earning.branchName,
                     ),
-                    _buildRowTitleValue(
-                      title: "Return Date",
-                      value: formatDateTimeAsDDMMMYYYY(assetMapping.returnDate),
-                    ),
-                    if (assetMapping.conditionOnIssue.isNotEmpty)
-                      _buildRowTitleValue(
-                        title: "Condition on Issue",
-                        value: assetMapping.conditionOnIssue,
-                      ),
-                    if (assetMapping.conditionOnReturn.isNotEmpty)
-                      _buildRowTitleValue(
-                        title: "Condition on Return",
-                        value: assetMapping.conditionOnReturn,
-                      ),
                   ],
                 ),
               );
@@ -299,5 +271,4 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
       ),
     );
   }
-
 }

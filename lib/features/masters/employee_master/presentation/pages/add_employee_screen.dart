@@ -106,7 +106,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   ];
 
   // SELECTED VALUES
-  // BASIC EMPLOYEE DETAILS
   Map<String, dynamic>? selectedGender;
   Map<String, dynamic>? selectedMaritalStatus;
   Map<String, dynamic>? selectedBloodGroup;

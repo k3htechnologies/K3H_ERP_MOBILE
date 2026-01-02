@@ -1,13 +1,21 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/deduction_master/data/model/deduction_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/deduction_master/presentation/cubit/deduction_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class DeductionMasterScreen extends StatefulWidget {
   const DeductionMasterScreen({super.key});
@@ -81,11 +89,11 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
 
   // <---- DELETE ASSET MAPPING ---->
   Future<void> _showPopupToDeleteAssetMappingMaster(
-      BuildContext context,
-      DeductionMasterModel obj,
-      int currentPage,
-      int index,
-      ) async {
+    BuildContext context,
+    DeductionMasterModel obj,
+    int currentPage,
+    int index,
+  ) async {
     var result = await DialogHelper.deleteDialog(
       context,
       'You are about to delete a Asset Mapping?',
@@ -106,9 +114,217 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
           _deductionMasterCubit.searchAssetMapping(value, context);
         },
         textController: _searchC,
+        onAddCallback: () {
+          goRouter.pushNamed(AppRoutes.addDeductionMaster);
+        },
         onExportCallback: (value) {
           _deductionMasterCubit.exportExcelPdf(context, value);
         },
+      ),
+      body: BlocBuilder<DeductionMasterCubit, DeductionMasterState>(
+        builder: (context, state) {
+          if ((state.isLoading ?? true) && state.deductionList.isEmpty) {
+            return Center(child: loader());
+          }
+          if (state.deductionList.isEmpty) {
+            return Center(child: noDataWidget());
+          }
+          return ListView.builder(
+            controller: scrollController,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            itemCount: state.deductionList.length + 1,
+            itemBuilder: (context, index) {
+              if (index == state.deductionList.length) {
+                return state.deductionList.length < state.totalNumberOfRecord
+                    ? const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                    : const SizedBox.shrink();
+              }
+              var deduction = state.deductionList[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(12),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 0,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(color: AppColor.primary),
+                              ),
+                            ),
+                            child: Text(
+                              deduction.name,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            CustomIconButton.edit(
+                              onPressed: () async {
+                                await goRouter.pushNamed(
+                                  AppRoutes.addDeductionMaster,
+                                  queryParameters: {
+                                    "deduction": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(deduction.toJson()),
+                                      ),
+                                    ),
+                                    'index': index.toString(),
+                                  },
+                                );
+                                if (context.mounted) {
+                                  _deductionMasterCubit.getDeductionList(
+                                    context: context,
+                                    pageNumber: state.currentPage,
+                                    pageSize: 10,
+                                  );
+                                }
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            CustomIconButton.delete(
+                              onPressed: () {
+                                _showPopupToDeleteAssetMappingMaster(
+                                  context,
+                                  deduction,
+                                  state.currentPage,
+                                  index,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(height: 8),
+                    _buildRowTitleValue(
+                      title: "Deduction Type",
+                      value: deduction.type,
+                    ),
+                    _buildRowTitleValue(
+                      title: "Deduction Value",
+                      value: "₹ ${deduction.value}",
+                    ),
+                    _buildRowTitleValue(
+                      title: "Branch Name",
+                      value: deduction.branchName,
+                    ),
+                    _buildRowTitleValue(
+                      title: "Min Salary",
+                      value: "₹ ${deduction.minSalary}",
+                    ),
+                    _buildRowTitleValue(
+                      title: "Max Salary",
+                      value: "₹ ${deduction.maxSalary}",
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 160,
+                            child: Text(
+                              "Gender",
+                              style: AppTextStyle.ts14R(color: AppColor.grey),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 20,
+                            child: Text(
+                              ":",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: AppColor.grey),
+                            ),
+                          ),
+
+                          Flexible(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColor.lightBlue,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                deduction.gender,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyle.ts14R(
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildRowTitleValue(
+                      title: "State Name",
+                      value: deduction.stateName,
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  // BUILD ROW TITLE VALUE
+  Widget _buildRowTitleValue({required String title, required String value}) {
+    if (value.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // TITLE
+          SizedBox(
+            width: 160,
+            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
+          ),
+
+          // COLON
+          SizedBox(
+            width: 20,
+            child: Text(
+              ":",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColor.grey),
+            ),
+          ),
+
+          // VALUE
+          Expanded(
+            child: Text(
+              value,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyle.ts14R(),
+            ),
+          ),
+        ],
       ),
     );
   }

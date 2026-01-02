@@ -112,9 +112,13 @@ class AppRoutes {
   static String leaveType = "/leaveTypeMaster";
   static String leaveEncashmentMaster = "/leaveEncashmentMaster";
   static String holidayMaster = "/holidayMaster";
+  static String addHolidayMaster = "/addHolidayMaster";
   static String holidayMappingMaster = "/holidayMappingMaster";
+  static String addHolidayMappingMaster = "/addHolidayMappingMaster";
   static String earningMaster = "/earningMaster";
+  static String addEarningMaster = "/addEarningMaster";
   static String deductionMaster = "/deductionMaster";
+  static String addDeductionMaster = "/addDeductionMaster";
   static String shiftMaster = "/shiftMaster";
   static String shiftMappingMaster = "/shiftMappingMaster";
   static String weekOffMaster = "/weekOffMaster";
