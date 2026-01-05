@@ -433,6 +433,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
+          height: 70,
           padding: EdgeInsets.all(16),
           color: AppColor.white,
           child: CustomButton(text: "Save", onPressed: _save),

@@ -24,6 +24,7 @@ import 'feature_dependencies/masters/sub_material_master.dependencies.dart';
 import 'feature_dependencies/masters/terms_and_condition.dependencies.dart';
 import 'feature_dependencies/masters/uom_master.dependencies.dart';
 import 'feature_dependencies/project_management/approved_bank/approved_bank.dependencies.dart';
+import 'feature_dependencies/redevelopment/building/building.dependencies.dart';
 import 'feature_dependencies/vendor_management/vendor_management.dependencies.dart';
 
 final GetIt serviceLocator = GetIt.instance;
@@ -79,4 +80,6 @@ void initDependencies() {
   registerApprovedBankDependencies(serviceLocator);
   // CALENDAR DEPENDENCIES
   registerCalendarDependencies(serviceLocator);
+  // REDEVELOPMENT DEPENDENCIES
+  registerRedevelopmentDependencies(serviceLocator);
 }

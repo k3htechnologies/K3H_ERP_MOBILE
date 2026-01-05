@@ -49,6 +49,7 @@ class _CompanyMasterViewMobileScreenState
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
+          height: 70,
           padding: EdgeInsets.all(16),
           color: AppColor.white,
           child: CustomButton(

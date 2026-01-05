@@ -1,0 +1,304 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/building_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+class BuildingScreen extends StatefulWidget {
+  const BuildingScreen({super.key});
+
+  @override
+  State<BuildingScreen> createState() => _BuildingScreenState();
+}
+
+class _BuildingScreenState extends State<BuildingScreen> {
+  // CUBIT
+  late BuildingCubit _buildingCubit;
+
+  // AUTHORIZATION
+  late AuthorizationModel _routeAuthorizationModel;
+
+  // PAGINATION
+  late ScrollController scrollController;
+  Timer? _debounce;
+
+  // TEXT EDITING CONTROLLERS
+  late TextEditingController _searchC;
+
+  late ProjectModel _project;
+
+  @override
+  void initState() {
+    super.initState();
+    _buildingCubit = context.read<BuildingCubit>();
+    _project = getProject();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.building] ??
+        AuthorizationModel();
+    _initializeTextEditingController();
+    _onScroll();
+    _buildingCubit.getBuildingList(context, 1, 10, _project.projectId);
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    _searchC.dispose();
+    super.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLERS
+  void _initializeTextEditingController() {
+    _searchC = TextEditingController();
+  }
+
+  // <---- PAGINATION ---->
+  void _onScroll() {
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+              scrollController.position.maxScrollExtent - 100 &&
+          !(_buildingCubit.state.isLoading ?? false) &&
+          _buildingCubit.state.buildingList.length <
+              _buildingCubit.state.totalNumberOfRecord) {
+        // TO HANDLE MULTIPLE TIME API CALLS
+        if (_debounce?.isActive ?? false) _debounce?.cancel();
+        _debounce = Timer(const Duration(milliseconds: 300), () {
+          _buildingCubit.getBuildingList(
+            context,
+            _buildingCubit.state.currentPage + 1,
+            10,
+            _project.projectId,
+          );
+        });
+      }
+    });
+  }
+
+  // <---- DELETE ASSET MAPPING ---->
+  Future<void> _showPopupToDeleteBuilding(
+    BuildContext context,
+    RedevelopmentBuildingModel obj,
+    int currentPage,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a Building?',
+      'Deleting this Building will permanently remove its contents.',
+    );
+    if (result && context.mounted) {
+      _buildingCubit.deleteBuilding(_project.projectId, obj, context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColor.lightGreyBackground,
+      appBar: CustomAppBar(
+        screenTitle: "Building",
+        authorization: _routeAuthorizationModel,
+        onSearchSubmit: (value) {
+          _buildingCubit.searchBuilding(context, _project.projectId, value);
+        },
+        textController: _searchC,
+        onAddCallback: () {
+          goRouter.pushNamed(AppRoutes.addBuilding);
+        },
+        onExportCallback: (value) {
+          _buildingCubit.exportExcelPdf(context, value, _project.projectId);
+        },
+      ),
+      body: BlocBuilder<BuildingCubit, BuildingState>(
+        builder: (context, state) {
+          if ((state.isLoading ?? true) && state.buildingList.isEmpty) {
+            return Center(child: loader());
+          }
+          if (state.buildingList.isEmpty) {
+            return Center(child: noDataWidget());
+          }
+          return ListView.builder(
+            controller: scrollController,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            itemCount: state.buildingList.length + 1,
+            itemBuilder: (context, index) {
+              if (index == state.buildingList.length) {
+                return state.buildingList.length < state.totalNumberOfRecord
+                    ? const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                    : const SizedBox.shrink();
+              }
+              var building = state.buildingList[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(12),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      spacing: 10,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: GestureDetector(
+                            onTap: () {
+                              goRouter.pushNamed(
+                                AppRoutes.viewBuilding,
+                                queryParameters: {
+                                  "building": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(building.toJson()),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 0,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: AppColor.primary),
+                                ),
+                              ),
+                              child: Text(
+                                building.buildingName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            CustomIconButton.edit(
+                              onPressed: () async {
+                                await goRouter.pushNamed(
+                                  AppRoutes.addBuilding,
+                                  queryParameters: {
+                                    "building": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(building.toJson()),
+                                      ),
+                                    ),
+                                    'index': index.toString(),
+                                  },
+                                );
+                                if (context.mounted) {
+                                  _buildingCubit.getBuildingList(
+                                    context,
+                                    1,
+                                    10,
+                                    _project.projectId,
+                                  );
+                                }
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            CustomIconButton.delete(
+                              onPressed: () {
+                                _showPopupToDeleteBuilding(
+                                  context,
+                                  building,
+                                  state.currentPage,
+                                  index,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(height: 8),
+                    _buildRowTitleValue(
+                      title: "CTS Number",
+                      value: building.ctsNumber,
+                    ),
+                    _buildRowTitleValue(
+                      title: "Total Plot Area(Sq. ft)",
+                      value: building.totalPlotAreaSqFt.toString(),
+                    ),
+                    _buildRowTitleValue(
+                      title: "Road Width",
+                      value: building.roadWidth,
+                    ),
+                    _buildRowTitleValue(
+                      title: "Total Floor",
+                      value: building.numberOfFloors.toString(),
+                    ),
+                    _buildRowTitleValue(
+                      title: "Total Units",
+                      value: building.totalNumberOfUnits.toString(),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  // BUILD ROW TITLE VALUE
+  Widget _buildRowTitleValue({required String title, required String value}) {
+    if (value.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // TITLE
+          SizedBox(
+            width: 180,
+            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
+          ),
+
+          // COLON
+          SizedBox(
+            width: 20,
+            child: Text(
+              ":",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColor.grey),
+            ),
+          ),
+
+          // VALUE
+          Expanded(
+            child: Text(
+              value,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyle.ts14R(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
