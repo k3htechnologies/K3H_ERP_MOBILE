@@ -1,13 +1,18 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_mapping_master/data/model/holiday_mapping_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_mapping_master/presentation/cubit/holiday_mapping_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -84,6 +89,27 @@ class _HolidayMappingMasterScreenState
     });
   }
 
+  // <---- DELETE HOLIDAY MAPPING ---->
+  Future<void> _showPopupToDeleteHolidayMappingMaster(
+    BuildContext context,
+    HolidayMappingModel obj,
+    int currentPage,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a Holiday Mapping?',
+      'Deleting this Holiday Mapping will permanently remove its contents.',
+    );
+    if (result && context.mounted) {
+      _holidayMappingMasterCubit.deleteHolidayMapping(
+        currentPage,
+        obj,
+        context,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,7 +120,12 @@ class _HolidayMappingMasterScreenState
           _holidayMappingMasterCubit.searchHolidayMapping(value, context);
         },
         textController: _searchC,
-        onAddCallback: () {},
+        onAddCallback: () {
+          goRouter.pushNamed(AppRoutes.addHolidayMappingMaster);
+        },
+        onExportCallback: (value) {
+          _holidayMappingMasterCubit.exportExcelPdf(context, value);
+        },
       ),
       body: BlocBuilder<HolidayMappingMasterCubit, HolidayMappingMasterState>(
         builder: (context, state) {
@@ -154,28 +185,38 @@ class _HolidayMappingMasterScreenState
                           children: [
                             CustomIconButton.edit(
                               onPressed: () async {
-                                //   await goRouter.pushNamed(
-                                //     AppRoutes.addAssetMappingMaster,
-                                //     queryParameters: {
-                                //       "assetMapping": Uri.encodeQueryComponent(
-                                //         EncryptionManager.encryptData(
-                                //           jsonEncode(holidayMapping.toJson()),
-                                //         ),
-                                //       ),
-                                //       'index': index.toString(),
-                                //     },
-                                //   );
-                                //   if (context.mounted) {
-                                //     _assetMappingMasterCubit.getAssetMappingList(
-                                //       context: context,
-                                //       pageNumber: state.currentPage,
-                                //       pageSize: 10,
-                                //     );
-                                //   }
+                                await goRouter.pushNamed(
+                                  AppRoutes.addHolidayMappingMaster,
+                                  queryParameters: {
+                                    "holidayMapping": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(holidayMapping.toJson()),
+                                      ),
+                                    ),
+                                    'index': index.toString(),
+                                  },
+                                );
+                                if (context.mounted) {
+                                  _holidayMappingMasterCubit
+                                      .getHolidayMappingList(
+                                        context: context,
+                                        pageNumber: state.currentPage,
+                                        pageSize: 10,
+                                      );
+                                }
                               },
                             ),
-                            const SizedBox(width: 8),
-                            CustomIconButton.delete(onPressed: () {}),
+                            horizontalSpacing(),
+                            CustomIconButton.delete(
+                              onPressed: () {
+                                _showPopupToDeleteHolidayMappingMaster(
+                                  context,
+                                  holidayMapping,
+                                  state.currentPage,
+                                  index,
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ],
@@ -184,6 +225,13 @@ class _HolidayMappingMasterScreenState
                     _buildRowTitleValue(
                       title: "Branch",
                       value: holidayMapping.branchName,
+                    ),
+                    verticalSpacing(height: 8),
+                    _buildRowTitleValue(
+                      title: "Holiday Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        holidayMapping.holidayDate,
+                      ),
                     ),
                   ],
                 ),

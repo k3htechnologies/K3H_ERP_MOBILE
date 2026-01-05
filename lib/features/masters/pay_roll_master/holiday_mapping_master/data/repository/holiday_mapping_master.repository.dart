@@ -11,8 +11,7 @@ abstract interface class HolidayMappingMasterRepository {
   });
 
   Future<Either<Failure, Map<String, dynamic>>> addUpdateMappedHoliday({
-    required Map<String, String> body,
-    required List<Map<String, dynamic>> fileList,
+    required Map<String, dynamic> body,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> deleteMappedHoliday({
@@ -92,12 +91,11 @@ class HolidayMappingMasterRepositoryImpl
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> addUpdateMappedHoliday({
-    required Map<String, String> body,
-    required List<Map<String, dynamic>> fileList,
+    required Map<String, dynamic> body,
   }) async {
     try {
       var result = await holidayMappingMasterDatasource
-          .apicallAddUpdateHolidayMapping(body: body, fileList: fileList);
+          .apicallAddUpdateHolidayMapping(body: body);
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

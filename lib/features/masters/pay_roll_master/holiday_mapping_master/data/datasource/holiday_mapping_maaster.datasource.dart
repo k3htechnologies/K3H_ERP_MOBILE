@@ -10,8 +10,7 @@ abstract interface class HolidayMappingMasterDatasource {
   });
 
   Future<Map<String, dynamic>> apicallAddUpdateHolidayMapping({
-    required Map<String, String> body,
-    required List<Map<String, dynamic>> fileList,
+    required Map<String, dynamic> body,
   });
 
   Future<Map<String, dynamic>> apicallDeleteHolidayMapping({
@@ -77,19 +76,16 @@ class HolidayMappingMasterDatasourceImpl
 
   @override
   Future<Map<String, dynamic>> apicallAddUpdateHolidayMapping({
-    required Map<String, String> body,
-    required List<Map<String, dynamic>> fileList,
+    required Map<String, dynamic> body,
   }) async {
     String addUpdateMappedHolidayUrl =
         "HolidayMappingMaster/AddUpdateHolidayMappingMaster";
 
     try {
-      var networkResponse = await baseClient
-          .multipartRequestWithAuthenticationBytes(
-            addUpdateMappedHolidayUrl,
-            fileList,
-            body,
-          );
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateMappedHolidayUrl,
+        body,
+      );
       return {
         'data': List<HolidayMappingModel>.from(
           networkResponse["data"].map((e) => HolidayMappingModel.fromJson(e)),
@@ -99,7 +95,7 @@ class HolidayMappingMasterDatasourceImpl
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallAddUpdateHolidayMapping(body: body, fileList: fileList);
+        apicallAddUpdateHolidayMapping(body: body);
       }
       rethrow;
     }

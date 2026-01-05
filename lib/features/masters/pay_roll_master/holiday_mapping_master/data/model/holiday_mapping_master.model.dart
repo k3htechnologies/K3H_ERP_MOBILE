@@ -56,14 +56,14 @@ class HolidayMappingModel {
     "Uniquekey": uniquekey,
     "HolidayMasterId": holidayMasterId,
     "HolidayName": holidayName,
-    "HolidayDate": holidayDate,
+    "HolidayDate": holidayDate.toIso8601String(),
     "BranchName": branchName,
     "BranchMasterId": branchMasterId,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
-    "CreatedDate": createdDate,
+    "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
   };
 }

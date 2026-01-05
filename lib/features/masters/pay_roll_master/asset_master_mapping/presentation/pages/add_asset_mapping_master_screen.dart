@@ -34,6 +34,8 @@ class AddAssetMappingMasterScreen extends StatefulWidget {
 class _AddAssetMappingMasterScreenState extends State<AddAssetMappingMasterScreen> {
   // CUBIT
   late AssetMappingMasterCubit _assetMappingMasterCubit;
+
+  // REPOSITORY
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
   final AssetMasterRepository _assetMasterRepository =
