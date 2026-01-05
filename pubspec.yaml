@@ -82,6 +82,8 @@ dependencies:
   shimmer: ^3.0.0
   # LAUNCH ICON
   flutter_launcher_icons: ^0.14.4
+  # DIO LOGGER
+  pretty_dio_logger: ^1.4.0
 
 # DEV DEPENDENCIES
 dev_dependencies:

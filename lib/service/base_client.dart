@@ -278,10 +278,12 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:k3h_erp_app/env/env.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import 'exceptions.dart';
 
@@ -367,7 +369,9 @@ class BaseClient {
                 requestOptions: e.requestOptions,
                 response: e.response,
                 type: DioExceptionType.badResponse,
-                error: MenuChangedException("Menu - Your access has been modified"),
+                error: MenuChangedException(
+                  "Menu - Your access has been modified",
+                ),
               ),
             );
           }
@@ -395,8 +399,22 @@ class BaseClient {
         },
       ),
     );
-  }
 
+    // Add PrettyDioLogger for logging
+
+    _dio.interceptors.add(
+      PrettyDioLogger(
+        requestHeader: true,
+        requestBody: true,
+        responseBody: true,
+        compact: false,
+        enabled: kDebugMode,
+        logPrint: (object) {
+          log(object.toString());
+        },
+      ),
+    );
+  }
 
   // --------------------------------------------------------------------------
   // GET WITHOUT AUTH
@@ -506,8 +524,8 @@ class BaseClient {
   // --------------------------------------------------------------------------
 
   dynamic _processResponse(Response response) {
-    log(response.statusCode.toString());
-    log(response.data.toString());
+    // log(response.statusCode.toString());
+    // log(response.data.toString());
 
     // Check response headers for menu change indication
     final headers = response.headers;
@@ -560,7 +578,9 @@ class BaseClient {
           final successMessage = successList[0].toString().toLowerCase();
           if (successMessage.contains("menu") ||
               successMessage.contains("authorization")) {
-            throw MenuChangedException("Menu - ${jsonResponse["SuccessMessage"][0]}");
+            throw MenuChangedException(
+              "Menu - ${jsonResponse["SuccessMessage"][0]}",
+            );
           }
         }
       }
@@ -690,7 +710,7 @@ class BaseClient {
     if (e.error is MenuChangedException) {
       throw e.error as MenuChangedException;
     }
-    
+
     // Also check if the response data indicates menu change
     if (e.response?.data != null) {
       try {
@@ -701,7 +721,7 @@ class BaseClient {
         }
       }
     }
-    
+
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout ||
         e.type == DioExceptionType.sendTimeout) {
