@@ -118,7 +118,9 @@ import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/b
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_view_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
+import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_tenant_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
@@ -1251,24 +1253,43 @@ final GoRouter goRouter = GoRouter(
           ],
         ),
         // TENANT
-        ShellRoute(
-          builder: (context, state, child) {
+        GoRoute(
+          name: AppRoutes.tenant,
+          path: AppRoutes.tenant,
+          builder: (context, state) {
             return BlocProvider(
-              create: (_) => serviceLocator<TenantCubit>(),
-              child: child,
+              create: (_) => TenantCubit(),
+              child: const TenantScreen(),
             );
           },
-          routes: [
-            GoRoute(
-              name: AppRoutes.tenant,
-              path: AppRoutes.tenant,
-              builder: (context, state) {
-                return const TenantScreen();
-              },
-            ),
-          /*  GoRoute(
-              name: AppRoutes.addBuilding,
-              path: AppRoutes.addBuilding,
+        ),
+        GoRoute(
+          name: AppRoutes.addTenant,
+          path: AppRoutes.addTenant,
+          builder: (context, state) {
+            final queryParameterTenant = state.uri.queryParameters['tenant'];
+
+            final TenantModel? tenant =
+                queryParameterTenant != null
+                    ? TenantModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterTenant),
+                        ),
+                      ),
+                    )
+                    : null;
+            final index =
+                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+            return BlocProvider(
+              create: (_) => TenantCubit(),
+              child: AddTenantScreen(tenant: tenant, index: index),
+            );
+          },
+        ),
+        /*  GoRoute(
+            name: AppRoutes.addBuilding,
+            path: AppRoutes.addBuilding,
               builder: (context, state) {
                 final queryParameterBuilding =
                 state.uri.queryParameters['building'];
@@ -1310,9 +1331,9 @@ final GoRouter goRouter = GoRouter(
 
                 return BuildingViewScreen(building: building!);
               },
-            ),*/
+            ),
           ],
-        ),
+        ),*/
         // CALENDAR
         ShellRoute(
           builder: (context, state, child) {

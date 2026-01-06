@@ -34,7 +34,6 @@ class TenantCubit extends Cubit<TenantState> {
         currentPage: 1,
       ),
     );
-
     getTenantList(
       context: context,
       projectId: projectId,
@@ -60,16 +59,14 @@ class TenantCubit extends Cubit<TenantState> {
     );
 
     final buildingList = result.fold<List<RedevelopmentBuildingModel>>(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
-        return [];
+        return state.buildingList;
       },
-          (response) {
+      (response) {
         List<RedevelopmentBuildingModel> updatedList = List.from(state.buildingList);
-
         updatedList.addAll(response['data'] as List<RedevelopmentBuildingModel>);
-
         emit(state.copyWith(isLoading: false, buildingList: updatedList));
         return updatedList;
       },
@@ -108,18 +105,18 @@ class TenantCubit extends Cubit<TenantState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        final List<TenantModel> newData = List<TenantModel>.from(
-          response['data'] ?? [],
-        );
+        final List<TenantModel> newData =
+            List<TenantModel>.from(response['data'] ?? []);
 
-        final List<TenantModel> updatedList =
-            pageNumber == 1 ? newData : [...state.tenantList, ...newData];
+        final List<TenantModel> updatedList = pageNumber == 1
+            ? newData
+            : [...state.tenantList, ...newData];
 
         emit(
           state.copyWith(
             tenantList: updatedList,
             isLoading: false,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
+            totalNumberOfRecord: response['totalNumberOfRecord'] ?? 0,
             currentPage: pageNumber,
           ),
         );
