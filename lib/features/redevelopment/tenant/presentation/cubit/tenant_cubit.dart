@@ -2,17 +2,21 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/data/repository/building.repository.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/repository/tenant.repository.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:meta/meta.dart';
 
 part 'tenant_state.dart';
 
 class TenantCubit extends Cubit<TenantState> {
   TenantCubit() : super(TenantState.initial());
 
+  // BUILDING REPOSITORY
+  final BuildingRepository _buildingRepository =
+  serviceLocator<BuildingRepository>();
+  // TENANT REPOSITORY
   final TenantRepository _tenantRepository = serviceLocator<TenantRepository>();
 
   // <---- SEARCH TENANT ---->
@@ -40,7 +44,41 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
-  // <---- GET ASSET LIST ---->
+  // <---- GET BUILDING LIST ---->
+  Future<List<RedevelopmentBuildingModel>> getBuildingList(
+      BuildContext context,
+      int pageNumber,
+      int pageSize,
+      int projectId,
+      ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await _buildingRepository.pullBuilding(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      projectId: projectId,
+    );
+
+    final buildingList = result.fold<List<RedevelopmentBuildingModel>>(
+          (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error Message", failure.message);
+        return [];
+      },
+          (response) {
+        List<RedevelopmentBuildingModel> updatedList = List.from(state.buildingList);
+
+        updatedList.addAll(response['data'] as List<RedevelopmentBuildingModel>);
+
+        emit(state.copyWith(isLoading: false, buildingList: updatedList));
+        return updatedList;
+      },
+    );
+
+    return buildingList;
+  }
+
+  // <---- GET TENANT LIST ---->
   Future getTenantList({
     required BuildContext context,
     required int projectId,

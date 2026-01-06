@@ -118,6 +118,8 @@ import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/b
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_view_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
+import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
@@ -1246,6 +1248,69 @@ final GoRouter goRouter = GoRouter(
                 return BuildingViewScreen(building: building!);
               },
             ),
+          ],
+        ),
+        // TENANT
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => serviceLocator<TenantCubit>(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.tenant,
+              path: AppRoutes.tenant,
+              builder: (context, state) {
+                return const TenantScreen();
+              },
+            ),
+          /*  GoRoute(
+              name: AppRoutes.addBuilding,
+              path: AppRoutes.addBuilding,
+              builder: (context, state) {
+                final queryParameterBuilding =
+                state.uri.queryParameters['building'];
+
+                final RedevelopmentBuildingModel? building =
+                queryParameterBuilding != null
+                    ? RedevelopmentBuildingModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterBuilding),
+                    ),
+                  ),
+                )
+                    : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddBuildingScreen(building: building, index: index);
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewBuilding,
+              path: AppRoutes.viewBuilding,
+              builder: (context, state) {
+                final queryParameterBuilding =
+                state.uri.queryParameters['building'];
+
+                final RedevelopmentBuildingModel? building =
+                queryParameterBuilding != null
+                    ? RedevelopmentBuildingModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterBuilding),
+                    ),
+                  ),
+                )
+                    : null;
+
+                return BuildingViewScreen(building: building!);
+              },
+            ),*/
           ],
         ),
         // CALENDAR

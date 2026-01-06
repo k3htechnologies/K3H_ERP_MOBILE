@@ -2,7 +2,7 @@ part of 'tenant_cubit.dart';
 
 class TenantState extends BaseState {
   final List<TenantModel> tenantList;
-  final List<BuildingModel> buildingList;
+  final List<RedevelopmentBuildingModel> buildingList;
   final int totalNumberOfRecord;
   final int currentPage;
   final int totalNumberOfRecordCharges;
@@ -40,7 +40,7 @@ class TenantState extends BaseState {
   TenantState copyWith({
     bool? isLoading,
     List<TenantModel>? tenantList,
-    List<BuildingModel>? buildingList,
+    List<RedevelopmentBuildingModel>? buildingList,
     int? totalNumberOfRecord,
     int? currentPage,
     int? totalNumberOfRecordCharges,
