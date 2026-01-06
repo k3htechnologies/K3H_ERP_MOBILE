@@ -44,6 +44,10 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/data
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/presentation/cubit/holiday_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/presentation/pages/add_holiday_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/presentation/pages/holiday_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_encashment_master/data/model/leave_encashment_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_encashment_master/presentation/cubit/leave_encashment_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_encashment_master/presentation/pages/add_leave_encashment_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_encashment_master/presentation/pages/leave_encashment_screen.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/data/model/material_master.model.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/cubit/material_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/pages/add_material_master_screen.dart';
@@ -131,6 +135,7 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
+import 'package:path/path.dart';
 
 String? authenticateAndAuthorizeRoute(GoRouterState state) {
   // SPLASH || LOGIN
@@ -939,6 +944,50 @@ final GoRouter goRouter = GoRouter(
 
                 return AddHolidayMappingMasterScreen(
                   holidayMapping: holidayMapping,
+                  index: index,
+                );
+              },
+            ),
+          ],
+        ),
+        //LEAVE ENCASHMENT MASTER
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => LeaveEncashmentMasterCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              path: AppRoutes.leaveEncashmentMaster,
+              name: AppRoutes.leaveEncashmentMaster,
+              builder: (context, state) {
+                return const LeaveEncashmentScreen();
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addLeaveEncashmentMaster,
+              name: AppRoutes.addLeaveEncashmentMaster,
+              builder: (context, state) {
+                final queryParameterLeaveEncashment =
+                    state.uri.queryParameters['leaveEncashment'];
+                final LeaveEncashmentMasterModel? leaveEncashmentMasterModel =
+                    queryParameterLeaveEncashment != null
+                        ? LeaveEncashmentMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(
+                                queryParameterLeaveEncashment,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return AddLeaveEncashmentMasterScreen(
+                  leaveEncashmentMasterModel: leaveEncashmentMasterModel,
                   index: index,
                 );
               },
