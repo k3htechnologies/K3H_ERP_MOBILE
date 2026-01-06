@@ -62,6 +62,35 @@ class InputValidator {
     return true;
   }
 
+  static List<TextInputFormatter> percentage() {
+    return [
+      // allow values like 0, 0., 0.5, 10.25, 100, 100.00
+      FilteringTextInputFormatter.allow(
+        RegExp(r'^\d{0,3}(\.\d{0,2})?$'),
+      ),
+
+      // post-formatter to clamp value between 0 and 100
+      TextInputFormatter.withFunction((oldValue, newValue) {
+        final text = newValue.text;
+
+        // allow empty / typing stage
+        if (text.isEmpty || text == "." || text.endsWith(".")) {
+          return newValue;
+        }
+
+        final value = double.tryParse(text);
+        if (value == null) return oldValue;
+
+        // clamp between 0 and 100
+        if (value < 0 || value > 100) {
+          return oldValue; // reject
+        }
+
+        return newValue; // accept
+      }),
+    ];
+  }
+
   static List<TextInputFormatter> emailInputFormatters() {
     return [
       LengthLimitingTextInputFormatter(50), // optional limit

@@ -10,6 +10,7 @@ class BuildingState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
+  final int resetCounter;
 
   const BuildingState({
     super.isLoading,
@@ -23,6 +24,7 @@ class BuildingState extends BaseState {
     required this.searchText,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    this.resetCounter = 0,
   });
 
   factory BuildingState.initial() => BuildingState(
@@ -36,6 +38,7 @@ class BuildingState extends BaseState {
     isLoading: true,
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
+    resetCounter: 0,
   );
 
   BuildingState copyWith({
@@ -50,6 +53,7 @@ class BuildingState extends BaseState {
     String? searchText,
     String? currentSortColumn,
     String? currentSortDirection,
+    int? resetCounter,
   }) {
     return BuildingState(
       isLoading: isLoading ?? this.isLoading,
@@ -63,6 +67,7 @@ class BuildingState extends BaseState {
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      resetCounter: resetCounter ?? this.resetCounter,
     );
   }
 

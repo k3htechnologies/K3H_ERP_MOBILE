@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
@@ -21,8 +20,14 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class AddBuildingScreen extends StatefulWidget {
   final RedevelopmentBuildingModel? building;
   final int index;
+  final int? projectId;
 
-  const AddBuildingScreen({super.key, this.building, this.index = 0});
+  const AddBuildingScreen({
+    super.key,
+    this.building,
+    this.index = 0,
+    this.projectId,
+  });
 
   @override
   State<AddBuildingScreen> createState() => _AddBuildingScreenState();
@@ -84,7 +89,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
   ];
 
   // PROJECT ID VAR
-  late ProjectModel _project;
+  late int _projectId;
 
   bool get _isEditMode => widget.building != null;
 
@@ -93,7 +98,8 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     super.initState();
     initializeTextEditingController();
     _buildingCubit = context.read<BuildingCubit>();
-    _project = getProject();
+    // Use projectId from query parameter if provided, otherwise get from getProject()
+    _projectId = widget.projectId ?? getProject().projectId;
     _routhAuthorizationModel = AuthorizationModel();
     if (_isEditMode && widget.building != null) {
       _populateFormFields(widget.building!);
@@ -187,7 +193,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
       final buildingData = {
         'BuildingId': buildingModel?.buildingId ?? 0,
         if (buildingModel != null) 'UniqueKey': buildingModel.uniquekey,
-        'ProjectId': _project.projectId,
+        'ProjectId': _projectId,
         'BuildingName': _buildingNameC.text.trim(),
         'CTSNumber': _ctsNumberC.text.trim(),
         'TotalPlotAreaSqFt': double.tryParse(_totalPlotAreaC.text) ?? 0.0,
@@ -216,13 +222,13 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
       buildingModel != null
           ? _buildingCubit.updateBuilding(
             context,
-            _project.projectId,
+            _projectId,
             widget.index,
             buildingData,
           )
           : _buildingCubit.addBuilding(
             context,
-            _project.projectId,
+            _projectId,
             buildingData,
           );
     }

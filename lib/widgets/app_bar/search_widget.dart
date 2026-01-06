@@ -29,6 +29,7 @@ class SearchWidget extends StatelessWidget {
       alignment: Alignment.center,
       padding: const EdgeInsets.only(left: 3.0, right: 6.0),
       decoration: BoxDecoration(
+        color: AppColor.white,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: AppColor.grey30),
       ),
@@ -59,6 +60,8 @@ class SearchWidget extends StatelessWidget {
               decoration: InputDecoration.collapsed(
                 hintText: hintText,
                 hintStyle: AppTextStyle.ts12R(color: AppColor.grey),
+                fillColor: AppColor.white,
+                filled: true
               ),
             ),
           ),

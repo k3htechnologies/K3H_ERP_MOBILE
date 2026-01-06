@@ -6,3 +6,4 @@ void registerBankListMasterDependencies(GetIt serviceLocator) {
   serviceLocator.registerSingleton<BankListMasterCubit>(BankListMasterCubit());
 }
 
+

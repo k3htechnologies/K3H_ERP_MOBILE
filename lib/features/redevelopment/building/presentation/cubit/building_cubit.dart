@@ -20,15 +20,56 @@ class BuildingCubit extends Cubit<BuildingState> {
   final BuildingRepository _buildingRepository =
       serviceLocator<BuildingRepository>();
 
+  // <---- RESET STATE ---->
+  void resetState() {
+    try {
+      // Increment resetCounter to force Equatable to detect the change
+      // This ensures the BlocBuilder rebuilds even if other props are the same
+      emit(BuildingState(
+        buildingList: [],
+        buildingDetails: null,
+        buildingDocumentList: [],
+        totalNumberOfRecord: 0,
+        currentPage: 1,
+        currentTabIndex: 0,
+        searchText: "",
+        isLoading: true,
+        currentSortColumn: "Created Date",
+        currentSortDirection: "DESC",
+        resetCounter: (state.resetCounter) + 1,
+      ));
+    } catch (e) {
+      // Cubit is closed, ignore
+    }
+  }
+
+  // <---- CLEAR BUILDING LIST ---->
+  void clearBuildingList() {
+    try {
+      emit(state.copyWith(
+        buildingList: [],
+        currentPage: 1,
+        totalNumberOfRecord: 0,
+        isLoading: true,
+        searchText: "",
+      ));
+    } catch (e) {
+      // Cubit is closed, ignore
+    }
+  }
+
   // <---- SEARCH BUILDING ---->
   Future searchBuilding(
     BuildContext context,
     int projectId,
     String value,
   ) async {
-    if (isClosed) return;
-    emit(state.copyWith(searchText: value, buildingList: [], currentPage: 1));
-    await getBuildingList(context, 1, 10, projectId);
+    try {
+      emit(state.copyWith(searchText: value, buildingList: [], currentPage: 1));
+      await getBuildingList(context, 1, 10, projectId);
+    } catch (e) {
+      // Cubit is closed, ignore
+    }
   }
 
   // <---- GET ASSET LIST ---->
@@ -38,9 +79,8 @@ class BuildingCubit extends Cubit<BuildingState> {
     int pageSize,
     int projectId,
   ) async {
-    if (isClosed) return;
     emit(state.copyWith(isLoading: true));
-
+    
     final queryParams = {
       "BuildingName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
@@ -53,27 +93,34 @@ class BuildingCubit extends Cubit<BuildingState> {
       queryParams: queryParams,
     );
 
-    if (isClosed) return;
-
     result.fold(
       (failure) {
-        if (isClosed) return;
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        if (isClosed) return;
-        final List<RedevelopmentBuildingModel> newData =
-            List<RedevelopmentBuildingModel>.from(response['data'] ?? []);
-
-        final List<RedevelopmentBuildingModel> updatedList =
-            pageNumber == 1 ? newData : [...state.buildingList, ...newData];
-
+        // If pageNumber is 1, replace the list; otherwise append
+        final newData = List<RedevelopmentBuildingModel>.from(response['data'] as List<RedevelopmentBuildingModel>);
+        
+        List<RedevelopmentBuildingModel> updatedList;
+        if (pageNumber == 1) {
+          updatedList = newData;
+        } else {
+          // Get existing building IDs to avoid duplicates
+          final existingIds = state.buildingList.map((b) => b.buildingId).toSet();
+          // Filter out duplicates from new data
+          final uniqueNewData = newData.where((building) => !existingIds.contains(building.buildingId)).toList();
+          updatedList = List<RedevelopmentBuildingModel>.from(state.buildingList)..addAll(uniqueNewData);
+        }
+        
         emit(
           state.copyWith(
-            buildingList: updatedList,
             isLoading: false,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
+            buildingList: updatedList,
+            totalNumberOfRecord:
+                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
+                    ? state.totalNumberOfRecord - 1
+                    : response['totalNumberOfRecord'],
             currentPage: pageNumber,
           ),
         );

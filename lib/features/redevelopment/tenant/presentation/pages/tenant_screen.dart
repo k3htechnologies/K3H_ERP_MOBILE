@@ -4,15 +4,19 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -30,11 +34,23 @@ class _TenantScreenState extends State<TenantScreen> {
   // CUBIT
   late TenantCubit _tenantCubit;
 
+  // REPOSITORY
+  final ProjectMasterRepository _projectMasterRepository =
+      serviceLocator<ProjectMasterRepository>();
+
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
 
-  // PROJECT
-  late ProjectModel _project;
+  // PROJECT SELECTION
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedProjectNotifier =
+      ValueNotifier([]);
+  final ValueNotifier<List<ProjectModel>> _projectListNotifier =
+      ValueNotifier([]);
+  // late ProjectModel _project;
+
+  // BUILDING SELECTION
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedBuildingNotifier =
+      ValueNotifier([]);
 
   // PAGINATION
   late ScrollController scrollController;
@@ -42,13 +58,6 @@ class _TenantScreenState extends State<TenantScreen> {
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC;
-
-  // DEFAULT BUILDING ID
-  // int selectedBuildingId = 0;
-  List<Map<String, dynamic>> _selectedBuilding = [];
-
-  // DEFAULT TAB
-  int selectedIndex = 0;
 
   // FLAGS TO PREVENT INFINITE CALLS
   int? _lastFetchedBuildingId;
@@ -60,46 +69,91 @@ class _TenantScreenState extends State<TenantScreen> {
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.tenant] ??
         AuthorizationModel();
-    _project = getProject();
-    _initialMethod();
+    // _project = getProject();
     _initializeTextEditingController();
     _onScroll();
+    _loadProjectsAndSetDefault();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        final buildingList = _tenantCubit.state.buildingList;
-        if (buildingList.isNotEmpty) {
-          final firstBuildingId = buildingList.first.buildingId;
+  Future<void> _loadProjectsAndSetDefault() async {
+    await _fetchProjects(1);
+    // Don't auto-select project or fetch buildings
+    // Buildings will only be fetched when user selects a project from dropdown
+  }
 
-          _selectedBuilding = [
-            {
-              'zAttributesId': firstBuildingId,
-              'DisplayName': buildingList.first.buildingName,
-            },
+  Future<void> _loadBuildingsForProject(int projectId) async {
+    if (_tenantCubit.state.buildingList.isEmpty ||
+        _tenantCubit.state.buildingList.any(
+          (b) => b.projectId != projectId,
+        )) {
+      await _tenantCubit.getBuildingList(context, 1, 100, projectId);
+    }
+
+    // Clear building selection when project changes
+    // User needs to manually select a building
+    if (mounted) {
+      _selectedBuildingNotifier.value = [];
+      _lastFetchedBuildingId = null;
+    }
+  }
+
+  Future<Map<String, dynamic>> _fetchProjects(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final userJson = jsonDecode(
+      LocalStorageManager().getString(StorageKey.currentUser) ?? '',
+    );
+    final user = UserModel.fromJson(userJson);
+
+    final result = await _projectMasterRepository.getProjectList(
+      pageNumber: pageNumber,
+      pageSize: 100,
+      queryParams: {
+        'EmployeeId': user.employeeId.toString(),
+        if (value != null && value.isNotEmpty) 'ProjectName': value,
+      },
+    );
+
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final projects = (response['data'] as List<ProjectModel>);
+
+        if (pageNumber == 1) {
+          _projectListNotifier.value = projects;
+        } else {
+          _projectListNotifier.value = [
+            ..._projectListNotifier.value,
+            ...projects,
           ];
-          _lastFetchedBuildingId = null;
-          _tenantCubit.getTenantList(
-            context: context,
-            projectId: _project.projectId,
-            buildingId: firstBuildingId,
-            pageNumber: 1,
-            pageSize: 10,
-          );
-          _lastFetchedBuildingId = firstBuildingId;
         }
-      }
-    });
+
+        return {
+          "itemList": projects.map((project) {
+            return {
+              "zAttributesId": project.projectId,
+              "DisplayName": project.projectName,
+            };
+          }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
+      },
+    );
   }
+
 
   @override
   void dispose() {
     _debounce?.cancel();
     scrollController.dispose();
     _searchC.dispose();
+    _selectedProjectNotifier.dispose();
+    _projectListNotifier.dispose();
+    _selectedBuildingNotifier.dispose();
     super.dispose();
   }
 
@@ -112,72 +166,47 @@ class _TenantScreenState extends State<TenantScreen> {
     int pageNumber, {
     String? value,
   }) async {
-    final buildingList = _tenantCubit.state.buildingList;
+    if (_selectedProjectNotifier.value.isEmpty) {
+      return {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      };
+    }
+
+    final projectId = _selectedProjectNotifier.value.first['zAttributesId'] as int;
+    final buildingList = _tenantCubit.state.buildingList
+        .where((b) => b.projectId == projectId)
+        .toList();
 
     if (value != null && value.isNotEmpty) {
-      final filteredBuildings =
-          buildingList
-              .where(
-                (building) => building.buildingName.toLowerCase().contains(
-                  value.toLowerCase(),
-                ),
-              )
-              .toList();
+      final filteredBuildings = buildingList
+          .where(
+            (building) => building.buildingName.toLowerCase().contains(
+              value.toLowerCase(),
+            ),
+          )
+          .toList();
 
       return {
-        "itemList":
-            filteredBuildings.map((building) {
-              return {
-                "zAttributesId": building.buildingId,
-                "DisplayName": building.buildingName,
-              };
-            }).toList(),
+        "itemList": filteredBuildings.map((building) {
+          return {
+            "zAttributesId": building.buildingId,
+            "DisplayName": building.buildingName,
+          };
+        }).toList(),
         "totalNumberOfRecord": filteredBuildings.length,
       };
     }
 
     return {
-      "itemList":
-          buildingList.map((building) {
-            return {
-              "zAttributesId": building.buildingId,
-              "DisplayName": building.buildingName,
-            };
-          }).toList(),
+      "itemList": buildingList.map((building) {
+        return {
+          "zAttributesId": building.buildingId,
+          "DisplayName": building.buildingName,
+        };
+      }).toList(),
       "totalNumberOfRecord": buildingList.length,
     };
-  }
-
-  void _initialMethod() async {
-    if (_tenantCubit.state.buildingList.isEmpty) {
-      await _tenantCubit.getBuildingList(context, 1, 100, _project.projectId);
-    }
-
-    if (mounted) {
-      final buildingList = _tenantCubit.state.buildingList;
-
-      if (buildingList.isNotEmpty) {
-        // Always select first building
-        final firstBuildingId = buildingList.first.buildingId;
-        _selectedBuilding = [
-          {
-            'zAttributesId': firstBuildingId,
-            'DisplayName': buildingList.first.buildingName,
-          },
-        ];
-
-        if (mounted && _lastFetchedBuildingId != firstBuildingId) {
-          _lastFetchedBuildingId = firstBuildingId;
-          await _tenantCubit.getTenantList(
-            context: context,
-            projectId: _project.projectId,
-            buildingId: firstBuildingId,
-            pageNumber: 1,
-            pageSize: 10,
-          );
-        }
-      }
-    }
   }
 
   // <---- PAGINATION ---->
@@ -194,19 +223,19 @@ class _TenantScreenState extends State<TenantScreen> {
           !(_tenantCubit.state.isLoading ?? false) &&
           _tenantCubit.state.tenantList.length <
               _tenantCubit.state.totalNumberOfRecord &&
-          _selectedBuilding.isNotEmpty) {
+          _selectedBuildingNotifier.value.isNotEmpty) {
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
           if (!mounted) return;
-          if (_selectedBuilding.isEmpty) return;
+          if (_selectedBuildingNotifier.value.isEmpty) return;
           if (_tenantCubit.state.isLoading ?? false) return;
 
           _tenantCubit.getTenantList(
             context: context,
             pageNumber: _tenantCubit.state.currentPage + 1,
             pageSize: 10,
-            projectId: _project.projectId,
-            buildingId: _selectedBuilding.first["zAttributesId"] as int,
+            projectId: _selectedProjectNotifier.value.first['zAttributesId'] as int,
+            buildingId: _selectedBuildingNotifier.value.first["zAttributesId"] as int,
           );
         });
       }
@@ -215,71 +244,127 @@ class _TenantScreenState extends State<TenantScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return StatefulBuilder(
-      builder: (context, setStateBuilder) {
-        return Scaffold(
-          appBar: CustomAppBarWithBackButton(
-            screenTitle: "Tenant",
-            authorization: _routeAuthorizationModel,
-          ),
-          body: Column(
-            children: [
-              verticalSpacing(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Column(
+    return Scaffold(
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: "Tenant",
+        authorization: _routeAuthorizationModel,
+      ),
+      body: Column(
+        children: [
+          verticalSpacing(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              children: [
+                // Project and Building Selectors in Row
+                Row(
                   children: [
-                    BlocBuilder<TenantCubit, TenantState>(
-                      builder: (context, state) {
-                        final buildingDropdownList =
-                            state.buildingList.map((building) {
-                              return {
-                                'zAttributesId': building.buildingId,
-                                'DisplayName': building.buildingName,
-                              };
-                            }).toList();
-
-                        return CustomMultipleSelectPopup(
-                          title: "Buildings",
-                          key: ValueKey(
-                            _selectedBuilding.isEmpty
-                                ? 'empty'
-                                : _selectedBuilding.first['zAttributesId'],
-                          ),
-                          isMultiSelect: false,
-                          initialValue: _selectedBuilding,
-                          dataList: buildingDropdownList,
-                          onSelected: (value) async {
-                            setStateBuilder(() {
-                              _selectedBuilding = value;
-                            });
-
-                            if (value.isNotEmpty &&
-                                value.first['zAttributesId'] != null) {
-                              final newBuildingId =
-                                  value.first['zAttributesId'] as int;
-                              if (_lastFetchedBuildingId != newBuildingId) {
-                                _lastFetchedBuildingId = newBuildingId;
-                                await _tenantCubit.getTenantList(
-                                  context: context,
-                                  projectId: _project.projectId,
-                                  buildingId: newBuildingId,
-                                  pageNumber: 1,
-                                  pageSize: 10,
+                    Expanded(
+                      child: ValueListenableBuilder<List<ProjectModel>>(
+                        valueListenable: _projectListNotifier,
+                        builder: (context, projectList, child) {
+                          return projectList.isEmpty
+                              ? Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  child: Center(
+                                    child: Text(
+                                      'No projects available',
+                                      style: AppTextStyle.ts14R(color: AppColor.grey),
+                                    ),
+                                  ),
+                                )
+                              : ValueListenableBuilder<List<Map<String, dynamic>>>(
+                                  valueListenable: _selectedProjectNotifier,
+                                  builder: (context, selectedProject, child) {
+                                    return CustomMultipleSelectPopup(
+                                      title: 'Project',
+                                      isRequired: true,
+                                      isMultiSelect: false,
+                                      initialValue: selectedProject,
+                                      dataList: const [],
+                                      onSelected: (value) async {
+                                        _selectedProjectNotifier.value = value;
+                                        if (value.isNotEmpty && mounted) {
+                                          final projectId = value.first['zAttributesId'] as int;
+                                          // Clear building selection and load buildings for new project
+                                          _selectedBuildingNotifier.value = [];
+                                          _lastFetchedBuildingId = null;
+                                          await _loadBuildingsForProject(projectId);
+                                        } else if (mounted) {
+                                          // If no project selected, clear building selection and tenant list
+                                          _selectedBuildingNotifier.value = [];
+                                          _lastFetchedBuildingId = null;
+                                        }
+                                      },
+                                      dataFetchCallBack: _fetchProjects,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Project is required";
+                                        }
+                                        return null;
+                                      },
+                                    );
+                                  },
                                 );
-                              }
-                            }
-                          },
-                          dataFetchCallBack: _fetchBuildings,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Building is required";
-                            }
-                            return null;
-                          },
-                        );
-                      },
+                        },
+                      ),
                     ),
+                    horizontalSpacing(width: 12),
+                    Expanded(
+                      child: ValueListenableBuilder<List<Map<String, dynamic>>>(
+                        valueListenable: _selectedProjectNotifier,
+                        builder: (context, selectedProject, child) {
+
+                          return BlocBuilder<TenantCubit, TenantState>(
+                            builder: (context, state) {
+                              return ValueListenableBuilder<List<Map<String, dynamic>>>(
+                                valueListenable: _selectedBuildingNotifier,
+                                builder: (context, selectedBuilding, child) {
+                                  return CustomMultipleSelectPopup(
+                                    title: "Building",
+                                    isRequired: true,
+                                    isMultiSelect: false,
+                                    initialValue: selectedBuilding,
+                                    dataList: const [],
+                                    onSelected: (value) async {
+                                      _selectedBuildingNotifier.value = value;
+                                      if (value.isNotEmpty &&
+                                          value.first['zAttributesId'] != null &&
+                                          mounted) {
+                                        final newBuildingId =
+                                            value.first['zAttributesId'] as int;
+                                        if (_lastFetchedBuildingId != newBuildingId) {
+                                          _lastFetchedBuildingId = newBuildingId;
+                                          await _tenantCubit.getTenantList(
+                                            context: context,
+                                            projectId: selectedProject.first['zAttributesId'] as int,
+                                            buildingId: newBuildingId,
+                                            pageNumber: 1,
+                                            pageSize: 10,
+                                          );
+                                        }
+                                      } else if (mounted) {
+                                        // If no building selected, clear the last fetched building ID
+                                        _lastFetchedBuildingId = null;
+                                      }
+                                    },
+                                    dataFetchCallBack: _fetchBuildings,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return "Building is required";
+                                      }
+                                      return null;
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
                     Container(
                       height: 40,
                       color: AppColor.white,
@@ -289,13 +374,15 @@ class _TenantScreenState extends State<TenantScreen> {
                             child: SearchWidget(
                               isFilterOn: false,
                               onSubmit: (value) {
-                                _tenantCubit.searchTenant(
-                                  value,
-                                  context,
-                                  _project.projectId,
-                                  _selectedBuilding.first["zAttributesId"]
-                                      as int,
-                                );
+                                if (_selectedProjectNotifier.value.isNotEmpty &&
+                                    _selectedBuildingNotifier.value.isNotEmpty) {
+                                  _tenantCubit.searchTenant(
+                                    value,
+                                    context,
+                                    _selectedProjectNotifier.value.first['zAttributesId'] as int,
+                                    _selectedBuildingNotifier.value.first["zAttributesId"] as int,
+                                  );
+                                }
                               },
                               textController: _searchC,
                             ),
@@ -303,7 +390,20 @@ class _TenantScreenState extends State<TenantScreen> {
                           horizontalSpacing(),
                           CustomIconButton(
                             onPressed: () {
-                              goRouter.pushNamed(AppRoutes.addTenant);
+                              if (_selectedProjectNotifier.value.isNotEmpty &&
+                                  _selectedBuildingNotifier.value.isNotEmpty) {
+                                goRouter.pushNamed(
+                                  AppRoutes.addTenant,
+                                  queryParameters: {
+                                    'projectId': _selectedProjectNotifier.value
+                                        .first['zAttributesId']
+                                        .toString(),
+                                    'buildingId': _selectedBuildingNotifier.value
+                                        .first["zAttributesId"]
+                                        .toString(),
+                                  },
+                                );
+                              }
                             },
                             icon: Icon(
                               Icons.add,
@@ -329,22 +429,44 @@ class _TenantScreenState extends State<TenantScreen> {
                 ),
               ),
               Expanded(
-                child: BlocBuilder<TenantCubit, TenantState>(
-                  builder: (context, state) {
-                    if ((state.isLoading ?? true) && state.tenantList.isEmpty) {
-                      return Center(child: loader());
+                child: ValueListenableBuilder<List<Map<String, dynamic>>>(
+                  valueListenable: _selectedProjectNotifier,
+                  builder: (context, selectedProject, child) {
+                    if (selectedProject.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'Please select a project',
+                          style: AppTextStyle.ts14R(color: AppColor.grey),
+                        ),
+                      );
                     }
-                    if (state.tenantList.isEmpty) {
-                      return Center(child: noDataWidget());
-                    }
-                    return ListView.builder(
-                      controller: scrollController,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      itemCount: state.tenantList.length + 1,
-                      itemBuilder: (context, index) {
+                    return ValueListenableBuilder<List<Map<String, dynamic>>>(
+                      valueListenable: _selectedBuildingNotifier,
+                      builder: (context, selectedBuilding, child) {
+                        if (selectedBuilding.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'Please select a building',
+                              style: AppTextStyle.ts14R(color: AppColor.grey),
+                            ),
+                          );
+                        }
+                        return BlocBuilder<TenantCubit, TenantState>(
+                          builder: (context, state) {
+                            if ((state.isLoading ?? true) && state.tenantList.isEmpty) {
+                              return Center(child: loader());
+                            }
+                            if (state.tenantList.isEmpty) {
+                              return Center(child: noDataWidget());
+                            }
+                            return ListView.builder(
+                              controller: scrollController,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              itemCount: state.tenantList.length + 1,
+                              itemBuilder: (context, index) {
                         if (index == state.tenantList.length) {
                           return state.tenantList.length <
                                   state.totalNumberOfRecord
@@ -399,15 +521,17 @@ class _TenantScreenState extends State<TenantScreen> {
                                                 'index': index.toString(),
                                               },
                                             );
-                                            if (context.mounted) {
+                                            if (context.mounted &&
+                                                _selectedProjectNotifier.value.isNotEmpty &&
+                                                _selectedBuildingNotifier.value.isNotEmpty) {
                                               _tenantCubit.getTenantList(
                                                 context: context,
                                                 pageNumber: 1,
                                                 pageSize: 10,
-                                                projectId: _project.projectId,
-                                                buildingId: _selectedBuilding
-                                                    .first["zAttributesId"]
-                                                    as int,
+                                                projectId: _selectedProjectNotifier.value
+                                                    .first['zAttributesId'] as int,
+                                                buildingId: _selectedBuildingNotifier.value
+                                                    .first["zAttributesId"] as int,
                                               );
                                             }
                                         },
@@ -444,12 +568,14 @@ class _TenantScreenState extends State<TenantScreen> {
                       },
                     );
                   },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+                );
+              },
+            );
+          },
+        ),
+      ),
+      ],
+    ),
     );
   }
 

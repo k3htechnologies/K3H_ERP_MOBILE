@@ -20,3 +20,4 @@ void registerMaterialMasterDependencies(GetIt serviceLocator) {
   );
 }
 
+

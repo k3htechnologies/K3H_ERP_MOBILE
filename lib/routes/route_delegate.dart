@@ -1190,67 +1190,70 @@ final GoRouter goRouter = GoRouter(
           },
         ),
         // BUILDING
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => serviceLocator<BuildingCubit>(),
-              child: child,
+        GoRoute(
+          name: AppRoutes.building,
+          path: AppRoutes.building,
+          builder: (context, state) {
+            return const BuildingScreen();
+          },
+        ),
+        GoRoute(
+          name: AppRoutes.addBuilding,
+          path: AppRoutes.addBuilding,
+          builder: (context, state) {
+            final queryParameterBuilding =
+                state.uri.queryParameters['building'];
+
+            final RedevelopmentBuildingModel? building =
+                queryParameterBuilding != null
+                    ? RedevelopmentBuildingModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterBuilding),
+                        ),
+                      ),
+                    )
+                    : null;
+
+            final index =
+                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+            final projectId =
+                int.tryParse(state.uri.queryParameters['projectId'] ?? '');
+
+            return BlocProvider.value(
+              value: serviceLocator<BuildingCubit>(),
+              child: AddBuildingScreen(
+                building: building,
+                index: index,
+                projectId: projectId,
+              ),
             );
           },
-          routes: [
-            GoRoute(
-              name: AppRoutes.building,
-              path: AppRoutes.building,
-              builder: (context, state) {
-                return const BuildingScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.addBuilding,
-              path: AppRoutes.addBuilding,
-              builder: (context, state) {
-                final queryParameterBuilding =
-                    state.uri.queryParameters['building'];
+        ),
+        GoRoute(
+          name: AppRoutes.viewBuilding,
+          path: AppRoutes.viewBuilding,
+          builder: (context, state) {
+            final queryParameterBuilding =
+                state.uri.queryParameters['building'];
 
-                final RedevelopmentBuildingModel? building =
-                    queryParameterBuilding != null
-                        ? RedevelopmentBuildingModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterBuilding),
-                            ),
-                          ),
-                        )
-                        : null;
+            final RedevelopmentBuildingModel? building =
+                queryParameterBuilding != null
+                    ? RedevelopmentBuildingModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterBuilding),
+                        ),
+                      ),
+                    )
+                    : null;
 
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-
-                return AddBuildingScreen(building: building, index: index);
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.viewBuilding,
-              path: AppRoutes.viewBuilding,
-              builder: (context, state) {
-                final queryParameterBuilding =
-                    state.uri.queryParameters['building'];
-
-                final RedevelopmentBuildingModel? building =
-                    queryParameterBuilding != null
-                        ? RedevelopmentBuildingModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterBuilding),
-                            ),
-                          ),
-                        )
-                        : null;
-
-                return BuildingViewScreen(building: building!);
-              },
-            ),
-          ],
+            return BlocProvider.value(
+              value: serviceLocator<BuildingCubit>(),
+              child: BuildingViewScreen(building: building!),
+            );
+          },
         ),
         // TENANT
         GoRoute(
@@ -1272,18 +1275,33 @@ final GoRouter goRouter = GoRouter(
             final TenantModel? tenant =
                 queryParameterTenant != null
                     ? TenantModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterTenant),
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterTenant),
+                          ),
                         ),
-                      ),
-                    )
+                      )
                     : null;
             final index =
                 int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+            final projectId =
+                int.tryParse(state.uri.queryParameters['projectId'] ?? '') ??
+                    tenant?.projectId ??
+                    0;
+            final buildingId =
+                int.tryParse(state.uri.queryParameters['buildingId'] ?? '') ??
+                    tenant?.buildingId ??
+                    0;
+
             return BlocProvider(
               create: (_) => TenantCubit(),
-              child: AddTenantScreen(tenant: tenant, index: index),
+              child: AddTenantScreen(
+                tenant: tenant,
+                index: index,
+                projectId: projectId,
+                buildingId: buildingId,
+              ),
             );
           },
         ),

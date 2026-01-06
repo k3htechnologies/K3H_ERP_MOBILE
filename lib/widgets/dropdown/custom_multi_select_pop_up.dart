@@ -360,7 +360,9 @@ class _DropdownListState extends State<DropdownList> {
     );
 
     // Create new maps to avoid type conflicts
-    List<Map<String, dynamic>> fetchedItems = (result['itemList'] as List)
+    // Handle both 'itemList' and 'data' keys, and handle null case
+    final itemList = result['itemList'] ?? result['data'] ?? [];
+    List<Map<String, dynamic>> fetchedItems = (itemList as List)
         .map((e) => Map<String, dynamic>.from(e as Map))
         .toList();
 
