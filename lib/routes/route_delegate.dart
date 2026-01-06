@@ -113,6 +113,11 @@ import 'package:k3h_erp_app/features/project_management/approved_bank/presentati
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder/approved_bank_folder_cubit.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_file_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_folder_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/building_cubit.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_building_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_view_screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
@@ -1097,6 +1102,7 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
+        // MATERIAL MASTER
         GoRoute(
           name: AppRoutes.materialMaster,
           path: AppRoutes.materialMaster,
@@ -1178,6 +1184,69 @@ final GoRouter goRouter = GoRouter(
               ),
             );
           },
+        ),
+        // BUILDING
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => serviceLocator<BuildingCubit>(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.building,
+              path: AppRoutes.building,
+              builder: (context, state) {
+                return const BuildingScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addBuilding,
+              path: AppRoutes.addBuilding,
+              builder: (context, state) {
+                final queryParameterBuilding =
+                    state.uri.queryParameters['building'];
+
+                final RedevelopmentBuildingModel? building =
+                    queryParameterBuilding != null
+                        ? RedevelopmentBuildingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterBuilding),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddBuildingScreen(building: building, index: index);
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewBuilding,
+              path: AppRoutes.viewBuilding,
+              builder: (context, state) {
+                final queryParameterBuilding =
+                    state.uri.queryParameters['building'];
+
+                final RedevelopmentBuildingModel? building =
+                    queryParameterBuilding != null
+                        ? RedevelopmentBuildingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterBuilding),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                return BuildingViewScreen(building: building!);
+              },
+            ),
+          ],
         ),
         // CALENDAR
         ShellRoute(

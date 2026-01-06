@@ -237,3 +237,57 @@ class AlphaNumericWithoutSpacesFormatter extends TextInputFormatter {
     return oldValue;
   }
 }
+
+List<TextInputFormatter> inputFormatterListForDecimalValuesFixedToTwo(
+    int length,
+    ) {
+  return [
+    NewDecimalTextInputFormatter(
+      decimalRange: 2,
+      maxLengthBeforeDecimal: length,
+    ),
+  ];
+}
+
+
+class NewDecimalTextInputFormatter extends TextInputFormatter {
+  final int decimalRange;
+  final int maxLengthBeforeDecimal;
+
+  NewDecimalTextInputFormatter({
+    required this.decimalRange,
+    required this.maxLengthBeforeDecimal,
+  });
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    if (newValue.text == '') {
+      return newValue;
+    }
+
+    final newText = newValue.text;
+
+    // Allow only digits and a single decimal point
+    if (!RegExp(r'^[0-9]*\.?[0-9]*$').hasMatch(newText)) {
+      return oldValue;
+    }
+
+    // Split on decimal point
+    List<String> parts = newText.split('.');
+
+    // Limit digits before decimal
+    if (parts[0].length > maxLengthBeforeDecimal) {
+      return oldValue;
+    }
+
+    // Limit digits after decimal if there is any
+    if (parts.length > 1 && parts[1].length > decimalRange) {
+      return oldValue;
+    }
+
+    return newValue;
+  }
+}

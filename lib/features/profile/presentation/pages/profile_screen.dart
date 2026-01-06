@@ -30,16 +30,16 @@ class _ProfileScreenState extends State<ProfileScreen>
     _tabController.addListener(_handleTabChange);
   }
 
-  void _handleTabChange() {
-    if (!_tabController.indexIsChanging) {
-      context.read<ProfileCubit>().onTabChanged(_tabController.index, context);
-    }
-  }
-
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _handleTabChange() {
+    if (!_tabController.indexIsChanging) {
+      context.read<ProfileCubit>().onTabChanged(_tabController.index, context);
+    }
   }
 
   Widget _buildHeader(UserModel user, ProjectModel? project) {
@@ -1024,40 +1024,45 @@ class _ProfileScreenState extends State<ProfileScreen>
                   verticalSpacing(),
                   _buildHeader(state.user!, state.selectedProject),
                   verticalSpacing(),
-                  Container(
-                    height: 48,
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: AppColor.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppColor.grey.withValues(alpha: 0.2),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IntrinsicWidth(
+                      child: Container(
+                        height: 48,
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: AppColor.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppColor.grey.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: TabBar(
+                          controller: _tabController,
+                          isScrollable: true,
+                          tabAlignment: TabAlignment.start,
+                          labelColor: AppColor.primary,
+                          unselectedLabelColor: AppColor.grey,
+                          indicator: BoxDecoration(
+                            color: AppColor.lightBlue,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          dividerColor: Colors.transparent,
+                          labelStyle: AppTextStyle.ts14M(),
+                          unselectedLabelStyle: AppTextStyle.ts14M(),
+                          labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: EdgeInsets.zero,
+                          tabs: const [
+                            Tab(text: 'Overview'),
+                            Tab(text: 'Document'),
+                            Tab(text: 'Assets'),
+                            Tab(text: 'Project'),
+                            Tab(text: 'Shift Policy'),
+                            Tab(text: 'Week Off Policy'),
+                          ],
+                        ),
                       ),
-                    ),
-                    child: TabBar(
-                      tabAlignment: TabAlignment.start,
-                      controller: _tabController,
-                      isScrollable: true,
-                      labelColor: AppColor.primary,
-                      unselectedLabelColor: AppColor.grey,
-                      indicator: BoxDecoration(
-                        color: AppColor.lightBlue,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      dividerColor: Colors.transparent,
-                      labelStyle: AppTextStyle.ts14M(),
-                      unselectedLabelStyle: AppTextStyle.ts14M(),
-                      labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      padding: EdgeInsets.zero,
-                      tabs: const [
-                        Tab(text: 'Overview'),
-                        Tab(text: 'Document'),
-                        Tab(text: 'Assets'),
-                        Tab(text: 'Project'),
-                        Tab(text: 'Shift Policy'),
-                        Tab(text: 'Week Off Policy'),
-                      ],
                     ),
                   ),
                   Expanded(
