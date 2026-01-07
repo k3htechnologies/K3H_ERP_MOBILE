@@ -50,6 +50,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
       _extraAreaPurchasedSqFtC,
       _totalAreaSqFtC;
 
+  // STATIC FLAT TYPE LIST
   List<Map<String, dynamic>> flatTypeList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Flat Type'},
     {'zAttributesId': 1, 'DisplayName': 'Residential'},
@@ -58,12 +59,14 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     {'zAttributesId': 4, 'DisplayName': 'Gym'},
   ];
 
+  // STATIC FLAT CONFIGURATION LIST
   List<Map<String, dynamic>> commercialFlatList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Flat Configuration'},
     {'zAttributesId': 1, 'DisplayName': 'Shop'},
     {'zAttributesId': 2, 'DisplayName': 'Office'},
   ];
 
+  // STATIC FLAT CONFIGURATION LIST
   List<Map<String, dynamic>> residentialFlatList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Flat Configuration'},
     {'zAttributesId': 1, 'DisplayName': '1 BHK'},
@@ -75,6 +78,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     {'zAttributesId': 7, 'DisplayName': 'Duplex'},
   ];
 
+  // STATIC FLAT FACING LIST
   List<Map<String, dynamic>> flatFacingList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Flat Facing'},
     {'zAttributesId': 1, 'DisplayName': 'North'},
@@ -87,11 +91,13 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     {'zAttributesId': 8, 'DisplayName': 'Park'},
   ];
 
+  // SELECTED FLAT TYPE
   late ValueNotifier<Map<String, dynamic>> selectedFlatType;
 
   // SELECTED DROPDOWN VALUES
   Map<String, dynamic>? selectedFlatFacing, selectedFlatConfiguration;
 
+  // METHODS TO CHECK IF APPLICANT TYPE IS PRIMARY
   bool _isApplicantType(String type) =>
       type.toLowerCase().trim() == 'applicant';
 
@@ -121,6 +127,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     selectedFlatConfiguration = commercialFlatList.first;
   }
 
+  // PREFILL TENANT DETAILS
   void _prefillTenantDetails(TenantModel? tenant) {
     if (tenant == null) return;
 
@@ -151,6 +158,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     );
   }
 
+  // INITIALIZE APPLICANTS
   void _initApplicants() {
     final incomingApplicants = widget.tenant?.tenantApplicantData ?? [];
     _applicants =
@@ -159,6 +167,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
             .toList();
   }
 
+  // OPEN APPLICANT FORM
   Future<void> _openApplicantForm({
     TenantApplicantData? applicant,
     int? index,
@@ -188,7 +197,8 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
         updatedIndex != null && updatedIndex < _applicants.length;
     if (_isApplicantType(updatedApplicant.applicantType) &&
         existingApplicantIndex != -1 &&
-        (!isUpdatingExisting || existingApplicantIndex != updatedIndex)) {
+        (!isUpdatingExisting || existingApplicantIndex != updatedIndex) &&
+        mounted) {
       await showErrorMessage(
         context,
         'Error',
@@ -214,99 +224,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     });
   }
 
-  Widget _buildApplicantCard(TenantApplicantData applicant, int index) {
-    return Container(
-      margin: const EdgeInsets.only(right: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColor.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColor.lightBlue),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(applicant.applicantName, style: AppTextStyle.ts14M()),
-                    verticalSpacing(height: 4),
-                    Text(
-                      applicant.applicantType,
-                      style: AppTextStyle.ts12R(color: AppColor.grey),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                children: [
-                  CustomIconButton.edit(
-                    onPressed:
-                        () => _openApplicantForm(
-                          applicant: applicant,
-                          index: index,
-                        ),
-                  ),
-                  horizontalSpacing(width: 8),
-                  CustomIconButton.delete(
-                    onPressed: () => _deleteApplicant(index),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          verticalSpacing(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: _buildDetailField(
-                  "Contact No.",
-                  applicant.applicantMobileNumber,
-                ),
-              ),
-              Expanded(
-                child: _buildDetailField("Email", applicant.applicantEmailId),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(child: _buildDetailField("Bank", applicant.bankName)),
-              Expanded(
-                child: _buildDetailField(
-                  "Account No.",
-                  applicant.accountNumber,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailField(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: AppTextStyle.ts12R(color: AppColor.grey)),
-          Text(
-            value.isEmpty ? "-" : value,
-            style: AppTextStyle.ts14R(),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-
+  // HANDLE SUBMIT
   void _handleSubmit() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
@@ -620,6 +538,101 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
             backgroundColor: AppColor.primary,
           ),
         ),
+      ),
+    );
+  }
+
+  // BUILD APPLICANT CARD
+  Widget _buildApplicantCard(TenantApplicantData applicant, int index) {
+    return Container(
+      margin: const EdgeInsets.only(right: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColor.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColor.lightBlue),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(applicant.applicantName, style: AppTextStyle.ts14M()),
+                    verticalSpacing(height: 4),
+                    Text(
+                      applicant.applicantType,
+                      style: AppTextStyle.ts12R(color: AppColor.grey),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                children: [
+                  CustomIconButton.edit(
+                    onPressed:
+                        () => _openApplicantForm(
+                          applicant: applicant,
+                          index: index,
+                        ),
+                  ),
+                  horizontalSpacing(width: 8),
+                  CustomIconButton.delete(
+                    onPressed: () => _deleteApplicant(index),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          verticalSpacing(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _buildDetailField(
+                  "Contact No.",
+                  applicant.applicantMobileNumber,
+                ),
+              ),
+              Expanded(
+                child: _buildDetailField("Email", applicant.applicantEmailId),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(child: _buildDetailField("Bank", applicant.bankName)),
+              Expanded(
+                child: _buildDetailField(
+                  "Account No.",
+                  applicant.accountNumber,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // BUILD DETAIL FIELD
+  Widget _buildDetailField(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: AppTextStyle.ts12R(color: AppColor.grey)),
+          Text(
+            value.isEmpty ? "-" : value,
+            style: AppTextStyle.ts14R(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }

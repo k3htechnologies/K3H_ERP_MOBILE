@@ -67,12 +67,19 @@ class _BuildingScreenState extends State<BuildingScreen> {
     _loadProjectsAndSetDefault();
   }
 
-  Future<void> _loadProjectsAndSetDefault() async {
-    await _fetchProjects(1);
-    // Don't auto-select project or fetch buildings here
-    // Buildings will only be fetched when user selects a project from dropdown
+  @override
+  void dispose() {
+    scrollController.dispose();
+    _searchC.dispose();
+    super.dispose();
   }
 
+  // FETCH PROJECTS
+  Future<void> _loadProjectsAndSetDefault() async {
+    await _fetchProjects(1);
+  }
+
+  // FETCH PROJECTS
   Future<Map<String, dynamic>> _fetchProjects(
     int pageNumber, {
     String? value,
@@ -93,10 +100,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
 
     return result.fold(
       (failure) {
-        return {
-          "itemList": <Map<String, dynamic>>[],
-          "totalNumberOfRecord": 0,
-        };
+        return {"itemList": <Map<String, dynamic>>[], "totalNumberOfRecord": 0};
       },
       (response) {
         final List<ProjectModel> projects =
@@ -109,13 +113,15 @@ class _BuildingScreenState extends State<BuildingScreen> {
             ...projects,
           ];
         }
-        // Convert ProjectModel list to Map list for CustomMultipleSelectPopup
-        final List<Map<String, dynamic>> itemList = projects
-            .map((project) => {
-                  'zAttributesId': project.projectId,
-                  'DisplayName': project.projectName,
-                })
-            .toList();
+        final List<Map<String, dynamic>> itemList =
+            projects
+                .map(
+                  (project) => {
+                    'zAttributesId': project.projectId,
+                    'DisplayName': project.projectName,
+                  },
+                )
+                .toList();
         return {
           "itemList": itemList,
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
@@ -124,6 +130,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
     );
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLER
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
   }
@@ -148,13 +155,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
     });
   }
 
-  @override
-  void dispose() {
-    scrollController.dispose();
-    _searchC.dispose();
-    super.dispose();
-  }
-
+  // DELETE BUILDING
   Future<void> _showPopupToDeleteBuilding(
     BuildContext context,
     RedevelopmentBuildingModel obj,
@@ -167,7 +168,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
       'Deleting this Building will permanently remove its contents.',
     );
 
-    if (shouldDelete) {
+    if (shouldDelete && context.mounted) {
       _buildingCubit.deleteBuilding(
         _selectedProjectNotifier.value.first['zAttributesId'] as int,
         obj,
@@ -197,12 +198,11 @@ class _BuildingScreenState extends State<BuildingScreen> {
             showErrorMessage(context, 'Error', 'Please select a project');
             return;
           }
-          final projectId = _selectedProjectNotifier.value.first['zAttributesId'] as int;
+          final projectId =
+              _selectedProjectNotifier.value.first['zAttributesId'] as int;
           goRouter.pushNamed(
             AppRoutes.addBuilding,
-            queryParameters: {
-              'projectId': projectId.toString(),
-            },
+            queryParameters: {'projectId': projectId.toString()},
           );
         },
         onExportCallback: (value) {
@@ -212,80 +212,74 @@ class _BuildingScreenState extends State<BuildingScreen> {
               value,
               _selectedProjectNotifier.value.first['zAttributesId'] as int,
             );
+          } else {
+            showErrorMessage(context, 'Error', 'Please select a project');
           }
         },
+        extraHeight: 90,
+        widgets: ValueListenableBuilder<List<ProjectModel>>(
+          valueListenable: _projectListNotifier,
+          builder: (context, projectList, child) {
+            return projectList.isEmpty
+                ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Center(
+                    child: Text(
+                      'No projects available',
+                      style: AppTextStyle.ts14R(color: AppColor.grey),
+                    ),
+                  ),
+                )
+                : ValueListenableBuilder<List<Map<String, dynamic>>>(
+                  valueListenable: _selectedProjectNotifier,
+                  builder: (context, selectedProject, child) {
+                    return CustomMultipleSelectPopup(
+                      title: 'Project',
+                      isRequired: true,
+                      isMultiSelect: false,
+                      initialValue: selectedProject,
+                      dataList: const [],
+                      onSelected: (value) async {
+                        if (!mounted) return;
+                        _selectedProjectNotifier.value = value;
+                        await Future.delayed(const Duration(milliseconds: 100));
+                        if (!mounted) return;
+                        if (value.isNotEmpty) {
+                          final projectId = value.first['zAttributesId'] as int;
+                          // RESET SCROLL POSITION
+                          if (scrollController.hasClients) {
+                            scrollController.jumpTo(0);
+                          }
+                          // CALL BUILDING LIST API WHEN PROJECT IS SELECTED
+                          if (context.mounted) {
+                            _buildingCubit.getBuildingList(
+                              context,
+                              1,
+                              10,
+                              projectId,
+                            );
+                          }
+                        } else {
+                          if (mounted) {
+                            _buildingCubit.clearBuildingList();
+                          }
+                        }
+                      },
+                      dataFetchCallBack: _fetchProjects,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Project is required";
+                        }
+                        return null;
+                      },
+                    );
+                  },
+                );
+          },
+        ),
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
-            ),
-            child: ValueListenableBuilder<List<ProjectModel>>(
-              valueListenable: _projectListNotifier,
-              builder: (context, projectList, child) {
-                return projectList.isEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Center(
-                          child: Text(
-                            'No projects available',
-                            style: AppTextStyle.ts14R(color: AppColor.grey),
-                          ),
-                        ),
-                      )
-                    : ValueListenableBuilder<List<Map<String, dynamic>>>(
-                        valueListenable: _selectedProjectNotifier,
-                        builder: (context, selectedProject, child) {
-                          return CustomMultipleSelectPopup(
-                            title: 'Project',
-                            isRequired: true,
-                            isMultiSelect: false,
-                            initialValue: selectedProject,
-                            dataList: const [],
-                            onSelected: (value) async {
-                              if (!mounted) return;
-                              _selectedProjectNotifier.value = value;
-                              // Delay to ensure widget tree is stable
-                              await Future.delayed(const Duration(milliseconds: 100));
-                              if (!mounted) return;
-                              if (value.isNotEmpty) {
-                                final projectId =
-                                    value.first['zAttributesId'] as int;
-                                // Reset scroll position
-                                if (scrollController.hasClients) {
-                                  scrollController.jumpTo(0);
-                                }
-                                // Call getBuildingList when project changes to update the list
-                                if (mounted) {
-                                  _buildingCubit.getBuildingList(
-                                    context,
-                                    1,
-                                    10,
-                                    projectId,
-                                  );
-                                }
-                              } else {
-                                // If no project selected, clear the building list
-                                if (mounted) {
-                                  _buildingCubit.clearBuildingList();
-                                }
-                              }
-                            },
-                            dataFetchCallBack: _fetchProjects,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Project is required";
-                              }
-                              return null;
-                            },
-                          );
-                        },
-                      );
-              },
-            ),
-          ),
           Expanded(
             child: ValueListenableBuilder<List<Map<String, dynamic>>>(
               valueListenable: _selectedProjectNotifier,
@@ -298,57 +292,114 @@ class _BuildingScreenState extends State<BuildingScreen> {
                     ),
                   );
                 }
-                final currentProjectId = selectedProject.isNotEmpty
-                    ? selectedProject.first['zAttributesId'] as int
-                    : 0;
+                final currentProjectId =
+                    selectedProject.isNotEmpty
+                        ? selectedProject.first['zAttributesId'] as int
+                        : 0;
                 return BlocBuilder<BuildingCubit, BuildingState>(
                   key: ValueKey('building_list_$currentProjectId'),
                   bloc: _buildingCubit,
                   builder: (context, state) {
-                      if ((state.isLoading ?? true) &&
-                          state.buildingList.isEmpty) {
-                        return Center(child: loader());
-                      }
-                      if (state.buildingList.isEmpty) {
-                        return Center(child: noDataWidget());
-                      }
-                      return ListView.builder(
-                        controller: scrollController,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        itemCount: state.buildingList.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index == state.buildingList.length) {
-                            return state.buildingList.length <
-                                    state.totalNumberOfRecord
-                                ? const Padding(
-                                    padding: EdgeInsets.all(16),
-                                    child: Center(
-                                      child: CircularProgressIndicator(),
+                    if ((state.isLoading ?? true) &&
+                        state.buildingList.isEmpty) {
+                      return Center(child: loader());
+                    }
+                    if (state.buildingList.isEmpty) {
+                      return Center(child: noDataWidget());
+                    }
+                    return ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      itemCount: state.buildingList.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == state.buildingList.length) {
+                          return state.buildingList.length <
+                                  state.totalNumberOfRecord
+                              ? const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                              : const SizedBox.shrink();
+                        }
+                        var building = state.buildingList[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.all(12),
+                          decoration: commonCardDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                spacing: 10,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        goRouter.pushNamed(
+                                          AppRoutes.viewBuilding,
+                                          queryParameters: {
+                                            "building":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(
+                                                      building.toJson(),
+                                                    ),
+                                                  ),
+                                                ),
+                                          },
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 0,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(
+                                              color: AppColor.primary,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          building.buildingName,
+                                          style: AppTextStyle.ts16M(
+                                            color: AppColor.primary,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
                                     ),
-                                  )
-                                : const SizedBox.shrink();
-                          }
-                          var building = state.buildingList[index];
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            padding: const EdgeInsets.all(12),
-                            decoration: commonCardDecoration(),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  spacing: 10,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          goRouter.pushNamed(
-                                            AppRoutes.viewBuilding,
+                                  ),
+                                  Row(
+                                    children: [
+                                      CustomIconButton.edit(
+                                        onPressed: () async {
+                                          if (_selectedProjectNotifier
+                                              .value
+                                              .isEmpty) {
+                                            showErrorMessage(
+                                              context,
+                                              'Error',
+                                              'Please select a project',
+                                            );
+                                            return;
+                                          }
+                                          final projectId =
+                                              _selectedProjectNotifier
+                                                      .value
+                                                      .first['zAttributesId']
+                                                  as int;
+                                          await goRouter.pushNamed(
+                                            AppRoutes.addBuilding,
                                             queryParameters: {
                                               "building":
                                                   Uri.encodeQueryComponent(
@@ -358,115 +409,69 @@ class _BuildingScreenState extends State<BuildingScreen> {
                                                       ),
                                                     ),
                                                   ),
+                                              'index': index.toString(),
+                                              'projectId': projectId.toString(),
                                             },
                                           );
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 0,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            border: Border(
-                                              bottom: BorderSide(
-                                                color: AppColor.primary,
-                                              ),
-                                            ),
-                                          ),
-                                          child: Text(
-                                            building.buildingName,
-                                            style: AppTextStyle.ts16M(
-                                              color: AppColor.primary,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        CustomIconButton.edit(
-                                          onPressed: () async {
-                                            if (_selectedProjectNotifier.value.isEmpty) {
-                                              showErrorMessage(context, 'Error', 'Please select a project');
-                                              return;
-                                            }
-                                            final projectId = _selectedProjectNotifier.value.first['zAttributesId'] as int;
-                                            await goRouter.pushNamed(
-                                              AppRoutes.addBuilding,
-                                              queryParameters: {
-                                                "building":
-                                                    Uri.encodeQueryComponent(
-                                                      EncryptionManager.encryptData(
-                                                        jsonEncode(
-                                                          building.toJson(),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                'index': index.toString(),
-                                                'projectId': projectId.toString(),
-                                              },
-                                            );
-                                            if (context.mounted &&
-                                                _selectedProjectNotifier
-                                                    .value
-                                                    .isNotEmpty) {
-                                              _buildingCubit.getBuildingList(
-                                                context,
-                                                1,
-                                                10,
-                                                _selectedProjectNotifier
-                                                        .value
-                                                        .first['zAttributesId']
-                                                    as int,
-                                              );
-                                            }
-                                          },
-                                        ),
-                                        const SizedBox(width: 8),
-                                        CustomIconButton.delete(
-                                          onPressed: () {
-                                            _showPopupToDeleteBuilding(
+                                          if (context.mounted &&
+                                              _selectedProjectNotifier
+                                                  .value
+                                                  .isNotEmpty) {
+                                            _buildingCubit.getBuildingList(
                                               context,
-                                              building,
-                                              state.currentPage,
-                                              index,
+                                              1,
+                                              10,
+                                              _selectedProjectNotifier
+                                                      .value
+                                                      .first['zAttributesId']
+                                                  as int,
                                             );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                verticalSpacing(height: 8),
-                                _buildRowTitleValue(
-                                  title: "CTS Number",
-                                  value: building.ctsNumber,
-                                ),
-                                _buildRowTitleValue(
-                                  title: "Total Plot Area(Sq. ft)",
-                                  value: building.totalPlotAreaSqFt.toString(),
-                                ),
-                                _buildRowTitleValue(
-                                  title: "Road Width",
-                                  value: building.roadWidth,
-                                ),
-                                _buildRowTitleValue(
-                                  title: "Total Floor",
-                                  value: building.numberOfFloors.toString(),
-                                ),
-                                _buildRowTitleValue(
-                                  title: "Total Units",
-                                  value: building.totalNumberOfUnits.toString(),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  );
+                                          }
+                                        },
+                                      ),
+                                      const SizedBox(width: 8),
+                                      CustomIconButton.delete(
+                                        onPressed: () {
+                                          _showPopupToDeleteBuilding(
+                                            context,
+                                            building,
+                                            state.currentPage,
+                                            index,
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              verticalSpacing(height: 8),
+                              _buildRowTitleValue(
+                                title: "CTS Number",
+                                value: building.ctsNumber,
+                              ),
+                              _buildRowTitleValue(
+                                title: "Total Plot Area(Sq. ft)",
+                                value: building.totalPlotAreaSqFt.toString(),
+                              ),
+                              _buildRowTitleValue(
+                                title: "Road Width",
+                                value: building.roadWidth,
+                              ),
+                              _buildRowTitleValue(
+                                title: "Total Floor",
+                                value: building.numberOfFloors.toString(),
+                              ),
+                              _buildRowTitleValue(
+                                title: "Total Units",
+                                value: building.totalNumberOfUnits.toString(),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
               },
             ),
           ),
@@ -500,12 +505,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
           ),
 
           // VALUE
-          Expanded(
-            child: Text(
-              value,
-              style: AppTextStyle.ts14R(),
-            ),
-          ),
+          Expanded(child: Text(value, style: AppTextStyle.ts14R())),
         ],
       ),
     );

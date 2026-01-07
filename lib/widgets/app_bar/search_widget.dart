@@ -25,7 +25,7 @@ class SearchWidget extends StatelessWidget {
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     Timer? debounce;
     return Container(
-      height: 35.0,
+      height: 40.0,
       alignment: Alignment.center,
       padding: const EdgeInsets.only(left: 3.0, right: 6.0),
       decoration: BoxDecoration(

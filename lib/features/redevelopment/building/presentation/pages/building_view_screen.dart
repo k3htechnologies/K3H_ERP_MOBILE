@@ -1,10 +1,11 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/presentation/widgets/employee_document_dialog.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_document.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/building_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -31,10 +32,16 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
 
+  // TAB CONTROLLER
   late TabController _tabController;
 
   // PROJECT
   late ProjectModel _project;
+
+  // EXPANDED DOCUMENTS STATE
+  final Set<int> _expandedDocumentIds = {};
+  final Map<int, List<BuildingDocumentModel>> _childDocuments = {};
+  final Map<int, bool> _loadingChildDocuments = {};
 
   @override
   void initState() {
@@ -52,6 +59,7 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
     super.dispose();
   }
 
+  // HANDLE TAB CHANGE
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
       _buildingCubit.onTabChanged(
@@ -61,6 +69,52 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
         widget.building.buildingId,
       );
     }
+  }
+
+  // ───────────────── PICK DOCUMENTS ─────────────────
+  Future<void> _pickDocuments(BuildingDocumentModel doc) async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      withData: true, // 🔑 REQUIRED
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+    );
+
+    if (result == null || result.files.isEmpty) return;
+    if (!mounted) return;
+
+    final multiFileModel =
+    _convertToMultiFilePicker(result.files);
+
+    await _buildingCubit.updateBuildingDocument(
+      context: context,
+      buildingDocumentId: doc.buildingDocumentId,
+      uniqueKey: doc.uniquekey,
+      projectId: doc.projectId,
+      buildingId: doc.buildingId,
+      documentName: doc.documentName,
+      files: multiFileModel,
+    );
+
+    if (mounted) {
+      setState(() {
+        _childDocuments.remove(doc.buildingDocumentId);
+        _expandedDocumentIds.remove(doc.buildingDocumentId);
+      });}
+  }
+
+  MultiFilePickerModel _convertToMultiFilePicker(
+      List<PlatformFile> files,
+      ) {
+    return MultiFilePickerModel(
+      fileNameList: files.map((e) => e.name).toList(),
+
+      fileBytesList: files
+          .map((e) => e.bytes!)
+          .toList(),
+
+      deletedFileList: "",
+    );
   }
 
   @override
@@ -665,105 +719,211 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
 
   // DOCUMENT
   Widget _buildDocumentTab() {
-    return SingleChildScrollView(
-      child: BlocBuilder<BuildingCubit, BuildingState>(
-        builder: (context, state) {
-          return ListView.builder(
+    return BlocBuilder<BuildingCubit, BuildingState>(
+      builder: (context, state) {
+        if ((state.isLoading ?? true) && state.buildingDocumentList.isEmpty) {
+          return Center(child: loader());
+        }
+        if (state.buildingDocumentList.isEmpty) {
+          return Center(child: noDataWidget());
+        }
+
+        // Store parent list when it's loaded (top-level documents)
+        final parentDocuments = state.buildingDocumentList;
+
+        return SingleChildScrollView(
+          child: ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            itemCount: state.buildingDocumentList.length,
+            itemCount: parentDocuments.length,
             itemBuilder: (context, index) {
-              final doc = state.buildingDocumentList[index];
-
-              final urls =
-                  doc.documentURL.isEmpty
-                      ? <String>[]
-                      : doc.documentURL.split(',');
-
-              final isFresh = urls.isEmpty;
+              final doc = parentDocuments[index];
+              final isExpanded = _expandedDocumentIds.contains(
+                doc.buildingDocumentId,
+              );
+              final childDocs = _childDocuments[doc.buildingDocumentId] ?? [];
+              final isLoadingChildren =
+                  _loadingChildDocuments[doc.buildingDocumentId] ?? false;
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(16),
                 decoration: commonCardDecoration(),
-                child: Row(
+                child: Column(
                   children: [
-                    Expanded(child: Text(doc.documentName, style: AppTextStyle.ts14SB())),
-                    const Spacer(),
-
-                    CustomIconButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          barrierDismissible: true,
-                          builder:
-                              (_) => EmployeeDocumentDialog(
-                                title: doc.documentName,
-                                urls: urls,
-                                isFreshAdd: isFresh,
-
-                                addDocument: (pickedFiles) async {
-                                  if (pickedFiles.isEmpty) return;
-                                  
-                                  final files = MultiFilePickerModel(
-                                    fileNameList:
-                                        pickedFiles.map((e) => e.name).toList(),
-                                    fileBytesList:
-                                        pickedFiles
-                                            .where((e) => e.bytes != null)
-                                            .map((e) => e.bytes!)
-                                            .toList(),
-                                    deletedFileList: "",
-                                  );
-
-                                  await _buildingCubit.updateBuildingDocument(
-                                    context: context,
-                                    buildingDocumentId: isFresh ? 0 : doc.buildingDocumentId,
-                                    uniqueKey: isFresh ? '' : doc.uniquekey,
-                                    projectId: _project.projectId,
-                                    buildingId: widget.building.buildingId,
-                                    documentName: doc.documentName,
-                                    files: files,
-                                  );
-                                },
-
-                                // 🗑 DELETE
-                                deleteDocument: (removeUrl) async {
-                                  final files = MultiFilePickerModel(
-                                    fileNameList: [],
-                                    fileBytesList: [],
-                                    deletedFileList: removeUrl,
-                                  );
-
-                                  await _buildingCubit.updateBuildingDocument(
-                                    context: context,
-                                    buildingDocumentId: doc.buildingDocumentId,
-                                    uniqueKey: doc.uniquekey,
-                                    projectId: _project.projectId,
-                                    buildingId: widget.building.buildingId,
-                                    documentName: doc.documentName,
-                                    files: files,
-                                  );
-                                },
-                              ),
-                        );
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          if (isExpanded) {
+                            // Collapse
+                            _expandedDocumentIds.remove(doc.buildingDocumentId);
+                          } else {
+                            // Expand - call API if not already loaded
+                            _expandedDocumentIds.add(doc.buildingDocumentId);
+                            if (!_childDocuments.containsKey(
+                              doc.buildingDocumentId,
+                            )) {
+                              _loadingChildDocuments[doc.buildingDocumentId] =
+                                  true;
+                              _buildingCubit
+                                  .getBuildingDocumentList(
+                                    context,
+                                    _project.projectId,
+                                    widget.building.buildingId,
+                                    1,
+                                    100,
+                                    doc.buildingDocumentId,
+                                  )
+                                  .then((_) {
+                                    if (mounted) {
+                                      // Capture the child documents from state after API call
+                                      final currentState = _buildingCubit.state;
+                                      setState(() {
+                                        _loadingChildDocuments[doc
+                                                .buildingDocumentId] =
+                                            false;
+                                        // Store the child documents from state
+                                        _childDocuments[doc
+                                            .buildingDocumentId] = List.from(
+                                          currentState.buildingDocumentList,
+                                        );
+                                        // Restore parent list by calling API with null
+                                        _buildingCubit.getBuildingDocumentList(
+                                          context,
+                                          _project.projectId,
+                                          widget.building.buildingId,
+                                          1,
+                                          100,
+                                          null,
+                                        );
+                                      });
+                                    }
+                                  });
+                            }
+                          }
+                        });
                       },
-                      icon: Icon(
-                        Icons.remove_red_eye,
-                        size: 16,
-                        color: isFresh ? AppColor.grey : AppColor.primary,
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                doc.documentName,
+                                style: AppTextStyle.ts14SB(),
+                              ),
+                            ),
+                            Row(
+                              spacing: 20,
+                              children: [
+                                CustomIconButton(
+                                  onPressed: () => _pickDocuments(doc),
+                                  icon: Icon(
+                                    Icons.add,
+                                    color: AppColor.darkGreen,
+                                    size: 16,
+                                  ),
+                                  backgroundColor: AppColor.lightGreen,
+                                ),
+                                Container(
+                                  padding: EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.lightGrey,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    isExpanded
+                                        ? Icons.arrow_drop_up
+                                        : Icons.arrow_drop_down,
+                                    size: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                      backgroundColor:
-                          isFresh ? AppColor.lightGrey : AppColor.lightBlue,
                     ),
+                    if (isExpanded)
+                      Builder(
+                        builder: (context) {
+                          if (isLoadingChildren) {
+                            return const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+
+                          if (childDocs.isEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Center(
+                                child: Text(
+                                  "No documents found",
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.grey,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                              left: 16,
+                              right: 16,
+                              bottom: 16,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children:
+                                  childDocs.map((childDoc) {
+                                    return Container(
+                                      margin: const EdgeInsets.only(bottom: 8),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: AppColor.lightGreyBackground,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              childDoc.documentName,
+                                              style: AppTextStyle.ts14R(),
+                                            ),
+                                          ),
+                                          CustomIconButton(
+                                            onPressed: () {
+                                              showFilePreviewDialog(
+                                                context,
+                                                childDoc.documentURL.split(","),
+                                              );
+                                            },
+                                            icon: Icon(
+                                              Icons.remove_red_eye_outlined,
+                                              color: AppColor.primary,
+                                              size: 16,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                            ),
+                          );
+                        },
+                      ),
                   ],
                 ),
               );
             },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 

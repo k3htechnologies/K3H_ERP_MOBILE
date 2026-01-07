@@ -2,12 +2,13 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/repository/building.repository.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant_document.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/repository/tenant.repository.dart';
-import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -75,7 +76,10 @@ class TenantCubit extends Cubit<TenantState> {
         // Get existing building IDs to avoid duplicates
         final existingIds = state.buildingList.map((b) => b.buildingId).toSet();
         // Filter out duplicates from new data
-        final uniqueNewData = newData.where((building) => !existingIds.contains(building.buildingId)).toList();
+        final uniqueNewData =
+            newData
+                .where((building) => !existingIds.contains(building.buildingId))
+                .toList();
         List<RedevelopmentBuildingModel> updatedList = List.from(
           state.buildingList,
         );
@@ -126,10 +130,11 @@ class TenantCubit extends Cubit<TenantState> {
         if (pageNumber == 1) {
           updatedList = newData;
         } else {
-          // Get existing tenant IDs to avoid duplicates
           final existingIds = state.tenantList.map((t) => t.tenantId).toSet();
-          // Filter out duplicates from new data
-          final uniqueNewData = newData.where((tenant) => !existingIds.contains(tenant.tenantId)).toList();
+          final uniqueNewData =
+              newData
+                  .where((tenant) => !existingIds.contains(tenant.tenantId))
+                  .toList();
           updatedList = [...state.tenantList, ...uniqueNewData];
         }
 
@@ -139,6 +144,53 @@ class TenantCubit extends Cubit<TenantState> {
             isLoading: false,
             totalNumberOfRecord: response['totalNumberOfRecord'] ?? 0,
             currentPage: pageNumber,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET TENANT DOCUMENT LIST ---->
+  Future getTenantDocumentList(
+    BuildContext context,
+    int projectId,
+    int buildingId,
+    int pageNumber,
+    int pageSize,
+    int? tenantDocumentId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final queryParameter = {
+      "IsCheckPermission": true,
+      "TenantDocumentId": tenantDocumentId ?? 0,
+    };
+
+    final result = await _tenantRepository.getTenantDocumentList(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      buildingId: buildingId,
+      projectId: projectId,
+      queryParams: queryParameter,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<TenantDocumentModel> newList =
+            pageNumber == 1
+                ? List<TenantDocumentModel>.from(response['data'])
+                : [...state.tenantDocumentList, ...response['data']];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            tenantDocumentList: newList,
+            currentPage: pageNumber,
+            totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
         );
       },
@@ -322,31 +374,20 @@ class TenantCubit extends Cubit<TenantState> {
         return;
       },
       (response) async {
-        var list = [
-          response['data'][0] as TenantModel,
-          ...BlocProvider.of<TenantCubit>(context).state.tenantList,
-        ];
-
-        BlocProvider.of<TenantCubit>(context).emit(
-          BlocProvider.of<TenantCubit>(context).state.copyWith(
-            tenantList: list,
-            totalNumberOfRecord:
-                BlocProvider.of<TenantCubit>(
-                          context,
-                        ).state.totalNumberOfRecord ==
-                        -1
-                    ? 1
-                    : BlocProvider.of<TenantCubit>(
-                          context,
-                        ).state.totalNumberOfRecord +
-                        1,
-          ),
-        );
         await showSuccessMessage(
           context,
           subTitle: 'Tenant Added Successfully',
         );
-        goRouter.goNamed(AppRoutes.tenant);
+        goRouter.pop();
+        if (context.mounted) {
+          await getTenantList(
+            context: context,
+            projectId: int.parse(projectId),
+            buildingId: int.parse(buildingId),
+            pageNumber: 1,
+            pageSize: 10,
+          );
+        }
       },
     );
   }
@@ -465,7 +506,6 @@ class TenantCubit extends Cubit<TenantState> {
       });
     }
 
-    // File uploads (skip URLs)
     List<Map<String, dynamic>> fileList = [];
     for (
       int applicantIndex = 0;
@@ -542,19 +582,185 @@ class TenantCubit extends Cubit<TenantState> {
         showErrorMessage(context, 'Error Message', failure.message);
         return;
       },
-      (response) {
-        final tenantCubit = BlocProvider.of<TenantCubit>(
-          goRouter.routerDelegate.navigatorKey.currentContext!,
-        );
-
-        final tenantList = List<TenantModel>.from(tenantCubit.state.tenantList);
-        tenantList[index] = response['data'][0] as TenantModel;
-
-        tenantCubit.emit(tenantCubit.state.copyWith(tenantList: tenantList));
-
+      (response) async {
         showSuccessMessage(context, subTitle: 'Tenant Updated Successfully');
-        goRouter.goNamed(AppRoutes.tenant);
+        goRouter.pop();
+        // Call getTenantList to fetch the latest list
+        final navigatorContext =
+            goRouter.routerDelegate.navigatorKey.currentContext;
+        if (navigatorContext != null && navigatorContext.mounted) {
+          await getTenantList(
+            context: navigatorContext,
+            projectId: int.parse(projectId),
+            buildingId: int.parse(buildingId),
+            pageNumber: state.currentPage,
+            pageSize: 10,
+          );
+        }
       },
     );
+  }
+
+  // <---- DELETE TENANT ---->
+  Future deleteTenant(
+    int projectId,
+    int buildingId,
+    TenantModel tenantModel,
+    BuildContext context,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final result = await _tenantRepository.deleteTenant(
+      buildingId: tenantModel.buildingId,
+      uniquekey: tenantModel.uniquekey,
+      projectId: projectId,
+      tenantId: tenantModel.tenantId,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (success) {
+        showSuccessMessage(context, subTitle: "Tenant Deleted Successfully");
+
+        getTenantList(
+          context: context,
+          pageNumber: state.currentPage,
+          pageSize: 10,
+          projectId: projectId,
+          buildingId: buildingId,
+        );
+      },
+    );
+  }
+
+  // <---- EXPORT ---->
+  Future exportExcelPdf(
+    BuildContext context,
+    String exportType,
+    int projectId,
+    int buildingId,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final result = await _tenantRepository.exportTenant(
+      pageNumber: 1,
+      pageSize: state.totalNumberOfRecord,
+      projectId: projectId,
+      buildingId: buildingId,
+      queryParams: {"ExportType": exportType, "FlatNumber": state.searchText},
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (success) {
+        exportExcelOrPdfMobile(
+          success["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "tenant_${DateTime.now()}.pdf"
+              : "tenant_${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+
+  // <---- ADD/UPDATE BUILDING DOCUMENT ---->
+  Future updateBuildingDocument({
+    required BuildContext context,
+    required int tenantDocumentId,
+    required String uniqueKey,
+    required int projectId,
+    required int buildingId,
+    required String documentName,
+    required MultiFilePickerModel files,
+  }) async {
+    if (isClosed) return;
+
+    final isAddMode = tenantDocumentId == 0 || tenantDocumentId == -1;
+
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < files.fileNameList.length; i++) {
+      if (files.fileNameList[i].contains("http")) {
+        continue;
+      }
+      if (i < files.fileBytesList.length && files.fileBytesList[i].isNotEmpty) {
+        fileList.add({
+          "key": "DocumentURL",
+          "value": files.fileBytesList[i],
+          "fileName": files.fileNameList[i],
+        });
+      }
+    }
+
+    if (isAddMode && fileList.isEmpty && files.deletedFileList.isEmpty) {
+      showErrorMessage(
+        context,
+        'Error',
+        'Please select at least one file to upload',
+      );
+      return;
+    }
+
+    DialogHelper.showProcessingOverlay(context);
+
+    final body = <String, String>{
+      'TenantDocumentId': isAddMode ? '0' : tenantDocumentId.toString(),
+      'Uniquekey': isAddMode ? '' : uniqueKey,
+      'ProjectId': projectId.toString(),
+      'BuildingId': buildingId.toString(),
+      'DocumentName': documentName,
+      'RemoveDocumentURL': files.deletedFileList,
+    };
+
+    var updateResult = await _tenantRepository.addUpdateTenantDocument(
+      body: body,
+      fileList: fileList,
+    );
+    goRouter.pop();
+
+    if (isClosed) return;
+
+    updateResult.fold(
+      (failure) {
+        if (isClosed) return;
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) async {
+        if (isClosed) return;
+        showSuccessMessage(context, subTitle: "Upload Successfully");
+        await getTenantDocumentList(
+          context,
+          projectId,
+          buildingId,
+          1,
+          100,
+          null,
+        );
+      },
+    );
+  }
+
+  // <---- ON TAB CHANGED ---->
+  void onTabChanged(
+    int index,
+    BuildContext context,
+    int projectId,
+    int buildingId,
+    int? tenantDocumentId,
+  ) {
+    if (isClosed) return;
+    emit(state.copyWith(currentTabIndex: index));
+
+    if (index == 1) {
+      // Document tab
+    }
   }
 }

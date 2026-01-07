@@ -25,19 +25,21 @@ class BuildingCubit extends Cubit<BuildingState> {
     try {
       // Increment resetCounter to force Equatable to detect the change
       // This ensures the BlocBuilder rebuilds even if other props are the same
-      emit(BuildingState(
-        buildingList: [],
-        buildingDetails: null,
-        buildingDocumentList: [],
-        totalNumberOfRecord: 0,
-        currentPage: 1,
-        currentTabIndex: 0,
-        searchText: "",
-        isLoading: true,
-        currentSortColumn: "Created Date",
-        currentSortDirection: "DESC",
-        resetCounter: (state.resetCounter) + 1,
-      ));
+      emit(
+        BuildingState(
+          buildingList: [],
+          buildingDetails: null,
+          buildingDocumentList: [],
+          totalNumberOfRecord: 0,
+          currentPage: 1,
+          currentTabIndex: 0,
+          searchText: "",
+          isLoading: true,
+          currentSortColumn: "Created Date",
+          currentSortDirection: "DESC",
+          resetCounter: (state.resetCounter) + 1,
+        ),
+      );
     } catch (e) {
       // Cubit is closed, ignore
     }
@@ -46,13 +48,15 @@ class BuildingCubit extends Cubit<BuildingState> {
   // <---- CLEAR BUILDING LIST ---->
   void clearBuildingList() {
     try {
-      emit(state.copyWith(
-        buildingList: [],
-        currentPage: 1,
-        totalNumberOfRecord: 0,
-        isLoading: true,
-        searchText: "",
-      ));
+      emit(
+        state.copyWith(
+          buildingList: [],
+          currentPage: 1,
+          totalNumberOfRecord: 0,
+          isLoading: true,
+          searchText: "",
+        ),
+      );
     } catch (e) {
       // Cubit is closed, ignore
     }
@@ -64,12 +68,8 @@ class BuildingCubit extends Cubit<BuildingState> {
     int projectId,
     String value,
   ) async {
-    try {
-      emit(state.copyWith(searchText: value, buildingList: [], currentPage: 1));
-      await getBuildingList(context, 1, 10, projectId);
-    } catch (e) {
-      // Cubit is closed, ignore
-    }
+    emit(state.copyWith(searchText: value, buildingList: [], currentPage: 1));
+    await getBuildingList(context, 1, 10, projectId);
   }
 
   // <---- GET ASSET LIST ---->
@@ -80,7 +80,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
-    
+
     final queryParams = {
       "BuildingName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
@@ -99,20 +99,27 @@ class BuildingCubit extends Cubit<BuildingState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        // If pageNumber is 1, replace the list; otherwise append
-        final newData = List<RedevelopmentBuildingModel>.from(response['data'] as List<RedevelopmentBuildingModel>);
-        
+        final newData = List<RedevelopmentBuildingModel>.from(
+          response['data'] as List<RedevelopmentBuildingModel>,
+        );
+
         List<RedevelopmentBuildingModel> updatedList;
         if (pageNumber == 1) {
           updatedList = newData;
         } else {
-          // Get existing building IDs to avoid duplicates
-          final existingIds = state.buildingList.map((b) => b.buildingId).toSet();
-          // Filter out duplicates from new data
-          final uniqueNewData = newData.where((building) => !existingIds.contains(building.buildingId)).toList();
-          updatedList = List<RedevelopmentBuildingModel>.from(state.buildingList)..addAll(uniqueNewData);
+          final existingIds =
+              state.buildingList.map((b) => b.buildingId).toSet();
+          final uniqueNewData =
+              newData
+                  .where(
+                    (building) => !existingIds.contains(building.buildingId),
+                  )
+                  .toList();
+          updatedList = List<RedevelopmentBuildingModel>.from(
+            state.buildingList,
+          )..addAll(uniqueNewData);
         }
-        
+
         emit(
           state.copyWith(
             isLoading: false,
@@ -175,12 +182,14 @@ class BuildingCubit extends Cubit<BuildingState> {
     int buildingId,
     int pageNumber,
     int pageSize,
+    int? buildingDocumentId,
   ) async {
     if (isClosed) return;
     emit(state.copyWith(isLoading: true));
 
-    var queryParameter = {
-      "IsCheckPermission":true
+    final queryParameter = {
+      "IsCheckPermission": true,
+      "BuildingDocumentId": buildingDocumentId ?? 0,
     };
 
     final result = await _buildingRepository.pullBuildingDocument(
@@ -188,7 +197,7 @@ class BuildingCubit extends Cubit<BuildingState> {
       pageSize: pageSize,
       buildingId: buildingId,
       projectId: projectId,
-      queryParams: queryParameter
+      queryParams: queryParameter,
     );
 
     if (isClosed) return;
@@ -201,7 +210,7 @@ class BuildingCubit extends Cubit<BuildingState> {
       },
       (response) {
         if (isClosed) return;
-        List<BuildingDocumentModel> newList =
+        final List<BuildingDocumentModel> newList =
             pageNumber == 1
                 ? List<BuildingDocumentModel>.from(response['data'])
                 : [...state.buildingDocumentList, ...response['data']];
@@ -230,10 +239,8 @@ class BuildingCubit extends Cubit<BuildingState> {
   }) async {
     if (isClosed) return;
 
-    // For new documents, use 0 for BuildingDocumentId and empty string for UniqueKey
     final isAddMode = buildingDocumentId == 0 || buildingDocumentId == -1;
 
-    // Prepare file list (exclude URLs that are already uploaded)
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < files.fileNameList.length; i++) {
       if (files.fileNameList[i].contains("http")) {
@@ -248,7 +255,6 @@ class BuildingCubit extends Cubit<BuildingState> {
       }
     }
 
-    // For add mode, ensure we have files to upload
     if (isAddMode && fileList.isEmpty && files.deletedFileList.isEmpty) {
       showErrorMessage(
         context,
@@ -285,8 +291,15 @@ class BuildingCubit extends Cubit<BuildingState> {
       },
       (response) async {
         if (isClosed) return;
-        showSuccessMessage(context, subTitle: response["successMessage"]);
-        await getBuildingDocumentList(context, projectId, buildingId, 1, 100);
+        showSuccessMessage(context, subTitle: "Upload Successfully");
+        await getBuildingDocumentList(
+          context,
+          projectId,
+          buildingId,
+          1,
+          100,
+          null,
+        );
       },
     );
   }
@@ -372,7 +385,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
   }
 
-  // <---- DELETE ASSET ---->
+  // <---- DELETE BUILDING ---->
   Future deleteBuilding(
     int projectId,
     RedevelopmentBuildingModel buildingModel,
@@ -425,13 +438,14 @@ class BuildingCubit extends Cubit<BuildingState> {
         exportExcelOrPdfMobile(
           success["data"],
           exportType.toLowerCase() == "pdf"
-              ? "asset_${DateTime.now()}.pdf"
-              : "asset_${DateTime.now()}.xlsx",
+              ? "building_${DateTime.now()}.pdf"
+              : "building_${DateTime.now()}.xlsx",
         );
       },
     );
   }
 
+  // <---- ON TAB CHANGED ---->
   void onTabChanged(
     int index,
     BuildContext context,
@@ -449,8 +463,8 @@ class BuildingCubit extends Cubit<BuildingState> {
         projectId: projectId,
       );
     } else if (index == 2) {
-      // Document tab
-      getBuildingDocumentList(context, projectId, buildingId, 1, 100);
+      // Document tab - top-level documents (no specific document id)
+      getBuildingDocumentList(context, projectId, buildingId, 1, 100, null);
     }
   }
 }

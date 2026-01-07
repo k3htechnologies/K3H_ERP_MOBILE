@@ -2,11 +2,11 @@ part of 'tenant_cubit.dart';
 
 class TenantState extends BaseState {
   final List<TenantModel> tenantList;
+  final List<TenantDocumentModel> tenantDocumentList;
   final List<RedevelopmentBuildingModel> buildingList;
   final int totalNumberOfRecord;
   final int currentPage;
-  final int totalNumberOfRecordCharges;
-  final int currentPageCharges;
+  final int currentTabIndex;
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
@@ -14,11 +14,11 @@ class TenantState extends BaseState {
   const TenantState({
     super.isLoading,
     required this.tenantList,
+    required this.tenantDocumentList,
     required this.buildingList,
     required this.totalNumberOfRecord,
     required this.currentPage,
-    required this.totalNumberOfRecordCharges,
-    required this.currentPageCharges,
+    required this.currentTabIndex,
     required this.searchText,
     required this.currentSortColumn,
     required this.currentSortDirection,
@@ -26,11 +26,11 @@ class TenantState extends BaseState {
 
   factory TenantState.initial() => TenantState(
     tenantList: [],
+    tenantDocumentList: [],
     buildingList: [],
     totalNumberOfRecord: 0,
     currentPage: 1,
-    totalNumberOfRecordCharges: 0,
-    currentPageCharges: 1,
+    currentTabIndex: 0,
     searchText: "",
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
@@ -40,11 +40,11 @@ class TenantState extends BaseState {
   TenantState copyWith({
     bool? isLoading,
     List<TenantModel>? tenantList,
+    List<TenantDocumentModel>? tenantDocumentList,
     List<RedevelopmentBuildingModel>? buildingList,
     int? totalNumberOfRecord,
     int? currentPage,
-    int? totalNumberOfRecordCharges,
-    int? currentPageCharges,
+    int? currentTabIndex,
     String? searchText,
     String? currentSortColumn,
     String? currentSortDirection,
@@ -52,12 +52,11 @@ class TenantState extends BaseState {
     return TenantState(
       isLoading: isLoading ?? this.isLoading,
       tenantList: tenantList ?? this.tenantList,
+      tenantDocumentList: tenantDocumentList ?? this.tenantDocumentList,
       buildingList: buildingList ?? this.buildingList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
-      totalNumberOfRecordCharges:
-          totalNumberOfRecordCharges ?? this.totalNumberOfRecordCharges,
-      currentPageCharges: currentPageCharges ?? this.currentPageCharges,
+      currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
@@ -68,11 +67,11 @@ class TenantState extends BaseState {
   List<Object?> get props => [
     isLoading,
     tenantList,
+    tenantDocumentList,
     buildingList,
     totalNumberOfRecord,
     currentPage,
-    totalNumberOfRecordCharges,
-    currentPageCharges,
+    currentTabIndex,
     searchText,
     currentSortColumn,
     currentSortDirection,

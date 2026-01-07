@@ -1,8 +1,6 @@
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:k3h_erp_app/core/models/bank_details.model.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -40,42 +38,47 @@ class AddTenantApplicantScreen extends StatefulWidget {
 }
 
 class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
-
-  final EmployeeMasterRepository _employeeMasterRepository = serviceLocator<EmployeeMasterRepository>();
+  final EmployeeMasterRepository _employeeMasterRepository =
+      serviceLocator<EmployeeMasterRepository>();
 
   final _formKey = GlobalKey<FormState>();
 
   // TEXT CONTROLLERS
-  late TextEditingController _applicantNameC;
-  late TextEditingController _mobileC;
-  late TextEditingController _emailC;
-  late TextEditingController _aadharC;
-  late TextEditingController _panC;
-  late TextEditingController _passportC;
-  late TextEditingController _drivingLicenseC;
-  late TextEditingController _votingIdC;
-  late TextEditingController _gstC;
-  late TextEditingController _accountNumberC;
-  late TextEditingController _ifscCodeC;
+  late TextEditingController _applicantNameC,
+      _mobileC,
+      _emailC,
+      _panC,
+      _aadharC,
+      _passportC,
+      _drivingLicenseC,
+      _votingIdC,
+      _gstC,
+      _accountNumberC,
+      _ifscCodeC;
 
-  // DROPDOWNS
+  // APPLICANT TYPE LIST
   final List<Map<String, dynamic>> applicantTypeList = const [
     {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "Applicant"},
     {"zAttributesId": 2, "DisplayName": "Co-Applicant"},
-    {"zAttributesId": 3, "DisplayName": "Guarantor"},
   ];
+
+  // SELECTED APPLICANT TYPE
   late Map<String, dynamic> selectedApplicantType;
 
+  // METHODS TO CHECK IF APPLICANT TYPE IS PRIMARY
   bool _isApplicantType(String type) =>
       type.toLowerCase().trim() == 'applicant';
 
+  // CHECK IF APPLICANT IS EDITING
   bool get _isEditingApplicantType =>
       widget.applicant != null &&
       _isApplicantType(widget.applicant!.applicantType);
 
+  // APPLICANT TYPE OPTIONS
   List<Map<String, dynamic>> get _applicantTypeOptions => applicantTypeList;
 
+  // SELECTED BANK
   List<Map<String, dynamic>> _selectedBank = [];
 
   // FILE PICKERS
@@ -144,6 +147,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     super.dispose();
   }
 
+  // INITIALIZE TEXT CONTROLLERS
   void _initControllers(TenantApplicantData? applicant) {
     _applicantNameC = TextEditingController(text: applicant?.applicantName);
     _mobileC = TextEditingController(text: applicant?.applicantMobileNumber);
@@ -160,6 +164,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     _ifscCodeC = TextEditingController(text: applicant?.ifscCode);
   }
 
+  // PREFILL APPLICANT DETAILS
   void _prefill(TenantApplicantData? applicant) {
     if (applicant == null) return;
     selectedApplicantType = applicantTypeList.firstWhere(
@@ -196,44 +201,46 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     }
   }
 
+  // FETCH BANKS
   Future<Map<String, dynamic>> _fetchBank(
-      int pageNumber, {
-        String? value,
-      }) async {
+    int pageNumber, {
+    String? value,
+  }) async {
     final result = await _employeeMasterRepository.getBankList(
       pageNumber: pageNumber,
       pageSize: 15,
-      query:
-      value != null && value.isNotEmpty ? {"BankName": value} : {},
+      query: value != null && value.isNotEmpty ? {"BankName": value} : {},
     );
 
     return result.fold(
-          (failure) => {
+      (failure) => {
         "itemList": <Map<String, dynamic>>[],
         "totalNumberOfRecord": 0,
       },
-          (response) {
-        final banks = (response['data'] as List)
-            .map(
-              (e) => BankListMasterModel.fromJson(
-                e as Map<String, dynamic>,
-              ),
-            )
-            .toList();
+      (response) {
+        final banks =
+            (response['data'] as List)
+                .map(
+                  (e) =>
+                      BankListMasterModel.fromJson(e as Map<String, dynamic>),
+                )
+                .toList();
 
         return {
-          "itemList": banks.map((bank) {
-            return {
-              "zAttributesId": bank.bankListMasterId,
-              "DisplayName": bank.bankNameWithCode,
-            };
-          }).toList(),
+          "itemList":
+              banks.map((bank) {
+                return {
+                  "zAttributesId": bank.bankListMasterId,
+                  "DisplayName": bank.bankNameWithCode,
+                };
+              }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
       },
     );
   }
 
+  // SAVE
   void _save() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
@@ -250,11 +257,16 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     }
 
     final int bankListMasterId =
-        _selectedBank.isNotEmpty ? _selectedBank.first['zAttributesId'] as int : 0;
+        _selectedBank.isNotEmpty
+            ? _selectedBank.first['zAttributesId'] as int
+            : 0;
     final String bankName =
-        _selectedBank.isNotEmpty ? _selectedBank.first['DisplayName'].toString() : '';
+        _selectedBank.isNotEmpty
+            ? _selectedBank.first['DisplayName'].toString()
+            : '';
 
-    final applicant = TenantApplicantData(
+    final applicant =
+        TenantApplicantData(
             tenantApplicantId: widget.applicant?.tenantApplicantId ?? 0,
             tenantId: widget.applicant?.tenantId ?? 0,
             buildingId: widget.applicant?.buildingId ?? 0,

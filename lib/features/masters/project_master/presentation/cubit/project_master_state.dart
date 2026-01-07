@@ -56,7 +56,7 @@ class ProjectMasterState extends BaseState {
     currentPageEmployee: 1,
     currentPageCompany: 1,
     currentPageBank: 1,
-    pageSize: 20,
+    pageSize: 10,
     searchText: "",
     isLoading: true,
   );

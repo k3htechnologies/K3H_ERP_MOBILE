@@ -126,6 +126,7 @@ import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.mode
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_tenant_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_view_screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
@@ -139,7 +140,6 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
-import 'package:path/path.dart';
 
 String? authenticateAndAuthorizeRoute(GoRouterState state) {
   // SPLASH || LOGIN
@@ -1309,8 +1309,8 @@ final GoRouter goRouter = GoRouter(
           name: AppRoutes.tenant,
           path: AppRoutes.tenant,
           builder: (context, state) {
-            return BlocProvider(
-              create: (_) => TenantCubit(),
+            return BlocProvider.value(
+              value: serviceLocator<TenantCubit>(),
               child: const TenantScreen(),
             );
           },
@@ -1343,14 +1343,37 @@ final GoRouter goRouter = GoRouter(
                     tenant?.buildingId ??
                     0;
 
-            return BlocProvider(
-              create: (_) => TenantCubit(),
+            return BlocProvider.value(
+              value: serviceLocator<TenantCubit>(),
               child: AddTenantScreen(
                 tenant: tenant,
                 index: index,
                 projectId: projectId,
                 buildingId: buildingId,
               ),
+            );
+          },
+        ),
+        GoRoute(
+          name: AppRoutes.viewTenant,
+          path: AppRoutes.viewTenant,
+          builder: (context, state) {
+            final queryParameterTenant = state.uri.queryParameters['tenant'];
+
+            final TenantModel? tenant =
+                queryParameterTenant != null
+                    ? TenantModel.fromJson(
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterTenant),
+                          ),
+                        ),
+                      )
+                    : null;
+
+            return BlocProvider.value(
+              value: serviceLocator<TenantCubit>(),
+              child: TenantViewScreen(tenant: tenant!),
             );
           },
         ),
