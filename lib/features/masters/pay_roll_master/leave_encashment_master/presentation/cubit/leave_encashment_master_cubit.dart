@@ -119,6 +119,7 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
         var list = [newResponse, ...state.leaveEncashmentList];
         emit(
           state.copyWith(
+            isLoading: false,
             leaveEncashmentList: list,
             totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
@@ -168,7 +169,13 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
             state.leaveEncashmentList,
           );
           updatedListModel[index] = updatedList;
-          emit(state.copyWith(leaveEncashmentList: updatedListModel));
+          emit(
+            state.copyWith(
+              isLoading: false,
+              leaveEncashmentList: updatedListModel,
+              currentPage: state.currentPage,
+            ),
+          );
         }
 
         showSuccessMessage(

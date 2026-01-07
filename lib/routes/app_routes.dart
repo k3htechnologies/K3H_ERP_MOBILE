@@ -109,7 +109,8 @@ class AppRoutes {
   static String viewBranchMaster = "/viewBranchMaster";
   static String branchAssociation = "/branchAssociationsMaster";
   static String addBranchAssociation = "/addBranchAssociationsMaster";
-  static String leaveType = "/leaveTypeMaster";
+  static String leaveTypeMaster = "/leaveTypeMaster";
+  static String addLeaveTypeMaster = "/addLeaveTypeMaster";
   static String leaveEncashmentMaster = "/leaveEncashmentMaster";
   static String addLeaveEncashmentMaster = "/addLeaveEncashmentMaster";
   static String holidayMaster = "/holidayMaster";
