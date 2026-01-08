@@ -29,13 +29,12 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
         currentPage: 1,
       ),
     );
-    getHolidayMappingList(context: context, pageNumber: 1, pageSize: 15);
+    getHolidayMappingList(context: context, pageNumber: 1,);
   }
 
   Future getHolidayMappingList({
     required BuildContext context,
-    required int pageNumber,
-    required int pageSize,
+    required int pageNumber
   }) async {
     emit(state.copyWith(isLoading: true));
 
@@ -46,7 +45,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
 
     var result = await holidayMappingMasterRepository.getMappedHolidayList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       queryParams: queryParams,
     );
 
@@ -189,7 +188,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
         getHolidayMappingList(
           context: context,
           pageNumber: state.currentPage,
-          pageSize: 15,
+          
         );
       },
     );

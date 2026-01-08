@@ -30,15 +30,13 @@ class HolidayMasterCubit extends Cubit<HolidayMasterState> {
         currentPage: 1,
       ),
     );
-    getHolidayList(context: context, pageNumber: 1, pageSize: 15);
+    getHolidayList(context: context, pageNumber: 1);
   }
 
   Future getHolidayList({
     required BuildContext context,
     required int pageNumber,
-    required int pageSize,
   }) async {
-    if (isClosed) return;
     emit(state.copyWith(isLoading: true));
 
     var queryParams = {
@@ -48,7 +46,7 @@ class HolidayMasterCubit extends Cubit<HolidayMasterState> {
 
     var result = await holidayMasterRepository.getHolidayList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 15,
       queryParams: queryParams,
     );
 
@@ -62,8 +60,10 @@ class HolidayMasterCubit extends Cubit<HolidayMasterState> {
           response['data'] ?? [],
         );
 
-        final List<HolidayMasterModel> updatedList =
-            pageNumber == 1 ? newData : [...state.holidays, ...newData];
+        final List<HolidayMasterModel> updatedList = [
+          ...state.holidays,
+          ...newData,
+        ];
 
         emit(
           state.copyWith(
@@ -107,7 +107,9 @@ class HolidayMasterCubit extends Cubit<HolidayMasterState> {
       },
       (response) {
         goRouter.pop();
-        final newResponse = response['data'][0] as HolidayMasterModel;
+        final newResponse = HolidayMasterModel.fromJson(
+          response['data'][0] as Map<String, dynamic>,
+        );
 
         var list = [newResponse, ...state.holidays];
         emit(
@@ -159,7 +161,9 @@ class HolidayMasterCubit extends Cubit<HolidayMasterState> {
       },
       (response) {
         goRouter.pop();
-        final updatedList = response['data'][0] as HolidayMasterModel;
+        final updatedList = HolidayMasterModel.fromJson(
+          response['data'][0] as Map<String, dynamic>,
+        );
 
         if (state.holidays.isNotEmpty && index < state.holidays.length) {
           final updatedListModel = List<HolidayMasterModel>.from(
@@ -192,11 +196,7 @@ class HolidayMasterCubit extends Cubit<HolidayMasterState> {
       },
       (success) {
         showSuccessMessage(context, subTitle: "Holiday Deleted Successfully");
-        getHolidayList(
-          context: context,
-          pageNumber: state.currentPage,
-          pageSize: 15,
-        );
+        getHolidayList(context: context, pageNumber: state.currentPage);
       },
     );
   }

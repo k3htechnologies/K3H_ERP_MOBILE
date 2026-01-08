@@ -52,7 +52,6 @@ class _HolidayMappingMasterScreenState
     _holidayMappingMasterCubit.getHolidayMappingList(
       context: context,
       pageNumber: 1,
-      pageSize: 15,
     );
   }
 
@@ -82,7 +81,6 @@ class _HolidayMappingMasterScreenState
           _holidayMappingMasterCubit.getHolidayMappingList(
             context: context,
             pageNumber: _holidayMappingMasterCubit.state.currentPage + 1,
-            pageSize: 10,
           );
         });
       }
@@ -201,7 +199,6 @@ class _HolidayMappingMasterScreenState
                                       .getHolidayMappingList(
                                         context: context,
                                         pageNumber: state.currentPage,
-                                        pageSize: 10,
                                       );
                                 }
                               },

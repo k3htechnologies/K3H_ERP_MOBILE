@@ -45,7 +45,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     _companyMasterCubit = context.read<CompanyMasterCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.companyMaster]!;
-    _companyMasterCubit.getCompanyMaster(context, 1, 10);
+    _companyMasterCubit.getCompanyMaster(context, 1);
     // PAGINATION
     scrollController = ScrollController();
     // SCROLL LISTENER
@@ -70,7 +70,6 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
         _companyMasterCubit.getCompanyMaster(
           context,
           _companyMasterCubit.state.currentPage + 1,
-          10,
         );
       });
     }
@@ -115,7 +114,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
           await goRouter.pushNamed(AppRoutes.addCompany);
           if (context.mounted) {
             // After add, reload from first page to avoid duplicate rows
-            _companyMasterCubit.getCompanyMaster(context, 1, 10);
+            _companyMasterCubit.getCompanyMaster(context, 1);
           }
         },
         textController: _searchC,
@@ -178,11 +177,9 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                  border: Border(
-                                      bottom: BorderSide(
-                                          color: AppColor.primary
-                                      )
-                                  )
+                                border: Border(
+                                  bottom: BorderSide(color: AppColor.primary),
+                                ),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -205,7 +202,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                           children: [
                             CustomIconButton.edit(
                               onPressed: () async {
-                                await goRouter.pushNamed(
+                                final result = await goRouter.pushNamed(
                                   AppRoutes.addCompany,
                                   queryParameters: {
                                     "company": Uri.encodeQueryComponent(
@@ -215,11 +212,10 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                                     ),
                                   },
                                 );
-                                if (context.mounted) {
-                                  _companyMasterCubit.getCompanyMaster(
-                                    context,
-                                    1,
-                                    10,
+                                if (result != null && result is CompanyModel) {
+                                  _companyMasterCubit.updateCompany(
+                                    result,
+                                    index,
                                   );
                                 }
                               },

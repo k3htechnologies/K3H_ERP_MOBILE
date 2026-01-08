@@ -45,7 +45,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
         Authorization.routeAuthorizationMap[AppRoutes.employeeMaster]!;
     _initializeTextEditingController();
     _onScroll();
-    _employeeMasterCubit.getEmployeeMasterList(context, 1, 10);
+    _employeeMasterCubit.getEmployeeMasterList(context, 1);
   }
 
   @override
@@ -79,7 +79,6 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
           _employeeMasterCubit.getEmployeeMasterList(
             context,
             _employeeMasterCubit.state.currentPage + 1,
-            10,
           );
         });
       }
@@ -121,9 +120,11 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
             return ListView.builder(
               padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               controller: _scrollController,
-              itemCount: _employeeMasterCubit.state.employeeMasterList.length + 1,
+              itemCount:
+                  _employeeMasterCubit.state.employeeMasterList.length + 1,
               itemBuilder: (context, index) {
-                if (index == _employeeMasterCubit.state.employeeMasterList.length) {
+                if (index ==
+                    _employeeMasterCubit.state.employeeMasterList.length) {
                   return state.employeeMasterList.length <
                           state.totalNumberOfRecord
                       ? Padding(
@@ -165,11 +166,9 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                    border: Border(
-                                        bottom: BorderSide(
-                                            color: AppColor.primary
-                                        )
-                                    )
+                                  border: Border(
+                                    bottom: BorderSide(color: AppColor.primary),
+                                  ),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -205,13 +204,6 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                                       'index': index.toString(),
                                     },
                                   );
-                                  if (context.mounted) {
-                                    _employeeMasterCubit.getEmployeeMasterList(
-                                      context,
-                                      1,
-                                      10,
-                                    );
-                                  }
                                 },
                               ),
                             ],
@@ -224,7 +216,10 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                           // TITLE
                           SizedBox(
                             width: 130,
-                            child: Text("Employee Code", style: AppTextStyle.ts14R(color: AppColor.grey)),
+                            child: Text(
+                              "Employee Code",
+                              style: AppTextStyle.ts14R(color: AppColor.grey),
+                            ),
                           ),
 
                           // COLON
@@ -249,7 +244,9 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                                 employee.employeeCode,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: AppTextStyle.ts14R(color: AppColor.purple),
+                                style: AppTextStyle.ts14R(
+                                  color: AppColor.purple,
+                                ),
                               ),
                             ),
                           ),
@@ -279,7 +276,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
             );
           },
         ),
-      )
+      ),
     );
   }
 
@@ -317,5 +314,4 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
       ),
     );
   }
-
 }

@@ -18,11 +18,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
       serviceLocator<DepartmentMasterRepository>();
 
   // <---- GET DEPARTMENT LIST ---->
-  Future getDepartmentList(
-    BuildContext context,
-    int pageNumber,
-    int pageSize,
-  ) async {
+  Future getDepartmentList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       "DepartmentName": state.searchText,
@@ -30,7 +26,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
     };
     var result = await _departmentMasterRepository.getDepartmentList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       queryParams: queryParams,
     );
 
@@ -178,7 +174,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
 
           emit(state.copyWith(departmentList: updatedList));
         } else {
-          getDepartmentList(context, state.currentPage, 10);
+          getDepartmentList(context, state.currentPage);
         }
       },
     );
@@ -187,7 +183,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
   // <---- SEARCH DEPARTMENT ---->
   Future searchDepartment(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, departmentList: []));
-    await getDepartmentList(context, 1, 20);
+    await getDepartmentList(context, 1);
   }
 
   // <---- SORT DEPARTMENT ---->
@@ -203,7 +199,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
         departmentList: [],
       ),
     );
-    await getDepartmentList(context, 1, 10);
+    await getDepartmentList(context, 1);
   }
 
   // <---- EXPORT EXCEL PDF ---->

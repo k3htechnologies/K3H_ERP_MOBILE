@@ -21,15 +21,10 @@ class AddEmployeeScreen extends StatefulWidget {
   final UserModel? employee;
   final int index;
 
-  const AddEmployeeScreen({
-    super.key,
-    this.employee,
-    required this.index,
-  });
+  const AddEmployeeScreen({super.key, this.employee, required this.index});
 
   @override
-  State<AddEmployeeScreen> createState() =>
-      _AddEmployeeScreenState();
+  State<AddEmployeeScreen> createState() => _AddEmployeeScreenState();
 }
 
 class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
@@ -63,6 +58,8 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       _accountNumberC,
       _ifscC;
 
+  //EDIT MODE
+  bool get _isEditMode => widget.employee != null;
   // LISTS
   // BASIC EMPLOYEE DETAILS
   List<Map<String, dynamic>> genderList = [
@@ -284,7 +281,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     if (!mounted) {
       return;
     }
-    
+
     // Validate all forms
     bool allValid = true;
     for (var formKey in _formKeys) {
@@ -292,11 +289,11 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         allValid = false;
       }
     }
-    
+
     if (!allValid) {
       return;
     }
-    
+
     await _addUpdateEmployee(widget.employee, index: widget.index);
   }
 
@@ -644,9 +641,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   Widget _buildEmployeeInfoSection() {
     return Form(
       key: _formKeys[1],
-        child: Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        children: [
           _buildSectionHeader('Employee Info Sheet'),
           CustomPaginationDropDownWidget(
             title: "Company Name",
@@ -752,9 +749,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             hint: "Enter Communication Address",
             isRequired: true,
             textController: _communicationAddressC,
-            inputFormatterList: [
-              LengthLimitingTextInputFormatter(500),
-            ],
+            inputFormatterList: [LengthLimitingTextInputFormatter(500)],
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Communication Address is required';
@@ -768,9 +763,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             hint: "Enter Permanent Address",
             isRequired: true,
             textController: _permanentAddressC,
-            inputFormatterList: [
-              LengthLimitingTextInputFormatter(500),
-            ],
+            inputFormatterList: [LengthLimitingTextInputFormatter(500)],
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Permanent Address is required';
@@ -840,8 +833,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             hint: "Enter Account Number",
             isRequired: true,
             textController: _accountNumberC,
-            inputFormatterList:
-                InputValidator.accountNumberInputFormatters(),
+            inputFormatterList: InputValidator.accountNumberInputFormatters(),
             keyboardType: TextInputType.number,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
@@ -891,7 +883,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    widget.employee == null ? "Add Employee" : "Edit Employee",
+                    !_isEditMode ? "Add Employee" : "Edit Employee",
                     style: AppTextStyle.ts16SB(),
                   ),
                 ),
@@ -922,7 +914,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           height: 80,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text: widget.employee == null ? 'Save' : 'Update',
+            text: !_isEditMode ? 'Save Employee' : 'Update Employee',
             onPressed: _handleSubmit,
             backgroundColor: AppColor.primary,
           ),

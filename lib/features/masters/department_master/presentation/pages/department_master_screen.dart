@@ -49,7 +49,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
         Authorization.routeAuthorizationMap[AppRoutes.departmentMaster]!;
     _initializeTextEditingController();
     _onScroll();
-    _departmentMasterCubit.getDepartmentList(context, 1, 10);
+    _departmentMasterCubit.getDepartmentList(context, 1);
   }
 
   @override
@@ -77,7 +77,6 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
           _departmentMasterCubit.getDepartmentList(
             context,
             _departmentMasterCubit.state.currentPage + 1,
-            10,
           );
         });
       }
@@ -122,7 +121,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
           await goRouter.pushNamed(AppRoutes.addDepartment);
           // Refresh list when returning from add screen
           if (context.mounted) {
-            _departmentMasterCubit.getDepartmentList(context, 1, 10);
+            _departmentMasterCubit.getDepartmentList(context, 1);
           }
         },
         onSearchSubmit: (value) {

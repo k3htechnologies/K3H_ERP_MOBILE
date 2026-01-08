@@ -47,11 +47,7 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
         AuthorizationModel();
     _initializeTextEditingController();
     _onScroll();
-    holidayMasterCubit.getHolidayList(
-      context: context,
-      pageNumber: 1,
-      pageSize: 15,
-    );
+    holidayMasterCubit.getHolidayList(context: context, pageNumber: 1);
   }
 
   @override
@@ -81,7 +77,6 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
           holidayMasterCubit.getHolidayList(
             context: context,
             pageNumber: holidayMasterCubit.state.currentPage + 1,
-            pageSize: 15,
           );
         });
       }
@@ -188,13 +183,6 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
                                     'index': index.toString(),
                                   },
                                 );
-                                if (context.mounted) {
-                                  holidayMasterCubit.getHolidayList(
-                                    context: context,
-                                    pageNumber: state.currentPage,
-                                    pageSize: 15,
-                                  );
-                                }
                               },
                             ),
                             const SizedBox(width: 8),

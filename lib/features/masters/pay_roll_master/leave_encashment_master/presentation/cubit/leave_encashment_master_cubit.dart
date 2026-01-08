@@ -23,13 +23,12 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
   Future getLeaveEncashmentList({
     required BuildContext context,
     required int pageNumber,
-    required int pageSize,
   }) async {
     emit(state.copyWith(isLoading: true));
 
     var result = await leaveEncashmentMasterRepository.getLeaveEncashmentList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
     );
     result.fold(
       (failure) {
@@ -78,11 +77,7 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
           context,
           subTitle: "Leave Encashment Deleted Successfully",
         );
-        getLeaveEncashmentList(
-          context: context,
-          pageNumber: state.currentPage,
-          pageSize: 15,
-        );
+        getLeaveEncashmentList(context: context, pageNumber: state.currentPage);
       },
     );
   }
@@ -161,7 +156,9 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
       },
       (response) {
         goRouter.pop();
-        final updatedList = response['data'][0] as LeaveEncashmentMasterModel;
+        final updatedList = LeaveEncashmentMasterModel.fromJson(
+          response['data'][0] as Map<String, dynamic>,
+        );
 
         if (state.leaveEncashmentList.isNotEmpty &&
             index < state.leaveEncashmentList.length) {
