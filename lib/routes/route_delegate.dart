@@ -920,7 +920,7 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
-              create: (_) => serviceLocator<HolidayMappingMasterCubit>(),
+              create: (_) => HolidayMappingMasterCubit(),
               child: child,
             );
           },
@@ -1271,41 +1271,49 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
+
         // MATERIAL MASTER
-        GoRoute(
-          name: AppRoutes.materialMaster,
-          path: AppRoutes.materialMaster,
-          builder: (context, state) {
+        ShellRoute(
+          builder: (context, state, child) {
             return BlocProvider.value(
               value: serviceLocator<MaterialMasterCubit>(),
-              child: MaterialMasterScreen(),
+              child: child,
             );
           },
-        ),
-        GoRoute(
-          name: AppRoutes.addMaterialMaster,
-          path: AppRoutes.addMaterialMaster,
-          builder: (context, state) {
-            final queryParameterMaterial =
-                state.uri.queryParameters['material'];
-            final MaterialMasterModel? material =
-                queryParameterMaterial != null
-                    ? MaterialMasterModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeQueryComponent(queryParameterMaterial),
-                        ),
-                      ),
-                    )
-                    : null;
-            final index =
-                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-            // Use BlocProvider.value with service locator to get the singleton instance
-            return BlocProvider.value(
-              value: serviceLocator<MaterialMasterCubit>(),
-              child: AddMaterialMasterScreen(material: material, index: index),
-            );
-          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.materialMaster,
+              path: AppRoutes.materialMaster,
+              builder: (context, state) {
+                return MaterialMasterScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addMaterialMaster,
+              path: AppRoutes.addMaterialMaster,
+              builder: (context, state) {
+                final queryParameterMaterial =
+                    state.uri.queryParameters['material'];
+                final MaterialMasterModel? material =
+                    queryParameterMaterial != null
+                        ? MaterialMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeQueryComponent(queryParameterMaterial),
+                            ),
+                          ),
+                        )
+                        : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                // Use BlocProvider.value with service locator to get the singleton instance
+                return AddMaterialMasterScreen(
+                  material: material,
+                  index: index,
+                );
+              },
+            ),
+          ],
         ),
         GoRoute(
           name: AppRoutes.uomMaster,
@@ -1317,42 +1325,48 @@ final GoRouter goRouter = GoRouter(
             );
           },
         ),
-        GoRoute(
-          name: AppRoutes.subMaterialMaster,
-          path: AppRoutes.subMaterialMaster,
-          builder: (context, state) {
+        ShellRoute(
+          builder: (context, state, child) {
             return BlocProvider.value(
               value: serviceLocator<SubMaterialMasterCubit>(),
-              child: SubMaterialMasterScreen(),
+              child: child,
             );
           },
-        ),
-        GoRoute(
-          name: AppRoutes.addSubMaterialMaster,
-          path: AppRoutes.addSubMaterialMaster,
-          builder: (context, state) {
-            final queryParameterSubMaterial =
-                state.uri.queryParameters['subMaterial'];
-            final SubMaterialMasterModel? subMaterial =
-                queryParameterSubMaterial != null
-                    ? SubMaterialMasterModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeQueryComponent(queryParameterSubMaterial),
-                        ),
-                      ),
-                    )
-                    : null;
-            final index =
-                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-            return BlocProvider.value(
-              value: serviceLocator<SubMaterialMasterCubit>(),
-              child: AddSubMaterialMasterScreen(
-                subMaterial: subMaterial,
-                index: index,
-              ),
-            );
-          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.subMaterialMaster,
+              path: AppRoutes.subMaterialMaster,
+              builder: (context, state) {
+                return SubMaterialMasterScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addSubMaterialMaster,
+              path: AppRoutes.addSubMaterialMaster,
+              builder: (context, state) {
+                final queryParameterSubMaterial =
+                    state.uri.queryParameters['subMaterial'];
+                final SubMaterialMasterModel? subMaterial =
+                    queryParameterSubMaterial != null
+                        ? SubMaterialMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeQueryComponent(
+                                queryParameterSubMaterial,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return AddSubMaterialMasterScreen(
+                  subMaterial: subMaterial,
+                  index: index,
+                );
+              },
+            ),
+          ],
         ),
         // BUILDING
         GoRoute(

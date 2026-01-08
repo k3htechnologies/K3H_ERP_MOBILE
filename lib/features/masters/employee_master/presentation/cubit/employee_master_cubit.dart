@@ -53,20 +53,16 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
         employeeMasterList: [],
       ),
     );
-    await getEmployeeMasterList(context, state.currentPage, 20);
+    await getEmployeeMasterList(context, state.currentPage);
   }
 
   // <---- GET EMPLOYEE MASTER LIST ---->
-  Future getEmployeeMasterList(
-    BuildContext context,
-    int pageNumber,
-    int pageSize,
-  ) async {
+  Future getEmployeeMasterList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
 
     final result = await employeeMasterRepository.getEmployeeMasterList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       queryParams: {
         "EmployeeName": state.searchText,
         "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
@@ -687,7 +683,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   // <---- SEARCH EMPLOYEE ---->
   Future searchEmployee(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, employeeMasterList: []));
-    await getEmployeeMasterList(context, 1, 10);
+    await getEmployeeMasterList(context, 1);
   }
 
   // <---- SORT EMPLOYEE ---->
@@ -703,7 +699,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
         employeeMasterList: [],
       ),
     );
-    await getEmployeeMasterList(context, 1, 10);
+    await getEmployeeMasterList(context, 1);
   }
 
   // <---- EXPORT EXCEL PDF ---->

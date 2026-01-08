@@ -62,6 +62,8 @@ class CompanyMasterState extends BaseState {
     );
   }
 
+
+
   @override
   List<Object?> get props => [
     companyList,

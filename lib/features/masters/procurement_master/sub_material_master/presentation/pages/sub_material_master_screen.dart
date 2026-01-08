@@ -45,7 +45,7 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
     _subMaterialMasterCubit = context.read<SubMaterialMasterCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.subMaterialMaster] ??
-            AuthorizationModel();
+        AuthorizationModel();
     _initializeTextEditingController();
     _onScroll();
     _subMaterialMasterCubit.getSubMaterialMasterList(context, 1, 10);
@@ -132,11 +132,7 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
         onSortOptionCallback: (value) async {
           _subMaterialMasterCubit.sortSubMaterial(context, value, "DESC");
         },
-        sortOptionList: [
-          "Created Date",
-          "Sub Material Name",
-          "Modified Date"
-        ],
+        sortOptionList: ["Created Date", "Sub Material Name", "Modified Date"],
         initialSortType: "Created Date",
       ),
       body: BlocBuilder<SubMaterialMasterCubit, SubMaterialMasterState>(
@@ -153,12 +149,11 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
             itemCount: _subMaterialMasterCubit.state.subMaterialList.length + 1,
             itemBuilder: (context, index) {
               if (index == state.subMaterialList.length) {
-                return state.subMaterialList.length <
-                        state.totalNumberOfRecord
+                return state.subMaterialList.length < state.totalNumberOfRecord
                     ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
                     : const SizedBox.shrink();
               }
               var subMaterial = state.subMaterialList[index];
@@ -197,10 +192,6 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
                                     'index': index.toString(),
                                   },
                                 );
-                                if (context.mounted) {
-                                  _subMaterialMasterCubit
-                                      .getSubMaterialMasterList(context, 1, 10);
-                                }
                               },
                             ),
                             horizontalSpacing(),
@@ -227,10 +218,7 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
                           label: "Material",
                           value: subMaterial.materialName,
                         ),
-                        _buildInfoChip(
-                          label: "UOM",
-                          value: subMaterial.uom,
-                        ),
+                        _buildInfoChip(label: "UOM", value: subMaterial.uom),
                       ],
                     ),
                   ],
@@ -260,4 +248,3 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
     );
   }
 }
-

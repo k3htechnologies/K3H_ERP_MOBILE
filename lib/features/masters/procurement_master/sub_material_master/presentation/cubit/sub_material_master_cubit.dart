@@ -24,9 +24,7 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
     int pageSize,
   ) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {
-      "SubMaterialName": state.searchText,
-    };
+    Map<String, dynamic> queryParams = {"SubMaterialName": state.searchText};
     var result = await _subMaterialMasterRepository.getSubMaterialList(
       pageNumber: pageNumber,
       pageSize: pageSize,
@@ -34,18 +32,12 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
     );
     result.fold(
       (failure) {
-        emit(
-          state.copyWith(
-            isLoading: false,
-            errorMessage: failure.message,
-          ),
-        );
+        emit(state.copyWith(isLoading: false, errorMessage: failure.message));
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        List<SubMaterialMasterModel> updatedList = pageNumber == 1
-            ? []
-            : List.from(state.subMaterialList);
+        List<SubMaterialMasterModel> updatedList =
+            pageNumber == 1 ? [] : List.from(state.subMaterialList);
         updatedList.addAll(
           (response['data'] as List).cast<SubMaterialMasterModel>(),
         );
@@ -53,10 +45,10 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
           state.copyWith(
             isLoading: false,
             subMaterialList: updatedList,
-            totalNumberOfRecord: response['totalNumberOfRecord'] == 0 &&
-                    state.currentPage != 1
-                ? state.totalNumberOfRecord - 1
-                : response['totalNumberOfRecord'],
+            totalNumberOfRecord:
+                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
+                    ? state.totalNumberOfRecord - 1
+                    : response['totalNumberOfRecord'],
             currentPage: pageNumber,
           ),
         );
@@ -132,8 +124,9 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
         return;
       },
       (response) {
-        final updatedList =
-            List<SubMaterialMasterModel>.from(state.subMaterialList);
+        final updatedList = List<SubMaterialMasterModel>.from(
+          state.subMaterialList,
+        );
         // Check if index is valid, otherwise refresh the list
         if (index >= 0 && index < updatedList.length) {
           updatedList[index] = (response['data'][0] as SubMaterialMasterModel);
@@ -176,9 +169,12 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
           context,
           subTitle: "Sub Material Deleted Successfully",
         );
-        if (index != null && index >= 0 && index < state.subMaterialList.length) {
-          final updatedList =
-              List<SubMaterialMasterModel>.from(state.subMaterialList);
+        if (index != null &&
+            index >= 0 &&
+            index < state.subMaterialList.length) {
+          final updatedList = List<SubMaterialMasterModel>.from(
+            state.subMaterialList,
+          );
           updatedList.removeAt(index);
           emit(
             state.copyWith(
@@ -204,13 +200,14 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
     emit(state.copyWith(isLoading: true, subMaterialList: []));
     Map<String, dynamic> queryParams = {
       "SubMaterialName": state.searchText,
-      "SortBy": sortType == "Created Date"
-          ? "CreatedDate"
-          : sortType == "Modified Date"
+      "SortBy":
+          sortType == "Created Date"
+              ? "CreatedDate"
+              : sortType == "Modified Date"
               ? "ModifiedDate"
               : sortType == "Sub Material Name"
-                  ? "SubMaterialName"
-                  : "CreatedDate",
+              ? "SubMaterialName"
+              : "CreatedDate",
       "SortOrder": sortOrder,
     };
     var result = await _subMaterialMasterRepository.getSubMaterialList(
@@ -220,12 +217,7 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
     );
     result.fold(
       (failure) {
-        emit(
-          state.copyWith(
-            isLoading: false,
-            errorMessage: failure.message,
-          ),
-        );
+        emit(state.copyWith(isLoading: false, errorMessage: failure.message));
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
@@ -249,12 +241,10 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
     var result = await _subMaterialMasterRepository.exportSubmaterial(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
-      queryParams: state.searchText != ""
-          ? {
-              "SubMaterialName": state.searchText,
-              "ExportType": exportType,
-            }
-          : {"ExportType": exportType},
+      queryParams:
+          state.searchText != ""
+              ? {"SubMaterialName": state.searchText, "ExportType": exportType}
+              : {"ExportType": exportType},
     );
     goRouter.pop();
     result.fold(
@@ -272,4 +262,3 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
     );
   }
 }
-

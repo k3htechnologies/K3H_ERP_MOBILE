@@ -24,11 +24,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
       serviceLocator<DesignationMasterRepository>();
 
   // <---- GET DESIGNATION LIST ---->
-  Future getDesignationList(
-    BuildContext context,
-    int pageNumber,
-    int pageSize,
-  ) async {
+  Future getDesignationList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       "DesignationName": state.searchText,
@@ -36,7 +32,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     };
     var result = await _designationMasterRepository.getDesignationList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       queryParams: queryParams,
     );
     result.fold(
@@ -221,7 +217,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
           updatedList.removeAt(index);
           emit(state.copyWith(designationList: updatedList));
         } else {
-          getDesignationList(context, pageNumber, pageSize);
+          getDesignationList(context, pageNumber);
         }
       },
     );
@@ -230,7 +226,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
   // <---- SEARCH DESIGNATION ---->
   Future searchDesignation(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, designationList: []));
-    await getDesignationList(context, 1, 20);
+    await getDesignationList(context, 1);
   }
 
   // <---- SORT DESIGNATION ---->
@@ -246,7 +242,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
         designationList: [],
       ),
     );
-    await getDesignationList(context, 1, 10);
+    await getDesignationList(context, 1);
   }
 
   // <---- EXPORT EXCEL PDF ---->
@@ -487,7 +483,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
           ),
         );
         if (context.mounted) {
-          getDesignationList(context, 1, 20);
+          getDesignationList(context, 1);
         }
       },
     );

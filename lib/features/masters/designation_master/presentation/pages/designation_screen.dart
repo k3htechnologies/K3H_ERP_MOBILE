@@ -48,7 +48,7 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
         Authorization.routeAuthorizationMap[AppRoutes.designationMaster]!;
     _initializeTextEditingController();
     _onScroll();
-    _designationMasterCubit.getDesignationList(context, 1, 10);
+    _designationMasterCubit.getDesignationList(context, 1);
   }
 
   @override
@@ -82,7 +82,6 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
           _designationMasterCubit.getDesignationList(
             context,
             _designationMasterCubit.state.currentPage + 1,
-            10,
           );
         });
       }
@@ -126,7 +125,7 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
           await goRouter.pushNamed(AppRoutes.addDesignation);
           // Refresh list when returning from add screen
           if (context.mounted) {
-            _designationMasterCubit.getDesignationList(context, 1, 10);
+            _designationMasterCubit.getDesignationList(context, 1);
           }
         },
         onSearchSubmit: (value) {
@@ -199,7 +198,6 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                                   _designationMasterCubit.getDesignationList(
                                     context,
                                     1,
-                                    10,
                                   );
                                 }
                               },

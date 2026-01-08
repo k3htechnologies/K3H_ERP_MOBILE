@@ -24,15 +24,11 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     required String companyType,
   }) async {
     emit(state.copyWith(filterByCompanyType: companyType, companyList: []));
-    await getCompanyMaster(context, 1, 20);
+    await getCompanyMaster(context, 1);
   }
 
   // <---- GET COMPANIES ---->
-  Future<void> getCompanyMaster(
-    BuildContext context,
-    int pageNumber,
-    int pageSize,
-  ) async {
+  Future<void> getCompanyMaster(BuildContext context, int pageNumber) async {
     // Clear list on fresh load to avoid duplicates (e.g., after add)
     emit(
       state.copyWith(
@@ -49,7 +45,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
 
     final result = await _companyMasterRepository.getCompanyList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       queryParams: queryParams,
     );
 
@@ -106,13 +102,13 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         showErrorMessage(context, "Error Message", failure.message);
       },
       (response) {
-        showSuccessMessage(context,subTitle: "Company deleted successfully");
+        showSuccessMessage(context, subTitle: "Company deleted successfully");
         if (index != null) {
           final updatedList = List<CompanyModel>.from(state.companyList);
           updatedList.removeAt(index);
           emit(state.copyWith(companyList: updatedList));
         } else {
-          getCompanyMaster(context, pageNumber, pageSize);
+          getCompanyMaster(context, pageNumber);
         }
       },
     );
@@ -341,7 +337,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
           ),
         );
         goRouter.pop();
-        showSuccessMessage(context,subTitle: "Company added successfully");
+        showSuccessMessage(context, subTitle: "Company added successfully");
       },
     );
   }
@@ -373,7 +369,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
   // <---- SEARCH COMPANY ---->
   Future searchCompany(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, companyList: []));
-    await getCompanyMaster(context, 1, 10);
+    await getCompanyMaster(context, 1);
   }
 
   // <---- SORT COMPANY ---->
@@ -389,7 +385,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         companyList: [],
       ),
     );
-    await getCompanyMaster(context, 1, 10);
+    await getCompanyMaster(context, 1);
   }
 
   // <---- EXPORT EXCEL OR PDF ---->

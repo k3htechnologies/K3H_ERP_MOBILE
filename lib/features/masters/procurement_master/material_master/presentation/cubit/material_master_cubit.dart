@@ -39,9 +39,8 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        List<MaterialMasterModel> updatedList = pageNumber == 1
-            ? []
-            : List.from(state.materialList);
+        List<MaterialMasterModel> updatedList =
+            pageNumber == 1 ? [] : List.from(state.materialList);
         updatedList.addAll(response['data'] as List<MaterialMasterModel>);
         emit(
           state.copyWith(
@@ -126,7 +125,7 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
           getMaterialMasterList(context, 1, 10);
         }
         showSuccessMessage(context, subTitle: "Material Updated Successfully");
-
+        goRouter.pop();
       },
     );
   }
@@ -158,12 +157,7 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
             state.materialList,
           );
           updatedList.removeAt(index);
-          emit(
-            state.copyWith(
-              isLoading: false,
-              materialList: updatedList,
-            ),
-          );
+          emit(state.copyWith(isLoading: false, materialList: updatedList));
         } else {
           getMaterialMasterList(context, state.currentPage, pageSize);
         }

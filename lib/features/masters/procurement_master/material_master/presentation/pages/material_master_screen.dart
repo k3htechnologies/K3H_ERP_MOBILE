@@ -134,7 +134,7 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
           "Created Date",
           "Material Name",
           "Material Code",
-          "Modified Date"
+          "Modified Date",
         ],
         initialSortType: "Created Date",
       ),
@@ -154,9 +154,9 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
               if (index == state.materialList.length) {
                 return state.materialList.length < state.totalNumberOfRecord
                     ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
                     : const SizedBox.shrink();
               }
               var material = state.materialList[index];
@@ -195,13 +195,6 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
                                     'index': index.toString(),
                                   },
                                 );
-                                if (context.mounted) {
-                                  _materialMasterCubit.getMaterialMasterList(
-                                    context,
-                                    1,
-                                    10,
-                                  );
-                                }
                               },
                             ),
                             horizontalSpacing(),

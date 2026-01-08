@@ -16,7 +16,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
 
   // REPOSITORY
   final CompanyMasterRepository _companyMasterRepository =
-  serviceLocator<CompanyMasterRepository>();
+      serviceLocator<CompanyMasterRepository>();
 
   // <---- ADD COMPANY ---->
   Future<void> addCompanyMaster({
@@ -63,42 +63,42 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
       "CityMasterId": cityId.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].FirstName':
-        state.companyPartner[i].firstName.toString(),
+            state.companyPartner[i].firstName.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].LastName':
-        state.companyPartner[i].lastName.toString(),
+            state.companyPartner[i].lastName.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].MiddleName':
-        state.companyPartner[i].middleName,
+            state.companyPartner[i].middleName,
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].DateOfBirth':
-        state.companyPartner[i].dateOfBirth.toString(),
+            state.companyPartner[i].dateOfBirth.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].Gender': state.companyPartner[i].gender,
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].MobileNumber':
-        state.companyPartner[i].mobileNumber.toString(),
+            state.companyPartner[i].mobileNumber.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].EmailId':
-        state.companyPartner[i].emailId.toString(),
+            state.companyPartner[i].emailId.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].PartnerPercentage':
-        state.companyPartner[i].partnerPercentage.toString(),
+            state.companyPartner[i].partnerPercentage.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].PanNumber':
-        state.companyPartner[i].panNumber.toString(),
+            state.companyPartner[i].panNumber.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].PanCardURL':
-        state.companyPartner[i].panCardURL.toString(),
+            state.companyPartner[i].panCardURL.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].AadharCardNumber':
-        state.companyPartner[i].aadharCardNumber.toString(),
+            state.companyPartner[i].aadharCardNumber.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].AadharCardURL':
-        state.companyPartner[i].aadharCardURL.toString(),
+            state.companyPartner[i].aadharCardURL.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].PhotoURL':
-        state.companyPartner[i].photoURL.toString(),
+            state.companyPartner[i].photoURL.toString(),
     };
 
     List<Map<String, dynamic>> fileList = [];
@@ -106,9 +106,9 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     for (int i = 0; i < state.companyPartner.length; i++) {
       if (state.companyPartner[i].aadharCardFile != null) {
         for (
-        int j = 0;
-        j < state.companyPartner[i].aadharCardFile!.fileNameList.length;
-        j++
+          int j = 0;
+          j < state.companyPartner[i].aadharCardFile!.fileNameList.length;
+          j++
         ) {
           if (state.companyPartner[i].aadharCardFile!.fileNameList[j].contains(
             "http",
@@ -125,9 +125,9 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
 
       if (state.companyPartner[i].panCardFile != null) {
         for (
-        int j = 0;
-        j < state.companyPartner[i].panCardFile!.fileNameList.length;
-        j++
+          int j = 0;
+          j < state.companyPartner[i].panCardFile!.fileNameList.length;
+          j++
         ) {
           if (state.companyPartner[i].panCardFile!.fileNameList[j].contains(
             "http",
@@ -143,9 +143,9 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
       }
       if (state.companyPartner[i].photoFile != null) {
         for (
-        int j = 0;
-        j < state.companyPartner[i].photoFile!.fileNameList.length;
-        j++
+          int j = 0;
+          j < state.companyPartner[i].photoFile!.fileNameList.length;
+          j++
         ) {
           if (state.companyPartner[i].photoFile!.fileNameList[j].contains(
             "http",
@@ -223,7 +223,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     );
     goRouter.pop();
     addResult.fold(
-          (failure) {
+      (failure) {
         emit(
           state.copyWith(
             isLoading: false,
@@ -233,7 +233,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         );
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         emit(
           state.copyWith(
             isLoading: false,
@@ -242,7 +242,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
           ),
         );
         goRouter.pop();
-        showSuccessMessage(context,subTitle: "Company added successfully");
+        showSuccessMessage(context, subTitle: "Company added successfully");
       },
     );
   }
@@ -260,10 +260,10 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
 
   // <---- ADD UPDATE COMPANY PARTNER ---->
   void addUpdateCompanyPartnerData(
-      CompanyPartnerModel companyData, {
-        required BuildContext context,
-        int? index,
-      }) {
+    CompanyPartnerModel companyData, {
+    required BuildContext context,
+    int? index,
+  }) {
     List<CompanyPartnerModel> updatedList = List.from(state.companyPartner);
     if (index != null) {
       updatedList[index] = companyData;
@@ -291,7 +291,10 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         companyPartner: currentList,
       ),
     );
-    showSuccessMessage(context,subTitle: "Company partner deleted successfully");
+    showSuccessMessage(
+      context,
+      subTitle: "Company partner deleted successfully",
+    );
   }
 
   // <---- UPDATE COMPANY ---->
@@ -343,57 +346,57 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
       "RemovePanCardURL": panCardFile.deletedFileList,
       "RemoveCINURL": cinFile.deletedFileList,
       "RemoveCompanyLetterheadHeaderURL":
-      companyLetterheadHeaderFile.deletedFileList,
+          companyLetterheadHeaderFile.deletedFileList,
       "RemoveCompanyLetterheadFooterURL":
-      companyLetterheadFooterFile.deletedFileList,
+          companyLetterheadFooterFile.deletedFileList,
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].CompanyPartnerId':
-        state.companyPartner[i].companyPartnerId.toString(),
+            state.companyPartner[i].companyPartnerId.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].Uniquekey':
-        state.companyPartner[i].uniquekey.toString(),
+            state.companyPartner[i].uniquekey.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].FirstName':
-        state.companyPartner[i].firstName.toString(),
+            state.companyPartner[i].firstName.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].LastName':
-        state.companyPartner[i].lastName.toString(),
+            state.companyPartner[i].lastName.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].MiddleName':
-        state.companyPartner[i].middleName.toString(),
+            state.companyPartner[i].middleName.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].DateOfBirth':
-        state.companyPartner[i].dateOfBirth.toIso8601String(),
+            state.companyPartner[i].dateOfBirth.toIso8601String(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].Gender': state.companyPartner[i].gender,
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].MobileNumber':
-        state.companyPartner[i].mobileNumber.toString(),
+            state.companyPartner[i].mobileNumber.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].EmailId':
-        state.companyPartner[i].emailId.toString(),
+            state.companyPartner[i].emailId.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].PartnerPercentage':
-        state.companyPartner[i].partnerPercentage.toString(),
+            state.companyPartner[i].partnerPercentage.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].PanNumber':
-        state.companyPartner[i].panNumber.toString(),
+            state.companyPartner[i].panNumber.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         'AddUpdateCompanyPartner[$i].AadharCardNumber':
-        state.companyPartner[i].aadharCardNumber.toString(),
+            state.companyPartner[i].aadharCardNumber.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         if (state.companyPartner[i].aadharCardFile != null)
           'AddUpdateCompanyPartner[$i].RemoveAadharCardURL':
-          state.companyPartner[i].aadharCardFile!.deletedFileList
-              .toString(),
+              state.companyPartner[i].aadharCardFile!.deletedFileList
+                  .toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         if (state.companyPartner[i].panCardFile != null)
           'AddUpdateCompanyPartner[$i].RemovePanCardURL':
-          state.companyPartner[i].panCardFile!.deletedFileList.toString(),
+              state.companyPartner[i].panCardFile!.deletedFileList.toString(),
       for (int i = 0; i < state.companyPartner.length; i++)
         if (state.companyPartner[i].photoFile != null)
           'AddUpdateCompanyPartner[$i].RemovePhotoURL':
-          state.companyPartner[i].photoFile!.deletedFileList.toString(),
+              state.companyPartner[i].photoFile!.deletedFileList.toString(),
     };
     List<Map<String, dynamic>> fileList = [];
 
@@ -455,9 +458,9 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     for (int i = 0; i < state.companyPartner.length; i++) {
       if (state.companyPartner[i].aadharCardFile != null) {
         for (
-        int j = 0;
-        j < state.companyPartner[i].aadharCardFile!.fileNameList.length;
-        j++
+          int j = 0;
+          j < state.companyPartner[i].aadharCardFile!.fileNameList.length;
+          j++
         ) {
           if (state.companyPartner[i].aadharCardFile!.fileNameList[j].contains(
             "http",
@@ -474,9 +477,9 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
 
       if (state.companyPartner[i].panCardFile != null) {
         for (
-        int j = 0;
-        j < state.companyPartner[i].panCardFile!.fileNameList.length;
-        j++
+          int j = 0;
+          j < state.companyPartner[i].panCardFile!.fileNameList.length;
+          j++
         ) {
           if (state.companyPartner[i].panCardFile!.fileNameList[j].contains(
             "http",
@@ -492,9 +495,9 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
       }
       if (state.companyPartner[i].photoFile != null) {
         for (
-        int j = 0;
-        j < state.companyPartner[i].photoFile!.fileNameList.length;
-        j++
+          int j = 0;
+          j < state.companyPartner[i].photoFile!.fileNameList.length;
+          j++
         ) {
           if (state.companyPartner[i].photoFile!.fileNameList[j].contains(
             "http",
@@ -518,7 +521,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     );
     goRouter.pop();
     addResult.fold(
-          (failure) {
+      (failure) {
         emit(
           state.copyWith(
             isLoading: false,
@@ -527,7 +530,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         );
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         emit(
           state.copyWith(
             isLoading: false,
@@ -535,8 +538,8 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
             companyPartner: [],
           ),
         );
-        goRouter.pop(response['data']);
-        showSuccessMessage(context,subTitle: "Company updated successfully");
+        goRouter.pop(response['data'][0]);
+        showSuccessMessage(context, subTitle: "Company updated successfully");
       },
     );
   }
