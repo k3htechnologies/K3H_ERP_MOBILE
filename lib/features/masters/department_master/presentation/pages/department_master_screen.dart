@@ -151,9 +151,9 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
               if (index == state.departmentList.length) {
                 return state.departmentList.length < state.totalNumberOfRecord
                     ? Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
+                      padding: const EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
                     : const SizedBox.shrink();
               }
               var department = state.departmentList[index];
@@ -187,13 +187,6 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                                     'index': index.toString(),
                                   },
                                 );
-                                if (context.mounted) {
-                                  _departmentMasterCubit.getDepartmentList(
-                                    context,
-                                    1,
-                                    10,
-                                  );
-                                }
                               },
                               icon: Icon(
                                 Icons.edit,

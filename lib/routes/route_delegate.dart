@@ -385,18 +385,22 @@ final GoRouter goRouter = GoRouter(
           ],
         ),
         // DEPARTMENT MASTER
-        GoRoute(
-          name: AppRoutes.departmentMaster,
-          path: AppRoutes.departmentMaster,
-          builder: (context, state) {
+        ShellRoute(
+          builder: (context, state, child) {
             return BlocProvider(
-              create: (context) => DepartmentMasterCubit(),
-              child: DepartmentMasterScreen(),
+              create: (_) => DepartmentMasterCubit(),
+              child: child,
             );
           },
           routes: [
             GoRoute(
-              parentNavigatorKey: navigatorKey,
+              name: AppRoutes.departmentMaster,
+              path: AppRoutes.departmentMaster,
+              builder: (context, state) {
+                return const DepartmentMasterScreen();
+              },
+            ),
+            GoRoute(
               name: AppRoutes.addDepartment,
               path: AppRoutes.addDepartment,
               builder: (context, state) {
@@ -414,30 +418,33 @@ final GoRouter goRouter = GoRouter(
                         : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                return BlocProvider(
-                  create: (context) => DepartmentMasterCubit(),
-                  child: AddDepartmentScreen(
-                    department: department,
-                    index: index,
-                  ),
+                return AddDepartmentScreen(
+                  department: department,
+                  index: index,
                 );
               },
             ),
           ],
         ),
         // DESIGNATION MASTER
-        GoRoute(
-          name: AppRoutes.designationMaster,
-          path: AppRoutes.designationMaster,
-          builder: (context, state) {
+        ShellRoute(
+          builder: (context, state, child) {
             return BlocProvider(
-              create: (context) => DesignationMasterCubit(),
-              child: DesignationMasterScreen(),
+              create: (_) => DesignationMasterCubit(),
+              child: child,
             );
           },
           routes: [
             GoRoute(
-              parentNavigatorKey: navigatorKey,
+              name: AppRoutes.designationMaster,
+              path: AppRoutes.designationMaster,
+              builder: (context, state) {
+                return const DesignationMasterScreen();
+              },
+            ),
+
+            GoRoute(
+              // parentNavigatorKey: navigatorKey,
               name: AppRoutes.addDesignation,
               path: AppRoutes.addDesignation,
               builder: (context, state) {
@@ -455,17 +462,14 @@ final GoRouter goRouter = GoRouter(
                         : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-                return BlocProvider(
-                  create: (context) => DesignationMasterCubit(),
-                  child: AddDesignationScreen(
-                    designationMasterModel: designation,
-                    index: index,
-                  ),
+                return AddDesignationScreen(
+                  designationMasterModel: designation,
+                  index: index,
                 );
               },
             ),
             GoRoute(
-              parentNavigatorKey: navigatorKey,
+              // parentNavigatorKey: navigatorKey,
               path: AppRoutes.employeeModuleAccess,
               name: AppRoutes.employeeModuleAccess,
               builder: (context, state) {
@@ -481,15 +485,11 @@ final GoRouter goRouter = GoRouter(
                 final designation = DesignationMasterModel.fromJson(
                   designationJson,
                 );
-                return BlocProvider(
-                  create: (context) => DesignationMasterCubit(),
-                  child: ModuleAccessScreen(designation: designation),
-                );
+                return ModuleAccessScreen(designation: designation);
               },
             ),
           ],
-        ),
-        // BANK LIST MASTER
+        ), // BANK LIST MASTER
         GoRoute(
           name: AppRoutes.bankListMaster,
           path: AppRoutes.bankListMaster,
@@ -1055,7 +1055,7 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
-              create: (_) => ShiftMasterCubit(),
+              create: (_) => serviceLocator<ShiftMasterCubit>(),
               child: child,
             );
           },
@@ -1480,12 +1480,12 @@ final GoRouter goRouter = GoRouter(
             final TenantModel? tenant =
                 queryParameterTenant != null
                     ? TenantModel.fromJson(
-                        jsonDecode(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(queryParameterTenant),
-                          ),
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterTenant),
                         ),
-                      )
+                      ),
+                    )
                     : null;
 
             return BlocProvider.value(

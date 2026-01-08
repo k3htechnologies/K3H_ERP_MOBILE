@@ -222,13 +222,6 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                                     'index': index.toString(),
                                   },
                                 );
-                                if (context.mounted) {
-                                  _designationMasterCubit.getDesignationList(
-                                    context,
-                                    1,
-                                    10,
-                                  );
-                                }
                               },
                               icon: Icon(
                                 Icons.edit,

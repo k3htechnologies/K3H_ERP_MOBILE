@@ -33,32 +33,30 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
       pageSize: pageSize,
       queryParams: queryParams,
     );
+
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        // If pageNumber is 1, replace the list; otherwise append
-        List<DepartmentModel> updatedList = pageNumber == 1
-            ? List<DepartmentModel>.from(response['data'] as List<DepartmentModel>)
-            : List<DepartmentModel>.from(state.departmentList)
-              ..addAll(response['data'] as List<DepartmentModel>);
+        final List<DepartmentModel> newData = List<DepartmentModel>.from(
+          response['data'] ?? [],
+        );
+
+        final List<DepartmentModel> updatedList =
+            pageNumber == 1 ? newData : [...state.departmentList, ...newData];
         emit(
           state.copyWith(
-            isLoading: false,
             departmentList: updatedList,
-            totalNumberOfRecord:
-                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
-                    ? state.totalNumberOfRecord - 1
-                    : response['totalNumberOfRecord'],
+            isLoading: false,
+            totalNumberOfRecord: response["totalNumberOfRecord"],
             currentPage: pageNumber,
           ),
         );
       },
     );
   }
-
 
   // <---- ADD DEPARTMENT ---->
   Future addDepartmentMaster({
@@ -84,23 +82,23 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
       (response) {
         goRouter.pop();
         final newDepartment = response['data'][0] as DepartmentModel;
-        
-        // Try to update parent cubit first (when called from AddDepartmentScreen)
-       var list = [
-            newDepartment,
-            ...state.departmentList,
-          ];
-          emit(
-            state.copyWith(
-              departmentList: list,
-              totalNumberOfRecord:
-                  state.totalNumberOfRecord == -1
-                      ? 1
-                      : state.totalNumberOfRecord + 1,
-            ),
-          );
 
-        showSuccessMessage(context, subTitle: 'Department Added Successfully!!!');
+        // Try to update parent cubit first (when called from AddDepartmentScreen)
+        var list = [newDepartment, ...state.departmentList];
+        emit(
+          state.copyWith(
+            departmentList: list,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord == -1
+                    ? 1
+                    : state.totalNumberOfRecord + 1,
+          ),
+        );
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Department Added Successfully!!!',
+        );
       },
     );
   }
@@ -134,18 +132,17 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
         goRouter.pop();
         final updatedDepartment = response['data'][0] as DepartmentModel;
 
+        if (state.departmentList.isNotEmpty &&
+            index < state.departmentList.length) {
+          final updatedList = List<DepartmentModel>.from(state.departmentList);
+          updatedList[index] = updatedDepartment;
+          emit(state.copyWith(departmentList: updatedList, isLoading: false));
+        }
 
-          if (state.departmentList.isNotEmpty && index < state.departmentList.length) {
-            final updatedList = List<DepartmentModel>.from(state.departmentList);
-            updatedList[index] = updatedDepartment;
-            emit(
-              state.copyWith(
-                departmentList: updatedList,
-              ),
-            );
-          }
-
-        showSuccessMessage(context, subTitle: 'Department Updated Successfully!!!');
+        showSuccessMessage(
+          context,
+          subTitle: 'Department Updated Successfully!!!',
+        );
       },
     );
   }
@@ -171,7 +168,10 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
         return;
       },
       (response) {
-        showSuccessMessage(context, subTitle: 'Department Deleted Successfully!!!');
+        showSuccessMessage(
+          context,
+          subTitle: 'Department Deleted Successfully!!!',
+        );
         if (index != null) {
           final updatedList = List<DepartmentModel>.from(state.departmentList);
           updatedList.removeAt(index);

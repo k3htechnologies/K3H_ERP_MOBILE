@@ -114,7 +114,10 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
                     : state.totalNumberOfRecord + 1,
           ),
         );
-        showSuccessMessage(context, subTitle: 'Designation Added Successfully!!!');
+        showSuccessMessage(
+          context,
+          subTitle: 'Designation Added Successfully!!!',
+        );
       },
     );
   }
@@ -164,10 +167,18 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
             state.designationList,
           );
           updatedList[index] = updatedDesignation;
-          emit(state.copyWith(designationList: updatedList));
+          emit(
+            state.copyWith(
+              designationList: updatedList,
+              currentPage: state.currentPage,
+            ),
+          );
         }
 
-        showSuccessMessage(context, subTitle: 'Designation Updated Successfully!!!');
+        showSuccessMessage(
+          context,
+          subTitle: 'Designation Updated Successfully!!!',
+        );
       },
     );
   }
@@ -199,7 +210,10 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
         return;
       },
       (response) {
-        showSuccessMessage(context, subTitle: 'Designation Deleted Successfully!!!');
+        showSuccessMessage(
+          context,
+          subTitle: 'Designation Deleted Successfully!!!',
+        );
         if (index != null) {
           final updatedList = List<DesignationMasterModel>.from(
             state.designationList,
@@ -413,7 +427,10 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
           developer.log('Error checking current user designation: $e');
         }
 
-        await showSuccessMessage(context, subTitle: 'Access Updated Successfully!!!');
+        await showSuccessMessage(
+          context,
+          subTitle: 'Access Updated Successfully!!!',
+        );
 
         // Show authorization dialog immediately after success message if needed
         if (shouldShowAuthorizationDialog && context.mounted) {
