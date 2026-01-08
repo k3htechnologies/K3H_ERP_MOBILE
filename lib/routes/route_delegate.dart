@@ -52,6 +52,11 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/d
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/presentation/cubit/leave_type_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/presentation/pages/add_leave_type_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/presentation/pages/leave_type_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/data/model/shift_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/presentation/cubit/shift_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/presentation/pages/add_shift_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/presentation/pages/shift_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/presentation/pages/shift_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/data/model/material_master.model.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/cubit/material_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/pages/add_material_master_screen.dart';
@@ -1002,7 +1007,8 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-        //LEAVE TYPE MASTER
+
+        // LEAVE TYPE MASTER
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
@@ -1044,6 +1050,70 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
+
+        // SHIFT MASTER
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => ShiftMasterCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              path: AppRoutes.shiftMaster,
+              name: AppRoutes.shiftMaster,
+              builder: (context, state) {
+                return const ShiftMasterScreen();
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addShiftMaster,
+              name: AppRoutes.addShiftMaster,
+              builder: (context, state) {
+                final queryParameterLeaveType =
+                    state.uri.queryParameters['shift'];
+                final ShiftMasterModel? shiftMasterModel =
+                    queryParameterLeaveType != null
+                        ? ShiftMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterLeaveType),
+                            ),
+                          ),
+                        )
+                        : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return AddShiftMasterScreen(
+                  shiftMasterModel: shiftMasterModel,
+                  index: index,
+                );
+              },
+            ),
+
+            GoRoute(
+              name: AppRoutes.viewShiftMaster,
+              path: AppRoutes.viewShiftMaster,
+              builder: (context, state) {
+                final queryParameterAsset = state.uri.queryParameters['shift'];
+
+                final ShiftMasterModel? shiftmMaster =
+                    queryParameterAsset != null
+                        ? ShiftMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterAsset),
+                            ),
+                          ),
+                        )
+                        : null;
+                return ShiftMasterViewScreen(shiftMaster: shiftmMaster!);
+              },
+            ),
+          ],
+        ),
+
         // EMPLOYEE MASTER
         ShellRoute(
           builder: (context, state, child) {

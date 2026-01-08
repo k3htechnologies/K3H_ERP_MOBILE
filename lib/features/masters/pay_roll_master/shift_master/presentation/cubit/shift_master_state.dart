@@ -1,24 +1,23 @@
 import 'package:k3h_erp_app/core/base_state.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/model/leave_type_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/data/model/shift_master.model.dart';
 
-class LeaveTypeMasterState extends BaseState {
-  final List<LeaveTypeModel> leaveTypeList;
+class ShiftMasterState extends BaseState {
+  final List<ShiftMasterModel> shiftMasterList;
   final int currentPage;
   final int totalNumberOfRecord;
   final String searchText;
-  const LeaveTypeMasterState({
+  const ShiftMasterState({
     super.isLoading,
-    required this.leaveTypeList,
+    required this.shiftMasterList,
     this.currentPage = 1,
     this.totalNumberOfRecord = 0,
     this.searchText = "",
   });
+  factory ShiftMasterState.initial() =>
+      ShiftMasterState(shiftMasterList: [], currentPage: 1);
 
-  factory LeaveTypeMasterState.initial() =>
-      LeaveTypeMasterState(leaveTypeList: [], currentPage: 1);
-
-  LeaveTypeMasterState copyWith({
-    List<LeaveTypeModel>? leaveTypeList,
+  ShiftMasterState copyWith({
+    List<ShiftMasterModel>? shiftMasterList,
     bool? isLoading = false,
 
     StateType? stateType,
@@ -27,8 +26,8 @@ class LeaveTypeMasterState extends BaseState {
     int? currentPage,
     int? totalNumberOfRecord,
   }) {
-    return LeaveTypeMasterState(
-      leaveTypeList: leaveTypeList ?? this.leaveTypeList,
+    return ShiftMasterState(
+      shiftMasterList: shiftMasterList ?? this.shiftMasterList,
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
       isLoading: isLoading ?? isLoading,
@@ -42,6 +41,6 @@ class LeaveTypeMasterState extends BaseState {
     currentPage,
     searchText,
     totalNumberOfRecord,
-    leaveTypeList,
+    shiftMasterList,
   ];
 }
