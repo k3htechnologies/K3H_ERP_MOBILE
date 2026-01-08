@@ -546,7 +546,7 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
-              create: (_) => serviceLocator<AssetMasterCubit>(),
+              create: (_) => AssetMasterCubit(),
               child: child,
             );
           },
@@ -606,7 +606,7 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
-              create: (_) => serviceLocator<AssetMappingMasterCubit>(),
+              create: (_) => AssetMappingMasterCubit(),
               child: child,
             );
           },
@@ -672,7 +672,7 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
-              create: (_) => serviceLocator<BranchMasterCubit>(),
+              create: (_) => BranchMasterCubit(),
               child: child,
             );
           },
@@ -783,7 +783,7 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
-              create: (_) => serviceLocator<DeductionMasterCubit>(),
+              create: (_) => DeductionMasterCubit(),
               child: child,
             );
           },
@@ -830,7 +830,7 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
-              create: (_) => serviceLocator<EarningMasterCubit>(),
+              create: (_) => EarningMasterCubit(),
               child: child,
             );
           },
@@ -875,7 +875,7 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
-              create: (_) => serviceLocator<HolidayMasterCubit>(),
+              create: (_) => HolidayMasterCubit(),
               child: child,
             );
           },
@@ -1494,53 +1494,6 @@ final GoRouter goRouter = GoRouter(
             );
           },
         ),
-        /*  GoRoute(
-            name: AppRoutes.addBuilding,
-            path: AppRoutes.addBuilding,
-              builder: (context, state) {
-                final queryParameterBuilding =
-                state.uri.queryParameters['building'];
-
-                final RedevelopmentBuildingModel? building =
-                queryParameterBuilding != null
-                    ? RedevelopmentBuildingModel.fromJson(
-                  jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeComponent(queryParameterBuilding),
-                    ),
-                  ),
-                )
-                    : null;
-
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-
-                return AddBuildingScreen(building: building, index: index);
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.viewBuilding,
-              path: AppRoutes.viewBuilding,
-              builder: (context, state) {
-                final queryParameterBuilding =
-                state.uri.queryParameters['building'];
-
-                final RedevelopmentBuildingModel? building =
-                queryParameterBuilding != null
-                    ? RedevelopmentBuildingModel.fromJson(
-                  jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeComponent(queryParameterBuilding),
-                    ),
-                  ),
-                )
-                    : null;
-
-                return BuildingViewScreen(building: building!);
-              },
-            ),
-          ],
-        ),*/
         // CALENDAR
         ShellRoute(
           builder: (context, state, child) {
@@ -1707,75 +1660,92 @@ final GoRouter goRouter = GoRouter(
           ],
         ),
         // VENDOR
-        GoRoute(
-          path: AppRoutes.vendor,
-          name: AppRoutes.vendor,
-          builder: (context, state) {
-            return BlocProvider(
-              create: (context) => VendorCubit(),
-              child: VendorScreen(),
-            );
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(providers: [
+              BlocProvider<VendorCubit>(
+                create: (_) => VendorCubit(),
+              ),
+              BlocProvider<VendorAddCubit>(
+                create: (_) => VendorAddCubit(),
+              ),
+            ], child: child);
           },
           routes: [
             GoRoute(
-              parentNavigatorKey: navigatorKey,
+              path: AppRoutes.vendor,
+              name: AppRoutes.vendor,
+              builder: (context, state) {
+                return const VendorScreen();
+              },
+            ),
+            // ---------------- ADD / EDIT VENDOR ----------------
+            GoRoute(
               name: AppRoutes.addVendor,
               path: AppRoutes.addVendor,
               builder: (context, state) {
                 final queryParameterVendor =
-                    state.uri.queryParameters['vendor'];
+                state.uri.queryParameters['vendor'];
+
                 final VendorModel? vendor =
-                    queryParameterVendor != null
-                        ? VendorModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterVendor),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterVendor != null
+                    ? VendorModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterVendor),
+                    ),
+                  ),
+                )
+                    : null;
+
+                final index =
+                    int.tryParse(
+                      state.uri.queryParameters['index'] ?? '',
+                    ) ??
+                        0;
+
                 return BlocProvider(
-                  create: (context) => VendorAddCubit(),
-                  child: AddVendorScreen(vendor: vendor),
+                  create: (_) => VendorAddCubit(),
+                  child: AddVendorScreen(vendor: vendor, index: index),
                 );
               },
             ),
+            // ---------------- VIEW DETAILS ----------------
             GoRoute(
               path: AppRoutes.viewVendorDetails,
               name: AppRoutes.viewVendorDetails,
               builder: (context, state) {
                 final queryParameterVendor =
-                    state.uri.queryParameters['vendor'];
-                final VendorModel? vendor =
-                    queryParameterVendor != null
-                        ? VendorModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterVendor),
-                            ),
-                          ),
-                        )
-                        : null;
-                return ViewDetailsVendorScreen(vendor: vendor!);
+                state.uri.queryParameters['vendor'];
+
+                final vendor = VendorModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterVendor!),
+                    ),
+                  ),
+                );
+
+                return ViewDetailsVendorScreen(vendor: vendor);
               },
             ),
+            // ---------------- VIEW DOCUMENTS ----------------
             GoRoute(
               path: AppRoutes.viewVendorDocument,
               name: AppRoutes.viewVendorDocument,
               builder: (context, state) {
                 final queryParameterVendor =
-                    state.uri.queryParameters['vendor'];
-                final VendorModel? vendor =
-                    queryParameterVendor != null
-                        ? VendorModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterVendor),
-                            ),
-                          ),
-                        )
-                        : null;
-                return DocumentsViewVendorScreen(vendorModel: vendor!);
+                state.uri.queryParameters['vendor'];
+
+                final vendor = VendorModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterVendor!),
+                    ),
+                  ),
+                );
+
+                return DocumentsViewVendorScreen(vendorModel: vendor);
               },
             ),
           ],

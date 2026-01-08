@@ -22,45 +22,43 @@ class VendorCubit extends Cubit<VendorState> {
       serviceLocator<CompanyMasterRepository>();
 
   // <---- GET VENDORS LIST ---->
-  Future getVendors(BuildContext context, int pageNumber, int pageSize) async {
+  Future getVendors(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
+
     Map<String, dynamic> queryParams = {
       "VendorName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       "CompanyName": state.filterByCompanyName,
       "CompanyType": state.filterByCompanyType,
     };
+
     var result = await vendorRepository.getVendorsList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       queryParams: queryParams,
     );
 
     result.fold(
-      (failure) {
+          (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-      (response) {
-        // If pageNumber is 1, clear and replace the list completely to avoid duplicates
-        // For pagination (pageNumber > 1), append to existing list
-        List<VendorModel> updatedList;
-        if (pageNumber == 1) {
-          // Clear existing list first, then replace with fresh API data
-          updatedList = List<VendorModel>.from(response['data'] as List<VendorModel>);
-        } else {
-          // Pagination - append new items to existing list
-          updatedList = List<VendorModel>.from(state.vendorList)
-            ..addAll(response['data'] as List<VendorModel>);
-        }
+          (response) {
+        final List<VendorModel> newData =
+        List<VendorModel>.from(response['data'] ?? []);
+
+        final List<VendorModel> updatedList = pageNumber == 1
+            ? newData
+            : {
+          for (final v in [...state.vendorList, ...newData])
+            v.vendorId: v
+        }.values.toList();
+
         emit(
           state.copyWith(
-            isLoading: false,
             vendorList: updatedList,
-            totalNumberOfRecord:
-                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
-                    ? state.totalNumberOfRecord - 1
-                    : response['totalNumberOfRecord'],
+            isLoading: false,
+            totalNumberOfRecord: response["totalNumberOfRecord"],
             currentPage: pageNumber,
           ),
         );
@@ -93,13 +91,14 @@ class VendorCubit extends Cubit<VendorState> {
           emit(
             state.copyWith(
               vendorList: updatedList,
-              totalNumberOfRecord: state.totalNumberOfRecord > 0
-                  ? state.totalNumberOfRecord - 1
-                  : 0,
+              totalNumberOfRecord:
+                  state.totalNumberOfRecord > 0
+                      ? state.totalNumberOfRecord - 1
+                      : 0,
             ),
           );
         } else {
-          getVendors(context, state.currentPage, 10);
+          getVendors(context, state.currentPage);
         }
       },
     );
@@ -108,7 +107,21 @@ class VendorCubit extends Cubit<VendorState> {
   // <---- SEARCH VENDOR ---->
   Future searchVendor(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, vendorList: []));
-    await getVendors(context, 1, 10);
+    await getVendors(context, 1);
+  }
+
+  void updateVendorInList(VendorModel updatedVendor, int index) {
+    if (state.vendorList.isNotEmpty && index < state.vendorList.length) {
+      final updatedList = List<VendorModel>.from(state.vendorList);
+      updatedList[index] = updatedVendor;
+
+      emit(
+        state.copyWith(
+          vendorList: updatedList,
+          isLoading: false,
+        ),
+      );
+    }
   }
 
   // <--- SORT VENDOR ---->
@@ -124,7 +137,7 @@ class VendorCubit extends Cubit<VendorState> {
         vendorList: [],
       ),
     );
-    await getVendors(context, 1, 10);
+    await getVendors(context, 1);
   }
 
   // <---- FILTER CP ---->
@@ -140,7 +153,7 @@ class VendorCubit extends Cubit<VendorState> {
         vendorList: [],
       ),
     );
-    await getVendors(context, state.currentPage, 20);
+    await getVendors(context, state.currentPage);
   }
 
   // <---- EXPORT EXCEL PDF ---->
@@ -171,7 +184,7 @@ class VendorCubit extends Cubit<VendorState> {
   }
 
   // <---- GET MAGIC LINK ---->
- /* Future<String?> getMagicLink(
+  /* Future<String?> getMagicLink(
     BuildContext context,
     int clientRegistrationId,
   ) async {

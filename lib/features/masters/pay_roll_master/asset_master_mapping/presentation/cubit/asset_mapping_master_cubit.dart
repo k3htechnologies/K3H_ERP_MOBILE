@@ -116,7 +116,10 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
         emit(
           state.copyWith(
             assetMappingList: list,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
+            totalNumberOfRecord:
+            state.totalNumberOfRecord == -1
+                ? 1
+                : state.totalNumberOfRecord + 1,
           ),
         );
         showSuccessMessage(

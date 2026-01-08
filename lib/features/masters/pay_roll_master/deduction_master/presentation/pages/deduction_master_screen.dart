@@ -50,7 +50,6 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
     _deductionMasterCubit.getDeductionList(
       context: context,
       pageNumber: 1,
-      pageSize: 10,
     );
   }
 
@@ -80,7 +79,6 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
           _deductionMasterCubit.getDeductionList(
             context: context,
             pageNumber: _deductionMasterCubit.state.currentPage + 1,
-            pageSize: 10,
           );
         });
       }
@@ -192,7 +190,6 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
                                   _deductionMasterCubit.getDeductionList(
                                     context: context,
                                     pageNumber: state.currentPage,
-                                    pageSize: 10,
                                   );
                                 }
                               },

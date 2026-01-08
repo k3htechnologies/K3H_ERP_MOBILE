@@ -29,13 +29,12 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
         currentPage: 1,
       ),
     );
-    getDeductionList(context: context, pageNumber: 1, pageSize: 15);
+    getDeductionList(context: context, pageNumber: 1,);
   }
 
   Future getDeductionList({
     required BuildContext context,
     required int pageNumber,
-    required int pageSize,
   }) async {
     emit(state.copyWith(isLoading: true));
 
@@ -46,7 +45,7 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
 
     var result = await deductionMasterRepository.getDeductionList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       queryParams: queryParams,
     );
 
@@ -193,7 +192,6 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
         getDeductionList(
           context: context,
           pageNumber: state.currentPage,
-          pageSize: 10,
         );
       },
     );

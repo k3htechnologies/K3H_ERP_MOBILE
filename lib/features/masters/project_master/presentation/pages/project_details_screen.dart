@@ -187,10 +187,14 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
       ),
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.project.projectName,
-              style: AppTextStyle.ts16SB(color: AppColor.primary),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                widget.project.projectName,
+                style: AppTextStyle.ts16SB(color: AppColor.primary),
+              ),
             ),
             verticalSpacing(),
             Container(
@@ -900,9 +904,6 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
         if ((state.isLoading ?? true) && state.companyByProject.isEmpty) {
           return Center(child: loader());
         }
-        if (state.companyByProject.isEmpty) {
-          return Center(child: noDataWidget());
-        }
 
         final paginatedCompanies =
             _projectMasterCubit.getPaginatedCompanyList();
@@ -931,94 +932,96 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 ],
               ),
             ),
-            Expanded(
-              child: ListView.builder(
-                controller: companyScrollController,
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                itemCount: paginatedCompanies.length + (hasMore ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == paginatedCompanies.length) {
-                    return Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-                  var company = paginatedCompanies[index];
-                  return Container(
-                    margin: EdgeInsets.only(bottom: 10),
-                    padding: EdgeInsets.all(12),
-                    decoration: commonCardDecoration(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                company.companyName,
-                                style: AppTextStyle.ts16SB(),
-                              ),
-                            ),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showDeleteCompanyDialog(context, company);
-                              },
-                            ),
-                          ],
-                        ),
-                        verticalSpacing(),
-                        Row(
+            state.companyByProject.isEmpty
+                ? Expanded(child: noDataWidget())
+                : Expanded(
+                  child: ListView.builder(
+                    controller: companyScrollController,
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    itemCount: paginatedCompanies.length + (hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == paginatedCompanies.length) {
+                        return Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      var company = paginatedCompanies[index];
+                      return Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        padding: EdgeInsets.all(12),
+                        decoration: commonCardDecoration(),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildColumTitleVale(
-                              title: "Company Type",
-                              value: company.companyType,
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    company.companyName,
+                                    style: AppTextStyle.ts16SB(),
+                                  ),
+                                ),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showDeleteCompanyDialog(context, company);
+                                  },
+                                ),
+                              ],
                             ),
-                            _buildColumTitleVale(
-                              title: "Contact Person",
-                              value: company.contactPerson,
+                            verticalSpacing(),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildColumTitleVale(
+                                  title: "Company Type",
+                                  value: company.companyType,
+                                ),
+                                _buildColumTitleVale(
+                                  title: "Contact Person",
+                                  value: company.contactPerson,
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildColumTitleVale(
+                                  title: "Contact Number",
+                                  value: company.mobileNumber,
+                                ),
+                                _buildColumTitleVale(
+                                  title: "City",
+                                  value: company.cityName,
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(),
+                            Row(
+                              children: [
+                                _buildColumTitleVale(
+                                  title: "GST Number",
+                                  value:
+                                      company.gstNumber.isNotEmpty
+                                          ? company.gstNumber
+                                          : "-",
+                                ),
+                                _buildColumTitleVale(
+                                  title: "PAN Number",
+                                  value:
+                                      company.panNumber.isNotEmpty
+                                          ? company.panNumber
+                                          : "-",
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        verticalSpacing(),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildColumTitleVale(
-                              title: "Contact Number",
-                              value: company.mobileNumber,
-                            ),
-                            _buildColumTitleVale(
-                              title: "City",
-                              value: company.cityName,
-                            ),
-                          ],
-                        ),
-                        verticalSpacing(),
-                        Row(
-                          children: [
-                            _buildColumTitleVale(
-                              title: "GST Number",
-                              value:
-                                  company.gstNumber.isNotEmpty
-                                      ? company.gstNumber
-                                      : "-",
-                            ),
-                            _buildColumTitleVale(
-                              title: "PAN Number",
-                              value:
-                                  company.panNumber.isNotEmpty
-                                      ? company.panNumber
-                                      : "-",
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
+                      );
+                    },
+                  ),
+                ),
           ],
         );
       },

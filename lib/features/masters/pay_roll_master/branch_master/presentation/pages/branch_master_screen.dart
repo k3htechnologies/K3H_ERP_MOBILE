@@ -50,7 +50,6 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
     _branchMasterCubit.getBranchList(
       context: context,
       pageNumber: 1,
-      pageSize: 10,
     );
   }
 
@@ -81,7 +80,6 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
           _branchMasterCubit.getBranchList(
             context: context,
             pageNumber: _branchMasterCubit.state.currentPage + 1,
-            pageSize: 10,
           );
         });
       }
@@ -208,13 +206,6 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
                                     'index': index.toString(),
                                   },
                                 );
-                                if (context.mounted) {
-                                  _branchMasterCubit.getBranchList(
-                                    context: context,
-                                    pageNumber: 1,
-                                    pageSize: 10,
-                                  );
-                                }
                               },
                             ),
                             const SizedBox(width: 8),

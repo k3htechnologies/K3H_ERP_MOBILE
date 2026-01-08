@@ -46,7 +46,7 @@ class _VendorScreenState extends State<VendorScreen> {
     _vendorCubit = context.read<VendorCubit>();
     _initializeTextEditingController();
     _onScroll();
-    _vendorCubit.getVendors(context, 1, 10);
+    _vendorCubit.getVendors(context, 1);
   }
 
   @override
@@ -92,16 +92,16 @@ class _VendorScreenState extends State<VendorScreen> {
     scrollController = ScrollController();
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
-              scrollController.position.maxScrollExtent - 100 &&
+          scrollController.position.maxScrollExtent - 100 &&
           !_vendorCubit.state.isLoading! &&
           _vendorCubit.state.vendorList.length <
               _vendorCubit.state.totalNumberOfRecord) {
+        // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
           _vendorCubit.getVendors(
             context,
             _vendorCubit.state.currentPage + 1,
-            10,
           );
         });
       }
@@ -162,7 +162,7 @@ class _VendorScreenState extends State<VendorScreen> {
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addVendor);
           if (context.mounted) {
-            _vendorCubit.getVendors(context, 1, 10);
+            _vendorCubit.getVendors(context, 1);
           }
         },
         onSearchSubmit: (value) {
@@ -175,7 +175,7 @@ class _VendorScreenState extends State<VendorScreen> {
       ),
       body: BlocBuilder<VendorCubit, VendorState>(
         builder: (context, state) {
-          if (state.isLoading == true) {
+          if (state.isLoading == true && state.vendorList.isEmpty) {
             return loader();
           }
           if (state.vendorList.isEmpty) {
@@ -217,6 +217,7 @@ class _VendorScreenState extends State<VendorScreen> {
                                       jsonEncode(vendor),
                                     ),
                                   ),
+                                  "index": "$index"
                                 },
                               );
                             },
@@ -263,10 +264,8 @@ class _VendorScreenState extends State<VendorScreen> {
                                     ),
                                   },
                                 );
-                                // Always refresh to ensure we have the latest data
-                                // getVendors with pageNumber 1 will replace the list completely
                                 if (context.mounted) {
-                                  _vendorCubit.getVendors(context, 1, 10);
+                                  _vendorCubit.getVendors(context, state.currentPage);
                                 }
                               },
                             ),

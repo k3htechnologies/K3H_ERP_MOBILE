@@ -49,7 +49,6 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     _assetMasterCubit.getAssetsList(
       context: context,
       pageNumber: 1,
-      pageSize: 15,
     );
   }
 
@@ -80,7 +79,6 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
           _assetMasterCubit.getAssetsList(
             context: context,
             pageNumber: _assetMasterCubit.state.currentPage + 1,
-            pageSize: 15,
           );
         });
       }
@@ -204,13 +202,6 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                                     'index': index.toString(),
                                   },
                                 );
-                                if (context.mounted) {
-                                  _assetMasterCubit.getAssetsList(
-                                    context: context,
-                                    pageNumber: 1,
-                                    pageSize: 15,
-                                  );
-                                }
                               },
                             ),
                             const SizedBox(width: 8),

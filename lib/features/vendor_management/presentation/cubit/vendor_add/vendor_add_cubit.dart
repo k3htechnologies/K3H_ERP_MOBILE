@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -12,6 +13,7 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/repository/vendor.repository.dart';
+import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -28,11 +30,13 @@ class VendorAddCubit extends Cubit<VendorAddState> {
 
   // <---- DROPDOWN FUNCTIONS ---->
   Future<Map<String, dynamic>> getMaterialSubMaterialUOMMaster(
-      BuildContext context,
-      ) async {
+    BuildContext context,
+  ) async {
     int projectId = 0;
     try {
-      final projectString = LocalStorageManager().getString(StorageKey.selectedProject);
+      final projectString = LocalStorageManager().getString(
+        StorageKey.selectedProject,
+      );
       if (projectString != null) {
         final project = ProjectModel.fromJson(jsonDecode(projectString));
         projectId = project.projectId;
@@ -41,11 +45,10 @@ class VendorAddCubit extends Cubit<VendorAddState> {
       projectId = 0;
     }
 
-    var result = await utilsRepository.getMaterialMasterSubMaterialMasterUOMMaster(
-      projectId: projectId,
-    );
+    var result = await utilsRepository
+        .getMaterialMasterSubMaterialMasterUOMMaster(projectId: projectId);
     return result.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, 'Error', failure.message);
         // HANDLE FAILURE
         return {
@@ -54,7 +57,7 @@ class VendorAddCubit extends Cubit<VendorAddState> {
           "isSuccess": false,
         };
       },
-          (response) async {
+      (response) async {
         final data = response["MaterialMasterSubMaterialMasterData"];
         if (data == null) {
           return {
@@ -66,9 +69,10 @@ class VendorAddCubit extends Cubit<VendorAddState> {
         return {
           "MaterialMasterSubMaterialMasterData": List<SubMaterialModel>.from(
             (await compute(
-              (m) => (m as List<dynamic>)
-                  .map((e) => SubMaterialModel.fromJson(e))
-                  .toList(),
+              (m) =>
+                  (m as List<dynamic>)
+                      .map((e) => SubMaterialModel.fromJson(e))
+                      .toList(),
               data,
             )),
           ),
@@ -169,6 +173,7 @@ class VendorAddCubit extends Cubit<VendorAddState> {
 
   // <---- UPDATE VENDOR  ---->
   Future updateVendor({
+    required int index,
     required VendorModel? vendor,
     required BuildContext context,
     required String companyName,
@@ -261,6 +266,14 @@ class VendorAddCubit extends Cubit<VendorAddState> {
       },
       (response) {
         goRouter.pop();
+
+        final updatedVendor = response['data'][0] as VendorModel;
+
+        context.read<VendorCubit>().updateVendorInList(
+          updatedVendor,
+          index,
+        );
+
         showSuccessMessage(context, subTitle: 'Vendor Updated Successfully!!!');
       },
     );

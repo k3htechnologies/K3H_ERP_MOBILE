@@ -50,7 +50,6 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
     _earningMasterCubit.getEarningList(
       context: context,
       pageNumber: 1,
-      pageSize: 10,
     );
   }
 
@@ -81,7 +80,6 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
           _earningMasterCubit.getEarningList(
             context: context,
             pageNumber: _earningMasterCubit.state.currentPage + 1,
-            pageSize: 10,
           );
         });
       }
@@ -137,10 +135,10 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
             itemBuilder: (context, index) {
               if (index == state.earningList.length) {
                 return state.earningList.length < state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
+                    ? Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Center(child: CircularProgressIndicator()),
+                )
                     : const SizedBox.shrink();
               }
               var earning = state.earningList[index];
@@ -194,7 +192,6 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
                                   _earningMasterCubit.getEarningList(
                                     context: context,
                                     pageNumber: state.currentPage,
-                                    pageSize: 10,
                                   );
                                 }
                               },

@@ -62,13 +62,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required BuildContext context,
     required int pageNumber,
   }) async {
-    emit(
-      state.copyWith(
-        isLoading: true,
-        projectList: pageNumber == 1 ? [] : state.projectList,
-        currentPage: pageNumber == 1 ? 1 : state.currentPage,
-      ),
-    );
+    emit(state.copyWith(isLoading: true));
     var result = await _projectMasterRepository.getProjectList(
       pageNumber: pageNumber,
       pageSize: state.pageSize,
@@ -81,26 +75,17 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         showErrorMessage(context, "Error Message", failure.message);
       },
       (response) {
-        final fetched = response['data'] as List<ProjectModel>;
+        final List<ProjectModel> newData = List<ProjectModel>.from(
+          response['data'] ?? [],
+        );
 
-        Map<String, ProjectModel> map = {};
-        if (pageNumber > 1) {
-          for (final c in state.projectList) {
-            map[c.uniquekey] = c;
-          }
-        }
-        for (final c in fetched) {
-          map[c.uniquekey] = c;
-        }
-        final updatedList = map.values.toList();
+        final List<ProjectModel> updatedList =
+            pageNumber == 1 ? newData : [...state.projectList, ...newData];
         emit(
           state.copyWith(
-            isLoading: false,
             projectList: updatedList,
-            totalNumberOfRecord:
-                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
-                    ? state.totalNumberOfRecord - 1
-                    : response['totalNumberOfRecord'],
+            isLoading: false,
+            totalNumberOfRecord: response["totalNumberOfRecord"],
             currentPage: pageNumber,
           ),
         );
@@ -295,15 +280,21 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         showErrorMessage(context, "Error Message", failure.message);
       },
       (response) async {
-        final updatedList = List<ProjectModel>.from(state.projectList);
-        updatedList[index] = (response['data'][0] as ProjectModel);
         goRouter.pop();
-        emit(state.copyWith(projectList: updatedList));
 
-        // Update project in local storage
-        await _updateProjectInLocalStorage(response['data'][0] as ProjectModel);
+        final updatedDepartment = response['data'][0] as ProjectModel;
+
+        if (state.projectList.isNotEmpty &&
+            index < state.projectList.length) {
+          final updatedList = List<ProjectModel>.from(state.projectList);
+          updatedList[index] = updatedDepartment;
+          emit(state.copyWith(projectList: updatedList, isLoading: false));
+        }
         if (context.mounted) {
-          showSuccessMessage(context, subTitle: 'Project Updated Successfully!!!');
+          showSuccessMessage(
+            context,
+            subTitle: 'Project Updated Successfully!!!',
+          );
         }
       },
     );
@@ -378,10 +369,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         showErrorMessage(context, "Error Message", failure.message);
       },
       (response) {
-        final allCompanies = (response['data'] as List)
-            .map((e) => CompanyModel.fromJson(e as Map<String, dynamic>))
-            .toList();
-        
+        final allCompanies =
+            (response['data'] as List)
+                .map((e) => CompanyModel.fromJson(e as Map<String, dynamic>))
+                .toList();
+
         // Store all companies and implement client-side pagination
         emit(
           state.copyWith(
@@ -400,11 +392,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     const int pageSize = 10;
     final int startIndex = (state.currentPageCompany - 1) * pageSize;
     final int endIndex = startIndex + pageSize;
-    
+
     if (startIndex >= state.companyByProject.length) {
       return [];
     }
-    
+
     return state.companyByProject.sublist(
       startIndex,
       endIndex > state.companyByProject.length
@@ -417,13 +409,9 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   void loadMoreCompanies() {
     const int pageSize = 10;
     final int totalPages = (state.companyByProject.length / pageSize).ceil();
-    
+
     if (state.currentPageCompany < totalPages) {
-      emit(
-        state.copyWith(
-          currentPageCompany: state.currentPageCompany + 1,
-        ),
-      );
+      emit(state.copyWith(currentPageCompany: state.currentPageCompany + 1));
     }
   }
 
@@ -444,22 +432,23 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       (response) {
         try {
           final data = response['data'];
-          final allBanks = data != null && data is List
-              ? data
-                  .map(
-                    (e) {
-                      try {
-                        return BankDetailsModel.fromJson(e as Map<String, dynamic>);
-                      } catch (e) {
-                        log('Error parsing bank details: $e');
-                        return null;
-                      }
-                    },
-                  )
-                  .whereType<BankDetailsModel>()
-                  .toList()
-              : <BankDetailsModel>[];
-          
+          final allBanks =
+              data != null && data is List
+                  ? data
+                      .map((e) {
+                        try {
+                          return BankDetailsModel.fromJson(
+                            e as Map<String, dynamic>,
+                          );
+                        } catch (e) {
+                          log('Error parsing bank details: $e');
+                          return null;
+                        }
+                      })
+                      .whereType<BankDetailsModel>()
+                      .toList()
+                  : <BankDetailsModel>[];
+
           // Store all banks and implement client-side pagination
           emit(
             state.copyWith(
@@ -487,11 +476,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     const int pageSize = 10;
     final int startIndex = (state.currentPageBank - 1) * pageSize;
     final int endIndex = startIndex + pageSize;
-    
+
     if (startIndex >= state.bankByProject.length) {
       return [];
     }
-    
+
     return state.bankByProject.sublist(
       startIndex,
       endIndex > state.bankByProject.length
@@ -504,13 +493,9 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   void loadMoreBanks() {
     const int pageSize = 10;
     final int totalPages = (state.bankByProject.length / pageSize).ceil();
-    
+
     if (state.currentPageBank < totalPages) {
-      emit(
-        state.copyWith(
-          currentPageBank: state.currentPageBank + 1,
-        ),
-      );
+      emit(state.copyWith(currentPageBank: state.currentPageBank + 1));
     }
   }
 
@@ -529,10 +514,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         showErrorMessage(context, "Error Message", failure.message);
       },
       (response) {
-        final allEmployees = (response['data'] as List)
-            .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
-            .toList();
-        
+        final allEmployees =
+            (response['data'] as List)
+                .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
+                .toList();
+
         // Store all employees and implement client-side pagination
         emit(
           state.copyWith(
@@ -551,11 +537,11 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     const int pageSize = 10;
     final int startIndex = (state.currentPageEmployee - 1) * pageSize;
     final int endIndex = startIndex + pageSize;
-    
+
     if (startIndex >= state.employeeByProject.length) {
       return [];
     }
-    
+
     return state.employeeByProject.sublist(
       startIndex,
       endIndex > state.employeeByProject.length
@@ -568,13 +554,9 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   void loadMoreEmployees() {
     const int pageSize = 10;
     final int totalPages = (state.employeeByProject.length / pageSize).ceil();
-    
+
     if (state.currentPageEmployee < totalPages) {
-      emit(
-        state.copyWith(
-          currentPageEmployee: state.currentPageEmployee + 1,
-        ),
-      );
+      emit(state.copyWith(currentPageEmployee: state.currentPageEmployee + 1));
     }
   }
 
@@ -596,7 +578,10 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       (response) {
         goRouter.pop();
         getProjectWithBankDetails(projectId: projectId, context: context);
-        showSuccessMessage(context,subTitle: 'Bank Details Updated Successfully!!!');
+        showSuccessMessage(
+          context,
+          subTitle: 'Bank Details Updated Successfully!!!',
+        );
       },
     );
   }
@@ -626,7 +611,10 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
           projectId: projectId.toString(),
           context: context,
         );
-        showSuccessMessage(context,subTitle: 'Bank Details Deleted Successfully!!!');
+        showSuccessMessage(
+          context,
+          subTitle: 'Bank Details Deleted Successfully!!!',
+        );
       },
     );
   }
@@ -766,7 +754,10 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       (response) async {
         emit(state.copyWith(isLoading: false));
         getProjectWithCompany(projectId: projectId, context: context);
-        await showSuccessMessage(context, subTitle: 'Company Updated Successfully!!!');
+        await showSuccessMessage(
+          context,
+          subTitle: 'Company Updated Successfully!!!',
+        );
         onSuccess();
       },
     );
@@ -793,15 +784,15 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     emit(state.copyWith(isLoading: false));
     result.fold(
       (failure) {
-         showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error Message", failure.message);
       },
       (response) async {
-        await showSuccessMessage(context, subTitle: 'Employee Updated Successfully!!!');
+        await showSuccessMessage(
+          context,
+          subTitle: 'Employee Updated Successfully!!!',
+        );
         if (context.mounted) {
-          getProjectWithEmployee(
-            projectId: projectId,
-            context: context,
-          );
+          getProjectWithEmployee(projectId: projectId, context: context);
         }
         if (onSuccess != null) onSuccess();
       },
@@ -856,7 +847,10 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
           context: context,
           projectId: projectId.toString(),
         );
-        showSuccessMessage(context,subTitle: 'Employee Deleted Successfully!!!');
+        showSuccessMessage(
+          context,
+          subTitle: 'Employee Deleted Successfully!!!',
+        );
       },
     );
   }
@@ -975,38 +969,30 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   void onTabChanged(BuildContext context, int index, {String? projectId}) {
     if (index == 1 && projectId != null) {
       // Employee tab selected - reset and fetch all employees
-      emit(state.copyWith(
-        employeeByProject: [],
-        currentPageEmployee: 1,
-        totalNumberOfRecordEmployee: 0,
-      ));
-      getProjectWithEmployee(
-        context: context,
-        projectId: projectId,
+      emit(
+        state.copyWith(
+          employeeByProject: [],
+          currentPageEmployee: 1,
+          totalNumberOfRecordEmployee: 0,
+        ),
       );
+      getProjectWithEmployee(context: context, projectId: projectId);
     }
     if (index == 2 && projectId != null) {
       // Bank Details tab selected - reset and fetch all banks
-      emit(state.copyWith(
-        bankByProject: [],
-        currentPageBank: 1,
-      ));
-      getProjectWithBankDetails(
-        context: context,
-        projectId: projectId,
-      );
+      emit(state.copyWith(bankByProject: [], currentPageBank: 1));
+      getProjectWithBankDetails(context: context, projectId: projectId);
     }
     if (index == 3 && projectId != null) {
       // Company tab selected - reset and fetch all companies
-      emit(state.copyWith(
-        companyByProject: [],
-        currentPageCompany: 1,
-        totalNumberOfRecordCompany: 0,
-      ));
-      getProjectWithCompany(
-        context: context,
-        projectId: projectId,
+      emit(
+        state.copyWith(
+          companyByProject: [],
+          currentPageCompany: 1,
+          totalNumberOfRecordCompany: 0,
+        ),
       );
+      getProjectWithCompany(context: context, projectId: projectId);
     }
   }
 

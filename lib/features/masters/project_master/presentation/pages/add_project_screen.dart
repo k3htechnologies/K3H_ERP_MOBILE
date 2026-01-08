@@ -192,12 +192,12 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   }
 
   // API CALL TO ADD/UPDATE PROJECT MASTER
-  Future<void> _addUpdateProject(ProjectModel? project, {int index = 0}) async {
+  Future<void> _addUpdateProject(ProjectModel? project,) async {
     if (_projectMasterAddUpdateKey.currentState!.validate()) {
       project != null
           ? _projectMasterCubit.updateProject(
             context: context,
-            index: index,
+            index: widget.index,
             projectId: project.projectId,
             uniqueKey: project.uniquekey,
             projectName: _projectNameC.text,

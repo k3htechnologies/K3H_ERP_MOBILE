@@ -29,13 +29,12 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
         currentPage: 1,
       ),
     );
-    getEarningList(context: context, pageNumber: 1, pageSize: 15);
+    getEarningList(context: context, pageNumber: 1,);
   }
 
   Future getEarningList({
     required BuildContext context,
     required int pageNumber,
-    required int pageSize,
   }) async {
     emit(state.copyWith(isLoading: true));
 
@@ -46,7 +45,7 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
 
     var result = await earningMasterRepository.getEarningsList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       queryParams: queryParams,
     );
 
@@ -191,7 +190,6 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
         getEarningList(
           context: context,
           pageNumber: state.currentPage,
-          pageSize: 15,
         );
       },
     );

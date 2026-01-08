@@ -186,12 +186,6 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                                     'index': index.toString(),
                                   },
                                 );
-                                if (context.mounted) {
-                                  _projectMasterCubit.getProjectList(
-                                    context: context,
-                                    pageNumber: 1,
-                                  );
-                                }
                               },
                             ),
                             CustomIconButton(

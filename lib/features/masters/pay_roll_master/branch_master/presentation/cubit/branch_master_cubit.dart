@@ -14,7 +14,7 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
   BranchMasterCubit() : super(BranchMasterState.initial());
 
   final BranchMasterRepository _branchMasterRepository =
-  serviceLocator<BranchMasterRepository>();
+      serviceLocator<BranchMasterRepository>();
 
   // <---- RESET STATE ---->
   void resetState() {
@@ -32,18 +32,13 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
       ),
     );
 
-    getBranchList(
-      context: context,
-      pageNumber: 1,
-      pageSize: 10,
-    );
+    getBranchList(context: context, pageNumber: 1);
   }
 
   // <---- GET BRANCH LIST ---->
   Future getBranchList({
     required BuildContext context,
     required int pageNumber,
-    required int pageSize,
   }) async {
     emit(state.copyWith(isLoading: true));
 
@@ -54,24 +49,22 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
 
     final result = await _branchMasterRepository.getBranchList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       queryParams: queryParams,
     );
 
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
-          (response) {
-        final List<BranchMasterModel> newData =
-        List<BranchMasterModel>.from(response['data'] ?? []);
+      (response) {
+        final List<BranchMasterModel> newData = List<BranchMasterModel>.from(
+          response['data'] ?? [],
+        );
 
         final List<BranchMasterModel> updatedList =
-        pageNumber == 1
-            ? newData
-            : [...state.branchList, ...newData];
-
+            pageNumber == 1 ? newData : [...state.branchList, ...newData];
 
         emit(
           state.copyWith(
@@ -103,21 +96,19 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
       "IsHeadOffice": isHeadOffice,
     };
 
-    final result =
-    await _branchMasterRepository.addUpdateBranch(body: body);
+    final result = await _branchMasterRepository.addUpdateBranch(body: body);
 
     goRouter.pop();
 
     result.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, 'Error', failure.message);
       },
-          (response) {
+      (response) {
         goRouter.pop();
 
         final newBranch = response['data'][0] as BranchMasterModel;
         final updatedList = [newBranch, ...state.branchList];
-
 
         emit(
           state.copyWith(
@@ -126,10 +117,7 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
           ),
         );
 
-        showSuccessMessage(
-          context,
-          subTitle: 'Branch Added Successfully',
-        );
+        showSuccessMessage(context, subTitle: 'Branch Added Successfully');
       },
     );
   }
@@ -156,37 +144,26 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
       "IsHeadOffice": isHeadOffice,
     };
 
-    final result =
-    await _branchMasterRepository.addUpdateBranch(body: body);
+    final result = await _branchMasterRepository.addUpdateBranch(body: body);
 
     goRouter.pop();
 
     result.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, 'Error', failure.message);
       },
-          (response) {
+      (response) {
         goRouter.pop();
 
-        final updatedBranch = response['data'][0] as BranchMasterModel;
+        final updatedDepartment = response['data'][0] as BranchMasterModel;
 
-        if (index < state.branchList.length) {
-          final updatedList =
-          List<BranchMasterModel>.from(state.branchList);
-          updatedList[index] = updatedBranch;
-
-
-          emit(
-            state.copyWith(
-              branchList: updatedList,
-            ),
-          );
+        if (state.branchList.isNotEmpty && index < state.branchList.length) {
+          final updatedList = List<BranchMasterModel>.from(state.branchList);
+          updatedList[index] = updatedDepartment;
+          emit(state.copyWith(branchList: updatedList, isLoading: false));
         }
 
-        showSuccessMessage(
-          context,
-          subTitle: 'Branch Updated Successfully',
-        );
+        showSuccessMessage(context, subTitle: 'Branch Updated Successfully');
       },
     );
   }
@@ -207,21 +184,14 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
     goRouter.pop();
 
     result.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, 'Error', failure.message);
       },
-          (success) {
-        showSuccessMessage(
-          context,
-          subTitle: 'Branch Deleted Successfully',
-        );
+      (success) {
+        showSuccessMessage(context, subTitle: 'Branch Deleted Successfully');
 
         // 🔁 Refresh current page (same as AssetMapping)
-        getBranchList(
-          context: context,
-          pageNumber: state.currentPage,
-          pageSize: 10,
-        );
+        getBranchList(context: context, pageNumber: state.currentPage);
       },
     );
   }
@@ -233,19 +203,16 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
     final result = await _branchMasterRepository.exportBranch(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
-      queryParams: {
-        "ExportType": exportType,
-        "BranchName": state.searchText,
-      },
+      queryParams: {"ExportType": exportType, "BranchName": state.searchText},
     );
 
     goRouter.pop();
 
     result.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, 'Error', failure.message);
       },
-          (response) {
+      (response) {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"

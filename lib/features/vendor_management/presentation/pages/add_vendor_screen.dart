@@ -27,7 +27,8 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddVendorScreen extends StatefulWidget {
   final VendorModel? vendor;
-  const AddVendorScreen({super.key, required this.vendor});
+  final int? index;
+  const AddVendorScreen({super.key, required this.vendor, this.index});
 
   @override
   State<AddVendorScreen> createState() => _AddVendorScreenState();
@@ -955,6 +956,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
       );
     } else {
       _vendorAddCubit.updateVendor(
+        index: widget.index??0,
         vendor: widget.vendor,
         context: context,
         companyName: companyNameC.value.text,
