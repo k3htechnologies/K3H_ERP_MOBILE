@@ -827,7 +827,7 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                                   backgroundColor: AppColor.lightGreen,
                                 ),
                                 Container(
-                                  padding: EdgeInsets.all(6),
+                                  padding: EdgeInsets.all(2),
                                   decoration: BoxDecoration(
                                     color: AppColor.lightGrey,
                                     borderRadius: BorderRadius.circular(8),
@@ -836,7 +836,7 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                                     isExpanded
                                         ? Icons.arrow_drop_up
                                         : Icons.arrow_drop_down,
-                                    size: 16,
+                                    size: 24,
                                   ),
                                 ),
                               ],

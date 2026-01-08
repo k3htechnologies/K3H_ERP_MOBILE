@@ -1,10 +1,9 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/presentation/widgets/employee_document_dialog.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant_document.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -32,11 +31,6 @@ class _TenantViewScreenState extends State<TenantViewScreen>
   // TAB CONTROLLER
   late TabController _tabController;
 
-  // EXPANDED DOCUMENTS STATE
-  final Set<int> _expandedDocumentIds = {};
-  final Map<int, List<TenantDocumentModel>> _childDocuments = {};
-  final Map<int, bool> _loadingChildDocuments = {};
-
   @override
   void initState() {
     super.initState();
@@ -55,54 +49,13 @@ class _TenantViewScreenState extends State<TenantViewScreen>
   // HANDLE TAB CHANGE
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
-      _tenantCubit.onTabChanged(_tabController.index, context,widget.tenant.projectId,widget.tenant.buildingId,null);
+      _tenantCubit.onTabChanged(
+        _tabController.index,
+        context,
+        widget.tenant.projectId,
+        widget.tenant.buildingId,
+      );
     }
-  }
-
-  // ───────────────── PICK DOCUMENTS ─────────────────
-  Future<void> _pickDocuments(TenantDocumentModel doc) async {
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      withData: true, // 🔑 REQUIRED
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-    );
-
-    if (result == null || result.files.isEmpty) return;
-    if (!mounted) return;
-
-    final multiFileModel =
-    _convertToMultiFilePicker(result.files);
-
-    await _tenantCubit.updateBuildingDocument(
-      context: context,
-      tenantDocumentId: doc.tenantDocumentId,
-      uniqueKey: doc.uniquekey,
-      projectId: doc.projectId,
-      buildingId: doc.buildingId,
-      documentName: doc.documentName,
-      files: multiFileModel,
-    );
-
-    if (mounted) {
-      setState(() {
-        _childDocuments.remove(doc.tenantDocumentId);
-        _expandedDocumentIds.remove(doc.tenantDocumentId);
-      });}
-  }
-
-  MultiFilePickerModel _convertToMultiFilePicker(
-      List<PlatformFile> files,
-      ) {
-    return MultiFilePickerModel(
-      fileNameList: files.map((e) => e.name).toList(),
-
-      fileBytesList: files
-          .map((e) => e.bytes!)
-          .toList(),
-
-      deletedFileList: "",
-    );
   }
 
   @override
@@ -152,10 +105,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
             Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: [
-                  _buildOverviewTab(),
-                  _buildDocumentTab(),
-                ],
+                children: [_buildOverviewTab(), _buildDocumentTab()],
               ),
             ),
           ],
@@ -495,211 +445,104 @@ class _TenantViewScreenState extends State<TenantViewScreen>
 
   // DOCUMENT
   Widget _buildDocumentTab() {
-    return BlocBuilder<TenantCubit, TenantState>(
-      builder: (context, state) {
-        if ((state.isLoading ?? true) && state.tenantDocumentList.isEmpty) {
-          return Center(child: loader());
-        }
-        if (state.tenantDocumentList.isEmpty) {
-          return Center(child: noDataWidget());
-        }
-
-        // Store parent list when it's loaded (top-level documents)
-        final parentDocuments = state.tenantDocumentList;
-
-        return SingleChildScrollView(
-          child: ListView.builder(
+    return SingleChildScrollView(
+      child: BlocBuilder<TenantCubit, TenantState>(
+        builder: (context, state) {
+          return ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            itemCount: parentDocuments.length,
+            itemCount: state.tenantDocumentList.length,
             itemBuilder: (context, index) {
-              final doc = parentDocuments[index];
-              final isExpanded = _expandedDocumentIds.contains(
-                doc.tenantDocumentId,
-              );
-              final childDocs = _childDocuments[doc.tenantDocumentId] ?? [];
-              final isLoadingChildren =
-                  _loadingChildDocuments[doc.tenantDocumentId] ?? false;
+              final doc = state.tenantDocumentList[index];
+
+              final urls =
+                  doc.documentUrl.isEmpty
+                      ? <String>[]
+                      : doc.documentUrl.split(',');
+
+              final isFresh = urls.isEmpty;
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(16),
                 decoration: commonCardDecoration(),
-                child: Column(
+                child: Row(
                   children: [
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          if (isExpanded) {
-                            // Collapse
-                            _expandedDocumentIds.remove(doc.tenantDocumentId);
-                          } else {
-                            // Expand - call API if not already loaded
-                            _expandedDocumentIds.add(doc.tenantDocumentId);
-                            if (!_childDocuments.containsKey(
-                              doc.tenantDocumentId,
-                            )) {
-                              _loadingChildDocuments[doc.tenantDocumentId] =
-                              true;
-                              _tenantCubit
-                                  .getTenantDocumentList(
-                                context,
-                                widget.tenant.projectId,
-                                widget.tenant.buildingId,
-                                1,
-                                100,
-                                doc.tenantDocumentId,
-                              )
-                                  .then((_) {
-                                if (mounted) {
-                                  // Capture the child documents from state after API call
-                                  final currentState = _tenantCubit.state;
-                                  setState(() {
-                                    _loadingChildDocuments[doc
-                                        .tenantDocumentId] =
-                                    false;
-                                    // Store the child documents from state
-                                    _childDocuments[doc
-                                        .tenantDocumentId] = List.from(
-                                      currentState.tenantDocumentList,
-                                    );
-                                    // Restore parent list by calling API with null
-                                    _tenantCubit.getTenantDocumentList(
-                                      context,
-                                      widget.tenant.projectId,
-                                      widget.tenant.buildingId,
-                                      1,
-                                      100,
-                                      null,
-                                    );
-                                  });
-                                }
-                              });
-                            }
-                          }
-                        });
+                    Text(doc.documentName, style: AppTextStyle.ts14SB()),
+                    const Spacer(),
+
+                    CustomIconButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: true,
+                          builder:
+                              (_) => EmployeeDocumentDialog(
+                                title: doc.documentName,
+                                urls: urls,
+                                isFreshAdd: isFresh,
+
+                                // ➕ ADD / UPLOAD
+                                addDocument: (pickedFiles) async {
+                                  final files = MultiFilePickerModel(
+                                    fileNameList:
+                                        pickedFiles.map((e) => e.name).toList(),
+                                    fileBytesList:
+                                        pickedFiles
+                                            .where((e) => e.bytes != null)
+                                            .map((e) => e.bytes!)
+                                            .toList(),
+                                    deletedFileList: "",
+                                  );
+
+                                  await _tenantCubit.updateBuildingDocument(
+                                    context: context,
+                                    tenantDocumentId: doc.tenantDocumentId,
+                                    uniqueKey: doc.uniquekey,
+                                    projectId: doc.projectId,
+                                    buildingId: doc.buildingId,
+                                    documentName: doc.documentName,
+                                    files: files,
+                                  );
+                                },
+
+                                // 🗑 DELETE
+                                deleteDocument: (removeUrl) async {
+                                  final files = MultiFilePickerModel(
+                                    fileNameList: [],
+                                    fileBytesList: [],
+                                    deletedFileList: removeUrl,
+                                  );
+
+                                  await _tenantCubit.updateBuildingDocument(
+                                    context: context,
+                                    tenantDocumentId: doc.tenantDocumentId,
+                                    uniqueKey: doc.uniquekey,
+                                    projectId: doc.projectId,
+                                    buildingId: doc.buildingId,
+                                    documentName: doc.documentName,
+                                    files: files,
+                                  );
+                                },
+                              ),
+                        );
                       },
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                doc.documentName,
-                                style: AppTextStyle.ts14SB(),
-                              ),
-                            ),
-                            Row(
-                              spacing: 20,
-                              children: [
-                                CustomIconButton(
-                                  onPressed: () => _pickDocuments(doc),
-                                  icon: Icon(
-                                    Icons.add,
-                                    color: AppColor.darkGreen,
-                                    size: 16,
-                                  ),
-                                  backgroundColor: AppColor.lightGreen,
-                                ),
-                                Container(
-                                  padding: EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                    color: AppColor.lightGrey,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Icon(
-                                    isExpanded
-                                        ? Icons.arrow_drop_up
-                                        : Icons.arrow_drop_down,
-                                    size: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                      icon: Icon(
+                        Icons.remove_red_eye,
+                        size: 16,
+                        color: isFresh ? AppColor.grey : AppColor.primary,
                       ),
+                      backgroundColor:
+                          isFresh ? AppColor.lightGrey : AppColor.lightBlue,
                     ),
-                    if (isExpanded)
-                      Builder(
-                        builder: (context) {
-                          if (isLoadingChildren) {
-                            return const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                          }
-
-                          if (childDocs.isEmpty) {
-                            return Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Center(
-                                child: Text(
-                                  "No documents found",
-                                  style: AppTextStyle.ts14R(
-                                    color: AppColor.grey,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-
-                          return Padding(
-                            padding: const EdgeInsets.only(
-                              left: 16,
-                              right: 16,
-                              bottom: 16,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children:
-                              childDocs.map((childDoc) {
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 8),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: AppColor.lightGreyBackground,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          childDoc.documentName,
-                                          style: AppTextStyle.ts14R(),
-                                        ),
-                                      ),
-                                      CustomIconButton(
-                                        onPressed: () {
-                                          showFilePreviewDialog(
-                                            context,
-                                            childDoc.documentUrl.split(","),
-                                          );
-                                        },
-                                        icon: Icon(
-                                          Icons.remove_red_eye_outlined,
-                                          color: AppColor.primary,
-                                          size: 16,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          );
-                        },
-                      ),
                   ],
                 ),
               );
             },
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

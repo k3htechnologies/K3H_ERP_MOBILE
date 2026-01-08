@@ -14,13 +14,10 @@ class EmployeeDocumentDialog extends StatefulWidget {
   final List<Uint8List>? fileBytes;
   final String title;
 
-  /// Called when user picks documents (you get picked files count / info)
   final Function(List<PlatformFile>) addDocument;
 
-  /// Called when deleting currently viewed document
   final Function(String url) deleteDocument;
 
-  /// If true → show upload UI instead of preview
   final bool isFreshAdd;
 
   const EmployeeDocumentDialog({
@@ -43,7 +40,6 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
   final ValueNotifier<int> _currentIndex = ValueNotifier(0);
 
   int _pickedDocumentCount = 0;
-  // List<PlatformFile> _pickedFiles = [];
 
   @override
   void initState() {
@@ -74,7 +70,6 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
     if (result == null || result.files.isEmpty) return;
 
     setState(() {
-      // _pickedFiles = result.files;
       _pickedDocumentCount = result.files.length;
     });
 
