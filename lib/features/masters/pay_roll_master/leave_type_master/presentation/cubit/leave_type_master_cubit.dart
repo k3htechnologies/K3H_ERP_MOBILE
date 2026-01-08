@@ -156,7 +156,10 @@ class LeaveTypeMasterCubit extends Cubit<LeaveTypeMasterState> {
       },
       (response) {
         goRouter.pop();
-        final updatedList = response['data'][0] as LeaveTypeModel;
+
+        final updatedList = LeaveTypeModel.fromJson(
+          response['data'][0] as Map<String, dynamic>,
+        );
 
         if (state.leaveTypeList.isNotEmpty &&
             index < state.leaveTypeList.length) {
@@ -175,7 +178,7 @@ class LeaveTypeMasterCubit extends Cubit<LeaveTypeMasterState> {
 
         showSuccessMessage(
           context,
-          subTitle: 'Leave Type Updateds Successfully',
+          subTitle: 'Leave Type Updated Successfully',
         );
       },
     );

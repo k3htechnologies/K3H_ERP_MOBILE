@@ -159,13 +159,6 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
                                 'index': index.toString(),
                               },
                             );
-                            if (context.mounted) {
-                              _leaveTypeMasterCubit.getLeaveTypeList(
-                                context: context,
-                                pageNumber: state.currentPage,
-                                pageSize: 10,
-                              );
-                            }
                           },
                         ),
                         const SizedBox(width: 8),
