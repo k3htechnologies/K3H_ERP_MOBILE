@@ -260,3 +260,28 @@ BoxDecoration commonCardDecoration() => BoxDecoration(
     ),
   ],
 );
+
+// TimeOfDay -> "HH:mm"
+String formatTimeOfDayHHmm(TimeOfDay? time) {
+  if (time == null) return "HH:mm";
+
+  return '${time.hour.toString().padLeft(2, '0')}:'
+      '${time.minute.toString().padLeft(2, '0')}';
+}
+
+// "HH:mm" -> TimeOfDay
+TimeOfDay? parseTimeOfDayFromHHmm(String? value) {
+  if (value == null || value.isEmpty) return null;
+
+  try {
+    final parts = value.split(':');
+    if (parts.length != 3) return null;
+
+    final hour = int.parse(parts[0]);
+    final minute = int.parse(parts[1]);
+
+    return TimeOfDay(hour: hour, minute: minute);
+  } catch (_) {
+    return null;
+  }
+}

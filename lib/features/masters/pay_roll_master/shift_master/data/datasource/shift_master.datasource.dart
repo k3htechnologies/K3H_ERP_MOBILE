@@ -1,54 +1,54 @@
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_encashment_master/data/model/leave_encashment_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/data/model/shift_master.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
-abstract interface class LeaveEncashmentMasterDataSource {
-  Future<Map<String, dynamic>> apiCallPullLeaveEncashment({
+abstract interface class ShiftMasterDataSource {
+  Future<Map<String, dynamic>> apiCallPullShift({
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
 
-  Future<Map<String, dynamic>> apiCallDeleteLeaveEncashment({
-    required int leaveEncashmentSlabsId,
+  Future<Map<String, dynamic>> apiCallDeleteShift({
+    required int shiftId,
     required String uniqueKey,
   });
 
-  Future<Map<String, dynamic>> apiCallAddUpdateLeaveEncashment({
+  Future<Map<String, dynamic>> apiCallAddUpdateShift({
     required Map<String, dynamic> body,
   });
-  Future<Map<String, dynamic>> apiCallPullLeaveEncashmentForExport({
+
+  Future<Map<String, dynamic>> apiCallPullShiftForExport({
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
 }
 
-class LeaveEncashmentMasterDataSourceImp
-    extends LeaveEncashmentMasterDataSource {
+class ShiftMasterDataSourceImp extends ShiftMasterDataSource {
   final BaseClient baseClient = BaseClient();
 
-  // GET LEAVE ENCASHMENT
+  // GET SHIFT
   @override
-  Future<Map<String, dynamic>> apiCallPullLeaveEncashment({
+  Future<Map<String, dynamic>> apiCallPullShift({
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullLeaveEncashmentUrl({
+    String pullShiftUrl({
       required int pageSize,
       required int pageNumber,
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "LeaveEncashmentMasterSlabs/PullLeaveEncashmentMasterSlabs?PageSize=$pageSize&PageNumber=$pageNumber";
+          "ShiftManagementMaster/PullShiftManagementMaster?PageSize=$pageSize&PageNumber=$pageNumber";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullLeaveEncashmentUrl(
+        pullShiftUrl(
           pageSize: pageSize,
           pageNumber: pageNumber,
           queryParams: queryParams,
@@ -59,16 +59,16 @@ class LeaveEncashmentMasterDataSourceImp
         'data':
             networkResponse['data'].runtimeType == String
                 ? networkResponse['data']
-                : List<LeaveEncashmentMasterModel>.from(
+                : List<ShiftMasterModel>.from(
                   networkResponse['data'].map(
-                    (e) => LeaveEncashmentMasterModel.fromJson(e),
+                    (e) => ShiftMasterModel.fromJson(e),
                   ),
                 ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apiCallPullLeaveEncashment(
+        apiCallPullShift(
           pageNumber: pageNumber,
           pageSize: pageSize,
           queryParams: queryParams,
@@ -78,25 +78,22 @@ class LeaveEncashmentMasterDataSourceImp
     }
   }
 
-  // DELETE LEAVE ENCASHMENT
+  // DELETE SHIFT
   @override
-  Future<Map<String, dynamic>> apiCallDeleteLeaveEncashment({
-    required int leaveEncashmentSlabsId,
+  Future<Map<String, dynamic>> apiCallDeleteShift({
+    required int shiftId,
     required String uniqueKey,
   }) async {
-    String deleteLeaveEncashmentMasterUrl({
-      required int leaveEncashmentSlabsId,
+    String deleteShiftMasterUrl({
+      required int ShiftMasterId,
       required String uniqueKey,
     }) {
-      return "LeaveEncashmentMasterSlabs/DeleteLeaveEncashmentMasterSlabs?LeaveEncashmentMasterSlabsId=$leaveEncashmentSlabsId&Uniquekey=$uniqueKey";
+      return "ShiftManagementMaster/DeleteShiftManagementMaster?ShiftManagementMasterId=$ShiftMasterId&Uniquekey=$uniqueKey";
     }
 
     try {
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
-        deleteLeaveEncashmentMasterUrl(
-          leaveEncashmentSlabsId: leaveEncashmentSlabsId,
-          uniqueKey: uniqueKey,
-        ),
+        deleteShiftMasterUrl(ShiftMasterId: shiftId, uniqueKey: uniqueKey),
       );
       return {
         'data': networkResponse['data'],
@@ -108,17 +105,17 @@ class LeaveEncashmentMasterDataSourceImp
     }
   }
 
-  //ADD / UPDATE LEAVE ENCASHMENT
+  // ADD / UPDATE SHIFT
   @override
-  Future<Map<String, dynamic>> apiCallAddUpdateLeaveEncashment({
+  Future<Map<String, dynamic>> apiCallAddUpdateShift({
     required Map<String, dynamic> body,
   }) async {
-    String addUpdateLeaveEncashmentUrl =
-        "LeaveEncashmentMasterSlabs/AddUpdateLeaveEncashmentMasterSlabs";
+    String addUpdateShiftUrl =
+        "ShiftManagementMaster/AddUpdateShiftManagementMaster";
 
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
-        addUpdateLeaveEncashmentUrl,
+        addUpdateShiftUrl,
         body,
       );
       return {
@@ -128,33 +125,33 @@ class LeaveEncashmentMasterDataSourceImp
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apiCallAddUpdateLeaveEncashment(body: body);
+        apiCallAddUpdateShift(body: body);
       }
       rethrow;
     }
   }
 
-  // EXPORT LEAVE ENCASHMENT
+  // EXPORT SHIFT
   @override
-  Future<Map<String, dynamic>> apiCallPullLeaveEncashmentForExport({
+  Future<Map<String, dynamic>> apiCallPullShiftForExport({
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullLeaveEncashmentExportUrl({
+    String pullShiftExportUrl({
       required int pageSize,
       required int pageNumber,
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "LeaveEncashmentMasterSlabs/PullLeaveEncashmentMasterSlabs?PageSize=$pageSize&PageNumber=$pageNumber";
+          "ShiftManagementMaster/PullShiftManagementMaster?PageSize=$pageSize&PageNumber=$pageNumber";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullLeaveEncashmentExportUrl(
+        pullShiftExportUrl(
           pageSize: pageSize,
           pageNumber: pageNumber,
           queryParams: queryParams,
@@ -166,7 +163,7 @@ class LeaveEncashmentMasterDataSourceImp
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apiCallPullLeaveEncashmentForExport(
+        apiCallPullShiftForExport(
           pageNumber: pageNumber,
           pageSize: pageSize,
           queryParams: queryParams,

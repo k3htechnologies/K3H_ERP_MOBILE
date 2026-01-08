@@ -56,7 +56,7 @@ class Authorization {
     AppRoutes.assetMappingMaster: AuthorizationModel(),
     AppRoutes.branchMaster: AuthorizationModel(),
     AppRoutes.branchAssociation: AuthorizationModel(),
-    AppRoutes.leaveType: AuthorizationModel(),
+    AppRoutes.leaveTypeMaster: AuthorizationModel(),
     AppRoutes.holidayMaster: AuthorizationModel(),
     AppRoutes.earningMaster: AuthorizationModel(),
     AppRoutes.weekOffMaster: AuthorizationModel(),

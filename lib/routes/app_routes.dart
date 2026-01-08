@@ -109,7 +109,8 @@ class AppRoutes {
   static String viewBranchMaster = "/viewBranchMaster";
   static String branchAssociation = "/branchAssociationsMaster";
   static String addBranchAssociation = "/addBranchAssociationsMaster";
-  static String leaveType = "/leaveTypeMaster";
+  static String leaveTypeMaster = "/leaveTypeMaster";
+  static String addLeaveTypeMaster = "/addLeaveTypeMaster";
   static String leaveEncashmentMaster = "/leaveEncashmentMaster";
   static String addLeaveEncashmentMaster = "/addLeaveEncashmentMaster";
   static String holidayMaster = "/holidayMaster";
@@ -121,6 +122,8 @@ class AppRoutes {
   static String deductionMaster = "/deductionMaster";
   static String addDeductionMaster = "/addDeductionMaster";
   static String shiftMaster = "/shiftMaster";
+  static String addShiftMaster = "/addShiftMaster";
+  static String viewShiftMaster = "/viewShiftMaster";
   static String shiftMappingMaster = "/shiftMappingMaster";
   static String weekOffMaster = "/weekOffMaster";
   static String weekOffMapping = "/weekOffMappingMaster";

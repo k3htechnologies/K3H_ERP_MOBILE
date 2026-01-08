@@ -25,6 +25,7 @@ class LeaveEncashmentMasterState extends BaseState {
   }) {
     return LeaveEncashmentMasterState(
       leaveEncashmentList: leaveEncashmentList ?? this.leaveEncashmentList,
+      currentPage: currentPage ?? this.currentPage,
       isLoading: isLoading ?? isLoading,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
     );
