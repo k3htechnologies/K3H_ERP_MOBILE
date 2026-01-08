@@ -85,15 +85,15 @@ class ShiftMasterDataSourceImp extends ShiftMasterDataSource {
     required String uniqueKey,
   }) async {
     String deleteShiftMasterUrl({
-      required int ShiftMasterId,
+      required int shiftMasterId,
       required String uniqueKey,
     }) {
-      return "ShiftManagementMaster/DeleteShiftManagementMaster?ShiftManagementMasterId=$ShiftMasterId&Uniquekey=$uniqueKey";
+      return "ShiftManagementMaster/DeleteShiftManagementMaster?ShiftManagementMasterId=$shiftMasterId&Uniquekey=$uniqueKey";
     }
 
     try {
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
-        deleteShiftMasterUrl(ShiftMasterId: shiftId, uniqueKey: uniqueKey),
+        deleteShiftMasterUrl(shiftMasterId: shiftId, uniqueKey: uniqueKey),
       );
       return {
         'data': networkResponse['data'],

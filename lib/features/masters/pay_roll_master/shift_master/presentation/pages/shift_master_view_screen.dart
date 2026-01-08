@@ -13,7 +13,6 @@ class ShiftMasterViewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("Created By : ${shiftMaster.createdBy}");
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Shift Master",

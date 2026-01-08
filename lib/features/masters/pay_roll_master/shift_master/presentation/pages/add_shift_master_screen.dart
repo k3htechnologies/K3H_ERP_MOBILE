@@ -6,13 +6,11 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/data/m
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/presentation/cubit/shift_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_time_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
-import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-
-import '../../../../../../utils/input_validator.dart';
 
 class AddShiftMasterScreen extends StatefulWidget {
   final ShiftMasterModel? shiftMasterModel;
@@ -101,7 +99,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
 
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
-      return null;
+      return;
     }
     if (_isEditMode && widget.shiftMasterModel != null) {
       _shiftMasterCubit.updateshift(

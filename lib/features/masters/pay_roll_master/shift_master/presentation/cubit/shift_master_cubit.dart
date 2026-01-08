@@ -51,15 +51,15 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
   }
 
   // DELETE SHIFT
-  Future deleteshift(
+  Future deleteShift(
     int index,
-    ShiftMasterModel ShiftMasterModel,
+    ShiftMasterModel shiftMasterModel,
     BuildContext context,
   ) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await shiftMasterRepository.deleteShift(
-      shiftId: ShiftMasterModel.shiftManagementMasterId,
-      uniqueKey: ShiftMasterModel.uniqueKey,
+      shiftId: shiftMasterModel.shiftManagementMasterId,
+      uniqueKey: shiftMasterModel.uniqueKey,
     );
     goRouter.pop();
     result.fold(
