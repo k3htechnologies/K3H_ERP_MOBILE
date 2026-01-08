@@ -282,6 +282,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       (response) async {
         goRouter.pop();
 
+        await _updateProjectInLocalStorage(response['data'][0] as ProjectModel);
         final updatedDepartment = response['data'][0] as ProjectModel;
 
         if (state.projectList.isNotEmpty &&
