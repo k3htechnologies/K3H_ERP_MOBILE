@@ -125,6 +125,8 @@ class AppRoutes {
   static String addShiftMaster = "/addShiftMaster";
   static String viewShiftMaster = "/viewShiftMaster";
   static String shiftMappingMaster = "/shiftMappingMaster";
+  static String addShiftMappingMaster = "/addShiftMappingMaster";
+  static String viewShiftMappingMaster = "/viewShiftMappingMaster";
   static String weekOffMaster = "/weekOffMaster";
   static String weekOffMapping = "/weekOffMappingMaster";
 
