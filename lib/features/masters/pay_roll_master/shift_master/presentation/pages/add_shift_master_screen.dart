@@ -82,7 +82,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
     halfDayInTimeAfter = shiftMasterModel.halfDayInTimeAfter;
     halfDayOutTimeBefore = shiftMasterModel.halfDayOutTimeBefore;
     breakBeginTime = shiftMasterModel.breakBeginTime;
-    breakEndTime = shiftMasterModel.breakBeginTime;
+    breakEndTime = shiftMasterModel.breakEndTime;
     breakDurationTime = shiftMasterModel.breakDurationTime;
     graceTime = shiftMasterModel.graceTime;
     _remarks.text = shiftMasterModel.remarks;
@@ -99,7 +99,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
       return;
     }
     if (_isEditMode && widget.shiftMasterModel != null) {
-      _shiftMasterCubit.updateshift(
+      _shiftMasterCubit.updateShift(
         index: widget.index,
         context: context,
         shiftId: widget.shiftMasterModel!.shiftManagementMasterId,
@@ -122,7 +122,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
         remarks: _remarks.text,
       );
     } else {
-      _shiftMasterCubit.addshift(
+      _shiftMasterCubit.addShift(
         context: context,
         shiftCode: _shiftCode.text.trim(),
         shiftName: _shiftName.text.trim(),

@@ -47,7 +47,7 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
         AuthorizationModel();
     _onScroll();
     _initializeTextEditingController();
-    _shiftMasterCubit.getshiftList(context: context, pageNumber: 1);
+    _shiftMasterCubit.getShiftList(context: context, pageNumber: 1);
   }
 
   void _initializeTextEditingController() {
@@ -66,7 +66,7 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _shiftMasterCubit.getshiftList(
+          _shiftMasterCubit.getShiftList(
             context: context,
             pageNumber: _shiftMasterCubit.state.currentPage + 1,
           );
@@ -105,7 +105,7 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
           _shiftMasterCubit.exportExcelPdf(context, value);
         },
         onSearchSubmit: (value) {
-          _shiftMasterCubit.searchshift(value, context);
+          _shiftMasterCubit.searchShift(value, context);
         },
       ),
       body: BlocBuilder<ShiftMasterCubit, ShiftMasterState>(

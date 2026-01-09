@@ -14,7 +14,7 @@ class WeekOffMasterCubit extends Cubit<WeekOffMasterState> {
       serviceLocator<WeekOffMasterRepository>();
 
   // GET WEEK OFF
-  Future getweekOffList({
+  Future getWeekOffList({
     required BuildContext context,
     required int pageNumber,
   }) async {
@@ -70,13 +70,13 @@ class WeekOffMasterCubit extends Cubit<WeekOffMasterState> {
       },
       (success) {
         showSuccessMessage(context, subTitle: "WEEK OFF Deleted Successfully");
-        getweekOffList(context: context, pageNumber: state.currentPage);
+        getWeekOffList(context: context, pageNumber: state.currentPage);
       },
     );
   }
 
   // ADD WEEK OFF
-  Future addweekOff({
+  Future addWeekOff({
     required BuildContext context,
     required String weekOffPolicyCode,
     required String weekOffPolicyName,
@@ -126,7 +126,7 @@ class WeekOffMasterCubit extends Cubit<WeekOffMasterState> {
   }
 
   // UPDATE WEEK OFF
-  Future updateweekOff({
+  Future updateWeekOff({
     required int index,
     required BuildContext context,
     required int weekOffPolicyMasterId,
@@ -214,7 +214,7 @@ class WeekOffMasterCubit extends Cubit<WeekOffMasterState> {
   }
 
   // SEARCH BASED ON WEEK OFF
-  void searchweekOff(String value, BuildContext context) {
+  void searchWeekOff(String value, BuildContext context) {
     emit(
       state.copyWith(
         weekOffMasterList: [],
@@ -223,6 +223,6 @@ class WeekOffMasterCubit extends Cubit<WeekOffMasterState> {
         currentPage: 1,
       ),
     );
-    getweekOffList(context: context, pageNumber: 1);
+    getWeekOffList(context: context, pageNumber: 1);
   }
 }

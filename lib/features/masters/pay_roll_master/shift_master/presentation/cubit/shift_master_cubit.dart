@@ -14,7 +14,7 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
       serviceLocator<ShiftMasterRepository>();
 
   // GET SHIFT
-  Future getshiftList({
+  Future getShiftList({
     required BuildContext context,
     required int pageNumber,
   }) async {
@@ -67,14 +67,14 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
         return;
       },
       (success) {
-        showSuccessMessage(context, subTitle: "SHIFT Deleted Successfully");
-        getshiftList(context: context, pageNumber: state.currentPage);
+        showSuccessMessage(context, subTitle: "Shift Deleted Successfully");
+        getShiftList(context: context, pageNumber: state.currentPage);
       },
     );
   }
 
   // ADD SHIFT
-  Future addshift({
+  Future addShift({
     required BuildContext context,
 
     required String shiftCode,
@@ -97,7 +97,6 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
     DialogHelper.showProcessingOverlay(context);
     var body = {
       "ShiftManagementMasterId": 0,
-      "UniqueKey": "",
       "ShiftCode": shiftCode,
       "ShiftName": shiftName,
       "ShiftBeginTime": shiftBeginTime,
@@ -136,13 +135,13 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
             totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
         );
-        showSuccessMessage(context, subTitle: 'SHIFT Added Successfully');
+        showSuccessMessage(context, subTitle: 'Shift Added Successfully');
       },
     );
   }
 
   // UPDATE SHIFT
-  Future updateshift({
+  Future updateShift({
     required int index,
     required BuildContext context,
     required int shiftId,
@@ -209,7 +208,7 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
           );
         }
 
-        showSuccessMessage(context, subTitle: 'SHIFT Updateds Successfully');
+        showSuccessMessage(context, subTitle: 'Shift Updated Successfully');
       },
     );
   }
@@ -239,7 +238,7 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
   }
 
   // SEARCH BASED ON SHIFT
-  void searchshift(String value, BuildContext context) {
+  void searchShift(String value, BuildContext context) {
     emit(
       state.copyWith(
         shiftMasterList: [],
@@ -248,6 +247,6 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
         currentPage: 1,
       ),
     );
-    getshiftList(context: context, pageNumber: 1);
+    getShiftList(context: context, pageNumber: 1);
   }
 }

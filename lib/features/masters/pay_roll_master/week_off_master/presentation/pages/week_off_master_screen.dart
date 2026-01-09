@@ -47,7 +47,7 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
         AuthorizationModel();
     _onScroll();
     _initializeTextEditingController();
-    _weekOffMasterCubit.getweekOffList(context: context, pageNumber: 1);
+    _weekOffMasterCubit.getWeekOffList(context: context, pageNumber: 1);
   }
 
   void _initializeTextEditingController() {
@@ -66,7 +66,7 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _weekOffMasterCubit.getweekOffList(
+          _weekOffMasterCubit.getWeekOffList(
             context: context,
             pageNumber: _weekOffMasterCubit.state.currentPage + 1,
           );
@@ -105,7 +105,7 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
           _weekOffMasterCubit.exportExcelPdf(context, value);
         },
         onSearchSubmit: (value) {
-          _weekOffMasterCubit.searchweekOff(value, context);
+          _weekOffMasterCubit.searchWeekOff(value, context);
         },
       ),
       body: BlocBuilder<WeekOffMasterCubit, WeekOffMasterState>(

@@ -122,7 +122,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
       return;
     }
     if (_isEditMode) {
-      _weekOffMasterCubit.updateweekOff(
+      _weekOffMasterCubit.updateWeekOff(
         index: widget.index,
         context: context,
         weekOffPolicyMasterId: widget.weekOffMasterModel!.weekOffPolicyMasterId,
@@ -138,7 +138,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
         notApplicableForMonths: selectedMonthNames,
       );
     } else {
-      _weekOffMasterCubit.addweekOff(
+      _weekOffMasterCubit.addWeekOff(
         context: context,
         weekOffPolicyCode: _weekOffCode.text.trim(),
         weekOffPolicyName: _weekOffName.text.trim(),
