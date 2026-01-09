@@ -1,4 +1,4 @@
-import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mapping/data/model/shift_master_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 

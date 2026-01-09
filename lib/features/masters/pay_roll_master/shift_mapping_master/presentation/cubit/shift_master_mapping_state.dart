@@ -1,5 +1,5 @@
 import 'package:k3h_erp_app/core/base_state.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mapping/data/model/shift_master_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
 
 class ShiftMappingMasterState extends BaseState {
   final List<ShiftMappingModel> shiftMappingList;

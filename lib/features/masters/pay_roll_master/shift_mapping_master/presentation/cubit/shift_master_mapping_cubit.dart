@@ -7,9 +7,9 @@ import 'package:k3h_erp_app/features/masters/department_master/data/repository/d
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/data/model/shift_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/data/repository/shift_master.repository.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mapping/data/model/shift_master_mapping.model.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mapping/data/repository/shift_master_mapping.repository.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mapping/presentation/cubit/shift_master_mapping_state.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/repository/shift_master_mapping.repository.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/presentation/cubit/shift_master_mapping_state.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';

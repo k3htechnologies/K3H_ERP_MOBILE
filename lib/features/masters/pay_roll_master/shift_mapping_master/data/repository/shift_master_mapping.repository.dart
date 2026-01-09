@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mapping/data/datasource/shift_master_mapping.datasource.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/datasource/shift_master_mapping.datasource.dart';
 
 abstract interface class ShiftMappingMasterRepository {
   Future<Either<Failure, Map<String, dynamic>>> getShiftMasterMappedList({

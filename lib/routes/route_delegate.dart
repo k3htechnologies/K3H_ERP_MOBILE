@@ -62,11 +62,11 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/presen
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/presentation/pages/add_shift_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/presentation/pages/shift_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/presentation/pages/shift_master_view_screen.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mapping/data/model/shift_master_mapping.model.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mapping/presentation/cubit/shift_master_mapping_cubit.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mapping/presentation/pages/add_shift_mapping_master_screen.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mapping/presentation/pages/shift_mapping_master_screen.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mapping/presentation/pages/view_shift_mapping_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/presentation/cubit/shift_master_mapping_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/presentation/pages/add_shift_mapping_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/presentation/pages/shift_mapping_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/presentation/pages/view_shift_mapping_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/data/model/week_off_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/presentation/cubit/week_off_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/presentation/pages/add_week_off_master_screen.dart';
