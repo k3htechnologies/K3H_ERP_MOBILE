@@ -11,6 +11,4 @@ void registerInventoryDependencies(GetIt serviceLocator) {
 
   // <----- CUBITS ----->
   serviceLocator.registerSingleton<InventoryCubit>(InventoryCubit());
-
-  // serviceLocator.registerSingleton<VendorAddCubit>(VendorAddCubit());
 }

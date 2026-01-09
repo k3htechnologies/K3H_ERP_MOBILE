@@ -14,6 +14,10 @@ import 'package:k3h_erp_app/core/presentation/cubit/main_screen_cubit.dart';
 import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/core/presentation/pages/no_authorised_screen.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
+import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
+import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_channel_partner_screen.dart';
+import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
@@ -1677,14 +1681,13 @@ final GoRouter goRouter = GoRouter(
         // VENDOR
         ShellRoute(
           builder: (context, state, child) {
-            return MultiBlocProvider(providers: [
-              BlocProvider<VendorCubit>(
-                create: (_) => VendorCubit(),
-              ),
-              BlocProvider<VendorAddCubit>(
-                create: (_) => VendorAddCubit(),
-              ),
-            ], child: child);
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider<VendorCubit>(create: (_) => VendorCubit()),
+                BlocProvider<VendorAddCubit>(create: (_) => VendorAddCubit()),
+              ],
+              child: child,
+            );
           },
           routes: [
             GoRoute(
@@ -1700,24 +1703,21 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addVendor,
               builder: (context, state) {
                 final queryParameterVendor =
-                state.uri.queryParameters['vendor'];
+                    state.uri.queryParameters['vendor'];
 
                 final VendorModel? vendor =
-                queryParameterVendor != null
-                    ? VendorModel.fromJson(
-                  jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeComponent(queryParameterVendor),
-                    ),
-                  ),
-                )
-                    : null;
+                    queryParameterVendor != null
+                        ? VendorModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterVendor),
+                            ),
+                          ),
+                        )
+                        : null;
 
                 final index =
-                    int.tryParse(
-                      state.uri.queryParameters['index'] ?? '',
-                    ) ??
-                        0;
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
 
                 return BlocProvider(
                   create: (_) => VendorAddCubit(),
@@ -1731,7 +1731,7 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.viewVendorDetails,
               builder: (context, state) {
                 final queryParameterVendor =
-                state.uri.queryParameters['vendor'];
+                    state.uri.queryParameters['vendor'];
 
                 final vendor = VendorModel.fromJson(
                   jsonDecode(
@@ -1750,7 +1750,7 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.viewVendorDocument,
               builder: (context, state) {
                 final queryParameterVendor =
-                state.uri.queryParameters['vendor'];
+                    state.uri.queryParameters['vendor'];
 
                 final vendor = VendorModel.fromJson(
                   jsonDecode(
@@ -1768,10 +1768,7 @@ final GoRouter goRouter = GoRouter(
         // INVENTORY
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => InventoryCubit(),
-              child: child,
-            );
+            return BlocProvider(create: (_) => InventoryCubit(), child: child);
           },
           routes: [
             GoRoute(
@@ -1779,6 +1776,54 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.inventory,
               builder: (context, state) {
                 return const InventoryScreen();
+              },
+            ),
+          ],
+        ),
+        // CHANNEL PARTNER
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => ChannelPartnerCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.channelPartner,
+              path: AppRoutes.channelPartner,
+              builder: (context, state) {
+                return const ChannelPartnerScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addChannelPartner,
+              path: AppRoutes.addChannelPartner,
+              builder: (context, state) {
+                final queryParameterChannelPartner =
+                    state.uri.queryParameters['channelPartner'];
+
+                final ChannelPartnerModel? channelPartner =
+                    queryParameterChannelPartner != null
+                        ? ChannelPartnerModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterChannelPartner),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return BlocProvider(
+                  create: (_) => VendorAddCubit(),
+                  child: AddChannelPartnerScreen(
+                    channelPartnerModel: channelPartner,
+                    index: index,
+                  ),
+                );
               },
             ),
           ],
