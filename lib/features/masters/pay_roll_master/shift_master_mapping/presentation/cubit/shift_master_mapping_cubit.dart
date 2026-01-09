@@ -219,7 +219,7 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
           pageSize: state.totalNumberOfRecord,
           queryParams: {
             "ExportType": exportType,
-            "EmployeeName": state.searchText,
+            "ShiftName": state.searchText,
           },
         );
     goRouter.pop();
