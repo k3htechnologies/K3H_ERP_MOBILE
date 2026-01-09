@@ -1074,7 +1074,7 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
-              create: (_) => serviceLocator<ShiftMasterCubit>(),
+              create: (_) => ShiftMasterCubit(),
               child: child,
             );
           },
@@ -1981,7 +1981,9 @@ final GoRouter goRouter = GoRouter(
             return MultiBlocProvider(
               providers: [
                 BlocProvider<DocumentCubit>(create: (_) => DocumentCubit()),
-                BlocProvider<DocumentCategoryCubit>(create: (_) => DocumentCategoryCubit()),
+                BlocProvider<DocumentCategoryCubit>(
+                  create: (_) => DocumentCategoryCubit(),
+                ),
               ],
               child: child,
             );

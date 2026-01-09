@@ -38,7 +38,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
   final _formKey = GlobalKey<FormState>();
 
   //TEXT EDITING CONTROLLERS
-  late TextEditingController _shiftName, _shiftCode, _graceTime, _remarks;
+  late TextEditingController _shiftName, _shiftCode, _remarks;
 
   //TIME VARIABLES
   String? shiftBeginTime;
@@ -53,6 +53,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
   String? breakBeginTime;
   String? breakEndTime;
   String? breakDurationTime;
+  String? graceTime;
 
   @override
   void initState() {
@@ -83,14 +84,13 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
     breakBeginTime = shiftMasterModel.breakBeginTime;
     breakEndTime = shiftMasterModel.breakBeginTime;
     breakDurationTime = shiftMasterModel.breakDurationTime;
-    _graceTime.text = shiftMasterModel.graceTime;
+    graceTime = shiftMasterModel.graceTime;
     _remarks.text = shiftMasterModel.remarks;
   }
 
   void _initializeTextEditingControllers() {
     _shiftName = TextEditingController();
     _shiftCode = TextEditingController();
-    _graceTime = TextEditingController();
     _remarks = TextEditingController();
   }
 
@@ -118,7 +118,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
         breakBeginTime: breakBeginTime!,
         breakEndTime: breakEndTime!,
         breakDurationTime: breakDurationTime!,
-        graceTime: _graceTime.text,
+        graceTime: graceTime!,
         remarks: _remarks.text,
       );
     } else {
@@ -138,8 +138,8 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
         breakBeginTime: breakBeginTime!,
         breakEndTime: breakEndTime!,
         breakDurationTime: breakDurationTime!,
-        graceTime: _graceTime.text,
-        remarks: _remarks.text,
+        graceTime: graceTime!,
+        remarks: _remarks.text.trim(),
       );
     }
   }
@@ -302,20 +302,13 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
                   isRequired: true,
                   initialTime: parseTimeOfDayFromHHmm(breakDurationTime),
                 ),
-                CustomTextField(
-                  title: "Grace Time",
-                  textController: _graceTime,
-                  hint: "Enter Grace Time",
-                  inputFormatterList: [InputValidator.digitAndCharacterOnly()],
-                  keyboardType: TextInputType.text,
-                  isRequired: true,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Grace Time is reqiured";
-                    }
-
-                    return null;
+                CustomTimePicker(
+                  setValue: (value) {
+                    graceTime = formatTimeOfDayHHmm(value);
                   },
+                  title: "Grace Time",
+                  isRequired: true,
+                  initialTime: parseTimeOfDayFromHHmm(graceTime),
                 ),
                 CustomTextField(
                   title: "Remarks",

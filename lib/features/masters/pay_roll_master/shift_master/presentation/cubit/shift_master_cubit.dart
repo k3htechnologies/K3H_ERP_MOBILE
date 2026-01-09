@@ -97,6 +97,7 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
     DialogHelper.showProcessingOverlay(context);
     var body = {
       "ShiftManagementMasterId": 0,
+      "UniqueKey": "",
       "ShiftCode": shiftCode,
       "ShiftName": shiftName,
       "ShiftBeginTime": shiftBeginTime,
@@ -193,7 +194,9 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
       },
       (response) {
         goRouter.pop();
-        final updatedList = response['data'][0] as ShiftMasterModel;
+        final updatedList = ShiftMasterModel.fromJson(
+          response['data'][0] as Map<String, dynamic>,
+        );
 
         if (state.shiftMasterList.isNotEmpty &&
             index < state.shiftMasterList.length) {
@@ -202,11 +205,7 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
           );
           updatedListModel[index] = updatedList;
           emit(
-            state.copyWith(
-              isLoading: false,
-              shiftMasterList: updatedListModel,
-              currentPage: state.currentPage,
-            ),
+            state.copyWith(isLoading: false, shiftMasterList: updatedListModel),
           );
         }
 
