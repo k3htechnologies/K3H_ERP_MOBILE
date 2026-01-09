@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/profile/profile.dependencies
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
+import 'feature_dependencies/inventory/inventory.dependencies.dart';
 import 'feature_dependencies/login/login.dependencies.dart';
 import 'feature_dependencies/masters/asset_master.dependencies.dart';
 import 'feature_dependencies/masters/asset_mapping_master.dependencies.dart';
@@ -94,4 +95,6 @@ void initDependencies() {
   registerShiftMasterDependencies(serviceLocator);
   // TENANT DEPENDENCIES
   registerTenantMasterDependencies(serviceLocator);
+  // INVENTORY DEPENDENCIES
+  registerInventoryDependencies(serviceLocator);
 }

@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/core/presentation/cubit/main_screen_cubit.dart';
 import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/core/presentation/pages/no_authorised_screen.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
@@ -1765,12 +1766,22 @@ final GoRouter goRouter = GoRouter(
           ],
         ),
         // INVENTORY
-        GoRoute(
-          path: AppRoutes.inventory,
-          name: AppRoutes.inventory,
-          builder: (context, state) {
-            return InventoryScreen();
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => InventoryCubit(),
+              child: child,
+            );
           },
+          routes: [
+            GoRoute(
+              name: AppRoutes.inventory,
+              path: AppRoutes.inventory,
+              builder: (context, state) {
+                return const InventoryScreen();
+              },
+            ),
+          ],
         ),
       ],
     ),
