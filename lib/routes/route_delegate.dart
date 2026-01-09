@@ -127,6 +127,10 @@ import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/add_employee_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_view_details_screen.dart';
+import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/document/presentation/pages/document_screen.dart';
+import 'package:k3h_erp_app/features/project_document/document_category/presentation/cubit/document_category_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/document_category/presentation/pages/document_category_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_file/approved_bank_file_cubit.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder/approved_bank_folder_cubit.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_file_screen.dart';
@@ -1824,6 +1828,34 @@ final GoRouter goRouter = GoRouter(
                     index: index,
                   ),
                 );
+              },
+            ),
+          ],
+        ),
+        // DOCUMENT
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider<DocumentCubit>(create: (_) => DocumentCubit()),
+                BlocProvider<DocumentCategoryCubit>(create: (_) => DocumentCategoryCubit()),
+              ],
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.document,
+              path: AppRoutes.document,
+              builder: (context, state) {
+                return const DocumentScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.category,
+              path: AppRoutes.category,
+              builder: (context, state) {
+                return const DocumentCategoryScreen();
               },
             ),
           ],

@@ -28,6 +28,8 @@ import 'feature_dependencies/masters/material_master.dependencies.dart';
 import 'feature_dependencies/masters/sub_material_master.dependencies.dart';
 import 'feature_dependencies/masters/terms_and_condition.dependencies.dart';
 import 'feature_dependencies/masters/uom_master.dependencies.dart';
+import 'feature_dependencies/project_document/document/document.dependencies.dart';
+import 'feature_dependencies/project_document/document_category/document_category.dependencies.dart';
 import 'feature_dependencies/project_management/approved_bank/approved_bank.dependencies.dart';
 import 'feature_dependencies/redevelopment/building/building.dependencies.dart';
 import 'feature_dependencies/redevelopment/tenant/tenant.dependencies.dart';
@@ -100,4 +102,8 @@ void initDependencies() {
   registerInventoryDependencies(serviceLocator);
   // BUILDING DEPENDENCIES
   registerChannelDependencies(serviceLocator);
+  // DOCUMENT CATEGORY DEPENDENCIES
+  registerDocumentCategoryDependencies(serviceLocator);
+  // DOCUMENT DEPENDENCIES
+  registerDocumentDependencies(serviceLocator);
 }
