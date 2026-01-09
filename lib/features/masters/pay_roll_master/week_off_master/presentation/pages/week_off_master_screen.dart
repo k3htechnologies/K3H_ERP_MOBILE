@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/data/model/shift_master.model.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/presentation/cubit/shift_master_cubit.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/presentation/cubit/shift_master_state.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/data/model/week_off_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/presentation/cubit/week_off_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/presentation/cubit/week_off_master_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -18,16 +18,16 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class ShiftMasterScreen extends StatefulWidget {
-  const ShiftMasterScreen({super.key});
+class WeekOffMasterScreen extends StatefulWidget {
+  const WeekOffMasterScreen({super.key});
 
   @override
-  State<ShiftMasterScreen> createState() => _ShiftMasterScreenState();
+  State<WeekOffMasterScreen> createState() => _WeekOffMasterScreenState();
 }
 
-class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
+class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
   //CUBIT
-  late ShiftMasterCubit _shiftMasterCubit;
+  late WeekOffMasterCubit _weekOffMasterCubit;
 
   //AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
@@ -41,13 +41,13 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
   @override
   void initState() {
     super.initState();
-    _shiftMasterCubit = context.read<ShiftMasterCubit>();
+    _weekOffMasterCubit = context.read<WeekOffMasterCubit>();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.shiftMaster] ??
+        Authorization.routeAuthorizationMap[AppRoutes.weekOffMaster] ??
         AuthorizationModel();
     _onScroll();
     _initializeTextEditingController();
-    _shiftMasterCubit.getshiftList(context: context, pageNumber: 1);
+    _weekOffMasterCubit.getweekOffList(context: context, pageNumber: 1);
   }
 
   void _initializeTextEditingController() {
@@ -60,34 +60,34 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
-          !(_shiftMasterCubit.state.isLoading ?? false) &&
-          _shiftMasterCubit.state.shiftMasterList.length <
-              _shiftMasterCubit.state.totalNumberOfRecord) {
+          !(_weekOffMasterCubit.state.isLoading ?? false) &&
+          _weekOffMasterCubit.state.weekOffMasterList.length <
+              _weekOffMasterCubit.state.totalNumberOfRecord) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _shiftMasterCubit.getshiftList(
+          _weekOffMasterCubit.getweekOffList(
             context: context,
-            pageNumber: _shiftMasterCubit.state.currentPage + 1,
+            pageNumber: _weekOffMasterCubit.state.currentPage + 1,
           );
         });
       }
     });
   }
 
-  Future<void> _showPopupToDeleteShiftMaster(
+  Future<void> _showPopupToDeleteWeekOffMaster(
     BuildContext context,
-    ShiftMasterModel obj,
+    WeekOffMasterModel obj,
     int currentPage,
     int index,
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a Shift?',
-      'Deleting this Shift will permanently remove its contents.',
+      'You are about to delete a Week Off?',
+      'Deleting this Week Off will permanently remove its contents.',
     );
     if (result && context.mounted) {
-      _shiftMasterCubit.deleteShift(currentPage, obj, context);
+      _weekOffMasterCubit.deleteWeekOff(currentPage, obj, context);
     }
   }
 
@@ -95,41 +95,42 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "Shift Master",
+        screenTitle: "WeekOff Master",
         authorization: _routeAuthorizationModel,
         onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addShiftMaster);
+          goRouter.pushNamed(AppRoutes.addWeekOffMaster);
         },
         textController: _searchC,
         onExportCallback: (value) {
-          _shiftMasterCubit.exportExcelPdf(context, value);
+          _weekOffMasterCubit.exportExcelPdf(context, value);
         },
         onSearchSubmit: (value) {
-          _shiftMasterCubit.searchshift(value, context);
+          _weekOffMasterCubit.searchweekOff(value, context);
         },
       ),
-      body: BlocBuilder<ShiftMasterCubit, ShiftMasterState>(
+      body: BlocBuilder<WeekOffMasterCubit, WeekOffMasterState>(
         builder: (context, state) {
-          if ((state.isLoading ?? true) && state.shiftMasterList.isEmpty) {
+          if ((state.isLoading ?? true) && state.weekOffMasterList.isEmpty) {
             return Center(child: loader());
           }
-          if (state.shiftMasterList.isEmpty) {
+          if (state.weekOffMasterList.isEmpty) {
             return Center(child: noDataWidget());
           }
           return ListView.builder(
             controller: scrollController,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.shiftMasterList.length + 1,
+            itemCount: state.weekOffMasterList.length + 1,
             itemBuilder: (context, index) {
-              if (index == state.shiftMasterList.length) {
-                return state.shiftMasterList.length < state.totalNumberOfRecord
+              if (index == state.weekOffMasterList.length) {
+                return state.weekOffMasterList.length <
+                        state.totalNumberOfRecord
                     ? const Padding(
                       padding: EdgeInsets.all(16),
                       child: Center(child: CircularProgressIndicator()),
                     )
                     : const SizedBox.shrink();
               }
-              var shiftMaster = state.shiftMasterList[index];
+              var weekOffMaster = state.weekOffMasterList[index];
               return Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.all(12),
@@ -143,11 +144,11 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
                           child: GestureDetector(
                             onTap: () {
                               goRouter.pushNamed(
-                                AppRoutes.viewShiftMaster,
+                                AppRoutes.viewWeekOffMaster,
                                 queryParameters: {
-                                  "shift": Uri.encodeQueryComponent(
+                                  "weekOff": Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
-                                      jsonEncode(shiftMaster.toJson()),
+                                      jsonEncode(weekOffMaster.toJson()),
                                     ),
                                   ),
                                 },
@@ -164,7 +165,7 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
                                 ),
                               ),
                               child: Text(
-                                shiftMaster.shiftName,
+                                weekOffMaster.weekOffPolicyName,
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
                                 ),
@@ -181,11 +182,11 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
                             CustomIconButton.edit(
                               onPressed: () async {
                                 await goRouter.pushNamed(
-                                  AppRoutes.addShiftMaster,
+                                  AppRoutes.addWeekOffMaster,
                                   queryParameters: {
-                                    "shift": Uri.encodeQueryComponent(
+                                    "weekOff": Uri.encodeQueryComponent(
                                       EncryptionManager.encryptData(
-                                        jsonEncode(shiftMaster.toJson()),
+                                        jsonEncode(weekOffMaster.toJson()),
                                       ),
                                     ),
                                     'index': index.toString(),
@@ -196,9 +197,9 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
                             const SizedBox(width: 8),
                             CustomIconButton.delete(
                               onPressed: () {
-                                _showPopupToDeleteShiftMaster(
+                                _showPopupToDeleteWeekOffMaster(
                                   context,
-                                  shiftMaster,
+                                  weekOffMaster,
                                   state.currentPage,
                                   index,
                                 );
@@ -210,25 +211,38 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
                     ),
                     verticalSpacing(height: 10),
                     _buildRowTitleValue(
-                      title: "Shift Code",
-                      value: shiftMaster.shiftCode,
+                      title: "Week Off Code",
+                      value: weekOffMaster.weekOffPolicyCode,
                     ),
                     _buildRowTitleValue(
-                      title: "Shift Begin Time",
-                      value: shiftMaster.shiftBeginTime,
+                      title: "Week Days",
+                      value: weekOffMaster.weekDays.toString(),
                     ),
                     _buildRowTitleValue(
-                      title: "Shift End Time",
-                      value: shiftMaster.shiftEndTime,
+                      title: "Week Days Starts On",
+                      value: weekOffMaster.weekDaysStartsOn,
                     ),
                     _buildRowTitleValue(
-                      title: "Shift Duration Time",
-                      value: shiftMaster.shiftDurationTime,
+                      title: "Weekly Off",
+                      value: weekOffMaster.weeklyOff,
                     ),
-
                     _buildRowTitleValue(
-                      title: "Shift Work Duration Time",
-                      value: shiftMaster.shiftWorkDurationTime,
+                      title: "Weekly Off2",
+                      value:
+                          weekOffMaster.weeklyOff2.isEmpty
+                              ? "N/A"
+                              : weekOffMaster.weeklyOff2,
+                    ),
+                    _buildRowTitleValue(
+                      title: "Weekly Off2 Type",
+                      value:
+                          weekOffMaster.weeklyOff2Type.isEmpty
+                              ? "N/A"
+                              : weekOffMaster.weeklyOff2Type,
+                    ),
+                    _buildRowTitleValue(
+                      title: "Not Applicable For Months",
+                      value: weekOffMaster.notApplicableForMonths,
                     ),
                   ],
                 ),

@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_encashment_ma
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_encashment_master/presentation/cubit/leave_encashment_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -107,79 +108,83 @@ class _AddLeaveEncashmentMasterScreenState
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomTextField(
-                title: "Minimum Salary",
-                textController: _minSalaryC,
-                hint: "Enter minimum salary",
-                inputFormatterList: InputValidator.digit(10),
-                keyboardType: TextInputType.number,
-                isRequired: true,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Minimum salary is reqiured";
-                  }
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          child: Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomTextField(
+                  title: "Minimum Salary",
+                  textController: _minSalaryC,
+                  hint: "Enter minimum salary",
+                  inputFormatterList: InputValidator.digit(10),
+                  keyboardType: TextInputType.number,
+                  isRequired: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Minimum salary is reqiured";
+                    }
 
-                  return null;
-                },
-              ),
-              verticalSpacing(height: 16),
-              CustomTextField(
-                title: "Maximum Salary",
-                textController: _maxSalaryC,
-                hint: "Enter Maximum Salary",
-                inputFormatterList: InputValidator.digit(10),
-                keyboardType: TextInputType.number,
-                isRequired: true,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Maximum salary is reqiured";
-                  }
+                    return null;
+                  },
+                ),
+                verticalSpacing(height: 16),
+                CustomTextField(
+                  title: "Maximum Salary",
+                  textController: _maxSalaryC,
+                  hint: "Enter Maximum Salary",
+                  inputFormatterList: InputValidator.digit(10),
+                  keyboardType: TextInputType.number,
+                  isRequired: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Maximum salary is reqiured";
+                    }
 
-                  final maxSalary = double.tryParse(value.trim());
-                  final minSalary = double.tryParse(_minSalaryC.text.trim());
+                    final maxSalary = double.tryParse(value.trim());
+                    final minSalary = double.tryParse(_minSalaryC.text.trim());
 
-                  if (maxSalary == null || minSalary == null) {
-                    return "Please enter a valid number";
-                  }
+                    if (maxSalary == null || minSalary == null) {
+                      return "Please enter a valid number";
+                    }
 
-                  if (maxSalary <= minSalary) {
-                    return "Max salary must be greater than min salary";
-                  }
+                    if (maxSalary <= minSalary) {
+                      return "Max salary must be greater than min salary";
+                    }
 
-                  return null;
-                },
-              ),
-              verticalSpacing(height: 16),
-              CustomTextField(
-                title: "Encashment Rate",
-                textController: _encashmentRateC,
-                hint: "Enter Encashment Rate",
-                inputFormatterList: InputValidator.decimal(2),
-                keyboardType: TextInputType.number,
-                isRequired: true,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Encashment rate is required";
-                  }
+                    return null;
+                  },
+                ),
+                verticalSpacing(height: 16),
+                CustomTextField(
+                  title: "Encashment Rate",
+                  textController: _encashmentRateC,
+                  hint: "Enter Encashment Rate",
+                  inputFormatterList: InputValidator.decimal(2),
+                  keyboardType: TextInputType.number,
+                  isRequired: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Encashment rate is required";
+                    }
 
-                  final rate = double.tryParse(value.trim());
+                    final rate = double.tryParse(value.trim());
 
-                  if (rate == null) {
-                    return "Please enter a valid number";
-                  }
+                    if (rate == null) {
+                      return "Please enter a valid number";
+                    }
 
-                  if (rate <= 0 || rate >= 1) {
-                    return "Encashment rate must be between 0 and 1";
-                  }
+                    if (rate <= 0 || rate >= 1) {
+                      return "Encashment rate must be between 0 and 1";
+                    }
 
-                  return null;
-                },
-              ),
-            ],
+                    return null;
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

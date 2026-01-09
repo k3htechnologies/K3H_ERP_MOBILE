@@ -17,13 +17,12 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
   Future getshiftList({
     required BuildContext context,
     required int pageNumber,
-    required int pageSize,
   }) async {
     emit(state.copyWith(isLoading: true));
     var queryParams = {"ShiftName": state.searchText.trim()};
     var result = await shiftMasterRepository.getShiftList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       queryParams: queryParams,
     );
     result.fold(
@@ -69,11 +68,7 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
       },
       (success) {
         showSuccessMessage(context, subTitle: "SHIFT Deleted Successfully");
-        getshiftList(
-          context: context,
-          pageNumber: state.currentPage,
-          pageSize: 15,
-        );
+        getshiftList(context: context, pageNumber: state.currentPage);
       },
     );
   }
@@ -254,6 +249,6 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
         currentPage: 1,
       ),
     );
-    getshiftList(context: context, pageNumber: 1, pageSize: 15);
+    getshiftList(context: context, pageNumber: 1);
   }
 }

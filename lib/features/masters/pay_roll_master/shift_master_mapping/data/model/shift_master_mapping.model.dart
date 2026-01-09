@@ -1,1 +1,103 @@
-class ShiftMappingModel{}
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/data/model/shift_master.model.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+
+class ShiftMappingModel extends ShiftMasterModel {
+  final int shiftMappingMasterId;
+  final String departmentMasterId;
+  final String departmentName;
+  final String employeeId;
+  final String employeeName;
+
+  ShiftMappingModel({
+    required this.shiftMappingMasterId,
+    required this.departmentMasterId,
+    required this.departmentName,
+    required this.employeeId,
+    required this.employeeName,
+    required super.shiftManagementMasterId,
+    required super.uniqueKey,
+    required super.shiftCode,
+    required super.shiftName,
+    required super.shiftBeginTime,
+    required super.shiftEndTime,
+    required super.shiftDurationTime,
+    required super.shiftWorkDurationTime,
+    required super.firstHalfUpTo,
+    required super.absentWorkingHours,
+    required super.halfDayWorkingHours,
+    required super.halfDayInTimeAfter,
+    required super.halfDayOutTimeBefore,
+    required super.breakBeginTime,
+    required super.breakEndTime,
+    required super.breakDurationTime,
+    required super.graceTime,
+    required super.remarks,
+    required super.createdBy,
+    required super.createdDate,
+    required super.modifiedBy,
+    required super.modifiedDate,
+  });
+  factory ShiftMappingModel.fromJson(Map<String, dynamic> json) {
+    return ShiftMappingModel(
+      shiftMappingMasterId: parseValue<int>(
+        json,
+        "ShiftManagementMasterMappingId",
+      ),
+      departmentMasterId: parseValue<String>(json, "DepartmentMasterId"),
+      departmentName: parseValue<String>(json, "DepartmentName"),
+      employeeId: parseValue<String>(json, "EmployeeId"),
+      employeeName: parseValue<String>(json, "EmployeeName"),
+      shiftManagementMasterId: parseValue<int>(json, "ShiftManagementMasterId"),
+      uniqueKey: parseValue<String>(json, "Uniquekey"),
+      shiftCode: parseValue<String>(json, "ShiftCode"),
+      shiftName: parseValue<String>(json, "ShiftName"),
+      shiftBeginTime: parseValue<String>(json, "ShiftBeginTime"),
+      shiftEndTime: parseValue<String>(json, "ShiftEndTime"),
+      shiftDurationTime: parseValue<String>(json, "ShiftDurationTime"),
+      shiftWorkDurationTime: parseValue<String>(json, "ShiftWorkDurationTime"),
+      firstHalfUpTo: parseValue<String>(json, "FirstHalfUpTo"),
+      absentWorkingHours: parseValue<String>(json, "AbsentWorkingHours"),
+      halfDayWorkingHours: parseValue<String>(json, "HalfDayWorkingHours"),
+      halfDayInTimeAfter: parseValue<String>(json, "HalfDayInTimeAfter"),
+      halfDayOutTimeBefore: parseValue<String>(json, "HalfDayOutTimeBefore"),
+      breakBeginTime: parseValue<String>(json, "BreakBeginTime"),
+      breakEndTime: parseValue<String>(json, "BreakEndTime"),
+      breakDurationTime: parseValue<String>(json, "BreakDurationTime"),
+      graceTime: parseValue<String>(json, "GraceTime"),
+      remarks: parseValue<String>(json, "Remarks"),
+      createdBy: parseValue<String>(json, "CreatedBy"),
+      createdDate: parseValue<DateTime>(json, "CreatedDate"),
+      modifiedBy: parseValue<String>(json, "ModifiedBy"),
+      modifiedDate: parseValue<DateTime>(json, "ModifiedDate"),
+    );
+  }
+  Map<String, dynamic> toJson() => {
+    "ShiftManagementMasterMappingId": shiftMappingMasterId,
+    "DepartmentMasterId": departmentMasterId,
+    "DepartmentName": departmentName,
+    "EmployeeId": employeeId,
+    "EmployeeName": employeeName,
+    "ShiftManagementMasterId": shiftManagementMasterId,
+    "Uniquekey": uniqueKey,
+    "ShiftCode": shiftCode,
+    "ShiftName": shiftName,
+    "ShiftBeginTime": shiftBeginTime,
+    "ShiftEndTime": shiftEndTime,
+    "ShiftDurationTime": shiftDurationTime,
+    "ShiftWorkDurationTime": shiftWorkDurationTime,
+    "FirstHalfUpTo": firstHalfUpTo,
+    "AbsentWorkingHours": absentWorkingHours,
+    "HalfDayWorkingHours": halfDayWorkingHours,
+    "HalfDayInTimeAfter": halfDayInTimeAfter,
+    "HalfDayOutTimeBefore": halfDayOutTimeBefore,
+    "BreakBeginTime": breakBeginTime,
+    "BreakEndTime": breakEndTime,
+    "BreakDurationTime": breakDurationTime,
+    "GraceTime": graceTime,
+    "Remarks": remarks,
+    "CreatedBy": createdBy,
+    "CreatedDate": createdDate.toIso8601String(),
+    "ModifiedBy": modifiedBy,
+    "ModifiedDate": modifiedDate.toIso8601String(),
+  };
+}

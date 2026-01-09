@@ -4,7 +4,9 @@ import 'package:k3h_erp_app/di/feature_dependencies/masters/holiday_mapping_mast
 import 'package:k3h_erp_app/di/feature_dependencies/masters/leave_encashment_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/leave_type_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/project_master.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/masters/shift_mapping_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/shift_master.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/masters/week_off_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/profile/profile.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 
@@ -90,12 +92,16 @@ void initDependencies() {
   registerCalendarDependencies(serviceLocator);
   // REDEVELOPMENT DEPENDENCIES
   registerRedevelopmentDependencies(serviceLocator);
-  // LEAVE ENCASHMENT DEPENDENCIES
+  // LEAVE ENCASHMENT MASTER DEPENDENCIES
   registerLeaveEncashmentDependencies(serviceLocator);
-  // LEAVE TYPE DEPENDENCIES
+  // LEAVE TYPE MASTER DEPENDENCIES
   registerLeaveTypeMasterDependencies(serviceLocator);
-  //SHIFT DEPENDENCIES
+  //SHIFT MASTER DEPENDENCIES
   registerShiftMasterDependencies(serviceLocator);
+  //SHIFT MAPPING MASTER DEPENDENCIES
+  registerShiftMappingMasterDependencies(serviceLocator);
+  //WEEK OFF MASTER DEPENDENCIES
+  registerWeekOffMasterDependencies(serviceLocator);
   // TENANT DEPENDENCIES
   registerTenantMasterDependencies(serviceLocator);
   // INVENTORY DEPENDENCIES
