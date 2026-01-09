@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/features/masters/department_master/presentation/page
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/model/leave_type_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/presentation/cubit/leave_type_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -111,95 +112,98 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
       appBar: CustomAppBarWithBackButton(
         screenTitle: !_isEditMode ? "Add Leave Type" : "Edit Leave Type",
         authorization: _routeAuthorizationModel,
-        
       ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomTextField(
-                title: "Leave Type",
-                textController: _leaveTypeC,
-                hint: "Enter leave type",
-                inputFormatterList: [InputValidator.digitAndCharacterOnly()],
-                keyboardType: TextInputType.text,
-                isRequired: true,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Leave Type is reqiured";
-                  }
-
-                  return null;
-                },
-              ),
-              verticalSpacing(height: 16),
-              CustomTextField(
-                title: "Leave Type Code",
-                textController: _leaveTypeCodeC,
-
-                hint: "Enter leave type code",
-                inputFormatterList: [
-                  UpperCaseTextFormatter(),
-                  LengthLimitingTextInputFormatter(4),
-                ],
-                keyboardType: TextInputType.text,
-                isRequired: true,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Leave Type Code is reqiured";
-                  }
-
-                  return null;
-                },
-              ),
-              verticalSpacing(height: 16),
-              CustomCheckBox(
-                isSelected: isCarryForward,
-                onChanged: (value) {
-                  setState(() {
-                    isCarryForward = value;
-                  });
-                },
-                title: "Carry Forward",
-              ),
-              Visibility(
-                visible: isCarryForward,
-                child: verticalSpacing(height: 16),
-              ),
-              Visibility(
-                visible: isCarryForward,
-                child: CustomTextField(
-                  title: "Max Carry Forward",
-                  textController: _maxCarryForward,
-                  hint: "Enter Max Carry Forward",
-                  inputFormatterList: InputValidator.digit(200),
-                  keyboardType: TextInputType.number,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomTextField(
+                  title: "Leave Type",
+                  textController: _leaveTypeC,
+                  hint: "Enter leave type",
+                  inputFormatterList: [InputValidator.digitAndCharacterOnly()],
+                  keyboardType: TextInputType.text,
                   isRequired: true,
                   validator: (value) {
-                    if ((value == null || value.trim().isEmpty) &&
-                        isCarryForward) {
-                      return " Max Carry Forward is reqiured";
+                    if (value == null || value.trim().isEmpty) {
+                      return "Leave Type is reqiured";
                     }
 
                     return null;
                   },
                 ),
-              ),
+                CustomTextField(
+                  title: "Leave Type Code",
+                  textController: _leaveTypeCodeC,
 
-              verticalSpacing(height: 16),
-              CustomCheckBox(
-                isSelected: isEncashable,
-                title: "Encashable",
-                onChanged: (value) {
-                  setState(() {
-                    isEncashable = value;
-                  });
-                },
-              ),
-            ],
+                  hint: "Enter leave type code",
+                  inputFormatterList: [
+                    UpperCaseTextFormatter(),
+                    LengthLimitingTextInputFormatter(4),
+                  ],
+                  keyboardType: TextInputType.text,
+                  isRequired: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Leave Type Code is reqiured";
+                    }
+
+                    return null;
+                  },
+                ),
+                verticalSpacing(height: 16),
+                CustomCheckBox(
+                  isSelected: isCarryForward,
+                  onChanged: (value) {
+                    setState(() {
+                      isCarryForward = value;
+                    });
+                  },
+                  title: "Carry Forward",
+                ),
+                Visibility(
+                  visible: isCarryForward,
+                  child: verticalSpacing(height: 16),
+                ),
+                Visibility(
+                  visible: isCarryForward,
+                  child: CustomTextField(
+                    title: "Max Carry Forward",
+                    textController: _maxCarryForward,
+                    hint: "Enter Max Carry Forward",
+                    inputFormatterList: InputValidator.digit(200),
+                    keyboardType: TextInputType.number,
+                    isRequired: true,
+                    validator: (value) {
+                      if ((value == null || value.trim().isEmpty) &&
+                          isCarryForward) {
+                        return " Max Carry Forward is reqiured";
+                      }
+
+                      return null;
+                    },
+                  ),
+                ),
+
+                verticalSpacing(height: 16),
+                CustomCheckBox(
+                  isSelected: isEncashable,
+                  title: "Encashable",
+                  onChanged: (value) {
+                    setState(() {
+                      isEncashable = value;
+                    });
+                  },
+                ),
+                verticalSpacing(height: 16),
+              ],
+            ),
           ),
         ),
       ),

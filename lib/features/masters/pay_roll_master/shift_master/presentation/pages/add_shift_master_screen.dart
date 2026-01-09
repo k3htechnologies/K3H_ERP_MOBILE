@@ -38,10 +38,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
   final _formKey = GlobalKey<FormState>();
 
   //TEXT EDITING CONTROLLERS
-  late TextEditingController _shiftName;
-  late TextEditingController _shiftCode;
-  late TextEditingController _graceTime;
-  late TextEditingController _remarks;
+  late TextEditingController _shiftName, _shiftCode, _graceTime, _remarks;
 
   //TIME VARIABLES
   String? shiftBeginTime;
@@ -157,185 +154,188 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          child: Container(
+            padding: EdgeInsets.all(16),
+            decoration: commonCardDecoration(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomTextField(
+                  title: "Shift Name",
+                  textController: _shiftName,
+                  hint: "Enter Shift Name",
+                  inputFormatterList: [InputValidator.digitAndCharacterOnly()],
+                  keyboardType: TextInputType.text,
+                  isRequired: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Shift Name is reqiured";
+                    }
 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomTextField(
-                title: "Shift Name",
-                textController: _shiftName,
-                hint: "Enter Shift Name",
-                inputFormatterList: [InputValidator.digitAndCharacterOnly()],
-                keyboardType: TextInputType.text,
-                isRequired: true,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Shift Name is reqiured";
-                  }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  title: "Shift Code",
+                  textController: _shiftCode,
 
-                  return null;
-                },
-              ),
-              CustomTextField(
-                title: "Shift Code",
-                textController: _shiftCode,
+                  hint: "Enter Shift Code",
+                  inputFormatterList: [
+                    UpperCaseTextFormatter(),
+                    LengthLimitingTextInputFormatter(4),
+                  ],
+                  keyboardType: TextInputType.text,
+                  isRequired: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Shift Code is reqiured";
+                    }
 
-                hint: "Enter Shift Code",
-                inputFormatterList: [
-                  UpperCaseTextFormatter(),
-                  LengthLimitingTextInputFormatter(4),
-                ],
-                keyboardType: TextInputType.text,
-                isRequired: true,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Shift Code is reqiured";
-                  }
+                    return null;
+                  },
+                ),
+                CustomTimePicker(
+                  setValue: (value) {
+                    shiftBeginTime = formatTimeOfDayHHmm(value);
+                  },
+                  title: "Shift Begin Time",
+                  isRequired: true,
+                  initialTime: parseTimeOfDayFromHHmm(shiftBeginTime),
+                ),
 
-                  return null;
-                },
-              ),
-              CustomTimePicker(
-                setValue: (value) {
-                  shiftBeginTime = formatTimeOfDayHHmm(value);
-                },
-                title: "Shift Begin Time",
-                isRequired: true,
-                initialTime: parseTimeOfDayFromHHmm(shiftBeginTime),
-              ),
+                CustomTimePicker(
+                  setValue: (value) {
+                    shiftEndTime = formatTimeOfDayHHmm(value);
+                  },
+                  title: "Shift End Time",
+                  isRequired: true,
+                  initialTime: parseTimeOfDayFromHHmm(shiftEndTime),
+                ),
 
-              CustomTimePicker(
-                setValue: (value) {
-                  shiftEndTime = formatTimeOfDayHHmm(value);
-                },
-                title: "Shift End Time",
-                isRequired: true,
-                initialTime: parseTimeOfDayFromHHmm(shiftEndTime),
-              ),
+                CustomTimePicker(
+                  setValue: (value) {
+                    shiftDurationTime = formatTimeOfDayHHmm(value);
+                  },
+                  title: "Shift Duration Time",
+                  isRequired: true,
+                  initialTime: parseTimeOfDayFromHHmm(shiftDurationTime),
+                ),
 
-              CustomTimePicker(
-                setValue: (value) {
-                  shiftDurationTime = formatTimeOfDayHHmm(value);
-                },
-                title: "Shift Duration Time",
-                isRequired: true,
-                initialTime: parseTimeOfDayFromHHmm(shiftDurationTime),
-              ),
+                CustomTimePicker(
+                  setValue: (value) {
+                    shiftWorkDurationTime = formatTimeOfDayHHmm(value);
+                  },
+                  title: "Shift Working Duration Time",
+                  isRequired: true,
+                  initialTime: parseTimeOfDayFromHHmm(shiftWorkDurationTime),
+                ),
 
-              CustomTimePicker(
-                setValue: (value) {
-                  shiftWorkDurationTime = formatTimeOfDayHHmm(value);
-                },
-                title: "Shift Working Duration Time",
-                isRequired: true,
-                initialTime: parseTimeOfDayFromHHmm(shiftWorkDurationTime),
-              ),
+                CustomTimePicker(
+                  setValue: (value) {
+                    firstHalfUpTo = formatTimeOfDayHHmm(value);
+                  },
+                  title: "First Half Up To",
+                  isRequired: true,
+                  initialTime: parseTimeOfDayFromHHmm(firstHalfUpTo),
+                ),
 
-              CustomTimePicker(
-                setValue: (value) {
-                  firstHalfUpTo = formatTimeOfDayHHmm(value);
-                },
-                title: "First Half Up To",
-                isRequired: true,
-                initialTime: parseTimeOfDayFromHHmm(firstHalfUpTo),
-              ),
+                CustomTimePicker(
+                  setValue: (value) {
+                    absentWorkingHours = formatTimeOfDayHHmm(value);
+                  },
+                  title: "Absent Working Hours",
+                  isRequired: true,
+                  initialTime: parseTimeOfDayFromHHmm(absentWorkingHours),
+                ),
 
-              CustomTimePicker(
-                setValue: (value) {
-                  absentWorkingHours = formatTimeOfDayHHmm(value);
-                },
-                title: "Absent Working Hours",
-                isRequired: true,
-                initialTime: parseTimeOfDayFromHHmm(absentWorkingHours),
-              ),
+                CustomTimePicker(
+                  setValue: (value) {
+                    halfDayWorkingHours = formatTimeOfDayHHmm(value);
+                  },
+                  title: "Half Day Working Hours",
+                  isRequired: true,
+                  initialTime: parseTimeOfDayFromHHmm(halfDayWorkingHours),
+                ),
 
-              CustomTimePicker(
-                setValue: (value) {
-                  halfDayWorkingHours = formatTimeOfDayHHmm(value);
-                },
-                title: "Half Day Working Hours",
-                isRequired: true,
-                initialTime: parseTimeOfDayFromHHmm(halfDayWorkingHours),
-              ),
+                CustomTimePicker(
+                  setValue: (value) {
+                    halfDayInTimeAfter = formatTimeOfDayHHmm(value);
+                  },
+                  title: "Half DayIn Time After",
+                  isRequired: true,
+                  initialTime: parseTimeOfDayFromHHmm(halfDayInTimeAfter),
+                ),
 
-              CustomTimePicker(
-                setValue: (value) {
-                  halfDayInTimeAfter = formatTimeOfDayHHmm(value);
-                },
-                title: "Half DayIn Time After",
-                isRequired: true,
-                initialTime: parseTimeOfDayFromHHmm(halfDayInTimeAfter),
-              ),
+                CustomTimePicker(
+                  setValue: (value) {
+                    halfDayOutTimeBefore = formatTimeOfDayHHmm(value);
+                  },
+                  title: "Half DayOut Time Before",
+                  isRequired: true,
+                  initialTime: parseTimeOfDayFromHHmm(halfDayOutTimeBefore),
+                ),
 
-              CustomTimePicker(
-                setValue: (value) {
-                  halfDayOutTimeBefore = formatTimeOfDayHHmm(value);
-                },
-                title: "Half DayOut Time Before",
-                isRequired: true,
-                initialTime: parseTimeOfDayFromHHmm(halfDayOutTimeBefore),
-              ),
+                CustomTimePicker(
+                  setValue: (value) {
+                    breakBeginTime = formatTimeOfDayHHmm(value);
+                  },
+                  title: "Break Begin Time",
+                  isRequired: true,
+                  initialTime: parseTimeOfDayFromHHmm(breakBeginTime),
+                ),
 
-              CustomTimePicker(
-                setValue: (value) {
-                  breakBeginTime = formatTimeOfDayHHmm(value);
-                },
-                title: "Break Begin Time",
-                isRequired: true,
-                initialTime: parseTimeOfDayFromHHmm(breakBeginTime),
-              ),
+                CustomTimePicker(
+                  setValue: (value) {
+                    breakEndTime = formatTimeOfDayHHmm(value);
+                  },
+                  title: "Break End Time",
+                  isRequired: true,
+                  initialTime: parseTimeOfDayFromHHmm(breakEndTime),
+                ),
 
-              CustomTimePicker(
-                setValue: (value) {
-                  breakEndTime = formatTimeOfDayHHmm(value);
-                },
-                title: "Break End Time",
-                isRequired: true,
-                initialTime: parseTimeOfDayFromHHmm(breakEndTime),
-              ),
+                CustomTimePicker(
+                  setValue: (value) {
+                    breakDurationTime = formatTimeOfDayHHmm(value);
+                  },
+                  title: "Break Duration Time",
+                  isRequired: true,
+                  initialTime: parseTimeOfDayFromHHmm(breakDurationTime),
+                ),
+                CustomTextField(
+                  title: "Grace Time",
+                  textController: _graceTime,
+                  hint: "Enter Grace Time",
+                  inputFormatterList: [InputValidator.digitAndCharacterOnly()],
+                  keyboardType: TextInputType.text,
+                  isRequired: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Grace Time is reqiured";
+                    }
 
-              CustomTimePicker(
-                setValue: (value) {
-                  breakDurationTime = formatTimeOfDayHHmm(value);
-                },
-                title: "Break Duration Time",
-                isRequired: true,
-                initialTime: parseTimeOfDayFromHHmm(breakDurationTime),
-              ),
-              CustomTextField(
-                title: "Grace Time",
-                textController: _graceTime,
-                hint: "Enter Grace Time",
-                inputFormatterList: [InputValidator.digitAndCharacterOnly()],
-                keyboardType: TextInputType.text,
-                isRequired: true,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Grace Time is reqiured";
-                  }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  title: "Remarks",
+                  textController: _remarks,
 
-                  return null;
-                },
-              ),
-              CustomTextField(
-                title: "Remarks",
-                textController: _remarks,
+                  hint: "Enter Remarks",
+                  inputFormatterList: InputValidator.textOnly(200),
+                  keyboardType: TextInputType.text,
+                  maxLines: 3,
+                  isRequired: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Remarks is reqiured";
+                    }
 
-                hint: "Enter Remarks",
-                inputFormatterList: InputValidator.textOnly(200),
-                keyboardType: TextInputType.text,
-                maxLines: 3,
-                isRequired: true,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Remarks is reqiured";
-                  }
-
-                  return null;
-                },
-              ),
-            ],
+                    return null;
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

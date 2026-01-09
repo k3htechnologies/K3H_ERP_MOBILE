@@ -523,17 +523,14 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
               String endTimeStr = "";
 
               // start time only for 2 & 3
-              if ((typeId == "1" ||  typeId == "2" || typeId == "3") &&
+              if ((typeId == "1" || typeId == "2" || typeId == "3") &&
                   selectedStartTime != null) {
-                startTimeStr =
-                    "${selectedStartTime!.hour.toString().padLeft(2, '0')}:${selectedStartTime!.minute.toString().padLeft(2, '0')}";
+                startTimeStr = formatTimeOfDayHHmm(selectedStartTime!);
               }
 
               // end time for 1,2,3
-              if ((typeId == "2" || typeId == "3") &&
-                  selectedEndTime != null) {
-                endTimeStr =
-                    "${selectedEndTime!.hour.toString().padLeft(2, '0')}:${selectedEndTime!.minute.toString().padLeft(2, '0')}";
+              if ((typeId == "2" || typeId == "3") && selectedEndTime != null) {
+                endTimeStr = formatTimeOfDayHHmm(selectedEndTime!);
               }
 
               // Get priority

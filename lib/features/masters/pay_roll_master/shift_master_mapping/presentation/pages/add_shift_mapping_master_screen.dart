@@ -90,7 +90,7 @@ class _AddShiftMappingMasterScreenState
       return;
     }
 
-    if (_selectedDepartment == null) {
+    if (_selectedDepartment.isEmpty) {
       showErrorMessage(context, 'Error', 'Please select department');
       return;
     }
@@ -128,69 +128,73 @@ class _AddShiftMappingMasterScreenState
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomMultipleSelectPopup(
-                title: 'Shift Name',
-                isRequired: true,
-                isMultiSelect: false,
-                initialValue: _selectedShift,
-                dataList: [],
-                onSelected: (value) {
-                  setState(() {
-                    _selectedShift = value;
-                  });
-                },
-                dataFetchCallBack: _shiftMappingMasterCubit.fetchShift,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Shift Name is required";
-                  }
-                  return null;
-                },
-              ),
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          child: Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomMultipleSelectPopup(
+                  title: 'Shift Name',
+                  isRequired: true,
+                  isMultiSelect: false,
+                  initialValue: _selectedShift,
+                  dataList: [],
+                  onSelected: (value) {
+                    setState(() {
+                      _selectedShift = value;
+                    });
+                  },
+                  dataFetchCallBack: _shiftMappingMasterCubit.fetchShift,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Shift Name is required";
+                    }
+                    return null;
+                  },
+                ),
 
-              CustomMultipleSelectPopup(
-                title: 'Employee',
-                isRequired: true,
-                isMultiSelect: false,
-                initialValue: _selectedEmployee,
-                dataList: [],
-                onSelected: (value) {
-                  setState(() {
-                    _selectedEmployee = value;
-                  });
-                },
-                dataFetchCallBack: _shiftMappingMasterCubit.fetchEmployees,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Employee is required";
-                  }
-                  return null;
-                },
-              ),
-              CustomMultipleSelectPopup(
-                title: 'Department',
-                isRequired: true,
-                isMultiSelect: false,
-                initialValue: _selectedDepartment,
-                dataList: [],
-                onSelected: (value) {
-                  setState(() {
-                    _selectedDepartment = value;
-                  });
-                },
-                dataFetchCallBack: _shiftMappingMasterCubit.fetchDepartment,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Department is required";
-                  }
-                  return null;
-                },
-              ),
-            ],
+                CustomMultipleSelectPopup(
+                  title: 'Employee',
+                  isRequired: true,
+                  isMultiSelect: false,
+                  initialValue: _selectedEmployee,
+                  dataList: [],
+                  onSelected: (value) {
+                    setState(() {
+                      _selectedEmployee = value;
+                    });
+                  },
+                  dataFetchCallBack: _shiftMappingMasterCubit.fetchEmployees,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Employee is required";
+                    }
+                    return null;
+                  },
+                ),
+                CustomMultipleSelectPopup(
+                  title: 'Department',
+                  isRequired: true,
+                  isMultiSelect: false,
+                  initialValue: _selectedDepartment,
+                  dataList: [],
+                  onSelected: (value) {
+                    setState(() {
+                      _selectedDepartment = value;
+                    });
+                  },
+                  dataFetchCallBack: _shiftMappingMasterCubit.fetchDepartment,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Department is required";
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

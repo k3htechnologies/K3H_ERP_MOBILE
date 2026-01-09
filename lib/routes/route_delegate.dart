@@ -62,6 +62,11 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mappin
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mapping/presentation/pages/add_shift_mapping_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mapping/presentation/pages/shift_mapping_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mapping/presentation/pages/view_shift_mapping_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/data/model/week_off_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/presentation/cubit/week_off_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/presentation/pages/add_week_off_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/presentation/pages/view_week_off_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/presentation/pages/week_off_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/data/model/material_master.model.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/cubit/material_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/pages/add_material_master_screen.dart';
@@ -1182,6 +1187,71 @@ final GoRouter goRouter = GoRouter(
                 return ViewShiftMappingMasterScreen(
                   shiftMappingModel: shiftMappingMaster!,
                 );
+              },
+            ),
+          ],
+        ),
+
+        //WEEK OFF MASTER
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => WeekOffMasterCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              path: AppRoutes.weekOffMaster,
+              name: AppRoutes.weekOffMaster,
+              builder: (context, state) {
+                return const WeekOffMasterScreen();
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addWeekOffMaster,
+              name: AppRoutes.addWeekOffMaster,
+              builder: (context, state) {
+                final queryParameterWeekOff =
+                    state.uri.queryParameters['weekOff'];
+
+                final WeekOffMasterModel? weekOffMaster =
+                    queryParameterWeekOff != null
+                        ? WeekOffMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterWeekOff),
+                            ),
+                          ),
+                        )
+                        : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddWeekOffMasterScreen(
+                  weekOffMasterModel: weekOffMaster,
+                  index: index,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.viewWeekOffMaster,
+              name: AppRoutes.viewWeekOffMaster,
+              builder: (context, state) {
+                final queryParameterWeekOff =
+                    state.uri.queryParameters['weekOff'];
+
+                final WeekOffMasterModel? weekOffMaster =
+                    queryParameterWeekOff != null
+                        ? WeekOffMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterWeekOff),
+                            ),
+                          ),
+                        )
+                        : null;
+                return ViewWeekOffMasterScreen(weekOffMaster: weekOffMaster!);
               },
             ),
           ],
