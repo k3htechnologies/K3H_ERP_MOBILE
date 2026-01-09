@@ -6,7 +6,7 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master_mappin
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 
@@ -121,7 +121,7 @@ class _AddShiftMappingMasterScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
-      appBar: CustomAppBar(
+      appBar: CustomAppBarWithBackButton(
         screenTitle: _isEditMode ? "Edit Shift Mapping" : "Add Shift Mapping",
         authorization: _routeAuthorizationModel,
       ),
