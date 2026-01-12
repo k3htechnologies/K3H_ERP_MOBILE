@@ -2186,12 +2186,7 @@ final GoRouter goRouter = GoRouter(
                               ),
                             )
                             : null;
-                    final projectId =
-                        int.tryParse(
-                          state.uri.queryParameters['projectId'] ?? '',
-                        ) ??
-                        documentCategory?.projectId ??
-                        0;
+
                     final index =
                         int.tryParse(
                           state.uri.queryParameters['index'] ?? '',
@@ -2199,7 +2194,6 @@ final GoRouter goRouter = GoRouter(
                         0;
                     return AddDocumentCategoryScreen(
                       documentCategoryModel: documentCategory,
-                      projectId: projectId,
                       index: index,
                     );
                   },

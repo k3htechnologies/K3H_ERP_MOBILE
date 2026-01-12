@@ -38,11 +38,11 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _weekOffName,
-      _weekOffCode,
-      _weekDays,
-      _weekOff2Type,
-      _weekDaysStartsOn;
+  late TextEditingController _weekOffNameC,
+      _weekOffCodeC,
+      _weekDaysC,
+      _weekOff2TypeC,
+      _weekDaysStartsOnC;
 
   // DROPDOWN SELECTIONS
   List<Map<String, dynamic>> _selectWeekOff = [];
@@ -101,11 +101,11 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
             .split(", ")
             .map((name) => {"DisplayName": name})
             .toList();
-    _weekOffName.text = weekOffMaster.weekOffPolicyName;
-    _weekOffCode.text = weekOffMaster.weekOffPolicyCode;
-    _weekOff2Type.text = weekOffMaster.weeklyOff2Type;
-    _weekDays.text = weekOffMaster.weekDays.toString();
-    _weekDaysStartsOn.text = weekOffMaster.weekDaysStartsOn;
+    _weekOffNameC.text = weekOffMaster.weekOffPolicyName;
+    _weekOffCodeC.text = weekOffMaster.weekOffPolicyCode;
+    _weekOff2TypeC.text = weekOffMaster.weeklyOff2Type;
+    _weekDaysC.text = weekOffMaster.weekDays.toString();
+    _weekDaysStartsOnC.text = weekOffMaster.weekDaysStartsOn;
   }
 
   String get selectedMonthNames => _selectNotApplicableForMonth
@@ -127,38 +127,38 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
         context: context,
         weekOffPolicyMasterId: widget.weekOffMasterModel!.weekOffPolicyMasterId,
         uniqueKey: widget.weekOffMasterModel!.uniqueKey,
-        weekOffPolicyCode: _weekOffCode.text.trim(),
-        weekOffPolicyName: _weekOffName.text.trim(),
-        weekDays: int.parse(_weekDays.text.trim()),
-        weekDaysStartsOn: _weekDaysStartsOn.text.trim(),
+        weekOffPolicyCode: _weekOffCodeC.text.trim(),
+        weekOffPolicyName: _weekOffNameC.text.trim(),
+        weekDays: int.parse(_weekDaysC.text.trim()),
+        weekDaysStartsOn: _weekDaysStartsOnC.text.trim(),
         weeklyOff: _selectWeekOff.first['DisplayName'],
         weeklyOff2:
             _selectWeekOff2.isEmpty ? "" : _selectWeekOff2.first['DisplayName'],
-        weeklyOff2Type: _weekOff2Type.text.trim(),
+        weeklyOff2Type: _weekOff2TypeC.text.trim(),
         notApplicableForMonths: selectedMonthNames,
       );
     } else {
       _weekOffMasterCubit.addWeekOff(
         context: context,
-        weekOffPolicyCode: _weekOffCode.text.trim(),
-        weekOffPolicyName: _weekOffName.text.trim(),
-        weekDays: int.parse(_weekDays.text.trim()),
-        weekDaysStartsOn: _weekDaysStartsOn.text.trim(),
+        weekOffPolicyCode: _weekOffCodeC.text.trim(),
+        weekOffPolicyName: _weekOffNameC.text.trim(),
+        weekDays: int.parse(_weekDaysC.text.trim()),
+        weekDaysStartsOn: _weekDaysStartsOnC.text.trim(),
         weeklyOff: _selectWeekOff.first['DisplayName'],
         weeklyOff2:
             _selectWeekOff2.isEmpty ? "" : _selectWeekOff2.first['DisplayName'],
-        weeklyOff2Type: _weekOff2Type.text.trim(),
+        weeklyOff2Type: _weekOff2TypeC.text.trim(),
         notApplicableForMonths: selectedMonthNames,
       );
     }
   }
 
   void _initializeTextEditingControllers() {
-    _weekOffName = TextEditingController();
-    _weekOffCode = TextEditingController();
-    _weekDays = TextEditingController();
-    _weekOff2Type = TextEditingController();
-    _weekDaysStartsOn = TextEditingController();
+    _weekOffNameC = TextEditingController();
+    _weekOffCodeC = TextEditingController();
+    _weekDaysC = TextEditingController();
+    _weekOff2TypeC = TextEditingController();
+    _weekDaysStartsOnC = TextEditingController();
   }
 
   @override
@@ -180,7 +180,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
               children: [
                 CustomTextField(
                   title: "Week Off Name",
-                  textController: _weekOffName,
+                  textController: _weekOffNameC,
                   hint: "Enter Week Off Name",
                   inputFormatterList: [InputValidator.digitAndCharacterOnly()],
                   keyboardType: TextInputType.text,
@@ -195,7 +195,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                 ),
                 CustomTextField(
                   title: "Week Off Code",
-                  textController: _weekOffCode,
+                  textController: _weekOffCodeC,
                   hint: "Enter Week Off Code",
                   inputFormatterList: [
                     UpperCaseTextFormatter(),
@@ -213,7 +213,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                 ),
                 CustomTextField(
                   title: "Week Days",
-                  textController: _weekDays,
+                  textController: _weekDaysC,
                   hint: "Enter Week Days",
                   inputFormatterList: InputValidator.digit(4),
                   keyboardType: TextInputType.number,
@@ -291,7 +291,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
 
                 CustomTextField(
                   title: "Weekly Off2 Type",
-                  textController: _weekOff2Type,
+                  textController: _weekOff2TypeC,
                   hint: "Enter Weekly Off2 Type",
                   inputFormatterList: [
                     InputValidator.digitAndCharacterOnly(),
@@ -301,7 +301,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                 ),
                 CustomTextField(
                   title: "Week Days Starts On",
-                  textController: _weekDaysStartsOn,
+                  textController: _weekDaysStartsOnC,
                   isRequired: true,
                   hint: "Enter Week Days Starts On",
                   inputFormatterList: [

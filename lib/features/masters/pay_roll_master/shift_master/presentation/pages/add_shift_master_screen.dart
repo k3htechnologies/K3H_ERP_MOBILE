@@ -38,7 +38,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
   final _formKey = GlobalKey<FormState>();
 
   //TEXT EDITING CONTROLLERS
-  late TextEditingController _shiftName, _shiftCode, _remarks;
+  late TextEditingController _shiftNameC, _shiftCodeC, _remarksC;
 
   //TIME VARIABLES
   String? shiftBeginTime;
@@ -70,8 +70,8 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
   }
 
   void _populateFormFields(ShiftMasterModel shiftMasterModel) {
-    _shiftName.text = shiftMasterModel.shiftName;
-    _shiftCode.text = shiftMasterModel.shiftCode;
+    _shiftNameC.text = shiftMasterModel.shiftName;
+    _shiftCodeC.text = shiftMasterModel.shiftCode;
     shiftBeginTime = shiftMasterModel.shiftBeginTime;
     shiftEndTime = shiftMasterModel.shiftEndTime;
     shiftDurationTime = shiftMasterModel.shiftDurationTime;
@@ -85,13 +85,13 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
     breakEndTime = shiftMasterModel.breakEndTime;
     breakDurationTime = shiftMasterModel.breakDurationTime;
     graceTime = shiftMasterModel.graceTime;
-    _remarks.text = shiftMasterModel.remarks;
+    _remarksC.text = shiftMasterModel.remarks;
   }
 
   void _initializeTextEditingControllers() {
-    _shiftName = TextEditingController();
-    _shiftCode = TextEditingController();
-    _remarks = TextEditingController();
+    _shiftNameC = TextEditingController();
+    _shiftCodeC = TextEditingController();
+    _remarksC = TextEditingController();
   }
 
   void _submitForm() {
@@ -104,8 +104,8 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
         context: context,
         shiftId: widget.shiftMasterModel!.shiftManagementMasterId,
         uniqueKey: widget.shiftMasterModel!.uniqueKey,
-        shiftCode: _shiftCode.text.trim(),
-        shiftName: _shiftName.text.trim(),
+        shiftCode: _shiftCodeC.text.trim(),
+        shiftName: _shiftNameC.text.trim(),
         shiftBeginTime: shiftBeginTime!,
         shiftEndTime: shiftEndTime!,
         shiftDurationTime: shiftDurationTime!,
@@ -119,13 +119,13 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
         breakEndTime: breakEndTime!,
         breakDurationTime: breakDurationTime!,
         graceTime: graceTime!,
-        remarks: _remarks.text,
+        remarks: _remarksC.text,
       );
     } else {
       _shiftMasterCubit.addShift(
         context: context,
-        shiftCode: _shiftCode.text.trim(),
-        shiftName: _shiftName.text.trim(),
+        shiftCode: _shiftCodeC.text.trim(),
+        shiftName: _shiftNameC.text.trim(),
         shiftBeginTime: shiftBeginTime!,
         shiftEndTime: shiftEndTime!,
         shiftDurationTime: shiftDurationTime!,
@@ -139,7 +139,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
         breakEndTime: breakEndTime!,
         breakDurationTime: breakDurationTime!,
         graceTime: graceTime!,
-        remarks: _remarks.text.trim(),
+        remarks: _remarksC.text.trim(),
       );
     }
   }
@@ -163,7 +163,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
               children: [
                 CustomTextField(
                   title: "Shift Name",
-                  textController: _shiftName,
+                  textController: _shiftNameC,
                   hint: "Enter Shift Name",
                   inputFormatterList: [InputValidator.digitAndCharacterOnly()],
                   keyboardType: TextInputType.text,
@@ -178,7 +178,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
                 ),
                 CustomTextField(
                   title: "Shift Code",
-                  textController: _shiftCode,
+                  textController: _shiftCodeC,
 
                   hint: "Enter Shift Code",
                   inputFormatterList: [
@@ -312,7 +312,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
                 ),
                 CustomTextField(
                   title: "Remarks",
-                  textController: _remarks,
+                  textController: _remarksC,
 
                   hint: "Enter Remarks",
                   inputFormatterList: InputValidator.textOnly(200),
