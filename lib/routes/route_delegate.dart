@@ -146,8 +146,11 @@ import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_view_details_screen.dart';
 import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/document/presentation/pages/document_screen.dart';
+import 'package:k3h_erp_app/features/project_document/document_category/data/model/document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/presentation/cubit/document_category_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/document_category/presentation/pages/add_document_category_screen.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/presentation/pages/document_category_screen.dart';
+import 'package:k3h_erp_app/features/project_document/document_category/presentation/pages/view_document_category_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_file/approved_bank_file_cubit.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder/approved_bank_folder_cubit.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_file_screen.dart';
@@ -2038,14 +2041,21 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final queryParameterUnitSpec =
                     state.uri.queryParameters['unitSpecificationModel'];
-                final queryParameterFlatId =
-                    int.tryParse(state.uri.queryParameters['inventoryFlatId'] ?? '');
-                final queryParameterBuildingId =
-                    int.tryParse(state.uri.queryParameters['inventoryBuildingId'] ?? '');
-                final queryParameterWingId =
-                    int.tryParse(state.uri.queryParameters['inventoryFlatFloorBasementPodiumWingId'] ?? '');
-                final queryParameterFloorId =
-                    int.tryParse(state.uri.queryParameters['inventoryFloorId'] ?? '');
+                final queryParameterFlatId = int.tryParse(
+                  state.uri.queryParameters['inventoryFlatId'] ?? '',
+                );
+                final queryParameterBuildingId = int.tryParse(
+                  state.uri.queryParameters['inventoryBuildingId'] ?? '',
+                );
+                final queryParameterWingId = int.tryParse(
+                  state
+                          .uri
+                          .queryParameters['inventoryFlatFloorBasementPodiumWingId'] ??
+                      '',
+                );
+                final queryParameterFloorId = int.tryParse(
+                  state.uri.queryParameters['inventoryFloorId'] ?? '',
+                );
 
                 FlatSpecificationModel? unitSpec;
                 if (queryParameterUnitSpec != null) {
@@ -2141,12 +2151,85 @@ final GoRouter goRouter = GoRouter(
                 return const DocumentScreen();
               },
             ),
-            GoRoute(
-              name: AppRoutes.category,
-              path: AppRoutes.category,
-              builder: (context, state) {
-                return const DocumentCategoryScreen();
+            //Project Document
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider<DocumentCategoryCubit>.value(
+                  value: context.read<DocumentCategoryCubit>(),
+                  child: child,
+                );
               },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.category,
+                  path: AppRoutes.category,
+                  builder: (context, state) {
+                    return const DocumentCategoryScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addDocumentCategory,
+                  path: AppRoutes.addDocumentCategory,
+                  builder: (context, state) {
+                    final queryParameterDocumentCategory =
+                        state.uri.queryParameters['documentCategory'];
+
+                    final DocumentCategoryModel? documentCategory =
+                        queryParameterDocumentCategory != null
+                            ? DocumentCategoryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterDocumentCategory,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+                    final projectId =
+                        int.tryParse(
+                          state.uri.queryParameters['projectId'] ?? '',
+                        ) ??
+                        documentCategory?.projectId ??
+                        0;
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddDocumentCategoryScreen(
+                      documentCategoryModel: documentCategory,
+                      projectId: projectId,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewDocumentCategory,
+                  path: AppRoutes.viewDocumentCategory,
+                  builder: (context, state) {
+                    final queryParameterDocumentCategory =
+                        state.uri.queryParameters['documentCategory'];
+
+                    final DocumentCategoryModel? documentCategory =
+                        queryParameterDocumentCategory != null
+                            ? DocumentCategoryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterDocumentCategory,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    return ViewDocumentCategoryScreen(
+                      documentCategoryModel: documentCategory!,
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),

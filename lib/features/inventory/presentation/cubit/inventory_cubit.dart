@@ -16,8 +16,8 @@ class InventoryCubit extends Cubit<InventoryState> {
   InventoryCubit() : super(InventoryState.initial());
 
   // REPOSITORY
-  final InventoryRepository _inventoryRepository = serviceLocator<InventoryRepository>();
-
+  final InventoryRepository _inventoryRepository =
+      serviceLocator<InventoryRepository>();
 
   bool _isApiCallInProgress = false;
 
@@ -25,22 +25,23 @@ class InventoryCubit extends Cubit<InventoryState> {
   Future getInventory(BuildContext context, int projectId) async {
     // Prevent duplicate calls using internal flag
     // Check both internal flag and state to prevent duplicates
-    if (_isApiCallInProgress || (state.isLoading == true && state.buildingList.isNotEmpty)) {
+    if (_isApiCallInProgress ||
+        (state.isLoading == true && state.buildingList.isNotEmpty)) {
       return;
     }
-    
+
     _isApiCallInProgress = true;
     emit(state.copyWith(isLoading: true));
     final result = await _inventoryRepository.getInventory(
       projectId: projectId,
     );
     result.fold(
-          (failure) {
+      (failure) {
         _isApiCallInProgress = false;
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (result) {
+      (result) {
         _isApiCallInProgress = false;
         emit(
           state.copyWith(
@@ -48,32 +49,31 @@ class InventoryCubit extends Cubit<InventoryState> {
             buildingList: result["data"] as List<BuildingModel>,
           ),
         );
-
       },
     );
   }
 
   // ADD INVENTORY FLAT
   Future addInventoryFlat(
-      BuildContext context, {
-        required int projectId,
-        required int inventoryBuildingId,
-        required int inventoryFlatFloorBasementPodiumWingId,
-        required int inventoryFloorId,
-        required String flat,
-        required String flatType,
-        required double flatArea,
-        required String flatConfiguration,
-        required String flatStatus,
-        required String flatFacing,
-        required List<FlatSpecificationModel> flatSpecificationList,
-      }) async {
+    BuildContext context, {
+    required int projectId,
+    required int inventoryBuildingId,
+    required int inventoryFlatFloorBasementPodiumWingId,
+    required int inventoryFloorId,
+    required String flat,
+    required String flatType,
+    required double flatArea,
+    required String flatConfiguration,
+    required String flatStatus,
+    required String flatFacing,
+    required List<FlatSpecificationModel> flatSpecificationList,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       "ProjectId": projectId,
       "InventoryBuildingId": inventoryBuildingId,
       "InventoryFlatFloorBasementPodiumWingId":
-      inventoryFlatFloorBasementPodiumWingId,
+          inventoryFlatFloorBasementPodiumWingId,
       "InventoryFloorId": inventoryFloorId,
       "Flat": flat,
       "FlatType": flatType,
@@ -90,59 +90,59 @@ class InventoryCubit extends Cubit<InventoryState> {
     );
     goRouter.pop();
     addResult.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-          (response) {
+      (response) {
         goRouter.pop();
-        showSuccessMessage(context,subTitle: "Unit Added Successfully");
+        showSuccessMessage(context, subTitle: "Unit Added Successfully");
       },
     );
   }
 
   String getEncodedFlatSpecificationList(List<FlatSpecificationModel> data) {
     final result =
-    data
-        .map(
-          (item) => {
-        "InventoryFlatSpecificationId":
-        item.inventoryFlatSpecificationId,
-        "Uniquekey": item.uniquekey,
-        "FlatLayout": item.flatLayout,
-        "FlatLayoutAreaSqFt": item.flatLayoutAreaSqFt,
-        "FlatLayoutLengthSqFt": item.flatLayoutLengthSqFt,
-        "FlatLayoutWidthSqFt": item.flatLayoutWidthSqFt,
-        "Note": item.note,
-      },
-    )
-        .toList();
+        data
+            .map(
+              (item) => {
+                "InventoryFlatSpecificationId":
+                    item.inventoryFlatSpecificationId,
+                "Uniquekey": item.uniquekey,
+                "FlatLayout": item.flatLayout,
+                "FlatLayoutAreaSqFt": item.flatLayoutAreaSqFt,
+                "FlatLayoutLengthSqFt": item.flatLayoutLengthSqFt,
+                "FlatLayoutWidthSqFt": item.flatLayoutWidthSqFt,
+                "Note": item.note,
+              },
+            )
+            .toList();
 
     return jsonEncode(result);
   }
 
   // UPDATE INVENTORY FLAT
   Future updateInventoryFlat(
-      BuildContext context, {
-        required int inventoryFlatId,
-        required int projectId,
-        required int inventoryBuildingId,
-        required int inventoryFlatFloorBasementPodiumWingId,
-        required int inventoryFloorId,
-        required String flat,
-        required String flatType,
-        required double flatArea,
-        required String flatConfiguration,
-        required String flatStatus,
-        required String flatFacing,
-        required List<FlatSpecificationModel> flatSpecificationList,
-      }) async {
+    BuildContext context, {
+    required int inventoryFlatId,
+    required int projectId,
+    required int inventoryBuildingId,
+    required int inventoryFlatFloorBasementPodiumWingId,
+    required int inventoryFloorId,
+    required String flat,
+    required String flatType,
+    required double flatArea,
+    required String flatConfiguration,
+    required String flatStatus,
+    required String flatFacing,
+    required List<FlatSpecificationModel> flatSpecificationList,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       "ProjectId": projectId,
       "InventoryBuildingId": inventoryBuildingId,
       "InventoryFlatFloorBasementPodiumWingId":
-      inventoryFlatFloorBasementPodiumWingId,
+          inventoryFlatFloorBasementPodiumWingId,
       "InventoryFloorId": inventoryFloorId,
       "Flat": flat,
       "FlatType": flatType,
@@ -160,16 +160,16 @@ class InventoryCubit extends Cubit<InventoryState> {
     );
     goRouter.pop();
     addResult.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-          (response) async {
+      (response) async {
         // Refresh inventory before navigating back
         await getInventory(context, projectId);
         if (context.mounted) {
           goRouter.pop();
-          showSuccessMessage(context,subTitle: "Unit Updated Successfully");
+          showSuccessMessage(context, subTitle: "Unit Updated Successfully");
         }
       },
     );
@@ -178,5 +178,4 @@ class InventoryCubit extends Cubit<InventoryState> {
   void onTabChanged(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndex: index));
   }
-
 }
