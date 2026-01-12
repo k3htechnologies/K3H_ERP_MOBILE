@@ -37,7 +37,7 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
   void searchShiftMapping(String value, BuildContext context) {
     emit(
       state.copyWith(
-        ShiftMappingList: [],
+        shiftMappingList: [],
         isLoading: true,
         searchText: value,
         currentPage: 1,
@@ -79,7 +79,7 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
 
         emit(
           state.copyWith(
-            ShiftMappingList: updatedList,
+            shiftMappingList: updatedList,
             isLoading: false,
             totalNumberOfRecord: response['totalNumberOfRecord'],
             currentPage: pageNumber,
@@ -121,7 +121,7 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
         var list = [newResponse, ...state.shiftMappingList];
         emit(
           state.copyWith(
-            ShiftMappingList: list,
+            shiftMappingList: list,
             totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
         );
@@ -172,7 +172,7 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
             state.shiftMappingList,
           );
           updatedListModel[index] = updatedList;
-          emit(state.copyWith(ShiftMappingList: updatedListModel));
+          emit(state.copyWith(shiftMappingList: updatedListModel));
         }
 
         showSuccessMessage(
@@ -186,13 +186,13 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
   // DELETE SHIFT MAPPING
   Future deleteShiftMapping(
     int index,
-    ShiftMappingModel ShiftMapping,
+    ShiftMappingModel shiftMapping,
     BuildContext context,
   ) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _shiftMasterMappingRepository.deleteShiftMapping(
-      shiftMasterMappingId: ShiftMapping.shiftMappingMasterId,
-      uniqueKey: ShiftMapping.uniqueKey,
+      shiftMasterMappingId: shiftMapping.shiftMappingMasterId,
+      uniqueKey: shiftMapping.uniqueKey,
     );
     goRouter.pop();
     result.fold(
@@ -290,14 +290,14 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
         "totalNumberOfRecord": 0,
       },
       (response) {
-        final shift = response['data'] as List<ShiftMasterModel>;
+        final shifts = response['data'] as List<ShiftMasterModel>;
 
         return {
           "itemList":
-              shift.map((employee) {
+              shifts.map((shift) {
                 return {
-                  "zAttributesId": employee.shiftManagementMasterId,
-                  "DisplayName": employee.shiftName,
+                  "zAttributesId": shift.shiftManagementMasterId,
+                  "DisplayName": shift.shiftName,
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
@@ -324,14 +324,14 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
         "totalNumberOfRecord": 0,
       },
       (response) {
-        final department = response['data'] as List<DepartmentModel>;
+        final departments = response['data'] as List<DepartmentModel>;
 
         return {
           "itemList":
-              department.map((employee) {
+              departments.map((department) {
                 return {
-                  "zAttributesId": employee.departmentMasterId,
-                  "DisplayName": employee.departmentName,
+                  "zAttributesId": department.departmentMasterId,
+                  "DisplayName": department.departmentName,
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,

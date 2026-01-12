@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/masters/leave_type_master.de
 import 'package:k3h_erp_app/di/feature_dependencies/masters/project_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/shift_mapping_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/shift_master.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/masters/week_off_mapping_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/week_off_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/profile/profile.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
@@ -102,6 +103,8 @@ void initDependencies() {
   registerShiftMappingMasterDependencies(serviceLocator);
   //WEEK OFF MASTER DEPENDENCIES
   registerWeekOffMasterDependencies(serviceLocator);
+  //WEEK OFF MAPPING MASTER DEPENDENCIES
+  registerWeekOffMappingMasterDependencies(serviceLocator);
   // TENANT DEPENDENCIES
   registerTenantMasterDependencies(serviceLocator);
   // INVENTORY DEPENDENCIES

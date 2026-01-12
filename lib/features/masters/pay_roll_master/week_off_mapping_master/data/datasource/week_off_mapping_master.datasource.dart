@@ -2,7 +2,7 @@ import 'package:k3h_erp_app/features/masters/employee_master/data/model/week_off
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
-abstract interface class WeekOffMappingMasterDatasource {
+abstract interface class WeekOffMappingMasterDataSource {
   Future<Map<String, dynamic>> apiCallPullWeekOffMappedWeekOff({
     required int pageNumber,
     required int pageSize,
@@ -13,7 +13,7 @@ abstract interface class WeekOffMappingMasterDatasource {
   });
 
   Future<Map<String, dynamic>> apiCallDeleteMappedWeekOff({
-    required int shiftMasterMappingId,
+    required int weekOffMasterMappingId,
     required String uniqueKey,
   });
 
@@ -24,7 +24,7 @@ abstract interface class WeekOffMappingMasterDatasource {
   });
 }
 
-class WeekOffMappingMasterDataSourceImp extends WeekOffMappingMasterDatasource {
+class WeekOffMappingMasterDataSourceImp extends WeekOffMappingMasterDataSource {
   final BaseClient baseClient = BaseClient();
   @override
   Future<Map<String, dynamic>> apiCallPullWeekOffMappedWeekOff({
@@ -38,7 +38,7 @@ class WeekOffMappingMasterDataSourceImp extends WeekOffMappingMasterDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "WeekOffManagementMasterMapping/PullWeekOffManagementMasterMapping?PageSize=$pageSize&PageNumber=$pageNumber";
+          "WeekOffPolicyMasterMapping/PullWeekOffPolicyMasterMapping?PageSize=$pageSize&PageNumber=$pageNumber";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
@@ -74,7 +74,7 @@ class WeekOffMappingMasterDataSourceImp extends WeekOffMappingMasterDatasource {
     required Map<String, dynamic> body,
   }) async {
     String addUpdateWeekOffMappingMasterUrl =
-        "WeekOffManagementMasterMapping/AddUpdateWeekOffManagementMasterMapping";
+        "WeekOffPolicyMasterMapping/AddUpdateWeekOffPolicyMasterMapping";
 
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
@@ -96,20 +96,20 @@ class WeekOffMappingMasterDataSourceImp extends WeekOffMappingMasterDatasource {
 
   @override
   Future<Map<String, dynamic>> apiCallDeleteMappedWeekOff({
-    required int shiftMasterMappingId,
+    required int weekOffMasterMappingId,
     required String uniqueKey,
   }) async {
     String deleteWeekOffMappingMasterUrl({
-      required int shiftMasterMappingId,
+      required int weekOffMasterMappingId,
       required String uniqueKey,
     }) {
-      return "WeekOffManagementMasterMapping/DeleteWeekOffManagementMasterMapping?WeekOffManagementMasterMappingId=$shiftMasterMappingId&Uniquekey=$uniqueKey";
+      return "WeekOffPolicyMasterMapping/DeleteWeekOffPolicyMasterMappingg?WeekOffPolicyMasterMappingId=$weekOffMasterMappingId&Uniquekey=$uniqueKey";
     }
 
     try {
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
         deleteWeekOffMappingMasterUrl(
-          shiftMasterMappingId: shiftMasterMappingId,
+          weekOffMasterMappingId: weekOffMasterMappingId,
           uniqueKey: uniqueKey,
         ),
       );
@@ -135,7 +135,7 @@ class WeekOffMappingMasterDataSourceImp extends WeekOffMappingMasterDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "WeekOffManagementMasterMapping/PullWeekOffManagementMasterMapping?PageSize=$pageSize&PageNumber=$pageNumber";
+          "WeekOffPolicyMasterMapping/PullWeekOffPolicyMasterMapping?PageSize=$pageSize&PageNumber=$pageNumber";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }

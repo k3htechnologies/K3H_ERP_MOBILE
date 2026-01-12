@@ -82,8 +82,7 @@ class AppRoutes {
   static String enquiry = "/enquiry";
   static String addEnquiry = "/addEnquiry";
   static String channelPartner = "/channelPartner";
-  static String addChannelPartner =
-      "/addChannelPartner";
+  static String addChannelPartner = "/addChannelPartner";
   static String channelPartnerReport = "/channelPartnerReport";
   static String viewBookingReport = "/channelPartnerBooking";
   static String viewEnquiryReport = "/viewEnquiryReport";
@@ -130,7 +129,9 @@ class AppRoutes {
   static String weekOffMaster = "/weekOffMaster";
   static String addWeekOffMaster = "/addWeekOffMaster";
   static String viewWeekOffMaster = "/viewWeekOffMaster";
-  static String weekOffMapping = "/weekOffMappingMaster";
+  static String weekOffMappingMaster = "/weekOffMappingMaster";
+  static String viewWeekOffMappingMaster = "/viewWeekOffMappingMaster";
+  static String addWeekOffMappingMaster = "/addWeekOffMappingMaster";
 
   // STOCK MANAGEMENT
   static String stockManagement = "/stock";
