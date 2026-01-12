@@ -55,8 +55,8 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
   }
 
   void _populateFormFields(DocumentCategoryModel documentCategory) {
-    _documentCategoryC.text = documentCategory!.projectDocumentCategoryName;
-    _orderByC.text = documentCategory!.orderBy.toString();
+    _documentCategoryC.text = documentCategory.projectDocumentCategoryName;
+    _orderByC.text = documentCategory.orderBy.toString();
   }
 
   void initializeTextEditingController() {
