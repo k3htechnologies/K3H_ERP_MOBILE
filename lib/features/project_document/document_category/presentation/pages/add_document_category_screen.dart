@@ -5,18 +5,19 @@ import 'package:k3h_erp_app/features/project_document/document_category/data/mod
 import 'package:k3h_erp_app/features/project_document/document_category/presentation/cubit/document_category_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 class AddDocumentCategoryScreen extends StatefulWidget {
   final DocumentCategoryModel? documentCategoryModel;
-  final int projectId;
+
   final int index;
   const AddDocumentCategoryScreen({
     super.key,
     required this.documentCategoryModel,
-    required this.projectId,
+
     this.index = 0,
   });
 
@@ -37,6 +38,8 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
 
   bool get _isEditMode => widget.documentCategoryModel != null;
 
+  late int projectId;
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +47,7 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.addDocumentCategory] ??
         AuthorizationModel();
+    getProjectId();
     initializeTextEditingController();
     if (_isEditMode) {
       _populateFormFields(widget.documentCategoryModel!);
@@ -60,6 +64,10 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
     _orderByC = TextEditingController();
   }
 
+  void getProjectId() {
+    projectId = getProject().projectId;
+  }
+
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -71,7 +79,7 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
         uniqueKey: widget.documentCategoryModel!.uniquekey,
         projectDocumentCategoryId:
             widget.documentCategoryModel!.projectDocumentCategoryId,
-        projectId: widget.documentCategoryModel!.projectId,
+        projectId: projectId,
         projectDocumentCategory: _documentCategoryC.text.trim(),
         orderBy: int.parse(_orderByC.text.trim()),
       );
@@ -79,7 +87,7 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
       _documentCategoryCubit.addDocumentCategory(
         index: widget.index,
         context: context,
-        projectId: widget.projectId,
+        projectId: projectId,
         projectDocumentCategory: _documentCategoryC.text.trim(),
         orderBy: int.parse(_orderByC.text.trim()),
       );

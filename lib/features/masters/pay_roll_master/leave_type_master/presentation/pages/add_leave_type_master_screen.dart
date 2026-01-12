@@ -37,7 +37,7 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
   //TEXT EDITING CONTROLLERS
   late TextEditingController _leaveTypeC;
   late TextEditingController _leaveTypeCodeC;
-  late TextEditingController _maxCarryForward;
+  late TextEditingController _maxCarryForwardC;
   bool isCarryForward = false;
   bool isEncashable = false;
 
@@ -64,13 +64,13 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
   void _initializeTextEditingControllers() {
     _leaveTypeC = TextEditingController();
     _leaveTypeCodeC = TextEditingController();
-    _maxCarryForward = TextEditingController();
+    _maxCarryForwardC = TextEditingController();
   }
 
   void _populateFormFields(LeaveTypeModel leaveTypeModel) {
     _leaveTypeC.text = leaveTypeModel.leaveType;
     _leaveTypeCodeC.text = leaveTypeModel.leaveTypeCode;
-    _maxCarryForward.text = leaveTypeModel.maxCarryForward.toString();
+    _maxCarryForwardC.text = leaveTypeModel.maxCarryForward.toString();
     isCarryForward = leaveTypeModel.isCarryForward;
     isEncashable = leaveTypeModel.isEncashable;
   }
@@ -88,7 +88,7 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
         leaveType: _leaveTypeC.text.trim(),
         leaveTypeCode: _leaveTypeCodeC.text.trim(),
         isCarryForward: isCarryForward,
-        maxCarryForward: int.parse(_maxCarryForward.text.trim()),
+        maxCarryForward: int.parse(_maxCarryForwardC.text.trim()),
         isEncashable: isEncashable,
       );
     } else {
@@ -98,8 +98,8 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
         leaveTypeCode: _leaveTypeCodeC.text.trim(),
         isCarryForward: isCarryForward,
         maxCarryForward:
-            _maxCarryForward.text.isNotEmpty
-                ? int.parse(_maxCarryForward.text.trim())
+            _maxCarryForwardC.text.isNotEmpty
+                ? int.parse(_maxCarryForwardC.text.trim())
                 : 0,
         isEncashable: isEncashable,
       );
@@ -175,7 +175,7 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
                   visible: isCarryForward,
                   child: CustomTextField(
                     title: "Max Carry Forward",
-                    textController: _maxCarryForward,
+                    textController: _maxCarryForwardC,
                     hint: "Enter Max Carry Forward",
                     inputFormatterList: InputValidator.digit(200),
                     keyboardType: TextInputType.number,
