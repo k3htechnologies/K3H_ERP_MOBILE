@@ -20,30 +20,7 @@ class BuildingCubit extends Cubit<BuildingState> {
   final BuildingRepository _buildingRepository =
       serviceLocator<BuildingRepository>();
 
-  // <---- RESET STATE ---->
-  void resetState() {
-    try {
-      // Increment resetCounter to force Equatable to detect the change
-      // This ensures the BlocBuilder rebuilds even if other props are the same
-      emit(
-        BuildingState(
-          buildingList: [],
-          buildingDetails: null,
-          buildingDocumentList: [],
-          totalNumberOfRecord: 0,
-          currentPage: 1,
-          currentTabIndex: 0,
-          searchText: "",
-          isLoading: true,
-          currentSortColumn: "Created Date",
-          currentSortDirection: "DESC",
-          resetCounter: (state.resetCounter) + 1,
-        ),
-      );
-    } catch (e) {
-      // Cubit is closed, ignore
-    }
-  }
+
 
   // <---- CLEAR BUILDING LIST ---->
   void clearBuildingList() {

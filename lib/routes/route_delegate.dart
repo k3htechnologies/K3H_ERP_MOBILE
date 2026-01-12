@@ -107,7 +107,7 @@ import 'package:k3h_erp_app/features/more/events/calendar/presentation/pages/cal
 import 'package:k3h_erp_app/features/more/events/task/presentation/pages/task_transfer_history_screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
-import 'package:k3h_erp_app/features/dashboard/dashboard_screen.dart';
+import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_screen.dart';
 import 'package:k3h_erp_app/features/login/presentation/pages/login_screen.dart';
 import 'package:k3h_erp_app/features/login/presentation/pages/otp_screen.dart';

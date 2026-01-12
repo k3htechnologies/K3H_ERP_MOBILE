@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
@@ -12,7 +13,8 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class InventoryScreen extends StatefulWidget {
@@ -30,6 +32,9 @@ class _InventoryScreenState extends State<InventoryScreen>
   // AUTHORIZATION
   late AuthorizationModel _routAuthorizationModel;
 
+  // CURRENT PROJECT
+  late ProjectModel _project;
+
   // TEXT EDIT CONTROLLER
   late TextEditingController _searchC;
 
@@ -44,6 +49,7 @@ class _InventoryScreenState extends State<InventoryScreen>
   @override
   void initState() {
     super.initState();
+    _project = getProject();
     _routAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.inventory]!;
     _initControllers();
@@ -53,15 +59,13 @@ class _InventoryScreenState extends State<InventoryScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Call getInventory only once when screen first loads
     if (!_hasInitialized) {
       _hasInitialized = true;
       Future.microtask(() {
         if (mounted) {
           final state = _inventoryCubit.state;
-          // Only call if buildingList is empty (cubit guard will prevent duplicates)
           if (state.buildingList.isEmpty) {
-            _inventoryCubit.getInventory(context, 8);
+            _inventoryCubit.getInventory(context, _project.projectId);
           }
         }
       });
@@ -123,47 +127,41 @@ class _InventoryScreenState extends State<InventoryScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: CustomAppBarWithBackButton(
         screenTitle: "Project Inventory",
         authorization: _routAuthorizationModel,
-        onSearchSubmit: (value) {},
-        textController: _searchC,
-        onAddCallback: () {},
-        onExportCallback: (value) {},
+        onExportCallback: (value) {
+          _inventoryCubit.exportInventory(context, _project.projectId, value);
+        },
       ),
       body: SafeArea(
         child: BlocListener<InventoryCubit, InventoryState>(
           listener: (context, state) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (!mounted) return;
-              if (!state.isLoading! && state.buildingList.isNotEmpty) {
-                if (_buildingTabController == null ||
-                    _buildingTabController!.length !=
-                        state.buildingList.length) {
-                  _initBuildingController(state);
-                  if (mounted) setState(() {});
-                }
+            if (!mounted) return;
+            if (!state.isLoading! && state.buildingList.isNotEmpty) {
+              if (_buildingTabController == null ||
+                  _buildingTabController!.length != state.buildingList.length) {
+                _initBuildingController(state);
               }
-              if (state.currentTabIndex < state.buildingList.length) {
-                final selectedBuilding =
-                    state.buildingList[state.currentTabIndex];
-                final wingList = selectedBuilding.wingList;
+            }
+            if (state.currentTabIndex < state.buildingList.length) {
+              final selectedBuilding =
+                  state.buildingList[state.currentTabIndex];
+              final wingList = selectedBuilding.wingList;
 
-                if (wingList.isNotEmpty) {
-                  if (_wingTabController == null ||
-                      _wingTabController!.length != wingList.length) {
-                    _initWingController(wingList);
-                    if (mounted) setState(() {});
-                  }
-                } else {
-                  if (_wingTabController != null) {
-                    _wingTabController?.dispose();
-                    _wingTabController = null;
-                    if (mounted) setState(() {});
-                  }
+              if (wingList.isNotEmpty) {
+                if (_wingTabController == null ||
+                    _wingTabController!.length != wingList.length) {
+                  _initWingController(wingList);
+                }
+              } else {
+                if (_wingTabController != null) {
+                  _wingTabController?.removeListener(_onWingTabChanged);
+                  _wingTabController?.dispose();
+                  _wingTabController = null;
                 }
               }
-            });
+            }
           },
           child: BlocBuilder<InventoryCubit, InventoryState>(
             builder: (context, state) {
@@ -182,6 +180,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
               return Column(
                 children: [
+                  verticalSpacing(),
                   // BUILDING TAB
                   _buildBuildingTab(state),
                   verticalSpacing(),
@@ -189,15 +188,24 @@ class _InventoryScreenState extends State<InventoryScreen>
                   if (wingList.isNotEmpty) _buildWingTab(wingList),
                   // COUNTS
                   verticalSpacing(),
-                  if (wingList.isNotEmpty && _wingTabController != null)
+                  if (wingList.isNotEmpty &&
+                      _wingTabController != null &&
+                      _wingTabController!.length == wingList.length)
                     _buildCountsRow(wingList),
-                  if (_wingTabController != null)
+                  if (_wingTabController != null &&
+                      _wingTabController!.length == wingList.length)
                     Expanded(
                       child: TabBarView(
                         controller: _wingTabController,
                         children:
                             wingList
-                                .map((w) => _buildFloorList(w.floorList))
+                                .map(
+                                  (w) => _buildFloorList(
+                                    w.floorList,
+                                    w,
+                                    selectedBuilding,
+                                  ),
+                                )
                                 .toList(),
                       ),
                     ),
@@ -211,7 +219,11 @@ class _InventoryScreenState extends State<InventoryScreen>
   }
 
   // FLOOR LIST
-  Widget _buildFloorList(List floorList) {
+  Widget _buildFloorList(
+    List floorList,
+    WingModel wing,
+    BuildingModel building,
+  ) {
     if (floorList.isEmpty) {
       return Center(child: Text("No floors found"));
     }
@@ -267,17 +279,143 @@ class _InventoryScreenState extends State<InventoryScreen>
                           ],
                         ),
                       ),
-                      Icon(
-                        isExpanded
-                            ? Icons.keyboard_arrow_up
-                            : Icons.keyboard_arrow_down,
-                        color: AppColor.grey,
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              goRouter.pushNamed(
+                                AppRoutes.addInventorySpecification,
+                                queryParameters: {
+                                  "flatModel": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(
+                                        FlatModel(
+                                          inventoryFlatId: 0,
+                                          uniquekey: "",
+                                          inventoryBuildingId:
+                                              floor.inventoryBuildingId,
+                                          buildingNumber:
+                                              building.buildingNumber,
+                                          inventoryFlatFloorBasementPodiumWingId:
+                                              floor
+                                                  .inventoryFlatFloorBasementPodiumWingId,
+                                          wing: wing.wing,
+                                          inventoryFloorId:
+                                              floor.inventoryFloorId,
+                                          floor: floor.floor,
+                                          flat: "",
+                                          reraCarpetAreaSqFt: 0,
+                                          flatType: "",
+                                          flatConfiguration: "",
+                                          flatStatus: "",
+                                          ownerName: "",
+                                          flatFacing: "",
+                                          bookingId: 0,
+                                          bookingCreatedById: 0,
+                                          bookingCreatedBy: "",
+                                          bookingCreatedDate: DateTime.now(),
+                                          specificationList: [
+                                            FlatSpecificationModel(
+                                              inventoryFlatSpecificationId: 0,
+                                              uniquekey: "",
+                                              inventoryBuildingId:
+                                                  floor.inventoryBuildingId,
+                                              inventoryFlatFloorBasementPodiumWingId:
+                                                  floor
+                                                      .inventoryFlatFloorBasementPodiumWingId,
+                                              inventoryFloorId:
+                                                  floor.inventoryFloorId,
+                                              inventoryFlatId: 0,
+                                              flatLayout: "Bedroom 1",
+                                              flatLayoutAreaSqFt: 0,
+                                              flatLayoutLengthSqFt: 0,
+                                              flatLayoutWidthSqFt: 0,
+                                              note: "",
+                                            ),
+                                            FlatSpecificationModel(
+                                              inventoryFlatSpecificationId: 0,
+                                              uniquekey: "",
+                                              inventoryBuildingId:
+                                                  floor.inventoryBuildingId,
+                                              inventoryFlatFloorBasementPodiumWingId:
+                                                  floor
+                                                      .inventoryFlatFloorBasementPodiumWingId,
+                                              inventoryFloorId:
+                                                  floor.inventoryFloorId,
+                                              inventoryFlatId: 0,
+                                              flatLayout: "Hall",
+                                              flatLayoutAreaSqFt: 0,
+                                              flatLayoutLengthSqFt: 0,
+                                              flatLayoutWidthSqFt: 0,
+                                              note: "",
+                                            ),
+                                            FlatSpecificationModel(
+                                              inventoryFlatSpecificationId: 0,
+                                              uniquekey: "",
+                                              inventoryBuildingId:
+                                                  floor.inventoryBuildingId,
+                                              inventoryFlatFloorBasementPodiumWingId:
+                                                  floor
+                                                      .inventoryFlatFloorBasementPodiumWingId,
+                                              inventoryFloorId:
+                                                  floor.inventoryFloorId,
+                                              inventoryFlatId: 0,
+                                              flatLayout: "Kitchen",
+                                              flatLayoutAreaSqFt: 0,
+                                              flatLayoutLengthSqFt: 0,
+                                              flatLayoutWidthSqFt: 0,
+                                              note: "",
+                                            ),
+                                            FlatSpecificationModel(
+                                              inventoryFlatSpecificationId: 0,
+                                              uniquekey: "",
+                                              inventoryBuildingId:
+                                                  floor.inventoryBuildingId,
+                                              inventoryFlatFloorBasementPodiumWingId:
+                                                  floor
+                                                      .inventoryFlatFloorBasementPodiumWingId,
+                                              inventoryFloorId:
+                                                  floor.inventoryFloorId,
+                                              inventoryFlatId: 0,
+                                              flatLayout: "Common Toilet",
+                                              flatLayoutAreaSqFt: 0,
+                                              flatLayoutLengthSqFt: 0,
+                                              flatLayoutWidthSqFt: 0,
+                                              note: "",
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  "floorModel": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(floor),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                            icon: Icon(
+                              Icons.add,
+                              size: 16,
+                              color: AppColor.darkGreen,
+                            ),
+                          ),
+                          Icon(
+                            isExpanded
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
+                            color: AppColor.grey,
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
               ),
-              // Expandable Content
+
+              // EXPANDABLE CONTENT
               ClipRect(
                 child: AnimatedSize(
                   duration: const Duration(milliseconds: 300),
@@ -309,7 +447,11 @@ class _InventoryScreenState extends State<InventoryScreen>
   // BUILDING TAB
   Widget _buildBuildingTab(InventoryState state) {
     if (_buildingTabController == null) {
-      return const SizedBox.shrink(); // <-- IMPORTANT
+      return const SizedBox.shrink();
+    }
+
+    if (_buildingTabController!.length != state.buildingList.length) {
+      return const SizedBox.shrink();
     }
 
     return Align(
@@ -351,7 +493,11 @@ class _InventoryScreenState extends State<InventoryScreen>
   // WING TAB
   Widget _buildWingTab(List wingList) {
     if (_wingTabController == null) {
-      return const SizedBox.shrink(); // <-- IMPORTANT
+      return const SizedBox.shrink();
+    }
+
+    if (_wingTabController!.length != wingList.length) {
+      return const SizedBox.shrink();
     }
 
     return Align(
@@ -372,7 +518,7 @@ class _InventoryScreenState extends State<InventoryScreen>
             labelColor: AppColor.primary,
             unselectedLabelColor: AppColor.grey,
             indicator: BoxDecoration(
-              color: AppColor.grey10,
+              color: AppColor.lightBlue,
               borderRadius: BorderRadius.circular(8),
             ),
             indicatorSize: TabBarIndicatorSize.tab,
