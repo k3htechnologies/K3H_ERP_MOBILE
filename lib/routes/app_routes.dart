@@ -63,6 +63,7 @@ class AppRoutes {
   // INVENTORY
   static String inventory = "/inventory";
   static String addInventorySpecification = "/addInventorySpecification";
+  static String addUnitSpecification = "/addUnitSpecification";
 
   // PARKING
   static String parking = "/parking";

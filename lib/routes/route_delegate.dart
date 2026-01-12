@@ -21,6 +21,7 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_inventory_specification_screen.dart';
+import 'package:k3h_erp_app/features/inventory/presentation/pages/add_unit_specification_screen.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
@@ -2028,6 +2029,44 @@ final GoRouter goRouter = GoRouter(
                 return AddInventorySpecificationScreen(
                   flatModel: flat,
                   floorModel: floor,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addUnitSpecification,
+              path: AppRoutes.addUnitSpecification,
+              builder: (context, state) {
+                final queryParameterUnitSpec =
+                    state.uri.queryParameters['unitSpecificationModel'];
+                final queryParameterFlatId =
+                    int.tryParse(state.uri.queryParameters['inventoryFlatId'] ?? '');
+                final queryParameterBuildingId =
+                    int.tryParse(state.uri.queryParameters['inventoryBuildingId'] ?? '');
+                final queryParameterWingId =
+                    int.tryParse(state.uri.queryParameters['inventoryFlatFloorBasementPodiumWingId'] ?? '');
+                final queryParameterFloorId =
+                    int.tryParse(state.uri.queryParameters['inventoryFloorId'] ?? '');
+
+                FlatSpecificationModel? unitSpec;
+                if (queryParameterUnitSpec != null) {
+                  final unitSpecJson = jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(queryParameterUnitSpec),
+                    ),
+                  );
+                  unitSpec = FlatSpecificationModel.fromJson(unitSpecJson);
+                }
+
+                return AddUnitSpecificationScreen(
+                  unitSpecificationModel: unitSpec,
+                  inventoryFlatId: queryParameterFlatId,
+                  inventoryBuildingId: queryParameterBuildingId,
+                  inventoryFlatFloorBasementPodiumWingId: queryParameterWingId,
+                  inventoryFloorId: queryParameterFloorId,
+                  onSave: (savedSpec) {
+                    // Return the saved spec via pop
+                    goRouter.pop(savedSpec);
+                  },
                 );
               },
             ),

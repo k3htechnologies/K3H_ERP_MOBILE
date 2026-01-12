@@ -39,6 +39,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   // EXPANSION STATE
   final Set<int> _expandedFloors = {};
+  bool _hasInitialized = false;
 
   @override
   void initState() {
@@ -47,7 +48,24 @@ class _InventoryScreenState extends State<InventoryScreen>
         Authorization.routeAuthorizationMap[AppRoutes.inventory]!;
     _initControllers();
     _inventoryCubit = context.read<InventoryCubit>();
-    _inventoryCubit.getInventory(context, 2);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Call getInventory only once when screen first loads
+    if (!_hasInitialized) {
+      _hasInitialized = true;
+      Future.microtask(() {
+        if (mounted) {
+          final state = _inventoryCubit.state;
+          // Only call if buildingList is empty (cubit guard will prevent duplicates)
+          if (state.buildingList.isEmpty) {
+            _inventoryCubit.getInventory(context, 8);
+          }
+        }
+      });
+    }
   }
 
   @override

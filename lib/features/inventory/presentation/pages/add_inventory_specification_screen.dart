@@ -6,14 +6,17 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
-import 'package:k3h_erp_app/features/inventory/presentation/pages/add_unit_specification_screen.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'dart:convert';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -230,21 +233,30 @@ class _AddInventorySpecificationScreenState
       // flatId will be 0 for new flats
     }
 
-    final result = await Navigator.push<FlatSpecificationModel>(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => AddUnitSpecificationScreen(
-              unitSpecificationModel: unitSpec,
-              inventoryFlatId: flatId,
-              inventoryBuildingId: buildingId,
-              inventoryFlatFloorBasementPodiumWingId: wingId,
-              inventoryFloorId: floorId,
-              onSave: (savedSpec) {
-                Navigator.pop(context, savedSpec);
-              },
-            ),
-      ),
+    final Map<String, String> queryParams = {};
+    
+    if (unitSpec != null) {
+      queryParams['unitSpecificationModel'] = Uri.encodeQueryComponent(
+        EncryptionManager.encryptData(jsonEncode(unitSpec.toJson())),
+      );
+    }
+    
+    if (flatId != null) {
+      queryParams['inventoryFlatId'] = flatId.toString();
+    }
+    if (buildingId != null) {
+      queryParams['inventoryBuildingId'] = buildingId.toString();
+    }
+    if (wingId != null) {
+      queryParams['inventoryFlatFloorBasementPodiumWingId'] = wingId.toString();
+    }
+    if (floorId != null) {
+      queryParams['inventoryFloorId'] = floorId.toString();
+    }
+
+    final result = await goRouter.pushNamed<FlatSpecificationModel>(
+      AppRoutes.addUnitSpecification,
+      queryParameters: queryParams,
     );
 
     if (result != null) {
@@ -325,24 +337,10 @@ class _AddInventorySpecificationScreenState
       return;
     }
 
-    if (widget.floorModel != null) {
-      // Add new flat
-      _inventoryCubit.addInventoryFlat(
-        context,
-        projectId: _project.projectId,
-        inventoryBuildingId: widget.floorModel!.inventoryBuildingId,
-        inventoryFlatFloorBasementPodiumWingId:
-            widget.floorModel!.inventoryFlatFloorBasementPodiumWingId,
-        inventoryFloorId: widget.floorModel!.inventoryFloorId,
-        flat: _flatC.text.trim(),
-        flatType: selectedFlatType.value['DisplayName'],
-        flatArea: double.parse(_flatSqftC.text),
-        flatConfiguration: selectedFlatConfiguration?['DisplayName'] ?? '',
-        flatStatus: selectedFlatStatus.value['DisplayName'],
-        flatFacing: selectedFlatFacing!['DisplayName'],
-        flatSpecificationList: flatSpecificationList.value,
-      );
-    } else if (widget.flatModel != null) {
+    // Priority: flatModel (edit) over floorModel (add)
+    // If flatModel exists with valid inventoryFlatId, we're editing an existing flat
+    // If only floorModel exists (or flatModel has inventoryFlatId = 0), we're adding a new flat
+    if (widget.flatModel != null && widget.flatModel!.inventoryFlatId > 0) {
       // Update existing flat
       _inventoryCubit.updateInventoryFlat(
         context,
@@ -352,6 +350,23 @@ class _AddInventorySpecificationScreenState
         inventoryFlatFloorBasementPodiumWingId:
             widget.flatModel!.inventoryFlatFloorBasementPodiumWingId,
         inventoryFloorId: widget.flatModel!.inventoryFloorId,
+        flat: _flatC.text.trim(),
+        flatType: selectedFlatType.value['DisplayName'],
+        flatArea: double.parse(_flatSqftC.text),
+        flatConfiguration: selectedFlatConfiguration?['DisplayName'] ?? '',
+        flatStatus: selectedFlatStatus.value['DisplayName'],
+        flatFacing: selectedFlatFacing!['DisplayName'],
+        flatSpecificationList: flatSpecificationList.value,
+      );
+    } else if (widget.floorModel != null) {
+      // Add new flat
+      _inventoryCubit.addInventoryFlat(
+        context,
+        projectId: _project.projectId,
+        inventoryBuildingId: widget.floorModel!.inventoryBuildingId,
+        inventoryFlatFloorBasementPodiumWingId:
+            widget.floorModel!.inventoryFlatFloorBasementPodiumWingId,
+        inventoryFloorId: widget.floorModel!.inventoryFloorId,
         flat: _flatC.text.trim(),
         flatType: selectedFlatType.value['DisplayName'],
         flatArea: double.parse(_flatSqftC.text),
@@ -687,7 +702,9 @@ class _AddInventorySpecificationScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text: widget.flatModel != null ? "Update Specification" : "Save Specification",
+            text: (widget.flatModel != null && widget.flatModel!.inventoryFlatId > 0) 
+                ? "Update Specification" 
+                : "Save Specification",
             onPressed: _handleSubmit,
           ),
         ),

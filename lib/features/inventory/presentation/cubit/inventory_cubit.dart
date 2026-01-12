@@ -19,18 +19,29 @@ class InventoryCubit extends Cubit<InventoryState> {
   final InventoryRepository _inventoryRepository = serviceLocator<InventoryRepository>();
 
 
+  bool _isApiCallInProgress = false;
+
   // GET ENTIRE INVENTORY
   Future getInventory(BuildContext context, int projectId) async {
+    // Prevent duplicate calls using internal flag
+    // Check both internal flag and state to prevent duplicates
+    if (_isApiCallInProgress || (state.isLoading == true && state.buildingList.isNotEmpty)) {
+      return;
+    }
+    
+    _isApiCallInProgress = true;
     emit(state.copyWith(isLoading: true));
     final result = await _inventoryRepository.getInventory(
       projectId: projectId,
     );
     result.fold(
           (failure) {
+        _isApiCallInProgress = false;
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
           (result) {
+        _isApiCallInProgress = false;
         emit(
           state.copyWith(
             isLoading: false,
@@ -153,9 +164,13 @@ class InventoryCubit extends Cubit<InventoryState> {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-          (response) {
-        goRouter.pop();
-        showSuccessMessage(context,subTitle: "Unit Updated Successfully");
+          (response) async {
+        // Refresh inventory before navigating back
+        await getInventory(context, projectId);
+        if (context.mounted) {
+          goRouter.pop();
+          showSuccessMessage(context,subTitle: "Unit Updated Successfully");
+        }
       },
     );
   }

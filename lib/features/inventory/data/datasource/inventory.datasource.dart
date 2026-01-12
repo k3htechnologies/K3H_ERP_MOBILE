@@ -427,10 +427,10 @@ class InventoryDatasourceImpl implements InventoryDatasource {
   Future<Map<String, dynamic>> apicallToUpdateInventoryFlat({
     required Map<String, dynamic> body,
   }) async {
-    String addUpdateInventoryFlatUrl = "Inventory/AddInventoryFlat";
+    String updateInventoryFlatUrl = "Inventory/UpdateInventoryFlat";
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
-        addUpdateInventoryFlatUrl,
+        updateInventoryFlatUrl,
         body,
       );
       return {
