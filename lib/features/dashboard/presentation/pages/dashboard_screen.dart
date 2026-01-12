@@ -5,8 +5,8 @@ import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/dashboard/presentation/widget/project_selector_overlay.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
-import 'package:k3h_erp_app/features/dashboard/presentation/widhet/project_selector_overlay.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 
@@ -27,12 +27,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     [],
   );
 
+  final ValueNotifier<bool> _showOverlayNotifier = ValueNotifier(false);
+
   ProjectModel? _selectedProject;
 
   @override
   void initState() {
     super.initState();
     _loadProjects();
+  }
+
+  @override
+  void dispose() {
+    _showOverlayNotifier.dispose();
+    super.dispose();
   }
 
   Future<void> _loadProjects() async {
@@ -53,7 +61,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         jsonEncode(_selectedProject!.toJson()),
       );
     }
-    if (mounted) setState(() {});
   }
 
   // FETCH PROJECTS
@@ -107,8 +114,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  bool _showOverlay = false;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,9 +127,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               if (projects.isEmpty) return const SizedBox.shrink();
               return IconButton(
                 onPressed: () {
-                  setState(() {
-                    _showOverlay = true;
-                  });
+                  _showOverlayNotifier.value = true;
                 },
                 icon: const Icon(Icons.apartment_rounded),
               );
@@ -135,17 +138,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: Stack(
         children: [
           Center(child: Text("Jay Shree Ram..!!!")),
-          if (_showOverlay)
-            ProjectSelectorOverlay(
-              projects: _projectListNotifier.value,
-              selectedProjectId: _selectedProject?.projectId,
-              onSelect: _onProjectSelected,
-              onClose: () {
-                setState(() {
-                  _showOverlay = false;
-                });
-              },
-            ),
+          ValueListenableBuilder<bool>(
+            valueListenable: _showOverlayNotifier,
+            builder: (context, showOverlay, _) {
+              if (!showOverlay) return const SizedBox.shrink();
+              return ProjectSelectorOverlay(
+                projects: _projectListNotifier.value,
+                selectedProjectId: _selectedProject?.projectId,
+                onSelect: _onProjectSelected,
+                onClose: () {
+                  _showOverlayNotifier.value = false;
+                },
+              );
+            },
+          ),
         ],
       ),
     );
@@ -158,6 +164,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
       jsonEncode(project.toJson()),
     );
     showSuccessMessage(context,subTitle: "Project Selected ${project.projectName}");
-    if (mounted) setState(() {});
   }
 }

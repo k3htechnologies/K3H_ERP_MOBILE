@@ -23,8 +23,13 @@ class InventoryCubit extends Cubit<InventoryState> {
 
   // GET ENTIRE INVENTORY
   Future getInventory(BuildContext context, int projectId) async {
-    if (_isApiCallInProgress ||
-        (state.isLoading == true && state.buildingList.isNotEmpty)) {
+    // Only prevent if API is already in progress OR if we already have data and are loading
+    if (_isApiCallInProgress) {
+      return;
+    }
+    
+    // If we have data and are loading, don't call again
+    if (state.isLoading == true && state.buildingList.isNotEmpty) {
       return;
     }
 
@@ -33,14 +38,14 @@ class InventoryCubit extends Cubit<InventoryState> {
     final result = await _inventoryRepository.getInventory(
       projectId: projectId,
     );
+    _isApiCallInProgress = false;
+    
     result.fold(
       (failure) {
-        _isApiCallInProgress = false;
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
       (result) {
-        _isApiCallInProgress = false;
         emit(
           state.copyWith(
             isLoading: false,

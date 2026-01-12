@@ -91,6 +91,7 @@ class _AddInventorySpecificationScreenState
     {'zAttributesId': 1, 'DisplayName': 'Available'},
     {'zAttributesId': 2, 'DisplayName': 'Blocked'},
     {'zAttributesId': 3, 'DisplayName': 'Hold'},
+    {'zAttributesId': 4, 'DisplayName': 'Member'},
   ];
 
   List<Map<String, dynamic>> flatFacingList = [

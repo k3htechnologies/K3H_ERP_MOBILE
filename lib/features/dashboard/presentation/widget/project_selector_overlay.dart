@@ -91,7 +91,9 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
               onTap: () {}, // Prevent tap from closing when tapping inside
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.67,
-                height: double.infinity,
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height,
+                ),
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(

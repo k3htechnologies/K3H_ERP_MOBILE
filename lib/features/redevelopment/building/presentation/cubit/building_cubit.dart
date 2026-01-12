@@ -129,7 +129,6 @@ class BuildingCubit extends Cubit<BuildingState> {
 
     result.fold(
       (failure) {
-        if (isClosed) return;
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },

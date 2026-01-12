@@ -105,6 +105,8 @@ import 'package:k3h_erp_app/features/more/events/calendar/presentation/pages/add
 import 'package:k3h_erp_app/features/more/events/calendar/presentation/pages/calendar_date_detail_screen.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/presentation/pages/calendar_screen.dart';
 import 'package:k3h_erp_app/features/more/events/task/presentation/pages/task_transfer_history_screen.dart';
+import 'package:k3h_erp_app/features/notification/presentation/cubit/notification_cubit.dart';
+import 'package:k3h_erp_app/features/notification/presentation/pages/notification_screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
@@ -196,7 +198,7 @@ String? authenticateAndAuthorizeRoute(GoRouterState state) {
   }
   // AUTHORIZATION
   AuthorizationModel? routeAuthorizationModel =
-      Authorization.routeAuthorizationMap[state.uri.path];
+  Authorization.routeAuthorizationMap[state.uri.path];
   if (routeAuthorizationModel == null) {
     return null;
   }
@@ -249,7 +251,7 @@ final GoRouter goRouter = GoRouter(
       name: AppRoutes.otp,
       builder: (context, state) {
         final queryParameterMobileNumber =
-            state.uri.queryParameters['mobileNumber'];
+        state.uri.queryParameters['mobileNumber'];
         if (queryParameterMobileNumber != null) {
           final mobileNumber = EncryptionManager.decryptData(
             Uri.decodeComponent(queryParameterMobileNumber),
@@ -317,17 +319,17 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addCompany,
               builder: (context, state) {
                 final queryParameterCompany =
-                    state.uri.queryParameters['company'];
+                state.uri.queryParameters['company'];
                 final CompanyModel? companyModel =
-                    queryParameterCompany != null
-                        ? CompanyModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeQueryComponent(queryParameterCompany),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterCompany != null
+                    ? CompanyModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(queryParameterCompany),
+                    ),
+                  ),
+                )
+                    : null;
                 return BlocProvider(
                   create: (context) => CompanyMasterAddCubit(),
                   child: AddCompanyMasterScreen(company: companyModel),
@@ -358,7 +360,7 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.viewCompanyDetails,
               builder: (context, state) {
                 final queryParameterVendor =
-                    state.uri.queryParameters['company'];
+                state.uri.queryParameters['company'];
                 if (queryParameterVendor != null) {
                   final decodedJson = jsonDecode(
                     EncryptionManager.decryptData(
@@ -378,7 +380,7 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.viewVendorDocument,
               builder: (context, state) {
                 final queryParameterVendor =
-                    state.uri.queryParameters['company'];
+                state.uri.queryParameters['company'];
                 if (queryParameterVendor != null) {
                   final decodedJson = jsonDecode(
                     EncryptionManager.decryptData(
@@ -398,7 +400,7 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.viewCompanyPartner,
               builder: (context, state) {
                 final queryParameterCompany =
-                    state.uri.queryParameters['company'];
+                state.uri.queryParameters['company'];
                 if (queryParameterCompany != null) {
                   final decodedJson = jsonDecode(
                     EncryptionManager.decryptData(
@@ -434,17 +436,17 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addDepartment,
               builder: (context, state) {
                 final queryParameterDepartment =
-                    state.uri.queryParameters['department'];
+                state.uri.queryParameters['department'];
                 final DepartmentModel? department =
-                    queryParameterDepartment != null
-                        ? DepartmentModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterDepartment),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterDepartment != null
+                    ? DepartmentModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterDepartment),
+                    ),
+                  ),
+                )
+                    : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
                 return AddDepartmentScreen(
@@ -478,17 +480,17 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addDesignation,
               builder: (context, state) {
                 final queryParameterDesignation =
-                    state.uri.queryParameters['designation'];
+                state.uri.queryParameters['designation'];
                 final DesignationMasterModel? designation =
-                    queryParameterDesignation != null
-                        ? DesignationMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterDesignation),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterDesignation != null
+                    ? DesignationMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterDesignation),
+                    ),
+                  ),
+                )
+                    : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
                 return AddDesignationScreen(
@@ -545,17 +547,17 @@ final GoRouter goRouter = GoRouter(
           path: AppRoutes.addTermsAndConditions,
           builder: (context, state) {
             final queryParameterTnc =
-                state.uri.queryParameters['termsAndCondition'];
+            state.uri.queryParameters['termsAndCondition'];
             final TermsAndConditionsModel? termsAndCondition =
-                queryParameterTnc != null
-                    ? TermsAndConditionsModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterTnc),
-                        ),
-                      ),
-                    )
-                    : null;
+            queryParameterTnc != null
+                ? TermsAndConditionsModel.fromJson(
+              jsonDecode(
+                EncryptionManager.decryptData(
+                  Uri.decodeComponent(queryParameterTnc),
+                ),
+              ),
+            )
+                : null;
             final index =
                 int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
             final tabIndex =
@@ -594,15 +596,15 @@ final GoRouter goRouter = GoRouter(
                 final queryParameterAsset = state.uri.queryParameters['asset'];
 
                 final AssetMasterModel? asset =
-                    queryParameterAsset != null
-                        ? AssetMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterAsset),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterAsset != null
+                    ? AssetMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterAsset),
+                    ),
+                  ),
+                )
+                    : null;
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
@@ -617,15 +619,15 @@ final GoRouter goRouter = GoRouter(
                 final queryParameterAsset = state.uri.queryParameters['asset'];
 
                 final AssetMasterModel? assetMaster =
-                    queryParameterAsset != null
-                        ? AssetMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterAsset),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterAsset != null
+                    ? AssetMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterAsset),
+                    ),
+                  ),
+                )
+                    : null;
                 return AssetMasterViewScreen(assetMaster: assetMaster!);
               },
             ),
@@ -652,18 +654,18 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addAssetMappingMaster,
               builder: (context, state) {
                 final queryParameterAssetMapping =
-                    state.uri.queryParameters['assetMapping'];
+                state.uri.queryParameters['assetMapping'];
 
                 final AssetMappingModel? assetMapping =
-                    queryParameterAssetMapping != null
-                        ? AssetMappingModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterAssetMapping),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterAssetMapping != null
+                    ? AssetMappingModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterAssetMapping),
+                    ),
+                  ),
+                )
+                    : null;
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
@@ -679,17 +681,17 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.viewAssetMappingMaster,
               builder: (context, state) {
                 final queryParameterAssetMapping =
-                    state.uri.queryParameters['assetMapping'];
+                state.uri.queryParameters['assetMapping'];
                 final AssetMappingModel? assetMapping =
-                    queryParameterAssetMapping != null
-                        ? AssetMappingModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterAssetMapping),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterAssetMapping != null
+                    ? AssetMappingModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterAssetMapping),
+                    ),
+                  ),
+                )
+                    : null;
                 return AssetMappingMasterViewScreen(
                   assetMapping: assetMapping!,
                 );
@@ -718,18 +720,18 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addBranchMaster,
               builder: (context, state) {
                 final queryParameterBranchMaster =
-                    state.uri.queryParameters['branchMaster'];
+                state.uri.queryParameters['branchMaster'];
 
                 final BranchMasterModel? branchMaster =
-                    queryParameterBranchMaster != null
-                        ? BranchMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterBranchMaster),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterBranchMaster != null
+                    ? BranchMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterBranchMaster),
+                    ),
+                  ),
+                )
+                    : null;
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
@@ -745,17 +747,17 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.viewBranchMaster,
               builder: (context, state) {
                 final queryParameterBranchMaster =
-                    state.uri.queryParameters['branchMaster'];
+                state.uri.queryParameters['branchMaster'];
                 final BranchMasterModel? branchMaster =
-                    queryParameterBranchMaster != null
-                        ? BranchMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterBranchMaster),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterBranchMaster != null
+                    ? BranchMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterBranchMaster),
+                    ),
+                  ),
+                )
+                    : null;
                 return BranchMasterViewScreen(branch: branchMaster!);
               },
             ),
@@ -782,20 +784,20 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addBranchAssociation,
               builder: (context, state) {
                 final queryParameterBranchAssociationMaster =
-                    state.uri.queryParameters['branchAssociation'];
+                state.uri.queryParameters['branchAssociation'];
 
                 final BranchAssociationModel? branchAssociation =
-                    queryParameterBranchAssociationMaster != null
-                        ? BranchAssociationModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(
-                                queryParameterBranchAssociationMaster,
-                              ),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterBranchAssociationMaster != null
+                    ? BranchAssociationModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(
+                        queryParameterBranchAssociationMaster,
+                      ),
+                    ),
+                  ),
+                )
+                    : null;
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
@@ -829,20 +831,20 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addDeductionMaster,
               builder: (context, state) {
                 final queryParameterDeductionMaster =
-                    state.uri.queryParameters['deduction'];
+                state.uri.queryParameters['deduction'];
 
                 final DeductionMasterModel? deduction =
-                    queryParameterDeductionMaster != null
-                        ? DeductionMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(
-                                queryParameterDeductionMaster,
-                              ),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterDeductionMaster != null
+                    ? DeductionMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(
+                        queryParameterDeductionMaster,
+                      ),
+                    ),
+                  ),
+                )
+                    : null;
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
@@ -876,18 +878,18 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addEarningMaster,
               builder: (context, state) {
                 final queryParameterEarningMaster =
-                    state.uri.queryParameters['earning'];
+                state.uri.queryParameters['earning'];
 
                 final EarningMasterModel? earning =
-                    queryParameterEarningMaster != null
-                        ? EarningMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterEarningMaster),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterEarningMaster != null
+                    ? EarningMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterEarningMaster),
+                    ),
+                  ),
+                )
+                    : null;
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
@@ -921,18 +923,18 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addHolidayMaster,
               builder: (context, state) {
                 final queryParameterHolidayMaster =
-                    state.uri.queryParameters['holiday'];
+                state.uri.queryParameters['holiday'];
 
                 final HolidayMasterModel? holiday =
-                    queryParameterHolidayMaster != null
-                        ? HolidayMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterHolidayMaster),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterHolidayMaster != null
+                    ? HolidayMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterHolidayMaster),
+                    ),
+                  ),
+                )
+                    : null;
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
@@ -966,20 +968,20 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addHolidayMappingMaster,
               builder: (context, state) {
                 final queryParameterHolidayMappingMaster =
-                    state.uri.queryParameters['holidayMapping'];
+                state.uri.queryParameters['holidayMapping'];
 
                 final HolidayMappingModel? holidayMapping =
-                    queryParameterHolidayMappingMaster != null
-                        ? HolidayMappingModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(
-                                queryParameterHolidayMappingMaster,
-                              ),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterHolidayMappingMaster != null
+                    ? HolidayMappingModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(
+                        queryParameterHolidayMappingMaster,
+                      ),
+                    ),
+                  ),
+                )
+                    : null;
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
@@ -1013,19 +1015,19 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addLeaveEncashmentMaster,
               builder: (context, state) {
                 final queryParameterLeaveEncashment =
-                    state.uri.queryParameters['leaveEncashment'];
+                state.uri.queryParameters['leaveEncashment'];
                 final LeaveEncashmentMasterModel? leaveEncashmentMasterModel =
-                    queryParameterLeaveEncashment != null
-                        ? LeaveEncashmentMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(
-                                queryParameterLeaveEncashment,
-                              ),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterLeaveEncashment != null
+                    ? LeaveEncashmentMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(
+                        queryParameterLeaveEncashment,
+                      ),
+                    ),
+                  ),
+                )
+                    : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
                 return AddLeaveEncashmentMasterScreen(
@@ -1058,17 +1060,17 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addLeaveTypeMaster,
               builder: (context, state) {
                 final queryParameterLeaveType =
-                    state.uri.queryParameters['leaveType'];
+                state.uri.queryParameters['leaveType'];
                 final LeaveTypeModel? leaveTypeMasterModel =
-                    queryParameterLeaveType != null
-                        ? LeaveTypeModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterLeaveType),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterLeaveType != null
+                    ? LeaveTypeModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterLeaveType),
+                    ),
+                  ),
+                )
+                    : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
                 return AddLeaveTypeMasterScreen(
@@ -1101,17 +1103,17 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addShiftMaster,
               builder: (context, state) {
                 final queryParameterLeaveType =
-                    state.uri.queryParameters['shift'];
+                state.uri.queryParameters['shift'];
                 final ShiftMasterModel? shiftMasterModel =
-                    queryParameterLeaveType != null
-                        ? ShiftMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterLeaveType),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterLeaveType != null
+                    ? ShiftMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterLeaveType),
+                    ),
+                  ),
+                )
+                    : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
                 return AddShiftMasterScreen(
@@ -1128,15 +1130,15 @@ final GoRouter goRouter = GoRouter(
                 final queryParameterShift = state.uri.queryParameters['shift'];
 
                 final ShiftMasterModel? shiftMaster =
-                    queryParameterShift != null
-                        ? ShiftMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterShift),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterShift != null
+                    ? ShiftMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterShift),
+                    ),
+                  ),
+                )
+                    : null;
                 return ShiftMasterViewScreen(shiftMaster: shiftMaster!);
               },
             ),
@@ -1164,18 +1166,18 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addShiftMappingMaster,
               builder: (context, state) {
                 final queryParameterShitMapping =
-                    state.uri.queryParameters['shiftMapping'];
+                state.uri.queryParameters['shiftMapping'];
 
                 final ShiftMappingModel? shiftMappingMaster =
-                    queryParameterShitMapping != null
-                        ? ShiftMappingModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterShitMapping),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterShitMapping != null
+                    ? ShiftMappingModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterShitMapping),
+                    ),
+                  ),
+                )
+                    : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
 
@@ -1190,18 +1192,18 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.viewShiftMappingMaster,
               builder: (context, state) {
                 final queryParameterShiftMapping =
-                    state.uri.queryParameters['shiftMapping'];
+                state.uri.queryParameters['shiftMapping'];
 
                 final ShiftMappingModel? shiftMappingMaster =
-                    queryParameterShiftMapping != null
-                        ? ShiftMappingModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterShiftMapping),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterShiftMapping != null
+                    ? ShiftMappingModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterShiftMapping),
+                    ),
+                  ),
+                )
+                    : null;
 
                 return ViewShiftMappingMasterScreen(
                   shiftMappingModel: shiftMappingMaster!,
@@ -1232,18 +1234,18 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addWeekOffMaster,
               builder: (context, state) {
                 final queryParameterWeekOff =
-                    state.uri.queryParameters['weekOff'];
+                state.uri.queryParameters['weekOff'];
 
                 final WeekOffMasterModel? weekOffMaster =
-                    queryParameterWeekOff != null
-                        ? WeekOffMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterWeekOff),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterWeekOff != null
+                    ? WeekOffMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterWeekOff),
+                    ),
+                  ),
+                )
+                    : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
 
@@ -1258,18 +1260,18 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.viewWeekOffMaster,
               builder: (context, state) {
                 final queryParameterWeekOff =
-                    state.uri.queryParameters['weekOff'];
+                state.uri.queryParameters['weekOff'];
 
                 final WeekOffMasterModel? weekOffMaster =
-                    queryParameterWeekOff != null
-                        ? WeekOffMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterWeekOff),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterWeekOff != null
+                    ? WeekOffMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterWeekOff),
+                    ),
+                  ),
+                )
+                    : null;
                 return ViewWeekOffMasterScreen(weekOffMaster: weekOffMaster!);
               },
             ),
@@ -1297,18 +1299,18 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addWeekOffMappingMaster,
               builder: (context, state) {
                 final queryParameterWeekOffMapping =
-                    state.uri.queryParameters['weekOffMapping'];
+                state.uri.queryParameters['weekOffMapping'];
 
                 final WeekOffMappingModel? weekOffMappingMaster =
-                    queryParameterWeekOffMapping != null
-                        ? WeekOffMappingModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterWeekOffMapping),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterWeekOffMapping != null
+                    ? WeekOffMappingModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterWeekOffMapping),
+                    ),
+                  ),
+                )
+                    : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
 
@@ -1323,18 +1325,18 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.viewWeekOffMappingMaster,
               builder: (context, state) {
                 final queryParameterWeekOff =
-                    state.uri.queryParameters['weekOffMapping'];
+                state.uri.queryParameters['weekOffMapping'];
 
                 final WeekOffMasterModel? weekOffMaster =
-                    queryParameterWeekOff != null
-                        ? WeekOffMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterWeekOff),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterWeekOff != null
+                    ? WeekOffMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterWeekOff),
+                    ),
+                  ),
+                )
+                    : null;
                 return ViewWeekOffMasterScreen(weekOffMaster: weekOffMaster!);
               },
             ),
@@ -1366,19 +1368,19 @@ final GoRouter goRouter = GoRouter(
                         int.tryParse(
                           state.uri.queryParameters['index'] ?? '',
                         ) ??
-                        0;
+                            0;
 
                     return AddEmployeeScreen(
                       employee:
-                          employee != null
-                              ? UserModel.fromJson(
-                                jsonDecode(
-                                  EncryptionManager.decryptData(
-                                    Uri.decodeComponent(employee),
-                                  ),
-                                ),
-                              )
-                              : null,
+                      employee != null
+                          ? UserModel.fromJson(
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(employee),
+                          ),
+                        ),
+                      )
+                          : null,
                       index: index,
                     );
                   },
@@ -1425,17 +1427,17 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addProjectMaster,
               builder: (context, state) {
                 final queryParameterProject =
-                    state.uri.queryParameters['project'];
+                state.uri.queryParameters['project'];
                 final ProjectModel? project =
-                    queryParameterProject != null
-                        ? ProjectModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterProject),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterProject != null
+                    ? ProjectModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterProject),
+                    ),
+                  ),
+                )
+                    : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
                 return AddProjectScreen(project: project, index: index);
@@ -1446,17 +1448,17 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.projectDetails,
               builder: (context, state) {
                 final queryParameterProject =
-                    state.uri.queryParameters['project'];
+                state.uri.queryParameters['project'];
                 final ProjectModel? project =
-                    queryParameterProject != null
-                        ? ProjectModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterProject),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterProject != null
+                    ? ProjectModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterProject),
+                    ),
+                  ),
+                )
+                    : null;
                 return ProjectDetailsScreen(project: project!);
               },
               routes: [
@@ -1465,29 +1467,29 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.addBankDetails,
                   builder: (context, state) {
                     final queryParameterProject =
-                        state.uri.queryParameters['project'];
+                    state.uri.queryParameters['project'];
                     final ProjectModel? project =
-                        queryParameterProject != null
-                            ? ProjectModel.fromJson(
-                              jsonDecode(
-                                EncryptionManager.decryptData(
-                                  Uri.decodeComponent(queryParameterProject),
-                                ),
-                              ),
-                            )
-                            : null;
+                    queryParameterProject != null
+                        ? ProjectModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterProject),
+                        ),
+                      ),
+                    )
+                        : null;
                     final queryParameterBank =
-                        state.uri.queryParameters['bank'];
+                    state.uri.queryParameters['bank'];
                     final BankDetailsModel? bankDetailsModel =
-                        queryParameterBank != null
-                            ? BankDetailsModel.fromJson(
-                              jsonDecode(
-                                EncryptionManager.decryptData(
-                                  Uri.decodeComponent(queryParameterBank),
-                                ),
-                              ),
-                            )
-                            : null;
+                    queryParameterBank != null
+                        ? BankDetailsModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterBank),
+                        ),
+                      ),
+                    )
+                        : null;
                     return AddBankDetailsScreen(
                       bankDetailsModel: bankDetailsModel,
                       project: project!,
@@ -1520,17 +1522,17 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addMaterialMaster,
               builder: (context, state) {
                 final queryParameterMaterial =
-                    state.uri.queryParameters['material'];
+                state.uri.queryParameters['material'];
                 final MaterialMasterModel? material =
-                    queryParameterMaterial != null
-                        ? MaterialMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeQueryComponent(queryParameterMaterial),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterMaterial != null
+                    ? MaterialMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(queryParameterMaterial),
+                    ),
+                  ),
+                )
+                    : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
                 // Use BlocProvider.value with service locator to get the singleton instance
@@ -1572,19 +1574,19 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addSubMaterialMaster,
               builder: (context, state) {
                 final queryParameterSubMaterial =
-                    state.uri.queryParameters['subMaterial'];
+                state.uri.queryParameters['subMaterial'];
                 final SubMaterialMasterModel? subMaterial =
-                    queryParameterSubMaterial != null
-                        ? SubMaterialMasterModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeQueryComponent(
-                                queryParameterSubMaterial,
-                              ),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterSubMaterial != null
+                    ? SubMaterialMasterModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(
+                        queryParameterSubMaterial,
+                      ),
+                    ),
+                  ),
+                )
+                    : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
                 return AddSubMaterialMasterScreen(
@@ -1608,18 +1610,18 @@ final GoRouter goRouter = GoRouter(
           path: AppRoutes.addBuilding,
           builder: (context, state) {
             final queryParameterBuilding =
-                state.uri.queryParameters['building'];
+            state.uri.queryParameters['building'];
 
             final RedevelopmentBuildingModel? building =
-                queryParameterBuilding != null
-                    ? RedevelopmentBuildingModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterBuilding),
-                        ),
-                      ),
-                    )
-                    : null;
+            queryParameterBuilding != null
+                ? RedevelopmentBuildingModel.fromJson(
+              jsonDecode(
+                EncryptionManager.decryptData(
+                  Uri.decodeComponent(queryParameterBuilding),
+                ),
+              ),
+            )
+                : null;
 
             final index =
                 int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
@@ -1643,18 +1645,18 @@ final GoRouter goRouter = GoRouter(
           path: AppRoutes.viewBuilding,
           builder: (context, state) {
             final queryParameterBuilding =
-                state.uri.queryParameters['building'];
+            state.uri.queryParameters['building'];
 
             final RedevelopmentBuildingModel? building =
-                queryParameterBuilding != null
-                    ? RedevelopmentBuildingModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterBuilding),
-                        ),
-                      ),
-                    )
-                    : null;
+            queryParameterBuilding != null
+                ? RedevelopmentBuildingModel.fromJson(
+              jsonDecode(
+                EncryptionManager.decryptData(
+                  Uri.decodeComponent(queryParameterBuilding),
+                ),
+              ),
+            )
+                : null;
 
             return BlocProvider.value(
               value: serviceLocator<BuildingCubit>(),
@@ -1663,77 +1665,78 @@ final GoRouter goRouter = GoRouter(
           },
         ),
         // TENANT
-        GoRoute(
-          name: AppRoutes.tenant,
-          path: AppRoutes.tenant,
-          builder: (context, state) {
-            return BlocProvider.value(
-              value: serviceLocator<TenantCubit>(),
-              child: const TenantScreen(),
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => TenantCubit(),
+              child: child,
             );
           },
-        ),
-        GoRoute(
-          name: AppRoutes.addTenant,
-          path: AppRoutes.addTenant,
-          builder: (context, state) {
-            final queryParameterTenant = state.uri.queryParameters['tenant'];
+          routes: [
+            GoRoute(
+              name: AppRoutes.tenant,
+              path: AppRoutes.tenant,
+              builder: (context, state) {
+                return const TenantScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addTenant,
+              path: AppRoutes.addTenant,
+              builder: (context, state) {
+                final queryParameterTenant = state.uri.queryParameters['tenant'];
 
-            final TenantModel? tenant =
+                final TenantModel? tenant =
                 queryParameterTenant != null
                     ? TenantModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterTenant),
-                        ),
-                      ),
-                    )
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterTenant),
+                    ),
+                  ),
+                )
                     : null;
-            final index =
-                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
 
-            final projectId =
-                int.tryParse(state.uri.queryParameters['projectId'] ?? '') ??
-                tenant?.projectId ??
-                0;
-            final buildingId =
-                int.tryParse(state.uri.queryParameters['buildingId'] ?? '') ??
-                tenant?.buildingId ??
-                0;
+                final projectId =
+                    int.tryParse(state.uri.queryParameters['projectId'] ?? '') ??
+                        tenant?.projectId ??
+                        0;
+                final buildingId =
+                    int.tryParse(state.uri.queryParameters['buildingId'] ?? '') ??
+                        tenant?.buildingId ??
+                        0;
 
-            return BlocProvider.value(
-              value: serviceLocator<TenantCubit>(),
-              child: AddTenantScreen(
-                tenant: tenant,
-                index: index,
-                projectId: projectId,
-                buildingId: buildingId,
-              ),
-            );
-          },
-        ),
-        GoRoute(
-          name: AppRoutes.viewTenant,
-          path: AppRoutes.viewTenant,
-          builder: (context, state) {
-            final queryParameterTenant = state.uri.queryParameters['tenant'];
+                return AddTenantScreen(
+                  tenant: tenant,
+                  index: index,
+                  projectId: projectId,
+                  buildingId: buildingId,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewTenant,
+              path: AppRoutes.viewTenant,
+              builder: (context, state) {
+                final queryParameterTenant = state.uri.queryParameters['tenant'];
 
-            final TenantModel? tenant =
+                final TenantModel? tenant =
                 queryParameterTenant != null
                     ? TenantModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterTenant),
-                        ),
-                      ),
-                    )
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterTenant),
+                    ),
+                  ),
+                )
                     : null;
 
-            return BlocProvider.value(
-              value: serviceLocator<TenantCubit>(),
-              child: TenantViewScreen(tenant: tenant!),
-            );
-          },
+                return TenantViewScreen(tenant: tenant!);
+              },
+            ),
+          ],
         ),
         // CALENDAR
         ShellRoute(
@@ -1823,6 +1826,16 @@ final GoRouter goRouter = GoRouter(
             );
           },
         ),
+        GoRoute(
+          path: AppRoutes.notificationScreenMobile,
+          name: AppRoutes.notificationScreenMobile,
+          builder: (context, state) {
+            return BlocProvider(
+              create: (context) => NotificationCubit(),
+              child: NotificationScreen(),
+            );
+          },
+        ),
         // MARKETING CONTENT DOCUMENT
         GoRoute(
           path: AppRoutes.content,
@@ -1840,7 +1853,7 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.contentDocument,
               builder: (context, state) {
                 final queryParameterMarketingContentFolderId =
-                    state.uri.queryParameters['marketingContentFolderId'];
+                state.uri.queryParameters['marketingContentFolderId'];
 
                 if (queryParameterMarketingContentFolderId != null) {
                   final decodedJson = jsonDecode(
@@ -1880,7 +1893,7 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.approvedBankFile,
               builder: (context, state) {
                 final queryParameter =
-                    state.uri.queryParameters['approvedBankFolderId'];
+                state.uri.queryParameters['approvedBankFolderId'];
                 if (queryParameter == null) {
                   return TestScreen();
                 }
@@ -1925,18 +1938,18 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addVendor,
               builder: (context, state) {
                 final queryParameterVendor =
-                    state.uri.queryParameters['vendor'];
+                state.uri.queryParameters['vendor'];
 
                 final VendorModel? vendor =
-                    queryParameterVendor != null
-                        ? VendorModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterVendor),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterVendor != null
+                    ? VendorModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterVendor),
+                    ),
+                  ),
+                )
+                    : null;
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
@@ -1953,7 +1966,7 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.viewVendorDetails,
               builder: (context, state) {
                 final queryParameterVendor =
-                    state.uri.queryParameters['vendor'];
+                state.uri.queryParameters['vendor'];
 
                 final vendor = VendorModel.fromJson(
                   jsonDecode(
@@ -1972,7 +1985,7 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.viewVendorDocument,
               builder: (context, state) {
                 final queryParameterVendor =
-                    state.uri.queryParameters['vendor'];
+                state.uri.queryParameters['vendor'];
 
                 final vendor = VendorModel.fromJson(
                   jsonDecode(
@@ -2005,9 +2018,9 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addInventorySpecification,
               builder: (context, state) {
                 final queryParameterFlatModel =
-                    state.uri.queryParameters['flatModel'];
+                state.uri.queryParameters['flatModel'];
                 final queryParameterFloorModel =
-                    state.uri.queryParameters['floorModel'];
+                state.uri.queryParameters['floorModel'];
 
                 FlatModel? flat;
                 FloorModel? floor;
@@ -2040,7 +2053,7 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addUnitSpecification,
               builder: (context, state) {
                 final queryParameterUnitSpec =
-                    state.uri.queryParameters['unitSpecificationModel'];
+                state.uri.queryParameters['unitSpecificationModel'];
                 final queryParameterFlatId = int.tryParse(
                   state.uri.queryParameters['inventoryFlatId'] ?? '',
                 );
@@ -2049,8 +2062,8 @@ final GoRouter goRouter = GoRouter(
                 );
                 final queryParameterWingId = int.tryParse(
                   state
-                          .uri
-                          .queryParameters['inventoryFlatFloorBasementPodiumWingId'] ??
+                      .uri
+                      .queryParameters['inventoryFlatFloorBasementPodiumWingId'] ??
                       '',
                 );
                 final queryParameterFloorId = int.tryParse(
@@ -2103,18 +2116,18 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addChannelPartner,
               builder: (context, state) {
                 final queryParameterChannelPartner =
-                    state.uri.queryParameters['channelPartner'];
+                state.uri.queryParameters['channelPartner'];
 
                 final ChannelPartnerModel? channelPartner =
-                    queryParameterChannelPartner != null
-                        ? ChannelPartnerModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterChannelPartner),
-                            ),
-                          ),
-                        )
-                        : null;
+                queryParameterChannelPartner != null
+                    ? ChannelPartnerModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterChannelPartner),
+                    ),
+                  ),
+                )
+                    : null;
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
@@ -2172,31 +2185,31 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.addDocumentCategory,
                   builder: (context, state) {
                     final queryParameterDocumentCategory =
-                        state.uri.queryParameters['documentCategory'];
+                    state.uri.queryParameters['documentCategory'];
 
                     final DocumentCategoryModel? documentCategory =
-                        queryParameterDocumentCategory != null
-                            ? DocumentCategoryModel.fromJson(
-                              jsonDecode(
-                                EncryptionManager.decryptData(
-                                  Uri.decodeComponent(
-                                    queryParameterDocumentCategory,
-                                  ),
-                                ),
-                              ),
-                            )
-                            : null;
+                    queryParameterDocumentCategory != null
+                        ? DocumentCategoryModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(
+                            queryParameterDocumentCategory,
+                          ),
+                        ),
+                      ),
+                    )
+                        : null;
                     final projectId =
                         int.tryParse(
                           state.uri.queryParameters['projectId'] ?? '',
                         ) ??
-                        documentCategory?.projectId ??
-                        0;
+                            documentCategory?.projectId ??
+                            0;
                     final index =
                         int.tryParse(
                           state.uri.queryParameters['index'] ?? '',
                         ) ??
-                        0;
+                            0;
                     return AddDocumentCategoryScreen(
                       documentCategoryModel: documentCategory,
                       projectId: projectId,
@@ -2209,20 +2222,20 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.viewDocumentCategory,
                   builder: (context, state) {
                     final queryParameterDocumentCategory =
-                        state.uri.queryParameters['documentCategory'];
+                    state.uri.queryParameters['documentCategory'];
 
                     final DocumentCategoryModel? documentCategory =
-                        queryParameterDocumentCategory != null
-                            ? DocumentCategoryModel.fromJson(
-                              jsonDecode(
-                                EncryptionManager.decryptData(
-                                  Uri.decodeComponent(
-                                    queryParameterDocumentCategory,
-                                  ),
-                                ),
-                              ),
-                            )
-                            : null;
+                    queryParameterDocumentCategory != null
+                        ? DocumentCategoryModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(
+                            queryParameterDocumentCategory,
+                          ),
+                        ),
+                      ),
+                    )
+                        : null;
 
                     return ViewDocumentCategoryScreen(
                       documentCategoryModel: documentCategory!,

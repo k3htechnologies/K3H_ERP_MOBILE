@@ -1,10 +1,22 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/dashboard/presentation/widget/project_selector_overlay.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 
@@ -12,6 +24,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String screenTitle;
   final AuthorizationModel authorization;
   final Widget? widgets;
+  final bool? showNotification;
   final Function(String)? onSearchSubmit;
   final TextEditingController? textController;
   final Function? onAddCallback;
@@ -20,12 +33,14 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String? initialSortType;
   final Future Function(String)? onSortOptionCallback;
   final double extraHeight;
+  final Function(ProjectModel)? onProjectChangeCallback;
 
   const CustomAppBar({
     super.key,
     required this.screenTitle,
     required this.authorization,
     this.widgets,
+    this.showNotification = true,
     this.onSearchSubmit,
     this.textController,
     this.onAddCallback,
@@ -34,6 +49,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.initialSortType,
     this.onSortOptionCallback,
     this.extraHeight = 0,
+    this.onProjectChangeCallback,
   });
 
   static const double _baseHeight = 90;
@@ -42,9 +58,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   State<CustomAppBar> createState() => _CustomAppBarMobileState();
 
   @override
-  Size get preferredSize =>
-      Size.fromHeight(_baseHeight + extraHeight);
-
+  Size get preferredSize => Size.fromHeight(_baseHeight + extraHeight);
 }
 
 class _CustomAppBarMobileState extends State<CustomAppBar>
@@ -54,6 +68,17 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
   String? selectedSortType;
   bool isDarkMode = false;
 
+  // PROJECT SWITCH FUNCTIONALITY
+  final ProjectMasterRepository _projectMasterRepository =
+      serviceLocator<ProjectMasterRepository>();
+  final ValueNotifier<List<ProjectModel>> _projectListNotifier = ValueNotifier(
+    [],
+  );
+  final ValueNotifier<bool> _showOverlayNotifier = ValueNotifier(false);
+  ProjectModel? _selectedProject;
+
+  OverlayEntry? _overlayEntry;
+
   @override
   void initState() {
     super.initState();
@@ -62,12 +87,116 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
       duration: const Duration(milliseconds: 300),
     );
     selectedSortType = widget.initialSortType;
+    _loadProjects();
+
+    // Listen to overlay notifier changes
+    _showOverlayNotifier.addListener(_handleOverlayVisibility);
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _showOverlayNotifier.removeListener(_handleOverlayVisibility);
+    _showOverlayNotifier.dispose();
+    _closeOverlay();
     super.dispose();
+  }
+
+  void _handleOverlayVisibility() {
+    if (_showOverlayNotifier.value) {
+      _showOverlay();
+    } else {
+      _closeOverlay();
+    }
+  }
+
+  void _showOverlay() {
+    if (_overlayEntry != null || !mounted) return;
+
+    _overlayEntry = OverlayEntry(
+      builder:
+          (context) => SafeArea(
+            child: Material(
+              color: Colors.transparent,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: ProjectSelectorOverlay(
+                      projects: _projectListNotifier.value,
+                      selectedProjectId: _selectedProject?.projectId,
+                      onSelect: _onProjectSelected,
+                      onClose: () {
+                        _showOverlayNotifier.value = false;
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _closeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  Future<void> _loadProjects() async {
+    try {
+      final userJson = LocalStorageManager().getString(StorageKey.currentUser);
+      if (userJson == null || userJson.isEmpty) return;
+
+      final user = UserModel.fromJson(jsonDecode(userJson));
+      final result = await _projectMasterRepository.getProjectList(
+        pageNumber: 1,
+        pageSize: 100,
+        queryParams: {'EmployeeId': user.employeeId.toString()},
+      );
+
+      result.fold(
+        (failure) {
+          // Handle failure silently
+        },
+        (response) {
+          final List<ProjectModel> projects =
+              (response['data'] as List<ProjectModel>);
+          _projectListNotifier.value = projects;
+
+          // Load selected project
+          final storedJson = LocalStorageManager().getString(
+            StorageKey.selectedProject,
+          );
+          if (storedJson != null && storedJson.isNotEmpty) {
+            final storedProject = ProjectModel.fromJson(jsonDecode(storedJson));
+            if (projects.any((p) => p.projectId == storedProject.projectId)) {
+              _selectedProject = storedProject;
+            }
+          }
+        },
+      );
+    } catch (e) {
+      // Handle error silently
+    }
+  }
+
+  void _onProjectSelected(ProjectModel project) {
+    _selectedProject = project;
+    LocalStorageManager().setString(
+      StorageKey.selectedProject,
+      jsonEncode(project.toJson()),
+    );
+    showSuccessMessage(
+      context,
+      subTitle: "Project Selected ${project.projectName}",
+    );
+
+    // Call the callback if provided
+    if (widget.onProjectChangeCallback != null) {
+      widget.onProjectChangeCallback!(project);
+    }
   }
 
   @override
@@ -86,7 +215,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
     return AppBar(
       automaticallyImplyLeading: false,
       backgroundColor:
-      isDarkMode ? AppColor.primary : AppColor.lightGreyBackground,
+          isDarkMode ? AppColor.primary : AppColor.lightGreyBackground,
       surfaceTintColor: Colors.transparent,
 
       title: Row(
@@ -119,6 +248,32 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
               ),
             ),
           ),
+          if (widget.onProjectChangeCallback != null)
+          ValueListenableBuilder<List<ProjectModel>>(
+            valueListenable: _projectListNotifier,
+            builder: (context, projects, _) {
+              if (projects.isEmpty) return const SizedBox.shrink();
+              return CustomIconButton(
+                onPressed: () {
+                  _showOverlayNotifier.value = true;
+                },
+                icon: const Icon(
+                  Icons.apartment_rounded,
+                  size: 16,
+                  color: AppColor.primary,
+                ),
+                backgroundColor: AppColor.lightBlue,
+              );
+            },
+          ),
+          if (widget.showNotification!)
+            CustomIconButton(
+              onPressed: () {
+                goRouter.pushNamed(AppRoutes.notificationScreenMobile);
+              },
+              icon: SvgPicture.asset(AppAssets.notificationIcon, height: 16),
+              backgroundColor: AppColor.lightBlue,
+            ),
         ],
       ),
 
@@ -152,8 +307,11 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                       widget.onAddCallback != null)
                     CustomIconButton(
                       onPressed: () => widget.onAddCallback!(),
-                      icon: Icon(Icons.add,
-                          size: 16, color: AppColor.darkGreen),
+                      icon: Icon(
+                        Icons.add,
+                        size: 16,
+                        color: AppColor.darkGreen,
+                      ),
                       backgroundColor: AppColor.lightGreen,
                     ),
 
@@ -161,14 +319,15 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                       widget.onExportCallback != null)
                     CustomIconButton(
                       onPressed: () {
-                        final box =
-                        context.findRenderObject() as RenderBox;
+                        final box = context.findRenderObject() as RenderBox;
                         final position = box.localToGlobal(Offset.zero);
                         CustomOverlayMenu.show(
                           width: 180,
                           context: context,
-                          position:
-                          Offset(position.dx + 10, position.dy + (145 + widget.extraHeight)),
+                          position: Offset(
+                            position.dx + 10,
+                            position.dy + (145 + widget.extraHeight),
+                          ),
                           items: [
                             AddImportExportOverlayMenuItem(
                               icon: Icons.file_download_outlined,
@@ -187,8 +346,11 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                           ],
                         );
                       },
-                      icon: Icon(Icons.file_download,
-                          size: 16, color: AppColor.primary),
+                      icon: Icon(
+                        Icons.file_download,
+                        size: 16,
+                        color: AppColor.primary,
+                      ),
                       backgroundColor: AppColor.lightBlue,
                     ),
                 ],

@@ -44,7 +44,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   // EXPANSION STATE
   final Set<int> _expandedFloors = {};
-  bool _hasInitialized = false;
+  bool _isDisposing = false;
 
   @override
   void initState() {
@@ -54,37 +54,76 @@ class _InventoryScreenState extends State<InventoryScreen>
         Authorization.routeAuthorizationMap[AppRoutes.inventory]!;
     _initControllers();
     _inventoryCubit = context.read<InventoryCubit>();
+
+    // Call API directly in initState, similar to DepartmentMasterScreen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final state = _inventoryCubit.state;
+        if (state.buildingList.isEmpty) {
+          _inventoryCubit.getInventory(context, _project.projectId);
+        } else {
+          // Initialize controllers if data already exists
+          _initializeControllersIfNeeded(state);
+        }
+      }
+    });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_hasInitialized) {
-      _hasInitialized = true;
-      Future.microtask(() {
-        if (mounted) {
-          final state = _inventoryCubit.state;
-          if (state.buildingList.isEmpty) {
-            _inventoryCubit.getInventory(context, _project.projectId);
-          }
+  void _initializeControllersIfNeeded(InventoryState state) {
+    if (!mounted || _isDisposing) return;
+
+    bool needsRebuild = false;
+
+    // Initialize building controller if we have data
+    if (state.buildingList.isNotEmpty) {
+      if (_buildingTabController == null ||
+          _buildingTabController!.length != state.buildingList.length) {
+        _initBuildingController(state);
+        needsRebuild = true;
+      }
+    }
+
+    // Initialize wing controller if we have wings
+    if (state.buildingList.isNotEmpty &&
+        state.currentTabIndex < state.buildingList.length) {
+      final selectedBuilding = state.buildingList[state.currentTabIndex];
+      final wingList = selectedBuilding.wingList;
+
+      if (wingList.isNotEmpty) {
+        if (_wingTabController == null ||
+            _wingTabController!.length != wingList.length) {
+          _initWingController(wingList);
+          needsRebuild = true;
         }
-      });
+      }
+    }
+
+    if (needsRebuild && mounted) {
+      setState(() {});
     }
   }
 
   @override
   void dispose() {
-    _buildingTabController?.removeListener(_onBuildingTabChanged);
-    _buildingTabController?.dispose();
-    _wingTabController?.removeListener(_onWingTabChanged);
-    _wingTabController?.dispose();
+    _isDisposing = true;
+    if (_buildingTabController != null) {
+      _buildingTabController!.removeListener(_onBuildingTabChanged);
+      _buildingTabController!.dispose();
+      _buildingTabController = null;
+    }
+    if (_wingTabController != null) {
+      _wingTabController!.removeListener(_onWingTabChanged);
+      _wingTabController!.dispose();
+      _wingTabController = null;
+    }
     _searchC.dispose();
     super.dispose();
   }
 
   // BUILDING TAB
   void _onBuildingTabChanged() {
-    if (!_buildingTabController!.indexIsChanging && mounted) {
+    if (_buildingTabController == null || !mounted) return;
+    if (!_buildingTabController!.indexIsChanging) {
       _inventoryCubit.onTabChanged(_buildingTabController!.index, context);
     }
   }
@@ -96,22 +135,44 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   // BUILDING CONTROLLER
   void _initBuildingController(InventoryState state) {
-    _buildingTabController?.removeListener(_onBuildingTabChanged);
-    _buildingTabController?.dispose();
+    if (!mounted || _isDisposing) return;
+    if (state.buildingList.isEmpty) return;
 
-    _buildingTabController = TabController(
-      length: state.buildingList.length,
-      vsync: this,
-      initialIndex: state.currentTabIndex,
-    );
+    if (_buildingTabController != null) {
+      _buildingTabController!.removeListener(_onBuildingTabChanged);
+      _buildingTabController!.dispose();
+      _buildingTabController = null;
+    }
 
-    _buildingTabController!.addListener(_onBuildingTabChanged);
+    if (!mounted || _isDisposing) return;
+
+    try {
+      _buildingTabController = TabController(
+        length: state.buildingList.length,
+        vsync: this,
+        initialIndex:
+            state.currentTabIndex < state.buildingList.length
+                ? state.currentTabIndex
+                : 0,
+      );
+
+      _buildingTabController!.addListener(_onBuildingTabChanged);
+    } catch (e) {
+      print('Error initializing building controller: $e');
+    }
   }
 
   // WING CONTROLLER
   void _initWingController(List wingList) {
-    _wingTabController?.removeListener(_onWingTabChanged);
-    _wingTabController?.dispose();
+    if (!mounted || _isDisposing) return;
+
+    if (_wingTabController != null) {
+      _wingTabController!.removeListener(_onWingTabChanged);
+      _wingTabController!.dispose();
+      _wingTabController = null;
+    }
+
+    if (!mounted || _isDisposing) return;
 
     _wingTabController = TabController(length: wingList.length, vsync: this);
     _wingTabController!.addListener(_onWingTabChanged);
@@ -119,7 +180,8 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   // WING TAB
   void _onWingTabChanged() {
-    if (!_wingTabController!.indexIsChanging && mounted) {
+    if (_wingTabController == null || !mounted) return;
+    if (!_wingTabController!.indexIsChanging) {
       setState(() {});
     }
   }
@@ -133,18 +195,42 @@ class _InventoryScreenState extends State<InventoryScreen>
         onExportCallback: (value) {
           _inventoryCubit.exportInventory(context, _project.projectId, value);
         },
+        onProjectChangeCallback: (project) {
+          _project = project;
+          // Reset controllers when project changes
+          if (_buildingTabController != null) {
+            _buildingTabController!.removeListener(_onBuildingTabChanged);
+            _buildingTabController!.dispose();
+            _buildingTabController = null;
+          }
+          if (_wingTabController != null) {
+            _wingTabController!.removeListener(_onWingTabChanged);
+            _wingTabController!.dispose();
+            _wingTabController = null;
+          }
+          _expandedFloors.clear();
+          _inventoryCubit.getInventory(context, _project.projectId);
+        },
       ),
       body: SafeArea(
         child: BlocListener<InventoryCubit, InventoryState>(
           listener: (context, state) {
-            if (!mounted) return;
-            if (!state.isLoading! && state.buildingList.isNotEmpty) {
+            if (!mounted || _isDisposing) return;
+
+            bool needsRebuild = false;
+
+            // Initialize building controller if we have data
+            if (state.buildingList.isNotEmpty) {
               if (_buildingTabController == null ||
                   _buildingTabController!.length != state.buildingList.length) {
                 _initBuildingController(state);
+                needsRebuild = true;
               }
             }
-            if (state.currentTabIndex < state.buildingList.length) {
+
+            // Initialize wing controller if we have wings
+            if (state.buildingList.isNotEmpty &&
+                state.currentTabIndex < state.buildingList.length) {
               final selectedBuilding =
                   state.buildingList[state.currentTabIndex];
               final wingList = selectedBuilding.wingList;
@@ -153,14 +239,24 @@ class _InventoryScreenState extends State<InventoryScreen>
                 if (_wingTabController == null ||
                     _wingTabController!.length != wingList.length) {
                   _initWingController(wingList);
+                  needsRebuild = true;
                 }
               } else {
-                if (_wingTabController != null) {
-                  _wingTabController?.removeListener(_onWingTabChanged);
-                  _wingTabController?.dispose();
+                if (_wingTabController != null && !_isDisposing) {
+                  _wingTabController!.removeListener(_onWingTabChanged);
+                  _wingTabController!.dispose();
                   _wingTabController = null;
+                  needsRebuild = true;
                 }
               }
+            }
+
+            if (needsRebuild && mounted && !_isDisposing) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted && !_isDisposing) {
+                  setState(() {});
+                }
+              });
             }
           },
           child: BlocBuilder<InventoryCubit, InventoryState>(
@@ -178,6 +274,14 @@ class _InventoryScreenState extends State<InventoryScreen>
 
               final wingList = selectedBuilding.wingList;
 
+              // Show loading if building controller is not initialized yet
+              if (state.buildingList.isNotEmpty &&
+                  (_buildingTabController == null ||
+                      _buildingTabController!.length !=
+                          state.buildingList.length)) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
               return Column(
                 children: [
                   verticalSpacing(),
@@ -192,22 +296,33 @@ class _InventoryScreenState extends State<InventoryScreen>
                       _wingTabController != null &&
                       _wingTabController!.length == wingList.length)
                     _buildCountsRow(wingList),
-                  if (_wingTabController != null &&
-                      _wingTabController!.length == wingList.length)
+                  if (wingList.isNotEmpty)
                     Expanded(
-                      child: TabBarView(
-                        controller: _wingTabController,
-                        children:
-                            wingList
-                                .map(
-                                  (w) => _buildFloorList(
-                                    w.floorList,
-                                    w,
-                                    selectedBuilding,
-                                  ),
-                                )
-                                .toList(),
-                      ),
+                      child:
+                          _wingTabController != null &&
+                                  _wingTabController!.length ==
+                                      wingList.length &&
+                                  mounted
+                              ? TabBarView(
+                                controller: _wingTabController,
+                                children:
+                                    wingList
+                                        .map(
+                                          (w) => _buildFloorList(
+                                            w.floorList,
+                                            w,
+                                            selectedBuilding,
+                                          ),
+                                        )
+                                        .toList(),
+                              )
+                              : const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                    )
+                  else
+                    const Expanded(
+                      child: Center(child: Text("No wings found")),
                     ),
                 ],
               );
@@ -615,14 +730,23 @@ class _InventoryScreenState extends State<InventoryScreen>
                                   child: Text(
                                     flat.flatStatus,
                                     style: AppTextStyle.ts14M(
-                                      color: AppColor.darkGreen,
+                                      color:
+                                          flat.flatStatus == "Blocked"
+                                              ? AppColor.error
+                                              : flat.flatStatus == "Member"
+                                              ? AppColor.purple
+                                              : flat.flatStatus == "Hold"
+                                              ? AppColor.yellow
+                                              : flat.flatStatus == "Available"
+                                              ? AppColor.darkGreen
+                                              : AppColor.black,
                                     ),
                                   ),
                                 ),
                               ),
                             ),
                             horizontalSpacing(),
-                            flat.flatStatus == "Sale"
+                            flat.flatStatus == "Blocked"
                                 ? Icon(Icons.remove_red_eye_outlined, size: 18)
                                 : Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -678,8 +802,9 @@ class _InventoryScreenState extends State<InventoryScreen>
   Map<String, int> _calculateFlatCounts(dynamic wing) {
     int totalFlats = 0;
     int availableCount = 0;
-    int saleCount = 0;
+    int blockedCount = 0;
     int holdCount = 0;
+    int memberCount = 0;
 
     for (var floor in wing.floorList) {
       for (var flat in floor.flatList) {
@@ -688,11 +813,14 @@ class _InventoryScreenState extends State<InventoryScreen>
           case "Available":
             availableCount++;
             break;
-          case "Sale":
-            saleCount++;
+          case "Blocked":
+            blockedCount++;
             break;
           case "Hold":
             holdCount++;
+            break;
+          case "Member":
+            memberCount++;
             break;
         }
       }
@@ -701,8 +829,9 @@ class _InventoryScreenState extends State<InventoryScreen>
     return {
       'total': totalFlats,
       'available': availableCount,
-      'sale': saleCount,
+      'member': memberCount,
       'hold': holdCount,
+      'blocked': blockedCount,
     };
   }
 
@@ -735,8 +864,9 @@ class _InventoryScreenState extends State<InventoryScreen>
             counts['available']!,
             AppColor.darkGreen,
           ),
-          _buildCountItem("Sale", counts['sale']!, AppColor.red),
+          _buildCountItem("Member", counts['member']!, AppColor.purple),
           _buildCountItem("Hold", counts['hold']!, AppColor.yellow),
+          _buildCountItem("Blocked", counts['blocked']!, AppColor.error),
         ],
       ),
     );
@@ -779,10 +909,12 @@ class _InventoryScreenState extends State<InventoryScreen>
     switch (status) {
       case "Available":
         return AppColor.lightGreen;
-      case "Sale":
-        return AppColor.red;
+      case "Blocked":
+        return AppColor.lightRed;
       case "Hold":
-        return AppColor.yellow;
+        return AppColor.lightYellow;
+      case "Member":
+        return AppColor.purple.withValues(alpha: .2);
       default:
         return AppColor.grey;
     }
