@@ -71,6 +71,7 @@ class ShiftMappingModel extends ShiftMasterModel {
       modifiedDate: parseValue<DateTime>(json, "ModifiedDate"),
     );
   }
+  @override
   Map<String, dynamic> toJson() => {
     "ShiftManagementMasterMappingId": shiftMappingMasterId,
     "DepartmentMasterId": departmentMasterId,
