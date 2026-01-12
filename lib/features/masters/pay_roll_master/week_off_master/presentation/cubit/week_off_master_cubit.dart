@@ -60,7 +60,7 @@ class WeekOffMasterCubit extends Cubit<WeekOffMasterState> {
     DialogHelper.showProcessingOverlay(context);
     var result = await weekOffMasterRepository.deleteWeekOff(
       weekOffId: weekOffMasterModel.weekOffPolicyMasterId,
-      uniqueKey: weekOffMasterModel.uniquekey,
+      uniqueKey: weekOffMasterModel.uniqueKey,
     );
     goRouter.pop();
     result.fold(

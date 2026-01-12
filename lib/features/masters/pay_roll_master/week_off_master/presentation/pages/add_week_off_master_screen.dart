@@ -126,7 +126,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
         index: widget.index,
         context: context,
         weekOffPolicyMasterId: widget.weekOffMasterModel!.weekOffPolicyMasterId,
-        uniqueKey: widget.weekOffMasterModel!.uniquekey,
+        uniqueKey: widget.weekOffMasterModel!.uniqueKey,
         weekOffPolicyCode: _weekOffCode.text.trim(),
         weekOffPolicyName: _weekOffName.text.trim(),
         weekDays: int.parse(_weekDays.text.trim()),

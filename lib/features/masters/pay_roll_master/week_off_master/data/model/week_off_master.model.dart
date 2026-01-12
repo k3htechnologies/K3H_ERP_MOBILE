@@ -2,7 +2,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 
 class WeekOffMasterModel {
   final int weekOffPolicyMasterId;
-  final String uniquekey;
+  final String uniqueKey;
   final String weekOffPolicyCode;
   final String weekOffPolicyName;
   final int weekDays;
@@ -18,7 +18,7 @@ class WeekOffMasterModel {
 
   WeekOffMasterModel({
     required this.weekOffPolicyMasterId,
-    required this.uniquekey,
+    required this.uniqueKey,
     required this.weekOffPolicyCode,
     required this.weekOffPolicyName,
     required this.weekDays,
@@ -36,7 +36,7 @@ class WeekOffMasterModel {
   factory WeekOffMasterModel.fromJson(Map<String, dynamic> json) {
     return WeekOffMasterModel(
       weekOffPolicyMasterId: parseValue<int>(json, 'WeekOffPolicyMasterId'),
-      uniquekey: parseValue<String>(json, 'Uniquekey'),
+      uniqueKey: parseValue<String>(json, 'Uniquekey'),
       weekOffPolicyCode: parseValue<String>(json, 'WeekOffPolicyCode'),
       weekOffPolicyName: parseValue<String>(json, 'WeekOffPolicyName'),
       weekDays: parseValue<int>(json, 'WeekDays'),
@@ -57,7 +57,7 @@ class WeekOffMasterModel {
 
   Map<String, dynamic> toJson() => {
     'WeekOffPolicyMasterId': weekOffPolicyMasterId,
-    'Uniquekey': uniquekey,
+    'Uniquekey': uniqueKey,
     'WeekOffPolicyCode': weekOffPolicyCode,
     'WeekOffPolicyName': weekOffPolicyName,
     'WeekDays': weekDays,

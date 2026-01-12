@@ -60,7 +60,7 @@ class Authorization {
     AppRoutes.holidayMaster: AuthorizationModel(),
     AppRoutes.earningMaster: AuthorizationModel(),
     AppRoutes.weekOffMaster: AuthorizationModel(),
-    AppRoutes.weekOffMapping: AuthorizationModel(),
+    AppRoutes.weekOffMappingMaster: AuthorizationModel(),
     AppRoutes.leaveEncashmentMaster: AuthorizationModel(),
 
     // ACTIONS

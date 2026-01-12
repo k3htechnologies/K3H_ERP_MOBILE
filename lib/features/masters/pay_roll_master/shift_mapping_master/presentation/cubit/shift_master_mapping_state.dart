@@ -27,7 +27,7 @@ class ShiftMappingMasterState extends BaseState {
   );
 
   ShiftMappingMasterState copyWith({
-    List<ShiftMappingModel>? ShiftMappingList,
+    List<ShiftMappingModel>? shiftMappingList,
     bool? isLoading = false,
     StateType? stateType,
     String? errorMessage,
@@ -38,7 +38,7 @@ class ShiftMappingMasterState extends BaseState {
     String? currentSortDirection,
   }) {
     return ShiftMappingMasterState(
-      shiftMappingList: ShiftMappingList ?? this.shiftMappingList,
+      shiftMappingList: shiftMappingList ?? this.shiftMappingList,
       isLoading: isLoading ?? this.isLoading,
       searchText: searchText ?? this.searchText,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,

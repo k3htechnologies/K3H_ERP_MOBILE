@@ -24,6 +24,7 @@ import 'package:k3h_erp_app/features/inventory/presentation/pages/add_inventory_
 import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/pages/asset_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/pages/asset_mapping_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/data/model/branch_association_master.model.dart';
@@ -69,6 +70,9 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_maste
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/presentation/pages/add_shift_mapping_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/presentation/pages/shift_mapping_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/presentation/pages/view_shift_mapping_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/presentation/cubit/week_off_mapping_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/presentation/pages/add_week_off_mapping_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/presentation/pages/week_off_mapping_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/data/model/week_off_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/presentation/cubit/week_off_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/presentation/pages/add_week_off_master_screen.dart';
@@ -1251,6 +1255,71 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final queryParameterWeekOff =
                     state.uri.queryParameters['weekOff'];
+
+                final WeekOffMasterModel? weekOffMaster =
+                    queryParameterWeekOff != null
+                        ? WeekOffMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterWeekOff),
+                            ),
+                          ),
+                        )
+                        : null;
+                return ViewWeekOffMasterScreen(weekOffMaster: weekOffMaster!);
+              },
+            ),
+          ],
+        ),
+
+        //WEEK OFF MAPPING MASTER
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => WeekOffMappingMasterCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              path: AppRoutes.weekOffMappingMaster,
+              name: AppRoutes.weekOffMappingMaster,
+              builder: (context, state) {
+                return const WeekOffMappingMasterScreen();
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addWeekOffMappingMaster,
+              name: AppRoutes.addWeekOffMappingMaster,
+              builder: (context, state) {
+                final queryParameterWeekOffMapping =
+                    state.uri.queryParameters['weekOffMapping'];
+
+                final WeekOffMappingModel? weekOffMappingMaster =
+                    queryParameterWeekOffMapping != null
+                        ? WeekOffMappingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterWeekOffMapping),
+                            ),
+                          ),
+                        )
+                        : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddWeekOffMappingMasterScreen(
+                  weekOffMappingMasterModel: weekOffMappingMaster,
+                  index: index,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.viewWeekOffMappingMaster,
+              name: AppRoutes.viewWeekOffMappingMaster,
+              builder: (context, state) {
+                final queryParameterWeekOff =
+                    state.uri.queryParameters['weekOffMapping'];
 
                 final WeekOffMasterModel? weekOffMaster =
                     queryParameterWeekOff != null
