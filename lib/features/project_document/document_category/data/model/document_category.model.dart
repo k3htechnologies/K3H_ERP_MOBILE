@@ -62,6 +62,6 @@ class DocumentCategoryModel {
     "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
   };
 }

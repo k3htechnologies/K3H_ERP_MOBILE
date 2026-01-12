@@ -55,6 +55,8 @@ class _BuildingScreenState extends State<BuildingScreen> {
     [],
   );
 
+  final ValueNotifier<bool> _isProjectLoading = ValueNotifier(true);
+
   @override
   void initState() {
     super.initState();
@@ -84,6 +86,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
     int pageNumber, {
     String? value,
   }) async {
+    _isProjectLoading.value = true;
     final userJson = jsonDecode(
       LocalStorageManager().getString(StorageKey.currentUser) ?? '',
     );
@@ -100,6 +103,8 @@ class _BuildingScreenState extends State<BuildingScreen> {
 
     return result.fold(
       (failure) {
+        _isProjectLoading.value = false;
+
         return {"itemList": <Map<String, dynamic>>[], "totalNumberOfRecord": 0};
       },
       (response) {
@@ -122,6 +127,8 @@ class _BuildingScreenState extends State<BuildingScreen> {
                   },
                 )
                 .toList();
+        _isProjectLoading.value = false;
+
         return {
           "itemList": itemList,
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
@@ -220,7 +227,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
         widgets: ValueListenableBuilder<List<ProjectModel>>(
           valueListenable: _projectListNotifier,
           builder: (context, projectList, child) {
-            return projectList.isEmpty
+            return (projectList.isEmpty & !_isProjectLoading.value)
                 ? Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Center(
