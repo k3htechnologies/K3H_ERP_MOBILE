@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/features/project_document/document/data/repository/d
 import 'package:k3h_erp_app/features/project_document/document_category/data/model/document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/data/repository/document_category.repository.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
 
 part 'document_state.dart';
 
@@ -17,7 +18,6 @@ class DocumentCubit extends Cubit<DocumentState> {
       serviceLocator<DocumentCategoryRepository>();
   final DocumentRepository _documentRepository =
       serviceLocator<DocumentRepository>();
-
 
   // <---- GET CATEGORY LIST ---->
   Future getCategoryList(
@@ -108,5 +108,34 @@ class DocumentCubit extends Cubit<DocumentState> {
         );
       },
     );
+  }
+
+  void onTabChanged(int index, BuildContext context) {
+    emit(
+      state.copyWith(
+        categoryIndex: index,
+        projectDocumentCategoryId:
+            state.documentCategoryModelList[index].projectDocumentCategoryId,
+      ),
+    );
+    getProjectDocumentList(
+      context,
+      1,
+      10,
+      state.documentCategoryModelList[index].projectId,
+    );
+  }
+
+  // SEARCH BASED ON SHIFT
+  void searchDocument(String value, BuildContext context) {
+    emit(
+      state.copyWith(
+        documentList: [],
+        isLoading: true,
+        searchText: value,
+        currentPage: 1,
+      ),
+    );
+    getProjectDocumentList(context, 1, 10, getProject().projectId);
   }
 }
