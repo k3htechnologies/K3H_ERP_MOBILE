@@ -18,7 +18,9 @@ import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
+import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
+import 'package:k3h_erp_app/features/inventory/presentation/pages/add_inventory_specification_screen.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
@@ -1923,6 +1925,41 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.inventory,
               builder: (context, state) {
                 return const InventoryScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addInventorySpecification,
+              path: AppRoutes.addInventorySpecification,
+              builder: (context, state) {
+                final queryParameterFlatModel =
+                    state.uri.queryParameters['flatModel'];
+                final queryParameterFloorModel =
+                    state.uri.queryParameters['floorModel'];
+
+                FlatModel? flat;
+                FloorModel? floor;
+
+                if (queryParameterFlatModel != null) {
+                  final flatJson = jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(queryParameterFlatModel),
+                    ),
+                  );
+                  flat = FlatModel.fromJson(flatJson);
+                }
+
+                if (queryParameterFloorModel != null) {
+                  final floorJson = jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(queryParameterFloorModel),
+                    ),
+                  );
+                  floor = FloorModel.fromJson(floorJson);
+                }
+                return AddInventorySpecificationScreen(
+                  flatModel: flat,
+                  floorModel: floor,
+                );
               },
             ),
           ],

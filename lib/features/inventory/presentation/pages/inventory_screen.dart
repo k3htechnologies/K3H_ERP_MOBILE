@@ -1,9 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
@@ -270,7 +275,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                             ),
                             child: SizedBox(
                               width: double.infinity,
-                              child: _buildFlatList(floor.flatList),
+                              child: _buildFlatList(floor.flatList, floor),
                             ),
                           )
                           : const SizedBox.shrink(),
@@ -365,7 +370,7 @@ class _InventoryScreenState extends State<InventoryScreen>
   }
 
   // FLAT LIST
-  Widget _buildFlatList(List flatList) {
+  Widget _buildFlatList(List flatList, FloorModel floor) {
     if (flatList.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(12),
@@ -459,7 +464,28 @@ class _InventoryScreenState extends State<InventoryScreen>
                                   mainAxisSize: MainAxisSize.min,
                                   spacing: 15,
                                   children: [
-                                    Icon(Icons.edit, size: 18),
+                                    GestureDetector(
+                                      onTap: () {
+                                        goRouter.pushNamed(
+                                          AppRoutes.addInventorySpecification,
+                                          queryParameters: {
+                                            "flatModel":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(flat),
+                                                  ),
+                                                ),
+                                            "floorModel":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(floor),
+                                                  ),
+                                                ),
+                                          },
+                                        );
+                                      },
+                                      child: Icon(Icons.edit, size: 18),
+                                    ),
                                     SvgPicture.asset(
                                       AppAssets.deleteIcon2,
                                       height: 18,
