@@ -158,7 +158,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
       _buildingTabController!.addListener(_onBuildingTabChanged);
     } catch (e) {
-      print('Error initializing building controller: $e');
+      debugPrint('Error initializing building controller: $e');
     }
   }
 

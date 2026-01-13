@@ -97,10 +97,10 @@ class _DocumentScreenState extends State<DocumentScreen>
         context: context,
         index: index!,
 
-        uniqueKey: documentModel!.uniquekey,
-        projectDocumentId: documentModel!.projectDocumentId,
-        projectDocumentCategoryId: documentModel!.projectDocumentCategoryId,
-        projectId: documentModel!.projectId,
+        uniqueKey: documentModel.uniquekey,
+        projectDocumentId: documentModel.projectDocumentId,
+        projectDocumentCategoryId: documentModel.projectDocumentCategoryId,
+        projectId: documentModel.projectId,
         projectDocumentName: _documentC.text.trim(),
         isMaster: 1,
       );
