@@ -44,7 +44,6 @@ class TenantCubit extends Cubit<TenantState> {
       projectId: projectId,
       buildingId: buildingId,
       pageNumber: 1,
-      pageSize: 10,
     );
   }
 
@@ -98,7 +97,6 @@ class TenantCubit extends Cubit<TenantState> {
     required int projectId,
     required int buildingId,
     required int pageNumber,
-    required int pageSize,
   }) async {
     emit(state.copyWith(isLoading: true));
 
@@ -110,7 +108,7 @@ class TenantCubit extends Cubit<TenantState> {
 
     final result = await _tenantRepository.getTenantList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 4,
       projectId: projectId,
       buildingId: buildingId,
       queryParams: queryParams,
@@ -360,21 +358,22 @@ class TenantCubit extends Cubit<TenantState> {
         await showErrorMessage(context, 'Error Message', failure.message);
         return;
       },
-      (response) async {
-        await showSuccessMessage(
-          context,
-          subTitle: 'Tenant Added Successfully',
-        );
+      (response) {
         goRouter.pop();
-        if (context.mounted) {
-          await getTenantList(
-            context: context,
-            projectId: int.parse(projectId),
-            buildingId: int.parse(buildingId),
-            pageNumber: 1,
-            pageSize: 10,
-          );
-        }
+        final newTenant = response['data'][0] as TenantModel;
+
+        var list = [newTenant, ...state.tenantList];
+        emit(
+          state.copyWith(
+            tenantList: list,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord == -1
+                    ? 1
+                    : state.totalNumberOfRecord + 1,
+          ),
+        );
+
+        showSuccessMessage(context, subTitle: 'Tenant Added Successfully');
       },
     );
   }
@@ -570,20 +569,15 @@ class TenantCubit extends Cubit<TenantState> {
         return;
       },
       (response) async {
-        showSuccessMessage(context, subTitle: 'Tenant Updated Successfully');
         goRouter.pop();
-        // Call getTenantList to fetch the latest list
-        final navigatorContext =
-            goRouter.routerDelegate.navigatorKey.currentContext;
-        if (navigatorContext != null && navigatorContext.mounted) {
-          await getTenantList(
-            context: navigatorContext,
-            projectId: int.parse(projectId),
-            buildingId: int.parse(buildingId),
-            pageNumber: state.currentPage,
-            pageSize: 10,
-          );
+        final updatedTenant = response['data'][0] as TenantModel;
+
+        if (state.tenantList.isNotEmpty && index < state.tenantList.length) {
+          final updatedList = List<TenantModel>.from(state.tenantList);
+          updatedList[index] = updatedTenant;
+          emit(state.copyWith(tenantList: updatedList, isLoading: false));
         }
+        showSuccessMessage(context, subTitle: 'Tenant Updated Successfully');
       },
     );
   }
@@ -594,6 +588,7 @@ class TenantCubit extends Cubit<TenantState> {
     int buildingId,
     TenantModel tenantModel,
     BuildContext context,
+    int? index,
   ) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -613,13 +608,19 @@ class TenantCubit extends Cubit<TenantState> {
       (success) {
         showSuccessMessage(context, subTitle: "Tenant Deleted Successfully");
 
-        getTenantList(
-          context: context,
-          pageNumber: state.currentPage,
-          pageSize: 10,
-          projectId: projectId,
-          buildingId: buildingId,
-        );
+        if (index != null) {
+          final updatedList = List<TenantModel>.from(state.tenantList);
+          updatedList.removeAt(index);
+
+          emit(state.copyWith(tenantList: updatedList));
+        } else {
+          getTenantList(
+            context: context,
+            pageNumber: state.currentPage,
+            projectId: projectId,
+            buildingId: buildingId,
+          );
+        }
       },
     );
   }

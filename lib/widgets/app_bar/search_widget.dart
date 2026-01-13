@@ -16,9 +16,10 @@ class SearchWidget extends StatelessWidget {
     super.key,
     required this.onSubmit,
     required this.textController,
-    this.hintText = 'Search...',
+    this.hintText="Search...",
     this.isFilterOn = true,
-  });
+  }
+  );
 
   @override
   Widget build(BuildContext context) {

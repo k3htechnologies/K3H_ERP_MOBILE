@@ -133,13 +133,13 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
 
     _unitNumberC.text = tenant.flatNumber;
     _flatCarpetAreaC.text = tenant.flatCarpetAreaSqFt.toString();
-    _freeAreaOfferedPercentageC.text =
+    _freeAreaOfferedPercentageC.text = tenant.freeAreaOfferedPercentage==0?"":
         tenant.freeAreaOfferedPercentage.toString();
     _extraAreaPurchasedSqFtC.text = tenant.extraAreaPurchasedSqFt.toString();
     _totalAreaSqFtC.text = tenant.totalAreaSqFt.toString();
 
     selectedFlatFacing = flatFacingList.firstWhere(
-      (e) => e['DisplayName'] == tenant.facing,
+      (e) => e['DisplayName'].toString().toLowerCase() == tenant.facing.toLowerCase(),
       orElse: () => flatFacingList.first,
     );
 
@@ -435,23 +435,21 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                       valueListenable: selectedFlatType,
                       builder: (context, value, child) {
                         if (value['zAttributesId'] == 1) {
-                          return Padding(
-                            padding: const EdgeInsets.only(left: 20),
-                            child: CustomDropDownWidget(
-                              title: 'Flat Configuration*',
-                              dataList: residentialFlatList,
-                              initialValue: selectedFlatConfiguration,
-                              onSelected: (value) {
-                                selectedFlatConfiguration = value;
-                              },
-                              validator: (value) {
-                                if (value == null ||
-                                    value["zAttributesId"] == -1) {
-                                  return 'Flat Configuration is required';
-                                }
-                                return null;
-                              },
-                            ),
+                          return CustomDropDownWidget(
+                            title: 'Flat Configuration',
+                            isRequired: true,
+                            dataList: residentialFlatList,
+                            initialValue: selectedFlatConfiguration,
+                            onSelected: (value) {
+                              selectedFlatConfiguration = value;
+                            },
+                            validator: (value) {
+                              if (value == null ||
+                                  value["zAttributesId"] == -1) {
+                                return 'Flat Configuration is required';
+                              }
+                              return null;
+                            },
                           );
                         }
                         if (value['zAttributesId'] == 2) {

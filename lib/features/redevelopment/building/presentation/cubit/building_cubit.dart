@@ -20,8 +20,6 @@ class BuildingCubit extends Cubit<BuildingState> {
   final BuildingRepository _buildingRepository =
       serviceLocator<BuildingRepository>();
 
-
-
   // <---- CLEAR BUILDING LIST ---->
   void clearBuildingList() {
     try {
@@ -46,14 +44,13 @@ class BuildingCubit extends Cubit<BuildingState> {
     String value,
   ) async {
     emit(state.copyWith(searchText: value, buildingList: [], currentPage: 1));
-    await getBuildingList(context, 1, 10, projectId);
+    await getBuildingList(context, 1, projectId);
   }
 
   // <---- GET ASSET LIST ---->
   Future getBuildingList(
     BuildContext context,
     int pageNumber,
-    int pageSize,
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
@@ -65,7 +62,7 @@ class BuildingCubit extends Cubit<BuildingState> {
 
     final result = await _buildingRepository.pullBuilding(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       projectId: projectId,
       queryParams: queryParams,
     );
@@ -80,22 +77,8 @@ class BuildingCubit extends Cubit<BuildingState> {
           response['data'] as List<RedevelopmentBuildingModel>,
         );
 
-        List<RedevelopmentBuildingModel> updatedList;
-        if (pageNumber == 1) {
-          updatedList = newData;
-        } else {
-          final existingIds =
-              state.buildingList.map((b) => b.buildingId).toSet();
-          final uniqueNewData =
-              newData
-                  .where(
-                    (building) => !existingIds.contains(building.buildingId),
-                  )
-                  .toList();
-          updatedList = List<RedevelopmentBuildingModel>.from(
-            state.buildingList,
-          )..addAll(uniqueNewData);
-        }
+        final List<RedevelopmentBuildingModel> updatedList =
+            pageNumber == 1 ? newData : [...state.buildingList, ...newData];
 
         emit(
           state.copyWith(
@@ -133,7 +116,6 @@ class BuildingCubit extends Cubit<BuildingState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        if (isClosed) return;
         final buildingDetailsList =
             response['data'] as List<BuildingDetailsModel>;
         if (buildingDetailsList.isNotEmpty) {
@@ -257,16 +239,12 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
     goRouter.pop();
 
-    if (isClosed) return;
-
     updateResult.fold(
       (failure) {
-        if (isClosed) return;
         showErrorMessage(context, 'Error Message', failure.message);
         return;
       },
       (response) async {
-        if (isClosed) return;
         showSuccessMessage(context, subTitle: "Upload Successfully");
         await getBuildingDocumentList(
           context,
@@ -286,7 +264,6 @@ class BuildingCubit extends Cubit<BuildingState> {
     int projectId,
     Map<String, dynamic> buildingData,
   ) async {
-    if (isClosed) return;
     DialogHelper.showProcessingOverlay(context);
 
     final result = await _buildingRepository.addUpdateBuilding(
@@ -295,22 +272,23 @@ class BuildingCubit extends Cubit<BuildingState> {
 
     goRouter.pop();
 
-    if (isClosed) return;
-
     result.fold(
       (failure) {
-        if (isClosed) return;
         showErrorMessage(context, 'Error', failure.message);
+        return;
       },
       (response) {
-        if (isClosed) return;
         goRouter.pop();
 
         final newBuilding = response['data'][0] as RedevelopmentBuildingModel;
+        var list = [newBuilding, ...state.buildingList];
         emit(
           state.copyWith(
-            buildingList: [newBuilding, ...state.buildingList],
-            totalNumberOfRecord: state.totalNumberOfRecord + 1,
+            buildingList: list,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord == -1
+                    ? 1
+                    : state.totalNumberOfRecord + 1,
           ),
         );
 
@@ -326,7 +304,6 @@ class BuildingCubit extends Cubit<BuildingState> {
     int index,
     Map<String, dynamic> buildingData,
   ) async {
-    if (isClosed) return;
     DialogHelper.showProcessingOverlay(context);
 
     final result = await _buildingRepository.addUpdateBuilding(
@@ -335,23 +312,23 @@ class BuildingCubit extends Cubit<BuildingState> {
 
     goRouter.pop();
 
-    if (isClosed) return;
-
     result.fold(
       (failure) {
-        if (isClosed) return;
         showErrorMessage(context, 'Error', failure.message);
+        return;
       },
       (response) {
-        if (isClosed) return;
         goRouter.pop();
 
-        if (index < state.buildingList.length) {
+        final updatedBuilding =
+            response['data'][0] as RedevelopmentBuildingModel;
+
+        if (state.buildingList.isNotEmpty &&
+            index < state.buildingList.length) {
           final updatedList = List<RedevelopmentBuildingModel>.from(
             state.buildingList,
           );
-          updatedList[index] =
-              response['data'][0] as RedevelopmentBuildingModel;
+          updatedList[index] = updatedBuilding;
 
           emit(state.copyWith(buildingList: updatedList));
         }
@@ -366,6 +343,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     int projectId,
     RedevelopmentBuildingModel buildingModel,
     BuildContext context,
+    int? index,
   ) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -383,8 +361,16 @@ class BuildingCubit extends Cubit<BuildingState> {
       },
       (success) {
         showSuccessMessage(context, subTitle: "Building Deleted Successfully");
+        if (index != null) {
+          final updatedList = List<RedevelopmentBuildingModel>.from(
+            state.buildingList,
+          );
+          updatedList.removeAt(index);
 
-        getBuildingList(context, state.currentPage, 10, projectId);
+          emit(state.copyWith(buildingList: updatedList));
+        } else {
+          getBuildingList(context, state.currentPage, projectId);
+        }
       },
     );
   }

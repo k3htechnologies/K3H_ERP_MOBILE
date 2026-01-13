@@ -23,6 +23,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String screenTitle;
   final AuthorizationModel authorization;
+  final String? searchHintText;
   final Widget? widgets;
   final Widget? secondaryWidget;
   final bool? showNotification;
@@ -40,6 +41,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
     super.key,
     required this.screenTitle,
     required this.authorization,
+    this.searchHintText,
     this.widgets,
     this.secondaryWidget,
     this.showNotification = true,
@@ -299,6 +301,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                     Expanded(
                       child: SearchWidget(
                         onSubmit: widget.onSearchSubmit!,
+                        hintText: widget.searchHintText!,
                         textController: widget.textController!,
                       ),
                     ),

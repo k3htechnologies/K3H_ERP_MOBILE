@@ -79,7 +79,6 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
         goRouter.pop();
         final newDepartment = response['data'][0] as DepartmentModel;
 
-        // Try to update parent cubit first (when called from AddDepartmentScreen)
         var list = [newDepartment, ...state.departmentList];
         emit(
           state.copyWith(

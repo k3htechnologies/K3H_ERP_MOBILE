@@ -62,7 +62,7 @@ class _TenantScreenState extends State<TenantScreen> {
         AuthorizationModel();
     _initializeTextEditingController();
     _onScroll();
-    
+
     // Call API directly in initState, similar to BuildingScreen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -105,12 +105,15 @@ class _TenantScreenState extends State<TenantScreen> {
       'Deleting this Tenant will permanently remove its contents.',
     );
 
-    if (shouldDelete && context.mounted && _selectedBuildingNotifier.value.isNotEmpty) {
+    if (shouldDelete &&
+        context.mounted &&
+        _selectedBuildingNotifier.value.isNotEmpty) {
       _tenantCubit.deleteTenant(
         _project.projectId,
         _selectedBuildingNotifier.value.first["zAttributesId"] as int,
         obj,
         context,
+        index,
       );
     }
   }
@@ -169,19 +172,17 @@ class _TenantScreenState extends State<TenantScreen> {
       if (!scrollController.hasClients) return;
 
       if (scrollController.position.pixels >=
-          scrollController.position.maxScrollExtent &&
+              scrollController.position.maxScrollExtent &&
           !_tenantCubit.state.isLoading! &&
           _tenantCubit.state.tenantList.length <
               _tenantCubit.state.totalNumberOfRecord &&
           _selectedBuildingNotifier.value.isNotEmpty) {
-
         _tenantCubit.getTenantList(
           context: context,
           projectId: _project.projectId,
           buildingId:
-          _selectedBuildingNotifier.value.first['zAttributesId'] as int,
+              _selectedBuildingNotifier.value.first['zAttributesId'] as int,
           pageNumber: _tenantCubit.state.currentPage + 1,
-          pageSize: 10,
         );
       }
     });
@@ -204,6 +205,7 @@ class _TenantScreenState extends State<TenantScreen> {
           }
         },
         textController: _searchC,
+        // searchHintText: "Search By Flat Number",
         onAddCallback: () {
           if (_selectedBuildingNotifier.value.isNotEmpty) {
             goRouter.pushNamed(
@@ -216,11 +218,7 @@ class _TenantScreenState extends State<TenantScreen> {
               },
             );
           } else {
-            showErrorMessage(
-              context,
-              "Error",
-              "Please select building",
-            );
+            showErrorMessage(context, "Error", "Please select building");
           }
         },
         onExportCallback: (value) {
@@ -232,11 +230,7 @@ class _TenantScreenState extends State<TenantScreen> {
               _selectedBuildingNotifier.value.first["zAttributesId"] as int,
             );
           } else {
-            showErrorMessage(
-              context,
-              "Error",
-              "Please select building",
-            );
+            showErrorMessage(context, "Error", "Please select building");
           }
         },
         onProjectChangeCallback: (project) {
@@ -263,8 +257,7 @@ class _TenantScreenState extends State<TenantScreen> {
                     if (value.isNotEmpty &&
                         value.first['zAttributesId'] != null &&
                         mounted) {
-                      final newBuildingId =
-                          value.first['zAttributesId'] as int;
+                      final newBuildingId = value.first['zAttributesId'] as int;
                       if (_lastFetchedBuildingId != newBuildingId) {
                         _lastFetchedBuildingId = newBuildingId;
                         await _tenantCubit.getTenantList(
@@ -272,7 +265,6 @@ class _TenantScreenState extends State<TenantScreen> {
                           projectId: _project.projectId,
                           buildingId: newBuildingId,
                           pageNumber: 1,
-                          pageSize: 10,
                         );
                       }
                     } else if (mounted) {
@@ -310,8 +302,7 @@ class _TenantScreenState extends State<TenantScreen> {
                 return BlocBuilder<TenantCubit, TenantState>(
                   bloc: _tenantCubit,
                   builder: (context, state) {
-                    if ((state.isLoading ?? true) &&
-                        state.tenantList.isEmpty) {
+                    if ((state.isLoading ?? true) && state.tenantList.isEmpty) {
                       return Center(child: loader());
                     }
                     if (state.tenantList.isEmpty) {
@@ -326,11 +317,14 @@ class _TenantScreenState extends State<TenantScreen> {
                       itemCount: state.tenantList.length + 1,
                       itemBuilder: (context, index) {
                         if (index == state.tenantList.length) {
-                          return state.tenantList.length < state.totalNumberOfRecord
+                          return state.tenantList.length <
+                                  state.totalNumberOfRecord
                               ? const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Center(child: CircularProgressIndicator()),
-                          )
+                                padding: EdgeInsets.all(16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
                               : const SizedBox.shrink();
                         }
                         var tenant = state.tenantList[index];
@@ -353,21 +347,22 @@ class _TenantScreenState extends State<TenantScreen> {
                                           queryParameters: {
                                             "tenant":
                                                 EncryptionManager.encryptData(
-                                                  jsonEncode(
-                                                    tenant.toJson(),
-                                                  ),
+                                                  jsonEncode(tenant.toJson()),
                                                 ),
                                           },
                                         );
                                       },
                                       child: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 5,vertical: 3),
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 5,
+                                          vertical: 3,
+                                        ),
                                         decoration: BoxDecoration(
                                           border: Border(
                                             bottom: BorderSide(
-                                              color: AppColor.primary
-                                            )
-                                          )
+                                              color: AppColor.primary,
+                                            ),
+                                          ),
                                         ),
                                         child: Text(
                                           tenant.tenantApplicantData
@@ -392,8 +387,8 @@ class _TenantScreenState extends State<TenantScreen> {
                                       CustomIconButton.edit(
                                         onPressed: () async {
                                           if (_selectedBuildingNotifier
-                                                  .value
-                                                  .isEmpty) {
+                                              .value
+                                              .isEmpty) {
                                             showErrorMessage(
                                               context,
                                               'Error',
@@ -409,14 +404,11 @@ class _TenantScreenState extends State<TenantScreen> {
                                           await goRouter.pushNamed(
                                             AppRoutes.addTenant,
                                             queryParameters: {
-                                              "tenant":
-                                                  Uri.encodeQueryComponent(
-                                                    EncryptionManager.encryptData(
-                                                      jsonEncode(
-                                                        tenant.toJson(),
-                                                      ),
-                                                    ),
-                                                  ),
+                                              "tenant": Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(tenant.toJson()),
+                                                ),
+                                              ),
                                               'index': index.toString(),
                                               'projectId':
                                                   _project.projectId.toString(),
@@ -424,22 +416,6 @@ class _TenantScreenState extends State<TenantScreen> {
                                                   buildingId.toString(),
                                             },
                                           );
-                                          if (context.mounted &&
-                                              _selectedBuildingNotifier
-                                                  .value
-                                                  .isNotEmpty) {
-                                            _tenantCubit.getTenantList(
-                                              context: context,
-                                              pageNumber: state.currentPage,
-                                              pageSize: 10,
-                                              projectId: _project.projectId,
-                                              buildingId:
-                                                  _selectedBuildingNotifier
-                                                          .value
-                                                          .first["zAttributesId"]
-                                                      as int,
-                                            );
-                                          }
                                         },
                                       ),
                                       const SizedBox(width: 8),

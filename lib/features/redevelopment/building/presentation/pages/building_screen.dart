@@ -43,7 +43,6 @@ class _BuildingScreenState extends State<BuildingScreen> {
   // TEXT EDITING CONTROLLER
   late TextEditingController _searchC;
 
-
   @override
   void initState() {
     super.initState();
@@ -54,16 +53,11 @@ class _BuildingScreenState extends State<BuildingScreen> {
         AuthorizationModel();
     _initializeTextEditingController();
     _onScroll();
-    
+
     // Call API directly in initState, similar to DepartmentMasterScreen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        _buildingCubit.getBuildingList(
-          context,
-          1,
-          10,
-          _project.projectId,
-        );
+        _buildingCubit.getBuildingList(context, 1, _project.projectId);
       }
     });
   }
@@ -91,7 +85,6 @@ class _BuildingScreenState extends State<BuildingScreen> {
         _buildingCubit.getBuildingList(
           context,
           _buildingCubit.state.currentPage + 1,
-          10,
           _project.projectId,
         );
       }
@@ -112,7 +105,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
     );
 
     if (shouldDelete && context.mounted) {
-      _buildingCubit.deleteBuilding(_project.projectId, obj, context);
+      _buildingCubit.deleteBuilding(_project.projectId, obj, context, index);
     }
   }
 
@@ -135,14 +128,9 @@ class _BuildingScreenState extends State<BuildingScreen> {
         onExportCallback: (value) {
           _buildingCubit.exportExcelPdf(context, value, _project.projectId);
         },
-        onProjectChangeCallback: (project){
+        onProjectChangeCallback: (project) {
           _project = project;
-          _buildingCubit.getBuildingList(
-            context,
-            1,
-            10,
-            _project.projectId,
-          );
+          _buildingCubit.getBuildingList(context, 1, _project.projectId);
         },
       ),
       body: Column(
@@ -152,7 +140,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
               key: ValueKey('building_list_${_project.projectId}'),
               bloc: _buildingCubit,
               builder: (context, state) {
-                if (state.isLoading==true && state.buildingList.isEmpty) {
+                if (state.isLoading == true && state.buildingList.isEmpty) {
                   return Center(child: loader());
                 }
                 if (state.buildingList.isEmpty) {
@@ -241,14 +229,6 @@ class _BuildingScreenState extends State<BuildingScreen> {
                                               _project.projectId.toString(),
                                         },
                                       );
-                                      if (context.mounted) {
-                                        _buildingCubit.getBuildingList(
-                                          context,
-                                          1,
-                                          10,
-                                          _project.projectId,
-                                        );
-                                      }
                                     },
                                   ),
                                   const SizedBox(width: 8),
