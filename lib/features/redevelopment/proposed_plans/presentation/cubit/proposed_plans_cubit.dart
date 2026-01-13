@@ -20,8 +20,7 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
 
   // <---- GET PROPOSED PLANS LIST ---->
   Future getDepartmentList(BuildContext context, int projectId) async {
-    // Always refetch for the given project, and clear old data first
-    emit(state.copyWith(isLoading: true, proposedPlansList: []));
+    emit(state.copyWith(isLoading: true));
     var result = await _proposedPlansRepository.getProposedPlanList(
       projectId: projectId,
     );
@@ -58,17 +57,10 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
       "TotalNumberOfFloors": totalNumberOfFloors,
       "TotalUnits": totalUnits,
       "TotalParking": totalParking,
+      "Amenities": amenities,
     };
 
     List<Map<String, dynamic>> fileList = [];
-
-    // Add amenities to fileList with key
-    if (amenities.isNotEmpty) {
-      fileList.add({
-        "key": "Amenities",
-        "value": amenities,
-      });
-    }
 
     for (int i = 0; i < planFile.fileNameList.length; i++) {
       if (planFile.fileNameList[i].contains("http")) {
@@ -129,18 +121,11 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
       "TotalNumberOfFloors": totalNumberOfFloors,
       "TotalUnits": totalUnits,
       "TotalParking": totalParking,
+      "Amenities": amenities,
       "RemovePlanDocumentURL": planFile.deletedFileList,
     };
 
     List<Map<String, dynamic>> fileList = [];
-
-    // Add amenities to fileList with key
-    if (amenities.isNotEmpty) {
-      fileList.add({
-        "key": "Amenities",
-        "value": amenities,
-      });
-    }
 
     for (int i = 0; i < planFile.fileNameList.length; i++) {
       if (planFile.fileNameList[i].contains("http")) {
@@ -182,6 +167,19 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
   }
 
   void onTabChanged(int index, BuildContext context, projectId) {
+
+    // PROJECT CHANGED
+    if (state.currentProjectId != projectId) {
+
+      emit(state.copyWith(
+        currentProjectId: projectId,
+        proposedPlansList: [], // ✅ clear ONLY here
+      ));
+
+      getDepartmentList(context, projectId);
+      return;
+    }
+
     emit(state.copyWith(currentTabIndex: index));
     // IF TAB IS DETAILS
     if (index == 0) {

@@ -56,6 +56,9 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
   // AMENITIES DATA
   List<AmenityCategory> amenitiesList = [];
 
+  // FLAG TO TRACK IF AMENITIES HAVE BEEN PREFILLED
+  bool _amenitiesPrefilled = false;
+
   @override
   void initState() {
     super.initState();
@@ -114,19 +117,20 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
             proposedPlan.totalNumberOfFloors.toString();
       }
       if (_totalNumberOfUnitsC.text.isEmpty) {
-      _totalNumberOfUnitsC.text = proposedPlan.totalUnits.toString();
+        _totalNumberOfUnitsC.text = proposedPlan.totalUnits.toString();
       }
       if (_totalParkingC.text.isEmpty) {
-      _totalParkingC.text = proposedPlan.totalParking.toString();
+        _totalParkingC.text = proposedPlan.totalParking.toString();
       }
       if (proposedPlan.planDocumentUrl.isNotEmpty) {
-      planFile.fileNameList = proposedPlan.planDocumentUrl.split(",");
+        planFile.fileNameList = proposedPlan.planDocumentUrl.split(",");
       } else {
         planFile.fileNameList = [];
       }
-      // Prefill amenities if available
-      if (proposedPlan.amenities.isNotEmpty) {
+      // Prefill amenities only if not already prefilled (to preserve user selections)
+      if (!_amenitiesPrefilled && proposedPlan.amenities.isNotEmpty) {
         _prefillAmenities(proposedPlan.amenities);
+        _amenitiesPrefilled = true;
       }
     });
   }
@@ -136,26 +140,29 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     if (amenitiesString.isEmpty) return;
 
     // Split comma-separated amenities
-    final List<String> selectedAmenities = amenitiesString
-        .split(",")
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
+    final List<String> selectedAmenities =
+        amenitiesString
+            .split(",")
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
 
     // Create updated amenities list with selected items marked
-    final updatedAmenitiesList = amenitiesList.map((category) {
-      final updatedSubCategories = category.subCategories.map((subCategory) {
-        return AmenitySubCategory(
-          name: subCategory.name,
-          isSelected: selectedAmenities.contains(subCategory.name),
-        );
-      }).toList();
-      return AmenityCategory(
-        title: category.title,
-        subCategories: updatedSubCategories,
-        isExpanded: category.isExpanded,
-      );
-    }).toList();
+    final updatedAmenitiesList =
+        amenitiesList.map((category) {
+          final updatedSubCategories =
+              category.subCategories.map((subCategory) {
+                return AmenitySubCategory(
+                  name: subCategory.name,
+                  isSelected: selectedAmenities.contains(subCategory.name),
+                );
+              }).toList();
+          return AmenityCategory(
+            title: category.title,
+            subCategories: updatedSubCategories,
+            isExpanded: category.isExpanded,
+          );
+        }).toList();
 
     amenitiesList = updatedAmenitiesList;
   }
@@ -171,25 +178,29 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
       planFile.deletedFileList = "";
       // Clear all selected amenities
       _clearAmenities();
+      // Reset prefilled flag
+      _amenitiesPrefilled = false;
     });
   }
 
   // CLEAR ALL SELECTED AMENITIES
   void _clearAmenities() {
     // Create updated amenities list with all items unselected
-    amenitiesList = amenitiesList.map((category) {
-      final updatedSubCategories = category.subCategories.map((subCategory) {
-        return AmenitySubCategory(
-          name: subCategory.name,
-          isSelected: false,
-        );
-      }).toList();
-      return AmenityCategory(
-        title: category.title,
-        subCategories: updatedSubCategories,
-        isExpanded: category.isExpanded,
-      );
-    }).toList();
+    amenitiesList =
+        amenitiesList.map((category) {
+          final updatedSubCategories =
+              category.subCategories.map((subCategory) {
+                return AmenitySubCategory(
+                  name: subCategory.name,
+                  isSelected: false,
+                );
+              }).toList();
+          return AmenityCategory(
+            title: category.title,
+            subCategories: updatedSubCategories,
+            isExpanded: category.isExpanded,
+          );
+        }).toList();
   }
 
   // INITIALIZE STATIC AMENITIES DATA
@@ -328,98 +339,111 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
   @override
   Widget build(BuildContext context) {
     return BlocListener<ProposedPlansCubit, ProposedPlansState>(
-      listenWhen: (previous, current) =>
-          previous.proposedPlansList != current.proposedPlansList,
+      listenWhen:
+          (previous, current) =>
+              previous.proposedPlansList != current.proposedPlansList,
       listener: (context, state) {
-        // When data changes for current project:
-        // - if list has data, prefill
-        // - if list is empty, clear the form
         if (state.proposedPlansList.isNotEmpty) {
           final proposedPlan = state.proposedPlansList.first;
-          _prefillFromModel(proposedPlan);
+
+          // Prefill ONLY ONCE
+          if (!_amenitiesPrefilled) {
+            _prefillFromModel(proposedPlan);
+          }
         } else {
           _clearForm();
         }
       },
       child: Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        screenTitle: "Proposed Plan",
-        authorization: _routeAuthorizationModel,
-        onProjectChangeCallback: (project) {
-          _project = project;
-          _proposedPlansCubit.onTabChanged(
-            _tabController.index,
-            context,
-            _project.projectId,
-          );
-        },
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: IntrinsicWidth(
-                child: Container(
-                  height: 40,
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: AppColor.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppColor.grey.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: TabBar(
-                    controller: _tabController,
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.start,
-                    labelColor: AppColor.primary,
-                    unselectedLabelColor: AppColor.grey,
-                    indicator: BoxDecoration(
-                      color: AppColor.lightBlue,
+        appBar: CustomAppBarWithBackButton(
+          screenTitle: "Proposed Plan",
+          authorization: _routeAuthorizationModel,
+          onProjectChangeCallback: (project) {
+            _project = project;
+            _proposedPlansCubit.onTabChanged(
+              _tabController.index,
+              context,
+              _project.projectId,
+            );
+          },
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IntrinsicWidth(
+                  child: Container(
+                    height: 40,
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: AppColor.white,
                       borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: AppColor.grey.withValues(alpha: 0.2),
+                      ),
                     ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    dividerColor: Colors.transparent,
-                    labelStyle: AppTextStyle.ts14M(),
-                    unselectedLabelStyle: AppTextStyle.ts14M(),
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: EdgeInsets.zero,
-                    tabs: const [Tab(text: 'Details'), Tab(text: 'Amenities')],
+                    child: TabBar(
+                      controller: _tabController,
+                      isScrollable: true,
+                      tabAlignment: TabAlignment.start,
+                      labelColor: AppColor.primary,
+                      unselectedLabelColor: AppColor.grey,
+                      indicator: BoxDecoration(
+                        color: AppColor.lightBlue,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      dividerColor: Colors.transparent,
+                      labelStyle: AppTextStyle.ts14M(),
+                      unselectedLabelStyle: AppTextStyle.ts14M(),
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.zero,
+                      tabs: const [
+                        Tab(text: 'Details'),
+                        Tab(text: 'Amenities'),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                  children: [_detailsSectionTabView(), _amenitiesSectionTabView()],
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BlocBuilder<ProposedPlansCubit, ProposedPlansState>(
-        builder: (context, state) {
-          return state.currentTabIndex == 0
-              ? SafeArea(
-                child: Container(
-                  height: 70,
-                  padding: EdgeInsets.all(16),
-                  child: CustomButton(
-                        text: state.proposedPlansList.isEmpty
-                            ? "Add Proposed Plan"
-                            : "Update Proposed Plan",
-                        onPressed: () {
-                          _handleAddOrUpdateProposedPlan(state);
-                        },
-                  ),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _detailsSectionTabView(),
+                    AmenitiesTab(
+                      amenitiesList: amenitiesList,
+                      onUpdate: _updateAmenityCategory,
+                    ),
+                  ],
                 ),
-              )
-              : SizedBox();
-        },
+              ),
+            ],
+          ),
         ),
+        bottomNavigationBar:
+            BlocBuilder<ProposedPlansCubit, ProposedPlansState>(
+              builder: (context, state) {
+                return state.currentTabIndex == 0
+                    ? SafeArea(
+                      child: Container(
+                        height: 70,
+                        padding: EdgeInsets.all(16),
+                        child: CustomButton(
+                          text:
+                              state.proposedPlansList.isEmpty
+                                  ? "Add Proposed Plan"
+                                  : "Update Proposed Plan",
+                          onPressed: () {
+                            _handleAddOrUpdateProposedPlan(state);
+                          },
+                        ),
+                      ),
+                    )
+                    : SizedBox();
+              },
+            ),
       ),
     );
   }
@@ -440,68 +464,72 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
               Text("Proposed Plan Details", style: AppTextStyle.ts14M()),
               verticalSpacing(height: 15),
               CustomTextField(
-              title: "Total Number Of Floors",
-              isRequired: true,
-              hint: "Enter Total Number Of Floors",
-              keyboardType: TextInputType.number,
-              textController: _totalNumberOfFloorsC,
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return "Please enter total number of floors";
-                }
-                return null;
-              },
-            ),
-            CustomTextField(
-              title: "Total Number Of Units",
-              isRequired: true,
-              hint: "Enter Total Number Of Units",
-              keyboardType: TextInputType.number,
-              textController: _totalNumberOfUnitsC,
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return "Please enter total number of units";
-                }
-                return null;
-              },
-            ),
-            CustomTextField(
-              title: "Total Parking",
-              isRequired: true,
-              hint: "Enter Total Parking",
-              keyboardType: TextInputType.number,
-              textController: _totalParkingC,
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return "Please enter total parking";
-                }
-                return null;
-              },
-            ),
-            CustomMultiFilePicker(
-              key: ValueKey(planFile.fileNameList.join(",")),
-              initialFileList: planFile.fileNameList,
-              title: "Plan",
-              isRequired: true,
-              onFilePickedCallback: (fileByteList, fileNameList) {
-                planFile.fileBytesList = fileByteList;
-                planFile.fileNameList = fileNameList;
-              },
-              onFileDeleteCallback: (fileBytesList, fileNameList, deletedUrl) {
-                planFile.fileBytesList = fileBytesList;
-                planFile.fileNameList = fileNameList;
-                planFile.deletedFileList = deletedUrl;
-              },
-              validator: (file) {
-                if (file == null || file.isEmpty) {
-                  return "Plan File required";
-                }
-                return null;
-              },
-            ),
-          ],
+                title: "Total Number Of Floors",
+                isRequired: true,
+                hint: "Enter Total Number Of Floors",
+                keyboardType: TextInputType.number,
+                textController: _totalNumberOfFloorsC,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "Please enter total number of floors";
+                  }
+                  return null;
+                },
+              ),
+              CustomTextField(
+                title: "Total Number Of Units",
+                isRequired: true,
+                hint: "Enter Total Number Of Units",
+                keyboardType: TextInputType.number,
+                textController: _totalNumberOfUnitsC,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "Please enter total number of units";
+                  }
+                  return null;
+                },
+              ),
+              CustomTextField(
+                title: "Total Parking",
+                isRequired: true,
+                hint: "Enter Total Parking",
+                keyboardType: TextInputType.number,
+                textController: _totalParkingC,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "Please enter total parking";
+                  }
+                  return null;
+                },
+              ),
+              CustomMultiFilePicker(
+                key: ValueKey(planFile.fileNameList.join(",")),
+                initialFileList: planFile.fileNameList,
+                title: "Plan",
+                isRequired: true,
+                onFilePickedCallback: (fileByteList, fileNameList) {
+                  planFile.fileBytesList = fileByteList;
+                  planFile.fileNameList = fileNameList;
+                },
+                onFileDeleteCallback: (
+                  fileBytesList,
+                  fileNameList,
+                  deletedUrl,
+                ) {
+                  planFile.fileBytesList = fileBytesList;
+                  planFile.fileNameList = fileNameList;
+                  planFile.deletedFileList = deletedUrl;
+                },
+                validator: (file) {
+                  if (file == null || file.isEmpty) {
+                    return "Plan File required";
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -544,9 +572,31 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
       );
     }
   }
+}
 
-  // AMENITIES SECTION TAB VIEW
-  Widget _amenitiesSectionTabView() {
+class AmenitiesTab extends StatefulWidget {
+  final List<AmenityCategory> amenitiesList;
+  final Function(int, AmenityCategory) onUpdate;
+
+  const AmenitiesTab({
+    super.key,
+    required this.amenitiesList,
+    required this.onUpdate,
+  });
+
+  @override
+  State<AmenitiesTab> createState() => _AmenitiesTabState();
+}
+
+class _AmenitiesTabState extends State<AmenitiesTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -554,13 +604,14 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
         children: [
           Text("Amenities Category", style: AppTextStyle.ts14M()),
           verticalSpacing(height: 15),
-          ...amenitiesList.asMap().entries.map((entry) {
+          ...widget.amenitiesList.asMap().entries.map((entry) {
             final index = entry.key;
             final category = entry.value;
+
             return ExpandableCategoryTile(
               category: category,
               onCategoryChanged: (updatedCategory) {
-                _updateAmenityCategory(index, updatedCategory);
+                widget.onUpdate(index, updatedCategory);
               },
             );
           }),
