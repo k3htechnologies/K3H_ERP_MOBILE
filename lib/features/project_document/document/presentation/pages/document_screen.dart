@@ -11,10 +11,12 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class DocumentScreen extends StatefulWidget {
@@ -68,11 +70,14 @@ class _DocumentScreenState extends State<DocumentScreen>
   }
 
   // TEXT EDIT CONTROLLER
-  late TextEditingController _searchC;
+  late TextEditingController _searchC, _documentC;
+  // FORM KEY
+  final _formKey = GlobalKey<FormState>();
 
   // INITIALIZE CONTROLLERS
   void _initControllers() {
     _searchC = TextEditingController();
+    _documentC = TextEditingController();
   }
 
   @override
@@ -81,6 +86,88 @@ class _DocumentScreenState extends State<DocumentScreen>
     _categoryTabController?.dispose();
 
     super.dispose();
+  }
+
+  void _submitForm({DocumentModel? documentModel, int? index}) {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    if (documentModel != null) {
+      _documentCubit.updateDocumentInCategory(
+        context: context,
+        index: index!,
+
+        uniqueKey: documentModel!.uniquekey,
+        projectDocumentId: documentModel!.projectDocumentId,
+        projectDocumentCategoryId: documentModel!.projectDocumentCategoryId,
+        projectId: documentModel!.projectId,
+        projectDocumentName: _documentC.text.trim(),
+        isMaster: 1,
+      );
+    } else {
+      _documentCubit.addDocumentToCategory(
+        context: context,
+        projectDocumentName: _documentC.text.trim(),
+      );
+    }
+  }
+
+  void _prefillDocumentDetails(DocumentModel documentModel) {
+    _documentC.text = documentModel.projectDocumentName;
+  }
+
+  Future<void> _showPopUpToAddUpdateDocument({
+    DocumentModel? documentModel,
+    int? index,
+  }) async {
+    if (documentModel != null) {
+      _prefillDocumentDetails(documentModel);
+    }
+    await DialogHelper.showCustomBottomSheet(
+      context,
+      'Add Document',
+      Form(
+        key: _formKey,
+        child: Padding(
+          padding: EdgeInsets.all(16),
+
+          child: Column(
+            children: [
+              CustomTextField(
+                title: "Document",
+                hint: "Enter Document",
+                textController: _documentC,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Document is required";
+                  }
+                  return null;
+                },
+              ),
+              Spacer(),
+              Container(
+                height: 70,
+                padding: EdgeInsets.all(16),
+                child: CustomButton(
+                  text:
+                      documentModel != null
+                          ? "Update Document"
+                          : "Add Document",
+                  onPressed: () {
+                    _submitForm(documentModel: documentModel, index: index);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    _clearDialogueToAddUpdateDocument();
+  }
+
+  void _clearDialogueToAddUpdateDocument() {
+    _documentC.clear();
   }
 
   @override
@@ -101,7 +188,7 @@ class _DocumentScreenState extends State<DocumentScreen>
         secondaryWidget: CustomButton(
           text: "Add",
           onPressed: () {
-            goRouter.pushNamed(AppRoutes.addDocument);
+            _showPopUpToAddUpdateDocument();
           },
           backgroundColor: AppColor.primary,
           leading: Icon(Icons.add, size: 16, color: AppColor.white),
@@ -269,10 +356,6 @@ class _DocumentScreenState extends State<DocumentScreen>
                           size: 16,
                           color: AppColor.primary,
                         ),
-                        onPressed: () async {},
-                      ),
-                      const SizedBox(width: 8),
-                      CustomIconButton.edit(
                         onPressed: () async {
                           goRouter.pushNamed(
                             AppRoutes.addDocument,
@@ -288,6 +371,15 @@ class _DocumentScreenState extends State<DocumentScreen>
                                 ),
                               ),
                             },
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      CustomIconButton.edit(
+                        onPressed: () async {
+                          _showPopUpToAddUpdateDocument(
+                            documentModel: document,
+                            index: index,
                           );
                         },
                       ),

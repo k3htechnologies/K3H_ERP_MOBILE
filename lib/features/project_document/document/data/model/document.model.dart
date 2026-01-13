@@ -119,3 +119,63 @@ class DocumentModel {
     "ModifiedDate": modifiedDate?.toIso8601String(),
   };
 }
+
+extension DocumentModelCopyWith on DocumentModel {
+  DocumentModel copyWith({
+    int? projectDocumentId,
+    String? uniquekey,
+    int? projectId,
+    String? projectDocumentName,
+    int? projectDocumentCategoryId,
+    String? projectDocumentCategory,
+    DateTime? projectDocumentExpiryDate,
+    String? projectDocumentRemark,
+    String? projectDocumentStatus,
+    String? projectDocumentURL,
+    String? projectDocumentApprovalStatus,
+    int? uploadedProjectDocumentCount,
+    int? approvalPendingProjectDocumentCount,
+    int? rejectedProjectDocumentCount,
+    bool? isApproval,
+    int? createdById,
+    String? createdBy,
+    DateTime? createdDate,
+    int? modifiedById,
+    String? modifiedBy,
+    DateTime? modifiedDate,
+  }) {
+    return DocumentModel(
+      projectDocumentId: projectDocumentId ?? this.projectDocumentId,
+      uniquekey: uniquekey ?? this.uniquekey,
+      projectId: projectId ?? this.projectId,
+      projectDocumentName: projectDocumentName ?? this.projectDocumentName,
+      projectDocumentCategoryId:
+          projectDocumentCategoryId ?? this.projectDocumentCategoryId,
+      projectDocumentCategory:
+          projectDocumentCategory ?? this.projectDocumentCategory,
+      projectDocumentExpiryDate:
+          projectDocumentExpiryDate ?? this.projectDocumentExpiryDate,
+      projectDocumentRemark:
+          projectDocumentRemark ?? this.projectDocumentRemark,
+      projectDocumentStatus:
+          projectDocumentStatus ?? this.projectDocumentStatus,
+      projectDocumentURL: projectDocumentURL ?? this.projectDocumentURL,
+      projectDocumentApprovalStatus:
+          projectDocumentApprovalStatus ?? this.projectDocumentApprovalStatus,
+      uploadedProjectDocumentCount:
+          uploadedProjectDocumentCount ?? this.uploadedProjectDocumentCount,
+      approvalPendingProjectDocumentCount:
+          approvalPendingProjectDocumentCount ??
+          this.approvalPendingProjectDocumentCount,
+      rejectedProjectDocumentCount:
+          rejectedProjectDocumentCount ?? this.rejectedProjectDocumentCount,
+      isApproval: isApproval ?? this.isApproval,
+      createdById: createdById ?? this.createdById,
+      createdBy: createdBy ?? this.createdBy,
+      createdDate: createdDate ?? this.createdDate,
+      modifiedById: modifiedById ?? this.modifiedById,
+      modifiedBy: modifiedBy ?? this.modifiedBy,
+      modifiedDate: modifiedDate ?? this.modifiedDate,
+    );
+  }
+}
