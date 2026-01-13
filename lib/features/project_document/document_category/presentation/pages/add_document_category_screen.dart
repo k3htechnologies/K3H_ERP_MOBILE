@@ -47,9 +47,7 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
   void initState() {
     super.initState();
     _documentCategoryCubit = context.read<DocumentCategoryCubit>();
-    _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.addDocumentCategory] ??
-        AuthorizationModel();
+    _routeAuthorizationModel = AuthorizationModel();
     getProjectId();
     initializeTextEditingController();
     if (_isEditMode) {

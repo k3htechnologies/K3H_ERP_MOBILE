@@ -151,6 +151,7 @@ import 'package:k3h_erp_app/features/project_document/document/data/model/docume
 import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/document/presentation/pages/add_document_screen.dart';
 import 'package:k3h_erp_app/features/project_document/document/presentation/pages/document_screen.dart';
+import 'package:k3h_erp_app/features/project_document/document/presentation/pages/view_document_screen.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/data/model/document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/presentation/cubit/document_category_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/presentation/pages/add_document_category_screen.dart';
@@ -2180,7 +2181,7 @@ final GoRouter goRouter = GoRouter(
                     return const DocumentScreen();
                   },
                 ),
-                    GoRoute(
+                GoRoute(
                   name: AppRoutes.addDocument,
                   path: AppRoutes.addDocument,
                   builder: (context, state) {
@@ -2192,9 +2193,7 @@ final GoRouter goRouter = GoRouter(
                             ? DocumentModel.fromJson(
                               jsonDecode(
                                 EncryptionManager.decryptData(
-                                  Uri.decodeComponent(
-                                    queryParameterDocument,
-                                  ),
+                                  Uri.decodeComponent(queryParameterDocument),
                                 ),
                               ),
                             )
@@ -2206,12 +2205,24 @@ final GoRouter goRouter = GoRouter(
                         ) ??
                         0;
                     return AddDocumentScreen(
-                      documentModel: document,
+                      documentModel: document!,
                       index: index,
-                     );
+                    );
                   },
                 ),
-            
+                GoRoute(
+                  name: AppRoutes.viewDocument,
+                  path: AppRoutes.viewDocument,
+                  builder: (context, state) {
+                    final projectDocumentId = int.parse(
+                      state.uri.queryParameters['projectDocumentId'] ?? '0',
+                    );
+
+                    return ViewDocumentScreen(
+                      projectDocumentId: projectDocumentId,
+                    );
+                  },
+                ),
               ],
             ),
 

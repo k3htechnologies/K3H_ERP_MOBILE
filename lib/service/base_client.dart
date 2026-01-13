@@ -507,10 +507,17 @@ class BaseClient {
         );
       }
 
-      final formData = FormData.fromMap({
-        ...payload,
-        for (int i = 0; i < fileList.length; i++) fileList[i]["key"]: files[i],
+      final formData = FormData();
+
+      // add normal fields
+      payload.forEach((key, value) {
+        formData.fields.add(MapEntry(key, value.toString()));
       });
+
+      // add multiple files under SAME key
+      for (int i = 0; i < files.length; i++) {
+        formData.files.add(MapEntry(fileList[i]["key"], files[i]));
+      }
 
       final response = await _dio.post(url, data: formData);
       return _processResponse(response);

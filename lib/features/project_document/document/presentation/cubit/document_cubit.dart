@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
 import 'package:k3h_erp_app/features/project_document/document/data/repository/document.repository.dart';
@@ -63,30 +64,30 @@ class DocumentCubit extends Cubit<DocumentState> {
           ),
         );
         if ((response['data'] as List<DocumentCategoryModel>).isNotEmpty) {
-          getProjectDocumentList(context, 1, 20, projectId);
+          getProjectDocumentList(context: context, pageNumber: 1);
         }
       },
     );
   }
 
   // <---- GET PROJECT DOCUMENT ---->
-  Future getProjectDocumentList(
-    BuildContext context,
-    int pageNumber,
-    int pageSize,
-    int projectId,
-  ) async {
+  Future getProjectDocumentList({
+    required BuildContext context,
+    required int pageNumber,
+    int? projectDocumentId,
+  }) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       "ProjectDocumentName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       "ProjectDocumentCategoryId": state.projectDocumentCategoryId,
+      "ProjectDocumentId": projectDocumentId,
     };
 
     var result = await _documentRepository.pullProjectDocument(
       pageNumber: pageNumber,
-      pageSize: pageSize,
-      projectId: projectId,
+      pageSize: 10,
+      projectId: getProject().projectId,
       queryParams: queryParams,
     );
     result.fold(
@@ -95,7 +96,7 @@ class DocumentCubit extends Cubit<DocumentState> {
         showErrorMessage(context, 'Error Message', failure.message);
       },
       (response) {
-        List<DocumentModel> updatedList = List.from(state.documentList);
+        List<DocumentModel> updatedList = [];
         updatedList.addAll(response['data'] as List<DocumentModel>);
         emit(
           state.copyWith(
@@ -116,14 +117,18 @@ class DocumentCubit extends Cubit<DocumentState> {
   Future updateDocumentInCategory({
     required int index,
     required BuildContext context,
-    required String uniqueKey,
     required int projectDocumentId,
-    required int projectDocumentCategoryId,
-    required int projectId,
+    required String uniqueKey,
     required String projectDocumentName,
+    required int projectId,
+    required int projectDocumentCategoryId,
+    DateTime? projectDocumentExpiryDate,
+    String? projectDocumentStatus,
+    String? projectDocumentRemark,
+    MultiFilePickerModel? documents,
+    required int isMaster,
   }) async {
     List<Map<String, dynamic>> fileList = [];
-
     DialogHelper.showProcessingOverlay(context);
     var body = {
       "ProjectDocumentId": projectDocumentId.toString(),
@@ -131,8 +136,34 @@ class DocumentCubit extends Cubit<DocumentState> {
       "ProjectId": projectId.toString(),
       "ProjectDocumentName": projectDocumentName,
       "ProjectDocumentCategoryId": projectDocumentCategoryId.toString(),
-      "IsMaster": 1.toString(),
+      "IsMaster": isMaster.toString(),
     };
+    var addDocBody = {
+      "ProjectDocumentExpiryDate":
+          projectDocumentExpiryDate != null
+              ? projectDocumentExpiryDate.toIso8601String()
+              : '',
+      "ProjectDocumentStatus": projectDocumentStatus ?? '',
+      "ProjectDocumentRemark": projectDocumentRemark ?? '',
+    };
+    final bool isNewDocUpload =
+        projectDocumentStatus != null && projectDocumentStatus.isNotEmpty;
+
+    if (isNewDocUpload) {
+      body.addAll(addDocBody);
+    }
+    if (documents != null) {
+      for (int i = 0; i < documents.fileNameList.length; i++) {
+        if (documents.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "ProjectDocumentURL",
+          "value": documents.fileBytesList[i],
+          "fileName": documents.fileNameList[i],
+        });
+      }
+    }
 
     var result = await _documentRepository.addUpdateDocument(
       body: body,
@@ -151,7 +182,18 @@ class DocumentCubit extends Cubit<DocumentState> {
         if (state.documentList.isNotEmpty &&
             index < state.documentList.length) {
           final updatedListModel = List<DocumentModel>.from(state.documentList);
-          updatedListModel[index] = updatedList;
+          if (!isNewDocUpload) {
+            updatedListModel[index] = updatedList;
+          } else {
+            updatedListModel[index] = updatedListModel[index].copyWith(
+              approvalPendingProjectDocumentCount:
+                  updatedListModel[index].approvalPendingProjectDocumentCount +
+                  1,
+              uploadedProjectDocumentCount:
+                  updatedListModel[index].uploadedProjectDocumentCount + 1,
+            );
+          }
+
           emit(state.copyWith(documentList: updatedListModel));
         }
 
@@ -166,26 +208,25 @@ class DocumentCubit extends Cubit<DocumentState> {
   //ADD DOCUMENT TO CATEGORY
   Future addDocumentToCategory({
     required BuildContext context,
-    required int projectDocumentId,
-    required int projectDocumentCategoryId,
-    required int projectId,
     required String projectDocumentName,
   }) async {
-    List<Map<String, dynamic>> fileList = [];
-
     DialogHelper.showProcessingOverlay(context);
     var body = {
       "ProjectDocumentId": 0.toString(),
-      "ProjectId": projectId.toString(),
+      "ProjectId": getProject().projectId.toString(),
       "ProjectDocumentName": projectDocumentName,
-      "ProjectDocumentCategoryId": projectDocumentCategoryId.toString(),
+      "ProjectDocumentCategoryId":
+          state
+              .documentCategoryModelList[state.categoryIndex]
+              .projectDocumentCategoryId
+              .toString(),
 
       "IsMaster": 1.toString(),
     };
 
     var result = await _documentRepository.addUpdateDocument(
       body: body,
-      fileList: fileList,
+      fileList: [],
     );
     goRouter.pop();
     result.fold(
@@ -217,12 +258,7 @@ class DocumentCubit extends Cubit<DocumentState> {
             state.documentCategoryModelList[index].projectDocumentCategoryId,
       ),
     );
-    getProjectDocumentList(
-      context,
-      1,
-      10,
-      state.documentCategoryModelList[index].projectId,
-    );
+    getProjectDocumentList(context: context, pageNumber: 1);
   }
 
   // SEARCH BASED ON SHIFT
@@ -235,6 +271,6 @@ class DocumentCubit extends Cubit<DocumentState> {
         currentPage: 1,
       ),
     );
-    getProjectDocumentList(context, 1, 10, getProject().projectId);
+    getProjectDocumentList(context: context, pageNumber: 1);
   }
 }

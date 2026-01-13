@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
 import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
@@ -7,10 +8,13 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 class AddDocumentScreen extends StatefulWidget {
-  final DocumentModel? documentModel;
+  final DocumentModel documentModel;
   final int index;
   const AddDocumentScreen({
     super.key,
@@ -25,62 +29,68 @@ class AddDocumentScreen extends StatefulWidget {
 class _AddDocumentScreenState extends State<AddDocumentScreen> {
   //CUBIT
   late DocumentCubit _documentCubit;
+
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
   //TEXTEDITNIG CONTROLLER
-  late TextEditingController _documentC;
-  //EDIT MODE
-  bool get _isEditMode => widget.documentModel != null;
+  late TextEditingController _remarkC;
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
+  DateTime? expiryDate;
+  String? _selectedStatus;
+  // STATIC LISTS
+  List<Map<String, dynamic>> statusList = [
+    {'zAttributesId': -1, 'DisplayName': 'Select Status'},
+    {'zAttributesId': 1, 'DisplayName': 'Applied'},
+    {'zAttributesId': 2, 'DisplayName': 'Doc Missing'},
+    {'zAttributesId': 3, 'DisplayName': 'In Process'},
+    {'zAttributesId': 4, 'DisplayName': 'Issued'},
+    {'zAttributesId': 5, 'DisplayName': 'Not Applied'},
+    {'zAttributesId': 6, 'DisplayName': 'Not Applicable'},
+    {'zAttributesId': 7, 'DisplayName': 'Paid'},
+    {'zAttributesId': 8, 'DisplayName': 'Payment Due'},
+    {'zAttributesId': 9, 'DisplayName': 'Rejected'},
+  ];
+
+  // FILE VARIABLES
+  MultiFilePickerModel selectedDocumentFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
 
   @override
   void initState() {
     super.initState();
-    _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.addDocument] ??
-        AuthorizationModel();
+    _routeAuthorizationModel = AuthorizationModel();
     _documentCubit = context.read<DocumentCubit>();
     _initializeTextEditingController();
-    if (_isEditMode) {
-      _populateFormFields(widget.documentModel!);
-    }
   }
 
   void _initializeTextEditingController() {
-    _documentC = TextEditingController();
+    _remarkC = TextEditingController();
   }
 
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    if (_isEditMode) {
-      _documentCubit.updateDocumentInCategory(
-        context: context,
-        index: widget.index,
 
-        uniqueKey: widget.documentModel!.uniquekey,
-        projectDocumentId: widget.documentModel!.projectDocumentId,
-        projectDocumentCategoryId:
-            widget.documentModel!.projectDocumentCategoryId,
-        projectId: widget.documentModel!.projectId,
-        projectDocumentName: _documentC.text.trim(),
-      );
-    } else {
-      _documentCubit.addDocumentToCategory(
-        context: context,
-        projectDocumentId: widget.documentModel!.projectDocumentId,
-        projectDocumentCategoryId:
-            widget.documentModel!.projectDocumentCategoryId,
-        projectId: widget.documentModel!.projectId,
-        projectDocumentName: _documentC.text.trim(),
-      );
-    }
-  }
+    _documentCubit.updateDocumentInCategory(
+      context: context,
+      index: widget.index,
 
-  void _populateFormFields(DocumentModel documentModel) {
-    _documentC.text = documentModel.projectDocumentName;
+      uniqueKey: widget.documentModel.uniquekey,
+      projectDocumentId: widget.documentModel.projectDocumentId,
+      projectDocumentCategoryId: widget.documentModel.projectDocumentCategoryId,
+      projectId: widget.documentModel.projectId,
+      projectDocumentName: widget.documentModel.projectDocumentName,
+      documents: selectedDocumentFile,
+      isMaster: 0,
+      projectDocumentStatus: _selectedStatus!,
+      projectDocumentExpiryDate: expiryDate,
+      projectDocumentRemark: _remarkC.text.trim(),
+    );
   }
 
   @override
@@ -99,16 +109,43 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                CustomTextField(
-                  title: "Document",
-                  hint: "Enter Document",
-                  textController: _documentC,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Document is required";
-                    }
-                    return null;
+                CustomDropDownWidget(
+                  title: "Status",
+                  dataList: statusList,
+                  initialValue: statusList[0],
+                  isRequired: true,
+                  onSelected: (Map<String, dynamic> p1) {
+                    _selectedStatus = p1['DisplayName'];
                   },
+                ),
+                CustomMultiFilePicker(
+                  maxFiles: 3,
+                  title: "Files",
+                  initialFileList: selectedDocumentFile.fileNameList,
+                  onFilePickedCallback: (bytesList, fileNameList) {
+                    selectedDocumentFile.fileNameList = fileNameList;
+                    selectedDocumentFile.fileBytesList = bytesList;
+                  },
+                  onFileDeleteCallback: (
+                    fileBytesList,
+                    fileNameList,
+                    deletedFile,
+                  ) {
+                    selectedDocumentFile.fileNameList = fileNameList;
+                    selectedDocumentFile.fileBytesList = fileBytesList;
+                    selectedDocumentFile.deletedFileList = deletedFile;
+                  },
+                ),
+                CustomDatePicker(
+                  title: "Expiry Date",
+                  initialDate: expiryDate,
+                  setValue: (value) => expiryDate = value,
+                ),
+                CustomTextField(
+                  title: "Remark",
+                  hint: "Enter Remark",
+                  maxLines: 3,
+                  textController: _remarkC,
                 ),
               ],
             ),
@@ -119,10 +156,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
         child: Container(
           height: 70,
           padding: EdgeInsets.all(16),
-          child: CustomButton(
-            text: _isEditMode ? "Update Document" : "Add Document",
-            onPressed: _submitForm,
-          ),
+          child: CustomButton(text: "Add Document", onPressed: _submitForm),
         ),
       ),
     );
