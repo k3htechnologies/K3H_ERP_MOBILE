@@ -236,7 +236,7 @@ class _DocumentScreenState extends State<DocumentScreen>
                                     )
                                     .toList();
 
-                            return (state.documentList.isEmpty ||
+                            return (state.documentList.isEmpty &&
                                     state.isLoading!)
                                 ? const Center(
                                   child: CircularProgressIndicator(),
@@ -326,7 +326,24 @@ class _DocumentScreenState extends State<DocumentScreen>
                 children: [
                   Flexible(
                     child: GestureDetector(
-                      onTap: () {},
+                      onTap: () async {
+                        await goRouter.pushNamed(
+                          AppRoutes.viewDocument,
+                          queryParameters: {
+                            "projectDocumentId": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(document.projectDocumentId),
+                              ),
+                            ),
+                          },
+                        );
+                        if (context.mounted) {
+                          _documentCubit.getProjectDocumentList(
+                            context: context,
+                            pageNumber: 1,
+                          );
+                        }
+                      },
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 0,

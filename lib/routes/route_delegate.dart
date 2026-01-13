@@ -2235,7 +2235,11 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.viewDocument,
                   builder: (context, state) {
                     final projectDocumentId = int.parse(
-                      state.uri.queryParameters['projectDocumentId'] ?? '0',
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['projectDocumentId'] ?? '',
+                        ),
+                      ),
                     );
 
                     return ViewDocumentScreen(
