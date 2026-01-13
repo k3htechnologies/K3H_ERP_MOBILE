@@ -205,7 +205,7 @@ class _TenantScreenState extends State<TenantScreen> {
           }
         },
         textController: _searchC,
-        // searchHintText: "Search By Flat Number",
+        searchHintText: "Search By Flat Number",
         onAddCallback: () {
           if (_selectedBuildingNotifier.value.isNotEmpty) {
             goRouter.pushNamed(

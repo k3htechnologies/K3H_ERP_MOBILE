@@ -301,7 +301,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                     Expanded(
                       child: SearchWidget(
                         onSubmit: widget.onSearchSubmit!,
-                        hintText: widget.searchHintText!,
+                        hintText: widget.searchHintText ?? "Search...",
                         textController: widget.textController!,
                       ),
                     ),

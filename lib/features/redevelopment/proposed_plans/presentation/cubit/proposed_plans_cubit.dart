@@ -1,0 +1,191 @@
+import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/proposed_plans.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/repository/proposed_plans.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
+
+part 'proposed_plans_state.dart';
+
+class ProposedPlansCubit extends Cubit<ProposedPlansState> {
+  ProposedPlansCubit() : super(ProposedPlansState.initial());
+
+  // REPOSITORIES
+  final ProposedPlansRepository _proposedPlansRepository =
+      serviceLocator<ProposedPlansRepository>();
+
+  // <---- GET PROPOSED PLANS LIST ---->
+  Future getDepartmentList(BuildContext context, int projectId) async {
+    // Always refetch for the given project, and clear old data first
+    emit(state.copyWith(isLoading: true, proposedPlansList: []));
+    var result = await _proposedPlansRepository.getProposedPlanList(
+      projectId: projectId,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<ProposedPlansModel> list = List<ProposedPlansModel>.from(
+          response['data'] ?? [],
+        );
+
+        emit(state.copyWith(proposedPlansList: list, isLoading: false));
+      },
+    );
+  }
+
+  Future<void> addProposedPlans({
+    required BuildContext context,
+    required String projectId,
+    required String totalNumberOfFloors,
+    required String totalUnits,
+    required String totalParking,
+    required String amenities,
+    required MultiFilePickerModel planFile,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    Map<String, String> requestBody = {
+      "ProposedOfferProposedPlanId": "0",
+      "ProjectId": projectId,
+      "TotalNumberOfFloors": totalNumberOfFloors,
+      "TotalUnits": totalUnits,
+      "TotalParking": totalParking,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+
+    // Add amenities to fileList with key
+    if (amenities.isNotEmpty) {
+      fileList.add({
+        "key": "Amenities",
+        "value": amenities,
+      });
+    }
+
+    for (int i = 0; i < planFile.fileNameList.length; i++) {
+      if (planFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "PlanDocumentURL",
+        "value": planFile.fileBytesList[i],
+        "fileName": planFile.fileNameList[i],
+      });
+    }
+
+    var addResult = await _proposedPlansRepository.addUpdateProposedPlans(
+      body: requestBody,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error Message", failure.message);
+      },
+      (response) {
+        final List<ProposedPlansModel> list = List<ProposedPlansModel>.from(
+          response['data'] ?? [],
+        );
+        emit(
+          state.copyWith(
+            isLoading: false,
+            proposedPlansList: list,
+          ),
+        );
+        showSuccessMessage(
+          context,
+          subTitle: "Proposed plans added successfully",
+        );
+      },
+    );
+  }
+
+  Future<void> updateProposedPlans({
+    required BuildContext context,
+    required String proposedOfferProposedPlanId,
+    required String uniquekey,
+    required String projectId,
+    required String totalNumberOfFloors,
+    required String totalUnits,
+    required String totalParking,
+    required String amenities,
+    required MultiFilePickerModel planFile,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    Map<String, String> requestBody = {
+      "ProposedOfferProposedPlanId": proposedOfferProposedPlanId,
+      "Uniquekey": uniquekey,
+      "ProjectId": projectId,
+      "TotalNumberOfFloors": totalNumberOfFloors,
+      "TotalUnits": totalUnits,
+      "TotalParking": totalParking,
+      "RemovePlanDocumentURL": planFile.deletedFileList,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+
+    // Add amenities to fileList with key
+    if (amenities.isNotEmpty) {
+      fileList.add({
+        "key": "Amenities",
+        "value": amenities,
+      });
+    }
+
+    for (int i = 0; i < planFile.fileNameList.length; i++) {
+      if (planFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "PlanDocumentURL",
+        "value": planFile.fileBytesList[i],
+        "fileName": planFile.fileNameList[i],
+      });
+    }
+
+    var addResult = await _proposedPlansRepository.addUpdateProposedPlans(
+      body: requestBody,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error Message", failure.message);
+      },
+      (response) {
+        final List<ProposedPlansModel> list = List<ProposedPlansModel>.from(
+          response['data'] ?? [],
+        );
+        emit(
+          state.copyWith(
+            isLoading: false,
+            proposedPlansList: list,
+          ),
+        );
+        showSuccessMessage(
+          context,
+          subTitle: "Proposed plans updated successfully",
+        );
+      },
+    );
+  }
+
+  void onTabChanged(int index, BuildContext context, projectId) {
+    emit(state.copyWith(currentTabIndex: index));
+    // IF TAB IS DETAILS
+    if (index == 0) {
+      getDepartmentList(context, projectId);
+    }
+  }
+}

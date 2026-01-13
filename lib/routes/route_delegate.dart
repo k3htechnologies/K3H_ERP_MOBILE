@@ -165,6 +165,8 @@ import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/b
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_view_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/pages/proposed_plans_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_tenant_screen.dart';
@@ -1746,6 +1748,24 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
+        // PROPOSED PLANS
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => ProposedPlansCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.proposedPlans,
+              path: AppRoutes.proposedPlans,
+              builder: (context, state) {
+                return const ProposedPlansScreen();
+              },
+            ),
+          ],
+        ),
         // CALENDAR
         ShellRoute(
           builder: (context, state, child) {
@@ -2180,7 +2200,7 @@ final GoRouter goRouter = GoRouter(
                     return const DocumentScreen();
                   },
                 ),
-                    GoRoute(
+                GoRoute(
                   name: AppRoutes.addDocument,
                   path: AppRoutes.addDocument,
                   builder: (context, state) {
@@ -2192,9 +2212,7 @@ final GoRouter goRouter = GoRouter(
                             ? DocumentModel.fromJson(
                               jsonDecode(
                                 EncryptionManager.decryptData(
-                                  Uri.decodeComponent(
-                                    queryParameterDocument,
-                                  ),
+                                  Uri.decodeComponent(queryParameterDocument),
                                 ),
                               ),
                             )
@@ -2208,10 +2226,9 @@ final GoRouter goRouter = GoRouter(
                     return AddDocumentScreen(
                       documentModel: document,
                       index: index,
-                     );
+                    );
                   },
                 ),
-            
               ],
             ),
 

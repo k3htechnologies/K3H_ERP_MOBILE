@@ -14,6 +14,7 @@ part 'department_master_state.dart';
 class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
   DepartmentMasterCubit() : super(DepartmentMasterState.initial());
 
+  // REPOSITORIES
   final DepartmentMasterRepository _departmentMasterRepository =
       serviceLocator<DepartmentMasterRepository>();
 
