@@ -6,10 +6,12 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_ma
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/presentation/cubit/week_off_mapping_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddWeekOffMappingMasterScreen extends StatefulWidget {
   final WeekOffMappingModel? weekOffMappingMasterModel;
@@ -169,36 +171,30 @@ class _AddWeekOffMappingMasterScreenState
                     ),
                     Row(
                       children: [
-                        Expanded(
-                          child: ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: Radio<String>(
-                              value: state.options[0],
-                              groupValue: state.selectedOption,
-                              onChanged: (value) {
-                                _weekOffMappingMasterCubit
-                                    .onSelectedOptionChanged(value!);
-                              },
-                            ),
-                            title: const Text("Employee"),
-                          ),
+                        Radio<String>(
+                          value: state.options[0],
+                          groupValue: state.selectedOption,
+                          onChanged: (value) {
+                            _weekOffMappingMasterCubit.onSelectedOptionChanged(
+                              value!,
+                            );
+                          },
                         ),
-                        Expanded(
-                          child: ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: Radio<String>(
-                              value: state.options[1],
-                              groupValue: state.selectedOption,
-                              onChanged: (value) {
-                                _weekOffMappingMasterCubit
-                                    .onSelectedOptionChanged(value!);
-                              },
-                            ),
-                            title: const Text("Department"),
-                          ),
+                        Text("Employee", style: AppTextStyle.ts14R()),
+                        horizontalSpacing(),
+                        Radio<String>(
+                          value: state.options[1],
+                          groupValue: state.selectedOption,
+                          onChanged: (value) {
+                            _weekOffMappingMasterCubit.onSelectedOptionChanged(
+                              value!,
+                            );
+                          },
                         ),
+                        Text("Department", style: AppTextStyle.ts14R()),
                       ],
                     ),
+                    verticalSpacing(),
                     Visibility(
                       visible: state.selectedOption == state.options[0],
                       child: CustomMultipleSelectPopup(
