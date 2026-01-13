@@ -6,7 +6,9 @@ import 'package:k3h_erp_app/features/project_document/document/data/model/docume
 import 'package:k3h_erp_app/features/project_document/document/data/repository/document.repository.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/data/model/document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/data/repository/document_category.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 
 part 'document_state.dart';
@@ -110,6 +112,103 @@ class DocumentCubit extends Cubit<DocumentState> {
     );
   }
 
+  //UPDATE DOCUMENT IN CATEGORY
+  Future updateDocumentInCategory({
+    required int index,
+    required BuildContext context,
+    required String uniqueKey,
+    required int projectDocumentId,
+    required int projectDocumentCategoryId,
+    required int projectId,
+    required String projectDocumentName,
+  }) async {
+    List<Map<String, dynamic>> fileList = [];
+
+    DialogHelper.showProcessingOverlay(context);
+    var body = {
+      "ProjectDocumentId": projectDocumentId.toString(),
+      "Uniquekey": uniqueKey,
+      "ProjectId": projectId.toString(),
+      "ProjectDocumentName": projectDocumentName,
+      "ProjectDocumentCategoryId": projectDocumentCategoryId.toString(),
+      "IsMaster": 1.toString(),
+    };
+
+    var result = await _documentRepository.addUpdateDocument(
+      body: body,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        final updatedList = response['data'][0] as DocumentModel;
+
+        if (state.documentList.isNotEmpty &&
+            index < state.documentList.length) {
+          final updatedListModel = List<DocumentModel>.from(state.documentList);
+          updatedListModel[index] = updatedList;
+          emit(state.copyWith(documentList: updatedListModel));
+        }
+
+        showSuccessMessage(
+          context,
+          subTitle: "Project Document Updated Successfully",
+        );
+      },
+    );
+  }
+
+  //ADD DOCUMENT TO CATEGORY
+  Future addDocumentToCategory({
+    required BuildContext context,
+    required int projectDocumentId,
+    required int projectDocumentCategoryId,
+    required int projectId,
+    required String projectDocumentName,
+  }) async {
+    List<Map<String, dynamic>> fileList = [];
+
+    DialogHelper.showProcessingOverlay(context);
+    var body = {
+      "ProjectDocumentId": 0.toString(),
+      "ProjectId": projectId.toString(),
+      "ProjectDocumentName": projectDocumentName,
+      "ProjectDocumentCategoryId": projectDocumentCategoryId.toString(),
+
+      "IsMaster": 1.toString(),
+    };
+
+    var result = await _documentRepository.addUpdateDocument(
+      body: body,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        final updatedList = response['data'][0] as DocumentModel;
+        var list = [updatedList, ...state.documentList];
+
+        emit(state.copyWith(documentList: list));
+
+        showSuccessMessage(
+          context,
+          subTitle: "Project Document Added Successfully",
+        );
+      },
+    );
+  }
+
+  //UPDATE CATEGORY INDEX AND MAKE GET API CALL AS PER CATEGORY
   void onTabChanged(int index, BuildContext context) {
     emit(
       state.copyWith(

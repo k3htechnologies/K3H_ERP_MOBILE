@@ -170,6 +170,7 @@ class AppRoutes {
   static String addDocumentCategory = "/addDocumentCategory";
   static String viewDocumentCategory = "/viewDocumentCategory";
   static String document = "/document";
+  static String addDocument = "/addDocument";
 
   // LEGAL
   static String litigation = "/litigation";

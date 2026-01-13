@@ -33,7 +33,7 @@ class WeekOffMappingModel {
   DateTime createdDate;
   int modifiedById;
   String modifiedBy;
-  dynamic modifiedDate;
+  DateTime? modifiedDate;
 
   WeekOffMappingModel({
     required this.weekOffPolicyMasterMappingId,
@@ -114,6 +114,6 @@ class WeekOffMappingModel {
     "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
   };
 }

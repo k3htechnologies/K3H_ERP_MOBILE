@@ -8,6 +8,8 @@ class WeekOffMappingMasterState extends BaseState {
   final int totalNumberOfRecord;
   final String currentSortColumn;
   final String currentSortDirection;
+  final String selectedOption;
+  final List<String> options = const ['Employee', 'Department'];
 
   const WeekOffMappingMasterState({
     required this.weekOffMappingList,
@@ -17,6 +19,7 @@ class WeekOffMappingMasterState extends BaseState {
     this.totalNumberOfRecord = 0,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    this.selectedOption = 'Employee',
   });
 
   factory WeekOffMappingMasterState.initial() => WeekOffMappingMasterState(
@@ -24,6 +27,7 @@ class WeekOffMappingMasterState extends BaseState {
     currentPage: 1,
     currentSortColumn: 'Created Date',
     currentSortDirection: 'DESC',
+    selectedOption: 'Employee',
   );
 
   WeekOffMappingMasterState copyWith({
@@ -36,6 +40,7 @@ class WeekOffMappingMasterState extends BaseState {
     int? currentPage,
     String? currentSortColumn,
     String? currentSortDirection,
+    String? selectedOption,
   }) {
     return WeekOffMappingMasterState(
       weekOffMappingList: weekOffMappingList ?? this.weekOffMappingList,
@@ -45,8 +50,10 @@ class WeekOffMappingMasterState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      selectedOption: selectedOption ?? this.selectedOption,
     );
   }
+
 
   @override
   List<Object?> get props => [
@@ -55,5 +62,8 @@ class WeekOffMappingMasterState extends BaseState {
     currentPage,
     searchText,
     totalNumberOfRecord,
+    selectedOption,
+    options,
   ];
 }
+

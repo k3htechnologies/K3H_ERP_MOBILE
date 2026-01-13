@@ -34,10 +34,13 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
+  //TEXTEDITING CONTROLLER
   late TextEditingController _documentCategoryC, _orderByC;
 
+  //EDIT MODE
   bool get _isEditMode => widget.documentCategoryModel != null;
 
+  //PROJECT ID
   late int projectId;
 
   @override
@@ -115,6 +118,12 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
                   hint: "Enter project document category",
                   isRequired: true,
                   textController: _documentCategoryC,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Project Document Category is required";
+                    }
+                    return null;
+                  },
                 ),
                 CustomTextField(
                   title: "Order By",
@@ -122,6 +131,12 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
                   isRequired: true,
                   keyboardType: TextInputType.number,
                   textController: _orderByC,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Order By is required";
+                    }
+                    return null;
+                  },
                 ),
               ],
             ),

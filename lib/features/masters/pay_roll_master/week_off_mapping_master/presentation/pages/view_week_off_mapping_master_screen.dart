@@ -18,7 +18,7 @@ class ViewWeekOffMappingMasterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Week Off Mapping Master",
+        screenTitle: "Week Off Mapping",
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(
@@ -56,11 +56,19 @@ class ViewWeekOffMappingMasterScreen extends StatelessWidget {
                       children: [
                         _buildColumnTitleValue(
                           title: "Department Name",
-                          value: weekOffMappingMasterModel.departmentName,
+                          value:
+                              weekOffMappingMasterModel
+                                      .departmentName
+                                      .isNotEmpty
+                                  ? weekOffMappingMasterModel.departmentName
+                                  : '-',
                         ),
                         _buildColumnTitleValue(
                           title: "Employee Name",
-                          value: weekOffMappingMasterModel.employeeName,
+                          value:
+                              weekOffMappingMasterModel.employeeName.isNotEmpty
+                                  ? weekOffMappingMasterModel.employeeName
+                                  : '-',
                         ),
                       ],
                     ),
@@ -140,9 +148,12 @@ class ViewWeekOffMappingMasterScreen extends StatelessWidget {
                         ),
                         _buildColumnTitleValue(
                           title: "Modified Date",
-                          value: formatDateTimeAsDDMMMYYYY(
-                            weekOffMappingMasterModel.modifiedDate,
-                          ),
+                          value:
+                              weekOffMappingMasterModel.modifiedDate != null
+                                  ? formatDateTimeAsDDMMMYYYY(
+                                    weekOffMappingMasterModel.modifiedDate!,
+                                  )
+                                  : '',
                         ),
                       ],
                     ),

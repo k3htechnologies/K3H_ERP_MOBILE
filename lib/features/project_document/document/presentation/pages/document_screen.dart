@@ -1,14 +1,19 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
 import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -88,6 +93,19 @@ class _DocumentScreenState extends State<DocumentScreen>
         onSearchSubmit: (value) {
           _documentCubit.searchDocument(value, context);
         },
+        onProjectChangeCallback: (project) {
+          projectId = project.projectId;
+          _documentCubit.getCategoryList(context, 1, 20, projectId);
+        },
+        extraHeight: 20,
+        secondaryWidget: CustomButton(
+          text: "Add",
+          onPressed: () {
+            goRouter.pushNamed(AppRoutes.addDocument);
+          },
+          backgroundColor: AppColor.primary,
+          leading: Icon(Icons.add, size: 16, color: AppColor.white),
+        ),
       ),
       body: SafeArea(
         child: BlocListener<DocumentCubit, DocumentState>(
@@ -109,7 +127,7 @@ class _DocumentScreenState extends State<DocumentScreen>
               }
 
               if (state.documentCategoryModelList.isEmpty) {
-                return const Center(child: Text("No data"));
+                return noDataWidget();
               }
 
               return Column(
@@ -131,9 +149,14 @@ class _DocumentScreenState extends State<DocumentScreen>
                                     )
                                     .toList();
 
-                            return _buildDocumentListForCategory(
-                              documentsForCategory,
-                            );
+                            return (state.documentList.isEmpty ||
+                                    state.isLoading!)
+                                ? const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                                : _buildDocumentListForCategory(
+                                  documentsForCategory,
+                                );
                           }).toList(),
                     ),
                   ),
@@ -195,7 +218,7 @@ class _DocumentScreenState extends State<DocumentScreen>
 
   Widget _buildDocumentListForCategory(List<DocumentModel> documents) {
     if (documents.isEmpty) {
-      return const Center(child: Text('No documents'));
+      return noDataWidget();
     }
 
     return ListView.builder(
@@ -249,7 +272,25 @@ class _DocumentScreenState extends State<DocumentScreen>
                         onPressed: () async {},
                       ),
                       const SizedBox(width: 8),
-                      CustomIconButton.edit(onPressed: () async {}),
+                      CustomIconButton.edit(
+                        onPressed: () async {
+                          goRouter.pushNamed(
+                            AppRoutes.addDocument,
+                            queryParameters: {
+                              "document": Uri.encodeQueryComponent(
+                                EncryptionManager.encryptData(
+                                  jsonEncode(document.toJson()),
+                                ),
+                              ),
+                              "index": Uri.encodeQueryComponent(
+                                EncryptionManager.encryptData(
+                                  jsonEncode(index.toString()),
+                                ),
+                              ),
+                            },
+                          );
+                        },
+                      ),
                       const SizedBox(width: 8),
                       CustomIconButton.delete(onPressed: () {}),
                     ],

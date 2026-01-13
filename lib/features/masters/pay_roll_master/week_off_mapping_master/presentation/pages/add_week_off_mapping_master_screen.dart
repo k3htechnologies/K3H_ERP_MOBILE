@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/presentation/cubit/week_off_mapping_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/presentation/cubit/week_off_mapping_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -42,6 +43,9 @@ class _AddWeekOffMappingMasterScreenState
 
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
+
+  //RADIO BUTTON OPTIONS
+  List<String> options = ['Employee', 'Department'];
 
   @override
   void initState() {
@@ -135,68 +139,116 @@ class _AddWeekOffMappingMasterScreenState
           child: Container(
             decoration: commonCardDecoration(),
             padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomMultipleSelectPopup(
-                  title: 'Week Off Name',
-                  isRequired: true,
-                  isMultiSelect: false,
-                  initialValue: _selectedWeekOff,
-                  dataList: [],
-                  onSelected: (value) {
-                    setState(() {
-                      _selectedWeekOff = value;
-                    });
-                  },
-                  dataFetchCallBack: _weekOffMappingMasterCubit.fetchWeekOff,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Week off Name is required";
-                    }
-                    return null;
-                  },
-                ),
+            child: BlocBuilder<
+              WeekOffMappingMasterCubit,
+              WeekOffMappingMasterState
+            >(
+              builder: (context, state) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomMultipleSelectPopup(
+                      title: 'Week Off Name',
+                      isRequired: true,
+                      isMultiSelect: false,
+                      initialValue: _selectedWeekOff,
+                      dataList: [],
+                      onSelected: (value) {
+                        setState(() {
+                          _selectedWeekOff = value;
+                        });
+                      },
+                      dataFetchCallBack:
+                          _weekOffMappingMasterCubit.fetchWeekOff,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Week off Name is required";
+                        }
+                        return null;
+                      },
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: Radio<String>(
+                              value: state.options[0],
+                              groupValue: state.selectedOption,
+                              onChanged: (value) {
+                                _weekOffMappingMasterCubit
+                                    .onSelectedOptionChanged(value!);
+                              },
+                            ),
+                            title: const Text("Employee"),
+                          ),
+                        ),
+                        Expanded(
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: Radio<String>(
+                              value: state.options[1],
+                              groupValue: state.selectedOption,
+                              onChanged: (value) {
+                                _weekOffMappingMasterCubit
+                                    .onSelectedOptionChanged(value!);
+                              },
+                            ),
+                            title: const Text("Department"),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Visibility(
+                      visible: state.selectedOption == state.options[0],
+                      child: CustomMultipleSelectPopup(
+                        title: 'Employee',
+                        isRequired: true,
+                        isMultiSelect: false,
+                        initialValue: _selectedEmployee,
+                        dataList: [],
+                        onSelected: (value) {
+                          setState(() {
+                            _selectedEmployee = value;
+                          });
+                        },
+                        dataFetchCallBack:
+                            _weekOffMappingMasterCubit.fetchEmployees,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Employee is required";
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Visibility(
+                      visible: state.selectedOption == state.options[1],
 
-                CustomMultipleSelectPopup(
-                  title: 'Employee',
-                  isRequired: true,
-                  isMultiSelect: false,
-                  initialValue: _selectedEmployee,
-                  dataList: [],
-                  onSelected: (value) {
-                    setState(() {
-                      _selectedEmployee = value;
-                    });
-                  },
-                  dataFetchCallBack: _weekOffMappingMasterCubit.fetchEmployees,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Employee is required";
-                    }
-                    return null;
-                  },
-                ),
-                CustomMultipleSelectPopup(
-                  title: 'Department',
-                  isRequired: true,
-                  isMultiSelect: false,
-                  initialValue: _selectedDepartment,
-                  dataList: [],
-                  onSelected: (value) {
-                    setState(() {
-                      _selectedDepartment = value;
-                    });
-                  },
-                  dataFetchCallBack: _weekOffMappingMasterCubit.fetchDepartment,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Department is required";
-                    }
-                    return null;
-                  },
-                ),
-              ],
+                      child: CustomMultipleSelectPopup(
+                        title: 'Department',
+                        isRequired: true,
+                        isMultiSelect: false,
+                        initialValue: _selectedDepartment,
+                        dataList: [],
+                        onSelected: (value) {
+                          setState(() {
+                            _selectedDepartment = value;
+                          });
+                        },
+                        dataFetchCallBack:
+                            _weekOffMappingMasterCubit.fetchDepartment,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Department is required";
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),

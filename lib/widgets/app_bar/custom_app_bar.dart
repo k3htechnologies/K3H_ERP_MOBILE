@@ -24,6 +24,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String screenTitle;
   final AuthorizationModel authorization;
   final Widget? widgets;
+  final Widget? secondaryWidget;
   final bool? showNotification;
   final Function(String)? onSearchSubmit;
   final TextEditingController? textController;
@@ -40,6 +41,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
     required this.screenTitle,
     required this.authorization,
     this.widgets,
+    this.secondaryWidget,
     this.showNotification = true,
     this.onSearchSubmit,
     this.textController,
@@ -249,23 +251,23 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
             ),
           ),
           if (widget.onProjectChangeCallback != null)
-          ValueListenableBuilder<List<ProjectModel>>(
-            valueListenable: _projectListNotifier,
-            builder: (context, projects, _) {
-              if (projects.isEmpty) return const SizedBox.shrink();
-              return CustomIconButton(
-                onPressed: () {
-                  _showOverlayNotifier.value = true;
-                },
-                icon: const Icon(
-                  Icons.apartment_rounded,
-                  size: 16,
-                  color: AppColor.primary,
-                ),
-                backgroundColor: AppColor.lightBlue,
-              );
-            },
-          ),
+            ValueListenableBuilder<List<ProjectModel>>(
+              valueListenable: _projectListNotifier,
+              builder: (context, projects, _) {
+                if (projects.isEmpty) return const SizedBox.shrink();
+                return CustomIconButton(
+                  onPressed: () {
+                    _showOverlayNotifier.value = true;
+                  },
+                  icon: const Icon(
+                    Icons.apartment_rounded,
+                    size: 16,
+                    color: AppColor.primary,
+                  ),
+                  backgroundColor: AppColor.lightBlue,
+                );
+              },
+            ),
           if (widget.showNotification!)
             CustomIconButton(
               onPressed: () {
@@ -301,58 +303,65 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                       ),
                     ),
 
-                  const SizedBox(width: 10),
-
-                  if (widget.authorization.isAction &&
-                      widget.onAddCallback != null)
-                    CustomIconButton(
-                      onPressed: () => widget.onAddCallback!(),
-                      icon: Icon(
-                        Icons.add,
-                        size: 16,
-                        color: AppColor.darkGreen,
-                      ),
-                      backgroundColor: AppColor.lightGreen,
-                    ),
-
-                  if (widget.authorization.isAction &&
-                      widget.onExportCallback != null)
-                    CustomIconButton(
-                      onPressed: () {
-                        final box = context.findRenderObject() as RenderBox;
-                        final position = box.localToGlobal(Offset.zero);
-                        CustomOverlayMenu.show(
-                          width: 180,
-                          context: context,
-                          position: Offset(
-                            position.dx + 10,
-                            position.dy + (145 + widget.extraHeight),
+                  if (widget.secondaryWidget == null)
+                    Row(
+                      spacing: 10,
+                      children: [
+                        if (widget.authorization.isAction &&
+                            widget.onAddCallback != null)
+                          CustomIconButton(
+                            onPressed: () => widget.onAddCallback!(),
+                            icon: Icon(
+                              Icons.add,
+                              size: 16,
+                              color: AppColor.darkGreen,
+                            ),
+                            backgroundColor: AppColor.lightGreen,
                           ),
-                          items: [
-                            AddImportExportOverlayMenuItem(
-                              icon: Icons.file_download_outlined,
-                              label: 'Export Excel',
-                              value: 'EXCEL',
-                              onTap: widget.onExportCallback!,
-                              iconColor: AppColor.primary,
+
+                        if (widget.authorization.isAction &&
+                            widget.onExportCallback != null)
+                          CustomIconButton(
+                            onPressed: () {
+                              final box =
+                                  context.findRenderObject() as RenderBox;
+                              final position = box.localToGlobal(Offset.zero);
+                              CustomOverlayMenu.show(
+                                width: 180,
+                                context: context,
+                                position: Offset(
+                                  position.dx + 10,
+                                  position.dy + (145 + widget.extraHeight),
+                                ),
+                                items: [
+                                  AddImportExportOverlayMenuItem(
+                                    icon: Icons.file_download_outlined,
+                                    label: 'Export Excel',
+                                    value: 'EXCEL',
+                                    onTap: widget.onExportCallback!,
+                                    iconColor: AppColor.primary,
+                                  ),
+                                  AddImportExportOverlayMenuItem(
+                                    icon: Icons.file_download_outlined,
+                                    label: 'Export PDF',
+                                    value: 'PDF',
+                                    onTap: widget.onExportCallback!,
+                                    iconColor: AppColor.primary,
+                                  ),
+                                ],
+                              );
+                            },
+                            icon: Icon(
+                              Icons.file_download,
+                              size: 16,
+                              color: AppColor.primary,
                             ),
-                            AddImportExportOverlayMenuItem(
-                              icon: Icons.file_download_outlined,
-                              label: 'Export PDF',
-                              value: 'PDF',
-                              onTap: widget.onExportCallback!,
-                              iconColor: AppColor.primary,
-                            ),
-                          ],
-                        );
-                      },
-                      icon: Icon(
-                        Icons.file_download,
-                        size: 16,
-                        color: AppColor.primary,
-                      ),
-                      backgroundColor: AppColor.lightBlue,
+                            backgroundColor: AppColor.lightBlue,
+                          ),
+                        //FOR NEW WIDGET WHICH IS NEXT TO SEARCH BAR
+                      ],
                     ),
+                  if (widget.secondaryWidget != null) widget.secondaryWidget!,
                 ],
               ),
             ],

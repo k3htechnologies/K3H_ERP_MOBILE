@@ -100,9 +100,11 @@ class WeekOffMappingMasterCubit extends Cubit<WeekOffMappingMasterState> {
     DialogHelper.showProcessingOverlay(context);
     var body = {
       "WeekOffPolicyMasterMappingId": 0,
-      "EmployeeId": employeeId,
+      if (state.selectedOption == state.options[0]) "EmployeeId": employeeId,
       "WeekOffPolicyMasterId": weekOffMasterId,
-      "DepartmentMasterId": departmentMasterId,
+
+      if (state.selectedOption == state.options[1])
+        "DepartmentMasterId": departmentMasterId,
     };
     var result = await _weekOffMasterMappingRepository.addUpdateWeekOffMapping(
       body: body,
@@ -148,9 +150,10 @@ class WeekOffMappingMasterCubit extends Cubit<WeekOffMappingMasterState> {
     var body = {
       "WeekOffPolicyMasterMappingId": weekOffMappingMasterId,
       "UniqueKey": uniqueKey,
-      "EmployeeId": employeeId,
+      if (state.selectedOption == state.options[0]) "EmployeeId": employeeId,
       "WeekOffPolicyMasterId": weekOffMasterId,
-      "DepartmentMasterId": departmentMasterId,
+      if (state.selectedOption == state.options[1])
+        "DepartmentMasterId": departmentMasterId,
     };
     var result = await _weekOffMasterMappingRepository.addUpdateWeekOffMapping(
       body: body,
@@ -339,5 +342,9 @@ class WeekOffMappingMasterCubit extends Cubit<WeekOffMappingMasterState> {
         };
       },
     );
+  }
+
+  void onSelectedOptionChanged(String value) {
+    emit(state.copyWith(selectedOption: value));
   }
 }
