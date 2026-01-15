@@ -77,8 +77,8 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
     _searchC = TextEditingController();
   }
 
-  // DELETE BUILDING
-  Future<void> _showPopupToDeleteBuilding(
+  // DELETE DOCUMENT CATEGORY
+  Future<void> _showPopupToDeleteDocumentCategory(
     BuildContext context,
     DocumentCategoryModel obj,
     int page,
@@ -214,7 +214,7 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
                             const SizedBox(width: 8),
                             CustomIconButton.delete(
                               onPressed: () {
-                                _showPopupToDeleteBuilding(
+                                _showPopupToDeleteDocumentCategory(
                                   context,
                                   category,
                                   state.currentPage,

@@ -96,13 +96,12 @@ class _DocumentScreenState extends State<DocumentScreen>
       _documentCubit.updateDocumentInCategory(
         context: context,
         index: index!,
-
         uniqueKey: documentModel.uniquekey,
         projectDocumentId: documentModel.projectDocumentId,
         projectDocumentCategoryId: documentModel.projectDocumentCategoryId,
-        projectId: documentModel.projectId,
         projectDocumentName: _documentC.text.trim(),
         isMaster: 1,
+        isNew: false,
       );
     } else {
       _documentCubit.addDocumentToCategory(
@@ -114,6 +113,24 @@ class _DocumentScreenState extends State<DocumentScreen>
 
   void _prefillDocumentDetails(DocumentModel documentModel) {
     _documentC.text = documentModel.projectDocumentName;
+  }
+
+  // DELETE DOCUMENT
+  Future<void> _showPopupToDeleteDocument(
+    BuildContext context,
+    DocumentModel obj,
+    // int page,
+    int index,
+  ) async {
+    final shouldDelete = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a document?',
+      'Deleting this document will permanently remove its contents.',
+    );
+
+    if (shouldDelete && context.mounted) {
+      _documentCubit.deleteDocument(obj, context);
+    }
   }
 
   Future<void> _showPopUpToAddUpdateDocument({
@@ -209,7 +226,9 @@ class _DocumentScreenState extends State<DocumentScreen>
           },
           child: BlocBuilder<DocumentCubit, DocumentState>(
             builder: (context, state) {
-              if (state.isLoading! && state.documentCategoryModelList.isEmpty) {
+              if ((state.isLoading! &&
+                      state.documentCategoryModelList.isEmpty) ||
+                  _categoryTabController == null) {
                 return const Center(child: CircularProgressIndicator());
               }
 
@@ -327,22 +346,28 @@ class _DocumentScreenState extends State<DocumentScreen>
                   Flexible(
                     child: GestureDetector(
                       onTap: () async {
-                        await goRouter.pushNamed(
-                          AppRoutes.viewDocument,
-                          queryParameters: {
-                            "projectDocumentId": Uri.encodeQueryComponent(
-                              EncryptionManager.encryptData(
-                                jsonEncode(document.projectDocumentId),
-                              ),
-                            ),
-                          },
-                        );
-                        if (context.mounted) {
-                          _documentCubit.getProjectDocumentList(
-                            context: context,
-                            pageNumber: 1,
-                          );
-                        }
+                        await goRouter
+                            .pushNamed(
+                              AppRoutes.viewDocument,
+                              queryParameters: {
+                                "document": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(document.toJson()),
+                                  ),
+                                ),
+                                "index": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(index.toString()),
+                                  ),
+                                ),
+                              },
+                            )
+                            .then((val) {
+                              _documentCubit.getProjectDocumentList(
+                                context: context,
+                                pageNumber: 1,
+                              );
+                            });
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(
@@ -383,9 +408,10 @@ class _DocumentScreenState extends State<DocumentScreen>
                                 ),
                               ),
                               "index": Uri.encodeQueryComponent(
-                                EncryptionManager.encryptData(
-                                  jsonEncode(index.toString()),
-                                ),
+                                EncryptionManager.encryptData(index.toString()),
+                              ),
+                              "isEdit": Uri.encodeQueryComponent(
+                                EncryptionManager.encryptData(false.toString()),
                               ),
                             },
                           );
@@ -401,7 +427,11 @@ class _DocumentScreenState extends State<DocumentScreen>
                         },
                       ),
                       const SizedBox(width: 8),
-                      CustomIconButton.delete(onPressed: () {}),
+                      CustomIconButton.delete(
+                        onPressed: () {
+                          _showPopupToDeleteDocument(context, document, index);
+                        },
+                      ),
                     ],
                   ),
                 ],
