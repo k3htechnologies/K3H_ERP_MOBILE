@@ -36,6 +36,7 @@ import 'feature_dependencies/project_document/document/document.dependencies.dar
 import 'feature_dependencies/project_document/document_category/document_category.dependencies.dart';
 import 'feature_dependencies/project_management/approved_bank/approved_bank.dependencies.dart';
 import 'feature_dependencies/redevelopment/building/building.dependencies.dart';
+import 'feature_dependencies/redevelopment/proposed_offer/proposed_offer.dependencies.dart';
 import 'feature_dependencies/redevelopment/proposed_plans/proposed_plans.dependencies.dart';
 import 'feature_dependencies/redevelopment/tenant/tenant.dependencies.dart';
 import 'feature_dependencies/vendor_management/vendor_management.dependencies.dart';
@@ -111,8 +112,10 @@ void initDependencies() {
   registerWeekOffMappingMasterDependencies(serviceLocator);
   // TENANT DEPENDENCIES
   registerTenantMasterDependencies(serviceLocator);
-  // PROPOSAL DEPENDENCIES
+  // PROPOSED PLAN DEPENDENCIES
   registerProposedPlansDependencies(serviceLocator);
+  // PROPOSED OFFER DEPENDENCIES
+  registerProposedOfferDependencies(serviceLocator);
   // INVENTORY DEPENDENCIES
   registerInventoryDependencies(serviceLocator);
   // BUILDING DEPENDENCIES

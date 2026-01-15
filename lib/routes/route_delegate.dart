@@ -166,6 +166,9 @@ import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/b
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_view_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_secondary_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/pages/proposed_plans_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
@@ -1763,6 +1766,53 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.proposedPlans,
               builder: (context, state) {
                 return const ProposedPlansScreen();
+              },
+            ),
+          ],
+        ),
+        // PROPOSED OFFER
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => ProposedOfferCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.proposedOffer,
+              path: AppRoutes.proposedOffer,
+              builder: (context, state) {
+                return const ProposedOfferScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.proposedOfferSecondaryScreen,
+              path: AppRoutes.proposedOfferSecondaryScreen,
+              builder: (context, state) {
+                final projectId =
+                    int.tryParse(
+                      state.uri.queryParameters['projectId'] ?? '',
+                    ) ??
+                    0;
+                final projectName =
+                    state.uri.queryParameters['projectName'] ?? "";
+                final buildingId =
+                    int.tryParse(
+                      state.uri.queryParameters['buildingId'] ?? '',
+                    ) ??
+                    0;
+                final buildingName =
+                    state.uri.queryParameters['buildingName'] ?? "";
+                final type =
+                    state.uri.queryParameters['type'] ?? "";
+                return ProposedOfferSecondaryScreen(
+                  projectId: projectId,
+                  projectName: projectName,
+                  buildingId: buildingId,
+                  buildingName: buildingName,
+                  type: type,
+                );
               },
             ),
           ],

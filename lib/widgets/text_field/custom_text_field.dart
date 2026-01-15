@@ -55,20 +55,25 @@ class CustomTextField extends StatelessWidget {
             if (title != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  children: [
-                    Text(
-                      title!,
-                      style: AppTextStyle.ts14R(
-                        color: readOnly ? AppColor.grey : null,
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: title!,
+                        style: AppTextStyle.ts14R(
+                          color: readOnly ? AppColor.grey : null,
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    isRequired == true
-                        ? Text("*", style: AppTextStyle.ts14R(color: AppColor.error))
-                        : SizedBox(),
-                  ],
+                      if (isRequired == true)
+                        TextSpan(
+                          text: " *",
+                          style: AppTextStyle.ts14R(
+                            color: AppColor.error,
+                          ),
+                        ),
+                    ],
+                  ),
+                  softWrap: true,
                 ),
               ),
 
