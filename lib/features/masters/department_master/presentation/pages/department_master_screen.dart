@@ -165,12 +165,16 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          department.departmentName,
-                          style: AppTextStyle.ts14R(),
+                        Expanded(
+                          child: Text(
+                            department.departmentName,
+                            style: AppTextStyle.ts14R(),
+
+                          ),
                         ),
-                        Spacer(),
+                        horizontalSpacing(),
                         Row(
                           children: [
                             CustomIconButton(

@@ -150,6 +150,29 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
 
   Future<void> _loadProjects() async {
     try {
+      // First check if project list exists in storage
+      final projectListString = LocalStorageManager().getString(StorageKey.projectList);
+      
+      if (projectListString != null && projectListString.isNotEmpty) {
+        // Load from storage
+        final List<dynamic> projectJsonList = jsonDecode(projectListString);
+        final List<ProjectModel> projects = projectJsonList
+            .map((json) => ProjectModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+        _projectListNotifier.value = projects;
+
+        // Load selected project
+        final storedJson = LocalStorageManager().getString(StorageKey.selectedProject);
+        if (storedJson != null && storedJson.isNotEmpty) {
+          final storedProject = ProjectModel.fromJson(jsonDecode(storedJson));
+          if (projects.any((p) => p.projectId == storedProject.projectId)) {
+            _selectedProject = storedProject;
+          }
+        }
+        return; // Exit early if loaded from storage
+      }
+
+      // Only make API call if not in storage
       final userJson = LocalStorageManager().getString(StorageKey.currentUser);
       if (userJson == null || userJson.isEmpty) return;
 
@@ -168,6 +191,12 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
           final List<ProjectModel> projects =
               (response['data'] as List<ProjectModel>);
           _projectListNotifier.value = projects;
+
+          // Store in localStorage for future use
+          LocalStorageManager().setString(
+            StorageKey.projectList,
+            jsonEncode(projects.map((p) => p.toJson()).toList()),
+          );
 
           // Load selected project
           final storedJson = LocalStorageManager().getString(

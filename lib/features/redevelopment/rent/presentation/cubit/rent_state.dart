@@ -8,6 +8,8 @@ class RentState extends BaseState {
   final int currentPage;
   final String selectedTenure;
   final int currentTabIndex;
+  final List<String> tenureList;
+  final int selectedTenureIndex;
 
   const RentState({
     super.isLoading,
@@ -18,6 +20,8 @@ class RentState extends BaseState {
     required this.currentPage,
     required this.selectedTenure,
     required this.currentTabIndex,
+    required this.tenureList,
+    required this.selectedTenureIndex,
   });
 
   factory RentState.initial() => RentState(
@@ -29,6 +33,8 @@ class RentState extends BaseState {
     currentPage: 1,
     selectedTenure: "",
     currentTabIndex: 0,
+    tenureList: [],
+    selectedTenureIndex: -1,
   );
 
   RentState copyWith({
@@ -40,6 +46,8 @@ class RentState extends BaseState {
     int? currentPage,
     String? selectedTenure,
     int? currentTabIndex,
+    List<String>? tenureList,
+    int? selectedTenureIndex,
   }) {
     return RentState(
       isLoading: isLoading ?? this.isLoading,
@@ -50,6 +58,8 @@ class RentState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       selectedTenure: selectedTenure ?? this.selectedTenure,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
+      tenureList: tenureList ?? this.tenureList,
+      selectedTenureIndex: selectedTenureIndex ?? this.selectedTenureIndex,
     );
   }
 
@@ -63,5 +73,7 @@ class RentState extends BaseState {
     currentPage,
     selectedTenure,
     currentTabIndex,
+    tenureList,
+    selectedTenureIndex,
   ];
 }
