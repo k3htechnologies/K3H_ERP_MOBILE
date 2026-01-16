@@ -797,23 +797,16 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
       buildingId: buildingId,
     );
     return result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
-        List<RentDetailsModel> updatedList = List.from(state.rentDetails);
-        updatedList.addAll(response['data'] as List<RentDetailsModel>);
+      (response) {
         emit(
           state.copyWith(
             isLoading: false,
-            rentDetails: updatedList,
-            totalNumberOfRecordRent:
-            response['totalNumberOfRecord'] == 0 &&
-                state.currentPageRent != 1
-                ? state.totalNumberOfRecordRent - 1
-                : response['totalNumberOfRecord'],
-            currentPage: pageNumber,
+            rentDetails: response['data'] as List<RentDetailsModel>,
+            totalNumberOfRecordRent: response['totalNumberOfRecord'],
           ),
         );
       },
@@ -822,19 +815,19 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
   // <---- ADD RENT DETAILS ---->
   Future<void> addUpdateRentDetails(
-      BuildContext context, {
-        required int buildingId,
-        required int projectId,
-        required bool isAdditionalRent,
-        required String type,
-        required String tenure,
-        required double amount,
-        required String unitSqFtLumsum,
-        required double carpetAreaSqFt,
-        required DateTime rentStartDate,
-        required DateTime rentEndDate,
-        required bool isPayBrokerage,
-      }) async {
+    BuildContext context, {
+    required int buildingId,
+    required int projectId,
+    required bool isAdditionalRent,
+    required String type,
+    required String tenure,
+    required double amount,
+    required String unitSqFtLumsum,
+    required double carpetAreaSqFt,
+    required DateTime rentStartDate,
+    required DateTime rentEndDate,
+    required bool isPayBrokerage,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> body = {
       "BuildingId": buildingId,
@@ -856,12 +849,11 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
     goRouter.pop();
     result.fold(
-          (failure) {
-        emit(state.copyWith(isLoading: false,));
+      (failure) {
+        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
-        goRouter.pop();
+      (response) {
         var list = [
           response['data'][0] as RentDetailsModel,
           ...state.rentDetails,
@@ -871,34 +863,34 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
             isLoading: false,
             rentDetails: list,
             totalNumberOfRecordRent:
-            state.totalNumberOfRecordRent == -1
-                ? 1
-                : state.totalNumberOfRecordRent + 1,
+                state.totalNumberOfRecordRent == -1
+                    ? 1
+                    : state.totalNumberOfRecordRent + 1,
           ),
         );
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: "Rent Details Added");
       },
     );
   }
 
   // <---- UPDATE RENT DETAILS ---->
   Future<void> updateRentDetails(
-      BuildContext context, {
-        required int buildingId,
-        required int projectId,
-        required int proposedOfferRentDetailsId,
-        required bool isAdditionalRent,
-        required String uniqueKey,
-        required String type,
-        required String tenure,
-        required double amount,
-        required String unitSqFtLumsum,
-        required double carpetAreaSqFt,
-        required DateTime rentStartDate,
-        required DateTime rentEndDate,
-        required bool isPayBrokerage,
-        required int index,
-      }) async {
+    BuildContext context, {
+    required int buildingId,
+    required int projectId,
+    required int proposedOfferRentDetailsId,
+    required bool isAdditionalRent,
+    required String uniqueKey,
+    required String type,
+    required String tenure,
+    required double amount,
+    required String unitSqFtLumsum,
+    required double carpetAreaSqFt,
+    required DateTime rentStartDate,
+    required DateTime rentEndDate,
+    required bool isPayBrokerage,
+    required int index,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> body = {
       "ProposedOfferRentDetailsId": proposedOfferRentDetailsId,
@@ -922,23 +914,48 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
     goRouter.pop();
     result.fold(
-          (failure) {
-        emit(state.copyWith(isLoading: false,));
+      (failure) {
+        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         final updatedList = List<RentDetailsModel>.from(state.rentDetails);
         updatedList[index] = (response['data'][0] as RentDetailsModel);
-        goRouter.pop();
-
-        emit(
-          state.copyWith(
-            rentDetails: updatedList,
-          ),
-        );
-        showSuccessMessage(context,subTitle: "Rent Details Updated");
+        emit(state.copyWith(rentDetails: updatedList));
+        showSuccessMessage(context, subTitle: "Rent Details Updated");
       },
     );
   }
 
+  // <---- DELETE RENT DETAILS  ---->
+  Future deleteRentDetails({
+    required BuildContext context,
+    required int proposedOfferRentDetailsId,
+    required int projectId,
+    required int buildingId,
+    required String uniqueKey,
+    int? index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _proposedOfferRepository.deleteRentDetails(
+      projectId: projectId,
+      buildingId: buildingId,
+      proposedOfferRentDetailsId: proposedOfferRentDetailsId,
+      uniquekey: uniqueKey,
+    );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(context);
+        final updatedList = List<RentDetailsModel>.from(state.rentDetails);
+        updatedList.removeAt(index!);
+
+        emit(state.copyWith(rentDetails: updatedList));
+      },
+    );
+  }
 }

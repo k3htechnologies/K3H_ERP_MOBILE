@@ -11,6 +11,7 @@ class ProposedOfferState extends BaseState {
   final GstOnExistingPlusFreeAreaModel? gstOnExistingPlusFreeArea;
   final ProjectCompletionModel? projectCompletion;
   final List<RentDetailsModel> rentDetails;
+  final int totalNumberOfRecordRent;
 
   const ProposedOfferState({
     super.isLoading,
@@ -24,6 +25,7 @@ class ProposedOfferState extends BaseState {
     required this.gstOnExistingPlusFreeArea,
     required this.projectCompletion,
     required this.rentDetails,
+    required this.totalNumberOfRecordRent,
   });
 
   factory ProposedOfferState.initial() => ProposedOfferState(
@@ -38,6 +40,7 @@ class ProposedOfferState extends BaseState {
     gstOnExistingPlusFreeArea: null,
     projectCompletion: null,
     rentDetails: [],
+    totalNumberOfRecordRent: 0,
   );
 
   ProposedOfferState copyWith({
@@ -60,6 +63,7 @@ class ProposedOfferState extends BaseState {
     ProjectCompletionModel? projectCompletion,
     bool clearProjectCompletion = false,
     List<RentDetailsModel>? rentDetails,
+    int? totalNumberOfRecordRent,
   }) {
     return ProposedOfferState(
       isLoading: isLoading ?? this.isLoading,
@@ -90,6 +94,8 @@ class ProposedOfferState extends BaseState {
               ? null
               : projectCompletion ?? this.projectCompletion,
       rentDetails: rentDetails ?? this.rentDetails,
+      totalNumberOfRecordRent:
+          totalNumberOfRecordRent ?? this.totalNumberOfRecordRent,
     );
   }
 
@@ -106,5 +112,6 @@ class ProposedOfferState extends BaseState {
     gstOnExistingPlusFreeArea,
     projectCompletion,
     rentDetails,
+    totalNumberOfRecordRent,
   ];
 }

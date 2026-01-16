@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/p
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/lien_to_society_details.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/parking_allotment.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/project_completion.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/rent_details.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/security_deposit.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/shifting_details.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -104,6 +105,8 @@ class _ProposedOfferSecondaryScreenState
         );
       case "Project Completion":
         return ProjectCompletion(projectId: projectId, buildingId: buildingId);
+      case "Rent Details":
+        return RentDetails(projectId: projectId, buildingId: buildingId);
 
       default:
         return const Text("Invalid Type", style: TextStyle(color: Colors.red));

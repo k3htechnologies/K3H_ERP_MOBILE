@@ -171,6 +171,8 @@ import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/p
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_secondary_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/pages/proposed_plans_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/rent/presentation/cubit/rent_cubit.dart';
+import 'package:k3h_erp_app/features/redevelopment/rent/presentation/pages/rent_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_tenant_screen.dart';
@@ -1752,6 +1754,16 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
+        GoRoute(
+          name: AppRoutes.rent,
+          path: AppRoutes.rent,
+          builder: (context, state) {
+            return BlocProvider(
+              create: (context) => RentCubit(),
+              child: RentScreen(),
+            );
+          },
+        ),
         // PROPOSED PLANS
         ShellRoute(
           builder: (context, state, child) {
@@ -1804,8 +1816,7 @@ final GoRouter goRouter = GoRouter(
                     0;
                 final buildingName =
                     state.uri.queryParameters['buildingName'] ?? "";
-                final type =
-                    state.uri.queryParameters['type'] ?? "";
+                final type = state.uri.queryParameters['type'] ?? "";
                 return ProposedOfferSecondaryScreen(
                   projectId: projectId,
                   projectName: projectName,
