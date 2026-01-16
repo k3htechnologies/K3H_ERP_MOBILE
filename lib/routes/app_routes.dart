@@ -175,6 +175,14 @@ class AppRoutes {
   static String addDocument = "/addDocument";
   static String viewDocument = "/viewDocument";
 
+  // RERA DOCUMENT
+  static String reraCategory = "/reraCategory";
+  static String addReraDocumentCategory = "/addReraDocumentCategory";
+  static String viewReraDocumentCategory = "/viewReraDocumentCategory";
+  static String reraDocument = "/reraDocument";
+  static String addReraDocument = "/addReraDocument";
+  static String viewReraDocument = "/viewReraDocument";
+
   // LEGAL
   static String litigation = "/litigation";
   static String addLitigation = "/addLitigation";

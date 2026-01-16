@@ -1,43 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/project_document/document_category/data/model/document_category.model.dart';
-import 'package:k3h_erp_app/features/project_document/document_category/presentation/cubit/document_category_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document_category/data/model/rera_document_category.model.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/cubit/rera_document_category_cubit.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
-class AddDocumentCategoryScreen extends StatefulWidget {
-  final DocumentCategoryModel? documentCategoryModel;
+class AddRERADocumentCategoryScreen extends StatefulWidget {
+  final RERADocumentCategoryModel? reraDocumentCategoryModel;
 
   final int index;
-  const AddDocumentCategoryScreen({
+  const AddRERADocumentCategoryScreen({
     super.key,
-    required this.documentCategoryModel,
+    required this.reraDocumentCategoryModel,
 
     this.index = 0,
   });
 
   @override
-  State<AddDocumentCategoryScreen> createState() =>
-      _AddDocumentCategoryScreenState();
+  State<AddRERADocumentCategoryScreen> createState() =>
+      _AddRERADocumentCategoryScreenState();
 }
 
-class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
+class _AddRERADocumentCategoryScreenState
+    extends State<AddRERADocumentCategoryScreen> {
   //CUBIT
-  late DocumentCategoryCubit _documentCategoryCubit;
+  late RERADocumentCategoryCubit _reraDocumentCategoryCubit;
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
   //TEXTEDITING CONTROLLER
-  late TextEditingController _documentCategoryC, _orderByC;
+  late TextEditingController _reraDocumentCategoryC, _orderByC;
 
   //EDIT MODE
-  bool get _isEditMode => widget.documentCategoryModel != null;
+  bool get _isEditMode => widget.reraDocumentCategoryModel != null;
 
   //PROJECT ID
   late int projectId;
@@ -45,22 +46,23 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
   @override
   void initState() {
     super.initState();
-    _documentCategoryCubit = context.read<DocumentCategoryCubit>();
+    _reraDocumentCategoryCubit = context.read<RERADocumentCategoryCubit>();
     _routeAuthorizationModel = AuthorizationModel();
     getProjectId();
     initializeTextEditingController();
     if (_isEditMode) {
-      _populateFormFields(widget.documentCategoryModel!);
+      _populateFormFields(widget.reraDocumentCategoryModel!);
     }
   }
 
-  void _populateFormFields(DocumentCategoryModel documentCategory) {
-    _documentCategoryC.text = documentCategory.projectDocumentCategoryName;
-    _orderByC.text = documentCategory.orderBy.toString();
+  void _populateFormFields(RERADocumentCategoryModel reraDocumentCategory) {
+    _reraDocumentCategoryC.text =
+        reraDocumentCategory.projectRERADocumentCategoryName;
+    _orderByC.text = reraDocumentCategory.orderBy.toString();
   }
 
   void initializeTextEditingController() {
-    _documentCategoryC = TextEditingController();
+    _reraDocumentCategoryC = TextEditingController();
     _orderByC = TextEditingController();
   }
 
@@ -73,22 +75,22 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
       return;
     }
     if (_isEditMode) {
-      _documentCategoryCubit.updateDocumentCategory(
+      _reraDocumentCategoryCubit.updateRERADocumentCategory(
         index: widget.index,
         context: context,
-        uniqueKey: widget.documentCategoryModel!.uniquekey,
+        uniqueKey: widget.reraDocumentCategoryModel!.uniquekey,
         projectDocumentCategoryId:
-            widget.documentCategoryModel!.projectDocumentCategoryId,
+            widget.reraDocumentCategoryModel!.projectRERADocumentCategoryId,
         projectId: projectId,
-        projectDocumentCategory: _documentCategoryC.text.trim(),
+        projectRERADocumentCategory: _reraDocumentCategoryC.text.trim(),
         orderBy: int.parse(_orderByC.text.trim()),
       );
     } else {
-      _documentCategoryCubit.addDocumentCategory(
+      _reraDocumentCategoryCubit.addRERADocumentCategory(
         index: widget.index,
         context: context,
         projectId: projectId,
-        projectDocumentCategory: _documentCategoryC.text.trim(),
+        projectRERADocumentCategory: _reraDocumentCategoryC.text.trim(),
         orderBy: int.parse(_orderByC.text.trim()),
       );
     }
@@ -100,8 +102,8 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
       appBar: CustomAppBarWithBackButton(
         screenTitle:
             _isEditMode
-                ? "Edit Project Document Category"
-                : "Add Project Document Category",
+                ? "Add Project RERA Document Category"
+                : "Add Project RERA Document Category",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(
@@ -114,13 +116,13 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
             child: Column(
               children: [
                 CustomTextField(
-                  title: "Project Document Category",
-                  hint: "Enter project document category",
+                  title: "Project RERA Document Category",
+                  hint: "Enter project RERA document category",
                   isRequired: true,
-                  textController: _documentCategoryC,
+                  textController: _reraDocumentCategoryC,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Project Document Category is required";
+                      return "Project Document RERA Category is required";
                     }
                     return null;
                   },
@@ -150,8 +152,8 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
           child: CustomButton(
             text:
                 _isEditMode
-                    ? "Update Document Category"
-                    : "Add Document Category",
+                    ? "Update RERA Document Category"
+                    : "Add RERA Document Category",
             onPressed: _submitForm,
           ),
         ),

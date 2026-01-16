@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/masters/week_off_mapping_mas
 import 'package:k3h_erp_app/di/feature_dependencies/masters/week_off_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/notification/notification.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/profile/profile.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document_category/rera_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
@@ -125,6 +126,8 @@ void initDependencies() {
   registerChannelDependencies(serviceLocator);
   // DOCUMENT CATEGORY DEPENDENCIES
   registerDocumentCategoryDependencies(serviceLocator);
+  // RERA DOCUMENT CATEGORY DEPENDENCIES
+  registerRERADocumentCategoryDependencies(serviceLocator);
   // DOCUMENT DEPENDENCIES
   registerDocumentDependencies(serviceLocator);
 }
