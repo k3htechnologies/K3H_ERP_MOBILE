@@ -1,0 +1,455 @@
+import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/data/repository/rera_document.repository.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_state.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document_category/data/model/rera_document_category.model.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document_category/data/repository/rera_document_category.repository.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
+
+class RERADocumentCubit extends Cubit<RERADocumentState> {
+  RERADocumentCubit() : super(RERADocumentState.initial());
+
+  final RERADocumentCategoryRepository _reraDocumentCategoryRepository =
+      serviceLocator<RERADocumentCategoryRepository>();
+  final RERADocumentRepository _reraDocumentRepository =
+      serviceLocator<RERADocumentRepository>();
+
+  // <---- GET CATEGORY LIST ---->
+  Future getCategoryList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int projectId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+    var result = await _reraDocumentCategoryRepository.getReraDocumentCategory(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      projectId: projectId,
+    );
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            documentCategoryModelList:
+                response['data'] as List<RERADocumentCategoryModel>,
+            totalNumberOfRecord:
+                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
+                    ? state.totalNumberOfRecord - 1
+                    : response['totalNumberOfRecord'],
+            currentPage: pageNumber,
+            categoryIndex:
+                (response['data'] as List<RERADocumentCategoryModel>).isEmpty
+                    ? -1
+                    : 0,
+            projectRERADocumentCategoryId:
+                (response['data'] as List<RERADocumentCategoryModel>).isEmpty
+                    ? 0
+                    : (response['data'] as List<RERADocumentCategoryModel>)
+                        .first
+                        .projectRERADocumentCategoryId,
+          ),
+        );
+        if ((response['data'] as List<RERADocumentCategoryModel>).isNotEmpty) {
+          getProjectRERADocumentList(context: context, pageNumber: 1);
+        }
+      },
+    );
+  }
+
+  // <---- GET PROJECT DOCUMENT ---->
+  Future getProjectRERADocumentList({
+    required BuildContext context,
+    required int pageNumber,
+    int? projectRERADocumentId,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    Map<String, dynamic> queryParams = {
+      "ProjectRERADocumentName": state.searchText,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+      "ProjectRERADocumentCategoryId": state.projectRERADocumentCategoryId,
+      "ProjectRERADocumentId": projectRERADocumentId,
+    };
+
+    var result = await _reraDocumentRepository.pullProjectRERADocument(
+      pageNumber: pageNumber,
+      pageSize: 5,
+      projectId: getProject().projectId,
+      queryParams: queryParams,
+    );
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error Message', failure.message);
+      },
+      (response) {
+        final List<RERADocumentModel> newData = List<RERADocumentModel>.from(
+          response['data'] ?? [],
+        );
+
+        if (projectRERADocumentId == null) {
+          final List<RERADocumentModel> updatedList = [
+            ...state.documentList,
+            ...newData,
+          ];
+          emit(
+            state.copyWith(
+              isLoading: false,
+              documentList: updatedList,
+              totalNumberOfRecord: response["totalNumberOfRecord"],
+              currentPage: pageNumber,
+            ),
+          );
+        } else {
+          final List<RERADocumentModel> updatedSubDocList = [
+            ...state.subDocumentList,
+            ...newData,
+          ];
+          emit(
+            state.copyWith(
+              isLoading: false,
+              subDocumentList: updatedSubDocList,
+              totalNumberOfRecord: response["totalNumberOfRecord"],
+              currentPageOfSubDoc: pageNumber,
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  //UPDATE SUB DOCUMENT
+  Future updateSubDocument({
+    required int index,
+    required BuildContext context,
+    required int projectRERADocumentId,
+    required String uniqueKey,
+    required int projectRERADocumentCategoryId,
+    DateTime? projectRERADocumentExpiryDate,
+    String? projectRERADocumentStatus,
+    String? projectRERADocumentRemark,
+    MultiFilePickerModel? documents,
+  }) async {
+    List<Map<String, dynamic>> fileList = [];
+    DialogHelper.showProcessingOverlay(context);
+    var body = {
+      "ProjectRERADocumentId": projectRERADocumentId.toString(),
+      "Uniquekey": uniqueKey,
+      "ProjectId": getProject().projectId.toString(),
+      "ProjectRERADocumentCategoryId": projectRERADocumentCategoryId.toString(),
+      "IsMaster": 0.toString(),
+      "ProjectRERADocumentExpiryDate":
+          projectRERADocumentExpiryDate != null
+              ? projectRERADocumentExpiryDate.toIso8601String()
+              : '',
+      "ProjectRERADocumentStatus": projectRERADocumentStatus ?? '',
+      "ProjectRERADocumentRemark": projectRERADocumentRemark ?? '',
+    };
+    if (documents != null) {
+      for (int i = 0; i < documents.fileNameList.length; i++) {
+        if (documents.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "ProjectRERADocumentURL",
+          "value": documents.fileBytesList[i],
+          "fileName": documents.fileNameList[i],
+        });
+      }
+    }
+
+    var result = await _reraDocumentRepository.addUpdateDocument(
+      body: body,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+
+        final updatedDocument = response['data'][0] as RERADocumentModel;
+
+        if (state.subDocumentList.isNotEmpty &&
+            index < state.subDocumentList.length) {
+          final updatedListModel = List<RERADocumentModel>.from(
+            state.subDocumentList,
+          );
+
+          updatedListModel[index] = updatedDocument;
+          emit(
+            state.copyWith(isLoading: false, subDocumentList: updatedListModel),
+          );
+        }
+
+        showSuccessMessage(
+          context,
+          subTitle: "Project Document Updated Successfully",
+        );
+      },
+    );
+  }
+
+  // ADD SUB DOCUMENT
+  Future addSubDocument({
+    required int index,
+    required BuildContext context,
+    required int projectRERADocumentId,
+    required String uniqueKey,
+    required int projectRERADocumentCategoryId,
+    DateTime? projectRERADocumentExpiryDate,
+    String? projectRERADocumentStatus,
+    String? projectRERADocumentRemark,
+    MultiFilePickerModel? documents,
+  }) async {
+    List<Map<String, dynamic>> fileList = [];
+    DialogHelper.showProcessingOverlay(context);
+    var body = {
+      "ProjectRERADocumentId": projectRERADocumentId.toString(),
+      "Uniquekey": uniqueKey,
+      "ProjectId": getProject().projectId.toString(),
+      "ProjectRERADocumentCategoryId": projectRERADocumentCategoryId.toString(),
+      //isMaster is 0 means add subdoc in document group
+      "IsMaster": 0.toString(),
+
+      "ProjectRERADocumentExpiryDate":
+          projectRERADocumentExpiryDate != null
+              ? projectRERADocumentExpiryDate.toIso8601String()
+              : '',
+      "ProjectRERADocumentStatus": projectRERADocumentStatus ?? '',
+      "ProjectRERADocumentRemark": projectRERADocumentRemark ?? '',
+    };
+
+    if (documents != null) {
+      for (int i = 0; i < documents.fileNameList.length; i++) {
+        if (documents.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "ProjectRERADocumentURL",
+          "value": documents.fileBytesList[i],
+          "fileName": documents.fileNameList[i],
+        });
+      }
+    }
+
+    var result = await _reraDocumentRepository.addUpdateDocument(
+      body: body,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.goNamed(AppRoutes.document);
+
+        if (state.documentList.isNotEmpty &&
+            index < state.documentList.length) {
+          final updatedListModel = List<RERADocumentModel>.from(
+            state.documentList,
+          );
+
+          // Only increment approvalPendingProjectRERADocumentCount & uploadedProjectRERADocumentCount counts in existing parent document instance
+          updatedListModel[index] = updatedListModel[index].copyWith(
+            projectRERADocumentName:
+                updatedListModel[index].projectRERADocumentName,
+            approvalPendingProjectRERADocumentCount:
+                updatedListModel[index].approvalPendingProjectRERADocumentCount + 1,
+            uploadedProjectRERADocumentCount:
+                updatedListModel[index].uploadedProjectRERADocumentCount + 1,
+          );
+
+          emit(
+            state.copyWith(isLoading: false, documentList: updatedListModel),
+          );
+        }
+
+        showSuccessMessage(
+          context,
+          subTitle: "Project Document Updated Successfully",
+        );
+      },
+    );
+  }
+
+  //RENAME PARENT DOCUMENT NAME
+  Future updateDocumentNameInCategory({
+    required int index,
+    required BuildContext context,
+    required int projectRERADocumentId,
+    required String uniqueKey,
+    required String projectRERADocumentName,
+    required int projectRERADocumentCategoryId,
+  }) async {
+    List<Map<String, dynamic>> fileList = [];
+    DialogHelper.showProcessingOverlay(context);
+    var body = {
+      "ProjectRERADocumentId": projectRERADocumentId.toString(),
+      "Uniquekey": uniqueKey,
+      "ProjectId": getProject().projectId.toString(),
+      "ProjectRERADocumentName": projectRERADocumentName,
+      "ProjectRERADocumentCategoryId": projectRERADocumentCategoryId.toString(),
+      //isMaster is 1 means update document group into category
+      "IsMaster": 1.toString(),
+    };
+
+    var result = await _reraDocumentRepository.addUpdateDocument(
+      body: body,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        final updatedDocument = response['data'][0] as RERADocumentModel;
+
+        if (state.documentList.isNotEmpty &&
+            index < state.documentList.length) {
+          final updatedListModel = List<RERADocumentModel>.from(
+            state.documentList,
+          );
+          updatedListModel[index] = updatedDocument;
+          emit(
+            state.copyWith(isLoading: false, documentList: updatedListModel),
+          );
+        }
+
+        showSuccessMessage(
+          context,
+          subTitle: "Project Document Updated Successfully",
+        );
+      },
+    );
+  }
+
+  //ADD DOCUMENT TO CATEGORY
+  Future addDocumentToCategory({
+    required BuildContext context,
+    required String projectRERADocumentName,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var body = {
+      "ProjectRERADocumentId": 0.toString(),
+      "ProjectId": getProject().projectId.toString(),
+      "ProjectRERADocumentName": projectRERADocumentName,
+      "ProjectRERADocumentCategoryId":
+          state
+              .documentCategoryModelList[state.categoryIndex]
+              .projectRERADocumentCategoryId
+              .toString(),
+      //isMaster is 1 means add document group into category
+      "IsMaster": 1.toString(),
+    };
+    List<Map<String, dynamic>> fileList = [];
+
+    var result = await _reraDocumentRepository.addUpdateDocument(
+      body: body,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        final updatedList = response['data'][0] as RERADocumentModel;
+        var list = [updatedList, ...state.documentList];
+
+        emit(state.copyWith(documentList: list));
+
+        showSuccessMessage(
+          context,
+          subTitle: "Project Document Added Successfully",
+        );
+      },
+    );
+  }
+
+  //UPDATE CATEGORY INDEX AND MAKE GET API CALL AS PER CATEGORY
+  void onTabChanged(int index, BuildContext context) {
+    emit(
+      state.copyWith(
+        categoryIndex: index,
+        projectRERADocumentCategoryId:
+            state
+                .documentCategoryModelList[index]
+                .projectRERADocumentCategoryId,
+      ),
+    );
+    getProjectRERADocumentList(context: context, pageNumber: 1);
+  }
+
+  // SEARCH BASED ON SHIFT
+  void searchDocument(String value, BuildContext context) {
+    emit(
+      state.copyWith(
+        documentList: [],
+        isLoading: true,
+        searchText: value,
+        currentPage: 1,
+      ),
+    );
+    getProjectRERADocumentList(context: context, pageNumber: 1);
+  }
+
+  // <---- DELETE DOCUMENT CATEGORY  ---->
+  Future deleteDocument(
+    RERADocumentModel document,
+    BuildContext context,
+    int index,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final result = await _reraDocumentRepository.deleteDocument(
+      projectRERADocumentCategoryId:
+          state
+              .documentCategoryModelList[state.categoryIndex]
+              .projectRERADocumentCategoryId,
+      projectRERADocumentId: document.projectRERADocumentId,
+      uniqueKey: document.uniquekey,
+      projectId: getProject().projectId,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (success) {
+        final updatedList = List<RERADocumentModel>.from(state.documentList);
+        updatedList.removeAt(index);
+        emit(state.copyWith(documentList: updatedList));
+        showSuccessMessage(context, subTitle: "Document Deleted Successfully");
+      },
+    );
+  }
+
+  Future clearSubDocument() async {
+    emit(state.copyWith(subDocumentList: []));
+  }
+}

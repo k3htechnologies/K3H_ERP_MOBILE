@@ -1,10 +1,10 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
-import 'package:k3h_erp_app/features/project_document/document/data/datasource/document.datasource.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/data/datasource/rera_document.datasource.dart';
 
-abstract interface class DocumentRepository {
-  Future<Either<Failure, Map<String, dynamic>>> pullProjectDocument({
+abstract interface class RERADocumentRepository {
+  Future<Either<Failure, Map<String, dynamic>>> pullProjectRERADocument({
     required int pageNumber,
     required int pageSize,
     required int projectId,
@@ -16,27 +16,27 @@ abstract interface class DocumentRepository {
   });
 
   Future<Either<Failure, Map<String, dynamic>>> deleteDocument({
-    required int projectDocumentId,
+    required int projectRERADocumentId,
     required int projectId,
-    required int projectDocumentCategoryId,
+    required int projectRERADocumentCategoryId,
     required String uniqueKey,
   });
 }
 
-class DocumentRepositoryImpl implements DocumentRepository {
-  final DocumentDatasource documentDatasource;
+class RERADocumentRepositoryImpl implements RERADocumentRepository {
+  final RERADocumentDatasource reraDocumentDatasource;
 
-  DocumentRepositoryImpl({required this.documentDatasource});
+  RERADocumentRepositoryImpl({required this.reraDocumentDatasource});
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> pullProjectDocument({
+  Future<Either<Failure, Map<String, dynamic>>> pullProjectRERADocument({
     required int pageNumber,
     required int pageSize,
     required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
-      var result = await documentDatasource.apicallPullProjectDocument(
+      var result = await reraDocumentDatasource.apicallPullProjectRERADocument(
         pageNumber: pageNumber,
         pageSize: pageSize,
         projectId: projectId,
@@ -54,7 +54,7 @@ class DocumentRepositoryImpl implements DocumentRepository {
     required List<Map<String, dynamic>> fileList,
   }) async {
     try {
-      var result = await documentDatasource.apiCallAddUpdateDocument(
+      var result = await reraDocumentDatasource.apiCallAddUpdateDocument(
         body: body,
         fileList: fileList,
       );
@@ -66,16 +66,16 @@ class DocumentRepositoryImpl implements DocumentRepository {
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> deleteDocument({
-    required int projectDocumentId,
+    required int projectRERADocumentId,
     required int projectId,
-    required int projectDocumentCategoryId,
+    required int projectRERADocumentCategoryId,
     required String uniqueKey,
   }) async {
     try {
-      var result = await documentDatasource.apicallDeleteDocument(
-        projectDocumentId: projectDocumentId,
+      var result = await reraDocumentDatasource.apicallDeleteDocument(
+        projectRERADocumentId: projectRERADocumentId,
         projectId: projectId,
-        projectDocumentCategoryId: projectDocumentCategoryId,
+        projectRERADocumentCategoryId: projectRERADocumentCategoryId,
         uniqueKey: uniqueKey,
       );
       return right(result);

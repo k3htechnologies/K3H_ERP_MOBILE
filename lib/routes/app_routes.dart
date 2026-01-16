@@ -179,7 +179,7 @@ class AppRoutes {
   static String reraCategory = "/reraCategory";
   static String addReraDocumentCategory = "/addReraDocumentCategory";
   static String viewReraDocumentCategory = "/viewReraDocumentCategory";
-  static String reraDocument = "/reraDocument";
+  
   static String addReraDocument = "/addReraDocument";
   static String viewReraDocument = "/viewReraDocument";
 

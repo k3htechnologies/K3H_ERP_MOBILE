@@ -6,6 +6,7 @@ class DocumentCategoryModel {
   String uniquekey;
   String projectDocumentCategoryName;
   int orderBy;
+  int documentCount;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -19,6 +20,7 @@ class DocumentCategoryModel {
     required this.uniquekey,
     required this.projectDocumentCategoryName,
     required this.orderBy,
+    required this.documentCount,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -40,6 +42,7 @@ class DocumentCategoryModel {
           "ProjectDocumentCategoryName",
         ),
         orderBy: parseValue(json, "OrderBy"),
+        documentCount: parseValue(json, "DocumentCount"),
         createdById: parseValue(json, "CreatedById"),
         createdBy: parseValue(json, "CreatedBy"),
         createdDate: DateTime.parse(json["CreatedDate"]),
@@ -57,6 +60,7 @@ class DocumentCategoryModel {
     "Uniquekey": uniquekey,
     "ProjectDocumentCategoryName": projectDocumentCategoryName,
     "OrderBy": orderBy,
+    "DocumentCount": documentCount,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
