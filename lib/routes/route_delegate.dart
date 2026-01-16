@@ -157,6 +157,11 @@ import 'package:k3h_erp_app/features/project_document/document_category/presenta
 import 'package:k3h_erp_app/features/project_document/document_category/presentation/pages/add_document_category_screen.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/presentation/pages/document_category_screen.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/presentation/pages/view_document_category_screen.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document_category/data/model/rera_document_category.model.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/cubit/rera_document_category_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/pages/add_rera_document_category_screen.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/pages/rera_document_category_screen.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/pages/view_document_category_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_file/approved_bank_file_cubit.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder/approved_bank_folder_cubit.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_file_screen.dart';
@@ -2242,6 +2247,9 @@ final GoRouter goRouter = GoRouter(
                 BlocProvider<DocumentCategoryCubit>(
                   create: (_) => DocumentCategoryCubit(),
                 ),
+                BlocProvider<RERADocumentCategoryCubit>(
+                  create: (_) => RERADocumentCategoryCubit(),
+                ),
               ],
               child: child,
             );
@@ -2335,7 +2343,7 @@ final GoRouter goRouter = GoRouter(
               ],
             ),
 
-            //Project Document
+            //Project Document Category
             ShellRoute(
               builder: (context, state, child) {
                 return BlocProvider<DocumentCategoryCubit>.value(
@@ -2404,6 +2412,80 @@ final GoRouter goRouter = GoRouter(
 
                     return ViewDocumentCategoryScreen(
                       documentCategoryModel: documentCategory!,
+                    );
+                  },
+                ),
+              ],
+            ),
+
+            //Project RERA Document Category
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider<RERADocumentCategoryCubit>.value(
+                  value: context.read<RERADocumentCategoryCubit>(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.reraCategory,
+                  path: AppRoutes.reraCategory,
+                  builder: (context, state) {
+                    return const RERADocumentCategoryScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addReraDocumentCategory,
+                  path: AppRoutes.addReraDocumentCategory,
+                  builder: (context, state) {
+                    final queryParameterRERADocumentCategory =
+                        state.uri.queryParameters['reraDocumentCategory'];
+
+                    final RERADocumentCategoryModel? reraDocumentCategory =
+                        queryParameterRERADocumentCategory != null
+                            ? RERADocumentCategoryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterRERADocumentCategory,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddRERADocumentCategoryScreen(
+                      reraDocumentCategoryModel: reraDocumentCategory,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewReraDocumentCategory,
+                  path: AppRoutes.viewReraDocumentCategory,
+                  builder: (context, state) {
+                    final queryParameterRERADocumentCategory =
+                        state.uri.queryParameters['reraDocumentCategory'];
+
+                    final RERADocumentCategoryModel? reraDocumentCategory =
+                        queryParameterRERADocumentCategory != null
+                            ? RERADocumentCategoryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterRERADocumentCategory,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return ViewRERADocumentCategoryScreen(
+                      reraDocumentCategoryModel: reraDocumentCategory!,
                     );
                   },
                 ),

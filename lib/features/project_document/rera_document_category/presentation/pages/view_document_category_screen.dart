@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/project_document/document_category/data/model/document_category.model.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document_category/data/model/rera_document_category.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class ViewDocumentCategoryScreen extends StatelessWidget {
-  final DocumentCategoryModel documentCategoryModel;
-  const ViewDocumentCategoryScreen({
+class ViewRERADocumentCategoryScreen extends StatelessWidget {
+  final RERADocumentCategoryModel reraDocumentCategoryModel;
+  const ViewRERADocumentCategoryScreen({
     super.key,
-    required this.documentCategoryModel,
+    required this.reraDocumentCategoryModel,
   });
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Document Category",
+        screenTitle: "RERA Document Category",
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(
@@ -41,13 +41,14 @@ class ViewDocumentCategoryScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildColumnTitleValue(
-                          title: "Document Category",
+                          title: "RERA Document Category",
                           value:
-                              documentCategoryModel.projectDocumentCategoryName,
+                              reraDocumentCategoryModel
+                                  .projectRERADocumentCategoryName,
                         ),
                         _buildColumnTitleValue(
                           title: "Order By",
-                          value: documentCategoryModel.orderBy.toString(),
+                          value: reraDocumentCategoryModel.orderBy.toString(),
                         ),
                       ],
                     ),
@@ -68,12 +69,12 @@ class ViewDocumentCategoryScreen extends StatelessWidget {
                       children: [
                         _buildColumnTitleValue(
                           title: "Created By",
-                          value: documentCategoryModel.createdBy,
+                          value: reraDocumentCategoryModel.createdBy,
                         ),
                         _buildColumnTitleValue(
                           title: "Created Date",
                           value: formatDateTimeAsDDMMMYYYY(
-                            documentCategoryModel.createdDate,
+                            reraDocumentCategoryModel.createdDate,
                           ),
                         ),
                       ],
@@ -84,16 +85,16 @@ class ViewDocumentCategoryScreen extends StatelessWidget {
                         _buildColumnTitleValue(
                           title: "Modified By",
                           value:
-                              documentCategoryModel.modifiedBy.isNotEmpty
-                                  ? documentCategoryModel.modifiedBy
+                              reraDocumentCategoryModel.modifiedBy.isNotEmpty
+                                  ? reraDocumentCategoryModel.modifiedBy
                                   : null,
                         ),
                         _buildColumnTitleValue(
                           title: "Modified Date",
                           value:
-                              documentCategoryModel.modifiedDate != null
+                              reraDocumentCategoryModel.modifiedDate != null
                                   ? formatDateTimeAsDDMMMYYYY(
-                                    documentCategoryModel.modifiedDate!,
+                                    reraDocumentCategoryModel.modifiedDate!,
                                   )
                                   : null,
                         ),

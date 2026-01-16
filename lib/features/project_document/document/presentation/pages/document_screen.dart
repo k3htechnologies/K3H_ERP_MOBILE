@@ -70,7 +70,6 @@ class _DocumentScreenState extends State<DocumentScreen>
             context: context,
             pageNumber: _documentCubit.state.currentPage + 1,
           );
-          ;
         });
       }
     });
