@@ -29,7 +29,7 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
         currentPage: 1,
       ),
     );
-    getDeductionList(context: context, pageNumber: 1,);
+    getDeductionList(context: context, pageNumber: 1);
   }
 
   Future getDeductionList({
@@ -188,11 +188,19 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
         return;
       },
       (success) {
-        showSuccessMessage(context, subTitle: "Deduction Deleted Successfully");
-        getDeductionList(
-          context: context,
-          pageNumber: state.currentPage,
+        final updatedList = List<DeductionMasterModel>.from(
+          state.deductionList,
         );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            deductionList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: success["totalNumberOfRecord"],
+          ),
+        );
+
+        showSuccessMessage(context, subTitle: "Deduction Deleted Successfully");
       },
     );
   }

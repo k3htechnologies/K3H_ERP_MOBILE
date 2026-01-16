@@ -46,10 +46,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
         AuthorizationModel();
     _initializeTextEditingController();
     _onScroll();
-    _assetMasterCubit.getAssetsList(
-      context: context,
-      pageNumber: 1,
-    );
+    _assetMasterCubit.getAssetsList(context: context, pageNumber: 1);
   }
 
   @override
@@ -87,18 +84,18 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
 
   // <---- DELETE ASSET MAPPING ---->
   Future<void> _showPopupToDeleteAssetMaster(
-      BuildContext context,
-      AssetMasterModel obj,
-      int currentPage,
-      int index,
-      ) async {
+    BuildContext context,
+    AssetMasterModel obj,
+    int currentPage,
+    int index,
+  ) async {
     var result = await DialogHelper.deleteDialog(
       context,
       'You are about to delete a Asset Mapping?',
       'Deleting this Asset Mapping will permanently remove its contents.',
     );
     if (result && context.mounted) {
-      _assetMasterCubit.deleteAsset( obj, context);
+      _assetMasterCubit.deleteAsset(obj, context, index);
     }
   }
 
@@ -207,7 +204,12 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                             const SizedBox(width: 8),
                             CustomIconButton.delete(
                               onPressed: () {
-                                _showPopupToDeleteAssetMaster(context, asset, state.currentPage, index);
+                                _showPopupToDeleteAssetMaster(
+                                  context,
+                                  asset,
+                                  state.currentPage,
+                                  index,
+                                );
                               },
                             ),
                           ],
@@ -337,5 +339,4 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
       ),
     );
   }
-
 }

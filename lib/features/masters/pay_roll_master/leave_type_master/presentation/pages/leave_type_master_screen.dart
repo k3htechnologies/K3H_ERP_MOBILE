@@ -94,7 +94,7 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
       'Deleting this Leave Type will permanently remove its contents.',
     );
     if (result && context.mounted) {
-      _leaveTypeMasterCubit.deleteLeaveType(currentPage, obj, context);
+      _leaveTypeMasterCubit.deleteLeaveType(index, obj, context);
     }
   }
 

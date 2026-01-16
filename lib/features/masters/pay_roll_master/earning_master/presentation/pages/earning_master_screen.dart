@@ -47,10 +47,7 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
         Authorization.routeAuthorizationMap[AppRoutes.earningMaster] ??
         AuthorizationModel();
     _onScroll();
-    _earningMasterCubit.getEarningList(
-      context: context,
-      pageNumber: 1,
-    );
+    _earningMasterCubit.getEarningList(context: context, pageNumber: 1);
   }
 
   @override
@@ -99,7 +96,7 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
       'Deleting this Asset Mapping will permanently remove its contents.',
     );
     if (result && context.mounted) {
-      _earningMasterCubit.deleteEarning(currentPage, obj, context);
+      _earningMasterCubit.deleteEarning(index, obj, context);
     }
   }
 
@@ -136,9 +133,9 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
               if (index == state.earningList.length) {
                 return state.earningList.length < state.totalNumberOfRecord
                     ? Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                )
+                      padding: const EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
                     : const SizedBox.shrink();
               }
               var earning = state.earningList[index];

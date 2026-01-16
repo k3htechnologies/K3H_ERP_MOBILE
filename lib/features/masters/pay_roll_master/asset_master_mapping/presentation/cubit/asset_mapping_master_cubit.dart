@@ -37,8 +37,6 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
     required int pageNumber,
     required int pageSize,
   }) async {
-
-
     emit(state.copyWith(isLoading: true));
 
     var queryParams = {
@@ -53,18 +51,17 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
     );
 
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
-          (response) {
-        final List<AssetMappingModel> newData =
-        List<AssetMappingModel>.from(response['data'] ?? []);
+      (response) {
+        final List<AssetMappingModel> newData = List<AssetMappingModel>.from(
+          response['data'] ?? [],
+        );
 
         final List<AssetMappingModel> updatedList =
-        pageNumber == 1
-            ? newData
-            : [...state.assetMappingList, ...newData];
+            pageNumber == 1 ? newData : [...state.assetMappingList, ...newData];
 
         emit(
           state.copyWith(
@@ -117,9 +114,9 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
           state.copyWith(
             assetMappingList: list,
             totalNumberOfRecord:
-            state.totalNumberOfRecord == -1
-                ? 1
-                : state.totalNumberOfRecord + 1,
+                state.totalNumberOfRecord == -1
+                    ? 1
+                    : state.totalNumberOfRecord + 1,
           ),
         );
         showSuccessMessage(
@@ -202,14 +199,21 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
         return;
       },
       (success) {
+        final updatedList = List<AssetMappingModel>.from(
+          state.assetMappingList,
+        );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            assetMappingList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: success["totalNumberOfRecord"],
+          ),
+        );
+
         showSuccessMessage(
           context,
           subTitle: "Asset Mapping Deleted Successfully",
-        );
-        getAssetMappingList(
-          context: context,
-          pageNumber: state.currentPage,
-          pageSize: 15,
         );
       },
     );
@@ -242,4 +246,3 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
     );
   }
 }
-

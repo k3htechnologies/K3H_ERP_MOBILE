@@ -195,8 +195,16 @@ class HolidayMasterCubit extends Cubit<HolidayMasterState> {
         return;
       },
       (success) {
+        final updatedList = List<HolidayMasterModel>.from(state.holidays);
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            holidays: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: success["totalNumberOfRecord"],
+          ),
+        );
         showSuccessMessage(context, subTitle: "Holiday Deleted Successfully");
-        getHolidayList(context: context, pageNumber: state.currentPage);
       },
     );
   }

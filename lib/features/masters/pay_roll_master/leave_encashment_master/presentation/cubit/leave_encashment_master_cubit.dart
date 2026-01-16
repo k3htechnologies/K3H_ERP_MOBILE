@@ -73,11 +73,22 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
         return;
       },
       (success) {
+        final updatedList = List<LeaveEncashmentMasterModel>.from(
+          state.leaveEncashmentList,
+        );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            leaveEncashmentList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: success["totalNumberOfRecord"],
+          ),
+        );
+
         showSuccessMessage(
           context,
           subTitle: "Leave Encashment Deleted Successfully",
         );
-        getLeaveEncashmentList(context: context, pageNumber: state.currentPage);
       },
     );
   }

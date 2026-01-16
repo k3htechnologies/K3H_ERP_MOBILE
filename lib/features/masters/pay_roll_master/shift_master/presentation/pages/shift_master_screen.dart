@@ -87,7 +87,7 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
       'Deleting this Shift will permanently remove its contents.',
     );
     if (result && context.mounted) {
-      _shiftMasterCubit.deleteShift(currentPage, obj, context);
+      _shiftMasterCubit.deleteShift(index, obj, context);
     }
   }
 

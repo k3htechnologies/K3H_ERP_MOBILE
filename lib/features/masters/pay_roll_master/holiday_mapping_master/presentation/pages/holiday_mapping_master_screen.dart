@@ -100,11 +100,7 @@ class _HolidayMappingMasterScreenState
       'Deleting this Holiday Mapping will permanently remove its contents.',
     );
     if (result && context.mounted) {
-      _holidayMappingMasterCubit.deleteHolidayMapping(
-        currentPage,
-        obj,
-        context,
-      );
+      _holidayMappingMasterCubit.deleteHolidayMapping(index, obj, context);
     }
   }
 

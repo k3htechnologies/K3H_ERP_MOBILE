@@ -87,7 +87,7 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
       'Deleting this Week Off will permanently remove its contents.',
     );
     if (result && context.mounted) {
-      _weekOffMasterCubit.deleteWeekOff(currentPage, obj, context);
+      _weekOffMasterCubit.deleteWeekOff(index, obj, context);
     }
   }
 

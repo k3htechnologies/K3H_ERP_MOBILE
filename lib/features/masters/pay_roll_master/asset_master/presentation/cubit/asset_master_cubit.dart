@@ -211,7 +211,11 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
   }
 
   // <---- DELETE ASSET ---->
-  Future deleteAsset(AssetMasterModel asset, BuildContext context) async {
+  Future deleteAsset(
+    AssetMasterModel asset,
+    BuildContext context,
+    int index,
+  ) async {
     DialogHelper.showProcessingOverlay(context);
 
     final result = await assetMasterRepository.deleteAsset(
@@ -226,9 +230,16 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
+        final updatedList = List<AssetMasterModel>.from(state.assetList);
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            assetList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: success["totalNumberOfRecord"],
+          ),
+        );
         showSuccessMessage(context, subTitle: "Asset Deleted Successfully");
-
-        getAssetsList(context: context, pageNumber: state.currentPage);
       },
     );
   }

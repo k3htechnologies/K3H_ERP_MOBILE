@@ -63,7 +63,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
   );
 
   //EDIT MODE
-  bool get _isEditMode => widget.isEdit ?? widget.documentModel != null;
+  bool get _isEditMode => widget.isEdit;
 
   @override
   void initState() {
@@ -90,9 +90,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
         projectDocumentId: widget.documentModel!.projectDocumentId,
         projectDocumentCategoryId:
             widget.documentModel!.projectDocumentCategoryId,
-        projectDocumentName: widget.documentModel!.projectDocumentName,
         documents: selectedDocumentFile,
-        isMaster: 0,
         projectDocumentStatus: _selectedStatus[0]['DisplayName'],
         projectDocumentExpiryDate: expiryDate,
         projectDocumentRemark: _remarkC.text.trim(),
@@ -105,9 +103,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
         projectDocumentId: widget.documentModel!.projectDocumentId,
         projectDocumentCategoryId:
             widget.documentModel!.projectDocumentCategoryId,
-        projectDocumentName: widget.documentModel!.projectDocumentName,
         documents: selectedDocumentFile,
-        isMaster: 0,
         projectDocumentStatus: _selectedStatus[0]['DisplayName'],
         projectDocumentExpiryDate: expiryDate,
         projectDocumentRemark: _remarkC.text.trim(),

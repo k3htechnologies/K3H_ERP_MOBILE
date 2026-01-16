@@ -205,11 +205,22 @@ class WeekOffMappingMasterCubit extends Cubit<WeekOffMappingMasterState> {
         return;
       },
       (success) {
+        final updatedList = List<WeekOffMappingModel>.from(
+          state.weekOffMappingList,
+        );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            weekOffMappingList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: success["totalNumberOfRecord"],
+          ),
+        );
+
         showSuccessMessage(
           context,
           subTitle: "Week Off Mapping Deleted Successfully",
         );
-        getWeekOffMappingList(context: context, pageNumber: state.currentPage);
       },
     );
   }

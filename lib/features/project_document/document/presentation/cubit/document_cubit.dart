@@ -97,8 +97,6 @@ class DocumentCubit extends Cubit<DocumentState> {
         showErrorMessage(context, 'Error Message', failure.message);
       },
       (response) {
-        // List<DocumentModel> updatedList = [];
-        // updatedList.addAll(response['data'] as List<DocumentModel>);
         final List<DocumentModel> newData = List<DocumentModel>.from(
           response['data'] ?? [],
         );
@@ -134,19 +132,17 @@ class DocumentCubit extends Cubit<DocumentState> {
     );
   }
 
-  //UPDATE DOCUMENT IN CATEGORY
+  //UPDATE SUB DOCUMENT
   Future updateSubDocument({
     required int index,
     required BuildContext context,
     required int projectDocumentId,
     required String uniqueKey,
-    required String projectDocumentName,
     required int projectDocumentCategoryId,
     DateTime? projectDocumentExpiryDate,
     String? projectDocumentStatus,
     String? projectDocumentRemark,
     MultiFilePickerModel? documents,
-    required int isMaster,
   }) async {
     List<Map<String, dynamic>> fileList = [];
     DialogHelper.showProcessingOverlay(context);
@@ -154,11 +150,8 @@ class DocumentCubit extends Cubit<DocumentState> {
       "ProjectDocumentId": projectDocumentId.toString(),
       "Uniquekey": uniqueKey,
       "ProjectId": getProject().projectId.toString(),
-      "ProjectDocumentName": projectDocumentName,
       "ProjectDocumentCategoryId": projectDocumentCategoryId.toString(),
-      "IsMaster": isMaster.toString(),
-    };
-    var addDocBody = {
+      "IsMaster": 0.toString(),
       "ProjectDocumentExpiryDate":
           projectDocumentExpiryDate != null
               ? projectDocumentExpiryDate.toIso8601String()
@@ -166,13 +159,6 @@ class DocumentCubit extends Cubit<DocumentState> {
       "ProjectDocumentStatus": projectDocumentStatus ?? '',
       "ProjectDocumentRemark": projectDocumentRemark ?? '',
     };
-    //isMaster is 1 means Document group add to category and
-    // 0 means add subdoc in document group
-    final bool isNewDocUpload = isMaster == 0;
-
-    if (isNewDocUpload) {
-      body.addAll(addDocBody);
-    }
     if (documents != null) {
       for (int i = 0; i < documents.fileNameList.length; i++) {
         if (documents.fileNameList[i].contains("http")) {
@@ -221,18 +207,17 @@ class DocumentCubit extends Cubit<DocumentState> {
     );
   }
 
+  // ADD SUB DOCUMENT
   Future addSubDocument({
     required int index,
     required BuildContext context,
     required int projectDocumentId,
     required String uniqueKey,
-    required String projectDocumentName,
     required int projectDocumentCategoryId,
     DateTime? projectDocumentExpiryDate,
     String? projectDocumentStatus,
     String? projectDocumentRemark,
     MultiFilePickerModel? documents,
-    required int isMaster,
   }) async {
     List<Map<String, dynamic>> fileList = [];
     DialogHelper.showProcessingOverlay(context);
@@ -240,11 +225,10 @@ class DocumentCubit extends Cubit<DocumentState> {
       "ProjectDocumentId": projectDocumentId.toString(),
       "Uniquekey": uniqueKey,
       "ProjectId": getProject().projectId.toString(),
-      "ProjectDocumentName": projectDocumentName,
       "ProjectDocumentCategoryId": projectDocumentCategoryId.toString(),
-      "IsMaster": isMaster.toString(),
-    };
-    var addDocBody = {
+      //isMaster is 0 means add subdoc in document group
+      "IsMaster": 0.toString(),
+
       "ProjectDocumentExpiryDate":
           projectDocumentExpiryDate != null
               ? projectDocumentExpiryDate.toIso8601String()
@@ -252,13 +236,7 @@ class DocumentCubit extends Cubit<DocumentState> {
       "ProjectDocumentStatus": projectDocumentStatus ?? '',
       "ProjectDocumentRemark": projectDocumentRemark ?? '',
     };
-    //isMaster is 1 means Document group add to category and
-    // 0 means add subdoc in document group
-    final bool isNewDocUpload = isMaster == 0;
 
-    if (isNewDocUpload) {
-      body.addAll(addDocBody);
-    }
     if (documents != null) {
       for (int i = 0; i < documents.fileNameList.length; i++) {
         if (documents.fileNameList[i].contains("http")) {
@@ -289,7 +267,7 @@ class DocumentCubit extends Cubit<DocumentState> {
             index < state.documentList.length) {
           final updatedListModel = List<DocumentModel>.from(state.documentList);
 
-          // Replace with fresh response, but also increment counts
+          // Only increment approvalPendingProjectDocumentCount & uploadedProjectDocumentCount counts in existing parent document instance
           updatedListModel[index] = updatedListModel[index].copyWith(
             projectDocumentName: updatedListModel[index].projectDocumentName,
             approvalPendingProjectDocumentCount:
@@ -311,7 +289,8 @@ class DocumentCubit extends Cubit<DocumentState> {
     );
   }
 
-  Future editDocumentNameInCategory({
+  //RENAME PARENT DOCUMENT NAME
+  Future updateDocumentNameInCategory({
     required int index,
     required BuildContext context,
     required int projectDocumentId,
@@ -327,6 +306,7 @@ class DocumentCubit extends Cubit<DocumentState> {
       "ProjectId": getProject().projectId.toString(),
       "ProjectDocumentName": projectDocumentName,
       "ProjectDocumentCategoryId": projectDocumentCategoryId.toString(),
+      //isMaster is 1 means update document group into category
       "IsMaster": 1.toString(),
     };
 
@@ -347,10 +327,7 @@ class DocumentCubit extends Cubit<DocumentState> {
         if (state.documentList.isNotEmpty &&
             index < state.documentList.length) {
           final updatedListModel = List<DocumentModel>.from(state.documentList);
-
-          // Replace with fresh response (name edit)
           updatedListModel[index] = updatedDocument;
-
           emit(
             state.copyWith(isLoading: false, documentList: updatedListModel),
           );
@@ -379,7 +356,7 @@ class DocumentCubit extends Cubit<DocumentState> {
               .documentCategoryModelList[state.categoryIndex]
               .projectDocumentCategoryId
               .toString(),
-
+      //isMaster is 1 means add document group into category
       "IsMaster": 1.toString(),
     };
     List<Map<String, dynamic>> fileList = [];
@@ -435,7 +412,11 @@ class DocumentCubit extends Cubit<DocumentState> {
   }
 
   // <---- DELETE DOCUMENT CATEGORY  ---->
-  Future deleteDocument(DocumentModel document, BuildContext context) async {
+  Future deleteDocument(
+    DocumentModel document,
+    BuildContext context,
+    int index,
+  ) async {
     DialogHelper.showProcessingOverlay(context);
 
     final result = await _documentRepository.deleteDocument(
@@ -455,9 +436,10 @@ class DocumentCubit extends Cubit<DocumentState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
+        final updatedList = List<DocumentModel>.from(state.documentList);
+        updatedList.removeAt(index);
+        emit(state.copyWith(documentList: updatedList));
         showSuccessMessage(context, subTitle: "Document Deleted Successfully");
-
-        getProjectDocumentList(context: context, pageNumber: state.currentPage);
       },
     );
   }

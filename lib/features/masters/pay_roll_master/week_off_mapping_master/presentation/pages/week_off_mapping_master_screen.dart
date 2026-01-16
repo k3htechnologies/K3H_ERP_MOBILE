@@ -92,11 +92,7 @@ class _WeekOffMappingMasterScreenState
       'Deleting this week off will permanently remove its contents.',
     );
     if (result && context.mounted) {
-      _weekOffMappingMasterCubit.deleteWeekOffMapping(
-        currentPage,
-        obj,
-        context,
-      );
+      _weekOffMappingMasterCubit.deleteWeekOffMapping(index, obj, context);
     }
   }
 

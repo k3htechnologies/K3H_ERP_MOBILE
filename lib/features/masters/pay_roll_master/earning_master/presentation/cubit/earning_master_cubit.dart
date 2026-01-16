@@ -29,7 +29,7 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
         currentPage: 1,
       ),
     );
-    getEarningList(context: context, pageNumber: 1,);
+    getEarningList(context: context, pageNumber: 1);
   }
 
   Future getEarningList({
@@ -89,16 +89,14 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
       "Type": earningType,
       "Value": value,
     };
-    var result = await earningMasterRepository.addUpdateEarning(
-      body: body,
-    );
+    var result = await earningMasterRepository.addUpdateEarning(body: body);
     goRouter.pop();
     result.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-          (response) {
+      (response) {
         goRouter.pop();
         final newResponse = response['data'][0] as EarningMasterModel;
 
@@ -109,10 +107,7 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
             totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
         );
-        showSuccessMessage(
-          context,
-          subTitle: 'Earning Added Successfully',
-        );
+        showSuccessMessage(context, subTitle: 'Earning Added Successfully');
       },
     );
   }
@@ -136,21 +131,18 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
       "Type": earningType,
       "Value": value,
     };
-    var result = await earningMasterRepository.addUpdateEarning(
-      body: body,
-    );
+    var result = await earningMasterRepository.addUpdateEarning(body: body);
     goRouter.pop();
     result.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-          (response) {
+      (response) {
         goRouter.pop();
         final updatedList = response['data'][0] as EarningMasterModel;
 
-        if (state.earningList.isNotEmpty &&
-            index < state.earningList.length) {
+        if (state.earningList.isNotEmpty && index < state.earningList.length) {
           final updatedListModel = List<EarningMasterModel>.from(
             state.earningList,
           );
@@ -158,19 +150,16 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
           emit(state.copyWith(earningList: updatedListModel));
         }
 
-        showSuccessMessage(
-          context,
-          subTitle: "Earning Updated Successfully",
-        );
+        showSuccessMessage(context, subTitle: "Earning Updated Successfully");
       },
     );
   }
 
   Future deleteEarning(
-      int index,
-      EarningMasterModel earningMaster,
-      BuildContext context,
-      ) async {
+    int index,
+    EarningMasterModel earningMaster,
+    BuildContext context,
+  ) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await earningMasterRepository.deleteEarning(
       earningMasterId: earningMaster.earningMasterId,
@@ -178,19 +167,21 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
     );
     goRouter.pop();
     result.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, "Error", failure.message);
         return;
       },
-          (success) {
-        showSuccessMessage(
-          context,
-          subTitle: "Earning Deleted Successfully",
+      (success) {
+        final updatedList = List<EarningMasterModel>.from(state.earningList);
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            earningList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: success["totalNumberOfRecord"],
+          ),
         );
-        getEarningList(
-          context: context,
-          pageNumber: state.currentPage,
-        );
+        showSuccessMessage(context, subTitle: "Earning Deleted Successfully");
       },
     );
   }

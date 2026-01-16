@@ -47,10 +47,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
         AuthorizationModel();
     _initializeTextEditingController();
     _onScroll();
-    _branchMasterCubit.getBranchList(
-      context: context,
-      pageNumber: 1,
-    );
+    _branchMasterCubit.getBranchList(context: context, pageNumber: 1);
   }
 
   // INITIALIZE TEXT EDITING CONTROLLERS
@@ -103,6 +100,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
         context: context,
         branchMasterId: obj.branchMasterId,
         uniqueKey: obj.uniquekey,
+        index: index,
       );
     }
   }
@@ -117,7 +115,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
           _branchMasterCubit.searchBranch(value, context);
         },
         textController: _searchC,
-        onAddCallback: (){
+        onAddCallback: () {
           goRouter.pushNamed(AppRoutes.addBranchMaster);
         },
         onExportCallback: (value) {
@@ -140,9 +138,9 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
               if (index == state.branchList.length) {
                 return state.branchList.length < state.totalNumberOfRecord
                     ? const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                )
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
                     : const SizedBox.shrink();
               }
               var branch = state.branchList[index];
@@ -243,7 +241,6 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
           );
         },
       ),
-
     );
   }
 
@@ -284,5 +281,4 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
       ),
     );
   }
-
 }

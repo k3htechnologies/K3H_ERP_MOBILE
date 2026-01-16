@@ -96,7 +96,7 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
       'Deleting this Holiday will permanently remove its contents.',
     );
     if (result && context.mounted) {
-      holidayMasterCubit.deleteHoliday(currentPage, obj, context);
+      holidayMasterCubit.deleteHoliday(index, obj, context);
     }
   }
 

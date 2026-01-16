@@ -173,6 +173,7 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
     required BuildContext context,
     required int branchMasterId,
     required String uniqueKey,
+    required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -188,10 +189,16 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (success) {
+        final updatedList = List<BranchMasterModel>.from(state.branchList);
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            branchList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: success["totalNumberOfRecord"],
+          ),
+        );
         showSuccessMessage(context, subTitle: 'Branch Deleted Successfully');
-
-        // 🔁 Refresh current page (same as AssetMapping)
-        getBranchList(context: context, pageNumber: state.currentPage);
       },
     );
   }

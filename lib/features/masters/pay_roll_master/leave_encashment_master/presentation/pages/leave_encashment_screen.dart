@@ -85,11 +85,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
       'Deleting this Leave Encashment will permanently remove its contents.',
     );
     if (result && context.mounted) {
-      _leaveEncashmentMasterCubit.deleteLeaveEncashment(
-        currentPage,
-        obj,
-        context,
-      );
+      _leaveEncashmentMasterCubit.deleteLeaveEncashment(index, obj, context);
     }
   }
 

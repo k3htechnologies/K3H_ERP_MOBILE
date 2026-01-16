@@ -68,14 +68,18 @@ class LeaveTypeMasterCubit extends Cubit<LeaveTypeMasterState> {
         return;
       },
       (success) {
+        final updatedList = List<LeaveTypeModel>.from(state.leaveTypeList);
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            leaveTypeList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: success["totalNumberOfRecord"],
+          ),
+        );
         showSuccessMessage(
           context,
           subTitle: "Leave Type Deleted Successfully",
-        );
-        getLeaveTypeList(
-          context: context,
-          pageNumber: state.currentPage,
-          pageSize: 15,
         );
       },
     );

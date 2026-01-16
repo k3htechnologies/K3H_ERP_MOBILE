@@ -47,10 +47,7 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
         AuthorizationModel();
     _initializeTextEditingController();
     _onScroll();
-    _deductionMasterCubit.getDeductionList(
-      context: context,
-      pageNumber: 1,
-    );
+    _deductionMasterCubit.getDeductionList(context: context, pageNumber: 1);
   }
 
   @override
@@ -98,7 +95,7 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
       'Deleting this Asset Mapping will permanently remove its contents.',
     );
     if (result && context.mounted) {
-      _deductionMasterCubit.deleteDeduction(currentPage, obj, context);
+      _deductionMasterCubit.deleteDeduction(index, obj, context);
     }
   }
 

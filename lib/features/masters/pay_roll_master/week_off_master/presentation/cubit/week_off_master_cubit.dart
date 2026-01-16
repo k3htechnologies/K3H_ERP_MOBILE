@@ -69,8 +69,19 @@ class WeekOffMasterCubit extends Cubit<WeekOffMasterState> {
         return;
       },
       (success) {
+        final updatedList = List<WeekOffMasterModel>.from(
+          state.weekOffMasterList,
+        );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            weekOffMasterList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: success["totalNumberOfRecord"],
+          ),
+        );
+
         showSuccessMessage(context, subTitle: "WEEK OFF Deleted Successfully");
-        getWeekOffList(context: context, pageNumber: state.currentPage);
       },
     );
   }

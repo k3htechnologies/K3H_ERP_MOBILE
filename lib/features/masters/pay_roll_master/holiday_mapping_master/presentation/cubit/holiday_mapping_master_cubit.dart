@@ -29,12 +29,12 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
         currentPage: 1,
       ),
     );
-    getHolidayMappingList(context: context, pageNumber: 1,);
+    getHolidayMappingList(context: context, pageNumber: 1);
   }
 
   Future getHolidayMappingList({
     required BuildContext context,
-    required int pageNumber
+    required int pageNumber,
   }) async {
     emit(state.copyWith(isLoading: true));
 
@@ -181,14 +181,21 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
         return;
       },
       (success) {
+        final updatedList = List<HolidayMappingModel>.from(
+          state.holidayMappingList,
+        );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            holidayMappingList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: success["totalNumberOfRecord"],
+          ),
+        );
+
         showSuccessMessage(
           context,
           subTitle: "Holiday Mapping Deleted Successfully",
-        );
-        getHolidayMappingList(
-          context: context,
-          pageNumber: state.currentPage,
-          
         );
       },
     );

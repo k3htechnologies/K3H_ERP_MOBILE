@@ -67,8 +67,16 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
         return;
       },
       (success) {
+        final updatedList = List<ShiftMasterModel>.from(state.shiftMasterList);
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            shiftMasterList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: success["totalNumberOfRecord"],
+          ),
+        );
         showSuccessMessage(context, subTitle: "Shift Deleted Successfully");
-        getShiftList(context: context, pageNumber: state.currentPage);
       },
     );
   }

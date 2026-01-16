@@ -201,11 +201,22 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
         return;
       },
       (success) {
+        final updatedList = List<ShiftMappingModel>.from(
+          state.shiftMappingList,
+        );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            shiftMappingList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: success["totalNumberOfRecord"],
+          ),
+        );
+
         showSuccessMessage(
           context,
           subTitle: "Shift Mapping Deleted Successfully",
         );
-        getShiftMappingList(context: context, pageNumber: state.currentPage);
       },
     );
   }

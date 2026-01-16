@@ -122,7 +122,7 @@ class _DocumentScreenState extends State<DocumentScreen>
     }
     if (documentModel != null) {
       //Edit Name
-      _documentCubit.editDocumentNameInCategory(
+      _documentCubit.updateDocumentNameInCategory(
         context: context,
         index: index!,
         uniqueKey: documentModel.uniquekey,
@@ -157,7 +157,7 @@ class _DocumentScreenState extends State<DocumentScreen>
     );
 
     if (shouldDelete && context.mounted) {
-      _documentCubit.deleteDocument(obj, context);
+      _documentCubit.deleteDocument(obj, context, index);
     }
   }
 
