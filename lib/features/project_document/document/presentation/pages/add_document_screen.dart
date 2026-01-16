@@ -124,16 +124,14 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
     expiryDate = document.projectDocumentExpiryDate;
 
     // Prefill remark text
-    _remarkC.text = document.projectDocumentRemark ?? "";
+    _remarkC.text = document.projectDocumentRemark.isNotEmpty?document.projectDocumentRemark:"";
 
     // Prefill files if any
-    if (document.projectDocumentURL != null) {
-      selectedDocumentFile.fileNameList =
-          document.projectDocumentURL.isEmpty
-              ? []
-              : document.projectDocumentURL.split(",");
+    selectedDocumentFile.fileNameList =
+        document.projectDocumentURL.isEmpty
+            ? []
+            : document.projectDocumentURL.split(",");
     }
-  }
 
   @override
   Widget build(BuildContext context) {

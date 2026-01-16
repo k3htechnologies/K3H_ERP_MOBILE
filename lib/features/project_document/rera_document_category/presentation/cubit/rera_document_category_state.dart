@@ -32,6 +32,7 @@ class RERADocumentCategoryState extends BaseState {
   RERADocumentCategoryState copyWith({
     bool? isLoading,
     List<RERADocumentCategoryModel>? documentCategoryList,
+    List<RERADocumentCategoryModel>? reraDocumentCategoryList,
     int? totalNumberOfRecord,
     int? currentPage,
     String? searchText,

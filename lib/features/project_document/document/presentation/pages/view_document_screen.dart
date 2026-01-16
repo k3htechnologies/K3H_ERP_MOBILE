@@ -300,7 +300,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                       ),
 
                       CustomIconButton(
-                        onPressed: () => null,
+                        onPressed: () {},
                         icon: Icon(
                           Icons.remove_red_eye_outlined,
                           color: AppColor.primary,
