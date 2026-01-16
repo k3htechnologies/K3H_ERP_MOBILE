@@ -44,6 +44,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
   @override
   void initState() {
     super.initState();
+    _onScroll();
     _documentCubit = context.read<DocumentCubit>();
     _routeAuthorizationModel = AuthorizationModel();
 
@@ -61,14 +62,14 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
           !_documentCubit.state.isLoading! &&
-          _documentCubit.state.documentList.length <
+          _documentCubit.state.subDocumentList.length <
               _documentCubit.state.totalNumberOfRecord) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
           _documentCubit.getProjectDocumentList(
             context: context,
-            pageNumber: _documentCubit.state.currentPage + 1,
+            pageNumber: _documentCubit.state.currentPageOfSubDoc + 1,
             projectDocumentId: widget.documentModel.projectDocumentId,
           );
         });
@@ -82,7 +83,6 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
       appBar: CustomAppBar(
         screenTitle: "Documents",
         authorization: _routeAuthorizationModel,
-        // onProjectChangeCallback
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 16),
@@ -124,27 +124,39 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
               ],
             ),
 
-            Expanded(
-              child: BlocBuilder<DocumentCubit, DocumentState>(
-                builder: (context, state) {
-                  return ListView.builder(
-                    itemCount: state.documentList.length,
+            BlocBuilder<DocumentCubit, DocumentState>(
+              builder: (context, state) {
+                if ((state.isLoading ?? true) &&
+                    state.subDocumentList.isEmpty) {
+                  return Expanded(child: Center(child: loader()));
+                }
+
+                if (state.subDocumentList.isEmpty) {
+                  return Expanded(child: Center(child: noDataWidget()));
+                }
+
+                return Expanded(
+                  child: ListView.builder(
+                    controller: scrollController,
+                    itemCount: state.subDocumentList.length + 1,
                     itemBuilder: (context, index) {
-                      if ((state.isLoading ?? true) &&
-                          state.documentList.isEmpty) {
-                        return Center(child: loader());
-                      }
-                      if (state.documentList.isEmpty) {
-                        return Center(child: noDataWidget());
+                      if (index == state.subDocumentList.length) {
+                        return state.subDocumentList.length <
+                                state.totalNumberOfRecord
+                            ? const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
                       }
                       return _buildDocumentCard(
-                        state.documentList[index],
+                        state.subDocumentList[index],
                         index,
                       );
                     },
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ],
         ),

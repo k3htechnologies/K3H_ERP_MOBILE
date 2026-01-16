@@ -4,9 +4,11 @@ class DocumentState extends BaseState {
   final int categoryIndex;
   final int projectDocumentCategoryId;
   final List<DocumentModel> documentList;
+  final List<DocumentModel> subDocumentList;
   final List<DocumentCategoryModel> documentCategoryModelList;
   final int totalNumberOfRecord;
   final int currentPage;
+  final int currentPageOfSubDoc;
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
@@ -16,21 +18,25 @@ class DocumentState extends BaseState {
     required this.categoryIndex,
     required this.projectDocumentCategoryId,
     required this.documentList,
+    required this.subDocumentList,
     required this.documentCategoryModelList,
     required this.totalNumberOfRecord,
     required this.currentPage,
     required this.searchText,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    required this.currentPageOfSubDoc,
   });
 
   factory DocumentState.initial() => DocumentState(
     categoryIndex: 0,
     projectDocumentCategoryId: 0,
     documentList: [],
+    subDocumentList: [],
     documentCategoryModelList: [],
     totalNumberOfRecord: 0,
     currentPage: 1,
+    currentPageOfSubDoc: 1,
     searchText: "",
     isLoading: true,
     currentSortColumn: "Created Date",
@@ -40,8 +46,10 @@ class DocumentState extends BaseState {
   DocumentState copyWith({
     bool? isLoading,
     int? categoryIndex,
+    int? currentPageOfSubDoc,
     int? projectDocumentCategoryId,
     List<DocumentModel>? documentList,
+    List<DocumentModel>? subDocumentList,
     List<DocumentCategoryModel>? documentCategoryModelList,
     int? totalNumberOfRecord,
     int? currentPage,
@@ -53,12 +61,14 @@ class DocumentState extends BaseState {
       isLoading: isLoading ?? this.isLoading,
       categoryIndex: categoryIndex ?? this.categoryIndex,
       projectDocumentCategoryId:
-      projectDocumentCategoryId ?? this.projectDocumentCategoryId,
+          projectDocumentCategoryId ?? this.projectDocumentCategoryId,
       documentList: documentList ?? this.documentList,
+      subDocumentList: subDocumentList ?? this.subDocumentList,
       documentCategoryModelList:
-      documentCategoryModelList ?? this.documentCategoryModelList,
+          documentCategoryModelList ?? this.documentCategoryModelList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
+      currentPageOfSubDoc: currentPageOfSubDoc ?? this.currentPageOfSubDoc,
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
@@ -71,11 +81,13 @@ class DocumentState extends BaseState {
     categoryIndex,
     projectDocumentCategoryId,
     documentList,
+    subDocumentList,
     documentCategoryModelList,
     totalNumberOfRecord,
     currentPage,
     searchText,
     currentSortColumn,
     currentSortDirection,
+    currentPageOfSubDoc,
   ];
 }

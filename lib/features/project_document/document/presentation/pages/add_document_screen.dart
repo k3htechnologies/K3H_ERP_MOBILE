@@ -82,22 +82,37 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    _documentCubit.updateDocumentInCategory(
-      context: context,
-      index: widget.index,
-
-      uniqueKey: widget.documentModel!.uniquekey,
-      projectDocumentId: widget.documentModel!.projectDocumentId,
-      projectDocumentCategoryId:
-          widget.documentModel!.projectDocumentCategoryId,
-      projectDocumentName: widget.documentModel!.projectDocumentName,
-      documents: selectedDocumentFile,
-      isMaster: 0,
-      projectDocumentStatus: _selectedStatus[0]['DisplayName'],
-      projectDocumentExpiryDate: expiryDate,
-      projectDocumentRemark: _remarkC.text.trim(),
-      isNew: !_isEditMode,
-    );
+    if (!widget.isEdit) {
+      _documentCubit.addSubDocument(
+        context: context,
+        index: widget.index,
+        uniqueKey: widget.documentModel!.uniquekey,
+        projectDocumentId: widget.documentModel!.projectDocumentId,
+        projectDocumentCategoryId:
+            widget.documentModel!.projectDocumentCategoryId,
+        projectDocumentName: widget.documentModel!.projectDocumentName,
+        documents: selectedDocumentFile,
+        isMaster: 0,
+        projectDocumentStatus: _selectedStatus[0]['DisplayName'],
+        projectDocumentExpiryDate: expiryDate,
+        projectDocumentRemark: _remarkC.text.trim(),
+      );
+    } else {
+      _documentCubit.updateSubDocument(
+        context: context,
+        index: widget.index,
+        uniqueKey: widget.documentModel!.uniquekey,
+        projectDocumentId: widget.documentModel!.projectDocumentId,
+        projectDocumentCategoryId:
+            widget.documentModel!.projectDocumentCategoryId,
+        projectDocumentName: widget.documentModel!.projectDocumentName,
+        documents: selectedDocumentFile,
+        isMaster: 0,
+        projectDocumentStatus: _selectedStatus[0]['DisplayName'],
+        projectDocumentExpiryDate: expiryDate,
+        projectDocumentRemark: _remarkC.text.trim(),
+      );
+    }
   }
 
   void _prefillForm(DocumentModel document) {
