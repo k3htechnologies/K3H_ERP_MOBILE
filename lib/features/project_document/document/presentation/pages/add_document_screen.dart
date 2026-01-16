@@ -13,12 +13,14 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 class AddDocumentScreen extends StatefulWidget {
-  final DocumentModel documentModel;
+  final DocumentModel? documentModel;
   final int index;
+  final bool isEdit;
   const AddDocumentScreen({
     super.key,
     required this.documentModel,
     this.index = 0,
+    this.isEdit = false,
   });
 
   @override
@@ -36,7 +38,9 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
   DateTime? expiryDate;
-  String? _selectedStatus;
+  List<Map<String, dynamic>> _selectedStatus = [
+    {'zAttributesId': -1, 'DisplayName': 'Select Status'},
+  ];
   // STATIC LISTS
   List<Map<String, dynamic>> statusList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Status'},
@@ -58,12 +62,16 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
     deletedFileList: "",
   );
 
+  //EDIT MODE
+  bool get _isEditMode => widget.isEdit ?? widget.documentModel != null;
+
   @override
   void initState() {
     super.initState();
     _routeAuthorizationModel = AuthorizationModel();
     _documentCubit = context.read<DocumentCubit>();
     _initializeTextEditingController();
+    if (_isEditMode) _prefillForm(widget.documentModel!);
   }
 
   void _initializeTextEditingController() {
@@ -74,29 +82,68 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    if (!widget.isEdit) {
+      _documentCubit.addSubDocument(
+        context: context,
+        index: widget.index,
+        uniqueKey: widget.documentModel!.uniquekey,
+        projectDocumentId: widget.documentModel!.projectDocumentId,
+        projectDocumentCategoryId:
+            widget.documentModel!.projectDocumentCategoryId,
+        projectDocumentName: widget.documentModel!.projectDocumentName,
+        documents: selectedDocumentFile,
+        isMaster: 0,
+        projectDocumentStatus: _selectedStatus[0]['DisplayName'],
+        projectDocumentExpiryDate: expiryDate,
+        projectDocumentRemark: _remarkC.text.trim(),
+      );
+    } else {
+      _documentCubit.updateSubDocument(
+        context: context,
+        index: widget.index,
+        uniqueKey: widget.documentModel!.uniquekey,
+        projectDocumentId: widget.documentModel!.projectDocumentId,
+        projectDocumentCategoryId:
+            widget.documentModel!.projectDocumentCategoryId,
+        projectDocumentName: widget.documentModel!.projectDocumentName,
+        documents: selectedDocumentFile,
+        isMaster: 0,
+        projectDocumentStatus: _selectedStatus[0]['DisplayName'],
+        projectDocumentExpiryDate: expiryDate,
+        projectDocumentRemark: _remarkC.text.trim(),
+      );
+    }
+  }
 
-    _documentCubit.updateDocumentInCategory(
-      context: context,
-      index: widget.index,
-
-      uniqueKey: widget.documentModel.uniquekey,
-      projectDocumentId: widget.documentModel.projectDocumentId,
-      projectDocumentCategoryId: widget.documentModel.projectDocumentCategoryId,
-      projectId: widget.documentModel.projectId,
-      projectDocumentName: widget.documentModel.projectDocumentName,
-      documents: selectedDocumentFile,
-      isMaster: 0,
-      projectDocumentStatus: _selectedStatus!,
-      projectDocumentExpiryDate: expiryDate,
-      projectDocumentRemark: _remarkC.text.trim(),
+  void _prefillForm(DocumentModel document) {
+    // Find the matching status in the list
+    final matchedStatus = statusList.firstWhere(
+      (status) => status['DisplayName'] == document.projectDocumentStatus,
+      orElse: () => statusList.first, // fallback to "Select Status"
     );
+
+    _selectedStatus = [matchedStatus];
+
+    // Prefill expiry date
+    expiryDate = document.projectDocumentExpiryDate;
+
+    // Prefill remark text
+    _remarkC.text = document.projectDocumentRemark ?? "";
+
+    // Prefill files if any
+    if (document.projectDocumentURL != null) {
+      selectedDocumentFile.fileNameList =
+          document.projectDocumentURL.isEmpty
+              ? []
+              : document.projectDocumentURL.split(",");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Add Document",
+        screenTitle: _isEditMode ? "Edit Document" : "Add Document",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(
@@ -111,10 +158,11 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
                 CustomDropDownWidget(
                   title: "Status",
                   dataList: statusList,
-                  initialValue: statusList[0],
+                  initialValue:
+                      _isEditMode ? _selectedStatus[0] : statusList[0],
                   isRequired: true,
                   onSelected: (Map<String, dynamic> p1) {
-                    _selectedStatus = p1['DisplayName'];
+                    _selectedStatus = [p1];
                   },
                 ),
                 CustomMultiFilePicker(
@@ -155,7 +203,10 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
         child: Container(
           height: 70,
           padding: EdgeInsets.all(16),
-          child: CustomButton(text: "Add Document", onPressed: _submitForm),
+          child: CustomButton(
+            text: _isEditMode ? "Edit Document" : "Add Document",
+            onPressed: _submitForm,
+          ),
         ),
       ),
     );

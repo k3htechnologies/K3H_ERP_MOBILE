@@ -2282,12 +2282,25 @@ final GoRouter goRouter = GoRouter(
 
                     final index =
                         int.tryParse(
-                          state.uri.queryParameters['index'] ?? '',
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(
+                              state.uri.queryParameters['index'] ?? '0',
+                            ),
+                          ),
                         ) ??
                         0;
+
+                    final isEdit = bool.parse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['isEdit'] ?? 'false',
+                        ),
+                      ),
+                    );
                     return AddDocumentScreen(
-                      documentModel: document!,
+                      documentModel: document,
                       index: index,
+                      isEdit: isEdit,
                     );
                   },
                 ),
@@ -2295,12 +2308,27 @@ final GoRouter goRouter = GoRouter(
                   name: AppRoutes.viewDocument,
                   path: AppRoutes.viewDocument,
                   builder: (context, state) {
-                    final projectDocumentId = int.parse(
-                      state.uri.queryParameters['projectDocumentId'] ?? '0',
-                    );
+                    final queryParameterDocument =
+                        state.uri.queryParameters['document'];
+                    final DocumentModel? document =
+                        queryParameterDocument != null
+                            ? DocumentModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterDocument),
+                                ),
+                              ),
+                            )
+                            : null;
 
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
                     return ViewDocumentScreen(
-                      projectDocumentId: projectDocumentId,
+                      documentModel: document!,
+                      index: index,
                     );
                   },
                 ),

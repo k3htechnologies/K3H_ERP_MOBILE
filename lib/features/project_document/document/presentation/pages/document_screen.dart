@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -37,6 +38,10 @@ class _DocumentScreenState extends State<DocumentScreen>
 
   late int projectId;
 
+  //PAGINATION
+  late ScrollController scrollController;
+  Timer? _debounce;
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +51,29 @@ class _DocumentScreenState extends State<DocumentScreen>
     projectId = getProject().projectId;
     _documentCubit.getCategoryList(context, 1, 20, projectId);
     _initControllers();
+    _onScroll();
+  }
+
+  // <---- PAGINATION ---->
+  void _onScroll() {
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+              scrollController.position.maxScrollExtent - 100 &&
+          !_documentCubit.state.isLoading! &&
+          _documentCubit.state.documentList.length <
+              _documentCubit.state.totalNumberOfRecord) {
+        // TO HANDLE MULTIPLE TIME API CALLS
+        if (_debounce?.isActive ?? false) _debounce?.cancel();
+        _debounce = Timer(const Duration(milliseconds: 300), () {
+          _documentCubit.getProjectDocumentList(
+            context: context,
+            pageNumber: _documentCubit.state.currentPage + 1,
+          );
+          ;
+        });
+      }
+    });
   }
 
   // CATEGORY TAB
@@ -93,18 +121,17 @@ class _DocumentScreenState extends State<DocumentScreen>
       return;
     }
     if (documentModel != null) {
-      _documentCubit.updateDocumentInCategory(
+      //Edit Name
+      _documentCubit.editDocumentNameInCategory(
         context: context,
         index: index!,
-
         uniqueKey: documentModel.uniquekey,
         projectDocumentId: documentModel.projectDocumentId,
         projectDocumentCategoryId: documentModel.projectDocumentCategoryId,
-        projectId: documentModel.projectId,
         projectDocumentName: _documentC.text.trim(),
-        isMaster: 1,
       );
     } else {
+      //Create New Parent Doc
       _documentCubit.addDocumentToCategory(
         context: context,
         projectDocumentName: _documentC.text.trim(),
@@ -116,6 +143,24 @@ class _DocumentScreenState extends State<DocumentScreen>
     _documentC.text = documentModel.projectDocumentName;
   }
 
+  // DELETE DOCUMENT
+  Future<void> _showPopupToDeleteDocument(
+    BuildContext context,
+    DocumentModel obj,
+    // int page,
+    int index,
+  ) async {
+    final shouldDelete = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a document?',
+      'Deleting this document will permanently remove its contents.',
+    );
+
+    if (shouldDelete && context.mounted) {
+      _documentCubit.deleteDocument(obj, context);
+    }
+  }
+
   Future<void> _showPopUpToAddUpdateDocument({
     DocumentModel? documentModel,
     int? index,
@@ -125,7 +170,7 @@ class _DocumentScreenState extends State<DocumentScreen>
     }
     await DialogHelper.showCustomBottomSheet(
       context,
-      'Add Document',
+      documentModel != null ? 'Edit Document' : 'Add Document',
       Form(
         key: _formKey,
         child: Padding(
@@ -209,7 +254,9 @@ class _DocumentScreenState extends State<DocumentScreen>
           },
           child: BlocBuilder<DocumentCubit, DocumentState>(
             builder: (context, state) {
-              if (state.isLoading! && state.documentCategoryModelList.isEmpty) {
+              if ((state.isLoading! &&
+                      state.documentCategoryModelList.isEmpty) ||
+                  _categoryTabController == null) {
                 return const Center(child: CircularProgressIndicator());
               }
 
@@ -236,7 +283,7 @@ class _DocumentScreenState extends State<DocumentScreen>
                                     )
                                     .toList();
 
-                            return (state.documentList.isEmpty ||
+                            return (state.documentList.isEmpty &&
                                     state.isLoading!)
                                 ? const Center(
                                   child: CircularProgressIndicator(),
@@ -308,98 +355,150 @@ class _DocumentScreenState extends State<DocumentScreen>
       return noDataWidget();
     }
 
-    return ListView.builder(
-      itemCount: documents.length,
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+    return BlocBuilder<DocumentCubit, DocumentState>(
+      builder: (context, state) {
+        return ListView.builder(
+          controller: scrollController,
+          itemCount: documents.length + 1,
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
 
-      itemBuilder: (context, index) {
-        final document = documents[index];
-        return Container(
-          padding: EdgeInsets.all(16),
-          margin: const EdgeInsets.only(bottom: 10),
+          itemBuilder: (context, index) {
+            if (index == state.documentList.length) {
+              return state.documentList.length < state.totalNumberOfRecord
+                  ? const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                  : const SizedBox.shrink();
+            }
+            final document = documents[index];
+            return Container(
+              padding: EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 10),
 
-          decoration: commonCardDecoration(),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              decoration: commonCardDecoration(),
+              child: Column(
                 children: [
-                  Flexible(
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 0,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(color: AppColor.primary),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: GestureDetector(
+                          onTap: () async {
+                            await _documentCubit.clearSubDocument();
+                            await goRouter.pushNamed(
+                              AppRoutes.viewDocument,
+                              queryParameters: {
+                                "document": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(document.toJson()),
+                                  ),
+                                ),
+                                "index": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(index.toString()),
+                                  ),
+                                ),
+                              },
+                            );
+                            // .then((val) {
+                            //   _documentCubit.getProjectDocumentList(
+                            //     context: context,
+                            //     pageNumber: 1,
+                            //   );
+                            // });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 0,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(color: AppColor.primary),
+                              ),
+                            ),
+                            child: Text(
+                              document.projectDocumentName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
-                        child: Text(
-                          document.projectDocumentName,
-                          style: AppTextStyle.ts16M(color: AppColor.primary),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
                       ),
-                    ),
-                  ),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      CustomIconButton(
-                        icon: Icon(
-                          Icons.add,
-                          size: 16,
-                          color: AppColor.primary,
-                        ),
-                        onPressed: () async {
-                          goRouter.pushNamed(
-                            AppRoutes.addDocument,
-                            queryParameters: {
-                              "document": Uri.encodeQueryComponent(
-                                EncryptionManager.encryptData(
-                                  jsonEncode(document.toJson()),
-                                ),
-                              ),
-                              "index": Uri.encodeQueryComponent(
-                                EncryptionManager.encryptData(
-                                  jsonEncode(index.toString()),
-                                ),
-                              ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          CustomIconButton(
+                            icon: Icon(
+                              Icons.add,
+                              size: 16,
+                              color: AppColor.primary,
+                            ),
+                            onPressed: () async {
+                              goRouter.pushNamed(
+                                AppRoutes.addDocument,
+                                queryParameters: {
+                                  "document": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(document.toJson()),
+                                    ),
+                                  ),
+                                  "index": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      index.toString(),
+                                    ),
+                                  ),
+                                  "isEdit": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      false.toString(),
+                                    ),
+                                  ),
+                                },
+                              );
                             },
-                          );
-                        },
+                          ),
+                          const SizedBox(width: 8),
+                          CustomIconButton.edit(
+                            onPressed: () async {
+                              _showPopUpToAddUpdateDocument(
+                                documentModel: document,
+                                index: index,
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          CustomIconButton.delete(
+                            onPressed: () {
+                              _showPopupToDeleteDocument(
+                                context,
+                                document,
+                                index,
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      CustomIconButton.edit(
-                        onPressed: () async {
-                          _showPopUpToAddUpdateDocument(
-                            documentModel: document,
-                            index: index,
-                          );
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      CustomIconButton.delete(onPressed: () {}),
                     ],
+                  ),
+                  verticalSpacing(height: 10),
+                  _buildRowTitleValue(
+                    title: "Pending Approvals",
+                    value:
+                        document.approvalPendingProjectDocumentCount.toString(),
+                  ),
+                  _buildRowTitleValue(
+                    title: "Documents",
+                    value: document.uploadedProjectDocumentCount.toString(),
                   ),
                 ],
               ),
-              verticalSpacing(height: 10),
-              _buildRowTitleValue(
-                title: "Pending Approvals",
-                value: document.approvalPendingProjectDocumentCount.toString(),
-              ),
-              _buildRowTitleValue(
-                title: "Documents",
-                value: document.uploadedProjectDocumentCount.toString(),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );

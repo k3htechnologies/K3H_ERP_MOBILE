@@ -103,7 +103,7 @@ class WeekOffMappingMasterDataSourceImp extends WeekOffMappingMasterDataSource {
       required int weekOffMasterMappingId,
       required String uniqueKey,
     }) {
-      return "WeekOffPolicyMasterMapping/DeleteWeekOffPolicyMasterMappingg?WeekOffPolicyMasterMappingId=$weekOffMasterMappingId&Uniquekey=$uniqueKey";
+      return "WeekOffPolicyMasterMapping/DeleteWeekOffPolicyMasterMapping?WeekOffPolicyMasterMappingId=$weekOffMasterMappingId&Uniquekey=$uniqueKey";
     }
 
     try {
