@@ -34,7 +34,12 @@ class InventoryCubit extends Cubit<InventoryState> {
     }
 
     _isApiCallInProgress = true;
-    emit(state.copyWith(isLoading: true));
+    // Reset currentTabIndex and clear building list when project changes
+    emit(state.copyWith(
+      isLoading: true,
+      buildingList: [],
+      currentTabIndex: 0,
+    ));
     final result = await _inventoryRepository.getInventory(
       projectId: projectId,
     );
@@ -50,6 +55,7 @@ class InventoryCubit extends Cubit<InventoryState> {
           state.copyWith(
             isLoading: false,
             buildingList: result["data"] as List<BuildingModel>,
+            currentTabIndex: 0,
           ),
         );
       },

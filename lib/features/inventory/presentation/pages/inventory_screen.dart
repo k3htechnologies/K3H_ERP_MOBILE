@@ -266,11 +266,16 @@ class _InventoryScreenState extends State<InventoryScreen>
               }
 
               if (state.buildingList.isEmpty) {
-                return const Center(child: Text("No data"));
+                return Center(child: noDataWidget());
               }
 
-              final selectedBuilding =
-                  state.buildingList[state.currentTabIndex];
+              // Ensure currentTabIndex is within bounds
+              final int safeTabIndex = state.currentTabIndex >= 0 &&
+                      state.currentTabIndex < state.buildingList.length
+                  ? state.currentTabIndex
+                  : 0;
+
+              final selectedBuilding = state.buildingList[safeTabIndex];
 
               final wingList = selectedBuilding.wingList;
 
