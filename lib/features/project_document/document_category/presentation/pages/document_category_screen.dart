@@ -231,6 +231,10 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
                       title: "Sequencce",
                       value: category.orderBy.toString(),
                     ),
+                    _buildRowTitleValue(
+                      title: "Document Count",
+                      value: category.documentCount.toString(),
+                    ),
                   ],
                 ),
               );

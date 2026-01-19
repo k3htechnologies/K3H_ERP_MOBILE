@@ -147,7 +147,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                     )
                     : const SizedBox.shrink();
               }
-              var category = state.approvalCategoryList[index];
+              var approvalCategory = state.approvalCategoryList[index];
               return Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.all(12),
@@ -167,7 +167,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                                 queryParameters: {
                                   "approvalCategory": Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
-                                      jsonEncode(category.toJson()),
+                                      jsonEncode(approvalCategory.toJson()),
                                     ),
                                   ),
                                 },
@@ -184,7 +184,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                                 ),
                               ),
                               child: Text(
-                                category.approvalDocumentCategoryName,
+                                approvalCategory.approvalDocumentCategoryName,
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
                                 ),
@@ -212,7 +212,9 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                                     "approvalCategory":
                                         Uri.encodeQueryComponent(
                                           EncryptionManager.encryptData(
-                                            jsonEncode(category.toJson()),
+                                            jsonEncode(
+                                              approvalCategory.toJson(),
+                                            ),
                                           ),
                                         ),
                                     'index': index.toString(),
@@ -225,7 +227,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                               onPressed: () {
                                 _showPopupToDeleteApprovalDocumentCategory(
                                   context,
-                                  category,
+                                  approvalCategory,
                                   state.currentPage,
                                   index,
                                 );
@@ -238,7 +240,11 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                     verticalSpacing(height: 8),
                     _buildRowTitleValue(
                       title: "Sequencce",
-                      value: category.orderBy.toString(),
+                      value: approvalCategory.orderBy.toString(),
+                    ),
+                    _buildRowTitleValue(
+                      title: "Document Count",
+                      value: approvalCategory.documentCount.toString(),
                     ),
                   ],
                 ),
