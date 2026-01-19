@@ -10,18 +10,22 @@ class AddressWidget extends StatefulWidget {
   final int? incomingStateId;
   final int? incomingDistrictId;
   final int? incomingCityId;
+  final int? incomingVillageId;
   final Function(Map<String, dynamic>) stateChange;
   final Function(Map<String, dynamic>) districtChange;
   final Function(Map<String, dynamic>) cityChange;
+  final Function(Map<String, dynamic>)? villageChange;
   final GlobalKey<FormState> formKey;
   const AddressWidget({
     super.key,
     this.incomingStateId,
     this.incomingDistrictId,
     this.incomingCityId,
+    this.incomingVillageId,
     required this.stateChange,
     required this.districtChange,
     required this.cityChange,
+    this.villageChange,
     required this.formKey,
   });
 
@@ -30,21 +34,25 @@ class AddressWidget extends StatefulWidget {
 }
 
 class _AddressWidgetState extends State<AddressWidget> {
-
   late BaseClient baseClient;
 
-
   List<Map<String, dynamic>> stateList = [];
-  List<Map<String, dynamic>> districtList = [];
-  List<Map<String, dynamic>> cityList = [];
+  final ValueNotifier<List<Map<String, dynamic>>> districtList = ValueNotifier(
+    [],
+  );
+  final ValueNotifier<List<Map<String, dynamic>>> cityList = ValueNotifier([]);
+  final ValueNotifier<List<Map<String, dynamic>>> villageList = ValueNotifier(
+    [],
+  );
 
   Map<int, List<CityModel>> groupedStateData = {};
   Map<int, List<CityModel>> districtMap = {};
+  Map<int, List<CityModel>> cityMap = {};
 
-  int? stateId;
-  int? districtId;
-  int? cityId;
-
+  final ValueNotifier<int?> stateId = ValueNotifier(null);
+  final ValueNotifier<int?> districtId = ValueNotifier(null);
+  final ValueNotifier<int?> cityId = ValueNotifier(null);
+  final ValueNotifier<int?> villageId = ValueNotifier(null);
 
   @override
   void initState() {
@@ -53,11 +61,21 @@ class _AddressWidgetState extends State<AddressWidget> {
     super.initState();
   }
 
-  Future apiCallPullCountryStateCityDistrictVillage() async {
+  @override
+  void dispose() {
+    districtList.dispose();
+    cityList.dispose();
+    villageList.dispose();
+    stateId.dispose();
+    districtId.dispose();
+    cityId.dispose();
+    villageId.dispose();
+    super.dispose();
+  }
 
+  Future apiCallPullCountryStateCityDistrictVillage() async {
     String pullCountryStateCityDistrictVillage =
         'Static/PullCountryStateCityDistrictVillage';
-
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
@@ -66,7 +84,7 @@ class _AddressWidgetState extends State<AddressWidget> {
 
       var dataList = List<CityModel>.from(
         networkResponse['data']["CountryStateCityDistrictVillageData"].map(
-              (e) => CityModel.fromJson(e),
+          (e) => CityModel.fromJson(e),
         ),
       );
 
@@ -79,55 +97,73 @@ class _AddressWidgetState extends State<AddressWidget> {
         });
       });
       if (widget.incomingStateId != null) {
-        stateId = widget.incomingStateId!;
-        handleStateChange(stateId!);
-        districtId = widget.incomingDistrictId!;
-        handleDistrictChange(districtId!);
-        setState(() {
-          cityId = widget.incomingCityId!;
-        });
+        stateId.value = widget.incomingStateId!;
+        handleStateChange(stateId.value!);
+        districtId.value = widget.incomingDistrictId!;
+        handleDistrictChange(districtId.value!);
+        cityId.value = widget.incomingCityId!;
+        if (cityId.value != null) {
+          handleCityChange(cityId.value!);
+          villageId.value = widget.incomingVillageId;
+        }
       }
-      setState(() {});
     } catch (error) {
       ErrorHandler.getErrorMessage(error);
     }
   }
 
   void handleStateChange(int stateIdF) {
-    districtList.clear();
-    cityList.clear();
+    final newDistrictList = <Map<String, dynamic>>[];
+    cityList.value = [];
+    villageList.value = [];
 
     districtMap = groupBy(
       groupedStateData[stateIdF]!,
-          (e) => e.districtMasterId,
+      (e) => e.districtMasterId,
     );
 
     districtMap.forEach((key, value) {
-      districtList.add({
+      newDistrictList.add({
         "zAttributesId": value[0].districtMasterId,
         "DisplayName": value[0].districtName,
       });
     });
 
-    setState(() {});
+    districtList.value = newDistrictList;
   }
 
   void handleDistrictChange(int districtId) {
-    cityList.clear();
+    final newCityList = <Map<String, dynamic>>[];
+    villageList.value = [];
 
-    Map<int, List<CityModel>> groupedCityMap = groupBy(
-      districtMap[districtId]!,
-          (e) => e.districtMasterId,
-    );
+    cityMap = groupBy(districtMap[districtId]!, (e) => e.cityMasterId);
 
-    groupedCityMap.forEach((key, value) {
-      cityList.add({
+    cityMap.forEach((key, value) {
+      newCityList.add({
         "zAttributesId": value[0].cityMasterId,
         "DisplayName": value[0].cityName,
       });
     });
 
-    setState(() {});
+    cityList.value = newCityList;
+  }
+
+  void handleCityChange(int cityIdF) {
+    final newVillageList = <Map<String, dynamic>>[];
+
+    if (cityMap.containsKey(cityIdF)) {
+      final villageData = cityMap[cityIdF]!;
+      final villageMap = groupBy(villageData, (e) => e.villageMasterId);
+
+      villageMap.forEach((key, value) {
+        newVillageList.add({
+          "zAttributesId": value[0].villageMasterId,
+          "DisplayName": value[0].villageName,
+        });
+      });
+    }
+
+    villageList.value = newVillageList;
   }
 
   @override
@@ -139,78 +175,153 @@ class _AddressWidgetState extends State<AddressWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: CustomDropDownWidget(
-                initialValue:
-                stateId == null
-                    ? null
-                    : stateList.firstWhere(
-                      (state) => state['zAttributesId'] == stateId,
-                ),
-                title: "State*",
-                dataList: stateList,
-                onSelected: (stateMap) {
-                  districtId = null;
-                  cityId = null;
-                  stateId = stateMap['zAttributesId'];
-                  handleStateChange(stateId!);
-                  widget.stateChange(stateMap);
-                },
-                validator: (s) {
-                  if (s == null) {
-                    return "State is required";
-                  }
-                  return null;
+              child: ValueListenableBuilder<int?>(
+                valueListenable: stateId,
+                builder: (context, currentStateId, child) {
+                  return CustomDropDownWidget(
+                    key: ValueKey(currentStateId),
+                    initialValue:
+                        currentStateId == null
+                            ? null
+                            : stateList.firstWhere(
+                              (state) =>
+                                  state['zAttributesId'] == currentStateId,
+                            ),
+                    title: "State",
+                    isRequired: true,
+                    dataList: stateList,
+                    onSelected: (stateMap) {
+                      districtId.value = null;
+                      cityId.value = null;
+                      villageId.value = null;
+                      stateId.value = stateMap['zAttributesId'];
+                      handleStateChange(stateId.value!);
+                      widget.stateChange(stateMap);
+                    },
+                    validator: (s) {
+                      if (s == null) {
+                        return "State is required";
+                      }
+                      return null;
+                    },
+                  );
                 },
               ),
             ),
 
             Expanded(
-              child: CustomDropDownWidget(
-                initialValue:
-                districtId == null
-                    ? null
-                    : districtList.firstWhere(
-                      (district) =>
-                  district['zAttributesId'] == districtId,
-                ),
-                title: "District*",
-                dataList: districtList,
-                onSelected: (districtMap) {
-                  districtId = districtMap['zAttributesId'];
-                  cityId = null;
-                  handleDistrictChange(districtId!);
-                  widget.districtChange(districtMap);
-                },
-                validator: (s) {
-                  if (s == null) {
-                    return "District is required";
-                  }
-                  return null;
+              child: ValueListenableBuilder<List<Map<String, dynamic>>>(
+                valueListenable: districtList,
+                builder: (context, currentDistrictList, child) {
+                  return ValueListenableBuilder<int?>(
+                    valueListenable: districtId,
+                    builder: (context, currentDistrictId, child) {
+                      return CustomDropDownWidget(
+                        key: ValueKey(
+                          '${currentDistrictId}_${currentDistrictList.length}',
+                        ),
+                        initialValue:
+                            currentDistrictId == null
+                                ? null
+                                : currentDistrictList.firstWhere(
+                                  (district) =>
+                                      district['zAttributesId'] ==
+                                      currentDistrictId,
+                                ),
+                        title: "District",
+                        isRequired: true,
+                        dataList: currentDistrictList,
+                        onSelected: (districtMap) {
+                          districtId.value = districtMap['zAttributesId'];
+                          cityId.value = null;
+                          villageId.value = null;
+                          handleDistrictChange(districtId.value!);
+                          widget.districtChange(districtMap);
+                        },
+                        validator: (s) {
+                          if (s == null) {
+                            return "District is required";
+                          }
+                          return null;
+                        },
+                      );
+                    },
+                  );
                 },
               ),
             ),
           ],
         ),
 
-        CustomDropDownWidget(
-          initialValue:
-          cityId == null
-              ? null
-              : cityList.firstWhere(
-                (city) => city['zAttributesId'] == cityId,
-          ),
-          title: "City*",
-          dataList: cityList,
-          onSelected: (cityselectedmap) {
-            cityId = cityselectedmap['zAttributesId'];
-            setState(() {});
-            widget.cityChange(cityselectedmap);
+        ValueListenableBuilder<List<Map<String, dynamic>>>(
+          valueListenable: cityList,
+          builder: (context, currentCityList, child) {
+            return ValueListenableBuilder<int?>(
+              valueListenable: cityId,
+              builder: (context, currentCityId, child) {
+                return CustomDropDownWidget(
+                  key: ValueKey('${currentCityId}_${currentCityList.length}'),
+                  initialValue:
+                      currentCityId == null
+                          ? null
+                          : currentCityList.firstWhere(
+                            (city) => city['zAttributesId'] == currentCityId,
+                          ),
+                  title: "City",
+                  isRequired: true,
+                  dataList: currentCityList,
+                  onSelected: (cityselectedmap) {
+                    cityId.value = cityselectedmap['zAttributesId'];
+                    villageId.value = null;
+                    handleCityChange(cityId.value!);
+                    widget.cityChange(cityselectedmap);
+                  },
+                  validator: (s) {
+                    if (s == null) {
+                      return "City is required";
+                    }
+                    return null;
+                  },
+                );
+              },
+            );
           },
-          validator: (s) {
-            if (s == null) {
-              return "City is required";
-            }
-            return null;
+        ),
+        ValueListenableBuilder<List<Map<String, dynamic>>>(
+          valueListenable: villageList,
+          builder: (context, currentVillageList, child) {
+            return ValueListenableBuilder<int?>(
+              valueListenable: villageId,
+              builder: (context, currentVillageId, child) {
+                return CustomDropDownWidget(
+                  key: ValueKey(
+                    '${currentVillageId}_${currentVillageList.length}',
+                  ),
+                  initialValue:
+                      currentVillageId == null
+                          ? null
+                          : currentVillageList.firstWhere(
+                            (village) =>
+                                village['zAttributesId'] == currentVillageId,
+                          ),
+                  title: "Village",
+                  isRequired: true,
+                  dataList: currentVillageList,
+                  onSelected: (villageselectedmap) {
+                    villageId.value = villageselectedmap['zAttributesId'];
+                    if (widget.villageChange != null) {
+                      widget.villageChange!(villageselectedmap);
+                    }
+                  },
+                  validator: (s) {
+                    if (s == null) {
+                      return "Village is required";
+                    }
+                    return null;
+                  },
+                );
+              },
+            );
           },
         ),
       ],

@@ -41,7 +41,8 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
   late AuthorizationModel _routeAuthorizationModel;
 
   // APPLICANT LIST
-  List<TenantApplicantData> _applicants = [];
+  final ValueNotifier<List<TenantApplicantData>> _applicants =
+      ValueNotifier<List<TenantApplicantData>>([]);
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _unitNumberC,
@@ -94,15 +95,16 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
   // SELECTED FLAT TYPE
   late ValueNotifier<Map<String, dynamic>> selectedFlatType;
 
-  // SELECTED DROPDOWN VALUES
-  Map<String, dynamic>? selectedFlatFacing, selectedFlatConfiguration;
+  // SELECTED DROPDOWN VALUES (reactive, without setState)
+  late ValueNotifier<Map<String, dynamic>?> selectedFlatFacing;
+  late ValueNotifier<Map<String, dynamic>?> selectedFlatConfiguration;
 
   // METHODS TO CHECK IF APPLICANT TYPE IS PRIMARY
   bool _isApplicantType(String type) =>
       type.toLowerCase().trim() == 'applicant';
 
-  bool get _hasPrimaryApplicant =>
-      _applicants.any((e) => _isApplicantType(e.applicantType));
+  bool _hasPrimaryApplicant(List<TenantApplicantData> applicants) =>
+      applicants.any((e) => _isApplicantType(e.applicantType));
 
   bool get _isEditMode => widget.tenant != null;
 
@@ -122,9 +124,9 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     _freeAreaOfferedPercentageC = TextEditingController();
     _extraAreaPurchasedSqFtC = TextEditingController();
     _totalAreaSqFtC = TextEditingController();
-    selectedFlatFacing = flatFacingList.first;
+    selectedFlatFacing = ValueNotifier<Map<String, dynamic>?>(flatFacingList.first);
     selectedFlatType = ValueNotifier(flatTypeList.first);
-    selectedFlatConfiguration = commercialFlatList.first;
+    selectedFlatConfiguration = ValueNotifier<Map<String, dynamic>?>(commercialFlatList.first);
   }
 
   // PREFILL TENANT DETAILS
@@ -138,7 +140,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     _extraAreaPurchasedSqFtC.text = tenant.extraAreaPurchasedSqFt.toString();
     _totalAreaSqFtC.text = tenant.totalAreaSqFt.toString();
 
-    selectedFlatFacing = flatFacingList.firstWhere(
+    selectedFlatFacing.value = flatFacingList.firstWhere(
       (e) => e['DisplayName'].toString().toLowerCase() == tenant.facing.toLowerCase(),
       orElse: () => flatFacingList.first,
     );
@@ -147,21 +149,25 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
       (e) => e['DisplayName'] == tenant.flatType,
       orElse: () => flatTypeList.first,
     );
-    selectedFlatType.value = flatTypeMatch;
-
+    
     final isResidential = tenant.flatType.toLowerCase() == 'residential';
     final configList = isResidential ? residentialFlatList : commercialFlatList;
-
-    selectedFlatConfiguration = configList.firstWhere(
-      (e) => e['DisplayName'] == tenant.flatConfiguration,
+    final configMatch = configList.firstWhere(
+      (e) => e['DisplayName'].toString().toLowerCase() == tenant.flatConfiguration.toLowerCase(),
       orElse: () => configList.first,
     );
+    selectedFlatType.value = flatTypeMatch;
+    Future.microtask(() {
+      if (mounted) {
+        selectedFlatConfiguration.value = configMatch;
+      }
+    });
   }
 
   // INITIALIZE APPLICANTS
   void _initApplicants() {
     final incomingApplicants = widget.tenant?.tenantApplicantData ?? [];
-    _applicants =
+    _applicants.value =
         incomingApplicants
             .map((e) => TenantApplicantData.fromJson(e.toJson()))
             .toList();
@@ -179,7 +185,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
             (_) => AddTenantApplicantScreen(
               applicant: applicant,
               index: index,
-              hasPrimaryApplicant: _hasPrimaryApplicant,
+              hasPrimaryApplicant: _hasPrimaryApplicant(_applicants.value),
             ),
       ),
     );
@@ -189,12 +195,12 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     final TenantApplicantData updatedApplicant = result['applicant'];
     final int? updatedIndex = result['index'] as int?;
 
-    // Check for existing primary applicant when saving
-    final existingApplicantIndex = _applicants.indexWhere(
+    final currentApplicants = List<TenantApplicantData>.from(_applicants.value);
+    final existingApplicantIndex = currentApplicants.indexWhere(
       (e) => _isApplicantType(e.applicantType),
     );
     final bool isUpdatingExisting =
-        updatedIndex != null && updatedIndex < _applicants.length;
+        updatedIndex != null && updatedIndex < currentApplicants.length;
     if (_isApplicantType(updatedApplicant.applicantType) &&
         existingApplicantIndex != -1 &&
         (!isUpdatingExisting || existingApplicantIndex != updatedIndex) &&
@@ -207,28 +213,28 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
       return;
     }
 
-    setState(() {
-      if (isUpdatingExisting) {
-        final int targetIndex = updatedIndex;
-        _applicants[targetIndex] = updatedApplicant;
-      } else {
-        _applicants.add(updatedApplicant);
-      }
-    });
+    if (isUpdatingExisting) {
+      final int targetIndex = updatedIndex;
+      currentApplicants[targetIndex] = updatedApplicant;
+    } else {
+      currentApplicants.add(updatedApplicant);
+    }
+    _applicants.value = currentApplicants;
   }
 
   void _deleteApplicant(int index) {
-    if (index < 0 || index >= _applicants.length) return;
-    setState(() {
-      _applicants.removeAt(index);
-    });
+    final currentApplicants = List<TenantApplicantData>.from(_applicants.value);
+    if (index < 0 || index >= currentApplicants.length) return;
+    currentApplicants.removeAt(index);
+    _applicants.value = currentApplicants;
   }
 
   // HANDLE SUBMIT
   void _handleSubmit() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    if (_applicants.isEmpty) {
+    final currentApplicants = _applicants.value;
+    if (currentApplicants.isEmpty) {
       showErrorMessage(
         context,
         'Error',
@@ -237,7 +243,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
       return;
     }
 
-    if (!_hasPrimaryApplicant) {
+    if (!_hasPrimaryApplicant(currentApplicants)) {
       showErrorMessage(
         context,
         'Error',
@@ -250,8 +256,8 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
 
     final flatType = selectedFlatType.value['DisplayName'].toString();
     final flatConfiguration =
-        selectedFlatConfiguration?['DisplayName']?.toString() ?? '';
-    final facing = selectedFlatFacing?['DisplayName']?.toString() ?? '';
+        selectedFlatConfiguration.value?['DisplayName']?.toString() ?? '';
+    final facing = selectedFlatFacing.value?['DisplayName']?.toString() ?? '';
 
     final freeArea =
         _freeAreaOfferedPercentageC.text.trim().isEmpty
@@ -281,7 +287,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
         freeAreaOfferedPercentage: freeArea,
         extraAreaPurchasedSqFt: extraArea,
         totalAreaSqFt: totalArea,
-        addUpdateTenantApplicant: _applicants,
+        addUpdateTenantApplicant: currentApplicants,
       );
     } else {
       cubit.addTenant(
@@ -296,9 +302,23 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
         freeAreaOfferedPercentage: freeArea,
         extraAreaPurchasedSqFt: extraArea,
         totalAreaSqFt: totalArea,
-        addUpdateTenantApplicant: _applicants,
+        addUpdateTenantApplicant: currentApplicants,
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _applicants.dispose();
+    selectedFlatType.dispose();
+    selectedFlatFacing.dispose();
+    selectedFlatConfiguration.dispose();
+    _unitNumberC.dispose();
+    _flatCarpetAreaC.dispose();
+    _freeAreaOfferedPercentageC.dispose();
+    _extraAreaPurchasedSqFtC.dispose();
+    _totalAreaSqFtC.dispose();
+    super.dispose();
   }
 
   @override
@@ -346,36 +366,41 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                       ],
                     ),
                     verticalSpacing(),
-                    if (_applicants.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
-                        child: Center(
-                          child: Text(
-                            'No applicants added yet',
-                            style: AppTextStyle.ts14R(color: AppColor.grey),
-                          ),
-                        ),
-                      )
-                    else
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children:
-                              _applicants
-                                  .asMap()
-                                  .entries
-                                  .map(
-                                    (entry) => SizedBox(
-                                      width: 320,
-                                      child: _buildApplicantCard(
-                                        entry.value,
-                                        entry.key,
+                    ValueListenableBuilder<List<TenantApplicantData>>(
+                      valueListenable: _applicants,
+                      builder: (context, applicants, child) {
+                        if (applicants.isEmpty) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            child: Center(
+                              child: Text(
+                                'No applicants added yet',
+                                style: AppTextStyle.ts14R(color: AppColor.grey),
+                              ),
+                            ),
+                          );
+                        }
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children:
+                                applicants
+                                    .asMap()
+                                    .entries
+                                    .map(
+                                      (entry) => SizedBox(
+                                        width: 320,
+                                        child: _buildApplicantCard(
+                                          entry.value,
+                                          entry.key,
+                                        ),
                                       ),
-                                    ),
-                                  )
-                                  .toList(),
-                        ),
-                      ),
+                                    )
+                                    .toList(),
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -415,79 +440,104 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                         return null;
                       },
                     ),
-                    CustomDropDownWidget(
-                      title: 'Unit Type',
-                      dataList: flatTypeList,
-                      isRequired: true,
-                      initialValue: selectedFlatType.value,
-                      onSelected: (value) {
-                        selectedFlatConfiguration = null;
-                        selectedFlatType.value = value;
-                      },
-                      validator: (value) {
-                        if (value == null || value["zAttributesId"] == -1) {
-                          return 'Unit Type is required';
-                        }
-                        return null;
+                    ValueListenableBuilder<Map<String, dynamic>>(
+                      valueListenable: selectedFlatType,
+                      builder: (context, flatTypeValue, child) {
+                        return CustomDropDownWidget(
+                          key: ValueKey('flatType_${flatTypeValue['zAttributesId']}'),
+                          title: 'Unit Type',
+                          dataList: flatTypeList,
+                          isRequired: true,
+                          initialValue: flatTypeValue,
+                          onSelected: (value) {
+                            // Only clear configuration if flat type actually changed
+                            if (selectedFlatType.value['zAttributesId'] != value['zAttributesId']) {
+                              selectedFlatConfiguration.value = null;
+                            }
+                            selectedFlatType.value = value;
+                          },
+                          validator: (value) {
+                            if (value == null || value["zAttributesId"] == -1) {
+                              return 'Unit Type is required';
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
                     ValueListenableBuilder(
                       valueListenable: selectedFlatType,
                       builder: (context, value, child) {
                         if (value['zAttributesId'] == 1) {
-                          return CustomDropDownWidget(
-                            title: 'Flat Configuration',
-                            isRequired: true,
-                            dataList: residentialFlatList,
-                            initialValue: selectedFlatConfiguration,
-                            onSelected: (value) {
-                              selectedFlatConfiguration = value;
-                            },
-                            validator: (value) {
-                              if (value == null ||
-                                  value["zAttributesId"] == -1) {
-                                return 'Flat Configuration is required';
-                              }
-                              return null;
+                          return ValueListenableBuilder<Map<String, dynamic>?>(
+                            valueListenable: selectedFlatConfiguration,
+                            builder: (context, configValue, child) {
+                              return CustomDropDownWidget(
+                                key: ValueKey('residential_config_${value['zAttributesId']}_${configValue?['zAttributesId'] ?? 'null'}'),
+                                title: 'Flat Configuration',
+                                isRequired: true,
+                                dataList: residentialFlatList,
+                                initialValue: configValue,
+                                onSelected: (selectedValue) {
+                                  selectedFlatConfiguration.value = selectedValue;
+                                },
+                                validator: (val) {
+                                  if (val == null ||
+                                      val["zAttributesId"] == -1) {
+                                    return 'Flat Configuration is required';
+                                  }
+                                  return null;
+                                },
+                              );
                             },
                           );
                         }
                         if (value['zAttributesId'] == 2) {
-                          return Padding(
-                            padding: const EdgeInsets.only(left: 20),
-                            child: CustomDropDownWidget(
-                              title: 'Flat Configuration*',
-                              dataList: commercialFlatList,
-                              initialValue: selectedFlatConfiguration,
-                              onSelected: (value) {
-                                selectedFlatConfiguration = value;
-                              },
-                              validator: (value) {
-                                if (value == null ||
-                                    value["zAttributesId"] == -1) {
-                                  return 'Flat Configuration is required';
-                                }
-                                return null;
-                              },
-                            ),
+                          return ValueListenableBuilder<Map<String, dynamic>?>(
+                            valueListenable: selectedFlatConfiguration,
+                            builder: (context, configValue, child) {
+                              return CustomDropDownWidget(
+                                key: ValueKey('commercial_config_${value['zAttributesId']}_${configValue?['zAttributesId'] ?? 'null'}'),
+                                title: 'Flat Configuration',
+                                isRequired: true,
+                                dataList: commercialFlatList,
+                                initialValue: configValue,
+                                onSelected: (selectedValue) {
+                                  selectedFlatConfiguration.value = selectedValue;
+                                },
+                                validator: (val) {
+                                  if (val == null ||
+                                      val["zAttributesId"] == -1) {
+                                    return 'Flat Configuration is required';
+                                  }
+                                  return null;
+                                },
+                              );
+                            },
                           );
                         }
                         return SizedBox();
                       },
                     ),
-                    CustomDropDownWidget(
-                      title: 'Facing',
-                      isRequired: true,
-                      dataList: flatFacingList,
-                      initialValue: selectedFlatFacing,
-                      onSelected: (value) {
-                        selectedFlatFacing = value;
-                      },
-                      validator: (value) {
-                        if (value == null || value["zAttributesId"] == -1) {
-                          return 'Facing is required';
-                        }
-                        return null;
+                    ValueListenableBuilder<Map<String, dynamic>?>(
+                      valueListenable: selectedFlatFacing,
+                      builder: (context, facingValue, child) {
+                        return CustomDropDownWidget(
+                          key: ValueKey('facing_${facingValue?['zAttributesId'] ?? 'null'}'),
+                          title: 'Facing',
+                          isRequired: true,
+                          dataList: flatFacingList,
+                          initialValue: facingValue,
+                          onSelected: (value) {
+                            selectedFlatFacing.value = value;
+                          },
+                          validator: (value) {
+                            if (value == null || value["zAttributesId"] == -1) {
+                              return 'Facing is required';
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
                     CustomTextField(

@@ -339,7 +339,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       child: InkWell(
         onTap: () async => await logOutUser(),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           decoration: BoxDecoration(
             color: AppColor.primary,
             borderRadius: BorderRadius.circular(10),

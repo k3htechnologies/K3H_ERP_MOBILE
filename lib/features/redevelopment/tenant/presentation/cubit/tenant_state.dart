@@ -5,6 +5,7 @@ class TenantState extends BaseState {
   final List<TenantDocumentModel> tenantDocumentList;
   final List<RedevelopmentBuildingModel> buildingList;
   final int totalNumberOfRecord;
+  final int buildingTotalCount;
   final int currentPage;
   final int currentTabIndex;
   final String searchText;
@@ -17,6 +18,7 @@ class TenantState extends BaseState {
     required this.tenantDocumentList,
     required this.buildingList,
     required this.totalNumberOfRecord,
+    required this.buildingTotalCount,
     required this.currentPage,
     required this.currentTabIndex,
     required this.searchText,
@@ -29,6 +31,7 @@ class TenantState extends BaseState {
     tenantDocumentList: [],
     buildingList: [],
     totalNumberOfRecord: 0,
+    buildingTotalCount: 0,
     currentPage: 1,
     currentTabIndex: 0,
     searchText: "",
@@ -43,6 +46,7 @@ class TenantState extends BaseState {
     List<TenantDocumentModel>? tenantDocumentList,
     List<RedevelopmentBuildingModel>? buildingList,
     int? totalNumberOfRecord,
+    int? buildingTotalCount,
     int? currentPage,
     int? currentTabIndex,
     String? searchText,
@@ -55,6 +59,7 @@ class TenantState extends BaseState {
       tenantDocumentList: tenantDocumentList ?? this.tenantDocumentList,
       buildingList: buildingList ?? this.buildingList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
+      buildingTotalCount: buildingTotalCount ?? this.buildingTotalCount,
       currentPage: currentPage ?? this.currentPage,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       searchText: searchText ?? this.searchText,
@@ -70,6 +75,7 @@ class TenantState extends BaseState {
     tenantDocumentList,
     buildingList,
     totalNumberOfRecord,
+    buildingTotalCount,
     currentPage,
     currentTabIndex,
     searchText,

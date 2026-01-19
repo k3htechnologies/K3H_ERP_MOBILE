@@ -41,7 +41,6 @@ class _TenantScreenState extends State<TenantScreen> {
   final ValueNotifier<List<Map<String, dynamic>>> _selectedBuildingNotifier =
       ValueNotifier([]);
 
-  // PAGINATION
   // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
   Timer? _debounce;
@@ -63,7 +62,6 @@ class _TenantScreenState extends State<TenantScreen> {
     _initializeTextEditingController();
     _onScroll();
 
-    // Call API directly in initState, similar to BuildingScreen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _loadBuildingsForProject(_project.projectId);
@@ -84,7 +82,7 @@ class _TenantScreenState extends State<TenantScreen> {
   Future<void> _loadBuildingsForProject(int projectId) async {
     if (_tenantCubit.state.buildingList.isEmpty ||
         _tenantCubit.state.buildingList.any((b) => b.projectId != projectId)) {
-      await _tenantCubit.getBuildingList(context, 1, 100, projectId);
+      await _tenantCubit.getBuildingList(context, 1, 15, projectId);
     }
     if (mounted) {
       _selectedBuildingNotifier.value = [];
@@ -123,16 +121,17 @@ class _TenantScreenState extends State<TenantScreen> {
     _searchC = TextEditingController();
   }
 
+  // FETCH BUILDINGS
   Future<Map<String, dynamic>> _fetchBuildings(
     int pageNumber, {
     String? value,
   }) async {
-    final buildingList =
-        _tenantCubit.state.buildingList
-            .where((b) => b.projectId == _project.projectId)
-            .toList();
-
     if (value != null && value.isNotEmpty) {
+      final buildingList =
+          _tenantCubit.state.buildingList
+              .where((b) => b.projectId == _project.projectId)
+              .toList();
+
       final filteredBuildings =
           buildingList
               .where(
@@ -154,6 +153,45 @@ class _TenantScreenState extends State<TenantScreen> {
       };
     }
 
+    final buildingList =
+        _tenantCubit.state.buildingList
+            .where((b) => b.projectId == _project.projectId)
+            .toList();
+
+    final currentLoadedCount = buildingList.length;
+    final pageSize = 12;
+    final expectedCount = pageNumber * pageSize;
+    final totalCount = _tenantCubit.state.buildingTotalCount;
+
+    if (currentLoadedCount < expectedCount &&
+        (totalCount == 0 || currentLoadedCount < totalCount)) {
+      await _tenantCubit.getBuildingList(
+        context,
+        pageNumber,
+        pageSize,
+        _project.projectId,
+      );
+
+      final updatedBuildingList =
+          _tenantCubit.state.buildingList
+              .where((b) => b.projectId == _project.projectId)
+              .toList();
+
+      return {
+        "itemList":
+            updatedBuildingList.map((building) {
+              return {
+                "zAttributesId": building.buildingId,
+                "DisplayName": building.buildingName,
+              };
+            }).toList(),
+        "totalNumberOfRecord":
+            _tenantCubit.state.buildingTotalCount > 0
+                ? _tenantCubit.state.buildingTotalCount
+                : updatedBuildingList.length,
+      };
+    }
+
     return {
       "itemList":
           buildingList.map((building) {
@@ -162,7 +200,7 @@ class _TenantScreenState extends State<TenantScreen> {
               "DisplayName": building.buildingName,
             };
           }).toList(),
-      "totalNumberOfRecord": buildingList.length,
+      "totalNumberOfRecord": totalCount > 0 ? totalCount : buildingList.length,
     };
   }
 

@@ -61,6 +61,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
   int? _stateMasterId;
   int? _districtMasterId;
   int? _cityMasterId;
+  int? _villageMasterId;
 
   // CHECKBOX VARIABLES
   bool _isGarden = false;
@@ -68,7 +69,8 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
   bool _isLitigation = false;
 
   // DROPDOWN VARIABLES
-  Map<String, dynamic>? _selectedLandOwnershipType;
+  final ValueNotifier<Map<String, dynamic>?> _selectedLandOwnershipType =
+      ValueNotifier<Map<String, dynamic>?>(null);
   final List<Map<String, dynamic>> _ownershipTypeList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Land Ownership Type'},
     {'zAttributesId': 1, 'DisplayName': 'Landlord'},
@@ -76,7 +78,8 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     {'zAttributesId': 3, 'DisplayName': 'Government'},
   ];
 
-  Map<String, dynamic>? _selectedRoadWidth;
+  final ValueNotifier<Map<String, dynamic>?> _selectedRoadWidth =
+      ValueNotifier<Map<String, dynamic>?>(null);
   final List<Map<String, dynamic>> _roadWidthList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Road Width'},
     {'zAttributesId': 1, 'DisplayName': '6.10 M'},
@@ -98,7 +101,6 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     super.initState();
     initializeTextEditingController();
     _buildingCubit = context.read<BuildingCubit>();
-    // Use projectId from query parameter if provided, otherwise get from getProject()
     _projectId = widget.projectId ?? getProject().projectId;
     _routhAuthorizationModel = AuthorizationModel();
     if (_isEditMode && widget.building != null) {
@@ -108,7 +110,8 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
 
   @override
   void dispose() {
-    super.dispose();
+    _selectedLandOwnershipType.dispose();
+    _selectedRoadWidth.dispose();
     _buildingNameC.dispose();
     _ctsNumberC.dispose();
     _totalPlotAreaC.dispose();
@@ -121,6 +124,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     _fsiTdrUtilizationC.dispose();
     _litigationRemarksC.dispose();
     _searchC.dispose();
+    super.dispose();
   }
 
   // INITIALIZING TEXT CONTROLLERS
@@ -166,15 +170,16 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     _isLitigation = buildingModel.isLitigation;
 
     // SET DROPDOWN VALUES
-    _selectedLandOwnershipType =
+    _selectedLandOwnershipType.value =
         buildingModel.landOwnershipType == ""
             ? null
             : _ownershipTypeList.firstWhere(
               (element) =>
                   element['DisplayName'] == buildingModel.landOwnershipType,
+              orElse: () => _ownershipTypeList.first,
             );
 
-    _selectedRoadWidth =
+    _selectedRoadWidth.value =
         (buildingModel.roadWidth.isNotEmpty)
             ? _roadWidthList.firstWhere(
               (element) => element['DisplayName'] == buildingModel.roadWidth,
@@ -197,11 +202,12 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
         'BuildingName': _buildingNameC.text.trim(),
         'CTSNumber': _ctsNumberC.text.trim(),
         'TotalPlotAreaSqFt': double.tryParse(_totalPlotAreaC.text) ?? 0.0,
-        'RoadWidth': _selectedRoadWidth?['DisplayName'] ?? '',
+        'RoadWidth': _selectedRoadWidth.value?['DisplayName'] ?? '',
         'CountryMasterId': buildingModel?.countryMasterId ?? 1,
         'DistrictMasterId': _districtMasterId ?? 1,
         'StateMasterId': _stateMasterId ?? 1,
         'CityMasterId': _cityMasterId ?? 1,
+        'VillageMasterId': _villageMasterId ?? 1,
         'TotalNumberOfUnits': int.tryParse(_totalNumberOfUnitsC.text) ?? 0,
         'TotalUnitsAreaUtilizedSqFt':
             double.tryParse(_totalUnitsAreaUtilizedC.text) ?? 0.0,
@@ -214,7 +220,8 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
         'NumberOfFloors': int.tryParse(_numberOfFloorsC.text) ?? 0,
         'FSI_TDR_UtilizationSqFt':
             double.tryParse(_fsiTdrUtilizationC.text) ?? 0.0,
-        'LandOwnershipType': _selectedLandOwnershipType?['DisplayName'] ?? '',
+        'LandOwnershipType':
+            _selectedLandOwnershipType.value?['DisplayName'] ?? '',
         'IsLitigation': _isLitigation,
         'LitigationRemarks': _litigationRemarksC.text.trim(),
       };
@@ -292,34 +299,50 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                       },
                     ),
 
-                    CustomDropDownWidget(
-                      title: 'Road Width',
-                      isRequired: true,
-                      dataList: _roadWidthList,
-                      initialValue: _selectedRoadWidth,
-                      onSelected: (selectedValue) {
-                        _selectedRoadWidth = selectedValue;
-                      },
-                      validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
-                          return 'Road width is required';
-                        }
-                        return null;
+                    ValueListenableBuilder<Map<String, dynamic>?>(
+                      valueListenable: _selectedRoadWidth,
+                      builder: (context, selectedValue, child) {
+                        return CustomDropDownWidget(
+                          key: ValueKey(
+                            'roadWidth_${selectedValue?['zAttributesId'] ?? 'null'}',
+                          ),
+                          title: 'Road Width',
+                          isRequired: true,
+                          dataList: _roadWidthList,
+                          initialValue: selectedValue,
+                          onSelected: (selected) {
+                            _selectedRoadWidth.value = selected;
+                          },
+                          validator: (value) {
+                            if (value == null || value['zAttributesId'] == -1) {
+                              return 'Road width is required';
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
-                    CustomDropDownWidget(
-                      title: 'Land Ownership Type',
-                      isRequired: true,
-                      dataList: _ownershipTypeList,
-                      initialValue: _selectedLandOwnershipType,
-                      onSelected: (selectedValue) {
-                        _selectedLandOwnershipType = selectedValue;
-                      },
-                      validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
-                          return 'Land ownership type is required';
-                        }
-                        return null;
+                    ValueListenableBuilder<Map<String, dynamic>?>(
+                      valueListenable: _selectedLandOwnershipType,
+                      builder: (context, selectedValue, child) {
+                        return CustomDropDownWidget(
+                          key: ValueKey(
+                            'landOwnership_${selectedValue?['zAttributesId'] ?? 'null'}',
+                          ),
+                          title: 'Land Ownership Type',
+                          isRequired: true,
+                          dataList: _ownershipTypeList,
+                          initialValue: selectedValue,
+                          onSelected: (selected) {
+                            _selectedLandOwnershipType.value = selected;
+                          },
+                          validator: (value) {
+                            if (value == null || value['zAttributesId'] == -1) {
+                              return 'Land ownership type is required';
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
                   ],
@@ -395,9 +418,9 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                       style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
                     verticalSpacing(),
-                    // Garden Section
+                    // GARDEN SECTION
                     StatefulBuilder(
-                      builder: (context, setState) {
+                      builder: (context, innerState) {
                         return Column(
                           children: [
                             Row(
@@ -405,7 +428,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                                 CustomCheckBox(
                                   isSelected: _isGarden,
                                   onChanged: (value) {
-                                    setState(() {
+                                    innerState(() {
                                       _isGarden = value;
                                     });
                                   },
@@ -435,9 +458,9 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                         );
                       },
                     ),
-                    // Religious Structure Section
+                    // RELIGIOUS STRUCTURE SECTION
                     StatefulBuilder(
-                      builder: (context, setState) {
+                      builder: (context, innerState) {
                         return Column(
                           children: [
                             Row(
@@ -445,7 +468,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                                 CustomCheckBox(
                                   isSelected: _isReligiousStructure,
                                   onChanged: (value) {
-                                    setState(() {
+                                    innerState(() {
                                       _isReligiousStructure = value;
                                     });
                                   },
@@ -478,9 +501,9 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                         );
                       },
                     ),
-                    // Litigation Section
+                    // LITIGATION SECTION
                     StatefulBuilder(
-                      builder: (context, setState) {
+                      builder: (context, innerState) {
                         return Column(
                           children: [
                             Row(
@@ -488,7 +511,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                                 CustomCheckBox(
                                   isSelected: _isLitigation,
                                   onChanged: (value) {
-                                    setState(() {
+                                    innerState(() {
                                       _isLitigation = value;
                                     });
                                   },
@@ -539,6 +562,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                       incomingStateId: _stateMasterId,
                       incomingDistrictId: _districtMasterId,
                       incomingCityId: _cityMasterId,
+                      incomingVillageId: _villageMasterId,
                       stateChange: (selectedState) {
                         _stateMasterId = selectedState['zAttributesId'];
                       },
@@ -547,6 +571,9 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                       },
                       cityChange: (selectedCity) {
                         _cityMasterId = selectedCity['zAttributesId'];
+                      },
+                      villageChange: (selectedVillage) {
+                        _villageMasterId = selectedVillage['zAttributesId'];
                       },
                     ),
                   ],

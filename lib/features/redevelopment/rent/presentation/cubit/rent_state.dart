@@ -2,6 +2,7 @@ part of 'rent_cubit.dart';
 
 class RentState extends BaseState {
   final List<RedevelopmentBuildingModel> buildingList;
+  final int buildingTotalCount;
   final List<RentDetailsModel> rentDetails;
   final List<RentModel> rentList;
   final int totalNumberOfRecord;
@@ -14,6 +15,7 @@ class RentState extends BaseState {
   const RentState({
     super.isLoading,
     required this.buildingList,
+    required this.buildingTotalCount,
     required this.rentDetails,
     required this.rentList,
     required this.totalNumberOfRecord,
@@ -27,6 +29,7 @@ class RentState extends BaseState {
   factory RentState.initial() => RentState(
     isLoading: true,
     buildingList: [],
+    buildingTotalCount: 0,
     rentDetails: [],
     rentList: [],
     totalNumberOfRecord: 0,
@@ -40,6 +43,7 @@ class RentState extends BaseState {
   RentState copyWith({
     bool? isLoading,
     List<RedevelopmentBuildingModel>? buildingList,
+    int? buildingTotalCount,
     List<RentDetailsModel>? rentDetails,
     List<RentModel>? rentList,
     int? totalNumberOfRecord,
@@ -52,6 +56,7 @@ class RentState extends BaseState {
     return RentState(
       isLoading: isLoading ?? this.isLoading,
       buildingList: buildingList ?? this.buildingList,
+      buildingTotalCount: buildingTotalCount ?? this.buildingTotalCount,
       rentDetails: rentDetails ?? this.rentDetails,
       rentList: rentList ?? this.rentList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
@@ -67,6 +72,7 @@ class RentState extends BaseState {
   List<Object?> get props => [
     isLoading,
     buildingList,
+    buildingTotalCount,
     rentDetails,
     rentList,
     totalNumberOfRecord,

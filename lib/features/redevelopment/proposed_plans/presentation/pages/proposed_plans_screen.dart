@@ -52,12 +52,15 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     fileNameList: [],
     deletedFileList: "",
   );
+  final ValueNotifier<List<String>> _planFileListNotifier =
+      ValueNotifier<List<String>>([]);
 
   // AMENITIES DATA
-  List<AmenityCategory> amenitiesList = [];
+  final ValueNotifier<List<AmenityCategory>> amenitiesList =
+      ValueNotifier<List<AmenityCategory>>([]);
 
   // FLAG TO TRACK IF AMENITIES HAVE BEEN PREFILLED
-  bool _amenitiesPrefilled = false;
+  final ValueNotifier<bool> _amenitiesPrefilled = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -78,6 +81,9 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
 
   @override
   void dispose() {
+    amenitiesList.dispose();
+    _amenitiesPrefilled.dispose();
+    _planFileListNotifier.dispose();
     _tabController.dispose();
     _disposeTextEditingControllers();
     super.dispose();
@@ -110,36 +116,33 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
 
   // PREFILL FROM STATE
   void _prefillFromModel(ProposedPlansModel proposedPlan) {
-    setState(() {
-      // Only prefill if user has not already typed something
-      if (_totalNumberOfFloorsC.text.isEmpty) {
-        _totalNumberOfFloorsC.text =
-            proposedPlan.totalNumberOfFloors.toString();
-      }
-      if (_totalNumberOfUnitsC.text.isEmpty) {
-        _totalNumberOfUnitsC.text = proposedPlan.totalUnits.toString();
-      }
-      if (_totalParkingC.text.isEmpty) {
-        _totalParkingC.text = proposedPlan.totalParking.toString();
-      }
-      if (proposedPlan.planDocumentUrl.isNotEmpty) {
-        planFile.fileNameList = proposedPlan.planDocumentUrl.split(",");
-      } else {
-        planFile.fileNameList = [];
-      }
-      // Prefill amenities only if not already prefilled (to preserve user selections)
-      if (!_amenitiesPrefilled && proposedPlan.amenities.isNotEmpty) {
-        _prefillAmenities(proposedPlan.amenities);
-        _amenitiesPrefilled = true;
-      }
-    });
+    if (_totalNumberOfFloorsC.text.isEmpty) {
+      _totalNumberOfFloorsC.text = proposedPlan.totalNumberOfFloors.toString();
+    }
+    if (_totalNumberOfUnitsC.text.isEmpty) {
+      _totalNumberOfUnitsC.text = proposedPlan.totalUnits.toString();
+    }
+    if (_totalParkingC.text.isEmpty) {
+      _totalParkingC.text = proposedPlan.totalParking.toString();
+    }
+    if (proposedPlan.planDocumentUrl.isNotEmpty) {
+      final fileList = proposedPlan.planDocumentUrl.split(",");
+      planFile.fileNameList = fileList;
+      _planFileListNotifier.value = fileList;
+    } else {
+      planFile.fileNameList = [];
+      _planFileListNotifier.value = [];
+    }
+    if (!_amenitiesPrefilled.value && proposedPlan.amenities.isNotEmpty) {
+      _prefillAmenities(proposedPlan.amenities);
+      _amenitiesPrefilled.value = true;
+    }
   }
 
   // PREFILL AMENITIES FROM API RESPONSE
   void _prefillAmenities(String amenitiesString) {
     if (amenitiesString.isEmpty) return;
 
-    // Split comma-separated amenities
     final List<String> selectedAmenities =
         amenitiesString
             .split(",")
@@ -147,9 +150,9 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
             .where((e) => e.isNotEmpty)
             .toList();
 
-    // Create updated amenities list with selected items marked
+    final currentList = amenitiesList.value;
     final updatedAmenitiesList =
-        amenitiesList.map((category) {
+        currentList.map((category) {
           final updatedSubCategories =
               category.subCategories.map((subCategory) {
                 return AmenitySubCategory(
@@ -164,30 +167,27 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
           );
         }).toList();
 
-    amenitiesList = updatedAmenitiesList;
+    amenitiesList.value = updatedAmenitiesList;
   }
 
   // CLEAR FORM WHEN NO DATA FOR PROJECT
   void _clearForm() {
-    setState(() {
-      _totalNumberOfFloorsC.clear();
-      _totalNumberOfUnitsC.clear();
-      _totalParkingC.clear();
-      planFile.fileNameList = [];
-      planFile.fileBytesList = [];
-      planFile.deletedFileList = "";
-      // Clear all selected amenities
-      _clearAmenities();
-      // Reset prefilled flag
-      _amenitiesPrefilled = false;
-    });
+    _totalNumberOfFloorsC.clear();
+    _totalNumberOfUnitsC.clear();
+    _totalParkingC.clear();
+    planFile.fileNameList = [];
+    planFile.fileBytesList = [];
+    planFile.deletedFileList = "";
+    _planFileListNotifier.value = [];
+    _clearAmenities();
+    _amenitiesPrefilled.value = false;
   }
 
   // CLEAR ALL SELECTED AMENITIES
   void _clearAmenities() {
-    // Create updated amenities list with all items unselected
-    amenitiesList =
-        amenitiesList.map((category) {
+    final currentList = amenitiesList.value;
+    final updatedList =
+        currentList.map((category) {
           final updatedSubCategories =
               category.subCategories.map((subCategory) {
                 return AmenitySubCategory(
@@ -201,11 +201,12 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
             isExpanded: category.isExpanded,
           );
         }).toList();
+    amenitiesList.value = updatedList;
   }
 
   // INITIALIZE STATIC AMENITIES DATA
   void _initializeAmenitiesData() {
-    amenitiesList = [
+    amenitiesList.value = [
       AmenityCategory(
         title: "Safety & Security",
         subCategories: [
@@ -312,15 +313,15 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
 
   // UPDATE AMENITY CATEGORY
   void _updateAmenityCategory(int index, AmenityCategory updatedCategory) {
-    setState(() {
-      amenitiesList[index] = updatedCategory;
-    });
+    final currentList = List<AmenityCategory>.from(amenitiesList.value);
+    currentList[index] = updatedCategory;
+    amenitiesList.value = currentList;
   }
 
   // GET SELECTED AMENITIES AS LIST
   List<String> _getSelectedAmenities() {
     final List<String> selectedAmenities = [];
-    for (var category in amenitiesList) {
+    for (var category in amenitiesList.value) {
       for (var subCategory in category.subCategories) {
         if (subCategory.isSelected) {
           selectedAmenities.add(subCategory.name);
@@ -347,7 +348,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
           final proposedPlan = state.proposedPlansList.first;
 
           // Prefill ONLY ONCE
-          if (!_amenitiesPrefilled) {
+          if (!_amenitiesPrefilled.value) {
             _prefillFromModel(proposedPlan);
           }
         } else {
@@ -412,9 +413,14 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
                   controller: _tabController,
                   children: [
                     _detailsSectionTabView(),
-                    AmenitiesTab(
-                      amenitiesList: amenitiesList,
-                      onUpdate: _updateAmenityCategory,
+                    ValueListenableBuilder<List<AmenityCategory>>(
+                      valueListenable: amenitiesList,
+                      builder: (context, currentAmenitiesList, child) {
+                        return AmenitiesTab(
+                          amenitiesList: currentAmenitiesList,
+                          onUpdate: _updateAmenityCategory,
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -502,29 +508,36 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
                   return null;
                 },
               ),
-              CustomMultiFilePicker(
-                key: ValueKey(planFile.fileNameList.join(",")),
-                initialFileList: planFile.fileNameList,
-                title: "Plan",
-                isRequired: true,
-                onFilePickedCallback: (fileByteList, fileNameList) {
-                  planFile.fileBytesList = fileByteList;
-                  planFile.fileNameList = fileNameList;
-                },
-                onFileDeleteCallback: (
-                  fileBytesList,
-                  fileNameList,
-                  deletedUrl,
-                ) {
-                  planFile.fileBytesList = fileBytesList;
-                  planFile.fileNameList = fileNameList;
-                  planFile.deletedFileList = deletedUrl;
-                },
-                validator: (file) {
-                  if (file == null || file.isEmpty) {
-                    return "Plan File required";
-                  }
-                  return null;
+              ValueListenableBuilder<List<String>>(
+                valueListenable: _planFileListNotifier,
+                builder: (context, fileList, child) {
+                  return CustomMultiFilePicker(
+                    key: ValueKey(fileList.join(",")),
+                    initialFileList: fileList,
+                    title: "Plan",
+                    isRequired: true,
+                    onFilePickedCallback: (fileByteList, fileNameList) {
+                      planFile.fileBytesList = fileByteList;
+                      planFile.fileNameList = fileNameList;
+                      _planFileListNotifier.value = fileNameList;
+                    },
+                    onFileDeleteCallback: (
+                      fileBytesList,
+                      fileNameList,
+                      deletedUrl,
+                    ) {
+                      planFile.fileBytesList = fileBytesList;
+                      planFile.fileNameList = fileNameList;
+                      planFile.deletedFileList = deletedUrl;
+                      _planFileListNotifier.value = fileNameList;
+                    },
+                    validator: (file) {
+                      if (file == null || file.isEmpty) {
+                        return "Plan File required";
+                      }
+                      return null;
+                    },
+                  );
                 },
               ),
             ],
@@ -541,7 +554,6 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
       return;
     }
 
-    // Get selected amenities as comma-separated string
     final amenitiesString = _getSelectedAmenitiesString();
 
     if (state.proposedPlansList.isEmpty) {

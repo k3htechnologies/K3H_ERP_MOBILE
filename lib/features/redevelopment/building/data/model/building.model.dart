@@ -16,6 +16,8 @@ class RedevelopmentBuildingModel {
   String stateName;
   int cityMasterId;
   String cityName;
+  int villageMasterId;
+  String villageName;
   int totalNumberOfUnits;
   double totalUnitsAreaUtilizedSqFt;
   bool isGarden;
@@ -51,6 +53,8 @@ class RedevelopmentBuildingModel {
     required this.stateName,
     required this.cityMasterId,
     required this.cityName,
+    required this.villageMasterId,
+    required this.villageName,
     required this.totalNumberOfUnits,
     required this.totalUnitsAreaUtilizedSqFt,
     required this.isGarden,
@@ -87,6 +91,8 @@ class RedevelopmentBuildingModel {
     stateName: parseValue<String>(json, "StateName"),
     cityMasterId: parseValue<int>(json, "CityMasterId"),
     cityName: parseValue<String>(json, "CityName"),
+    villageMasterId: parseValue<int>(json, "VillageMasterId"),
+    villageName: parseValue<String>(json, "VillageName"),
     totalNumberOfUnits: parseValue<int>(json, "TotalNumberOfUnits"),
     totalUnitsAreaUtilizedSqFt: parseValue<double>(
       json,
@@ -132,6 +138,8 @@ class RedevelopmentBuildingModel {
     "StateName": stateName,
     "CityMasterId": cityMasterId,
     "CityName": cityName,
+    "VillageMasterId": villageMasterId,
+    "VillageName": villageName,
     "TotalNumberOfUnits": totalNumberOfUnits,
     "TotalUnitsAreaUtilizedSqFt": totalUnitsAreaUtilizedSqFt,
     "IsGarden": isGarden,

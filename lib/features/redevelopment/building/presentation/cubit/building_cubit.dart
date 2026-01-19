@@ -20,23 +20,6 @@ class BuildingCubit extends Cubit<BuildingState> {
   final BuildingRepository _buildingRepository =
       serviceLocator<BuildingRepository>();
 
-  // <---- CLEAR BUILDING LIST ---->
-  void clearBuildingList() {
-    try {
-      emit(
-        state.copyWith(
-          buildingList: [],
-          currentPage: 1,
-          totalNumberOfRecord: 0,
-          isLoading: true,
-          searchText: "",
-        ),
-      );
-    } catch (e) {
-      // Cubit is closed, ignore
-    }
-  }
-
   // <---- SEARCH BUILDING ---->
   Future searchBuilding(
     BuildContext context,
@@ -425,7 +408,6 @@ class BuildingCubit extends Cubit<BuildingState> {
         projectId: projectId,
       );
     } else if (index == 2) {
-      // Document tab - top-level documents (no specific document id)
       getBuildingDocumentList(context, projectId, buildingId, 1, 100, null);
     }
   }

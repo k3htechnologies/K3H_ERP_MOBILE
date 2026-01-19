@@ -72,9 +72,7 @@ class TenantCubit extends Cubit<TenantState> {
         final newData = List<RedevelopmentBuildingModel>.from(
           response['data'] as List<RedevelopmentBuildingModel>,
         );
-        // Get existing building IDs to avoid duplicates
         final existingIds = state.buildingList.map((b) => b.buildingId).toSet();
-        // Filter out duplicates from new data
         final uniqueNewData =
             newData
                 .where((building) => !existingIds.contains(building.buildingId))
@@ -83,7 +81,12 @@ class TenantCubit extends Cubit<TenantState> {
           state.buildingList,
         );
         updatedList.addAll(uniqueNewData);
-        emit(state.copyWith(isLoading: false, buildingList: updatedList));
+        final totalCount = response['totalNumberOfRecord'] ?? 0;
+        emit(state.copyWith(
+          isLoading: false,
+          buildingList: updatedList,
+          buildingTotalCount: totalCount,
+        ));
         return updatedList;
       },
     );

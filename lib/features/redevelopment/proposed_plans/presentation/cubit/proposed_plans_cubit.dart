@@ -40,6 +40,7 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
     );
   }
 
+  // ADD OR UPDATE PROPOSED PLANS
   Future<void> addProposedPlans({
     required BuildContext context,
     required String projectId,
@@ -101,6 +102,7 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
     );
   }
 
+  // UPDATE PROPOSED PLANS
   Future<void> updateProposedPlans({
     required BuildContext context,
     required String proposedOfferProposedPlanId,
@@ -166,6 +168,7 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
     );
   }
 
+  // ON TAB CHANGE
   void onTabChanged(int index, BuildContext context, projectId) {
 
     // PROJECT CHANGED
@@ -173,7 +176,7 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
 
       emit(state.copyWith(
         currentProjectId: projectId,
-        proposedPlansList: [], // ✅ clear ONLY here
+        proposedPlansList: [],
       ));
 
       getDepartmentList(context, projectId);

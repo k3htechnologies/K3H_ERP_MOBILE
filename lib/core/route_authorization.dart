@@ -25,7 +25,7 @@ class Authorization {
     AppRoutes.designationMaster: AuthorizationModel(),
     AppRoutes.projectMaster: AuthorizationModel(),
     AppRoutes.employeeMaster: AuthorizationModel(),
-    AppRoutes.employeeModuleAccess: AuthorizationModel(),
+    AppRoutes.employeeModuleAccess: AuthorizationModel(isAccess: true),
     // PROCUREMENT MASTER
     AppRoutes.materialMaster: AuthorizationModel(),
     AppRoutes.activityMaster: AuthorizationModel(),

@@ -60,7 +60,6 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
     _tabController.addListener(_handleTabChange);
     _tenureTabController.addListener(_handleTenureTabChange);
     _initializeScrollController();
-    // Call API directly in initState, similar to BuildingScreen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _loadBuildingsForProject(_project.projectId);
@@ -163,7 +162,6 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                 : null;
 
         if (buildingId != null) {
-          // Pass "Tenure X" format to API (e.g., "Tenure 2")
           final String tenureForApi = "Tenure $selectedTenure";
           _rentCubit.onTenureChanged(
             context,
@@ -210,7 +208,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
   Future<void> _loadBuildingsForProject(int projectId) async {
     if (_rentCubit.state.buildingList.isEmpty ||
         _rentCubit.state.buildingList.any((b) => b.projectId != projectId)) {
-      await _rentCubit.getBuildingList(context, 1, 100, projectId);
+      await _rentCubit.getBuildingList(context, 1, 15, projectId);
     }
     if (mounted) {
       _selectedBuildingNotifier.value = [];
@@ -222,12 +220,12 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
     int pageNumber, {
     String? value,
   }) async {
-    final buildingList =
-        _rentCubit.state.buildingList
-            .where((b) => b.projectId == _project.projectId)
-            .toList();
-
     if (value != null && value.isNotEmpty) {
+      final buildingList =
+          _rentCubit.state.buildingList
+              .where((b) => b.projectId == _project.projectId)
+              .toList();
+      
       final filteredBuildings =
           buildingList
               .where(
@@ -248,6 +246,45 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
         "totalNumberOfRecord": filteredBuildings.length,
       };
     }
+
+    final buildingList =
+        _rentCubit.state.buildingList
+            .where((b) => b.projectId == _project.projectId)
+            .toList();
+    
+    final currentLoadedCount = buildingList.length;
+    final pageSize = 12;
+    final expectedCount = pageNumber * pageSize;
+    final totalCount = _rentCubit.state.buildingTotalCount;
+    
+    if (currentLoadedCount < expectedCount &&
+        (totalCount == 0 || currentLoadedCount < totalCount)) {
+      await _rentCubit.getBuildingList(
+        context,
+        pageNumber,
+        pageSize,
+        _project.projectId,
+      );
+      
+      final updatedBuildingList =
+          _rentCubit.state.buildingList
+              .where((b) => b.projectId == _project.projectId)
+              .toList();
+      
+      return {
+        "itemList":
+            updatedBuildingList.map((building) {
+              return {
+                "zAttributesId": building.buildingId,
+                "DisplayName": building.buildingName,
+              };
+            }).toList(),
+        "totalNumberOfRecord": _rentCubit.state.buildingTotalCount > 0
+            ? _rentCubit.state.buildingTotalCount
+            : updatedBuildingList.length,
+      };
+    }
+
     return {
       "itemList":
           buildingList.map((building) {
@@ -256,7 +293,9 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
               "DisplayName": building.buildingName,
             };
           }).toList(),
-      "totalNumberOfRecord": buildingList.length,
+      "totalNumberOfRecord": totalCount > 0 
+          ? totalCount 
+          : buildingList.length,
     };
   }
 
