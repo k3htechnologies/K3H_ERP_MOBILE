@@ -165,7 +165,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: _isEditMode ? "Edit Week Off" : "Add Week Off",
+        screenTitle: _isEditMode ? "Update Week Off" : "Add Week Off",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(

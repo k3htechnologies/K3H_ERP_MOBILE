@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
@@ -334,7 +333,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   Text(
                     widget.applicant == null
                         ? "Add Applicant"
-                        : "Edit Applicant",
+                        : "Update Applicant",
                     style: AppTextStyle.ts16SB(color: AppColor.black),
                   ),
                   verticalSpacing(),

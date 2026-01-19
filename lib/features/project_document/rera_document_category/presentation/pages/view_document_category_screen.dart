@@ -34,7 +34,7 @@ class ViewRERADocumentCategoryScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Project Document Category Details",
+                      "Project RERA Document Category Master Details",
                       style: AppTextStyle.ts16SB(),
                     ),
                     Row(

@@ -396,11 +396,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                                     jsonEncode(document.toJson()),
                                   ),
                                 ),
-                                "index": Uri.encodeQueryComponent(
-                                  EncryptionManager.encryptData(
-                                    jsonEncode(index.toString()),
-                                  ),
-                                ),
+                                "index": index.toString(),
                               },
                             );
                           },
@@ -444,11 +440,8 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                                       jsonEncode(document.toJson()),
                                     ),
                                   ),
-                                  "index": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      index.toString(),
-                                    ),
-                                  ),
+                                  "index": index.toString(),
+
                                   "isEdit": Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
                                       false.toString(),

@@ -103,7 +103,7 @@ class _AddHolidayMasterScreenState extends State<AddHolidayMasterScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _isEditMode ? "Edit Holiday" : "Add Holiday",
+                _isEditMode ? "Update Holiday" : "Add Holiday",
                 style: AppTextStyle.ts16SB(),
               ),
               Container(

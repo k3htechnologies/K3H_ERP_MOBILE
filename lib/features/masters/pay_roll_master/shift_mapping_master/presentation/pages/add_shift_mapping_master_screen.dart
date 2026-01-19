@@ -122,7 +122,7 @@ class _AddShiftMappingMasterScreenState
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBarWithBackButton(
-        screenTitle: _isEditMode ? "Edit Shift Mapping" : "Add Shift Mapping",
+        screenTitle: _isEditMode ? "Update Shift Mapping" : "Add Shift Mapping",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(

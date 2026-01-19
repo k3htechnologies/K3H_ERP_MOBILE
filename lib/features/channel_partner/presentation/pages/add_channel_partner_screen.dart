@@ -280,7 +280,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
           child: Column(
             children: [
               Text(
-                _isEditMode ? "Edit Channel Partner" : "Add Channel Partner",
+                _isEditMode ? "Update Channel Partner" : "Add Channel Partner",
                 style: AppTextStyle.ts16SB(),
               ),
               verticalSpacing(height: 15),

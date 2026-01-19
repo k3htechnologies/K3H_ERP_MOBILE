@@ -140,7 +140,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: _isEditMode ? "Edit Document" : "Add Document",
+        screenTitle: _isEditMode ? "Update Document" : "Add Document",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(
@@ -201,7 +201,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text: _isEditMode ? "Edit Document" : "Add Document",
+            text: _isEditMode ? "Update Document" : "Add Document",
             onPressed: _submitForm,
           ),
         ),

@@ -148,7 +148,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: _isEditMode ? "Edit Shift" : "Add Shift",
+        screenTitle: _isEditMode ? "Update Shift" : "Add Shift",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(

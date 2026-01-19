@@ -102,7 +102,7 @@ class _AddLeaveEncashmentMasterScreenState
 
       appBar: CustomAppBarWithBackButton(
         screenTitle:
-            _isEditMode ? "Edit Leave Encashment" : "Add Leave Encashment",
+            _isEditMode ? "Update Leave Encashment" : "Add Leave Encashment",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(

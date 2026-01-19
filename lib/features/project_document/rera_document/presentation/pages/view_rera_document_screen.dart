@@ -110,11 +110,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                             jsonEncode(widget.documentModel.toJson()),
                           ),
                         ),
-                        "index": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(widget.index.toString()),
-                          ),
-                        ),
+                        "index": widget.index.toString(),
                         "isEdit": Uri.encodeQueryComponent(
                           EncryptionManager.encryptData(false.toString()),
                         ),
@@ -214,11 +210,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                           jsonEncode(document.toJson()),
                         ),
                       ),
-                      "index": Uri.encodeQueryComponent(
-                        EncryptionManager.encryptData(
-                          jsonEncode(index.toString()),
-                        ),
-                      ),
+                      "index": index.toString(),
                       "isEdit": Uri.encodeQueryComponent(
                         EncryptionManager.encryptData(true.toString()),
                       ),

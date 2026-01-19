@@ -15,11 +15,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class AddAssetMasterScreen extends StatefulWidget {
   final AssetMasterModel? asset;
   final int index;
-  const AddAssetMasterScreen({
-    super.key,
-    this.asset,
-    this.index = 0,
-  });
+  const AddAssetMasterScreen({super.key, this.asset, this.index = 0});
 
   @override
   State<AddAssetMasterScreen> createState() => _AddAssetMasterScreenState();
@@ -90,7 +86,6 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
     _assetCostC.dispose();
   }
 
-
   void _populateFormFields(AssetMasterModel asset) {
     _assetNameC.text = asset.assetName;
     _assetCodeC.text = asset.assetCode;
@@ -153,7 +148,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBarWithBackButton(
-        screenTitle: _isEditMode ? "Edit Asset" : "Add Asset",
+        screenTitle: _isEditMode ? "Update Asset" : "Add Asset",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(
@@ -323,7 +318,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
         child: Container(
           height: 70,
           padding: EdgeInsets.all(16),
-          child:  CustomButton(
+          child: CustomButton(
             text: _isEditMode ? "Update Asset" : "Add Asset",
             onPressed: _submitForm,
           ),
@@ -332,4 +327,3 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
     );
   }
 }
-

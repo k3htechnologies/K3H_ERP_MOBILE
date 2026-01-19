@@ -248,6 +248,10 @@ class _RERADocumentCategoryScreenState
                       title: "Sequencce",
                       value: reraCategory.orderBy.toString(),
                     ),
+                    _buildRowTitleValue(
+                      title: "Document Count",
+                      value: reraCategory.documentCount.toString(),
+                    ),
                   ],
                 ),
               );
