@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/project_document/rera_document_category/data/model/rera_document_category.model.dart';
+import 'package:k3h_erp_app/features/project_document/approval_category/data/model/approval_category.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class ViewRERADocumentCategoryScreen extends StatelessWidget {
-  final RERADocumentCategoryModel reraDocumentCategoryModel;
-  const ViewRERADocumentCategoryScreen({
+class ViewApprovalCategoryScreen extends StatelessWidget {
+  final ApprovalDocumentCategoryModel approvalCategoryModel;
+  const ViewApprovalCategoryScreen({
     super.key,
-    required this.reraDocumentCategoryModel,
+    required this.approvalCategoryModel,
   });
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "RERA Document Category",
+        screenTitle: "Approval Document Category",
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(
@@ -34,21 +34,21 @@ class ViewRERADocumentCategoryScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Project RERA Document Category Master Details",
+                      "Approval Document Category Master Details",
                       style: AppTextStyle.ts16SB(),
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildColumnTitleValue(
-                          title: "RERA Document Category",
+                          title: "Document Category",
                           value:
-                              reraDocumentCategoryModel
-                                  .projectRERADocumentCategoryName,
+                              approvalCategoryModel
+                                  .approvalDocumentCategoryName,
                         ),
                         _buildColumnTitleValue(
                           title: "Order By",
-                          value: reraDocumentCategoryModel.orderBy.toString(),
+                          value: approvalCategoryModel.orderBy.toString(),
                         ),
                       ],
                     ),
@@ -57,9 +57,7 @@ class ViewRERADocumentCategoryScreen extends StatelessWidget {
                       children: [
                         _buildColumnTitleValue(
                           title: "Document Count",
-                          value:
-                              reraDocumentCategoryModel.documentCount
-                                  .toString(),
+                          value: approvalCategoryModel.documentCount.toString(),
                         ),
                       ],
                     ),
@@ -80,12 +78,12 @@ class ViewRERADocumentCategoryScreen extends StatelessWidget {
                       children: [
                         _buildColumnTitleValue(
                           title: "Created By",
-                          value: reraDocumentCategoryModel.createdBy,
+                          value: approvalCategoryModel.createdBy,
                         ),
                         _buildColumnTitleValue(
                           title: "Created Date",
                           value: formatDateTimeAsDDMMMYYYY(
-                            reraDocumentCategoryModel.createdDate,
+                            approvalCategoryModel.createdDate,
                           ),
                         ),
                       ],
@@ -96,16 +94,16 @@ class ViewRERADocumentCategoryScreen extends StatelessWidget {
                         _buildColumnTitleValue(
                           title: "Modified By",
                           value:
-                              reraDocumentCategoryModel.modifiedBy.isNotEmpty
-                                  ? reraDocumentCategoryModel.modifiedBy
+                              approvalCategoryModel.modifiedBy.isNotEmpty
+                                  ? approvalCategoryModel.modifiedBy
                                   : null,
                         ),
                         _buildColumnTitleValue(
                           title: "Modified Date",
                           value:
-                              reraDocumentCategoryModel.modifiedDate != null
+                              approvalCategoryModel.modifiedDate != null
                                   ? formatDateTimeAsDDMMMYYYY(
-                                    reraDocumentCategoryModel.modifiedDate!,
+                                    approvalCategoryModel.modifiedDate!,
                                   )
                                   : null,
                         ),

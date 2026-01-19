@@ -167,7 +167,8 @@ class AppRoutes {
   static String updateBookingModificationRequest =
       "/updateBookingModificationRequest";
 
-  // DOCUMENT
+  // PROJECT DOCUMENTS
+  // --DOCUMENT
   static String category = "/category";
   static String addDocumentCategory = "/addDocumentCategory";
   static String viewDocumentCategory = "/viewDocumentCategory";
@@ -175,13 +176,19 @@ class AppRoutes {
   static String addDocument = "/addDocument";
   static String viewDocument = "/viewDocument";
 
-  // RERA DOCUMENT
+  // --RERA DOCUMENT
   static String reraCategory = "/reraCategory";
   static String addReraDocumentCategory = "/addReraDocumentCategory";
   static String viewReraDocumentCategory = "/viewReraDocumentCategory";
-  
   static String addReraDocument = "/addReraDocument";
   static String viewReraDocument = "/viewReraDocument";
+
+  // --APPROVAL DOCUMENT
+  static String approvalCategory = "/approvalCategory";
+  static String addApprovalCategory = "/addApprovalCategory";
+  static String viewApprovalCategory = "/viewApprovalCategory";
+  static String addApprovalDocument = "/addApprovalDocument";
+  static String viewApprovalDocument = "/viewApprovalDocument";
 
   // LEGAL
   static String litigation = "/litigation";

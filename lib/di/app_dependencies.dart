@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/masters/week_off_mapping_mas
 import 'package:k3h_erp_app/di/feature_dependencies/masters/week_off_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/notification/notification.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/profile/profile.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/project_document/approval_category/approval_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document/rera_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document_category/rera_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
@@ -130,10 +131,12 @@ void initDependencies() {
   registerChannelPartnerDependencies(serviceLocator);
   // DOCUMENT CATEGORY DEPENDENCIES
   registerDocumentCategoryDependencies(serviceLocator);
+  // DOCUMENT DEPENDENCIES
+  registerDocumentDependencies(serviceLocator);
   // RERA DOCUMENT CATEGORY DEPENDENCIES
   registerRERADocumentCategoryDependencies(serviceLocator);
   //RERA DOCUMENT
   registerRERADocumentDependencies(serviceLocator);
-  // DOCUMENT DEPENDENCIES
-  registerDocumentDependencies(serviceLocator);
+  //APPROVAL DOCUMENT DEPENDENCIES
+  registerApprovalCategoryDependencies(serviceLocator);
 }

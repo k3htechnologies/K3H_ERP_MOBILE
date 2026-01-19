@@ -149,6 +149,11 @@ import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/add_employee_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_view_details_screen.dart';
+import 'package:k3h_erp_app/features/project_document/approval_category/data/model/approval_category.model.dart';
+import 'package:k3h_erp_app/features/project_document/approval_category/presentation/cubit/approval_category_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/approval_category/presentation/pages/add_approval_category_screen.dart';
+import 'package:k3h_erp_app/features/project_document/approval_category/presentation/pages/approval_category_screen.dart';
+import 'package:k3h_erp_app/features/project_document/approval_category/presentation/pages/view_approval_category_screen.dart';
 import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
 import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/document/presentation/pages/add_document_screen.dart';
@@ -2599,6 +2604,85 @@ final GoRouter goRouter = GoRouter(
                             : null;
                     return ViewRERADocumentCategoryScreen(
                       reraDocumentCategoryModel: reraDocumentCategory!,
+                    );
+                  },
+                ),
+              ],
+            ),
+            //Project Approval Document Category
+            ShellRoute(
+              builder: (context, state, child) {
+                // return BlocProvider<ApprovalDocumentCategoryCubit>.value(
+                //   value: context.read<ApprovalDocumentCategoryCubit>(),
+                //   child: child,
+                // );
+                return BlocProvider(
+                  create: (_) => ApprovalCategoryCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.approvalCategory,
+                  path: AppRoutes.approvalCategory,
+                  builder: (context, state) {
+                    return const ApprovalCategoryScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addApprovalCategory,
+                  path: AppRoutes.addApprovalCategory,
+                  builder: (context, state) {
+                    final queryParameterApprovalDocumentCategory =
+                        state.uri.queryParameters['approvalCategory'];
+
+                    final ApprovalDocumentCategoryModel?
+                    approvalDocumentCategory =
+                        queryParameterApprovalDocumentCategory != null
+                            ? ApprovalDocumentCategoryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterApprovalDocumentCategory,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddApprovalCategoryScreen(
+                      approvalCategoryModel: approvalDocumentCategory,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewApprovalCategory,
+                  path: AppRoutes.viewApprovalCategory,
+                  builder: (context, state) {
+                    final queryParameterApprovalDocumentCategory =
+                        state.uri.queryParameters['approvalCategory'];
+
+                    final ApprovalDocumentCategoryModel?
+                    approvalDocumentCategory =
+                        queryParameterApprovalDocumentCategory != null
+                            ? ApprovalDocumentCategoryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterApprovalDocumentCategory,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return ViewApprovalCategoryScreen(
+                      approvalCategoryModel: approvalDocumentCategory!,
                     );
                   },
                 ),
