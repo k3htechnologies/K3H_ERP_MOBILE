@@ -155,7 +155,7 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
       bottomNavigationBar: SafeArea(
         child: Container(
           color: AppColor.white,
-          height: 80,
+          height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
             leading:

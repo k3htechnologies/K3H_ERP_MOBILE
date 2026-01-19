@@ -23,7 +23,7 @@ import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubi
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_inventory_specification_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_unit_specification_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/unit_specification_view_screen.dart';
-import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/module_access_screen.dart';
+import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/week_off_mapping.model.dart';

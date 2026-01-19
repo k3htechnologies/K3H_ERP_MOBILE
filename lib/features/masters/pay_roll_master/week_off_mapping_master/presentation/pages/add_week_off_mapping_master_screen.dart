@@ -158,9 +158,7 @@ class _AddWeekOffMappingMasterScreenState
                       initialValue: _selectedWeekOff,
                       dataList: [],
                       onSelected: (value) {
-                        setState(() {
-                          _selectedWeekOff = value;
-                        });
+                        _selectedWeekOff = value;
                       },
                       dataFetchCallBack:
                           _weekOffMappingMasterCubit.fetchWeekOff,
@@ -206,14 +204,13 @@ class _AddWeekOffMappingMasterScreenState
                         initialValue: _selectedEmployee,
                         dataList: [],
                         onSelected: (value) {
-                          setState(() {
-                            _selectedEmployee = value;
-                          });
+                          _selectedEmployee = value;
                         },
                         dataFetchCallBack:
                             _weekOffMappingMasterCubit.fetchEmployees,
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
+                          if ((value == null || value.isEmpty) &&
+                              state.selectedOption == state.options[0]) {
                             return "Employee is required";
                           }
                           return null;
@@ -230,14 +227,13 @@ class _AddWeekOffMappingMasterScreenState
                         initialValue: _selectedDepartment,
                         dataList: [],
                         onSelected: (value) {
-                          setState(() {
-                            _selectedDepartment = value;
-                          });
+                          _selectedDepartment = value;
                         },
                         dataFetchCallBack:
                             _weekOffMappingMasterCubit.fetchDepartment,
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
+                          if ((value == null || value.isEmpty) &&
+                              state.selectedOption == state.options[1]) {
                             return "Department is required";
                           }
                           return null;

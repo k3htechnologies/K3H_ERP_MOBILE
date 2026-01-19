@@ -232,9 +232,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                   isMultiSelect: false,
                   initialValue: _selectWeekOff,
                   onSelected: (value) {
-                    setState(() {
-                      _selectWeekOff = value;
-                    });
+                    _selectWeekOff = value;
                   },
 
                   dataFetchCallBack: (int pageNumber, {String? value}) {
@@ -263,9 +261,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                   isMultiSelect: false,
                   initialValue: _selectWeekOff2,
                   onSelected: (value) {
-                    setState(() {
-                      _selectWeekOff2 = value;
-                    });
+                    _selectWeekOff2 = value;
                   },
 
                   dataFetchCallBack: (int pageNumber, {String? value}) {
@@ -333,9 +329,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                               .map((e) => Map<String, dynamic>.from(e))
                               .toList(),
                   onSelected: (value) {
-                    setState(() {
-                      _selectNotApplicableForMonth = value;
-                    });
+                    _selectNotApplicableForMonth = value;
                   },
 
                   dataFetchCallBack: (int pageNumber, {String? value}) {

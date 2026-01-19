@@ -142,9 +142,7 @@ class _AddShiftMappingMasterScreenState
                   initialValue: _selectedShift,
                   dataList: [],
                   onSelected: (value) {
-                    setState(() {
-                      _selectedShift = value;
-                    });
+                    _selectedShift = value;
                   },
                   dataFetchCallBack: _shiftMappingMasterCubit.fetchShift,
                   validator: (value) {
@@ -162,9 +160,7 @@ class _AddShiftMappingMasterScreenState
                   initialValue: _selectedEmployee,
                   dataList: [],
                   onSelected: (value) {
-                    setState(() {
-                      _selectedEmployee = value;
-                    });
+                    _selectedEmployee = value;
                   },
                   dataFetchCallBack: _shiftMappingMasterCubit.fetchEmployees,
                   validator: (value) {
@@ -181,9 +177,7 @@ class _AddShiftMappingMasterScreenState
                   initialValue: _selectedDepartment,
                   dataList: [],
                   onSelected: (value) {
-                    setState(() {
-                      _selectedDepartment = value;
-                    });
+                    _selectedDepartment = value;
                   },
                   dataFetchCallBack: _shiftMappingMasterCubit.fetchDepartment,
                   validator: (value) {
