@@ -320,7 +320,7 @@ class _DocumentScreenState extends State<DocumentScreen>
       alignment: Alignment.centerLeft,
       child: IntrinsicWidth(
         child: Container(
-          height: 40,
+          height: 30,
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: AppColor.white,

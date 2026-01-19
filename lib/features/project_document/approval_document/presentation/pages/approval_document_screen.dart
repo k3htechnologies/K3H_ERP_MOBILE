@@ -219,7 +219,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "ApprovalDocument",
+        screenTitle: "Approval Document",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
         onSearchSubmit: (value) {
@@ -321,7 +321,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
       alignment: Alignment.centerLeft,
       child: IntrinsicWidth(
         child: Container(
-          height: 40,
+          height: 30,
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: AppColor.white,
