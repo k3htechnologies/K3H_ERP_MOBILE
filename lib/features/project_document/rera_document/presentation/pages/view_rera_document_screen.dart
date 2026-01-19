@@ -63,7 +63,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
           !_documentCubit.state.isLoading! &&
-          _documentCubit.state.subDocumentList.length <
+          _documentCubit.state.reraSubDocumentList.length <
               _documentCubit.state.totalNumberOfRecordOfSubDoc) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
@@ -124,21 +124,21 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
             BlocBuilder<RERADocumentCubit, RERADocumentState>(
               builder: (context, state) {
                 if ((state.isLoading ?? true) &&
-                    state.subDocumentList.isEmpty) {
+                    state.reraSubDocumentList.isEmpty) {
                   return Expanded(child: Center(child: loader()));
                 }
 
-                if (state.subDocumentList.isEmpty) {
+                if (state.reraSubDocumentList.isEmpty) {
                   return Expanded(child: Center(child: noDataWidget()));
                 }
 
                 return Expanded(
                   child: ListView.builder(
                     controller: scrollController,
-                    itemCount: state.subDocumentList.length + 1,
+                    itemCount: state.reraSubDocumentList.length + 1,
                     itemBuilder: (context, index) {
-                      if (index == state.subDocumentList.length) {
-                        return state.subDocumentList.length <
+                      if (index == state.reraSubDocumentList.length) {
+                        return state.reraSubDocumentList.length <
                                 state.totalNumberOfRecordOfSubDoc
                             ? const Padding(
                               padding: EdgeInsets.all(16),
@@ -147,7 +147,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                             : const SizedBox.shrink();
                       }
                       return _buildDocumentCard(
-                        state.subDocumentList[index],
+                        state.reraSubDocumentList[index],
                         index,
                       );
                     },

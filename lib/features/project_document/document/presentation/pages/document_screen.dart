@@ -227,7 +227,9 @@ class _DocumentScreenState extends State<DocumentScreen>
         onProjectChangeCallback: (project) async {
           projectId = project.projectId;
           await _documentCubit.clearDocument();
-          _documentCubit.getCategoryList(context, 1, projectId);
+          if (context.mounted) {
+            _documentCubit.getCategoryList(context, 1, projectId);
+          }
         },
         extraHeight: 20,
         secondaryWidget: CustomButton(

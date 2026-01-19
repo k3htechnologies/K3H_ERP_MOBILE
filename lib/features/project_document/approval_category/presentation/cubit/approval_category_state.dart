@@ -31,7 +31,7 @@ class ApprovalCategoryState extends BaseState {
 
   ApprovalCategoryState copyWith({
     bool? isLoading,
-    List<ApprovalDocumentCategoryModel>? documentCategoryList,
+    List<ApprovalDocumentCategoryModel>? approvalCategoryList,
     int? totalNumberOfRecord,
     int? currentPage,
     String? searchText,
@@ -40,7 +40,7 @@ class ApprovalCategoryState extends BaseState {
   }) {
     return ApprovalCategoryState(
       isLoading: isLoading ?? this.isLoading,
-      approvalCategoryList: documentCategoryList ?? this.approvalCategoryList,
+      approvalCategoryList: approvalCategoryList ?? this.approvalCategoryList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,

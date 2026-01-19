@@ -99,7 +99,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
 
         if (projectRERADocumentId == null) {
           final List<RERADocumentModel> updatedList = [
-            ...state.documentList,
+            ...state.reraDocumentList,
             ...newData,
           ];
           emit(
@@ -112,7 +112,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           );
         } else {
           final List<RERADocumentModel> updatedSubDocList = [
-            ...state.subDocumentList,
+            ...state.reraSubDocumentList,
             ...newData,
           ];
           emit(
@@ -183,10 +183,10 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
 
         final updatedDocument = response['data'][0] as RERADocumentModel;
 
-        if (state.subDocumentList.isNotEmpty &&
-            index < state.subDocumentList.length) {
+        if (state.reraSubDocumentList.isNotEmpty &&
+            index < state.reraSubDocumentList.length) {
           final updatedListModel = List<RERADocumentModel>.from(
-            state.subDocumentList,
+            state.reraSubDocumentList,
           );
 
           updatedListModel[index] = updatedDocument;
@@ -263,10 +263,10 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         goRouter.pop();
         goRouter.pop();
 
-        if (state.documentList.isNotEmpty &&
-            index < state.documentList.length) {
+        if (state.reraDocumentList.isNotEmpty &&
+            index < state.reraDocumentList.length) {
           final updatedListModel = List<RERADocumentModel>.from(
-            state.documentList,
+            state.reraDocumentList,
           );
 
           // Only increment approvalPendingProjectRERADocumentCount & uploadedProjectRERADocumentCount counts in existing parent document instance
@@ -332,10 +332,10 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         goRouter.pop();
         final updatedDocument = response['data'][0] as RERADocumentModel;
 
-        if (state.documentList.isNotEmpty &&
-            index < state.documentList.length) {
+        if (state.reraDocumentList.isNotEmpty &&
+            index < state.reraDocumentList.length) {
           final updatedListModel = List<RERADocumentModel>.from(
-            state.documentList,
+            state.reraDocumentList,
           );
           updatedListModel[index] = updatedDocument;
           emit(
@@ -387,7 +387,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       (response) {
         goRouter.pop();
         final updatedList = response['data'][0] as RERADocumentModel;
-        var list = [updatedList, ...state.documentList];
+        var list = [updatedList, ...state.reraDocumentList];
 
         emit(state.copyWith(reraDocumentList: list));
 
@@ -452,7 +452,9 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
-        final updatedList = List<RERADocumentModel>.from(state.documentList);
+        final updatedList = List<RERADocumentModel>.from(
+          state.reraDocumentList,
+        );
         updatedList.removeAt(index);
         emit(
           state.copyWith(
