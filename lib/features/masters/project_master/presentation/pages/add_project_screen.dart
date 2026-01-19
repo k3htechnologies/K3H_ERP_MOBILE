@@ -192,7 +192,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   }
 
   // API CALL TO ADD/UPDATE PROJECT MASTER
-  Future<void> _addUpdateProject(ProjectModel? project,) async {
+  Future<void> _addUpdateProject(ProjectModel? project) async {
     if (_projectMasterAddUpdateKey.currentState!.validate()) {
       project != null
           ? _projectMasterCubit.updateProject(
@@ -635,7 +635,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                 widget.project != null
                     ? Icon(Icons.edit, size: 18, color: AppColor.white)
                     : Icon(Icons.add, size: 18, color: AppColor.white),
-            text: widget.project != null ? 'Edit' : 'Add',
+            text: widget.project != null ? 'Update' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: () {
               _addUpdateProject(widget.project);

@@ -162,7 +162,7 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
                 widget.department != null
                     ? Icon(Icons.edit, size: 18, color: AppColor.white)
                     : Icon(Icons.add, size: 18, color: AppColor.white),
-            text: widget.department != null ? 'Edit' : 'Add',
+            text: widget.department != null ? 'Update' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: () {
               _addUpdateDepartment(

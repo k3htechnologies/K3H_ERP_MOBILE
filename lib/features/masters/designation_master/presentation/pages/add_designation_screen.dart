@@ -168,7 +168,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                 widget.designationMasterModel != null
                     ? Icon(Icons.edit, size: 18, color: AppColor.white)
                     : Icon(Icons.add, size: 18, color: AppColor.white),
-            text: widget.designationMasterModel != null ? 'Edit' : 'Add',
+            text: widget.designationMasterModel != null ? 'Update' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: () {
               _addUpdateDesignation(

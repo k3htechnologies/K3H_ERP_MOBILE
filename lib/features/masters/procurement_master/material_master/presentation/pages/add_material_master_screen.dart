@@ -166,7 +166,7 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
                 widget.material != null
                     ? const Icon(Icons.edit, size: 18, color: AppColor.white)
                     : const Icon(Icons.add, size: 18, color: AppColor.white),
-            text: widget.material != null ? 'Edit' : 'Add',
+            text: widget.material != null ? 'Update' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: () => _addUpdateMaterial(),
           ),
