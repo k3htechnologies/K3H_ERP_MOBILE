@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
-import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_cubit.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -12,11 +12,11 @@ import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
-class AddDocumentScreen extends StatefulWidget {
-  final DocumentModel? documentModel;
+class AddRERADocumentScreen extends StatefulWidget {
+  final RERADocumentModel? documentModel;
   final int index;
   final bool isEdit;
-  const AddDocumentScreen({
+  const AddRERADocumentScreen({
     super.key,
     required this.documentModel,
     this.index = 0,
@@ -24,12 +24,12 @@ class AddDocumentScreen extends StatefulWidget {
   });
 
   @override
-  State<AddDocumentScreen> createState() => _AddDocumentScreenState();
+  State<AddRERADocumentScreen> createState() => _AddRERADocumentScreenState();
 }
 
-class _AddDocumentScreenState extends State<AddDocumentScreen> {
+class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
   //CUBIT
-  late DocumentCubit _documentCubit;
+  late RERADocumentCubit _documentCubit;
 
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
@@ -69,7 +69,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
   void initState() {
     super.initState();
     _routeAuthorizationModel = AuthorizationModel();
-    _documentCubit = context.read<DocumentCubit>();
+    _documentCubit = context.read<RERADocumentCubit>();
     _initializeTextEditingController();
     if (_isEditMode) _prefillForm(widget.documentModel!);
   }
@@ -83,57 +83,57 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
       return;
     }
     if (!widget.isEdit) {
-      _documentCubit.addSubDocument(
+      _documentCubit.addRERASubDocument(
         context: context,
         index: widget.index,
         uniqueKey: widget.documentModel!.uniquekey,
-        projectDocumentId: widget.documentModel!.projectDocumentId,
-        projectDocumentCategoryId:
-            widget.documentModel!.projectDocumentCategoryId,
+        projectRERADocumentId: widget.documentModel!.projectRERADocumentId,
+        projectRERADocumentCategoryId:
+            widget.documentModel!.projectRERADocumentCategoryId,
         documents: selectedDocumentFile,
-        projectDocumentStatus: _selectedStatus[0]['DisplayName'],
-        projectDocumentExpiryDate: expiryDate,
-        projectDocumentRemark: _remarkC.text.trim(),
+        projectRERADocumentStatus: _selectedStatus[0]['DisplayName'],
+        projectRERADocumentExpiryDate: expiryDate,
+        projectRERADocumentRemark: _remarkC.text.trim(),
       );
     } else {
-      _documentCubit.updateSubDocument(
+      _documentCubit.updateRERASubDocument(
         context: context,
         index: widget.index,
         uniqueKey: widget.documentModel!.uniquekey,
-        projectDocumentId: widget.documentModel!.projectDocumentId,
-        projectDocumentCategoryId:
-            widget.documentModel!.projectDocumentCategoryId,
+        projectRERADocumentId: widget.documentModel!.projectRERADocumentId,
+        projectRERADocumentCategoryId:
+            widget.documentModel!.projectRERADocumentCategoryId,
         documents: selectedDocumentFile,
-        projectDocumentStatus: _selectedStatus[0]['DisplayName'],
-        projectDocumentExpiryDate: expiryDate,
-        projectDocumentRemark: _remarkC.text.trim(),
+        projectRERADocumentStatus: _selectedStatus[0]['DisplayName'],
+        projectRERADocumentExpiryDate: expiryDate,
+        projectRERADocumentRemark: _remarkC.text.trim(),
       );
     }
   }
 
-  void _prefillForm(DocumentModel document) {
+  void _prefillForm(RERADocumentModel document) {
     // Find the matching status in the list
     final matchedStatus = statusList.firstWhere(
-      (status) => status['DisplayName'] == document.projectDocumentStatus,
+      (status) => status['DisplayName'] == document.projectRERADocumentStatus,
       orElse: () => statusList.first, // fallback to "Select Status"
     );
 
     _selectedStatus = [matchedStatus];
 
     // Prefill expiry date
-    expiryDate = document.projectDocumentExpiryDate;
+    expiryDate = document.projectRERADocumentExpiryDate;
 
     // Prefill remark text
     _remarkC.text =
-        document.projectDocumentRemark.isNotEmpty
-            ? document.projectDocumentRemark
+        document.projectRERADocumentRemark.isNotEmpty
+            ? document.projectRERADocumentRemark
             : "";
 
     // Prefill files if any
     selectedDocumentFile.fileNameList =
-        document.projectDocumentURL.isEmpty
+        document.projectRERADocumentURL.isEmpty
             ? []
-            : document.projectDocumentURL.split(",");
+            : document.projectRERADocumentURL.split(",");
   }
 
   @override

@@ -19,13 +19,6 @@ abstract interface class RERADocumentCategoryDatasource {
     required int projectId,
     required String uniqueKey,
   });
-
-  Future<Map<String, dynamic>> apicallPullProjectRERADocumentCategoryForExport({
-    required int pageNumber,
-    required int pageSize,
-    required int projectId,
-    Map<String, dynamic>? queryParams,
-  });
 }
 
 class RERADocumentCategoryDatasourceImpl
@@ -141,51 +134,6 @@ class RERADocumentCategoryDatasourceImpl
           projectDocumentCategoryId: projectDocumentCategoryId,
           projectId: projectId,
           uniqueKey: uniqueKey,
-        );
-      }
-      rethrow;
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> apicallPullProjectRERADocumentCategoryForExport({
-    required int pageNumber,
-    required int pageSize,
-    required int projectId,
-    Map<String, dynamic>? queryParams,
-  }) async {
-    String pullProjectDocumentCategoryExportUrl({
-      required int pageSize,
-      required int pageNumber,
-      required int projectId,
-      Map<String, dynamic>? queryParams,
-    }) {
-      String url =
-          "ProjectRERADocumentCategory/PullProjectRERADocumentCategory?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
-      return url;
-    }
-
-    try {
-      var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullProjectDocumentCategoryExportUrl(
-          pageSize: pageSize,
-          pageNumber: pageNumber,
-          projectId: projectId,
-          queryParams: queryParams,
-        ),
-      );
-      return {
-        'data': networkResponse["data"],
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
-      };
-    } catch (error) {
-      if (error is TokenExpiredException) {
-        apicallPullProjectRERADocumentCategoryForExport(
-          pageNumber: pageNumber,
-          pageSize: pageSize,
-          projectId: projectId,
-          queryParams: queryParams,
         );
       }
       rethrow;

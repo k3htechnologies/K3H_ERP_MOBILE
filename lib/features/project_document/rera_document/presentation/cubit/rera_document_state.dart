@@ -1,23 +1,25 @@
-part of 'document_cubit.dart';
+import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document_category/data/model/rera_document_category.model.dart';
 
-class DocumentState extends BaseState {
+class RERADocumentState extends BaseState {
   final int categoryIndex;
-  final int projectDocumentCategoryId;
-  final List<DocumentModel> documentList;
-  final List<DocumentModel> subDocumentList;
-  final List<DocumentCategoryModel> documentCategoryModelList;
+  final int projectRERADocumentCategoryId;
+  final List<RERADocumentModel> documentList;
+  final List<RERADocumentModel> subDocumentList;
+  final List<RERADocumentCategoryModel> documentCategoryModelList;
   final int totalNumberOfRecord;
-  final int totalNumberOfRecordOfSubDoc;
   final int currentPage;
   final int currentPageOfSubDoc;
+  final int totalNumberOfRecordOfSubDoc;
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
 
-  const DocumentState({
+  const RERADocumentState({
     super.isLoading,
     required this.categoryIndex,
-    required this.projectDocumentCategoryId,
+    required this.projectRERADocumentCategoryId,
     required this.documentList,
     required this.subDocumentList,
     required this.documentCategoryModelList,
@@ -30,9 +32,9 @@ class DocumentState extends BaseState {
     required this.currentPageOfSubDoc,
   });
 
-  factory DocumentState.initial() => DocumentState(
+  factory RERADocumentState.initial() => RERADocumentState(
     categoryIndex: 0,
-    projectDocumentCategoryId: 0,
+    projectRERADocumentCategoryId: 0,
     documentList: [],
     subDocumentList: [],
     documentCategoryModelList: [],
@@ -46,14 +48,14 @@ class DocumentState extends BaseState {
     currentSortDirection: "DESC",
   );
 
-  DocumentState copyWith({
+  RERADocumentState copyWith({
     bool? isLoading,
     int? categoryIndex,
     int? currentPageOfSubDoc,
-    int? projectDocumentCategoryId,
-    List<DocumentModel>? documentList,
-    List<DocumentModel>? subDocumentList,
-    List<DocumentCategoryModel>? documentCategoryModelList,
+    int? projectRERADocumentCategoryId,
+    List<RERADocumentModel>? reraDocumentList,
+    List<RERADocumentModel>? reraSubDocumentList,
+    List<RERADocumentCategoryModel>? documentCategoryModelList,
     int? totalNumberOfRecord,
     int? totalNumberOfRecordOfSubDoc,
     int? currentPage,
@@ -61,13 +63,13 @@ class DocumentState extends BaseState {
     String? currentSortColumn,
     String? currentSortDirection,
   }) {
-    return DocumentState(
+    return RERADocumentState(
       isLoading: isLoading ?? this.isLoading,
       categoryIndex: categoryIndex ?? this.categoryIndex,
-      projectDocumentCategoryId:
-          projectDocumentCategoryId ?? this.projectDocumentCategoryId,
-      documentList: documentList ?? this.documentList,
-      subDocumentList: subDocumentList ?? this.subDocumentList,
+      projectRERADocumentCategoryId:
+          projectRERADocumentCategoryId ?? this.projectRERADocumentCategoryId,
+      documentList: reraDocumentList ?? this.documentList,
+      subDocumentList: reraSubDocumentList ?? this.subDocumentList,
       documentCategoryModelList:
           documentCategoryModelList ?? this.documentCategoryModelList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
@@ -85,7 +87,7 @@ class DocumentState extends BaseState {
   List<Object?> get props => [
     isLoading,
     categoryIndex,
-    projectDocumentCategoryId,
+    projectRERADocumentCategoryId,
     documentList,
     subDocumentList,
     documentCategoryModelList,

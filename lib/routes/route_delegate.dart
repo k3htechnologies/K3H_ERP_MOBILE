@@ -159,6 +159,11 @@ import 'package:k3h_erp_app/features/project_document/document_category/presenta
 import 'package:k3h_erp_app/features/project_document/document_category/presentation/pages/add_document_category_screen.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/presentation/pages/document_category_screen.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/presentation/pages/view_document_category_screen.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/presentation/pages/add_rera_document_screen.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/presentation/pages/rera_document_screen.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/presentation/pages/view_rera_document_screen.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/data/model/rera_document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/cubit/rera_document_category_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/pages/add_rera_document_category_screen.dart';
@@ -2267,6 +2272,9 @@ final GoRouter goRouter = GoRouter(
                 BlocProvider<RERADocumentCategoryCubit>(
                   create: (_) => RERADocumentCategoryCubit(),
                 ),
+                BlocProvider<RERADocumentCubit>(
+                  create: (_) => RERADocumentCubit(),
+                ),
               ],
               child: child,
             );
@@ -2429,6 +2437,94 @@ final GoRouter goRouter = GoRouter(
 
                     return ViewDocumentCategoryScreen(
                       documentCategoryModel: documentCategory!,
+                    );
+                  },
+                ),
+              ],
+            ),
+            // Rera Document
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider<RERADocumentCubit>.value(
+                  value: context.read<RERADocumentCubit>(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.rera,
+                  path: AppRoutes.rera,
+                  builder: (context, state) {
+                    return const RERADocumentScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addReraDocument,
+                  path: AppRoutes.addReraDocument,
+                  builder: (context, state) {
+                    final queryParameterDocument =
+                        state.uri.queryParameters['reraDocument'];
+
+                    final RERADocumentModel? document =
+                        queryParameterDocument != null
+                            ? RERADocumentModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterDocument),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(
+                              state.uri.queryParameters['index'] ?? '0',
+                            ),
+                          ),
+                        ) ??
+                        0;
+
+                    final isEdit = bool.parse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['isEdit'] ?? 'false',
+                        ),
+                      ),
+                    );
+                    return AddRERADocumentScreen(
+                      documentModel: document,
+                      index: index,
+                      isEdit: isEdit,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewReraDocument,
+                  path: AppRoutes.viewReraDocument,
+                  builder: (context, state) {
+                    final queryParameterDocument =
+                        state.uri.queryParameters['reraDocument'];
+                    final RERADocumentModel? document =
+                        queryParameterDocument != null
+                            ? RERADocumentModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterDocument),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return ViewRERADocumentScreen(
+                      documentModel: document!,
+                      index: index,
                     );
                   },
                 ),

@@ -52,6 +52,17 @@ class ViewRERADocumentCategoryScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildColumnTitleValue(
+                          title: "Document Count",
+                          value:
+                              reraDocumentCategoryModel.documentCount
+                                  .toString(),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

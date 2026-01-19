@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
-import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -17,23 +18,23 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class ViewDocumentScreen extends StatefulWidget {
+class ViewRERADocumentScreen extends StatefulWidget {
   final int index;
-  final DocumentModel documentModel;
+  final RERADocumentModel documentModel;
 
-  const ViewDocumentScreen({
+  const ViewRERADocumentScreen({
     super.key,
     required this.documentModel,
     this.index = 0,
   });
 
   @override
-  State<ViewDocumentScreen> createState() => _ViewDocumentScreenState();
+  State<ViewRERADocumentScreen> createState() => _ViewRERADocumentScreenState();
 }
 
-class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
+class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   //CUBIT
-  late DocumentCubit _documentCubit;
+  late RERADocumentCubit _documentCubit;
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
 
@@ -45,13 +46,13 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
   void initState() {
     super.initState();
     _onScroll();
-    _documentCubit = context.read<DocumentCubit>();
+    _documentCubit = context.read<RERADocumentCubit>();
     _routeAuthorizationModel = AuthorizationModel();
 
-    _documentCubit.getProjectDocumentList(
+    _documentCubit.getProjectRERADocumentList(
       context: context,
       pageNumber: 1,
-      projectDocumentId: widget.documentModel.projectDocumentId,
+      projectRERADocumentId: widget.documentModel.projectRERADocumentId,
     );
   }
 
@@ -67,10 +68,10 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _documentCubit.getProjectDocumentList(
+          _documentCubit.getProjectRERADocumentList(
             context: context,
             pageNumber: _documentCubit.state.currentPageOfSubDoc + 1,
-            projectDocumentId: widget.documentModel.projectDocumentId,
+            projectRERADocumentId: widget.documentModel.projectRERADocumentId,
           );
         });
       }
@@ -78,16 +79,10 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
   }
 
   @override
-  void dispose() {
-    scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "Documents",
+        screenTitle: "RERA Documents",
         authorization: _routeAuthorizationModel,
       ),
       body: Padding(
@@ -100,7 +95,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  widget.documentModel.projectDocumentName,
+                  widget.documentModel.projectRERADocumentName,
                   style: AppTextStyle.ts16SB(),
                 ),
                 CustomButton(
@@ -108,9 +103,9 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                   text: "Add",
                   onPressed: () {
                     goRouter.pushNamed(
-                      AppRoutes.addDocument,
+                      AppRoutes.addReraDocument,
                       queryParameters: {
-                        "document": Uri.encodeQueryComponent(
+                        "reraDocument": Uri.encodeQueryComponent(
                           EncryptionManager.encryptData(
                             jsonEncode(widget.documentModel.toJson()),
                           ),
@@ -130,7 +125,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
               ],
             ),
 
-            BlocBuilder<DocumentCubit, DocumentState>(
+            BlocBuilder<RERADocumentCubit, RERADocumentState>(
               builder: (context, state) {
                 if ((state.isLoading ?? true) &&
                     state.subDocumentList.isEmpty) {
@@ -190,7 +185,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
   }
 
   //DOCUMENT CARD
-  Widget _buildDocumentCard(DocumentModel document, int index) {
+  Widget _buildDocumentCard(RERADocumentModel document, int index) {
     return Container(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 10),
@@ -205,16 +200,16 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
             children: [
               Expanded(
                 child: Text(
-                  document.projectDocumentName,
+                  document.projectRERADocumentName,
                   style: AppTextStyle.ts16SB(),
                 ),
               ),
               CustomIconButton.edit(
                 onPressed: () {
                   goRouter.pushNamed(
-                    AppRoutes.addDocument,
+                    AppRoutes.addReraDocument,
                     queryParameters: {
-                      "document": Uri.encodeQueryComponent(
+                      "reraDocument": Uri.encodeQueryComponent(
                         EncryptionManager.encryptData(
                           jsonEncode(document.toJson()),
                         ),
@@ -241,14 +236,16 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                 valueWidget: Container(
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
                   decoration: BoxDecoration(
-                    color: getBgColorByStatus(document.projectDocumentStatus),
+                    color: getBgColorByStatus(
+                      document.projectRERADocumentStatus,
+                    ),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    document.projectDocumentStatus,
+                    document.projectRERADocumentStatus,
                     style: AppTextStyle.ts12M(
                       color: getTxtColorByStatus(
-                        document.projectDocumentStatus,
+                        document.projectRERADocumentStatus,
                       ),
                     ),
                   ),
@@ -257,9 +254,9 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
               _buildColumnTitleValue(
                 title: "Expiry Date",
                 value:
-                    document.projectDocumentExpiryDate != null
+                    document.projectRERADocumentExpiryDate != null
                         ? formatDateTimeAsDDMMMYYYY(
-                          document.projectDocumentExpiryDate!,
+                          document.projectRERADocumentExpiryDate!,
                         )
                         : '-',
               ),
@@ -286,7 +283,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
             children: [
               _buildColumnTitleValue(
                 title: "Remark",
-                value: document.projectDocumentRemark,
+                value: document.projectRERADocumentRemark,
               ),
               _buildColumnTitleValue(
                 title: "View Document",
@@ -294,7 +291,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                   onTap: () {
                     showFilePreviewDialog(
                       context,
-                      document.projectDocumentURL.split(","),
+                      document.projectRERADocumentURL.split(","),
                     );
                   },
                   child: Row(

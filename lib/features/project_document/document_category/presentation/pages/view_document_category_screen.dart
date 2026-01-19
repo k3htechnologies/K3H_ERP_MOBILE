@@ -51,6 +51,15 @@ class ViewDocumentCategoryScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildColumnTitleValue(
+                          title: "Document Count",
+                          value: documentCategoryModel.documentCount.toString(),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

@@ -6,6 +6,7 @@ class RERADocumentCategoryModel {
   String uniquekey;
   String projectRERADocumentCategoryName;
   int orderBy;
+  int documentCount;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -19,6 +20,7 @@ class RERADocumentCategoryModel {
     required this.uniquekey,
     required this.projectRERADocumentCategoryName,
     required this.orderBy,
+    required this.documentCount,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -41,6 +43,7 @@ class RERADocumentCategoryModel {
         ),
         orderBy: parseValue(json, "OrderBy"),
         createdById: parseValue(json, "CreatedById"),
+        documentCount: parseValue(json, "DocumentCount"),
         createdBy: parseValue(json, "CreatedBy"),
         createdDate: DateTime.parse(json["CreatedDate"]),
         modifiedById: parseValue(json, "ModifiedById"),
@@ -57,6 +60,7 @@ class RERADocumentCategoryModel {
     "Uniquekey": uniquekey,
     "ProjectRERADocumentCategoryName": projectRERADocumentCategoryName,
     "OrderBy": orderBy,
+    "DocumentCount": documentCount,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
