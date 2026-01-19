@@ -108,6 +108,8 @@ import 'package:k3h_erp_app/features/more/events/calendar/presentation/pages/cal
 import 'package:k3h_erp_app/features/more/events/task/presentation/pages/task_transfer_history_screen.dart';
 import 'package:k3h_erp_app/features/notification/presentation/cubit/notification_cubit.dart';
 import 'package:k3h_erp_app/features/notification/presentation/pages/notification_screen.dart';
+import 'package:k3h_erp_app/features/parking/presentation/cubit/parking_cubit.dart';
+import 'package:k3h_erp_app/features/parking/presentation/pages/parking_screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
@@ -2186,6 +2188,21 @@ final GoRouter goRouter = GoRouter(
                     goRouter.pop(savedSpec);
                   },
                 );
+              },
+            ),
+          ],
+        ),
+        // PARKING
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(create: (_) => ParkingCubit(), child: child);
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.parking,
+              path: AppRoutes.parking,
+              builder: (context, state) {
+                return const ParkingScreen();
               },
             ),
           ],

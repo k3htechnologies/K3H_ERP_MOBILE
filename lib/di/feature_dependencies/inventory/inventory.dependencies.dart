@@ -4,9 +4,13 @@ import 'package:k3h_erp_app/features/inventory/data/repository/inventory.reposit
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
 
 void registerInventoryDependencies(GetIt serviceLocator) {
-  serviceLocator.registerSingleton<InventoryDatasource>(InventoryDatasourceImpl());
+  serviceLocator.registerSingleton<InventoryDatasource>(
+    InventoryDatasourceImpl(),
+  );
   serviceLocator.registerSingleton<InventoryRepository>(
-    InventoryRepositoryImpl(inventoryDatasource: serviceLocator<InventoryDatasource>()),
+    InventoryRepositoryImpl(
+      inventoryDatasource: serviceLocator<InventoryDatasource>(),
+    ),
   );
 
   // <----- CUBITS ----->
