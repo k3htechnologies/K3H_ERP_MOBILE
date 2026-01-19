@@ -155,14 +155,14 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
       bottomNavigationBar: SafeArea(
         child: Container(
           color: AppColor.white,
-          height: 80,
+          height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
             leading:
                 widget.department != null
                     ? Icon(Icons.edit, size: 18, color: AppColor.white)
                     : Icon(Icons.add, size: 18, color: AppColor.white),
-            text: widget.department != null ? 'Edit' : 'Add',
+            text: widget.department != null ? 'Update' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: () {
               _addUpdateDepartment(

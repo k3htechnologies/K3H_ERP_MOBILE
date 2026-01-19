@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/module_access_screen.dart';
+import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -192,7 +192,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   }
 
   // API CALL TO ADD/UPDATE PROJECT MASTER
-  Future<void> _addUpdateProject(ProjectModel? project,) async {
+  Future<void> _addUpdateProject(ProjectModel? project) async {
     if (_projectMasterAddUpdateKey.currentState!.validate()) {
       project != null
           ? _projectMasterCubit.updateProject(
@@ -635,7 +635,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                 widget.project != null
                     ? Icon(Icons.edit, size: 18, color: AppColor.white)
                     : Icon(Icons.add, size: 18, color: AppColor.white),
-            text: widget.project != null ? 'Edit' : 'Add',
+            text: widget.project != null ? 'Update' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: () {
               _addUpdateProject(widget.project);

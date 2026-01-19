@@ -170,7 +170,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
     }
     await DialogHelper.showCustomBottomSheet(
       context,
-      documentModel != null ? 'Edit Document' : 'Add Document',
+      documentModel != null ? 'Update Document Name' : 'Add Document Name',
       Form(
         key: _formKey,
         child: Padding(
@@ -179,12 +179,13 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
           child: Column(
             children: [
               CustomTextField(
-                title: "ApprovalDocument",
-                hint: "Enter ApprovalDocument",
+                title: "Document Name",
+                hint: "Enter Document Name",
+                isRequired: true,
                 textController: _documentC,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return "ApprovalDocument is required";
+                    return "Document Name is required";
                   }
                   return null;
                 },
@@ -219,7 +220,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "ApprovalDocument",
+        screenTitle: "Approval Document",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
         onSearchSubmit: (value) {
@@ -257,14 +258,19 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
           },
           child: BlocBuilder<ApprovalDocumentCubit, ApprovalDocumentState>(
             builder: (context, state) {
-              if ((state.isLoading! &&
-                      state.documentCategoryModelList.isEmpty) ||
-                  _categoryTabController == null) {
+              // 1. Initial loading
+              if (state.isLoading! && state.documentCategoryModelList.isEmpty) {
                 return const Center(child: CircularProgressIndicator());
               }
 
+              // 2. Loaded but no categories
               if (state.documentCategoryModelList.isEmpty) {
                 return noDataWidget();
+              }
+
+              // 3. Categories exist but controller not ready yet
+              if (_categoryTabController == null) {
+                return const Center(child: CircularProgressIndicator());
               }
 
               return Column(
@@ -321,7 +327,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
       alignment: Alignment.centerLeft,
       child: IntrinsicWidth(
         child: Container(
-          height: 40,
+          height: 30,
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: AppColor.white,

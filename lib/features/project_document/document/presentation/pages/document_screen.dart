@@ -169,7 +169,7 @@ class _DocumentScreenState extends State<DocumentScreen>
     }
     await DialogHelper.showCustomBottomSheet(
       context,
-      documentModel != null ? 'Edit Document' : 'Add Document',
+      documentModel != null ? 'Update Document Name' : 'Add Document Name',
       Form(
         key: _formKey,
         child: Padding(
@@ -178,12 +178,13 @@ class _DocumentScreenState extends State<DocumentScreen>
           child: Column(
             children: [
               CustomTextField(
-                title: "Document",
-                hint: "Enter Document",
+                title: "Document Name",
+                hint: "Enter Document Name",
                 textController: _documentC,
+                isRequired: true,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return "Document is required";
+                    return "Document Name is required";
                   }
                   return null;
                 },
@@ -256,14 +257,19 @@ class _DocumentScreenState extends State<DocumentScreen>
           },
           child: BlocBuilder<DocumentCubit, DocumentState>(
             builder: (context, state) {
-              if ((state.isLoading! &&
-                      state.documentCategoryModelList.isEmpty) ||
-                  _categoryTabController == null) {
+              // 1. Initial loading
+              if (state.isLoading! && state.documentCategoryModelList.isEmpty) {
                 return const Center(child: CircularProgressIndicator());
               }
 
+              // 2. Loaded but no categories
               if (state.documentCategoryModelList.isEmpty) {
                 return noDataWidget();
+              }
+
+              // 3. Categories exist but controller not ready yet
+              if (_categoryTabController == null) {
+                return const Center(child: CircularProgressIndicator());
               }
 
               return Column(
@@ -320,7 +326,7 @@ class _DocumentScreenState extends State<DocumentScreen>
       alignment: Alignment.centerLeft,
       child: IntrinsicWidth(
         child: Container(
-          height: 40,
+          height: 30,
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: AppColor.white,
