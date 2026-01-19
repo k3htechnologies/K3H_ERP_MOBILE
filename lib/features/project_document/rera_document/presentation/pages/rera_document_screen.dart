@@ -62,7 +62,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
           !_reraDocumentCubit.state.isLoading! &&
-          _reraDocumentCubit.state.documentList.length <
+          _reraDocumentCubit.state.reraDocumentList.length <
               _reraDocumentCubit.state.totalNumberOfRecord) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
@@ -276,7 +276,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                       children:
                           state.documentCategoryModelList.map((category) {
                             final documentsForCategory =
-                                state.documentList
+                                state.reraDocumentList
                                     .where(
                                       (d) =>
                                           d.projectRERADocumentCategoryId ==
@@ -285,7 +285,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                                     )
                                     .toList();
 
-                            return (state.documentList.isEmpty &&
+                            return (state.reraDocumentList.isEmpty &&
                                     state.isLoading!)
                                 ? const Center(
                                   child: CircularProgressIndicator(),
@@ -366,7 +366,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
 
           itemBuilder: (context, index) {
             if (index == documents.length) {
-              return state.documentList.length < state.totalNumberOfRecord
+              return state.reraDocumentList.length < state.totalNumberOfRecord
                   ? const Padding(
                     padding: EdgeInsets.all(16),
                     child: Center(child: CircularProgressIndicator()),

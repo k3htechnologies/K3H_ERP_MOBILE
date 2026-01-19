@@ -5,8 +5,8 @@ import 'package:k3h_erp_app/features/project_document/rera_document_category/dat
 class RERADocumentState extends BaseState {
   final int categoryIndex;
   final int projectRERADocumentCategoryId;
-  final List<RERADocumentModel> documentList;
-  final List<RERADocumentModel> subDocumentList;
+  final List<RERADocumentModel> reraDocumentList;
+  final List<RERADocumentModel> reraSubDocumentList;
   final List<RERADocumentCategoryModel> documentCategoryModelList;
   final int totalNumberOfRecord;
   final int currentPage;
@@ -20,8 +20,8 @@ class RERADocumentState extends BaseState {
     super.isLoading,
     required this.categoryIndex,
     required this.projectRERADocumentCategoryId,
-    required this.documentList,
-    required this.subDocumentList,
+    required this.reraDocumentList,
+    required this.reraSubDocumentList,
     required this.documentCategoryModelList,
     required this.totalNumberOfRecord,
     required this.totalNumberOfRecordOfSubDoc,
@@ -35,8 +35,8 @@ class RERADocumentState extends BaseState {
   factory RERADocumentState.initial() => RERADocumentState(
     categoryIndex: 0,
     projectRERADocumentCategoryId: 0,
-    documentList: [],
-    subDocumentList: [],
+    reraDocumentList: [],
+    reraSubDocumentList: [],
     documentCategoryModelList: [],
     totalNumberOfRecord: 0,
     totalNumberOfRecordOfSubDoc: 0,
@@ -68,8 +68,8 @@ class RERADocumentState extends BaseState {
       categoryIndex: categoryIndex ?? this.categoryIndex,
       projectRERADocumentCategoryId:
           projectRERADocumentCategoryId ?? this.projectRERADocumentCategoryId,
-      documentList: reraDocumentList ?? this.documentList,
-      subDocumentList: reraSubDocumentList ?? this.subDocumentList,
+      reraDocumentList: reraDocumentList ?? this.reraDocumentList,
+      reraSubDocumentList: reraSubDocumentList ?? this.reraSubDocumentList,
       documentCategoryModelList:
           documentCategoryModelList ?? this.documentCategoryModelList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
@@ -88,8 +88,8 @@ class RERADocumentState extends BaseState {
     isLoading,
     categoryIndex,
     projectRERADocumentCategoryId,
-    documentList,
-    subDocumentList,
+    reraDocumentList,
+    reraSubDocumentList,
     documentCategoryModelList,
     totalNumberOfRecord,
     totalNumberOfRecordOfSubDoc,

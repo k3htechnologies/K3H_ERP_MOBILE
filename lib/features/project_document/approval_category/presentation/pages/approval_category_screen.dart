@@ -50,7 +50,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
     _onScroll();
     //SET PROJECT ID
     projectId = getProject().projectId;
-    _documentCategoryCubit.getApprovalDocumentCategoryList(
+    _documentCategoryCubit.getApprovalapprovalCategoryList(
       context,
       1,
       projectId,
@@ -66,7 +66,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
           _documentCategoryCubit.state.approvalCategoryList.length <
               _documentCategoryCubit.state.totalNumberOfRecord) {
         if (projectId != 0) {
-          _documentCategoryCubit.getApprovalDocumentCategoryList(
+          _documentCategoryCubit.getApprovalapprovalCategoryList(
             context,
             _documentCategoryCubit.state.currentPage + 1,
 

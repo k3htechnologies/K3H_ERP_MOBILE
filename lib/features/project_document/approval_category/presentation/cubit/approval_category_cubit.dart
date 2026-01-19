@@ -15,7 +15,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
       serviceLocator<ApprovalCategoryRepository>();
 
   // <---- GET APPROVE DOCUMENT CATEGORY LIST ---->
-  Future getApprovalDocumentCategoryList(
+  Future getApprovalapprovalCategoryList(
     BuildContext context,
     int pageNumber,
     int projectId,
@@ -47,7 +47,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
                 : [...state.approvalCategoryList, ...newData];
         emit(
           state.copyWith(
-            documentCategoryList: updatedList,
+            approvalCategoryList: updatedList,
             isLoading: false,
             totalNumberOfRecord: response["totalNumberOfRecord"],
             currentPage: pageNumber,
@@ -66,11 +66,11 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
     emit(
       state.copyWith(
         searchText: value,
-        documentCategoryList: [],
+        approvalCategoryList: [],
         currentPage: 1,
       ),
     );
-    await getApprovalDocumentCategoryList(context, 1, projectId);
+    await getApprovalapprovalCategoryList(context, 1, projectId);
   }
 
   // <---- CLEAR APPROVE DOCUMENT CATEGORY LIST ---->
@@ -78,7 +78,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
     try {
       emit(
         state.copyWith(
-          documentCategoryList: [],
+          approvalCategoryList: [],
           currentPage: 1,
           totalNumberOfRecord: 0,
           isLoading: true,
@@ -118,7 +118,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
           subTitle: "Document Category Deleted Successfully",
         );
 
-        getApprovalDocumentCategoryList(context, state.currentPage, projectId);
+        getApprovalapprovalCategoryList(context, state.currentPage, projectId);
       },
     );
   }
@@ -154,7 +154,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
         var list = [newResponse, ...state.approvalCategoryList];
         emit(
           state.copyWith(
-            documentCategoryList: list,
+            approvalCategoryList: list,
             totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
         );
@@ -203,7 +203,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
             state.approvalCategoryList,
           );
           updatedListModel[index] = updatedList;
-          emit(state.copyWith(documentCategoryList: updatedListModel));
+          emit(state.copyWith(approvalCategoryList: updatedListModel));
         }
 
         showSuccessMessage(
