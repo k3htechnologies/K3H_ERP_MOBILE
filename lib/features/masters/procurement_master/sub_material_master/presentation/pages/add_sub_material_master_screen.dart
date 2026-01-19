@@ -79,13 +79,13 @@ class _AddSubMaterialMasterScreenState
       {
         "zAttributesId": subMaterial.materialMasterId,
         "DisplayName": subMaterial.materialName,
-      }
+      },
     ];
     _selectedUOM = [
       {
         "zAttributesId": subMaterial.uomMasterId,
         "DisplayName": subMaterial.uom,
-      }
+      },
     ];
   }
 
@@ -97,9 +97,8 @@ class _AddSubMaterialMasterScreenState
     var result = await _materialMasterRepository.getMaterialList(
       pageNumber: pageNumber,
       pageSize: 20,
-      queryParams: value != null && value.isNotEmpty
-          ? {"MaterialName": value}
-          : null,
+      queryParams:
+          value != null && value.isNotEmpty ? {"MaterialName": value} : null,
     );
     return result.fold(
       (failure) => {"itemList": [], "totalNumberOfRecord": 0},
@@ -107,10 +106,12 @@ class _AddSubMaterialMasterScreenState
         List<Map<String, dynamic>> materialList =
             (response['data'] as List)
                 .map((material) => MaterialMasterModel.fromJson(material))
-                .map((material) => {
-                      "zAttributesId": material.materialMasterId,
-                      "DisplayName": material.materialName,
-                    })
+                .map(
+                  (material) => {
+                    "zAttributesId": material.materialMasterId,
+                    "DisplayName": material.materialName,
+                  },
+                )
                 .toList();
         return {
           "itemList": materialList,
@@ -136,10 +137,12 @@ class _AddSubMaterialMasterScreenState
         List<Map<String, dynamic>> uomList =
             (response['data'] as List)
                 .map((uom) => UOMModel.fromJson(uom))
-                .map((uom) => {
-                      "zAttributesId": uom.uomMasterId,
-                      "DisplayName": uom.uom,
-                    })
+                .map(
+                  (uom) => {
+                    "zAttributesId": uom.uomMasterId,
+                    "DisplayName": uom.uom,
+                  },
+                )
                 .toList();
         return {
           "itemList": uomList,
@@ -153,15 +156,15 @@ class _AddSubMaterialMasterScreenState
   Future<void> _addUpdateSubMaterial() async {
     if (_formKey.currentState!.validate()) {
       if (_selectedMaterial == null || _selectedMaterial!.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select Material')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Please select Material')));
         return;
       }
       if (_selectedUOM == null || _selectedUOM!.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select UOM')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Please select UOM')));
         return;
       }
 
@@ -204,7 +207,7 @@ class _AddSubMaterialMasterScreenState
             children: [
               Text(
                 widget.subMaterial != null
-                    ? "Edit Sub Material"
+                    ? "Update Sub Material"
                     : "Add Sub Material",
                 style: AppTextStyle.ts16SB(),
               ),
@@ -279,9 +282,10 @@ class _AddSubMaterialMasterScreenState
           height: 80,
           padding: const EdgeInsets.all(16),
           child: CustomButton(
-            leading: widget.subMaterial != null
-                ? const Icon(Icons.edit, size: 18, color: AppColor.white)
-                : const Icon(Icons.add, size: 18, color: AppColor.white),
+            leading:
+                widget.subMaterial != null
+                    ? const Icon(Icons.edit, size: 18, color: AppColor.white)
+                    : const Icon(Icons.add, size: 18, color: AppColor.white),
             text: widget.subMaterial != null ? 'Edit' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: _addUpdateSubMaterial,
@@ -291,4 +295,3 @@ class _AddSubMaterialMasterScreenState
     );
   }
 }
-

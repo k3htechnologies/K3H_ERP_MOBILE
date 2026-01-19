@@ -187,6 +187,7 @@ class AppRoutes {
   static String approvalCategory = "/approvalCategory";
   static String addApprovalCategory = "/addApprovalCategory";
   static String viewApprovalCategory = "/viewApprovalCategory";
+  static String approvalDocument = '/approvalDocument';
   static String addApprovalDocument = "/addApprovalDocument";
   static String viewApprovalDocument = "/viewApprovalDocument";
 

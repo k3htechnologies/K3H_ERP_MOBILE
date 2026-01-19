@@ -115,11 +115,8 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                             jsonEncode(widget.documentModel.toJson()),
                           ),
                         ),
-                        "index": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(widget.index.toString()),
-                          ),
-                        ),
+                        "index": widget.index.toString(),
+
                         "isEdit": Uri.encodeQueryComponent(
                           EncryptionManager.encryptData(false.toString()),
                         ),
@@ -219,11 +216,8 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                           jsonEncode(document.toJson()),
                         ),
                       ),
-                      "index": Uri.encodeQueryComponent(
-                        EncryptionManager.encryptData(
-                          jsonEncode(index.toString()),
-                        ),
-                      ),
+                      "index": index.toString(),
+
                       "isEdit": Uri.encodeQueryComponent(
                         EncryptionManager.encryptData(true.toString()),
                       ),

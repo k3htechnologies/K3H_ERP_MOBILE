@@ -100,7 +100,7 @@ class _AddApprovalCategoryScreenState extends State<AddApprovalCategoryScreen> {
       appBar: CustomAppBarWithBackButton(
         screenTitle:
             _isEditMode
-                ? "Edit Project Document Category"
+                ? "Update Project Document Category"
                 : "Add Project Document Category",
         authorization: _routeAuthorizationModel,
       ),

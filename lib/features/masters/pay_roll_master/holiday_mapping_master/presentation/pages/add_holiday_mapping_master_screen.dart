@@ -188,12 +188,17 @@ class _AddHolidayMappingMasterScreenState
           return Form(
             key: _formKey,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0,vertical: 10),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 10,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _isEditMode ? "Edit Holiday Mapping" : "Add Holiday Mapping",
+                    _isEditMode
+                        ? "Update Holiday Mapping"
+                        : "Add Holiday Mapping",
                     style: AppTextStyle.ts16SB(),
                   ),
                   verticalSpacing(),

@@ -226,11 +226,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
             widget.index,
             buildingData,
           )
-          : _buildingCubit.addBuilding(
-            context,
-            _projectId,
-            buildingData,
-          );
+          : _buildingCubit.addBuilding(context, _projectId, buildingData);
     }
   }
 
@@ -249,7 +245,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _isEditMode ? "Edit Building" : "Add Building",
+                _isEditMode ? "Update Building" : "Add Building",
                 style: AppTextStyle.ts16SB(),
               ),
               verticalSpacing(),
@@ -567,7 +563,11 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
           child: CustomButton(
             text: _isEditMode ? "Update Building" : "Add Building",
             onPressed: () {
-              _addUpdateBuilding(context, widget.building, _buildingCubit.state);
+              _addUpdateBuilding(
+                context,
+                widget.building,
+                _buildingCubit.state,
+              );
             },
           ),
         ),

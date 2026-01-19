@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
-import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_cubit.dart';
-import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_state.dart';
+import 'package:k3h_erp_app/features/project_document/approval_document/data/model/approval_document.model.dart';
+import 'package:k3h_erp_app/features/project_document/approval_document/presentation/cubit/approval_document_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/approval_document/presentation/cubit/approval_document_state.dart';
+import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
+import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -21,19 +23,19 @@ import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class RERADocumentScreen extends StatefulWidget {
-  const RERADocumentScreen({super.key});
+class ApprovalDocumentScreen extends StatefulWidget {
+  const ApprovalDocumentScreen({super.key});
 
   @override
-  State<RERADocumentScreen> createState() => _RERADocumentScreenState();
+  State<ApprovalDocumentScreen> createState() => _ApprovalDocumentScreenState();
 }
 
-class _RERADocumentScreenState extends State<RERADocumentScreen>
+class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
     with TickerProviderStateMixin {
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-  //CUBIT
-  late RERADocumentCubit _reraDocumentCubit;
+
+  late ApprovalDocumentCubit _documentCubit;
   // TAB CONTROLLERS
   TabController? _categoryTabController;
 
@@ -47,10 +49,10 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
   void initState() {
     super.initState();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.rera]!;
-    _reraDocumentCubit = context.read<RERADocumentCubit>();
+        Authorization.routeAuthorizationMap[AppRoutes.document]!;
+    _documentCubit = context.read<ApprovalDocumentCubit>();
     projectId = getProject().projectId;
-    _reraDocumentCubit.getCategoryList(context, 1, projectId);
+    _documentCubit.getCategoryList(context, 1, projectId);
     _initControllers();
     _onScroll();
   }
@@ -61,15 +63,15 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
-          !_reraDocumentCubit.state.isLoading! &&
-          _reraDocumentCubit.state.documentList.length <
-              _reraDocumentCubit.state.totalNumberOfRecord) {
+          !_documentCubit.state.isLoading! &&
+          _documentCubit.state.documentList.length <
+              _documentCubit.state.totalNumberOfRecord) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _reraDocumentCubit.getProjectRERADocumentList(
+          _documentCubit.getProjectApprovalDocumentList(
             context: context,
-            pageNumber: _reraDocumentCubit.state.currentPage + 1,
+            pageNumber: _documentCubit.state.currentPage + 1,
           );
         });
       }
@@ -79,12 +81,12 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
   // CATEGORY TAB
   void _onBuildingTabChanged() {
     if (!_categoryTabController!.indexIsChanging && mounted) {
-      _reraDocumentCubit.onTabChanged(_categoryTabController!.index, context);
+      _documentCubit.onTabChanged(_categoryTabController!.index, context);
     }
   }
 
   // CATEGORY CONTROLLER
-  void _initCategoryController(RERADocumentState state) {
+  void _initCategoryController(ApprovalDocumentState state) {
     _categoryTabController?.removeListener(_onBuildingTabChanged);
     _categoryTabController?.dispose();
 
@@ -98,76 +100,75 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
   }
 
   // TEXT EDIT CONTROLLER
-  late TextEditingController _searchC, _reraDocumentC;
+  late TextEditingController _searchC, _documentC;
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
   // INITIALIZE CONTROLLERS
   void _initControllers() {
     _searchC = TextEditingController();
-    _reraDocumentC = TextEditingController();
+    _documentC = TextEditingController();
   }
 
   @override
   void dispose() {
     _categoryTabController?.removeListener(_onBuildingTabChanged);
     _categoryTabController?.dispose();
-
+    scrollController.dispose();
     super.dispose();
   }
 
-  void _submitForm({RERADocumentModel? documentModel, int? index}) {
+  void _submitForm({ApprovalDocumentModel? documentModel, int? index}) {
     if (!_formKey.currentState!.validate()) {
       return;
     }
     if (documentModel != null) {
       //Edit Name
-      _reraDocumentCubit.updateRERADocumentNameInCategory(
+      _documentCubit.updateApprovalDocumentNameInCategory(
         context: context,
         index: index!,
         uniqueKey: documentModel.uniquekey,
-        projectRERADocumentId: documentModel.projectRERADocumentId,
-        projectRERADocumentCategoryId:
-            documentModel.projectRERADocumentCategoryId,
-        projectRERADocumentName: _reraDocumentC.text.trim(),
+        approvalDocumentId: documentModel.approvalDocumentId,
+        approvalDocumentCategoryId: documentModel.approvalDocumentCategoryId,
+        approvalDocumentName: _documentC.text.trim(),
       );
     } else {
       //Create New Parent Doc
-      _reraDocumentCubit.addRERADocumentToCategory(
+      _documentCubit.addApprovalDocumentToCategory(
         context: context,
-        projectRERADocumentName: _reraDocumentC.text.trim(),
+        approvalDocumentName: _documentC.text.trim(),
       );
     }
   }
 
-  void _prefillDocumentDetails(RERADocumentModel documentModel) {
-    _reraDocumentC.text = documentModel.projectRERADocumentName;
+  void _prefillApprovalDocumentDetails(ApprovalDocumentModel documentModel) {
+    _documentC.text = documentModel.approvalDocumentName;
   }
 
-  // DELETE RERA DOCUMENT
-  Future<void> _showPopupToDeleteRERADocument(
+  // DELETE DOCUMENT FROM CATEGORY
+  Future<void> _showPopupToDeleteApprovalDocument(
     BuildContext context,
-    RERADocumentModel obj,
+    ApprovalDocumentModel obj,
     // int page,
     int index,
   ) async {
     final shouldDelete = await DialogHelper.deleteDialog(
       context,
-      'You are about to RERA delete a document?',
-      'Deleting this RERA document will permanently remove its contents.',
+      'You are about to delete a document?',
+      'Deleting this document will permanently remove its contents.',
     );
 
     if (shouldDelete && context.mounted) {
-      _reraDocumentCubit.deleteDocument(obj, context, index);
+      _documentCubit.deleteApprovalDocument(obj, context, index);
     }
   }
 
-  Future<void> _showPopUpToAddUpdateRERADocument({
-    RERADocumentModel? documentModel,
+  Future<void> _showPopUpToAddUpdateApprovalDocument({
+    ApprovalDocumentModel? documentModel,
     int? index,
   }) async {
     if (documentModel != null) {
-      _prefillDocumentDetails(documentModel);
+      _prefillApprovalDocumentDetails(documentModel);
     }
     await DialogHelper.showCustomBottomSheet(
       context,
@@ -176,15 +177,16 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
         key: _formKey,
         child: Padding(
           padding: EdgeInsets.all(16),
+
           child: Column(
             children: [
               CustomTextField(
-                title: "Document",
-                hint: "Enter Document",
-                textController: _reraDocumentC,
+                title: "ApprovalDocument",
+                hint: "Enter ApprovalDocument",
+                textController: _documentC,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return "Document is required";
+                    return "ApprovalDocument is required";
                   }
                   return null;
                 },
@@ -208,40 +210,40 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
         ),
       ),
     );
-    _clearDialogueToAddUpdateDocument();
+    _clearDialogueToAddUpdateApprovalDocument();
   }
 
-  void _clearDialogueToAddUpdateDocument() {
-    _reraDocumentC.clear();
+  void _clearDialogueToAddUpdateApprovalDocument() {
+    _documentC.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "Document",
+        screenTitle: "ApprovalDocument",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
         onSearchSubmit: (value) {
-          _reraDocumentCubit.searchDocument(value, context);
+          _documentCubit.searchApprovalDocument(value, context);
         },
         onProjectChangeCallback: (project) async {
-          _reraDocumentCubit.clearRERADocument();
           projectId = project.projectId;
-          _reraDocumentCubit.getCategoryList(context, 1, projectId);
+          await _documentCubit.clearApprovalDocument();
+          _documentCubit.getCategoryList(context, 1, projectId);
         },
         extraHeight: 20,
         secondaryWidget: CustomButton(
           text: "Add",
           onPressed: () {
-            _showPopUpToAddUpdateRERADocument();
+            _showPopUpToAddUpdateApprovalDocument();
           },
           backgroundColor: AppColor.primary,
           leading: Icon(Icons.add, size: 16, color: AppColor.white),
         ),
       ),
       body: SafeArea(
-        child: BlocListener<RERADocumentCubit, RERADocumentState>(
+        child: BlocListener<ApprovalDocumentCubit, ApprovalDocumentState>(
           listener: (context, state) {
             if (!mounted) return;
             if (!state.isLoading! &&
@@ -253,7 +255,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
               }
             }
           },
-          child: BlocBuilder<RERADocumentCubit, RERADocumentState>(
+          child: BlocBuilder<ApprovalDocumentCubit, ApprovalDocumentState>(
             builder: (context, state) {
               if ((state.isLoading! &&
                       state.documentCategoryModelList.isEmpty) ||
@@ -279,9 +281,8 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                                 state.documentList
                                     .where(
                                       (d) =>
-                                          d.projectRERADocumentCategoryId ==
-                                          category
-                                              .projectRERADocumentCategoryId,
+                                          d.approvalDocumentCategoryId ==
+                                          category.approvalDocumentCategoryId,
                                     )
                                     .toList();
 
@@ -290,7 +291,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                                 ? const Center(
                                   child: CircularProgressIndicator(),
                                 )
-                                : _buildDocumentListForCategory(
+                                : _buildApprovalDocumentListForCategory(
                                   documentsForCategory,
                                 );
                           }).toList(),
@@ -306,7 +307,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
   }
 
   // CATEGORY TAB
-  Widget _buildCategoryTab(RERADocumentState state) {
+  Widget _buildCategoryTab(ApprovalDocumentState state) {
     if (_categoryTabController == null) {
       return const SizedBox.shrink();
     }
@@ -344,7 +345,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
             labelPadding: const EdgeInsets.symmetric(horizontal: 16),
             tabs:
                 state.documentCategoryModelList
-                    .map((b) => Tab(text: b.projectRERADocumentCategoryName))
+                    .map((b) => Tab(text: b.approvalDocumentCategoryName))
                     .toList(),
           ),
         ),
@@ -352,19 +353,21 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     );
   }
 
-  Widget _buildDocumentListForCategory(List<RERADocumentModel> documents) {
+  Widget _buildApprovalDocumentListForCategory(
+    List<ApprovalDocumentModel> documents,
+  ) {
     if (documents.isEmpty) {
       return noDataWidget();
     }
 
-    return BlocBuilder<RERADocumentCubit, RERADocumentState>(
+    return BlocBuilder<ApprovalDocumentCubit, ApprovalDocumentState>(
       builder: (context, state) {
         return ListView.builder(
           controller: scrollController,
           itemCount: documents.length + 1,
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
           itemBuilder: (context, index) {
+            // Pagination loader
             if (index == documents.length) {
               return state.documentList.length < state.totalNumberOfRecord
                   ? const Padding(
@@ -373,7 +376,9 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                   )
                   : const SizedBox.shrink();
             }
+
             final document = documents[index];
+
             return Container(
               padding: EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 10),
@@ -387,11 +392,11 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                       Flexible(
                         child: GestureDetector(
                           onTap: () async {
-                            await _reraDocumentCubit.clearRERASubDocument();
+                            await _documentCubit.clearSubApprovalDocument();
                             await goRouter.pushNamed(
-                              AppRoutes.viewReraDocument,
+                              AppRoutes.viewApprovalDocument,
                               queryParameters: {
-                                "reraDocument": Uri.encodeQueryComponent(
+                                "approvalDocument": Uri.encodeQueryComponent(
                                   EncryptionManager.encryptData(
                                     jsonEncode(document.toJson()),
                                   ),
@@ -411,7 +416,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                               ),
                             ),
                             child: Text(
-                              document.projectRERADocumentName,
+                              document.approvalDocumentName,
                               style: AppTextStyle.ts16M(
                                 color: AppColor.primary,
                               ),
@@ -433,9 +438,9 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                             ),
                             onPressed: () async {
                               goRouter.pushNamed(
-                                AppRoutes.addReraDocument,
+                                AppRoutes.addApprovalDocument,
                                 queryParameters: {
-                                  "reraDocument": Uri.encodeQueryComponent(
+                                  "approvalDocument": Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
                                       jsonEncode(document.toJson()),
                                     ),
@@ -454,7 +459,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                           const SizedBox(width: 8),
                           CustomIconButton.edit(
                             onPressed: () async {
-                              _showPopUpToAddUpdateRERADocument(
+                              _showPopUpToAddUpdateApprovalDocument(
                                 documentModel: document,
                                 index: index,
                               );
@@ -463,7 +468,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                           const SizedBox(width: 8),
                           CustomIconButton.delete(
                             onPressed: () {
-                              _showPopupToDeleteRERADocument(
+                              _showPopupToDeleteApprovalDocument(
                                 context,
                                 document,
                                 index,
@@ -478,12 +483,12 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                   _buildRowTitleValue(
                     title: "Pending Approvals",
                     value:
-                        document.approvalPendingProjectRERADocumentCount
+                        document.approvalPendingApprovalDocumentCount
                             .toString(),
                   ),
                   _buildRowTitleValue(
                     title: "Documents",
-                    value: document.uploadedProjectRERADocumentCount.toString(),
+                    value: document.uploadedApprovalDocumentCount.toString(),
                   ),
                 ],
               ),

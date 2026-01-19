@@ -121,7 +121,9 @@ class _AddBranchAssociationMasterScreenState
         context: context,
         branchAssociationsId: widget.branchAssociation!.branchAssociationsId,
         employeeId: _selectedEmployee.first['zAttributesId'],
-        branchMasterId: int.parse(_selectedBranch.first['zAttributesId'].toString()),
+        branchMasterId: int.parse(
+          _selectedBranch.first['zAttributesId'].toString(),
+        ),
         uniqueKey: widget.branchAssociation!.uniquekey,
       );
     } else {
@@ -183,7 +185,7 @@ class _AddBranchAssociationMasterScreenState
             children: [
               Text(
                 _isEditMode
-                    ? "Edit Branch Association"
+                    ? "Update Branch Association"
                     : "Add Branch Association",
                 style: AppTextStyle.ts16SB(),
               ),

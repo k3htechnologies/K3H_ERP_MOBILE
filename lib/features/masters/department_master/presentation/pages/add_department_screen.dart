@@ -16,18 +16,13 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class AddDepartmentScreen extends StatefulWidget {
   final DepartmentModel? department;
   final int index;
-  const AddDepartmentScreen({
-    super.key,
-    this.department,
-    this.index = 0,
-  });
+  const AddDepartmentScreen({super.key, this.department, this.index = 0});
 
   @override
   State<AddDepartmentScreen> createState() => _AddDepartmentScreenState();
 }
 
 class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
-
   // CUBIT
   late DepartmentMasterCubit _departmentMasterCubit;
 
@@ -36,7 +31,7 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
 
   // FORM KEY
   final GlobalKey<FormState> _departmentMasterAddUpdateKey =
-  GlobalKey<FormState>();
+      GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -71,26 +66,26 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
 
   // <---- API CALLS TO ADD/UPDATE DEPARTMENT ---->
   Future<void> _addUpdateDepartment(
-      BuildContext context,
-      DepartmentModel? departmentModel,
-      DepartmentMasterState state,
-      int index,
-      ) async {
+    BuildContext context,
+    DepartmentModel? departmentModel,
+    DepartmentMasterState state,
+    int index,
+  ) async {
     if (_departmentMasterAddUpdateKey.currentState!.validate()) {
       departmentModel != null
           ? _departmentMasterCubit.updateDepartmentMaster(
-        context: context,
-        departmentName: _departmentNameC.text,
-        departmentCode: _departmentCodeC.text,
-        uniqueKey: departmentModel.uniquekey,
-        departmentMasterId: departmentModel.departmentMasterId,
-        index: index,
-      )
+            context: context,
+            departmentName: _departmentNameC.text,
+            departmentCode: _departmentCodeC.text,
+            uniqueKey: departmentModel.uniquekey,
+            departmentMasterId: departmentModel.departmentMasterId,
+            index: index,
+          )
           : _departmentMasterCubit.addDepartmentMaster(
-        context: context,
-        departmentName: _departmentNameC.text,
-        departmentCode: _departmentCodeC.text,
-      );
+            context: context,
+            departmentName: _departmentNameC.text,
+            departmentCode: _departmentCodeC.text,
+          );
     }
   }
 
@@ -109,46 +104,50 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.department != null ? "Edit Department" : "Add Department",
+                widget.department != null
+                    ? "Update Department"
+                    : "Add Department",
                 style: AppTextStyle.ts16SB(),
               ),
               verticalSpacing(),
-             Container(
-               padding: EdgeInsets.all(12),
-               decoration: commonCardDecoration(),
-               child: Column(
-                 children: [
-                   CustomTextField(
-                     title: 'Department Name',
-                     isRequired: true,
-                     textController: _departmentNameC,
-                     inputFormatterList: [LengthLimitingTextInputFormatter(50)],
-                     validator: (string) {
-                       if (string == null || string.trim().isEmpty) {
-                         return 'Department Name is required';
-                       }
-                       return null;
-                     },
-                   ),
-                   CustomTextField(
-                     title: 'Department Code',
-                     isRequired: true,
-                     textController: _departmentCodeC,
-                     inputFormatterList: [
-                       UpperCaseTextFormatter(),
-                       LengthLimitingTextInputFormatter(4),
-                       AlphaNumericWithoutSpacesFormatter(),
-                     ],
-                     validator: (string) {
-                       if (string == null || string.trim().isEmpty) {
-                         return 'Department Code is required';
-                       }
-                       return null;
-                     },
-                   ),
-                 ],
-               ),
-             )
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  children: [
+                    CustomTextField(
+                      title: 'Department Name',
+                      isRequired: true,
+                      textController: _departmentNameC,
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(50),
+                      ],
+                      validator: (string) {
+                        if (string == null || string.trim().isEmpty) {
+                          return 'Department Name is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: 'Department Code',
+                      isRequired: true,
+                      textController: _departmentCodeC,
+                      inputFormatterList: [
+                        UpperCaseTextFormatter(),
+                        LengthLimitingTextInputFormatter(4),
+                        AlphaNumericWithoutSpacesFormatter(),
+                      ],
+                      validator: (string) {
+                        if (string == null || string.trim().isEmpty) {
+                          return 'Department Code is required';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -159,8 +158,11 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
           height: 80,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: widget.department != null ? Icon(Icons.edit,size: 18,color: AppColor.white,) : Icon(Icons.add,size: 18,color: AppColor.white,),
-            text: widget.department != null ?'Edit':'Add',
+            leading:
+                widget.department != null
+                    ? Icon(Icons.edit, size: 18, color: AppColor.white)
+                    : Icon(Icons.add, size: 18, color: AppColor.white),
+            text: widget.department != null ? 'Edit' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: () {
               _addUpdateDepartment(

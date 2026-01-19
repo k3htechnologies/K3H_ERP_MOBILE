@@ -30,7 +30,6 @@ class AddCompanyPartnerScreen extends StatefulWidget {
 }
 
 class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
-  
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
@@ -208,7 +207,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                   Text(
                     widget.companyPartner == null
                         ? "Add Company Partner"
-                        : "Edit Company Partner",
+                        : "Update Company Partner",
                     style: AppTextStyle.ts16SB(color: AppColor.black),
                   ),
                   verticalSpacing(),
@@ -327,9 +326,11 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                         currentEditingValue =
                             existingPartners[widget.index!].partnerPercentage;
                       }
-                      final totalWithoutCurrent = existingPartners
-                          .map((e) => e.partnerPercentage)
-                          .fold<double>(0, (p, e) => p + e) - currentEditingValue;
+                      final totalWithoutCurrent =
+                          existingPartners
+                              .map((e) => e.partnerPercentage)
+                              .fold<double>(0, (p, e) => p + e) -
+                          currentEditingValue;
                       if (totalWithoutCurrent + parsed > 100) {
                         final available = (100 - totalWithoutCurrent)
                             .clamp(0, 100)
@@ -441,5 +442,4 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
       ),
     );
   }
-  
 }

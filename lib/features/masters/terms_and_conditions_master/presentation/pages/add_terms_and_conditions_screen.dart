@@ -158,7 +158,7 @@ class _AddTermsAndConditionsScreenState
             children: [
               Text(
                 isEdit
-                    ? "Edit Terms & Conditions - $moduleName"
+                    ? "Update Terms & Conditions - $moduleName"
                     : "Add Terms & Conditions - $moduleName",
                 style: AppTextStyle.ts16SB(),
               ),
@@ -219,4 +219,3 @@ class _AddTermsAndConditionsScreenState
     );
   }
 }
-

@@ -133,7 +133,7 @@ class _AddWeekOffMappingMasterScreenState
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBarWithBackButton(
         screenTitle:
-            _isEditMode ? "Edit Week Off Mapping" : "Add Week Off Mapping",
+            _isEditMode ? "Update Week Off Mapping" : "Add Week Off Mapping",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(

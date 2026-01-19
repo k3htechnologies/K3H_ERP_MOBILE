@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
-import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/approval_document/data/model/approval_document.model.dart';
+import 'package:k3h_erp_app/features/project_document/approval_document/presentation/cubit/approval_document_cubit.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -12,11 +12,11 @@ import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
-class AddRERADocumentScreen extends StatefulWidget {
-  final RERADocumentModel? documentModel;
+class AddApprovalDocumentScreen extends StatefulWidget {
+  final ApprovalDocumentModel? documentModel;
   final int index;
   final bool isEdit;
-  const AddRERADocumentScreen({
+  const AddApprovalDocumentScreen({
     super.key,
     required this.documentModel,
     this.index = 0,
@@ -24,12 +24,13 @@ class AddRERADocumentScreen extends StatefulWidget {
   });
 
   @override
-  State<AddRERADocumentScreen> createState() => _AddRERADocumentScreenState();
+  State<AddApprovalDocumentScreen> createState() =>
+      _AddApprovalDocumentScreenState();
 }
 
-class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
+class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
   //CUBIT
-  late RERADocumentCubit _documentCubit;
+  late ApprovalDocumentCubit _documentCubit;
 
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
@@ -56,7 +57,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
   ];
 
   // FILE VARIABLES
-  MultiFilePickerModel selectedDocumentFile = MultiFilePickerModel(
+  MultiFilePickerModel selectedApprovalDocumentFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
@@ -69,7 +70,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
   void initState() {
     super.initState();
     _routeAuthorizationModel = AuthorizationModel();
-    _documentCubit = context.read<RERADocumentCubit>();
+    _documentCubit = context.read<ApprovalDocumentCubit>();
     _initializeTextEditingController();
     if (_isEditMode) _prefillForm(widget.documentModel!);
   }
@@ -83,57 +84,57 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
       return;
     }
     if (!widget.isEdit) {
-      _documentCubit.addRERASubDocument(
+      _documentCubit.addSubApprovalDocument(
         context: context,
         index: widget.index,
         uniqueKey: widget.documentModel!.uniquekey,
-        projectRERADocumentId: widget.documentModel!.projectRERADocumentId,
-        projectRERADocumentCategoryId:
-            widget.documentModel!.projectRERADocumentCategoryId,
-        documents: selectedDocumentFile,
-        projectRERADocumentStatus: _selectedStatus[0]['DisplayName'],
-        projectRERADocumentExpiryDate: expiryDate,
-        projectRERADocumentRemark: _remarkC.text.trim(),
+        approvalDocumentId: widget.documentModel!.approvalDocumentId,
+        approvalDocumentCategoryId:
+            widget.documentModel!.approvalDocumentCategoryId,
+        documents: selectedApprovalDocumentFile,
+        approvalDocumentStatus: _selectedStatus[0]['DisplayName'],
+        approvalDocumentExpiryDate: expiryDate,
+        approvalDocumentRemark: _remarkC.text.trim(),
       );
     } else {
-      _documentCubit.updateRERASubDocument(
+      _documentCubit.updateSubApprovalDocument(
         context: context,
         index: widget.index,
         uniqueKey: widget.documentModel!.uniquekey,
-        projectRERADocumentId: widget.documentModel!.projectRERADocumentId,
-        projectRERADocumentCategoryId:
-            widget.documentModel!.projectRERADocumentCategoryId,
-        documents: selectedDocumentFile,
-        projectRERADocumentStatus: _selectedStatus[0]['DisplayName'],
-        projectRERADocumentExpiryDate: expiryDate,
-        projectRERADocumentRemark: _remarkC.text.trim(),
+        approvalDocumentId: widget.documentModel!.approvalDocumentId,
+        approvalDocumentCategoryId:
+            widget.documentModel!.approvalDocumentCategoryId,
+        documents: selectedApprovalDocumentFile,
+        approvalDocumentStatus: _selectedStatus[0]['DisplayName'],
+        approvalDocumentExpiryDate: expiryDate,
+        approvalDocumentRemark: _remarkC.text.trim(),
       );
     }
   }
 
-  void _prefillForm(RERADocumentModel document) {
+  void _prefillForm(ApprovalDocumentModel document) {
     // Find the matching status in the list
     final matchedStatus = statusList.firstWhere(
-      (status) => status['DisplayName'] == document.projectRERADocumentStatus,
+      (status) => status['DisplayName'] == document.approvalDocumentStatus,
       orElse: () => statusList.first, // fallback to "Select Status"
     );
 
     _selectedStatus = [matchedStatus];
 
     // Prefill expiry date
-    expiryDate = document.projectRERADocumentExpiryDate;
+    expiryDate = document.approvalDocumentExpiryDate;
 
     // Prefill remark text
     _remarkC.text =
-        document.projectRERADocumentRemark.isNotEmpty
-            ? document.projectRERADocumentRemark
+        document.approvalDocumentRemark.isNotEmpty
+            ? document.approvalDocumentRemark
             : "";
 
     // Prefill files if any
-    selectedDocumentFile.fileNameList =
-        document.projectRERADocumentURL.isEmpty
+    selectedApprovalDocumentFile.fileNameList =
+        document.approvalDocumentURL.isEmpty
             ? []
-            : document.projectRERADocumentURL.split(",");
+            : document.approvalDocumentURL.split(",");
   }
 
   @override
@@ -165,19 +166,19 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
                 CustomMultiFilePicker(
                   maxFiles: 3,
                   title: "Files",
-                  initialFileList: selectedDocumentFile.fileNameList,
+                  initialFileList: selectedApprovalDocumentFile.fileNameList,
                   onFilePickedCallback: (bytesList, fileNameList) {
-                    selectedDocumentFile.fileNameList = fileNameList;
-                    selectedDocumentFile.fileBytesList = bytesList;
+                    selectedApprovalDocumentFile.fileNameList = fileNameList;
+                    selectedApprovalDocumentFile.fileBytesList = bytesList;
                   },
                   onFileDeleteCallback: (
                     fileBytesList,
                     fileNameList,
                     deletedFile,
                   ) {
-                    selectedDocumentFile.fileNameList = fileNameList;
-                    selectedDocumentFile.fileBytesList = fileBytesList;
-                    selectedDocumentFile.deletedFileList = deletedFile;
+                    selectedApprovalDocumentFile.fileNameList = fileNameList;
+                    selectedApprovalDocumentFile.fileBytesList = fileBytesList;
+                    selectedApprovalDocumentFile.deletedFileList = deletedFile;
                   },
                 ),
                 CustomDatePicker(

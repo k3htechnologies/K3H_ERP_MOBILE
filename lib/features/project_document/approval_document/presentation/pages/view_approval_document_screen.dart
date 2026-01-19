@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
-import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_cubit.dart';
-import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_state.dart';
+import 'package:k3h_erp_app/features/project_document/approval_document/data/model/approval_document.model.dart';
+import 'package:k3h_erp_app/features/project_document/approval_document/presentation/cubit/approval_document_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/approval_document/presentation/cubit/approval_document_state.dart';
+import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
+import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -18,23 +20,25 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class ViewRERADocumentScreen extends StatefulWidget {
+class ViewApprovalDocumentScreen extends StatefulWidget {
   final int index;
-  final RERADocumentModel documentModel;
+  final ApprovalDocumentModel documentModel;
 
-  const ViewRERADocumentScreen({
+  const ViewApprovalDocumentScreen({
     super.key,
     required this.documentModel,
     this.index = 0,
   });
 
   @override
-  State<ViewRERADocumentScreen> createState() => _ViewRERADocumentScreenState();
+  State<ViewApprovalDocumentScreen> createState() =>
+      _ViewApprovalDocumentScreenState();
 }
 
-class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
+class _ViewApprovalDocumentScreenState
+    extends State<ViewApprovalDocumentScreen> {
   //CUBIT
-  late RERADocumentCubit _documentCubit;
+  late ApprovalDocumentCubit _documentCubit;
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
 
@@ -46,13 +50,13 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   void initState() {
     super.initState();
     _onScroll();
-    _documentCubit = context.read<RERADocumentCubit>();
+    _documentCubit = context.read<ApprovalDocumentCubit>();
     _routeAuthorizationModel = AuthorizationModel();
 
-    _documentCubit.getProjectRERADocumentList(
+    _documentCubit.getProjectApprovalDocumentList(
       context: context,
       pageNumber: 1,
-      projectRERADocumentId: widget.documentModel.projectRERADocumentId,
+      approvalDocumentId: widget.documentModel.approvalDocumentId,
     );
   }
 
@@ -63,15 +67,15 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
           !_documentCubit.state.isLoading! &&
-          _documentCubit.state.subDocumentList.length <
+          _documentCubit.state.subApprovalDocumentList.length <
               _documentCubit.state.totalNumberOfRecordOfSubDoc) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _documentCubit.getProjectRERADocumentList(
+          _documentCubit.getProjectApprovalDocumentList(
             context: context,
             pageNumber: _documentCubit.state.currentPageOfSubDoc + 1,
-            projectRERADocumentId: widget.documentModel.projectRERADocumentId,
+            approvalDocumentId: widget.documentModel.approvalDocumentId,
           );
         });
       }
@@ -79,10 +83,16 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   }
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "RERA Documents",
+        screenTitle: "Approval Documents",
         authorization: _routeAuthorizationModel,
       ),
       body: Padding(
@@ -95,7 +105,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  widget.documentModel.projectRERADocumentName,
+                  widget.documentModel.approvalDocumentName,
                   style: AppTextStyle.ts16SB(),
                 ),
                 CustomButton(
@@ -103,9 +113,9 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                   text: "Add",
                   onPressed: () {
                     goRouter.pushNamed(
-                      AppRoutes.addReraDocument,
+                      AppRoutes.addApprovalDocument,
                       queryParameters: {
-                        "reraDocument": Uri.encodeQueryComponent(
+                        "approvalDocument": Uri.encodeQueryComponent(
                           EncryptionManager.encryptData(
                             jsonEncode(widget.documentModel.toJson()),
                           ),
@@ -121,24 +131,24 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
               ],
             ),
 
-            BlocBuilder<RERADocumentCubit, RERADocumentState>(
+            BlocBuilder<ApprovalDocumentCubit, ApprovalDocumentState>(
               builder: (context, state) {
                 if ((state.isLoading ?? true) &&
-                    state.subDocumentList.isEmpty) {
+                    state.subApprovalDocumentList.isEmpty) {
                   return Expanded(child: Center(child: loader()));
                 }
 
-                if (state.subDocumentList.isEmpty) {
+                if (state.subApprovalDocumentList.isEmpty) {
                   return Expanded(child: Center(child: noDataWidget()));
                 }
 
                 return Expanded(
                   child: ListView.builder(
                     controller: scrollController,
-                    itemCount: state.subDocumentList.length + 1,
+                    itemCount: state.subApprovalDocumentList.length + 1,
                     itemBuilder: (context, index) {
-                      if (index == state.subDocumentList.length) {
-                        return state.subDocumentList.length <
+                      if (index == state.subApprovalDocumentList.length) {
+                        return state.subApprovalDocumentList.length <
                                 state.totalNumberOfRecordOfSubDoc
                             ? const Padding(
                               padding: EdgeInsets.all(16),
@@ -147,7 +157,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                             : const SizedBox.shrink();
                       }
                       return _buildDocumentCard(
-                        state.subDocumentList[index],
+                        state.subApprovalDocumentList[index],
                         index,
                       );
                     },
@@ -181,7 +191,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   }
 
   //DOCUMENT CARD
-  Widget _buildDocumentCard(RERADocumentModel document, int index) {
+  Widget _buildDocumentCard(ApprovalDocumentModel document, int index) {
     return Container(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 10),
@@ -196,16 +206,16 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
             children: [
               Expanded(
                 child: Text(
-                  document.projectRERADocumentName,
+                  document.approvalDocumentName,
                   style: AppTextStyle.ts16SB(),
                 ),
               ),
               CustomIconButton.edit(
                 onPressed: () {
                   goRouter.pushNamed(
-                    AppRoutes.addReraDocument,
+                    AppRoutes.addApprovalDocument,
                     queryParameters: {
-                      "reraDocument": Uri.encodeQueryComponent(
+                      "approvalDocument": Uri.encodeQueryComponent(
                         EncryptionManager.encryptData(
                           jsonEncode(document.toJson()),
                         ),
@@ -228,16 +238,14 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                 valueWidget: Container(
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
                   decoration: BoxDecoration(
-                    color: getBgColorByStatus(
-                      document.projectRERADocumentStatus,
-                    ),
+                    color: getBgColorByStatus(document.approvalDocumentStatus),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    document.projectRERADocumentStatus,
+                    document.approvalDocumentStatus,
                     style: AppTextStyle.ts12M(
                       color: getTxtColorByStatus(
-                        document.projectRERADocumentStatus,
+                        document.approvalDocumentStatus,
                       ),
                     ),
                   ),
@@ -246,9 +254,9 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
               _buildColumnTitleValue(
                 title: "Expiry Date",
                 value:
-                    document.projectRERADocumentExpiryDate != null
+                    document.approvalDocumentExpiryDate != null
                         ? formatDateTimeAsDDMMMYYYY(
-                          document.projectRERADocumentExpiryDate!,
+                          document.approvalDocumentExpiryDate!,
                         )
                         : '-',
               ),
@@ -275,7 +283,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
             children: [
               _buildColumnTitleValue(
                 title: "Remark",
-                value: document.projectRERADocumentRemark,
+                value: document.approvalDocumentRemark,
               ),
               _buildColumnTitleValue(
                 title: "View Document",
@@ -283,7 +291,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                   onTap: () {
                     showFilePreviewDialog(
                       context,
-                      document.projectRERADocumentURL.split(","),
+                      document.approvalDocumentURL.split(","),
                     );
                   },
                   child: Row(

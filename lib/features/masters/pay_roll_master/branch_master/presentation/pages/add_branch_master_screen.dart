@@ -8,7 +8,8 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/prese
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_bank_details_screen.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/input_validator.dart' hide UpperCaseTextFormatter;
+import 'package:k3h_erp_app/utils/input_validator.dart'
+    hide UpperCaseTextFormatter;
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -23,7 +24,6 @@ class AddBranchMasterScreen extends StatefulWidget {
 }
 
 class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
-
   // CUBIT
   late BranchMasterCubit _branchMasterCubit;
 
@@ -77,7 +77,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
       return;
     }
 
-    if(_isEditMode && widget.branch != null){
+    if (_isEditMode && widget.branch != null) {
       _branchMasterCubit.updateBranchMaster(
         context: context,
         branchMasterId: widget.branch!.branchMasterId,
@@ -88,7 +88,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
         isHeadOffice: widget.branch!.isHeadOffice,
         index: widget.index,
       );
-    }else{
+    } else {
       _branchMasterCubit.addBranchMaster(
         context: context,
         branchName: _branchNameC.text.trim(),
@@ -97,7 +97,6 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
         isHeadOffice: isHeadOffice,
       );
     }
-
   }
 
   @override
@@ -116,7 +115,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
             spacing: 10,
             children: [
               Text(
-                _isEditMode ? "Edit Branch Master" : "Add Branch Master",
+                _isEditMode ? "Update Branch Master" : "Add Branch Master",
                 style: AppTextStyle.ts16SB(),
               ),
               Container(
@@ -158,14 +157,16 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
                       title: 'Location',
                       textController: _locationC,
                       isRequired: true,
-                      inputFormatterList: [LengthLimitingTextInputFormatter(200)],
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(200),
+                      ],
                       validator: (string) {
                         if (string == null || string.trim().isEmpty) {
                           return 'Location is required';
                         }
                         return null;
                       },
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -177,7 +178,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
                     StatefulBuilder(
                       builder: (context, innerState) {
                         return CustomCheckBox(
-                          onChanged: (value){
+                          onChanged: (value) {
                             innerState(() {
                               isHeadOffice = value;
                             });
@@ -189,7 +190,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),

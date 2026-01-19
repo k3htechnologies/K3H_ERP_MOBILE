@@ -396,19 +396,9 @@ class _DocumentScreenState extends State<DocumentScreen>
                                     jsonEncode(document.toJson()),
                                   ),
                                 ),
-                                "index": Uri.encodeQueryComponent(
-                                  EncryptionManager.encryptData(
-                                    jsonEncode(index.toString()),
-                                  ),
-                                ),
+                                "index": index.toString(),
                               },
                             );
-                            // .then((val) {
-                            //   _documentCubit.getProjectDocumentList(
-                            //     context: context,
-                            //     pageNumber: 1,
-                            //   );
-                            // });
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(
@@ -450,11 +440,8 @@ class _DocumentScreenState extends State<DocumentScreen>
                                       jsonEncode(document.toJson()),
                                     ),
                                   ),
-                                  "index": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      index.toString(),
-                                    ),
-                                  ),
+                                  "index": index.toString(),
+
                                   "isEdit": Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
                                       false.toString(),

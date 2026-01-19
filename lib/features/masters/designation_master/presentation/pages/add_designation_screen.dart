@@ -111,7 +111,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
             children: [
               Text(
                 widget.designationMasterModel != null
-                    ? "Edit Designation"
+                    ? "Update Designation"
                     : "Add Designation",
                 style: AppTextStyle.ts16SB(),
               ),

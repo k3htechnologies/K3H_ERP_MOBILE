@@ -883,7 +883,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    !_isEditMode ? "Add Employee" : "Edit Employee",
+                    !_isEditMode ? "Add Employee" : "Update Employee",
                     style: AppTextStyle.ts16SB(),
                   ),
                 ),

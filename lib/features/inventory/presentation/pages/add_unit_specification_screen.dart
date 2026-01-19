@@ -161,7 +161,7 @@ class _AddUnitSpecificationScreenState
               children: [
                 Text(
                   _isEditMode
-                      ? "Edit Unit Specification"
+                      ? "Update Unit Specification"
                       : "Add Unit Specification",
                   style: AppTextStyle.ts16SB(),
                 ),

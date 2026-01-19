@@ -154,6 +154,11 @@ import 'package:k3h_erp_app/features/project_document/approval_category/presenta
 import 'package:k3h_erp_app/features/project_document/approval_category/presentation/pages/add_approval_category_screen.dart';
 import 'package:k3h_erp_app/features/project_document/approval_category/presentation/pages/approval_category_screen.dart';
 import 'package:k3h_erp_app/features/project_document/approval_category/presentation/pages/view_approval_category_screen.dart';
+import 'package:k3h_erp_app/features/project_document/approval_document/data/model/approval_document.model.dart';
+import 'package:k3h_erp_app/features/project_document/approval_document/presentation/cubit/approval_document_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/approval_document/presentation/pages/add_approval_document_screen.dart';
+import 'package:k3h_erp_app/features/project_document/approval_document/presentation/pages/approval_document_screen.dart';
+import 'package:k3h_erp_app/features/project_document/approval_document/presentation/pages/view_approval_document_screen.dart';
 import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
 import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/document/presentation/pages/add_document_screen.dart';
@@ -2280,11 +2285,18 @@ final GoRouter goRouter = GoRouter(
                 BlocProvider<RERADocumentCubit>(
                   create: (_) => RERADocumentCubit(),
                 ),
+                BlocProvider<ApprovalDocumentCubit>(
+                  create: (_) => ApprovalDocumentCubit(),
+                ),
+                BlocProvider<ApprovalCategoryCubit>(
+                  create: (_) => ApprovalCategoryCubit(),
+                ),
               ],
               child: child,
             );
           },
           routes: [
+            //Project Document
             ShellRoute(
               builder: (context, state, child) {
                 return BlocProvider<DocumentCubit>.value(
@@ -2447,6 +2459,7 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
+
             // Rera Document
             ShellRoute(
               builder: (context, state, child) {
@@ -2483,11 +2496,7 @@ final GoRouter goRouter = GoRouter(
 
                     final index =
                         int.tryParse(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(
-                              state.uri.queryParameters['index'] ?? '0',
-                            ),
-                          ),
+                          state.uri.queryParameters['index'] ?? '',
                         ) ??
                         0;
 
@@ -2609,15 +2618,12 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
+
             //Project Approval Document Category
             ShellRoute(
               builder: (context, state, child) {
-                // return BlocProvider<ApprovalDocumentCategoryCubit>.value(
-                //   value: context.read<ApprovalDocumentCategoryCubit>(),
-                //   child: child,
-                // );
-                return BlocProvider(
-                  create: (_) => ApprovalCategoryCubit(),
+                return BlocProvider<ApprovalCategoryCubit>.value(
+                  value: context.read<ApprovalCategoryCubit>(),
                   child: child,
                 );
               },
@@ -2683,6 +2689,95 @@ final GoRouter goRouter = GoRouter(
                             : null;
                     return ViewApprovalCategoryScreen(
                       approvalCategoryModel: approvalDocumentCategory!,
+                    );
+                  },
+                ),
+              ],
+            ),
+
+            //Approval Document
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider<ApprovalDocumentCubit>.value(
+                  value: context.read<ApprovalDocumentCubit>(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.approvalDocument,
+                  path: AppRoutes.approvalDocument,
+                  builder: (context, state) {
+                    return const ApprovalDocumentScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addApprovalDocument,
+                  path: AppRoutes.addApprovalDocument,
+                  builder: (context, state) {
+                    final queryParameterApprovalDocument =
+                        state.uri.queryParameters['approvalDocument'];
+
+                    final ApprovalDocumentModel? document =
+                        queryParameterApprovalDocument != null
+                            ? ApprovalDocumentModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterApprovalDocument,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+
+                    final isEdit = bool.parse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['isEdit'] ?? 'false',
+                        ),
+                      ),
+                    );
+                    return AddApprovalDocumentScreen(
+                      documentModel: document,
+                      index: index,
+                      isEdit: isEdit,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewApprovalDocument,
+                  path: AppRoutes.viewApprovalDocument,
+                  builder: (context, state) {
+                    final queryParameterApprovalDocument =
+                        state.uri.queryParameters['approvalDocument'];
+
+                    final ApprovalDocumentModel? document =
+                        queryParameterApprovalDocument != null
+                            ? ApprovalDocumentModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterApprovalDocument,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return ViewApprovalDocumentScreen(
+                      documentModel: document!,
+                      index: index,
                     );
                   },
                 ),

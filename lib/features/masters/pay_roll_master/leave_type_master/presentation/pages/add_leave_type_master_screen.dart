@@ -110,7 +110,7 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: !_isEditMode ? "Add Leave Type" : "Edit Leave Type",
+        screenTitle: !_isEditMode ? "Add Leave Type" : "Update Leave Type",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(

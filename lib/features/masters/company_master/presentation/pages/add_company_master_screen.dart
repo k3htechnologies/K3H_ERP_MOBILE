@@ -324,7 +324,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    widget.company == null ? "Add Company" : "Edit Company",
+                    widget.company == null ? "Add Company" : "Update Company",
                     style: AppTextStyle.ts16SB(),
                   ),
                 ),
@@ -773,11 +773,11 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                   .entries
                   .map(
                     (entry) => _buildCompanyPartnerCard(
-                  key: ValueKey(entry.value.hashCode),
-                  companyPartnerModel: entry.value,
-                  index: entry.key,
-                ),
-              ),
+                      key: ValueKey(entry.value.hashCode),
+                      companyPartnerModel: entry.value,
+                      index: entry.key,
+                    ),
+                  ),
           ],
         );
       },
@@ -942,5 +942,4 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       ),
     );
   }
-
 }

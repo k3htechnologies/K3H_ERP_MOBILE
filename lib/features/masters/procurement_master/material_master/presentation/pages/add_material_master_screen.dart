@@ -17,11 +17,7 @@ class AddMaterialMasterScreen extends StatefulWidget {
   final MaterialMasterModel? material;
   final int index;
 
-  const AddMaterialMasterScreen({
-    super.key,
-    this.material,
-    this.index = 0,
-  });
+  const AddMaterialMasterScreen({super.key, this.material, this.index = 0});
 
   @override
   State<AddMaterialMasterScreen> createState() =>
@@ -97,9 +93,10 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: widget.material != null
-            ? "Edit Material Master"
-            : "Add Material Master",
+        screenTitle:
+            widget.material != null
+                ? "Update Material Master"
+                : "Add Material Master",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
@@ -111,7 +108,7 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
             children: [
               Text(
                 widget.material != null
-                    ? "Edit Material Master"
+                    ? "Update Material Master"
                     : "Add Material Master",
                 style: AppTextStyle.ts16SB(),
               ),
@@ -165,9 +162,10 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
           height: 80,
           padding: const EdgeInsets.all(16),
           child: CustomButton(
-            leading: widget.material != null
-                ? const Icon(Icons.edit, size: 18, color: AppColor.white)
-                : const Icon(Icons.add, size: 18, color: AppColor.white),
+            leading:
+                widget.material != null
+                    ? const Icon(Icons.edit, size: 18, color: AppColor.white)
+                    : const Icon(Icons.add, size: 18, color: AppColor.white),
             text: widget.material != null ? 'Edit' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: () => _addUpdateMaterial(),
@@ -177,4 +175,3 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
     );
   }
 }
-
