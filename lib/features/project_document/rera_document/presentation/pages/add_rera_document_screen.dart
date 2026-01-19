@@ -83,7 +83,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
       return;
     }
     if (!widget.isEdit) {
-      _documentCubit.addSubDocument(
+      _documentCubit.addRERASubDocument(
         context: context,
         index: widget.index,
         uniqueKey: widget.documentModel!.uniquekey,
@@ -96,7 +96,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
         projectRERADocumentRemark: _remarkC.text.trim(),
       );
     } else {
-      _documentCubit.updateSubDocument(
+      _documentCubit.updateRERASubDocument(
         context: context,
         index: widget.index,
         uniqueKey: widget.documentModel!.uniquekey,

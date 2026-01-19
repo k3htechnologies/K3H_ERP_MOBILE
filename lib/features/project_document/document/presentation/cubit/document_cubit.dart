@@ -7,7 +7,6 @@ import 'package:k3h_erp_app/features/project_document/document/data/model/docume
 import 'package:k3h_erp_app/features/project_document/document/data/repository/document.repository.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/data/model/document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/data/repository/document_category.repository.dart';
-import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -27,13 +26,12 @@ class DocumentCubit extends Cubit<DocumentState> {
   Future getCategoryList(
     BuildContext context,
     int pageNumber,
-    int pageSize,
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
     var result = await _documentCategoryRepository.getDocumentCategory(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       projectId: projectId,
     );
     result.fold(
@@ -123,7 +121,7 @@ class DocumentCubit extends Cubit<DocumentState> {
             state.copyWith(
               isLoading: false,
               subDocumentList: updatedSubDocList,
-              totalNumberOfRecord: response["totalNumberOfRecord"],
+              totalNumberOfRecordOfSubDoc: response["totalNumberOfRecord"],
               currentPageOfSubDoc: pageNumber,
             ),
           );
@@ -261,7 +259,8 @@ class DocumentCubit extends Cubit<DocumentState> {
         return;
       },
       (response) {
-        goRouter.goNamed(AppRoutes.document);
+        goRouter.pop();
+        goRouter.pop();
 
         if (state.documentList.isNotEmpty &&
             index < state.documentList.length) {
@@ -393,6 +392,7 @@ class DocumentCubit extends Cubit<DocumentState> {
         categoryIndex: index,
         projectDocumentCategoryId:
             state.documentCategoryModelList[index].projectDocumentCategoryId,
+        documentList: [],
       ),
     );
     getProjectDocumentList(context: context, pageNumber: 1);
@@ -446,5 +446,9 @@ class DocumentCubit extends Cubit<DocumentState> {
 
   Future clearSubDocument() async {
     emit(state.copyWith(subDocumentList: []));
+  }
+
+  Future clearDocument() async {
+    emit(state.copyWith(documentList: []));
   }
 }

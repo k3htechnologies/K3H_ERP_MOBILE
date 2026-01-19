@@ -49,7 +49,7 @@ class _DocumentScreenState extends State<DocumentScreen>
         Authorization.routeAuthorizationMap[AppRoutes.document]!;
     _documentCubit = context.read<DocumentCubit>();
     projectId = getProject().projectId;
-    _documentCubit.getCategoryList(context, 1, 20, projectId);
+    _documentCubit.getCategoryList(context, 1, projectId);
     _initControllers();
     _onScroll();
   }
@@ -111,7 +111,7 @@ class _DocumentScreenState extends State<DocumentScreen>
   void dispose() {
     _categoryTabController?.removeListener(_onBuildingTabChanged);
     _categoryTabController?.dispose();
-
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -142,7 +142,7 @@ class _DocumentScreenState extends State<DocumentScreen>
     _documentC.text = documentModel.projectDocumentName;
   }
 
-  // DELETE DOCUMENT
+  // DELETE DOCUMENT FROM CATEGORY
   Future<void> _showPopupToDeleteDocument(
     BuildContext context,
     DocumentModel obj,
@@ -224,9 +224,10 @@ class _DocumentScreenState extends State<DocumentScreen>
         onSearchSubmit: (value) {
           _documentCubit.searchDocument(value, context);
         },
-        onProjectChangeCallback: (project) {
+        onProjectChangeCallback: (project) async {
           projectId = project.projectId;
-          _documentCubit.getCategoryList(context, 1, 20, projectId);
+          await _documentCubit.clearDocument();
+          _documentCubit.getCategoryList(context, 1, projectId);
         },
         extraHeight: 20,
         secondaryWidget: CustomButton(
@@ -359,10 +360,10 @@ class _DocumentScreenState extends State<DocumentScreen>
         return ListView.builder(
           controller: scrollController,
           itemCount: documents.length + 1,
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
           itemBuilder: (context, index) {
-            if (index == state.documentList.length) {
+            // Pagination loader
+            if (index == documents.length) {
               return state.documentList.length < state.totalNumberOfRecord
                   ? const Padding(
                     padding: EdgeInsets.all(16),
@@ -370,7 +371,9 @@ class _DocumentScreenState extends State<DocumentScreen>
                   )
                   : const SizedBox.shrink();
             }
+
             final document = documents[index];
+
             return Container(
               padding: EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 10),

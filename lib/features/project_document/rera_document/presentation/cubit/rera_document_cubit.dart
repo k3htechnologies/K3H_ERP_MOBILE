@@ -7,7 +7,6 @@ import 'package:k3h_erp_app/features/project_document/rera_document/data/reposit
 import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_state.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/data/model/rera_document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/data/repository/rera_document_category.repository.dart';
-import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -25,13 +24,12 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
   Future getCategoryList(
     BuildContext context,
     int pageNumber,
-    int pageSize,
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
     var result = await _reraDocumentCategoryRepository.getReraDocumentCategory(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       projectId: projectId,
     );
     result.fold(
@@ -69,7 +67,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     );
   }
 
-  // <---- GET PROJECT DOCUMENT ---->
+  // <---- GET PROJECT RERA DOCUMENT ---->
   Future getProjectRERADocumentList({
     required BuildContext context,
     required int pageNumber,
@@ -107,7 +105,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           emit(
             state.copyWith(
               isLoading: false,
-              documentList: updatedList,
+              reraDocumentList: updatedList,
               totalNumberOfRecord: response["totalNumberOfRecord"],
               currentPage: pageNumber,
             ),
@@ -120,8 +118,8 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           emit(
             state.copyWith(
               isLoading: false,
-              subDocumentList: updatedSubDocList,
-              totalNumberOfRecord: response["totalNumberOfRecord"],
+              reraSubDocumentList: updatedSubDocList,
+              totalNumberOfRecordOfSubDoc: response["totalNumberOfRecord"],
               currentPageOfSubDoc: pageNumber,
             ),
           );
@@ -130,8 +128,8 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     );
   }
 
-  //UPDATE SUB DOCUMENT
-  Future updateSubDocument({
+  //UPDATE SUB RERA DOCUMENT
+  Future updateRERASubDocument({
     required int index,
     required BuildContext context,
     required int projectRERADocumentId,
@@ -170,7 +168,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       }
     }
 
-    var result = await _reraDocumentRepository.addUpdateDocument(
+    var result = await _reraDocumentRepository.addUpdateRERADocument(
       body: body,
       fileList: fileList,
     );
@@ -193,7 +191,10 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
 
           updatedListModel[index] = updatedDocument;
           emit(
-            state.copyWith(isLoading: false, subDocumentList: updatedListModel),
+            state.copyWith(
+              isLoading: false,
+              reraSubDocumentList: updatedListModel,
+            ),
           );
         }
 
@@ -205,8 +206,8 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     );
   }
 
-  // ADD SUB DOCUMENT
-  Future addSubDocument({
+  // ADD RERA SUB DOCUMENT
+  Future addRERASubDocument({
     required int index,
     required BuildContext context,
     required int projectRERADocumentId,
@@ -248,7 +249,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       }
     }
 
-    var result = await _reraDocumentRepository.addUpdateDocument(
+    var result = await _reraDocumentRepository.addUpdateRERADocument(
       body: body,
       fileList: fileList,
     );
@@ -259,7 +260,8 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         return;
       },
       (response) {
-        goRouter.goNamed(AppRoutes.document);
+        goRouter.pop();
+        goRouter.pop();
 
         if (state.documentList.isNotEmpty &&
             index < state.documentList.length) {
@@ -272,13 +274,18 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
             projectRERADocumentName:
                 updatedListModel[index].projectRERADocumentName,
             approvalPendingProjectRERADocumentCount:
-                updatedListModel[index].approvalPendingProjectRERADocumentCount + 1,
+                updatedListModel[index]
+                    .approvalPendingProjectRERADocumentCount +
+                1,
             uploadedProjectRERADocumentCount:
                 updatedListModel[index].uploadedProjectRERADocumentCount + 1,
           );
 
           emit(
-            state.copyWith(isLoading: false, documentList: updatedListModel),
+            state.copyWith(
+              isLoading: false,
+              reraDocumentList: updatedListModel,
+            ),
           );
         }
 
@@ -291,7 +298,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
   }
 
   //RENAME PARENT DOCUMENT NAME
-  Future updateDocumentNameInCategory({
+  Future updateRERADocumentNameInCategory({
     required int index,
     required BuildContext context,
     required int projectRERADocumentId,
@@ -311,7 +318,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       "IsMaster": 1.toString(),
     };
 
-    var result = await _reraDocumentRepository.addUpdateDocument(
+    var result = await _reraDocumentRepository.addUpdateRERADocument(
       body: body,
       fileList: fileList,
     );
@@ -332,7 +339,10 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           );
           updatedListModel[index] = updatedDocument;
           emit(
-            state.copyWith(isLoading: false, documentList: updatedListModel),
+            state.copyWith(
+              isLoading: false,
+              reraDocumentList: updatedListModel,
+            ),
           );
         }
 
@@ -344,8 +354,8 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     );
   }
 
-  //ADD DOCUMENT TO CATEGORY
-  Future addDocumentToCategory({
+  //ADD RERA DOCUMENT TO CATEGORY
+  Future addRERADocumentToCategory({
     required BuildContext context,
     required String projectRERADocumentName,
   }) async {
@@ -364,7 +374,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     };
     List<Map<String, dynamic>> fileList = [];
 
-    var result = await _reraDocumentRepository.addUpdateDocument(
+    var result = await _reraDocumentRepository.addUpdateRERADocument(
       body: body,
       fileList: fileList,
     );
@@ -379,7 +389,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         final updatedList = response['data'][0] as RERADocumentModel;
         var list = [updatedList, ...state.documentList];
 
-        emit(state.copyWith(documentList: list));
+        emit(state.copyWith(reraDocumentList: list));
 
         showSuccessMessage(
           context,
@@ -398,6 +408,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
             state
                 .documentCategoryModelList[index]
                 .projectRERADocumentCategoryId,
+        reraDocumentList: [],
       ),
     );
     getProjectRERADocumentList(context: context, pageNumber: 1);
@@ -407,7 +418,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
   void searchDocument(String value, BuildContext context) {
     emit(
       state.copyWith(
-        documentList: [],
+        reraDocumentList: [],
         isLoading: true,
         searchText: value,
         currentPage: 1,
@@ -416,7 +427,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     getProjectRERADocumentList(context: context, pageNumber: 1);
   }
 
-  // <---- DELETE DOCUMENT CATEGORY  ---->
+  // <---- DELETE RERA DOCUMENT FROM CATEGORY  ---->
   Future deleteDocument(
     RERADocumentModel document,
     BuildContext context,
@@ -424,7 +435,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
   ) async {
     DialogHelper.showProcessingOverlay(context);
 
-    final result = await _reraDocumentRepository.deleteDocument(
+    final result = await _reraDocumentRepository.deleteRERADocument(
       projectRERADocumentCategoryId:
           state
               .documentCategoryModelList[state.categoryIndex]
@@ -443,13 +454,22 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       (success) {
         final updatedList = List<RERADocumentModel>.from(state.documentList);
         updatedList.removeAt(index);
-        emit(state.copyWith(documentList: updatedList));
+        emit(
+          state.copyWith(
+            reraDocumentList: updatedList,
+            totalNumberOfRecord: success["totalNumberOfRecord"],
+          ),
+        );
         showSuccessMessage(context, subTitle: "Document Deleted Successfully");
       },
     );
   }
 
-  Future clearSubDocument() async {
-    emit(state.copyWith(subDocumentList: []));
+  Future clearRERASubDocument() async {
+    emit(state.copyWith(reraSubDocumentList: []));
+  }
+
+  Future clearRERADocument() async {
+    emit(state.copyWith(reraDocumentList: []));
   }
 }

@@ -9,12 +9,12 @@ abstract interface class RERADocumentDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-  Future<Map<String, dynamic>> apiCallAddUpdateDocument({
+  Future<Map<String, dynamic>> apiCallAddUpdateRERADocument({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
 
-  Future<Map<String, dynamic>> apicallDeleteDocument({
+  Future<Map<String, dynamic>> apicallDeleteRERADocument({
     required int projectRERADocumentId,
     required int projectId,
     required int projectRERADocumentCategoryId,
@@ -73,7 +73,7 @@ class RERADocumentDatasourceImpl implements RERADocumentDatasource {
   }
 
   @override
-  Future<Map<String, dynamic>> apiCallAddUpdateDocument({
+  Future<Map<String, dynamic>> apiCallAddUpdateRERADocument({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   }) async {
@@ -95,14 +95,14 @@ class RERADocumentDatasourceImpl implements RERADocumentDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apiCallAddUpdateDocument(body: body, fileList: fileList);
+        apiCallAddUpdateRERADocument(body: body, fileList: fileList);
       }
       rethrow;
     }
   }
 
   @override
-  Future<Map<String, dynamic>> apicallDeleteDocument({
+  Future<Map<String, dynamic>> apicallDeleteRERADocument({
     required int projectRERADocumentId,
     required int projectId,
     required int projectRERADocumentCategoryId,
@@ -132,7 +132,7 @@ class RERADocumentDatasourceImpl implements RERADocumentDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallDeleteDocument(
+        apicallDeleteRERADocument(
           projectRERADocumentId: projectRERADocumentId,
           projectId: projectId,
           projectRERADocumentCategoryId: projectRERADocumentCategoryId,

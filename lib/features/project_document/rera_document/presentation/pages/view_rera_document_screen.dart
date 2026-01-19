@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
-import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -34,7 +34,7 @@ class ViewRERADocumentScreen extends StatefulWidget {
 
 class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   //CUBIT
-  late DocumentCubit _documentCubit;
+  late RERADocumentCubit _documentCubit;
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
 
@@ -46,13 +46,13 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   void initState() {
     super.initState();
     _onScroll();
-    _documentCubit = context.read<DocumentCubit>();
+    _documentCubit = context.read<RERADocumentCubit>();
     _routeAuthorizationModel = AuthorizationModel();
 
-    _documentCubit.getProjectDocumentList(
+    _documentCubit.getProjectRERADocumentList(
       context: context,
       pageNumber: 1,
-      projectDocumentId: widget.documentModel.projectRERADocumentId,
+      projectRERADocumentId: widget.documentModel.projectRERADocumentId,
     );
   }
 
@@ -64,14 +64,14 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
               scrollController.position.maxScrollExtent - 100 &&
           !_documentCubit.state.isLoading! &&
           _documentCubit.state.subDocumentList.length <
-              _documentCubit.state.totalNumberOfRecord) {
+              _documentCubit.state.totalNumberOfRecordOfSubDoc) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _documentCubit.getProjectDocumentList(
+          _documentCubit.getProjectRERADocumentList(
             context: context,
             pageNumber: _documentCubit.state.currentPageOfSubDoc + 1,
-            projectDocumentId: widget.documentModel.projectRERADocumentId,
+            projectRERADocumentId: widget.documentModel.projectRERADocumentId,
           );
         });
       }
@@ -82,7 +82,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "Documents",
+        screenTitle: "RERA Documents",
         authorization: _routeAuthorizationModel,
       ),
       body: Padding(
@@ -125,7 +125,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
               ],
             ),
 
-            BlocBuilder<DocumentCubit, DocumentState>(
+            BlocBuilder<RERADocumentCubit, RERADocumentState>(
               builder: (context, state) {
                 if ((state.isLoading ?? true) &&
                     state.subDocumentList.isEmpty) {
@@ -143,7 +143,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                     itemBuilder: (context, index) {
                       if (index == state.subDocumentList.length) {
                         return state.subDocumentList.length <
-                                state.totalNumberOfRecord
+                                state.totalNumberOfRecordOfSubDoc
                             ? const Padding(
                               padding: EdgeInsets.all(16),
                               child: Center(child: CircularProgressIndicator()),
@@ -185,7 +185,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   }
 
   //DOCUMENT CARD
-  Widget _buildDocumentCard(DocumentModel document, int index) {
+  Widget _buildDocumentCard(RERADocumentModel document, int index) {
     return Container(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 10),
@@ -200,7 +200,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
             children: [
               Expanded(
                 child: Text(
-                  document.projectDocumentName,
+                  document.projectRERADocumentName,
                   style: AppTextStyle.ts16SB(),
                 ),
               ),
@@ -236,14 +236,16 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                 valueWidget: Container(
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
                   decoration: BoxDecoration(
-                    color: getBgColorByStatus(document.projectDocumentStatus),
+                    color: getBgColorByStatus(
+                      document.projectRERADocumentStatus,
+                    ),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    document.projectDocumentStatus,
+                    document.projectRERADocumentStatus,
                     style: AppTextStyle.ts12M(
                       color: getTxtColorByStatus(
-                        document.projectDocumentStatus,
+                        document.projectRERADocumentStatus,
                       ),
                     ),
                   ),
@@ -252,9 +254,9 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
               _buildColumnTitleValue(
                 title: "Expiry Date",
                 value:
-                    document.projectDocumentExpiryDate != null
+                    document.projectRERADocumentExpiryDate != null
                         ? formatDateTimeAsDDMMMYYYY(
-                          document.projectDocumentExpiryDate!,
+                          document.projectRERADocumentExpiryDate!,
                         )
                         : '-',
               ),
@@ -281,7 +283,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
             children: [
               _buildColumnTitleValue(
                 title: "Remark",
-                value: document.projectDocumentRemark,
+                value: document.projectRERADocumentRemark,
               ),
               _buildColumnTitleValue(
                 title: "View Document",
@@ -289,7 +291,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                   onTap: () {
                     showFilePreviewDialog(
                       context,
-                      document.projectDocumentURL.split(","),
+                      document.projectRERADocumentURL.split(","),
                     );
                   },
                   child: Row(

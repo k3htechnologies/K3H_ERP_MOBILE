@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
-import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_state.dart';
@@ -34,8 +32,8 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     with TickerProviderStateMixin {
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
-  late RERADocumentCubit _documentCubit;
+  //CUBIT
+  late RERADocumentCubit _reraDocumentCubit;
   // TAB CONTROLLERS
   TabController? _categoryTabController;
 
@@ -50,9 +48,9 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     super.initState();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.rera]!;
-    _documentCubit = context.read<RERADocumentCubit>();
+    _reraDocumentCubit = context.read<RERADocumentCubit>();
     projectId = getProject().projectId;
-    _documentCubit.getCategoryList(context, 1, 20, projectId);
+    _reraDocumentCubit.getCategoryList(context, 1, projectId);
     _initControllers();
     _onScroll();
   }
@@ -63,15 +61,15 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
-          !_documentCubit.state.isLoading! &&
-          _documentCubit.state.documentList.length <
-              _documentCubit.state.totalNumberOfRecord) {
+          !_reraDocumentCubit.state.isLoading! &&
+          _reraDocumentCubit.state.documentList.length <
+              _reraDocumentCubit.state.totalNumberOfRecord) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _documentCubit.getProjectRERADocumentList(
+          _reraDocumentCubit.getProjectRERADocumentList(
             context: context,
-            pageNumber: _documentCubit.state.currentPage + 1,
+            pageNumber: _reraDocumentCubit.state.currentPage + 1,
           );
         });
       }
@@ -81,7 +79,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
   // CATEGORY TAB
   void _onBuildingTabChanged() {
     if (!_categoryTabController!.indexIsChanging && mounted) {
-      _documentCubit.onTabChanged(_categoryTabController!.index, context);
+      _reraDocumentCubit.onTabChanged(_categoryTabController!.index, context);
     }
   }
 
@@ -100,14 +98,14 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
   }
 
   // TEXT EDIT CONTROLLER
-  late TextEditingController _searchC, _documentC;
+  late TextEditingController _searchC, _reraDocumentC;
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
   // INITIALIZE CONTROLLERS
   void _initControllers() {
     _searchC = TextEditingController();
-    _documentC = TextEditingController();
+    _reraDocumentC = TextEditingController();
   }
 
   @override
@@ -124,30 +122,30 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     }
     if (documentModel != null) {
       //Edit Name
-      _documentCubit.updateDocumentNameInCategory(
+      _reraDocumentCubit.updateRERADocumentNameInCategory(
         context: context,
         index: index!,
         uniqueKey: documentModel.uniquekey,
         projectRERADocumentId: documentModel.projectRERADocumentId,
         projectRERADocumentCategoryId:
             documentModel.projectRERADocumentCategoryId,
-        projectRERADocumentName: _documentC.text.trim(),
+        projectRERADocumentName: _reraDocumentC.text.trim(),
       );
     } else {
       //Create New Parent Doc
-      _documentCubit.addDocumentToCategory(
+      _reraDocumentCubit.addRERADocumentToCategory(
         context: context,
-        projectRERADocumentName: _documentC.text.trim(),
+        projectRERADocumentName: _reraDocumentC.text.trim(),
       );
     }
   }
 
   void _prefillDocumentDetails(RERADocumentModel documentModel) {
-    _documentC.text = documentModel.projectRERADocumentName;
+    _reraDocumentC.text = documentModel.projectRERADocumentName;
   }
 
-  // DELETE DOCUMENT
-  Future<void> _showPopupToDeleteDocument(
+  // DELETE RERA DOCUMENT
+  Future<void> _showPopupToDeleteRERADocument(
     BuildContext context,
     RERADocumentModel obj,
     // int page,
@@ -155,16 +153,16 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
   ) async {
     final shouldDelete = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a document?',
-      'Deleting this document will permanently remove its contents.',
+      'You are about to RERA delete a document?',
+      'Deleting this RERA document will permanently remove its contents.',
     );
 
     if (shouldDelete && context.mounted) {
-      _documentCubit.deleteDocument(obj, context, index);
+      _reraDocumentCubit.deleteDocument(obj, context, index);
     }
   }
 
-  Future<void> _showPopUpToAddUpdateDocument({
+  Future<void> _showPopUpToAddUpdateRERADocument({
     RERADocumentModel? documentModel,
     int? index,
   }) async {
@@ -178,13 +176,12 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
         key: _formKey,
         child: Padding(
           padding: EdgeInsets.all(16),
-
           child: Column(
             children: [
               CustomTextField(
                 title: "Document",
                 hint: "Enter Document",
-                textController: _documentC,
+                textController: _reraDocumentC,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return "Document is required";
@@ -215,7 +212,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
   }
 
   void _clearDialogueToAddUpdateDocument() {
-    _documentC.clear();
+    _reraDocumentC.clear();
   }
 
   @override
@@ -226,17 +223,18 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
         authorization: _routeAuthorizationModel,
         textController: _searchC,
         onSearchSubmit: (value) {
-          _documentCubit.searchDocument(value, context);
+          _reraDocumentCubit.searchDocument(value, context);
         },
-        onProjectChangeCallback: (project) {
+        onProjectChangeCallback: (project) async {
+          _reraDocumentCubit.clearRERADocument();
           projectId = project.projectId;
-          _documentCubit.getCategoryList(context, 1, 20, projectId);
+          _reraDocumentCubit.getCategoryList(context, 1, projectId);
         },
         extraHeight: 20,
         secondaryWidget: CustomButton(
           text: "Add",
           onPressed: () {
-            _showPopUpToAddUpdateDocument();
+            _showPopUpToAddUpdateRERADocument();
           },
           backgroundColor: AppColor.primary,
           leading: Icon(Icons.add, size: 16, color: AppColor.white),
@@ -367,7 +365,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
 
           itemBuilder: (context, index) {
-            if (index == state.documentList.length) {
+            if (index == documents.length) {
               return state.documentList.length < state.totalNumberOfRecord
                   ? const Padding(
                     padding: EdgeInsets.all(16),
@@ -389,7 +387,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                       Flexible(
                         child: GestureDetector(
                           onTap: () async {
-                            await _documentCubit.clearSubDocument();
+                            await _reraDocumentCubit.clearRERASubDocument();
                             await goRouter.pushNamed(
                               AppRoutes.viewReraDocument,
                               queryParameters: {
@@ -439,9 +437,9 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                             ),
                             onPressed: () async {
                               goRouter.pushNamed(
-                                AppRoutes.addDocument,
+                                AppRoutes.addReraDocument,
                                 queryParameters: {
-                                  "document": Uri.encodeQueryComponent(
+                                  "reraDocument": Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
                                       jsonEncode(document.toJson()),
                                     ),
@@ -463,7 +461,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                           const SizedBox(width: 8),
                           CustomIconButton.edit(
                             onPressed: () async {
-                              _showPopUpToAddUpdateDocument(
+                              _showPopUpToAddUpdateRERADocument(
                                 documentModel: document,
                                 index: index,
                               );
@@ -472,7 +470,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                           const SizedBox(width: 8),
                           CustomIconButton.delete(
                             onPressed: () {
-                              _showPopupToDeleteDocument(
+                              _showPopupToDeleteRERADocument(
                                 context,
                                 document,
                                 index,

@@ -10,12 +10,12 @@ abstract interface class RERADocumentRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-  Future<Either<Failure, Map<String, dynamic>>> addUpdateDocument({
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateRERADocument({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> deleteDocument({
+  Future<Either<Failure, Map<String, dynamic>>> deleteRERADocument({
     required int projectRERADocumentId,
     required int projectId,
     required int projectRERADocumentCategoryId,
@@ -49,12 +49,12 @@ class RERADocumentRepositoryImpl implements RERADocumentRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> addUpdateDocument({
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateRERADocument({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   }) async {
     try {
-      var result = await reraDocumentDatasource.apiCallAddUpdateDocument(
+      var result = await reraDocumentDatasource.apiCallAddUpdateRERADocument(
         body: body,
         fileList: fileList,
       );
@@ -65,14 +65,14 @@ class RERADocumentRepositoryImpl implements RERADocumentRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> deleteDocument({
+  Future<Either<Failure, Map<String, dynamic>>> deleteRERADocument({
     required int projectRERADocumentId,
     required int projectId,
     required int projectRERADocumentCategoryId,
     required String uniqueKey,
   }) async {
     try {
-      var result = await reraDocumentDatasource.apicallDeleteDocument(
+      var result = await reraDocumentDatasource.apicallDeleteRERADocument(
         projectRERADocumentId: projectRERADocumentId,
         projectId: projectId,
         projectRERADocumentCategoryId: projectRERADocumentCategoryId,

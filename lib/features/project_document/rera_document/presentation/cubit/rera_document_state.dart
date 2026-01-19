@@ -11,6 +11,7 @@ class RERADocumentState extends BaseState {
   final int totalNumberOfRecord;
   final int currentPage;
   final int currentPageOfSubDoc;
+  final int totalNumberOfRecordOfSubDoc;
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
@@ -23,6 +24,7 @@ class RERADocumentState extends BaseState {
     required this.subDocumentList,
     required this.documentCategoryModelList,
     required this.totalNumberOfRecord,
+    required this.totalNumberOfRecordOfSubDoc,
     required this.currentPage,
     required this.searchText,
     required this.currentSortColumn,
@@ -37,6 +39,7 @@ class RERADocumentState extends BaseState {
     subDocumentList: [],
     documentCategoryModelList: [],
     totalNumberOfRecord: 0,
+    totalNumberOfRecordOfSubDoc: 0,
     currentPage: 1,
     currentPageOfSubDoc: 1,
     searchText: "",
@@ -50,10 +53,11 @@ class RERADocumentState extends BaseState {
     int? categoryIndex,
     int? currentPageOfSubDoc,
     int? projectRERADocumentCategoryId,
-    List<RERADocumentModel>? documentList,
-    List<RERADocumentModel>? subDocumentList,
+    List<RERADocumentModel>? reraDocumentList,
+    List<RERADocumentModel>? reraSubDocumentList,
     List<RERADocumentCategoryModel>? documentCategoryModelList,
     int? totalNumberOfRecord,
+    int? totalNumberOfRecordOfSubDoc,
     int? currentPage,
     String? searchText,
     String? currentSortColumn,
@@ -64,11 +68,13 @@ class RERADocumentState extends BaseState {
       categoryIndex: categoryIndex ?? this.categoryIndex,
       projectRERADocumentCategoryId:
           projectRERADocumentCategoryId ?? this.projectRERADocumentCategoryId,
-      documentList: documentList ?? this.documentList,
-      subDocumentList: subDocumentList ?? this.subDocumentList,
+      documentList: reraDocumentList ?? this.documentList,
+      subDocumentList: reraSubDocumentList ?? this.subDocumentList,
       documentCategoryModelList:
           documentCategoryModelList ?? this.documentCategoryModelList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
+      totalNumberOfRecordOfSubDoc:
+          totalNumberOfRecordOfSubDoc ?? this.totalNumberOfRecordOfSubDoc,
       currentPage: currentPage ?? this.currentPage,
       currentPageOfSubDoc: currentPageOfSubDoc ?? this.currentPageOfSubDoc,
       searchText: searchText ?? this.searchText,
@@ -86,6 +92,7 @@ class RERADocumentState extends BaseState {
     subDocumentList,
     documentCategoryModelList,
     totalNumberOfRecord,
+    totalNumberOfRecordOfSubDoc,
     currentPage,
     searchText,
     currentSortColumn,

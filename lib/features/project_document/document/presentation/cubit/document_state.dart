@@ -7,6 +7,7 @@ class DocumentState extends BaseState {
   final List<DocumentModel> subDocumentList;
   final List<DocumentCategoryModel> documentCategoryModelList;
   final int totalNumberOfRecord;
+  final int totalNumberOfRecordOfSubDoc;
   final int currentPage;
   final int currentPageOfSubDoc;
   final String searchText;
@@ -21,6 +22,7 @@ class DocumentState extends BaseState {
     required this.subDocumentList,
     required this.documentCategoryModelList,
     required this.totalNumberOfRecord,
+    required this.totalNumberOfRecordOfSubDoc,
     required this.currentPage,
     required this.searchText,
     required this.currentSortColumn,
@@ -35,6 +37,7 @@ class DocumentState extends BaseState {
     subDocumentList: [],
     documentCategoryModelList: [],
     totalNumberOfRecord: 0,
+    totalNumberOfRecordOfSubDoc: 0,
     currentPage: 1,
     currentPageOfSubDoc: 1,
     searchText: "",
@@ -52,6 +55,7 @@ class DocumentState extends BaseState {
     List<DocumentModel>? subDocumentList,
     List<DocumentCategoryModel>? documentCategoryModelList,
     int? totalNumberOfRecord,
+    int? totalNumberOfRecordOfSubDoc,
     int? currentPage,
     String? searchText,
     String? currentSortColumn,
@@ -67,6 +71,8 @@ class DocumentState extends BaseState {
       documentCategoryModelList:
           documentCategoryModelList ?? this.documentCategoryModelList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
+      totalNumberOfRecordOfSubDoc:
+          totalNumberOfRecordOfSubDoc ?? this.totalNumberOfRecordOfSubDoc,
       currentPage: currentPage ?? this.currentPage,
       currentPageOfSubDoc: currentPageOfSubDoc ?? this.currentPageOfSubDoc,
       searchText: searchText ?? this.searchText,
@@ -84,6 +90,7 @@ class DocumentState extends BaseState {
     subDocumentList,
     documentCategoryModelList,
     totalNumberOfRecord,
+    totalNumberOfRecordOfSubDoc,
     currentPage,
     searchText,
     currentSortColumn,

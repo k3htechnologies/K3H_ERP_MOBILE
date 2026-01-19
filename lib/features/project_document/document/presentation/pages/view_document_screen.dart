@@ -63,7 +63,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
               scrollController.position.maxScrollExtent - 100 &&
           !_documentCubit.state.isLoading! &&
           _documentCubit.state.subDocumentList.length <
-              _documentCubit.state.totalNumberOfRecord) {
+              _documentCubit.state.totalNumberOfRecordOfSubDoc) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
@@ -75,6 +75,12 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
         });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -142,7 +148,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                     itemBuilder: (context, index) {
                       if (index == state.subDocumentList.length) {
                         return state.subDocumentList.length <
-                                state.totalNumberOfRecord
+                                state.totalNumberOfRecordOfSubDoc
                             ? const Padding(
                               padding: EdgeInsets.all(16),
                               child: Center(child: CircularProgressIndicator()),
