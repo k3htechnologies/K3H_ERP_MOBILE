@@ -67,6 +67,7 @@ class AppRoutes {
 
   // PARKING
   static String parking = "/parking";
+  static String editParking = "/editParking";
 
   // INVOICE
   static String viewInvoiceMobile = "/viewInvoiceMobile";

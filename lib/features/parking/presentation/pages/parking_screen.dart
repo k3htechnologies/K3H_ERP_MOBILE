@@ -1,14 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/presentation/cubit/parking_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ParkingScreen extends StatefulWidget {
@@ -49,12 +55,12 @@ class _ParkingScreenState extends State<ParkingScreen>
     _project = getProject();
     _routAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.parking]!;
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final state = _parkingCubit.state;
         if (state.parkingList.isEmpty) {
-    _parkingCubit.getParking(context, _project.projectId);
+          _parkingCubit.getParking(context, _project.projectId);
         } else {
           _initializeControllersIfNeeded(state);
         }
@@ -249,7 +255,8 @@ class _ParkingScreenState extends State<ParkingScreen>
               } else {
                 // Sync TabController index with state
                 final reversedKeys = buildingKeys.reversed.toList();
-                final tabIndex = reversedKeys.length - 1 - state.buildingCurrentPage;
+                final tabIndex =
+                    reversedKeys.length - 1 - state.buildingCurrentPage;
                 if (_buildingTabController!.index != tabIndex &&
                     tabIndex >= 0 &&
                     tabIndex < reversedKeys.length) {
@@ -305,7 +312,8 @@ class _ParkingScreenState extends State<ParkingScreen>
                 return Center(child: noDataWidget());
               }
 
-              final buildingKeys = state.groupedData!.keys.toList().reversed.toList();
+              final buildingKeys =
+                  state.groupedData!.keys.toList().reversed.toList();
 
               // Show loading if building controller is not initialized yet
               if (state.groupedData!.isNotEmpty &&
@@ -316,7 +324,8 @@ class _ParkingScreenState extends State<ParkingScreen>
 
               // Get current wing data
               final wingKeys = state.wingGroupedData?.keys.toList() ?? [];
-              final wingData = state.wingGroupedData?[state.wingCurrentPageKey] ?? [];
+              final wingData =
+                  state.wingGroupedData?[state.wingCurrentPageKey] ?? [];
 
               return Column(
                 children: [
@@ -328,13 +337,9 @@ class _ParkingScreenState extends State<ParkingScreen>
                   if (wingKeys.isNotEmpty) _buildWingTab(wingKeys),
                   // PARKING LIST
                   if (wingData.isNotEmpty)
-                    Expanded(
-                      child: _buildParkingList(wingData),
-                    )
+                    Expanded(child: _buildParkingList(wingData))
                   else
-                    Expanded(
-                      child: Center(child: noDataWidget()),
-                    ),
+                    Expanded(child: Center(child: noDataWidget())),
                 ],
               );
             },
@@ -433,11 +438,12 @@ class _ParkingScreenState extends State<ParkingScreen>
   // PARKING LIST
   Widget _buildParkingList(List<ParkingModel> parkingList) {
     // Filter parking list based on selected filters
-    final filteredList = _selectedParkingFilter.isEmpty
-        ? parkingList
-        : parkingList
-            .where((e) => _selectedParkingFilter.contains(e.parkingStatus))
-            .toList();
+    final filteredList =
+        _selectedParkingFilter.isEmpty
+            ? parkingList
+            : parkingList
+                .where((e) => _selectedParkingFilter.contains(e.parkingStatus))
+                .toList();
 
     if (filteredList.isEmpty) {
       return Center(child: noDataWidget());
@@ -445,37 +451,18 @@ class _ParkingScreenState extends State<ParkingScreen>
 
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      itemCount: (filteredList.length / 2).ceil(),
+      itemCount: filteredList.length,
       itemBuilder: (context, index) {
-        final firstIndex = index * 2;
-        final secondIndex = firstIndex + 1;
-
         return Padding(
           padding: const EdgeInsets.only(bottom: 10),
-          child: Row(
-            children: [
-              Expanded(
-                child: _buildParkingCard(
-                  filteredList[firstIndex],
-                ),
-              ),
-              if (secondIndex < filteredList.length)
-                horizontalSpacing(width: 10),
-              if (secondIndex < filteredList.length)
-                Expanded(
-                  child: _buildParkingCard(
-                    filteredList[secondIndex],
-                  ),
-                ),
-            ],
-          ),
+          child: _buildParkingCard(filteredList[index], index),
         );
       },
     );
   }
 
   // PARKING CARD
-  Widget _buildParkingCard(ParkingModel parking) {
+  Widget _buildParkingCard(ParkingModel parking, int index) {
     Color statusColor;
     switch (parking.parkingStatus) {
       case 'Available':
@@ -519,6 +506,21 @@ class _ParkingScreenState extends State<ParkingScreen>
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              CustomIconButton.edit(
+                onPressed: () {
+                  goRouter.pushNamed(
+                    AppRoutes.editParking,
+                    queryParameters: {
+                      'parking': Uri.encodeComponent(
+                        EncryptionManager.encryptData(
+                          jsonEncode(parking.toJson()),
+                        ),
+                      ),
+                      'index': index.toString(),
+                    },
+                  );
+                },
+              ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
@@ -547,6 +549,12 @@ class _ParkingScreenState extends State<ParkingScreen>
               overflow: TextOverflow.ellipsis,
             ),
           ],
+          if (parking.parkingStatus == "Hold" ||
+              parking.parkingStatus == "Member")
+            Text(
+              "Hold on ${formatDateTimeAsDDMMMYYYY(parking.modifiedDate!)} by ${parking.modifiedBy}",
+              style: AppTextStyle.ts12R(),
+            ),
         ],
       ),
     );

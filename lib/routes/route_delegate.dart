@@ -108,7 +108,9 @@ import 'package:k3h_erp_app/features/more/events/calendar/presentation/pages/cal
 import 'package:k3h_erp_app/features/more/events/task/presentation/pages/task_transfer_history_screen.dart';
 import 'package:k3h_erp_app/features/notification/presentation/cubit/notification_cubit.dart';
 import 'package:k3h_erp_app/features/notification/presentation/pages/notification_screen.dart';
+import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/presentation/cubit/parking_cubit.dart';
+import 'package:k3h_erp_app/features/parking/presentation/pages/edit_parking_screen.dart';
 import 'package:k3h_erp_app/features/parking/presentation/pages/parking_screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
@@ -2208,6 +2210,30 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.parking,
               builder: (context, state) {
                 return const ParkingScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.editParking,
+              path: AppRoutes.editParking,
+              builder: (context, state) {
+                final queryParameterParkingModel =
+                    state.uri.queryParameters['parking'];
+
+                ParkingModel? parking;
+
+                if (queryParameterParkingModel != null) {
+                  final parkingJson = jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(queryParameterParkingModel),
+                    ),
+                  );
+                  parking = ParkingModel.fromJson(parkingJson);
+                }
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return EditParkingScreen(parking: parking!, index: index);
               },
             ),
           ],
