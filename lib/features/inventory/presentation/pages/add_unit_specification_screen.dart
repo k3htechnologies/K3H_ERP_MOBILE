@@ -187,13 +187,36 @@ class _AddUnitSpecificationScreenState
                   inputFormatterList:
                       inputFormatterListForDecimalValuesFixedToTwo(10),
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
+                    // If area empty, try to derive from length and width before failing
+                    final trimmed = value?.trim() ?? '';
+                    final length = double.tryParse(_lengthC.text.trim()) ?? 0;
+                    final width = double.tryParse(_widthC.text.trim()) ?? 0;
+
+                    if (trimmed.isEmpty) {
+                      if (length > 0 && width > 0) {
+                        final derivedArea = length * width;
+                        _areaC.text = derivedArea.toStringAsFixed(2);
+                        return null;
+                      }
                       return 'Area is required';
                     }
-                    final areaValue = double.tryParse(value.trim());
-                    if (areaValue == null || areaValue <= 0) {
-                      return 'Area must be greater than 0';
+
+                    final areaValue = double.tryParse(trimmed);
+                    if (areaValue != null) {
+                      if (areaValue <= 0) {
+                        return 'Area must be greater than 0';
+                      }
+                      return null;
                     }
+
+                    // If area not parseable but we can derive, accept
+                    if (length > 0 && width > 0) {
+                      final derivedArea = length * width;
+                      _areaC.text = derivedArea.toStringAsFixed(2);
+                      return null;
+                    }
+
+                    // Fallback: allow non-empty unparsable values without blocking save
                     return null;
                   },
                 ),

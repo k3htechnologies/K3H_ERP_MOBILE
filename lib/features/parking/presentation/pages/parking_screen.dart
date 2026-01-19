@@ -68,10 +68,10 @@ class _ParkingScreenState extends State<ParkingScreen>
     });
   }
 
+  // INITIALIZE CONTROLLERS IF NEEDED
   void _initializeControllersIfNeeded(ParkingState state) {
     if (!mounted || _isDisposing) return;
 
-    bool needsRebuild = false;
 
     // Initialize building controller if we have data
     if (state.groupedData != null && state.groupedData!.isNotEmpty) {
@@ -79,7 +79,6 @@ class _ParkingScreenState extends State<ParkingScreen>
       if (_buildingTabController == null ||
           _buildingTabController!.length != buildingKeys.length) {
         _initBuildingController(buildingKeys.length);
-        needsRebuild = true;
       }
     }
 
@@ -89,12 +88,7 @@ class _ParkingScreenState extends State<ParkingScreen>
       if (_wingTabController == null ||
           _wingTabController!.length != wingKeys.length) {
         _initWingController(wingKeys.length);
-        needsRebuild = true;
       }
-    }
-
-    if (needsRebuild && mounted) {
-      setState(() {});
     }
   }
 
@@ -220,7 +214,6 @@ class _ParkingScreenState extends State<ParkingScreen>
         },
         onProjectChangeCallback: (project) {
           _project = project;
-          // Reset controllers when project changes
           if (_buildingTabController != null) {
             _buildingTabController!.removeListener(_onBuildingTabChanged);
             _buildingTabController!.dispose();
@@ -243,17 +236,12 @@ class _ParkingScreenState extends State<ParkingScreen>
           listener: (context, state) {
             if (!mounted || _isDisposing) return;
 
-            bool needsRebuild = false;
-
-            // Initialize building controller if we have data
             if (state.groupedData != null && state.groupedData!.isNotEmpty) {
               final buildingKeys = state.groupedData!.keys.toList();
               if (_buildingTabController == null ||
                   _buildingTabController!.length != buildingKeys.length) {
                 _initBuildingController(buildingKeys.length);
-                needsRebuild = true;
               } else {
-                // Sync TabController index with state
                 final reversedKeys = buildingKeys.reversed.toList();
                 final tabIndex =
                     reversedKeys.length - 1 - state.buildingCurrentPage;
@@ -265,16 +253,13 @@ class _ParkingScreenState extends State<ParkingScreen>
               }
             }
 
-            // Initialize wing controller if we have wings
             if (state.wingGroupedData != null &&
                 state.wingGroupedData!.isNotEmpty) {
               final wingKeys = state.wingGroupedData!.keys.toList();
               if (_wingTabController == null ||
                   _wingTabController!.length != wingKeys.length) {
                 _initWingController(wingKeys.length);
-                needsRebuild = true;
               } else {
-                // Sync TabController index with state
                 if (_wingTabController!.index != state.wingCurrentPage &&
                     state.wingCurrentPage >= 0 &&
                     state.wingCurrentPage < wingKeys.length) {
@@ -286,22 +271,13 @@ class _ParkingScreenState extends State<ParkingScreen>
                 _wingTabController!.removeListener(_onWingTabChanged);
                 _wingTabController!.dispose();
                 _wingTabController = null;
-                needsRebuild = true;
               }
-            }
-
-            if (needsRebuild && mounted && !_isDisposing) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted && !_isDisposing) {
-                  setState(() {});
-                }
-              });
             }
           },
           child: BlocBuilder<ParkingCubit, ParkingState>(
             builder: (context, state) {
               if (state.isLoading! && state.parkingList.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
+                return loader();
               }
 
               if (state.parkingList.isEmpty) {
@@ -315,14 +291,11 @@ class _ParkingScreenState extends State<ParkingScreen>
               final buildingKeys =
                   state.groupedData!.keys.toList().reversed.toList();
 
-              // Show loading if building controller is not initialized yet
               if (state.groupedData!.isNotEmpty &&
                   (_buildingTabController == null ||
                       _buildingTabController!.length != buildingKeys.length)) {
                 return const Center(child: CircularProgressIndicator());
               }
-
-              // Get current wing data
               final wingKeys = state.wingGroupedData?.keys.toList() ?? [];
               final wingData =
                   state.wingGroupedData?[state.wingCurrentPageKey] ?? [];
@@ -363,7 +336,7 @@ class _ParkingScreenState extends State<ParkingScreen>
       alignment: Alignment.centerLeft,
       child: IntrinsicWidth(
         child: Container(
-          height: 48,
+          height: 30,
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: AppColor.white,
@@ -406,7 +379,7 @@ class _ParkingScreenState extends State<ParkingScreen>
       alignment: Alignment.centerLeft,
       child: IntrinsicWidth(
         child: Container(
-          height: 44,
+          height: 30,
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: AppColor.white,
@@ -507,8 +480,8 @@ class _ParkingScreenState extends State<ParkingScreen>
                 ),
               ),
               CustomIconButton.edit(
-                onPressed: () {
-                  goRouter.pushNamed(
+                onPressed: () async {
+                  await goRouter.pushNamed(
                     AppRoutes.editParking,
                     queryParameters: {
                       'parking': Uri.encodeComponent(
@@ -519,8 +492,12 @@ class _ParkingScreenState extends State<ParkingScreen>
                       'index': index.toString(),
                     },
                   );
+                  if (mounted) {
+                    _parkingCubit.getParking(context, _project.projectId);
+                  }
                 },
               ),
+              horizontalSpacing(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(

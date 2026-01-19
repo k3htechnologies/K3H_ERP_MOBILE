@@ -320,22 +320,32 @@ class ParkingCubit extends Cubit<ParkingState> {
     int projectId,
     String exportType,
   ) async {
+    DialogHelper.showProcessingOverlay(context);
     var result = await _parkingRepository.exportParking(
       projectId: projectId,
       queryParams: {"ExportType": exportType},
     );
+    goRouter.pop();
     result.fold(
       (failure) {
-        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Failed", failure.message);
       },
       (response) {
-        exportExcelOrPdfMobile(
-          response["data"],
-          exportType.toLowerCase() == "pdf"
-              ? "parking_${DateTime.now()}.pdf"
-              : "parking_${DateTime.now()}.xlsx",
-        );
+        var exportData = response["data"];
+        if (exportData is String) {
+          exportExcelOrPdfMobile(
+            exportData,
+            exportType.toLowerCase() == "pdf"
+                ? "parking_${DateTime.now()}.pdf"
+                : "parking_${DateTime.now()}.xlsx",
+          );
+        } else {
+          showErrorMessage(
+            context,
+            "Error",
+            "Export failed: Invalid response format",
+          );
+        }
       },
     );
   }

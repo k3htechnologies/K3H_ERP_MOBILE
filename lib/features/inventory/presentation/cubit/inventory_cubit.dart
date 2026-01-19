@@ -184,6 +184,42 @@ class InventoryCubit extends Cubit<InventoryState> {
     );
   }
 
+  // DELETE INVENTORY FLAT
+  Future deleteInventoryFlat(
+      BuildContext context,
+      int floorIndex,
+      int wingIndex,
+      int buildingIndex,
+      int flatIndex, {
+        required int projectId,
+        required int inventoryBuildingId,
+        required int inventoryFlatFloorBasementPodiumWingId,
+        required int inventoryFloorId,
+        required int inventoryFlat,
+      }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _inventoryRepository.deleteInventoryFlat(
+      projectId: projectId,
+      inventoryFloorId: inventoryFloorId,
+      inventoryBuildingId: inventoryBuildingId,
+      inventoryFlatFloorBasementPodiumWingId:
+      inventoryFlatFloorBasementPodiumWingId,
+      inventoryFlatId: inventoryFlat,
+    );
+    goRouter.pop();
+    deleteResult.fold(
+          (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+          (response) async {
+        showSuccessMessage(context, subTitle: "Unit Deleted Successfully");
+        await getInventory(context, projectId);
+      },
+    );
+  }
+
   // EXPORT DATA
   Future exportInventory(
     BuildContext context,

@@ -44,7 +44,7 @@ class ParkingDatasourceImpl implements ParkingDatasource {
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullParkingUrl(projectId: projectId),
+        pullParkingUrl(projectId: projectId, queryParams: queryParams),
       );
       return {
         'data': List<ParkingModel>.from(
@@ -151,8 +151,10 @@ class ParkingDatasourceImpl implements ParkingDatasource {
         pullParkingExportUrl(projectId: projectId),
       );
       return {
-        'data': networkResponse["data"],
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'data': networkResponse["data"] ?? networkResponse["Data"],
+        'totalNumberOfRecord':
+            networkResponse['totalNumberOfRecord'] ??
+            networkResponse['TotalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {

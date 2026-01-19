@@ -58,7 +58,8 @@ class _AddInventorySpecificationScreenState
   // LIST VARIABLES
   late ValueNotifier<Map<String, dynamic>> selectedFlatType;
   late ValueNotifier<Map<String, dynamic>> selectedFlatStatus;
-  Map<String, dynamic>? selectedFlatConfiguration, selectedFlatFacing;
+  late ValueNotifier<Map<String, dynamic>?> selectedFlatConfiguration;
+  late ValueNotifier<Map<String, dynamic>?> selectedFlatFacing;
 
   // STATIC LISTS
   List<Map<String, dynamic>> flatTypeList = [
@@ -69,6 +70,7 @@ class _AddInventorySpecificationScreenState
     {'zAttributesId': 4, 'DisplayName': 'Gym'},
   ];
 
+  // STATIC LISTS FOR FLAT CONFIGURATION
   List<Map<String, dynamic>> residentialFlatList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Flat Configuration'},
     {'zAttributesId': 1, 'DisplayName': '1 BHK'},
@@ -80,12 +82,14 @@ class _AddInventorySpecificationScreenState
     {'zAttributesId': 7, 'DisplayName': 'Duplex'},
   ];
 
+  // STATIC LISTS FOR FLAT CONFIGURATION
   List<Map<String, dynamic>> commercialFlatList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Flat Configuration'},
     {'zAttributesId': 1, 'DisplayName': 'Shop'},
     {'zAttributesId': 2, 'DisplayName': 'Office'},
   ];
 
+  // STATIC LISTS FOR FLAT STATUS
   List<Map<String, dynamic>> flatStatusList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Flat Status'},
     {'zAttributesId': 1, 'DisplayName': 'Available'},
@@ -94,6 +98,7 @@ class _AddInventorySpecificationScreenState
     {'zAttributesId': 4, 'DisplayName': 'Member'},
   ];
 
+  // STATIC LISTS FOR FLAT FACING
   List<Map<String, dynamic>> flatFacingList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Flat Facing'},
     {'zAttributesId': 1, 'DisplayName': 'North'},
@@ -131,6 +136,8 @@ class _AddInventorySpecificationScreenState
     _flatSqftC.dispose();
     selectedFlatType.dispose();
     selectedFlatStatus.dispose();
+    selectedFlatConfiguration.dispose();
+    selectedFlatFacing.dispose();
     flatSpecificationList.dispose();
   }
 
@@ -140,63 +147,49 @@ class _AddInventorySpecificationScreenState
     _flatSqftC = TextEditingController();
     selectedFlatType = ValueNotifier(flatTypeList.first);
     selectedFlatStatus = ValueNotifier(flatStatusList.first);
-    selectedFlatFacing = flatFacingList.first;
+    selectedFlatConfiguration = ValueNotifier<Map<String, dynamic>?>(null);
+    selectedFlatFacing = ValueNotifier<Map<String, dynamic>?>(
+      flatFacingList.first,
+    );
   }
 
   // PREFILL FLAT DATA
   void _prefillFlat(FlatModel flat) {
-    setState(() {
-      // Prefill unit number
-      _flatC.text = flat.flat.split('-').last.trimLeft();
-
-      // Prefill area
-      if (flat.reraCarpetAreaSqFt > 0) {
-        _flatSqftC.text = flat.reraCarpetAreaSqFt.toStringAsFixed(2);
-      }
-
-      // Prefill flat type
-      selectedFlatType.value = flatTypeList.firstWhere(
-        (e) => e['DisplayName'].toLowerCase() == flat.flatType.toLowerCase(),
-        orElse: () => flatTypeList.first,
-      );
-
-      // Prefill flat status
-      selectedFlatStatus.value = flatStatusList.firstWhere(
-        (e) => e['DisplayName'].toLowerCase() == flat.flatStatus.toLowerCase(),
-        orElse: () => flatStatusList.first,
-      );
-
-      // Prefill flat facing
-      selectedFlatFacing = flatFacingList.firstWhere(
-        (e) => e['DisplayName'].toLowerCase() == flat.flatFacing.toLowerCase(),
-        orElse: () => flatFacingList.first,
-      );
-
-      // Prefill flat configuration based on type
-      switch (flat.flatType) {
-        case 'Residential':
-          selectedFlatConfiguration = residentialFlatList.firstWhere(
-            (e) => e['DisplayName'] == flat.flatConfiguration,
-            orElse: () => residentialFlatList.first,
-          );
-          break;
-        case 'Commercial':
-          selectedFlatConfiguration = commercialFlatList.firstWhere(
-            (e) => e['DisplayName'] == flat.flatConfiguration,
-            orElse: () => commercialFlatList.first,
-          );
-          break;
-        default:
-          selectedFlatConfiguration = null;
-      }
-
-      // Prefill specifications list
-      flatSpecificationList.value = List<FlatSpecificationModel>.from(
-        flat.specificationList,
-      );
-    });
-
-    // Calculate total area
+    _flatC.text = flat.flat.split('-').last.trimLeft();
+    if (flat.reraCarpetAreaSqFt > 0) {
+      _flatSqftC.text = flat.reraCarpetAreaSqFt.toStringAsFixed(2);
+    }
+    selectedFlatType.value = flatTypeList.firstWhere(
+      (e) => e['DisplayName'].toLowerCase() == flat.flatType.toLowerCase(),
+      orElse: () => flatTypeList.first,
+    );
+    selectedFlatStatus.value = flatStatusList.firstWhere(
+      (e) => e['DisplayName'].toLowerCase() == flat.flatStatus.toLowerCase(),
+      orElse: () => flatStatusList.first,
+    );
+    selectedFlatFacing.value = flatFacingList.firstWhere(
+      (e) => e['DisplayName'].toLowerCase() == flat.flatFacing.toLowerCase(),
+      orElse: () => flatFacingList.first,
+    );
+    switch (flat.flatType) {
+      case 'Residential':
+        selectedFlatConfiguration.value = residentialFlatList.firstWhere(
+          (e) => e['DisplayName'] == flat.flatConfiguration,
+          orElse: () => residentialFlatList.first,
+        );
+        break;
+      case 'Commercial':
+        selectedFlatConfiguration.value = commercialFlatList.firstWhere(
+          (e) => e['DisplayName'] == flat.flatConfiguration,
+          orElse: () => commercialFlatList.first,
+        );
+        break;
+      default:
+        selectedFlatConfiguration.value = null;
+    }
+    flatSpecificationList.value = List<FlatSpecificationModel>.from(
+      flat.specificationList,
+    );
     _calculateTotalArea();
   }
 
@@ -214,34 +207,30 @@ class _AddInventorySpecificationScreenState
     FlatSpecificationModel? unitSpec,
     int? index,
   }) async {
-    // Determine flat IDs based on whether we're adding or editing
     int? flatId;
     int? buildingId;
     int? wingId;
     int? floorId;
 
     if (widget.flatModel != null) {
-      // Editing existing flat
       flatId = widget.flatModel!.inventoryFlatId;
       buildingId = widget.flatModel!.inventoryBuildingId;
       wingId = widget.flatModel!.inventoryFlatFloorBasementPodiumWingId;
       floorId = widget.flatModel!.inventoryFloorId;
     } else if (widget.floorModel != null) {
-      // Adding new flat
       buildingId = widget.floorModel!.inventoryBuildingId;
       wingId = widget.floorModel!.inventoryFlatFloorBasementPodiumWingId;
       floorId = widget.floorModel!.inventoryFloorId;
-      // flatId will be 0 for new flats
     }
 
     final Map<String, String> queryParams = {};
-    
+
     if (unitSpec != null) {
       queryParams['unitSpecificationModel'] = Uri.encodeQueryComponent(
         EncryptionManager.encryptData(jsonEncode(unitSpec.toJson())),
       );
     }
-    
+
     if (flatId != null) {
       queryParams['inventoryFlatId'] = flatId.toString();
     }
@@ -263,13 +252,11 @@ class _AddInventorySpecificationScreenState
     if (result != null) {
       Future.microtask(() {
         if (unitSpec == null) {
-          // Add new specification
           flatSpecificationList.value = [
             ...flatSpecificationList.value,
             result,
           ];
         } else {
-          // Update existing specification
           final newList = List<FlatSpecificationModel>.from(
             flatSpecificationList.value,
           );
@@ -295,7 +282,6 @@ class _AddInventorySpecificationScreenState
 
   // HANDLE SUBMIT
   void _handleSubmit() {
-    // Validate form fields
     if (!_formKey.currentState!.validate()) {
       DialogHelper.showErrorMessage(
         context: context,
@@ -304,9 +290,8 @@ class _AddInventorySpecificationScreenState
       );
       return;
     }
-
-    // Validate flat facing
-    if (selectedFlatFacing == null || selectedFlatFacing!['zAttributesId'] == -1) {
+    if (selectedFlatFacing.value == null ||
+        selectedFlatFacing.value!['zAttributesId'] == -1) {
       DialogHelper.showErrorMessage(
         context: context,
         title: "Validation Error",
@@ -314,12 +299,10 @@ class _AddInventorySpecificationScreenState
       );
       return;
     }
-
-    // Validate flat configuration if type is Residential or Commercial
     if ((selectedFlatType.value['zAttributesId'] == 1 ||
             selectedFlatType.value['zAttributesId'] == 2) &&
-        (selectedFlatConfiguration == null ||
-            selectedFlatConfiguration!['zAttributesId'] == -1)) {
+        (selectedFlatConfiguration.value == null ||
+            selectedFlatConfiguration.value!['zAttributesId'] == -1)) {
       DialogHelper.showErrorMessage(
         context: context,
         title: "Validation Error",
@@ -327,8 +310,6 @@ class _AddInventorySpecificationScreenState
       );
       return;
     }
-
-    // Validate specifications list is not empty
     if (flatSpecificationList.value.isEmpty) {
       DialogHelper.showErrorMessage(
         context: context,
@@ -337,12 +318,7 @@ class _AddInventorySpecificationScreenState
       );
       return;
     }
-
-    // Priority: flatModel (edit) over floorModel (add)
-    // If flatModel exists with valid inventoryFlatId, we're editing an existing flat
-    // If only floorModel exists (or flatModel has inventoryFlatId = 0), we're adding a new flat
     if (widget.flatModel != null && widget.flatModel!.inventoryFlatId > 0) {
-      // Update existing flat
       _inventoryCubit.updateInventoryFlat(
         context,
         inventoryFlatId: widget.flatModel!.inventoryFlatId,
@@ -354,13 +330,13 @@ class _AddInventorySpecificationScreenState
         flat: _flatC.text.trim(),
         flatType: selectedFlatType.value['DisplayName'],
         flatArea: double.parse(_flatSqftC.text),
-        flatConfiguration: selectedFlatConfiguration?['DisplayName'] ?? '',
+        flatConfiguration:
+            selectedFlatConfiguration.value?['DisplayName'] ?? '',
         flatStatus: selectedFlatStatus.value['DisplayName'],
-        flatFacing: selectedFlatFacing!['DisplayName'],
+        flatFacing: selectedFlatFacing.value!['DisplayName'],
         flatSpecificationList: flatSpecificationList.value,
       );
     } else if (widget.floorModel != null) {
-      // Add new flat
       _inventoryCubit.addInventoryFlat(
         context,
         projectId: _project.projectId,
@@ -371,9 +347,10 @@ class _AddInventorySpecificationScreenState
         flat: _flatC.text.trim(),
         flatType: selectedFlatType.value['DisplayName'],
         flatArea: double.parse(_flatSqftC.text),
-        flatConfiguration: selectedFlatConfiguration?['DisplayName'] ?? '',
+        flatConfiguration:
+            selectedFlatConfiguration.value?['DisplayName'] ?? '',
         flatStatus: selectedFlatStatus.value['DisplayName'],
-        flatFacing: selectedFlatFacing!['DisplayName'],
+        flatFacing: selectedFlatFacing.value!['DisplayName'],
         flatSpecificationList: flatSpecificationList.value,
       );
     }
@@ -397,303 +374,340 @@ class _AddInventorySpecificationScreenState
                 margin: EdgeInsets.only(bottom: 10),
                 decoration: commonCardDecoration(),
                 child: Column(
-                children: [
-                  CustomTextField(
-                    title: 'Unit',
-                    hint: 'Enter Unit',
-                    isRequired: true,
-                    textController: _flatC,
-                    maxLines: 1,
-                    inputFormatterList: [
-                      LengthLimitingTextInputFormatter(4),
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    validator: (string) {
-                      if (string == null || string.trim().isEmpty) {
-                        return 'Unit is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: selectedFlatType,
-                    builder: (context, typeValue, child) {
-                      return CustomDropDownWidget(
-                        key: ValueKey('type_${typeValue['zAttributesId']}'),
-                        title: 'Unit Type',
-                        isRequired: true,
-                        dataList: flatTypeList,
-                        initialValue: typeValue,
-                        onSelected: (value) {
-                          setState(() {
-                            selectedFlatConfiguration = null;
-                          });
-                          selectedFlatType.value = value;
-                        },
-                        validator: (value) {
-                          if (value == null || value["zAttributesId"] == -1) {
-                            return 'Unit Type is required';
-                          }
-                          return null;
-                        },
-                      );
-                    },
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: selectedFlatType,
-                    builder: (context, value, child) {
-                      if (value['zAttributesId'] == 1) {
+                  children: [
+                    CustomTextField(
+                      title: 'Unit',
+                      hint: 'Enter Unit',
+                      isRequired: true,
+                      textController: _flatC,
+                      maxLines: 1,
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(4),
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      validator: (string) {
+                        if (string == null || string.trim().isEmpty) {
+                          return 'Unit is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: selectedFlatType,
+                      builder: (context, typeValue, child) {
                         return CustomDropDownWidget(
-                          key: ValueKey('config_residential_${selectedFlatConfiguration?['zAttributesId']}'),
-                          title: 'Unit Configuration',
+                          key: ValueKey('type_${typeValue['zAttributesId']}'),
+                          title: 'Unit Type',
                           isRequired: true,
-                          dataList: residentialFlatList,
-                          initialValue: selectedFlatConfiguration,
+                          dataList: flatTypeList,
+                          initialValue: typeValue,
                           onSelected: (value) {
-                            setState(() {
-                              selectedFlatConfiguration = value;
-                            });
+                            selectedFlatConfiguration.value = null;
+                            selectedFlatType.value = value;
                           },
                           validator: (value) {
                             if (value == null || value["zAttributesId"] == -1) {
-                              return 'Unit Configuration is required';
+                              return 'Unit Type is required';
                             }
                             return null;
                           },
                         );
-                      }
-                      if (value['zAttributesId'] == 2) {
-                        return CustomDropDownWidget(
-                          key: ValueKey('config_commercial_${selectedFlatConfiguration?['zAttributesId']}'),
-                          title: 'Unit Configuration',
-                          isRequired: true,
-                          dataList: commercialFlatList,
-                          initialValue: selectedFlatConfiguration,
-                          onSelected: (value) {
-                            setState(() {
-                              selectedFlatConfiguration = value;
-                            });
-                          },
-                          validator: (value) {
-                            if (value == null || value["zAttributesId"] == -1) {
-                              return 'Unit Configuration is required';
-                            }
-                            return null;
-                          },
-                        );
-                      }
-                      return SizedBox();
-                    },
-                  ),
-                  CustomTextField(
-                    textController: _flatSqftC,
-                    hint: "Enter Unit Area",
-                    title: 'Unit Area (sq ft)',
-                    readOnly: true,
-                    inputFormatterList:
-                        inputFormatterListForDecimalValuesFixedToTwo(5),
-                    validator: (string) {
-                      if (string == null || string.trim().isEmpty) {
-                        return 'Area is required';
-                      }
-                      // Check if the value is 0 or invalid
-
-                      if (double.parse(string.trim()) <= 0) {
-                        return 'Area must be greater than 0';
-                      }
-                      return null;
-                    },
-                  ),
-                  CustomDropDownWidget(
-                    key: ValueKey('facing_${selectedFlatFacing?['zAttributesId']}'),
-                    title: 'Facing',
-                    isRequired: true,
-                    dataList: flatFacingList,
-                    initialValue: selectedFlatFacing,
-                    onSelected: (value) {
-                      setState(() {
-                        selectedFlatFacing = value;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null || value["zAttributesId"] == -1) {
-                        return 'Facing is required';
-                      }
-                      return null;
-                    },
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: selectedFlatStatus,
-                    builder: (context, statusValue, child) {
-                      return CustomDropDownWidget(
-                        key: ValueKey('status_${statusValue['zAttributesId']}'),
-                        title: 'Status',
-                        isRequired: true,
-                        dataList: flatStatusList,
-                        initialValue: statusValue,
-                        onSelected: (value) {
-                          selectedFlatStatus.value = value;
-                        },
-                        validator: (value) {
-                          if (value == null || value["zAttributesId"] == -1) {
-                            return 'Status is required';
-                          }
-                          if (selectedFlatType.value["DisplayName"].toLowerCase() ==
-                                  "void" &&
-                              value["DisplayName"].toLowerCase() ==
-                                  "available") {
-                            return "Invalid Status for Void Flat";
-                          }
-                          return null;
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            // UNIT LAYOUT FORM SECTION
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: commonCardDecoration(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Unit Layout Form', style: AppTextStyle.ts16SB()),
-                      CustomButton(
-                        text: 'Add Unit Specification',
-                        backgroundColor: AppColor.primary,
-                        onPressed: () {
-                          _navigateToAddUnitSpecification();
-                        },
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(height: 15),
-                  ValueListenableBuilder<List<FlatSpecificationModel>>(
-                    valueListenable: flatSpecificationList,
-                    builder: (context, value, child) {
-                      if (value.isEmpty) {
-                        return SizedBox(height: 200, child: noDataWidget());
-                      }
-
-                      return Column(
-                        children:
-                            value.asMap().entries.map((entry) {
-                              final index = entry.key;
-                              final spec = entry.value;
-                              return Container(
+                      },
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: selectedFlatType,
+                      builder: (context, value, child) {
+                        return ValueListenableBuilder<Map<String, dynamic>?>(
+                          valueListenable: selectedFlatConfiguration,
+                          builder: (context, configValue, child) {
+                            if (value['zAttributesId'] == 1) {
+                              return CustomDropDownWidget(
                                 key: ValueKey(
-                                  'spec_${spec.inventoryFlatSpecificationId}_$index',
+                                  'config_residential_${configValue?['zAttributesId']}',
                                 ),
-                                margin: EdgeInsets.only(bottom: 12),
-                                padding: EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: AppColor.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: AppColor.grey30,
-                                    width: 1,
+                                title: 'Unit Configuration',
+                                isRequired: true,
+                                dataList: residentialFlatList,
+                                initialValue: configValue,
+                                onSelected: (value) {
+                                  selectedFlatConfiguration.value = value;
+                                },
+                                validator: (value) {
+                                  if (value == null ||
+                                      value["zAttributesId"] == -1) {
+                                    return 'Unit Configuration is required';
+                                  }
+                                  return null;
+                                },
+                              );
+                            }
+                            if (value['zAttributesId'] == 2) {
+                              return CustomDropDownWidget(
+                                key: ValueKey(
+                                  'config_commercial_${configValue?['zAttributesId']}',
+                                ),
+                                title: 'Unit Configuration',
+                                isRequired: true,
+                                dataList: commercialFlatList,
+                                initialValue: configValue,
+                                onSelected: (value) {
+                                  selectedFlatConfiguration.value = value;
+                                },
+                                validator: (value) {
+                                  if (value == null ||
+                                      value["zAttributesId"] == -1) {
+                                    return 'Unit Configuration is required';
+                                  }
+                                  return null;
+                                },
+                              );
+                            }
+                            return SizedBox();
+                          },
+                        );
+                      },
+                    ),
+                    CustomTextField(
+                      textController: _flatSqftC,
+                      hint: "Enter Unit Area",
+                      title: 'Unit Area (sq ft)',
+                      readOnly: true,
+                      inputFormatterList:
+                          inputFormatterListForDecimalValuesFixedToTwo(5),
+                      validator: (string) {
+                        // If empty, attempt to recalculate from specs before failing
+                        final current = string?.trim() ?? '';
+                        if (current.isEmpty) {
+                          _calculateTotalArea();
+                        }
+
+                        final recalculated = _flatSqftC.text.trim();
+                        if (recalculated.isEmpty) {
+                          return 'Area is required';
+                        }
+
+                        final parsed = double.tryParse(recalculated);
+
+                        // If parse fails, try to recompute from specs; otherwise accept
+                        if (parsed == null) {
+                          _calculateTotalArea();
+                          return null;
+                        }
+
+                        // If parsed <= 0, try to recompute from specs; if still <=0, fail
+                        if (parsed <= 0) {
+                          _calculateTotalArea();
+                          final reParsed =
+                              double.tryParse(_flatSqftC.text.trim()) ?? 0;
+                          if (reParsed <= 0) {
+                            return 'Area must be greater than 0';
+                          }
+                        }
+
+                        return null;
+                      },
+                    ),
+                    ValueListenableBuilder<Map<String, dynamic>?>(
+                      valueListenable: selectedFlatFacing,
+                      builder: (context, facingValue, child) {
+                        return CustomDropDownWidget(
+                          key: ValueKey(
+                            'facing_${facingValue?['zAttributesId']}',
+                          ),
+                          title: 'Facing',
+                          isRequired: true,
+                          dataList: flatFacingList,
+                          initialValue: facingValue,
+                          onSelected: (value) {
+                            selectedFlatFacing.value = value;
+                          },
+                          validator: (value) {
+                            if (value == null || value["zAttributesId"] == -1) {
+                              return 'Facing is required';
+                            }
+                            return null;
+                          },
+                        );
+                      },
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: selectedFlatStatus,
+                      builder: (context, statusValue, child) {
+                        return CustomDropDownWidget(
+                          key: ValueKey(
+                            'status_${statusValue['zAttributesId']}',
+                          ),
+                          title: 'Status',
+                          isRequired: true,
+                          dataList: flatStatusList,
+                          initialValue: statusValue,
+                          onSelected: (value) {
+                            selectedFlatStatus.value = value;
+                          },
+                          validator: (value) {
+                            if (value == null || value["zAttributesId"] == -1) {
+                              return 'Status is required';
+                            }
+                            if (selectedFlatType.value["DisplayName"]
+                                        .toLowerCase() ==
+                                    "void" &&
+                                value["DisplayName"].toLowerCase() ==
+                                    "available") {
+                              return "Invalid Status for Void Flat";
+                            }
+                            return null;
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              // UNIT LAYOUT FORM SECTION
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Unit Layout Form', style: AppTextStyle.ts16SB()),
+                        CustomButton(
+                          text: 'Add Unit Specification',
+                          backgroundColor: AppColor.primary,
+                          onPressed: () {
+                            _navigateToAddUnitSpecification();
+                          },
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(height: 15),
+                    ValueListenableBuilder<List<FlatSpecificationModel>>(
+                      valueListenable: flatSpecificationList,
+                      builder: (context, value, child) {
+                        if (value.isEmpty) {
+                          return SizedBox(height: 200, child: noDataWidget());
+                        }
+
+                        return Column(
+                          children:
+                              value.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final spec = entry.value;
+                                return Container(
+                                  key: ValueKey(
+                                    'spec_${spec.inventoryFlatSpecificationId}_$index',
                                   ),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                spec.flatLayout,
-                                                style: AppTextStyle.ts14M(),
-                                              ),
-                                              verticalSpacing(height: 8),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  _buildColumnTitleValue(
-                                                    title: "Area (Sq. ft)",
-                                                    value:
-                                                        spec.flatLayoutAreaSqFt
-                                                            .toString(),
-                                                  ),
-                                                  _buildColumnTitleValue(
-                                                    title: "Length (Sq. ft)",
-                                                    value:
-                                                        spec.flatLayoutLengthSqFt
-                                                            .toString(),
-                                                  ),
-                                                  _buildColumnTitleValue(
-                                                    title: "Width (Sq. ft)",
-                                                    value:
-                                                        spec.flatLayoutWidthSqFt
-                                                            .toString(),
-                                                  ),
-                                                ],
-                                              ),
-                                              if (spec.note.isNotEmpty)
-                                                verticalSpacing(height: 8),
-                                              if (spec.note.isNotEmpty)
+                                  margin: EdgeInsets.only(bottom: 12),
+                                  padding: EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: AppColor.grey30,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
                                                 Text(
-                                                  "Note: ${spec.note}",
-                                                  style: AppTextStyle.ts12R(
-                                                    color: AppColor.grey,
-                                                  ),
+                                                  spec.flatLayout,
+                                                  style: AppTextStyle.ts14M(),
                                                 ),
+                                                verticalSpacing(height: 8),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    _buildColumnTitleValue(
+                                                      title: "Area (Sq. ft)",
+                                                      value:
+                                                          spec.flatLayoutAreaSqFt
+                                                              .toString(),
+                                                    ),
+                                                    _buildColumnTitleValue(
+                                                      title: "Length (Sq. ft)",
+                                                      value:
+                                                          spec.flatLayoutLengthSqFt
+                                                              .toString(),
+                                                    ),
+                                                    _buildColumnTitleValue(
+                                                      title: "Width (Sq. ft)",
+                                                      value:
+                                                          spec.flatLayoutWidthSqFt
+                                                              .toString(),
+                                                    ),
+                                                  ],
+                                                ),
+                                                if (spec.note.isNotEmpty)
+                                                  verticalSpacing(height: 8),
+                                                if (spec.note.isNotEmpty)
+                                                  Text(
+                                                    "Note: ${spec.note}",
+                                                    style: AppTextStyle.ts12R(
+                                                      color: AppColor.grey,
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              CustomIconButton(
+                                                onPressed: () {
+                                                  _navigateToAddUnitSpecification(
+                                                    unitSpec: spec,
+                                                    index: index,
+                                                  );
+                                                },
+                                                icon: SvgPicture.asset(
+                                                  AppAssets.editIcon,
+                                                  height: 18,
+                                                  width: 18,
+                                                ),
+                                              ),
+                                              horizontalSpacing(),
+                                              CustomIconButton(
+                                                onPressed: () {
+                                                  _deleteUnitSpecification(
+                                                    index,
+                                                  );
+                                                },
+                                                icon: SvgPicture.asset(
+                                                  AppAssets.deleteIcon,
+                                                  height: 18,
+                                                  width: 18,
+                                                ),
+                                              ),
                                             ],
                                           ),
-                                        ),
-                                        Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            CustomIconButton(
-                                              onPressed: () {
-                                                _navigateToAddUnitSpecification(
-                                                  unitSpec: spec,
-                                                  index: index,
-                                                );
-                                              },
-                                              icon: SvgPicture.asset(
-                                                AppAssets.editIcon,
-                                                height: 18,
-                                                width: 18,
-                                              ),
-                                            ),
-                                            horizontalSpacing(),
-                                            CustomIconButton(
-                                              onPressed: () {
-                                                _deleteUnitSpecification(index);
-                                              },
-                                              icon: SvgPicture.asset(
-                                                AppAssets.deleteIcon,
-                                                height: 18,
-                                                width: 18,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                      );
-                    },
-                  ),
-                ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
             ],
           ),
         ),
@@ -703,9 +717,11 @@ class _AddInventorySpecificationScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text: (widget.flatModel != null && widget.flatModel!.inventoryFlatId > 0) 
-                ? "Update Specification" 
-                : "Save Specification",
+            text:
+                (widget.flatModel != null &&
+                        widget.flatModel!.inventoryFlatId > 0)
+                    ? "Update Specification"
+                    : "Save Specification",
             onPressed: _handleSubmit,
           ),
         ),
@@ -713,6 +729,7 @@ class _AddInventorySpecificationScreenState
     );
   }
 
+  // BUILD COLUMN TITLE VALUE
   Widget _buildColumnTitleValue({
     required String title,
     required String value,

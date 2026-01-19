@@ -22,6 +22,7 @@ import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_inventory_specification_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_unit_specification_screen.dart';
+import 'package:k3h_erp_app/features/inventory/presentation/pages/unit_specification_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
@@ -2195,6 +2196,26 @@ final GoRouter goRouter = GoRouter(
                     goRouter.pop(savedSpec);
                   },
                 );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewUnitSpecification,
+              path: AppRoutes.viewUnitSpecification,
+              builder: (context, state) {
+                final queryParameterFlatModel =
+                    state.uri.queryParameters['flatModel'];
+
+                FlatModel? flatModel;
+                if (queryParameterFlatModel != null) {
+                  final faltJson = jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(queryParameterFlatModel),
+                    ),
+                  );
+                  flatModel = FlatModel.fromJson(faltJson);
+                }
+
+                return UnitSpecificationViewScreen(flatModel: flatModel!);
               },
             ),
           ],

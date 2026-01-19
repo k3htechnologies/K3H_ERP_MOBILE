@@ -1,0 +1,295 @@
+import 'package:flutter/material.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+class UnitSpecificationViewScreen extends StatefulWidget {
+  final FlatModel flatModel;
+  const UnitSpecificationViewScreen({super.key, required this.flatModel});
+
+  @override
+  State<UnitSpecificationViewScreen> createState() =>
+      _UnitSpecificationViewScreenState();
+}
+
+class _UnitSpecificationViewScreenState
+    extends State<UnitSpecificationViewScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColor.greyBackground,
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: 'Unit Specification',
+        authorization: AuthorizationModel(),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Column(
+            children: [
+              _buildBasicInformationSection(),
+              _buildUnitDetailsSection(),
+              _buildSpecificationSection(),
+              if (widget.flatModel.ownerName.isNotEmpty)
+                _buildOwnerInformationSection(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // BUILD TITLE WIDGET
+  Widget _buildTitle({required String title}) {
+    return Text(title, style: AppTextStyle.ts16SB(color: AppColor.black));
+  }
+
+  Widget _buildColumnTitleValue({
+    required String title,
+    required String value,
+  }) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
+          verticalSpacing(height: 4),
+          Text(
+            value.isEmpty ? "-" : value,
+            style: AppTextStyle.ts14M(color: AppColor.black),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // BASIC INFORMATION SECTION
+  Widget _buildBasicInformationSection() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 10),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTitle(title: "Basic Information"),
+          verticalSpacing(height: 15),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildColumnTitleValue(
+                title: "Unit Number",
+                value: widget.flatModel.flat,
+              ),
+              _buildColumnTitleValue(
+                title: "Building",
+                value: widget.flatModel.buildingNumber,
+              ),
+            ],
+          ),
+          verticalSpacing(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildColumnTitleValue(
+                title: "Wing",
+                value: widget.flatModel.wing,
+              ),
+              _buildColumnTitleValue(
+                title: "Floor",
+                value: widget.flatModel.floor,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // UNIT DETAILS SECTION
+  Widget _buildUnitDetailsSection() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 10),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTitle(title: "Unit Details"),
+          verticalSpacing(height: 15),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildColumnTitleValue(
+                title: "Unit Type",
+                value: widget.flatModel.flatType,
+              ),
+              _buildColumnTitleValue(
+                title: "Unit Configuration",
+                value: widget.flatModel.flatConfiguration,
+              ),
+            ],
+          ),
+          verticalSpacing(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildColumnTitleValue(
+                title: "Unit Area (Sq. ft)",
+                value: widget.flatModel.reraCarpetAreaSqFt > 0
+                    ? widget.flatModel.reraCarpetAreaSqFt.toStringAsFixed(2)
+                    : "-",
+              ),
+              _buildColumnTitleValue(
+                title: "Facing",
+                value: widget.flatModel.flatFacing,
+              ),
+            ],
+          ),
+          verticalSpacing(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildColumnTitleValue(
+                title: "Status",
+                value: widget.flatModel.flatStatus,
+              ),
+              _buildColumnTitleValue(
+                title: "",
+                value: "",
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // SPECIFICATION SECTION
+  Widget _buildSpecificationSection() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 10),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTitle(title: "Unit Layout Specifications"),
+          verticalSpacing(height: 15),
+          if (widget.flatModel.specificationList.isEmpty)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Center(
+                child: Text(
+                  "No specifications available",
+                  style: AppTextStyle.ts14R(color: AppColor.grey),
+                ),
+              ),
+            )
+          else
+            ...widget.flatModel.specificationList.map((spec) {
+              return Container(
+                margin: EdgeInsets.only(bottom: 12),
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColor.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppColor.grey30,
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      spec.flatLayout,
+                      style: AppTextStyle.ts14M(),
+                    ),
+                    verticalSpacing(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildColumnTitleValue(
+                          title: "Area (Sq. ft)",
+                          value: spec.flatLayoutAreaSqFt.toStringAsFixed(2),
+                        ),
+                        _buildColumnTitleValue(
+                          title: "Length (Sq. ft)",
+                          value: spec.flatLayoutLengthSqFt.toStringAsFixed(2),
+                        ),
+                        _buildColumnTitleValue(
+                          title: "Width (Sq. ft)",
+                          value: spec.flatLayoutWidthSqFt.toStringAsFixed(2),
+                        ),
+                      ],
+                    ),
+                    if (spec.note.isNotEmpty) ...[
+                      verticalSpacing(height: 8),
+                      Text(
+                        "Note: ${spec.note}",
+                        style: AppTextStyle.ts12R(color: AppColor.grey),
+                      ),
+                    ],
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
+
+  // OWNER INFORMATION SECTION
+  Widget _buildOwnerInformationSection() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 10),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTitle(title: "Owner Information"),
+          verticalSpacing(height: 15),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildColumnTitleValue(
+                title: "Owner Name",
+                value: widget.flatModel.ownerName,
+              ),
+              _buildColumnTitleValue(
+                title: "",
+                value: "",
+              ),
+            ],
+          ),
+          if (widget.flatModel.bookingCreatedBy.isNotEmpty) ...[
+            verticalSpacing(),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildColumnTitleValue(
+                  title: "Booked By",
+                  value: widget.flatModel.bookingCreatedBy,
+                ),
+                _buildColumnTitleValue(
+                  title: "Booked On",
+                  value: widget.flatModel.bookingCreatedDate != null
+                      ? formatDateTimeAsDDMMMYYYY(
+                          widget.flatModel.bookingCreatedDate!,
+                        )
+                      : "-",
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +9,7 @@ import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/presentation/cubit/parking_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -40,7 +43,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
   // TEXT EDITING CONTROLLERS
   late TextEditingController _parkingNumberC, _parkingDimensionsC;
 
-  // DROPDOWN LISTS
+  // PARKING CATEGORY LISTS
   final List<Map<String, dynamic>> _parkingCategoryList = [
     {'zAttributesId': -1, 'DisplayName': 'Select'},
     {'zAttributesId': 1, 'DisplayName': 'Surface Parking'},
@@ -54,6 +57,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
     {'zAttributesId': 9, 'DisplayName': 'Pit + Stack'},
   ];
 
+  // PARKING TYPE LIST
   late ValueNotifier<List<Map<String, dynamic>>> _parkingTypeList;
 
   final List<Map<String, dynamic>> _parkingSubTypeList = [
@@ -71,10 +75,10 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
   ];
 
   // DROPDOWN VARIABLES
-  Map<String, dynamic>? selectedCategory,
-      selectedType,
-      selectedSubType,
-      selectedStatus;
+  late ValueNotifier<Map<String, dynamic>?> selectedCategory;
+  late ValueNotifier<Map<String, dynamic>?> selectedType;
+  late ValueNotifier<Map<String, dynamic>?> selectedSubType;
+  late ValueNotifier<Map<String, dynamic>?> selectedStatus;
 
   // SELECTED FLAT FILTER
   List<String> selectedFlatFilter = [];
@@ -89,14 +93,28 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
     _parkingCubit = context.read<ParkingCubit>();
     project = getProject();
     _parkingTypeList = ValueNotifier(_parkingSubTypeList);
-    // Prefill form with parking data synchronously
+    _initializeDropdownVariables();
     _prefillParking(widget.parking);
+  }
+
+  // INITIALIZE DROPDOWN VARIABLES
+  void _initializeDropdownVariables() {
+    selectedCategory = ValueNotifier<Map<String, dynamic>?>(null);
+    selectedType = ValueNotifier<Map<String, dynamic>?>(null);
+    selectedSubType = ValueNotifier<Map<String, dynamic>?>(null);
+    selectedStatus = ValueNotifier<Map<String, dynamic>?>(null);
   }
 
   @override
   void dispose() {
     super.dispose();
     _disposeTextEditingControllers();
+    selectedCategory.dispose();
+    selectedType.dispose();
+    selectedSubType.dispose();
+    selectedStatus.dispose();
+    _parkingTypeList.dispose();
+    isEvChargingAvailable.dispose();
   }
 
   // INITIALIZE TEXT EDITING CONTROLLERS
@@ -113,45 +131,39 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
 
   // PREFILL DIALOG TO UPDATE PARKING
   void _prefillParking(ParkingModel parking) {
-    setState(() {
-      _parkingNumberC.text = parking.parkingNumber;
-      _parkingDimensionsC.text = parking.parkingDimensions;
-      isEvChargingAvailable.value = parking.isEVChargingAvailable;
+    _parkingNumberC.text = parking.parkingNumber;
+    _parkingDimensionsC.text = parking.parkingDimensions;
+    isEvChargingAvailable.value = parking.isEVChargingAvailable;
 
-      selectedCategory = _parkingCategoryList.firstWhere(
-        (element) => element['DisplayName'] == parking.parkingCategory,
-        orElse: () => _parkingCategoryList.first,
-      );
+    selectedCategory.value = _parkingCategoryList.firstWhere(
+      (element) => element['DisplayName'] == parking.parkingCategory,
+      orElse: () => _parkingCategoryList.first,
+    );
 
-      // First, update the parking type list based on the selected category
-      _updateParkingTypeListForCategory(selectedCategory!);
+    _updateParkingTypeListForCategory(selectedCategory.value!);
 
-      // Then find the matching type in the updated list
-      selectedType = _parkingTypeList.value.firstWhere(
-        (element) => element['DisplayName'] == parking.parkingType,
-        orElse: () => _parkingTypeList.value.first,
-      );
+    selectedType.value = _parkingTypeList.value.firstWhere(
+      (element) => element['DisplayName'] == parking.parkingType,
+      orElse: () => _parkingTypeList.value.first,
+    );
 
-      selectedSubType = _parkingSubTypeList.firstWhere(
-        (element) => element['DisplayName'] == parking.parkingSubType,
-        orElse: () => _parkingSubTypeList.first,
-      );
+    selectedSubType.value = _parkingSubTypeList.firstWhere(
+      (element) => element['DisplayName'] == parking.parkingSubType,
+      orElse: () => _parkingSubTypeList.first,
+    );
 
-      selectedStatus = _parkingStatusList.firstWhere(
-        (element) => element['DisplayName'] == parking.parkingStatus,
-        orElse: () => _parkingStatusList.first,
-      );
-    });
+    selectedStatus.value = _parkingStatusList.firstWhere(
+      (element) => element['DisplayName'] == parking.parkingStatus,
+      orElse: () => _parkingStatusList.first,
+    );
   }
 
   // UPDATE PARKING TYPE LIST BASED ON SELECTED CATEGORY
   void _updateParkingTypeListForCategory(Map<String, dynamic> category) {
-    // Create new list with Select option
     List<Map<String, dynamic>> newTypeList = [
       {'zAttributesId': -1, 'DisplayName': 'Select'},
     ];
 
-    // Add type options based on selected category
     switch (category['zAttributesId']) {
       case 1: // Surface Parking
         newTypeList.addAll([
@@ -222,14 +234,12 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
         break;
     }
 
-    // Update the ValueNotifier with new list
     _parkingTypeList.value = newTypeList;
 
-    selectedType = newTypeList.firstWhere(
-          (e) => e['DisplayName'] == widget.parking.parkingType,
+    selectedType.value = newTypeList.firstWhere(
+      (e) => e['DisplayName'] == widget.parking.parkingType,
       orElse: () => newTypeList.first,
     );
-
   }
 
   @override
@@ -243,143 +253,169 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Form(
           key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomTextField(
-                title: 'Parking Number',
-                hint: 'Enter Parking Number',
-                isRequired: true,
-                textController: _parkingNumberC,
-                inputFormatterList: [LengthLimitingTextInputFormatter(50)],
-                validator: (string) {
-                  if (string == null || string.trim().isEmpty) {
-                    return 'Parking Number is required';
-                  }
-                  return null;
-                },
-              ),
-              CustomDropDownWidget(
-                title: 'Parking Category',
-                isRequired: true,
-                initialValue: selectedCategory,
-                dataList: _parkingCategoryList,
-                validator: (value) {
-                  if (value == null || value['zAttributesId'] == -1) {
-                    return 'Parking Category is required';
-                  }
-                  return null;
-                },
-                onSelected: (value) {
-                  selectedCategory = value;
-
-                  // Update the parking type list based on selected category
-                  _updateParkingTypeListForCategory(selectedCategory!);
-                },
-              ),
-              ValueListenableBuilder(
-                valueListenable: _parkingTypeList,
-                builder: (context, list, child) {
-                  return CustomDropDownWidget(
-                    title: 'Parking Type',
-                    isRequired: true,
-                    initialValue: selectedType,
-                    dataList: list,
-                    validator: (value) {
-                      if (value == null || value['zAttributesId'] == -1) {
-                        return 'Parking Type is required';
-                      }
-                      return null;
-                    },
-                    onSelected: (value) {
-                      selectedType = value;
-                    },
-                  );
-                },
-              ),
-              CustomDropDownWidget(
-                title: 'Parking Sub Type',
-                isRequired: true,
-                initialValue: selectedSubType,
-                dataList: _parkingSubTypeList,
-                validator: (value) {
-                  if (value == null || value['zAttributesId'] == -1) {
-                    return 'Parking Sub Type is required';
-                  }
-                  return null;
-                },
-                onSelected: (value) {
-                  selectedSubType = value;
-                },
-              ),
-              Text('Is Ev Charging Available?', style: AppTextStyle.ts16R()),
-              verticalSpacing(height: 6),
-              ValueListenableBuilder<bool>(
-                valueListenable: isEvChargingAvailable,
-                builder: (context, value, child) {
-                  return Row(
-                    children: [
-                      Row(
-                        children: [
-                          Radio<bool>(
-                            value: true,
-                            groupValue: isEvChargingAvailable.value,
-                            activeColor: AppColor.primary,
-                            onChanged: (value) {
-                              isEvChargingAvailable.value = value!;
-                            },
-                          ),
-                          Text('Yes', style: AppTextStyle.ts16R()),
-                        ],
-                      ),
-                      SizedBox(width: 20),
-                      Row(
-                        children: [
-                          Radio<bool>(
-                            value: false,
-                            groupValue: isEvChargingAvailable.value,
-                            activeColor: AppColor.info,
-                            onChanged: (value) {
-                              isEvChargingAvailable.value = value!;
-                            },
-                          ),
-                          Text('No', style: AppTextStyle.ts16R()),
-                        ],
-                      ),
-                    ],
-                  );
-                },
-              ),
-              CustomTextField(
-                title: 'Parking Dimensions',
-                hint: 'Enter Parking Dimensions',
-                isRequired: true,
-                textController: _parkingDimensionsC,
-                inputFormatterList: [LengthLimitingTextInputFormatter(50)],
-                validator: (string) {
-                  if (string == null || string.trim().isEmpty) {
-                    return 'Parking Dimensions are required';
-                  }
-                  return null;
-                },
-              ),
-              CustomDropDownWidget(
-                title: 'Parking Status',
-                isRequired: true,
-                initialValue: selectedStatus,
-                dataList: _parkingStatusList,
-                validator: (value) {
-                  if (value == null || value['zAttributesId'] == -1) {
-                    return 'Parking Status is required';
-                  }
-                  return null;
-                },
-                onSelected: (value) {
-                  selectedStatus = value;
-                },
-              ),
-              verticalSpacing(height: 20),
-            ],
+          child: Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomTextField(
+                  title: 'Parking Number',
+                  hint: 'Enter Parking Number',
+                  isRequired: true,
+                  textController: _parkingNumberC,
+                  inputFormatterList: [LengthLimitingTextInputFormatter(50)],
+                  validator: (string) {
+                    if (string == null || string.trim().isEmpty) {
+                      return 'Parking Number is required';
+                    }
+                    return null;
+                  },
+                ),
+                ValueListenableBuilder<Map<String, dynamic>?>(
+                  valueListenable: selectedCategory,
+                  builder: (context, categoryValue, child) {
+                    return CustomDropDownWidget(
+                      key: ValueKey('category_${categoryValue?['zAttributesId']}'),
+                      title: 'Parking Category',
+                      isRequired: true,
+                      initialValue: categoryValue,
+                      dataList: _parkingCategoryList,
+                      validator: (value) {
+                        if (value == null || value['zAttributesId'] == -1) {
+                          return 'Parking Category is required';
+                        }
+                        return null;
+                      },
+                      onSelected: (value) {
+                        selectedCategory.value = value;
+                        _updateParkingTypeListForCategory(selectedCategory.value!);
+                      },
+                    );
+                  },
+                ),
+                ValueListenableBuilder(
+                  valueListenable: _parkingTypeList,
+                  builder: (context, list, child) {
+                    return ValueListenableBuilder<Map<String, dynamic>?>(
+                      valueListenable: selectedType,
+                      builder: (context, typeValue, child) {
+                        return CustomDropDownWidget(
+                          key: ValueKey('type_${typeValue?['zAttributesId']}_${list.length}'),
+                          title: 'Parking Type',
+                          isRequired: true,
+                          initialValue: typeValue,
+                          dataList: list,
+                          validator: (value) {
+                            if (value == null || value['zAttributesId'] == -1) {
+                              return 'Parking Type is required';
+                            }
+                            return null;
+                          },
+                          onSelected: (value) {
+                            selectedType.value = value;
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+                ValueListenableBuilder<Map<String, dynamic>?>(
+                  valueListenable: selectedSubType,
+                  builder: (context, subTypeValue, child) {
+                    return CustomDropDownWidget(
+                      key: ValueKey('subtype_${subTypeValue?['zAttributesId']}'),
+                      title: 'Parking Sub Type',
+                      isRequired: true,
+                      initialValue: subTypeValue,
+                      dataList: _parkingSubTypeList,
+                      validator: (value) {
+                        if (value == null || value['zAttributesId'] == -1) {
+                          return 'Parking Sub Type is required';
+                        }
+                        return null;
+                      },
+                      onSelected: (value) {
+                        selectedSubType.value = value;
+                      },
+                    );
+                  },
+                ),
+                Text('Is Ev Charging Available?', style: AppTextStyle.ts16R()),
+                verticalSpacing(height: 6),
+                ValueListenableBuilder<bool>(
+                  valueListenable: isEvChargingAvailable,
+                  builder: (context, value, child) {
+                    return Row(
+                      children: [
+                        Row(
+                          children: [
+                            Radio<bool>(
+                              value: true,
+                              groupValue: isEvChargingAvailable.value,
+                              activeColor: AppColor.primary,
+                              onChanged: (value) {
+                                isEvChargingAvailable.value = value!;
+                              },
+                            ),
+                            Text('Yes', style: AppTextStyle.ts16R()),
+                          ],
+                        ),
+                        SizedBox(width: 20),
+                        Row(
+                          children: [
+                            Radio<bool>(
+                              value: false,
+                              groupValue: isEvChargingAvailable.value,
+                              activeColor: AppColor.info,
+                              onChanged: (value) {
+                                isEvChargingAvailable.value = value!;
+                              },
+                            ),
+                            Text('No', style: AppTextStyle.ts16R()),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                CustomTextField(
+                  title: 'Parking Dimensions',
+                  hint: 'Enter Parking Dimensions',
+                  isRequired: true,
+                  textController: _parkingDimensionsC,
+                  inputFormatterList: [LengthLimitingTextInputFormatter(50)],
+                  validator: (string) {
+                    if (string == null || string.trim().isEmpty) {
+                      return 'Parking Dimensions are required';
+                    }
+                    return null;
+                  },
+                ),
+                ValueListenableBuilder<Map<String, dynamic>?>(
+                  valueListenable: selectedStatus,
+                  builder: (context, statusValue, child) {
+                    return CustomDropDownWidget(
+                      key: ValueKey('status_${statusValue?['zAttributesId']}'),
+                      title: 'Parking Status',
+                      isRequired: true,
+                      initialValue: statusValue,
+                      dataList: _parkingStatusList,
+                      validator: (value) {
+                        if (value == null || value['zAttributesId'] == -1) {
+                          return 'Parking Status is required';
+                        }
+                        return null;
+                      },
+                      onSelected: (value) {
+                        selectedStatus.value = value;
+                      },
+                    );
+                  },
+                ),
+                verticalSpacing(height: 20),
+              ],
+            ),
           ),
         ),
       ),
@@ -404,8 +440,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
     }
 
     // Validate dropdowns with better error messages
-    if (selectedCategory == null ||
-        selectedCategory!['zAttributesId'] == -1) {
+    if (selectedCategory.value == null || selectedCategory.value!['zAttributesId'] == -1) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please select Parking Category'),
@@ -415,7 +450,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       return;
     }
 
-    if (selectedType == null || selectedType!['zAttributesId'] == -1) {
+    if (selectedType.value == null || selectedType.value!['zAttributesId'] == -1) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please select Parking Type'),
@@ -425,7 +460,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       return;
     }
 
-    if (selectedSubType == null || selectedSubType!['zAttributesId'] == -1) {
+    if (selectedSubType.value == null || selectedSubType.value!['zAttributesId'] == -1) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please select Parking Sub Type'),
@@ -435,7 +470,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       return;
     }
 
-    if (selectedStatus == null || selectedStatus!['zAttributesId'] == -1) {
+    if (selectedStatus.value == null || selectedStatus.value!['zAttributesId'] == -1) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please select Parking Status'),
@@ -451,12 +486,12 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       uniqueKey: widget.parking.uniquekey,
       projectId: project.projectId,
       parkingNumber: _parkingNumberC.text.trim(),
-      parkingCategory: selectedCategory!['DisplayName'] as String,
-      parkingType: selectedType!['DisplayName'] as String,
-      parkingSubType: selectedSubType!['DisplayName'] as String,
+      parkingCategory: selectedCategory.value!['DisplayName'] as String,
+      parkingType: selectedType.value!['DisplayName'] as String,
+      parkingSubType: selectedSubType.value!['DisplayName'] as String,
       parkingDimensions: _parkingDimensionsC.text.trim(),
       isEVChargingAvailable: isEvChargingAvailable.value,
-      parkingStatus: selectedStatus!['DisplayName'] as String,
+      parkingStatus: selectedStatus.value!['DisplayName'] as String,
       inventoryBuildingId: widget.parking.inventoryBuildingId,
       inventoryFlatFloorBasementPodiumWingId:
           widget.parking.inventoryFlatFloorBasementPodiumWingId,
