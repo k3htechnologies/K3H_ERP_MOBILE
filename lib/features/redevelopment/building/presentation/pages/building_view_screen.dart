@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BuildingViewScreen extends StatefulWidget {
   final RedevelopmentBuildingModel building;
@@ -236,9 +237,47 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 verticalSpacing(),
                 Row(
                   children: [
-                    _buildColumnTitleValue(
-                      title: "Google Location",
-                      value: "-",
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Google Location",
+                            style: AppTextStyle.ts14M(color: AppColor.grey),
+                          ),
+                          verticalSpacing(height: 4),
+                          GestureDetector(
+                            onTap: () async {
+                              final url = widget.building.googleLocation;
+
+                              if (url.isEmpty) return;
+
+                              final uri = Uri.parse(url);
+
+                              if (await canLaunchUrl(uri)) {
+                                await launchUrl(
+                                  uri,
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              } else {
+                                if (mounted) {
+                                  showErrorMessage(
+                                    context,
+                                    "Error",
+                                    "Could not open location",
+                                  );
+                                }
+                              }
+                            },
+                            child: Text(
+                              widget.building.googleLocation.isEmpty
+                                  ? "-"
+                                  : widget.building.googleLocation,
+                              style: AppTextStyle.ts14M(color: AppColor.primary),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -329,10 +368,13 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                   children: [
                     _buildColumnTitleValue(
                       title: "Village",
-                      value: widget.building.villageName.isEmpty? "-" : widget.building.villageName,
+                      value:
+                          widget.building.villageName.isEmpty
+                              ? "-"
+                              : widget.building.villageName,
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),

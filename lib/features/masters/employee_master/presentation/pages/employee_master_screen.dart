@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_call_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class EmployeeMasterScreen extends StatefulWidget {
@@ -261,9 +262,25 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                         title: "Department",
                         value: employee.department,
                       ),
-                      _buildRowTitleVale(
-                        title: "Contact Number",
-                        value: employee.personalMobileNumber,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 130,
+                              child: Text("Contact Number", style: AppTextStyle.ts14R(color: AppColor.grey)),
+                            ),
+                            SizedBox(
+                              width: 20,
+                              child: Text(
+                                ":",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: AppColor.grey),
+                              ),
+                            ),
+                            CustomClickToCallText(phoneNumber: employee.personalMobileNumber)
+                          ],
+                        ),
                       ),
                       _buildRowTitleVale(
                         title: "Reporting Person",

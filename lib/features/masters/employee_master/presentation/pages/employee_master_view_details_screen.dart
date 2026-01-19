@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_call_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -199,6 +200,60 @@ class _EmployeeMasterViewDetailsScreenState
     return rows;
   }
 
+  Widget _buildContactInformationCard(UserModel user) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Contact Information', style: AppTextStyle.ts16SB()),
+          verticalSpacing(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _buildInfoItem(
+                  'Personal Mobile',
+                  user.personalMobileNumber,
+                  customValueWidget: user.personalMobileNumber.isNotEmpty
+                      ? CustomClickToCallText(phoneNumber: user.personalMobileNumber)
+                      : null,
+                ),
+              ),
+              horizontalSpacing(width: 16),
+              Expanded(
+                child: _buildInfoItem('Office Mobile', user.officeMobileNumber),
+              ),
+            ],
+          ),
+          verticalSpacing(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _buildInfoItem('Email', user.emailId),
+              ),
+              horizontalSpacing(width: 16),
+              Expanded(
+                child: _buildInfoItem('Office Email', user.officeEmailId),
+              ),
+            ],
+          ),
+          verticalSpacing(height: 12),
+          _buildInfoItem(
+            'Emergency Contact',
+            user.emergencyMobileNumber,
+            customValueWidget: user.emergencyMobileNumber.isNotEmpty
+                ? CustomClickToCallText(phoneNumber: user.emergencyMobileNumber)
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+
   String _getDisplayValue(String? value) {
     if (value == null) return '-';
     final trimmed = value.trim();
@@ -210,8 +265,10 @@ class _EmployeeMasterViewDetailsScreenState
     String label,
     String? value, {
     bool isFullWidth = false,
+    Widget? customValueWidget,
   }) {
     final displayValue = _getDisplayValue(value);
+    final valueWidget = customValueWidget ?? Text(displayValue, style: AppTextStyle.ts14R());
 
     if (isFullWidth) {
       return Column(
@@ -219,7 +276,7 @@ class _EmployeeMasterViewDetailsScreenState
         children: [
           Text(label, style: AppTextStyle.ts14M(color: AppColor.grey)),
           verticalSpacing(height: 4),
-          Text(displayValue, style: AppTextStyle.ts14R()),
+          valueWidget,
         ],
       );
     }
@@ -233,7 +290,7 @@ class _EmployeeMasterViewDetailsScreenState
             children: [
               Text(label, style: AppTextStyle.ts14M(color: AppColor.grey)),
               verticalSpacing(height: 4),
-              Text(displayValue, style: AppTextStyle.ts14R()),
+              valueWidget,
             ],
           ),
         ),
@@ -275,19 +332,7 @@ class _EmployeeMasterViewDetailsScreenState
             ],
           ),
           verticalSpacing(),
-          _buildInfoCard(
-            title: 'Contact Information',
-            items: [
-              {'label': 'Personal Mobile', 'value': user.personalMobileNumber},
-              {'label': 'Office Mobile', 'value': user.officeMobileNumber},
-              {'label': 'Email', 'value': user.emailId},
-              {'label': 'Office Email', 'value': user.officeEmailId},
-              {
-                'label': 'Emergency Contact',
-                'value': user.emergencyMobileNumber,
-              },
-            ],
-          ),
+          _buildContactInformationCard(user),
           verticalSpacing(),
           _buildInfoCard(
             title: 'Professional Information',

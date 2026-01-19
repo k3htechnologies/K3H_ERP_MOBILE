@@ -6,6 +6,7 @@ class RedevelopmentBuildingModel {
   int projectId;
   String buildingName;
   String ctsNumber;
+  String googleLocation;
   double totalPlotAreaSqFt;
   String roadWidth;
   int countryMasterId;
@@ -43,6 +44,7 @@ class RedevelopmentBuildingModel {
     required this.projectId,
     required this.buildingName,
     required this.ctsNumber,
+    required this.googleLocation,
     required this.totalPlotAreaSqFt,
     required this.roadWidth,
     required this.countryMasterId,
@@ -81,6 +83,7 @@ class RedevelopmentBuildingModel {
     projectId: parseValue<int>(json, "ProjectId"),
     buildingName: parseValue<String>(json, "BuildingName"),
     ctsNumber: parseValue<String>(json, "CTSNumber"),
+    googleLocation: parseValue<String>(json, "GoogleLocation"),
     totalPlotAreaSqFt: parseValue<double>(json, "TotalPlotAreaSqFt"),
     roadWidth: parseValue<String>(json, "RoadWidth"),
     countryMasterId: parseValue<int>(json, "CountryMasterId"),
@@ -128,6 +131,7 @@ class RedevelopmentBuildingModel {
     "ProjectId": projectId,
     "BuildingName": buildingName,
     "CTSNumber": ctsNumber,
+    "GoogleLocation": googleLocation,
     "TotalPlotAreaSqFt": totalPlotAreaSqFt,
     "RoadWidth": roadWidth,
     "CountryMasterId": countryMasterId,

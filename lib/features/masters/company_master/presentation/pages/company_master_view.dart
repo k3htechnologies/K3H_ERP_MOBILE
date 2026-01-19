@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_call_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CompanyMasterViewScreen extends StatefulWidget {
@@ -81,13 +82,15 @@ class _CompanyMasterViewMobileScreenState
   Widget _buildColumnTitleValue({
     required String title,
     required String value,
+    Widget? customValueWidget,
   }) {
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          Text(value, style: AppTextStyle.ts14M(color: AppColor.black)),
+          verticalSpacing(height: 4),
+          customValueWidget ?? Text(value, style: AppTextStyle.ts14M(color: AppColor.black)),
         ],
       ),
     );
@@ -138,6 +141,9 @@ class _CompanyMasterViewMobileScreenState
               _buildColumnTitleValue(
                 title: "Mobile Number",
                 value: widget.company!.mobileNumber,
+                customValueWidget: widget.company!.mobileNumber.isNotEmpty
+                    ? CustomClickToCallText(phoneNumber: widget.company!.mobileNumber)
+                    : null,
               ),
               _buildColumnTitleValue(
                 title: "Landline Number",

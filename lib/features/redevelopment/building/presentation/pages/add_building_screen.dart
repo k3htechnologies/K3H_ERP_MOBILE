@@ -55,6 +55,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
       _numberOfFloorsC,
       _fsiTdrUtilizationC,
       _litigationRemarksC,
+      _googleLocationC,
       _searchC;
 
   // ADDRESS VARIABLES
@@ -114,6 +115,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     _selectedRoadWidth.dispose();
     _buildingNameC.dispose();
     _ctsNumberC.dispose();
+    _googleLocationC.dispose();
     _totalPlotAreaC.dispose();
     _totalNumberOfUnitsC.dispose();
     _totalUnitsAreaUtilizedC.dispose();
@@ -131,6 +133,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
   void initializeTextEditingController() {
     _buildingNameC = TextEditingController();
     _ctsNumberC = TextEditingController();
+    _googleLocationC = TextEditingController();
     _totalPlotAreaC = TextEditingController();
     _totalNumberOfUnitsC = TextEditingController();
     _totalUnitsAreaUtilizedC = TextEditingController();
@@ -147,6 +150,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
   void _populateFormFields(RedevelopmentBuildingModel buildingModel) {
     _buildingNameC.text = buildingModel.buildingName;
     _ctsNumberC.text = buildingModel.ctsNumber;
+    _googleLocationC.text = buildingModel.googleLocation;
     _totalPlotAreaC.text = buildingModel.totalPlotAreaSqFt.toString();
     _totalNumberOfUnitsC.text = buildingModel.totalNumberOfUnits.toString();
     _totalUnitsAreaUtilizedC.text =
@@ -163,6 +167,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     _stateMasterId = buildingModel.stateMasterId;
     _districtMasterId = buildingModel.districtMasterId;
     _cityMasterId = buildingModel.cityMasterId;
+    _villageMasterId = buildingModel.villageMasterId;
 
     // SET CHECKBOX VALUES
     _isGarden = buildingModel.isGarden;
@@ -201,6 +206,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
         'ProjectId': _projectId,
         'BuildingName': _buildingNameC.text.trim(),
         'CTSNumber': _ctsNumberC.text.trim(),
+        "GoogleLocation": _googleLocationC.text.trim(),
         'TotalPlotAreaSqFt': double.tryParse(_totalPlotAreaC.text) ?? 0.0,
         'RoadWidth': _selectedRoadWidth.value?['DisplayName'] ?? '',
         'CountryMasterId': buildingModel?.countryMasterId ?? 1,
@@ -343,6 +349,27 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                             return null;
                           },
                         );
+                      },
+                    ),
+                    CustomTextField(
+                      textController: _googleLocationC,
+                      title: "Google Location",
+                      hint: "Enter Google Location",
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Google Location is required";
+                        }
+
+                        final googleMapRegex = RegExp(
+                          r'^(https?:\/\/)?(www\.)?(google\.com\/maps|maps\.google\.com|goo\.gl\/maps|maps\.app\.goo\.gl)\/.+$',
+                          caseSensitive: false,
+                        );
+
+                        if (!googleMapRegex.hasMatch(value.trim())) {
+                          return "Please enter a valid Google Maps location link";
+                        }
+
+                        return null;
                       },
                     ),
                   ],
