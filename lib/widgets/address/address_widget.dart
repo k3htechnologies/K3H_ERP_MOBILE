@@ -166,7 +166,8 @@ class _AddressWidgetState extends State<AddressWidget> {
   void handleCityChange(int cityIdF) {
     final newVillageList = <Map<String, dynamic>>[];
 
-    if (cityMap.containsKey(cityIdF)) {
+    // Only populate village list if villageChange callback is provided
+    if (widget.villageChange != null && cityMap.containsKey(cityIdF)) {
       final villageData = cityMap[cityIdF]!;
       final villageMap = groupBy(villageData, (e) => e.villageMasterId);
 
@@ -315,48 +316,47 @@ class _AddressWidgetState extends State<AddressWidget> {
             );
           },
         ),
-        ValueListenableBuilder<List<Map<String, dynamic>>>(
-          valueListenable: villageList,
-          builder: (context, currentVillageList, child) {
-            return ValueListenableBuilder<int?>(
-              valueListenable: villageId,
-              builder: (context, currentVillageId, child) {
-                return CustomDropDownWidget(
-                  key: ValueKey(
-                    '${currentVillageId}_${currentVillageList.length}',
-                  ),
-                  initialValue:
-                      currentVillageId == null || currentVillageList.isEmpty
-                          ? null
-                          : currentVillageList.any(
-                            (village) =>
-                                village['zAttributesId'] == currentVillageId,
-                          )
-                              ? currentVillageList.firstWhere(
-                                (village) =>
-                                    village['zAttributesId'] == currentVillageId,
-                              )
-                              : null,
-                  title: "Village",
-                  isRequired: true,
-                  dataList: currentVillageList,
-                  onSelected: (villageselectedmap) {
-                    villageId.value = villageselectedmap['zAttributesId'];
-                    if (widget.villageChange != null) {
+        if (widget.villageChange != null)
+          ValueListenableBuilder<List<Map<String, dynamic>>>(
+            valueListenable: villageList,
+            builder: (context, currentVillageList, child) {
+              return ValueListenableBuilder<int?>(
+                valueListenable: villageId,
+                builder: (context, currentVillageId, child) {
+                  return CustomDropDownWidget(
+                    key: ValueKey(
+                      '${currentVillageId}_${currentVillageList.length}',
+                    ),
+                    initialValue:
+                        currentVillageId == null || currentVillageList.isEmpty
+                            ? null
+                            : currentVillageList.any(
+                              (village) =>
+                                  village['zAttributesId'] == currentVillageId,
+                            )
+                                ? currentVillageList.firstWhere(
+                                  (village) =>
+                                      village['zAttributesId'] == currentVillageId,
+                                )
+                                : null,
+                    title: "Village",
+                    isRequired: true,
+                    dataList: currentVillageList,
+                    onSelected: (villageselectedmap) {
+                      villageId.value = villageselectedmap['zAttributesId'];
                       widget.villageChange!(villageselectedmap);
-                    }
-                  },
-                  validator: (s) {
-                    if (s == null) {
-                      return "Village is required";
-                    }
-                    return null;
-                  },
-                );
-              },
-            );
-          },
-        ),
+                    },
+                    validator: (s) {
+                      if (s == null) {
+                        return "Village is required";
+                      }
+                      return null;
+                    },
+                  );
+                },
+              );
+            },
+          ),
       ],
     );
   }

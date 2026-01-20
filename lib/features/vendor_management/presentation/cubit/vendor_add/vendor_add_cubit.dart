@@ -98,7 +98,6 @@ class VendorAddCubit extends Cubit<VendorAddState> {
     required String stateMasterId,
     required String districtMasterId,
     required String cityMasterId,
-    required String villageMasterId,
     required String subMaterialIds,
     required String contractIds,
     required MultiFilePickerModel aadharCard,
@@ -124,7 +123,6 @@ class VendorAddCubit extends Cubit<VendorAddState> {
       "StateMasterId": stateMasterId,
       "DistrictMasterId": districtMasterId,
       "CityMasterId": cityMasterId,
-      "VillageMasterId": villageMasterId,
       "AvailableMaterialList": subMaterialIds,
       "AvailableContractList": "",
     };
@@ -190,7 +188,6 @@ class VendorAddCubit extends Cubit<VendorAddState> {
     required String stateMasterId,
     required String districtMasterId,
     required String cityMasterId,
-    required String villageMasterId,
     required String subMaterialIds,
     required String contractIds,
     required MultiFilePickerModel aadharCard,
@@ -218,7 +215,6 @@ class VendorAddCubit extends Cubit<VendorAddState> {
       "StateMasterId": stateMasterId,
       "DistrictMasterId": districtMasterId,
       "CityMasterId": cityMasterId,
-      "VillageMasterId": villageMasterId,
       "AvailableMaterialList": subMaterialIds,
       "AvailableContractList": "",
     };
@@ -270,12 +266,16 @@ class VendorAddCubit extends Cubit<VendorAddState> {
       (response) {
         goRouter.pop();
 
-        final updatedVendor = response['data'][0] as VendorModel;
+        if (response['data'] != null &&
+            response['data'] is List &&
+            (response['data'] as List).isNotEmpty) {
+          final updatedVendor = response['data'][0] as VendorModel;
 
-        context.read<VendorCubit>().updateVendorInList(
-          updatedVendor,
-          index,
-        );
+          context.read<VendorCubit>().updateVendorInList(
+            updatedVendor,
+            index,
+          );
+        }
 
         showSuccessMessage(context, subTitle: 'Vendor Updated Successfully!!!');
       },

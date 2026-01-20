@@ -89,7 +89,6 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
   String stateMasterId = '';
   String districtMasterId = '';
   String cityMasterId = '';
-  String villageMasterId = '';
 
   // TAB CHANGE VARIABLE
   int selectedTab = 0;
@@ -185,6 +184,12 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     panC.text = vendor.panCardNumber;
     gstC.text = vendor.gstNumber;
     addressC.text = vendor.address;
+
+    countryMasterId = vendor.countryMasterId.toString();
+    stateMasterId = vendor.stateMasterId.toString();
+    districtMasterId = vendor.districtMasterId.toString();
+    cityMasterId = vendor.cityMasterId.toString();
+
 
     selectedCompanyType = companyTypeList.firstWhere(
       (element) => element['DisplayName'] == vendor.companyType,
@@ -673,7 +678,6 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
             incomingStateId: widget.vendor?.stateMasterId,
             incomingDistrictId: widget.vendor?.districtMasterId,
             incomingCityId: widget.vendor?.cityMasterId,
-            incomingVillageId: widget.vendor?.villageMasterId,
             stateChange: (selectedState) {
               stateMasterId = selectedState['zAttributesId'].toString();
             },
@@ -682,10 +686,6 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
             },
             cityChange: (selectedCity) {
               cityMasterId = selectedCity['zAttributesId'].toString();
-            },
-            villageChange: (selectedVillage) {
-              final villageId = selectedVillage['zAttributesId'];
-              villageMasterId = villageId == null ? '' : villageId.toString();
             },
           ),
         ],
@@ -954,7 +954,6 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
         stateMasterId: stateMasterId,
         districtMasterId: districtMasterId,
         cityMasterId: cityMasterId,
-        villageMasterId: villageMasterId,
         subMaterialIds: selectedSubMaterialCommaSeperatedIds,
         contractIds: '',
         aadharCard: aadhaarCard,
@@ -979,7 +978,6 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
         stateMasterId: stateMasterId,
         districtMasterId: districtMasterId,
         cityMasterId: cityMasterId,
-        villageMasterId: villageMasterId,
         subMaterialIds: selectedSubMaterialCommaSeperatedIds,
         contractIds: '',
         aadharCard: aadhaarCard,
