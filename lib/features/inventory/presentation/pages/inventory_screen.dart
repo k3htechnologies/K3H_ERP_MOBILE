@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -741,14 +742,14 @@ class _InventoryScreenState extends State<InventoryScreen>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
-                              child: _buildColumnTitleValue(
+                              child: buildColumnTitleValue(
                                 title: "Type",
                                 value:
                                     flat.flatType != "" ? flat.flatType : "-",
                               ),
                             ),
                             Expanded(
-                              child: _buildColumnTitleValue(
+                              child: buildColumnTitleValue(
                                 title: "Area(Sq.ft)",
                                 value:
                                     flat.reraCarpetAreaSqFt.toString().isEmpty
@@ -757,7 +758,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                               ),
                             ),
                             Expanded(
-                              child: _buildColumnTitleValue(
+                              child: buildColumnTitleValue(
                                 title: "Configuration",
                                 value:
                                     flat.flatConfiguration.toString().isEmpty
@@ -971,21 +972,6 @@ class _InventoryScreenState extends State<InventoryScreen>
           label,
           style: AppTextStyle.ts12R().copyWith(fontSize: 10, color: color),
         ),
-      ],
-    );
-  }
-
-  // COLUMN TITLE VALUE
-  Widget _buildColumnTitleValue({
-    required String title,
-    required String value,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: AppTextStyle.ts12R(color: AppColor.grey)),
-        verticalSpacing(height: 5),
-        Text(value, style: AppTextStyle.ts14M()),
       ],
     );
   }

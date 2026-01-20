@@ -16,7 +16,7 @@ class CustomClickToContactText extends StatelessWidget {
     required this.value,
     this.type = ContactType.phone, // default is phone
     this.textStyle,
-    this.iconColor = AppColor.primary,
+    this.iconColor = AppColor.mediumBlue,
     this.iconSize = 15,
   });
 
@@ -43,6 +43,7 @@ class CustomClickToContactText extends StatelessWidget {
     return InkWell(
       onTap: launchContact,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
@@ -57,7 +58,7 @@ class CustomClickToContactText extends StatelessWidget {
               style:
                   textStyle ??
                   const TextStyle(
-                    color: Colors.blue,
+                    color: AppColor.mediumBlue,
                     decoration: TextDecoration.underline,
                   ),
             ),

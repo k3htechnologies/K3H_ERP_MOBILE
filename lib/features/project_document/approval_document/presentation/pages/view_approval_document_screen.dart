@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewApprovalDocumentScreen extends StatefulWidget {
@@ -169,25 +170,6 @@ class _ViewApprovalDocumentScreenState
     );
   }
 
-  // BUILD TITLE WIDGET
-  Widget _buildColumnTitleValue({
-    required String title,
-    String? value,
-    Widget? valueWidget,
-  }) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          valueWidget ??
-              Text(value!.isEmpty ? "-" : value, style: AppTextStyle.ts14M()),
-        ],
-      ),
-    );
-  }
-
   //DOCUMENT CARD
   Widget _buildDocumentCard(ApprovalDocumentModel document, int index) {
     return Container(
@@ -231,9 +213,9 @@ class _ViewApprovalDocumentScreenState
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Status",
-                valueWidget: Container(
+                customValueWidget: Container(
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
                   decoration: BoxDecoration(
                     color: getBgColorByStatus(document.approvalDocumentStatus),
@@ -248,8 +230,9 @@ class _ViewApprovalDocumentScreenState
                     ),
                   ),
                 ),
+                value: document.approvalDocumentStatus,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Expiry Date",
                 value:
                     document.approvalDocumentExpiryDate != null
@@ -263,11 +246,11 @@ class _ViewApprovalDocumentScreenState
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Last Modified By",
                 value: document.modifiedBy,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Last Modified Date",
                 value:
                     document.modifiedDate != null
@@ -279,13 +262,14 @@ class _ViewApprovalDocumentScreenState
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Remark",
                 value: document.approvalDocumentRemark,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "View Document",
-                valueWidget: GestureDetector(
+                value: document.approvalDocumentURL,
+                customValueWidget: GestureDetector(
                   onTap: () {
                     showFilePreviewDialog(
                       context,

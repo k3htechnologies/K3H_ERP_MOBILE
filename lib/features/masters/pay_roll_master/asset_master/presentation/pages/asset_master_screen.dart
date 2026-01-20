@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AssetMasterScreen extends StatefulWidget {
@@ -217,37 +218,31 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                       ],
                     ),
                     verticalSpacing(height: 8),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Asset Type",
                       value: asset.assetType,
                     ),
-                    _buildRowTitleValue(
-                      title: "Brand",
-                      value: asset.assetBrand,
-                    ),
-                    _buildRowTitleValue(
-                      title: "Model",
-                      value: asset.assetModel,
-                    ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(title: "Brand", value: asset.assetBrand),
+                    buildRowTitleValue(title: "Model", value: asset.assetModel),
+                    buildRowTitleValue(
                       title: "Serial Number",
                       value: asset.serialNumber,
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Purchase Date",
                       value: formatDateTimeAsDDMMMYYYY(asset.purchaseDate),
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Asset Cost",
                       value: "₹${asset.assetCost.toStringAsFixed(2)}",
                     ),
                     if (asset.supplierName.isNotEmpty)
-                      _buildRowTitleValue(
+                      buildRowTitleValue(
                         title: "Supplier",
                         value: asset.supplierName,
                       ),
                     if (asset.warrantyExpiryDate != null)
-                      _buildRowTitleValue(
+                      buildRowTitleValue(
                         title: "Warranty Expiry",
                         value: formatDateTimeAsDDMMMYYYY(
                           asset.warrantyExpiryDate!,
@@ -260,44 +255,6 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
             },
           );
         },
-      ),
-    );
-  }
-
-  // BUILD ROW TITLE VALUE
-  Widget _buildRowTitleValue({required String title, required String value}) {
-    if (value.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // TITLE
-          SizedBox(
-            width: 120,
-            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
-          ),
-
-          // COLON
-          SizedBox(
-            width: 20,
-            child: Text(
-              ":",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColor.grey),
-            ),
-          ),
-
-          // VALUE
-          Expanded(
-            child: Text(
-              value,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.ts14R(),
-            ),
-          ),
-        ],
       ),
     );
   }

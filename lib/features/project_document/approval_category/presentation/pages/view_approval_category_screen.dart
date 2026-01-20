@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/approval_category/data/model/approval_category.model.dart';
-import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
-import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class ViewApprovalCategoryScreen extends StatelessWidget {
   final ApprovalDocumentCategoryModel approvalCategoryModel;
@@ -40,13 +39,13 @@ class ViewApprovalCategoryScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Document Category",
                           value:
                               approvalCategoryModel
                                   .approvalDocumentCategoryName,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Order By",
                           value: approvalCategoryModel.orderBy.toString(),
                         ),
@@ -55,7 +54,7 @@ class ViewApprovalCategoryScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Document Count",
                           value: approvalCategoryModel.documentCount.toString(),
                         ),
@@ -76,11 +75,11 @@ class ViewApprovalCategoryScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Created By",
                           value: approvalCategoryModel.createdBy,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Created Date",
                           value: formatDateTimeAsDDMMMYYYY(
                             approvalCategoryModel.createdDate,
@@ -91,21 +90,21 @@ class ViewApprovalCategoryScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Modified By",
                           value:
                               approvalCategoryModel.modifiedBy.isNotEmpty
                                   ? approvalCategoryModel.modifiedBy
-                                  : null,
+                                  : "",
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Modified Date",
                           value:
                               approvalCategoryModel.modifiedDate != null
                                   ? formatDateTimeAsDDMMMYYYY(
                                     approvalCategoryModel.modifiedDate!,
                                   )
-                                  : null,
+                                  : "",
                         ),
                       ],
                     ),
@@ -115,25 +114,6 @@ class ViewApprovalCategoryScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildColumnTitleValue({
-    required String title,
-    required String? value,
-  }) {
-    if (value == null) {
-      return SizedBox.shrink();
-    }
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          Text(value, style: AppTextStyle.ts14M()),
-        ],
       ),
     );
   }

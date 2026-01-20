@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/features/project_document/rera_document/data/reposit
 import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_state.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/data/model/rera_document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/data/repository/rera_document_category.repository.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -260,9 +261,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         return;
       },
       (response) {
-        goRouter.pop();
-        goRouter.pop();
-
+        goRouter.goNamed(AppRoutes.rera);
         if (state.reraDocumentList.isNotEmpty &&
             index < state.reraDocumentList.length) {
           final updatedListModel = List<RERADocumentModel>.from(

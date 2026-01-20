@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class CompanyMasterViewScreen extends StatefulWidget {
   final CompanyModel? company;
@@ -77,24 +78,6 @@ class _CompanyMasterViewMobileScreenState
     return Text(title, style: AppTextStyle.ts16SB(color: AppColor.black));
   }
 
-  Widget _buildColumnTitleValue({
-    required String title,
-    required String value,
-    Widget? customValueWidget,
-  }) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          customValueWidget ??
-              Text(value, style: AppTextStyle.ts14M(color: AppColor.black)),
-        ],
-      ),
-    );
-  }
-
   // BASIC INFORMATION SECTION
   Widget _buildBasicInformationSection() {
     return Container(
@@ -109,11 +92,11 @@ class _CompanyMasterViewMobileScreenState
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Company Name",
                 value: widget.company!.companyName,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Company Type",
                 value: widget.company!.companyType,
               ),
@@ -123,12 +106,16 @@ class _CompanyMasterViewMobileScreenState
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Contact Person",
                 value: widget.company!.contactPerson,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "E-mail ID",
+                customValueWidget: CustomClickToContactText(
+                  value: widget.company!.emailId,
+                  type: ContactType.email,
+                ),
                 value: widget.company!.emailId,
               ),
             ],
@@ -137,7 +124,7 @@ class _CompanyMasterViewMobileScreenState
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Mobile Number",
                 value: widget.company!.mobileNumber,
                 customValueWidget:
@@ -147,12 +134,15 @@ class _CompanyMasterViewMobileScreenState
                         )
                         : null,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Landline Number",
                 value:
                     widget.company!.landLineNumber.isEmpty
                         ? "-"
                         : widget.company!.landLineNumber,
+                customValueWidget: CustomClickToContactText(
+                  value: widget.company!.landLineNumber,
+                ),
               ),
             ],
           ),
@@ -175,14 +165,14 @@ class _CompanyMasterViewMobileScreenState
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "PAN Card Number",
                 value:
                     widget.company!.panNumber.isEmpty
                         ? "-"
                         : widget.company!.panNumber,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "GST Number",
                 value:
                     widget.company!.gstNumber.isEmpty
@@ -195,14 +185,14 @@ class _CompanyMasterViewMobileScreenState
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "CIN Number",
                 value:
                     widget.company!.cinNumber.isEmpty
                         ? "-"
                         : widget.company!.cinNumber,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "RERA Number",
                 value:
                     widget.company!.reraNumber.isEmpty
@@ -227,15 +217,15 @@ class _CompanyMasterViewMobileScreenState
         children: [
           _buildTitle(title: "Address Details"),
           verticalSpacing(height: 15),
-          Row(children: [_buildColumnTitleValue(title: "Address", value: "")]),
+          Row(children: [buildColumnTitleValue(title: "Address", value: "")]),
           verticalSpacing(),
           Row(
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Country",
                 value: widget.company!.countryName,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "State",
                 value: widget.company!.stateName,
               ),
@@ -244,11 +234,11 @@ class _CompanyMasterViewMobileScreenState
           verticalSpacing(),
           Row(
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "District",
                 value: widget.company!.districtName,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "City",
                 value: widget.company!.cityName,
               ),
@@ -301,11 +291,11 @@ class _CompanyMasterViewMobileScreenState
           verticalSpacing(height: 15),
           Row(
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Created By",
                 value: widget.company!.createdBy,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Created On",
                 value: formatDateTimeAsDDMMMYYYY(widget.company!.createdDate),
               ),
@@ -313,14 +303,14 @@ class _CompanyMasterViewMobileScreenState
           ),
           Row(
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Modified By",
                 value:
                     widget.company!.modifiedBy.isEmpty
                         ? "-"
                         : widget.company!.modifiedBy,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Modified On",
                 value:
                     widget.company!.modifiedDate != null

@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class HolidayMappingMasterScreen extends StatefulWidget {
@@ -215,12 +216,12 @@ class _HolidayMappingMasterScreenState
                       ],
                     ),
                     verticalSpacing(height: 8),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Branch",
                       value: holidayMapping.branchName,
                     ),
                     verticalSpacing(height: 8),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Holiday Date",
                       value: formatDateTimeAsDDMMMYYYY(
                         holidayMapping.holidayDate,
@@ -232,44 +233,6 @@ class _HolidayMappingMasterScreenState
             },
           );
         },
-      ),
-    );
-  }
-
-  // BUILD ROW TITLE VALUE
-  Widget _buildRowTitleValue({required String title, required String value}) {
-    if (value.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // TITLE
-          SizedBox(
-            width: 160,
-            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
-          ),
-
-          // COLON
-          SizedBox(
-            width: 20,
-            child: Text(
-              ":",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColor.grey),
-            ),
-          ),
-
-          // VALUE
-          Expanded(
-            child: Text(
-              value,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.ts14R(),
-            ),
-          ),
-        ],
       ),
     );
   }

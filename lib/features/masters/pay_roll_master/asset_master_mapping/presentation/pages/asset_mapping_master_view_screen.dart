@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class AssetMappingMasterViewScreen extends StatelessWidget {
   final AssetMappingModel assetMapping;
@@ -35,11 +36,11 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Asset Name",
                           value: assetMapping.assetName,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Asset Code",
                           value: assetMapping.assetCode,
                         ),
@@ -48,11 +49,11 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Asset Type",
                           value: assetMapping.assetType,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Asset Brand",
                           value: assetMapping.assetBrand,
                         ),
@@ -61,11 +62,11 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Asset Model",
                           value: assetMapping.assetModel,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Serial Number",
                           value: assetMapping.serialNumber,
                         ),
@@ -85,11 +86,11 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Employee Name",
                           value: assetMapping.employeeName,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Assigned Date",
                           value: formatDateTimeAsDDMMMYYYY(
                             assetMapping.assignedDate,
@@ -100,13 +101,13 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Return Date",
                           value: formatDateTimeAsDDMMMYYYY(
                             assetMapping.returnDate,
                           ),
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Condition On Issue",
                           value: assetMapping.conditionOnIssue,
                         ),
@@ -115,7 +116,7 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Condition On Return",
                           value: assetMapping.conditionOnReturn,
                         ),
@@ -156,13 +157,13 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Purchase Date",
                           value: formatDateTimeAsDDMMMYYYY(
                             assetMapping.purchaseDate,
                           ),
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Warranty Expiry Date",
                           value: formatDateTimeAsDDMMMYYYY(
                             assetMapping.warrantyExpiryDate,
@@ -173,11 +174,11 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Supplier Name",
                           value: assetMapping.supplierName,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Asset Cost",
                           value: "₹ ${assetMapping.assetCost}",
                         ),
@@ -197,11 +198,11 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Created By",
                           value: assetMapping.createdBy,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Created Date",
                           value: formatDateTimeAsDDMMMYYYY(
                             assetMapping.createdDate,
@@ -212,14 +213,14 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Modified By",
                           value:
                               assetMapping.modifiedBy.isEmpty
                                   ? "-"
                                   : assetMapping.modifiedBy,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Modified Date",
                           value:
                               assetMapping.modifiedDate != null
@@ -236,23 +237,6 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  // BUILD COLUMN TITLE VALUE
-  Widget _buildColumnTitleValue({
-    required String title,
-    required String value,
-  }) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          Text(value, style: AppTextStyle.ts14M()),
-        ],
       ),
     );
   }

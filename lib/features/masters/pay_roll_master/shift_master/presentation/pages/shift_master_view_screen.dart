@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/data/model/shift_master.model.dart';
-import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
-import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class ShiftMasterViewScreen extends StatelessWidget {
   final ShiftMasterModel shiftMaster;
@@ -35,11 +34,11 @@ class ShiftMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Shift Begin Time",
                           value: shiftMaster.shiftBeginTime,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Shift End Time",
                           value: shiftMaster.shiftEndTime,
                         ),
@@ -48,11 +47,11 @@ class ShiftMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Shift Working Duration Time",
                           value: shiftMaster.shiftWorkDurationTime,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "First Half Up To",
                           value: shiftMaster.firstHalfUpTo,
                         ),
@@ -61,7 +60,7 @@ class ShiftMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "First Half Up To",
                           value: shiftMaster.firstHalfUpTo,
                         ),
@@ -85,11 +84,11 @@ class ShiftMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Half Day Out Time Before",
                           value: shiftMaster.halfDayOutTimeBefore,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Half Day In Time After",
                           value: shiftMaster.halfDayInTimeAfter,
                         ),
@@ -98,11 +97,11 @@ class ShiftMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Half Day Working Hours",
                           value: shiftMaster.halfDayWorkingHours,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Absent Working Hours",
                           value: shiftMaster.absentWorkingHours,
                         ),
@@ -122,11 +121,11 @@ class ShiftMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Break Begin Time",
                           value: shiftMaster.breakBeginTime,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Break End Time",
                           value: shiftMaster.breakEndTime,
                         ),
@@ -135,11 +134,11 @@ class ShiftMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Break Duration Time",
                           value: shiftMaster.breakDurationTime,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Grace Time",
                           value: shiftMaster.graceTime,
                         ),
@@ -159,11 +158,11 @@ class ShiftMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Created By",
                           value: shiftMaster.createdBy,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Created Date",
                           value: formatDateTimeAsDDMMMYYYY(
                             shiftMaster.createdDate,
@@ -174,11 +173,11 @@ class ShiftMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Modified By",
                           value: shiftMaster.modifiedBy,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Modified Date",
                           value: formatDateTimeAsDDMMMYYYY(
                             shiftMaster.modifiedDate,
@@ -192,22 +191,6 @@ class ShiftMasterViewScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildColumnTitleValue({
-    required String title,
-    required String value,
-  }) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          Text(value, style: AppTextStyle.ts14M()),
-        ],
       ),
     );
   }

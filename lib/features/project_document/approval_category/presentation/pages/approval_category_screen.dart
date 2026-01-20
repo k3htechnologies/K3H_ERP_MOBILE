@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ApprovalCategoryScreen extends StatefulWidget {
@@ -238,11 +239,11 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                       ],
                     ),
                     verticalSpacing(height: 8),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Sequencce",
                       value: approvalCategory.orderBy.toString(),
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Document Count",
                       value: approvalCategory.documentCount.toString(),
                     ),
@@ -256,34 +257,4 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
     );
   }
 
-  // BUILD ROW TITLE VALUE
-  Widget _buildRowTitleValue({required String title, required String value}) {
-    if (value.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // TITLE
-          SizedBox(
-            width: 120,
-            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
-          ),
-
-          // COLON
-          SizedBox(
-            width: 20,
-            child: Text(
-              ":",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColor.grey),
-            ),
-          ),
-
-          // VALUE
-          Expanded(child: Text(value, style: AppTextStyle.ts14R())),
-        ],
-      ),
-    );
-  }
 }

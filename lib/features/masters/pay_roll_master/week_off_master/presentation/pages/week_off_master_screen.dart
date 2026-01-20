@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class WeekOffMasterScreen extends StatefulWidget {
@@ -210,37 +211,37 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
                       ],
                     ),
                     verticalSpacing(height: 10),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Week Off Code",
                       value: weekOffMaster.weekOffPolicyCode,
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Week Days",
                       value: weekOffMaster.weekDays.toString(),
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Week Days Starts On",
                       value: weekOffMaster.weekDaysStartsOn,
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Weekly Off",
                       value: weekOffMaster.weeklyOff,
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Weekly Off2",
                       value:
                           weekOffMaster.weeklyOff2.isEmpty
                               ? "N/A"
                               : weekOffMaster.weeklyOff2,
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Weekly Off2 Type",
                       value:
                           weekOffMaster.weeklyOff2Type.isEmpty
                               ? "N/A"
                               : weekOffMaster.weeklyOff2Type,
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Not Applicable For Months",
                       value: weekOffMaster.notApplicableForMonths,
                     ),
@@ -254,41 +255,4 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
     );
   }
 
-  // BUILD ROW TITLE VALUE
-  Widget _buildRowTitleValue({required String title, required String value}) {
-    if (value.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // TITLE
-          SizedBox(
-            width: 160,
-            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
-          ),
-
-          // COLON
-          SizedBox(
-            width: 20,
-            child: Text(
-              ":",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColor.grey),
-            ),
-          ),
-
-          // VALUE
-          Expanded(
-            child: Text(
-              value,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.ts14R(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

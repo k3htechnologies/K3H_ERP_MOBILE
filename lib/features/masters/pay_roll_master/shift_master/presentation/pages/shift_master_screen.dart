@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ShiftMasterScreen extends StatefulWidget {
@@ -209,24 +210,24 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
                       ],
                     ),
                     verticalSpacing(height: 10),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Shift Code",
                       value: shiftMaster.shiftCode,
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Shift Begin Time",
                       value: shiftMaster.shiftBeginTime,
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Shift End Time",
                       value: shiftMaster.shiftEndTime,
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Shift Duration Time",
                       value: shiftMaster.shiftDurationTime,
                     ),
 
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Shift Work Duration Time",
                       value: shiftMaster.shiftWorkDurationTime,
                     ),
@@ -240,41 +241,4 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
     );
   }
 
-  // BUILD ROW TITLE VALUE
-  Widget _buildRowTitleValue({required String title, required String value}) {
-    if (value.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // TITLE
-          SizedBox(
-            width: 160,
-            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
-          ),
-
-          // COLON
-          SizedBox(
-            width: 20,
-            child: Text(
-              ":",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColor.grey),
-            ),
-          ),
-
-          // VALUE
-          Expanded(
-            child: Text(
-              value,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.ts14R(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

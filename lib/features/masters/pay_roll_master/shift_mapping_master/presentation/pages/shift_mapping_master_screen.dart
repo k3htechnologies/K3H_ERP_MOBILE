@@ -214,24 +214,24 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
                     ),
                     verticalSpacing(height: 10),
 
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Deparment Code",
                       value: shiftMappingMaster.departmentName,
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Employee Name",
                       value: shiftMappingMaster.employeeName,
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Shift Code",
                       value: shiftMappingMaster.shiftCode,
                     ),
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "Start Time",
                       value: shiftMappingMaster.shiftBeginTime,
                     ),
 
-                    _buildRowTitleValue(
+                    buildRowTitleValue(
                       title: "End Time",
                       value: shiftMappingMaster.shiftEndTime,
                     ),
@@ -246,7 +246,7 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
   }
 
   // BUILD ROW TITLE VALUE
-  Widget _buildRowTitleValue({required String title, required String value}) {
+  Widget buildRowTitleValue({required String title, required String value}) {
     if (value.isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),

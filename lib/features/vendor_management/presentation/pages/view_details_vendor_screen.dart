@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewDetailsVendorScreen extends StatefulWidget {
@@ -54,22 +55,6 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
     return Text(title, style: AppTextStyle.ts16SB(color: AppColor.black));
   }
 
-  // BUILD COLUMN TITLE AND VALUE WIDGET
-  Widget _buildColumnTitleValue({
-    required String title,
-    required String value,
-  }) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          Text(value, style: AppTextStyle.ts14M(color: AppColor.black)),
-        ],
-      ),
-    );
-  }
-
   // BUILD BASIC INFORMATION SECTION
   Widget _buildBasicInformationSection() {
     return Container(
@@ -84,7 +69,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Vendor Name",
                 value: widget.vendor.vendorName,
               ),
@@ -95,11 +80,11 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Company Name",
                 value: widget.vendor.companyName,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Company Type",
                 value: widget.vendor.companyType,
               ),
@@ -117,15 +102,17 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
                       "Mobile Number",
                       style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
-                    CustomClickToContactText(
-                      value: widget.vendor.mobileNumber,
-                    ),
+                    CustomClickToContactText(value: widget.vendor.mobileNumber),
                   ],
                 ),
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "E-mail ID",
                 value: widget.vendor.emailId,
+                customValueWidget: CustomClickToContactText(
+                  value: widget.vendor.emailId,
+                  type: ContactType.email,
+                ),
               ),
             ],
           ),
@@ -147,7 +134,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
           verticalSpacing(height: 15),
           Row(
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Aadhaar Card Number",
                 value: widget.vendor.aadharCardNumber,
               ),
@@ -156,7 +143,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
           verticalSpacing(),
           Row(
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "PAN Card Number",
                 value: widget.vendor.panCardNumber,
               ),
@@ -165,7 +152,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
           verticalSpacing(),
           Row(
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "GST Number",
                 value: widget.vendor.gstNumber,
               ),
@@ -189,7 +176,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
           verticalSpacing(height: 15),
           Row(
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Address",
                 value: widget.vendor.address,
               ),
@@ -198,11 +185,11 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
           verticalSpacing(),
           Row(
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Country",
                 value: widget.vendor.countryName,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "State",
                 value: widget.vendor.stateName,
               ),
@@ -211,11 +198,11 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
           verticalSpacing(),
           Row(
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "District",
                 value: widget.vendor.districtName,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "City",
                 value: widget.vendor.cityName,
               ),
@@ -268,7 +255,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
           verticalSpacing(height: 15),
           Row(
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Available Material",
                 value: widget.vendor.submaterialList
                     .map((e) => e.materialName)
@@ -279,7 +266,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
           verticalSpacing(),
           Row(
             children: [
-              _buildColumnTitleValue(title: "Available Contract", value: "--"),
+              buildColumnTitleValue(title: "Available Contract", value: "--"),
             ],
           ),
         ],
@@ -300,11 +287,11 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
           verticalSpacing(height: 15),
           Row(
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Created By",
                 value: widget.vendor.createdBy,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Created On",
                 value: formatDateTimeAsDDMMMYYYY(widget.vendor.createdDate),
               ),
@@ -312,14 +299,14 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
           ),
           Row(
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Modified By",
                 value:
                     widget.vendor.modifiedBy.isEmpty
                         ? "-"
                         : widget.vendor.modifiedBy,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Modified On",
                 value:
                     widget.vendor.modifiedDate != null

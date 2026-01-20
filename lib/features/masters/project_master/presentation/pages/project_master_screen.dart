@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ProjectMasterScreen extends StatefulWidget {
@@ -213,15 +214,15 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                         _buildProjectStatusWidget(project.projectStatus),
                       ],
                     ),
-                    _buildRowTitleVale(
+                    buildRowTitleValue(
                       title: "Project Location",
                       value: project.projectLocation,
                     ),
-                    _buildRowTitleVale(
+                    buildRowTitleValue(
                       title: "CTS Number",
                       value: project.ctsNumber,
                     ),
-                    _buildRowTitleVale(
+                    buildRowTitleValue(
                       title: "Business Category",
                       value: project.bussinessCategory,
                     ),
@@ -231,42 +232,6 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
             },
           );
         },
-      ),
-    );
-  }
-
-  // BUILD ROW TITLE VALUE
-  Widget _buildRowTitleVale({required String title, required String value}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          // TITLE
-          SizedBox(
-            width: 140,
-            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
-          ),
-
-          // COLON
-          SizedBox(
-            width: 20,
-            child: Text(
-              ":",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColor.grey),
-            ),
-          ),
-
-          // VALUE
-          Expanded(
-            child: Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.ts14R(),
-            ),
-          ),
-        ],
       ),
     );
   }

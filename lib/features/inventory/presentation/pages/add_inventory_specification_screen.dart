@@ -23,6 +23,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class AddInventorySpecificationScreen extends StatefulWidget {
   final FloorModel? floorModel;
@@ -633,19 +634,19 @@ class _AddInventorySpecificationScreenState
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                    _buildColumnTitleValue(
+                                                    buildColumnTitleValue(
                                                       title: "Area (Sq. ft)",
                                                       value:
                                                           spec.flatLayoutAreaSqFt
                                                               .toString(),
                                                     ),
-                                                    _buildColumnTitleValue(
+                                                    buildColumnTitleValue(
                                                       title: "Length (Sq. ft)",
                                                       value:
                                                           spec.flatLayoutLengthSqFt
                                                               .toString(),
                                                     ),
-                                                    _buildColumnTitleValue(
+                                                    buildColumnTitleValue(
                                                       title: "Width (Sq. ft)",
                                                       value:
                                                           spec.flatLayoutWidthSqFt
@@ -725,24 +726,6 @@ class _AddInventorySpecificationScreenState
             onPressed: _handleSubmit,
           ),
         ),
-      ),
-    );
-  }
-
-  // BUILD COLUMN TITLE VALUE
-  Widget _buildColumnTitleValue({
-    required String title,
-    required String value,
-  }) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(title, style: AppTextStyle.ts12R(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          Text(value, style: AppTextStyle.ts12M()),
-        ],
       ),
     );
   }

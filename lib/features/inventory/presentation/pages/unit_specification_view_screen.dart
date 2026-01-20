@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class UnitSpecificationViewScreen extends StatefulWidget {
   final FlatModel flatModel;
@@ -48,25 +49,6 @@ class _UnitSpecificationViewScreenState
     return Text(title, style: AppTextStyle.ts16SB(color: AppColor.black));
   }
 
-  Widget _buildColumnTitleValue({
-    required String title,
-    required String value,
-  }) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          Text(
-            value.isEmpty ? "-" : value,
-            style: AppTextStyle.ts14M(color: AppColor.black),
-          ),
-        ],
-      ),
-    );
-  }
-
   // BASIC INFORMATION SECTION
   Widget _buildBasicInformationSection() {
     return Container(
@@ -81,11 +63,11 @@ class _UnitSpecificationViewScreenState
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Unit Number",
                 value: widget.flatModel.flat,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Building",
                 value: widget.flatModel.buildingNumber,
               ),
@@ -95,11 +77,11 @@ class _UnitSpecificationViewScreenState
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Wing",
                 value: widget.flatModel.wing,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Floor",
                 value: widget.flatModel.floor,
               ),
@@ -124,11 +106,11 @@ class _UnitSpecificationViewScreenState
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Unit Type",
                 value: widget.flatModel.flatType,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Unit Configuration",
                 value: widget.flatModel.flatConfiguration,
               ),
@@ -138,13 +120,14 @@ class _UnitSpecificationViewScreenState
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Unit Area (Sq. ft)",
-                value: widget.flatModel.reraCarpetAreaSqFt > 0
-                    ? widget.flatModel.reraCarpetAreaSqFt.toStringAsFixed(2)
-                    : "-",
+                value:
+                    widget.flatModel.reraCarpetAreaSqFt > 0
+                        ? widget.flatModel.reraCarpetAreaSqFt.toStringAsFixed(2)
+                        : "-",
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Facing",
                 value: widget.flatModel.flatFacing,
               ),
@@ -154,14 +137,11 @@ class _UnitSpecificationViewScreenState
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Status",
                 value: widget.flatModel.flatStatus,
               ),
-              _buildColumnTitleValue(
-                title: "",
-                value: "",
-              ),
+              buildColumnTitleValue(title: "", value: ""),
             ],
           ),
         ],
@@ -198,31 +178,25 @@ class _UnitSpecificationViewScreenState
                 decoration: BoxDecoration(
                   color: AppColor.white,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppColor.grey30,
-                    width: 1,
-                  ),
+                  border: Border.all(color: AppColor.grey30, width: 1),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      spec.flatLayout,
-                      style: AppTextStyle.ts14M(),
-                    ),
+                    Text(spec.flatLayout, style: AppTextStyle.ts14M()),
                     verticalSpacing(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Area (Sq. ft)",
                           value: spec.flatLayoutAreaSqFt.toStringAsFixed(2),
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Length (Sq. ft)",
                           value: spec.flatLayoutLengthSqFt.toStringAsFixed(2),
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Width (Sq. ft)",
                           value: spec.flatLayoutWidthSqFt.toStringAsFixed(2),
                         ),
@@ -258,14 +232,11 @@ class _UnitSpecificationViewScreenState
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Owner Name",
                 value: widget.flatModel.ownerName,
               ),
-              _buildColumnTitleValue(
-                title: "",
-                value: "",
-              ),
+              buildColumnTitleValue(title: "", value: ""),
             ],
           ),
           if (widget.flatModel.bookingCreatedBy.isNotEmpty) ...[
@@ -273,17 +244,18 @@ class _UnitSpecificationViewScreenState
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildColumnTitleValue(
+                buildColumnTitleValue(
                   title: "Booked By",
                   value: widget.flatModel.bookingCreatedBy,
                 ),
-                _buildColumnTitleValue(
+                buildColumnTitleValue(
                   title: "Booked On",
-                  value: widget.flatModel.bookingCreatedDate != null
-                      ? formatDateTimeAsDDMMMYYYY(
-                          widget.flatModel.bookingCreatedDate!,
-                        )
-                      : "-",
+                  value:
+                      widget.flatModel.bookingCreatedDate != null
+                          ? formatDateTimeAsDDMMMYYYY(
+                            widget.flatModel.bookingCreatedDate!,
+                          )
+                          : "-",
                 ),
               ],
             ),
