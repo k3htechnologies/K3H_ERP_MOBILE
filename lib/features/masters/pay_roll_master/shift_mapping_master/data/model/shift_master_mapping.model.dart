@@ -2,14 +2,14 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/data/m
 import 'package:k3h_erp_app/utils/common_function.dart';
 
 class ShiftMappingModel extends ShiftMasterModel {
-  final int shiftMappingMasterId;
+  final int shiftManagementMasterMappingId;
   final String departmentMasterId;
   final String departmentName;
   final String employeeId;
   final String employeeName;
 
   ShiftMappingModel({
-    required this.shiftMappingMasterId,
+    required this.shiftManagementMasterMappingId,
     required this.departmentMasterId,
     required this.departmentName,
     required this.employeeId,
@@ -39,7 +39,7 @@ class ShiftMappingModel extends ShiftMasterModel {
   });
   factory ShiftMappingModel.fromJson(Map<String, dynamic> json) {
     return ShiftMappingModel(
-      shiftMappingMasterId: parseValue<int>(
+      shiftManagementMasterMappingId: parseValue<int>(
         json,
         "ShiftManagementMasterMappingId",
       ),
@@ -73,7 +73,7 @@ class ShiftMappingModel extends ShiftMasterModel {
   }
   @override
   Map<String, dynamic> toJson() => {
-    "ShiftManagementMasterMappingId": shiftMappingMasterId,
+    "ShiftManagementMasterMappingId": shiftManagementMasterMappingId,
     "DepartmentMasterId": departmentMasterId,
     "DepartmentName": departmentName,
     "EmployeeId": employeeId,

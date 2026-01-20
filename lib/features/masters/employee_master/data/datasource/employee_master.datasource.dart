@@ -1,9 +1,9 @@
 import 'package:k3h_erp_app/core/models/branch.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/asset_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_document.model.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/shift_management_mapping.model.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/week_off_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -224,10 +224,8 @@ class EmployeeMasterDataSourceImpl extends EmployeeMasterDataSource {
         ),
       );
       return {
-        'data': List<ShiftManagementMappingModel>.from(
-          networkResponse['data'].map(
-            (e) => ShiftManagementMappingModel.fromJson(e),
-          ),
+        'data': List<ShiftMappingModel>.from(
+          networkResponse['data'].map((e) => ShiftMappingModel.fromJson(e)),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };

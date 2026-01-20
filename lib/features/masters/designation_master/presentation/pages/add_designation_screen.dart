@@ -122,7 +122,8 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                 child: Column(
                   children: [
                     CustomTextField(
-                      title: "Designation*",
+                      title: "Designation",
+                      isRequired: true,
                       inputFormatterList: [
                         LengthLimitingTextInputFormatter(50),
                       ],
@@ -135,7 +136,8 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                       },
                     ),
                     CustomTextField(
-                      title: "Notice Period* (in days)",
+                      title: "Notice Period (in days)",
+                      isRequired: true,
                       textController: _noticePeriodC,
                       inputFormatterList: InputValidator.digit(3),
                       validator: (value) {

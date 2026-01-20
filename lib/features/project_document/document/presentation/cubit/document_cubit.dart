@@ -100,10 +100,8 @@ class DocumentCubit extends Cubit<DocumentState> {
         );
 
         if (projectDocumentId == null) {
-          final List<DocumentModel> updatedList = [
-            ...state.documentList,
-            ...newData,
-          ];
+          final List<DocumentModel> updatedList =
+              pageNumber == 1 ? newData : [...state.documentList, ...newData];
           emit(
             state.copyWith(
               isLoading: false,
@@ -113,10 +111,10 @@ class DocumentCubit extends Cubit<DocumentState> {
             ),
           );
         } else {
-          final List<DocumentModel> updatedSubDocList = [
-            ...state.subDocumentList,
-            ...newData,
-          ];
+          final List<DocumentModel> updatedSubDocList =
+              pageNumber == 1
+                  ? newData
+                  : [...state.subDocumentList, ...newData];
           emit(
             state.copyWith(
               isLoading: false,

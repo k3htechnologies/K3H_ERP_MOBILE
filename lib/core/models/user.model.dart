@@ -131,98 +131,99 @@ class UserModel {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
-      employeeId: parseValue<int>(json, "EmployeeId"),
-      uniqueKey: parseValue<String>(json, "UniqueKey"),
-      employeeCode: parseValue<String>(json, "EmployeeCode"),
-      firstName: parseValue<String>(json, "FirstName"),
-      middleName: parseValue<String>(json, "MiddleName"),
-      lastName: parseValue<String>(json, "LastName"),
-      fullName: parseValue<String>(json, "FullName"),
-      departmentMasterId: parseValue<int>(json, "DepartmentMasterId"),
-      department: parseValue<String>(json, "Department"),
-      designationMasterId: parseValue<int>(json, "DesignationMasterId"),
-      designation: parseValue<String>(json, "Designation"),
-      branchMasterId: parseValue<int>(json, "BranchMasterId"),
-      branch: parseValue<String>(json, "Branch"),
-      gender: parseValue<String>(json, "Gender"),
-      maritalStatus: parseValue<String>(json, "MaritalStatus"),
-      dateOfBirth:
-      json["DateOfBirth"] == null
-          ? null
-          : parseValue<DateTime>(json, "DateOfBirth"),
-      joiningDate:
-      json["JoiningDate"] == null
-          ? null
-          : parseValue<DateTime>(json, "JoiningDate"),
-      probationDate:
-      json["ProbationDate"] == null
-          ? null
-          : parseValue<DateTime>(json, "ProbationDate"),
-      resignationDate:
-      json["ResignationDate"] == null
-          ? null
-          : DateTime.parse(json["ResignationDate"]),
-      isGeoFenceLocation: parseValue<bool>(json, "IsGeoFenceLocation"),
-      emailId: parseValue<String>(json, "EmailId"),
-      officeEmailId: parseValue<String>(json, "OfficeEmailId"),
-      reportPersonId: parseValue<int>(json, "ReportPersonId"),
-      reportPersonName: parseValue<String>(json, "ReportPersonName"),
-      personalMobileNumber: parseValue<String>(json, "PersonalMobileNumber"),
-      officeMobileNumber: parseValue<String>(json, "OfficeMobileNumber"),
-      bankListMasterId: parseValue<int>(json, "BankListMasterId"),
-      bankName: parseValue<String>(json, "BankName"),
-      bankBranchName: parseValue<String>(json, "BankBranchName"),
-      ifscCode: parseValue<String>(json, "IFSCCode"),
-      accountNo: parseValue<String>(json, "AccountNo"),
-      employeeType: parseValue<String>(json, "EmployeeType"),
-      emergencyMobileNumber: parseValue<String>(json, "EmergencyMobileNumber"),
-      emergencyContactPersonRelationship: parseValue<String>(
-        json,
-        "EmergencyContactPersonRelationship",
-      ),
-      isUpdateEmployee: parseValue<bool>(json, "IsUpdateEmployee"),
-      communicationAddress: parseValue<String>(json, "CommunicationAddress"),
-      permanentAddress: parseValue<String>(json, "PermanentAddress"),
-      bloodGroup: parseValue<String>(json, "BloodGroup"),
-      companyId: parseValue<int>(json, "CompanyId"),
-      companyName: parseValue<String>(json, "CompanyName"),
-      lastLogin:
-      json["LastLogin"] == null
-          ? null
-          : parseValue<DateTime>(json, "LastLogin"),
-      countryMasterId: parseValue<int>(json, "CountryMasterId"),
-      countryName: parseValue<String>(json, "CountryName"),
-      stateMasterId: parseValue<int>(json, "StateMasterId"),
-      stateName: parseValue<String>(json, "StateName"),
-      districtMasterId: parseValue<int>(json, "DistrictMasterId"),
-      districtName: parseValue<String>(json, "DistrictName"),
-      cityMasterId: parseValue<int>(json, "CityMasterId"),
-      cityName: parseValue<String>(json, "CityName"),
-      clientRegistrationId: parseValue<int>(json, "ClientRegistrationId"),
-      createdById: parseValue<int>(json, "CreatedById"),
-      createdBy: parseValue<String>(json, "CreatedBy"),
-      createdDate: parseValue<DateTime>(json, "CreatedDate"),
-      modifiedById: parseValue<int>(json, "ModifiedById"),
-      modifiedBy: parseValue<String>(json, "ModifiedBy"),
-      modifiedDate:
-      json["ModifiedDate"] == null
-          ? null
-          : parseValue<DateTime>(json, "ModifiedDate"),
-      token: parseValue<String>(json, "Token"),
-      moduleData: List<ModuleModel>.from(
-        json["ModuleData"].map((x) => ModuleModel.fromJson(x)),
-      ),
-      projectData: List<ProjectModel>.from(
-        json["ProjectData"].map((x) => ProjectModel.fromJson(x)),
-      ),
-      employeeReportingCycleData: json["EmployeeReportingCycleData"] != null
-          ? List<Map<String, dynamic>>.from(
+    employeeId: parseValue<int>(json, "EmployeeId"),
+    uniqueKey: parseValue<String>(json, "UniqueKey"),
+    employeeCode: parseValue<String>(json, "EmployeeCode"),
+    firstName: parseValue<String>(json, "FirstName"),
+    middleName: parseValue<String>(json, "MiddleName"),
+    lastName: parseValue<String>(json, "LastName"),
+    fullName: parseValue<String>(json, "FullName"),
+    departmentMasterId: parseValue<int>(json, "DepartmentMasterId"),
+    department: parseValue<String>(json, "Department"),
+    designationMasterId: parseValue<int>(json, "DesignationMasterId"),
+    designation: parseValue<String>(json, "Designation"),
+    branchMasterId: parseValue<int>(json, "BranchMasterId"),
+    branch: parseValue<String>(json, "Branch"),
+    gender: parseValue<String>(json, "Gender"),
+    maritalStatus: parseValue<String>(json, "MaritalStatus"),
+    dateOfBirth:
+        json["DateOfBirth"] == null
+            ? null
+            : parseValue<DateTime>(json, "DateOfBirth"),
+    joiningDate:
+        json["JoiningDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "JoiningDate"),
+    probationDate:
+        json["ProbationDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "ProbationDate"),
+    resignationDate:
+        json["ResignationDate"] == null
+            ? null
+            : DateTime.parse(json["ResignationDate"]),
+    isGeoFenceLocation: parseValue<bool>(json, "IsGeoFenceLocation"),
+    emailId: parseValue<String>(json, "EmailId"),
+    officeEmailId: parseValue<String>(json, "OfficeEmailId"),
+    reportPersonId: parseValue<int>(json, "ReportPersonId"),
+    reportPersonName: parseValue<String>(json, "ReportPersonName"),
+    personalMobileNumber: parseValue<String>(json, "PersonalMobileNumber"),
+    officeMobileNumber: parseValue<String>(json, "OfficeMobileNumber"),
+    bankListMasterId: parseValue<int>(json, "BankListMasterId"),
+    bankName: parseValue<String>(json, "BankName"),
+    bankBranchName: parseValue<String>(json, "BankBranchName"),
+    ifscCode: parseValue<String>(json, "IFSCCode"),
+    accountNo: parseValue<String>(json, "AccountNo"),
+    employeeType: parseValue<String>(json, "EmployeeType"),
+    emergencyMobileNumber: parseValue<String>(json, "EmergencyMobileNumber"),
+    emergencyContactPersonRelationship: parseValue<String>(
+      json,
+      "EmergencyContactPersonRelationship",
+    ),
+    isUpdateEmployee: parseValue<bool>(json, "IsUpdateEmployee"),
+    communicationAddress: parseValue<String>(json, "CommunicationAddress"),
+    permanentAddress: parseValue<String>(json, "PermanentAddress"),
+    bloodGroup: parseValue<String>(json, "BloodGroup"),
+    companyId: parseValue<int>(json, "CompanyId"),
+    companyName: parseValue<String>(json, "CompanyName"),
+    lastLogin:
+        json["LastLogin"] == null
+            ? null
+            : parseValue<DateTime>(json, "LastLogin"),
+    countryMasterId: parseValue<int>(json, "CountryMasterId"),
+    countryName: parseValue<String>(json, "CountryName"),
+    stateMasterId: parseValue<int>(json, "StateMasterId"),
+    stateName: parseValue<String>(json, "StateName"),
+    districtMasterId: parseValue<int>(json, "DistrictMasterId"),
+    districtName: parseValue<String>(json, "DistrictName"),
+    cityMasterId: parseValue<int>(json, "CityMasterId"),
+    cityName: parseValue<String>(json, "CityName"),
+    clientRegistrationId: parseValue<int>(json, "ClientRegistrationId"),
+    createdById: parseValue<int>(json, "CreatedById"),
+    createdBy: parseValue<String>(json, "CreatedBy"),
+    createdDate: parseValue<DateTime>(json, "CreatedDate"),
+    modifiedById: parseValue<int>(json, "ModifiedById"),
+    modifiedBy: parseValue<String>(json, "ModifiedBy"),
+    modifiedDate:
+        json["ModifiedDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "ModifiedDate"),
+    token: parseValue<String>(json, "Token"),
+    moduleData: List<ModuleModel>.from(
+      json["ModuleData"].map((x) => ModuleModel.fromJson(x)),
+    ),
+    projectData: List<ProjectModel>.from(
+      json["ProjectData"].map((x) => ProjectModel.fromJson(x)),
+    ),
+    employeeReportingCycleData:
+        json["EmployeeReportingCycleData"] != null
+            ? List<Map<String, dynamic>>.from(
               json["EmployeeReportingCycleData"].map(
                 (x) => Map<String, dynamic>.from(x as Map),
               ),
             )
-          : [],
-      isSelected: false
+            : [],
+    isSelected: false,
   );
 
   Map<String, dynamic> toJson() => {

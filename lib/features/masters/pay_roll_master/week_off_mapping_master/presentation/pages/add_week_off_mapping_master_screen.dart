@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/week_off_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/presentation/cubit/week_off_mapping_cubit.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/presentation/cubit/week_off_mapping_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -94,15 +94,15 @@ class _AddWeekOffMappingMasterScreenState
       showErrorMessage(context, 'Error', 'Please select a week off');
       return;
     }
-    if (_selectedEmployee.isEmpty) {
-      showErrorMessage(context, 'Error', 'Please select an employee');
-      return;
-    }
+    // if (_selectedEmployee.isEmpty) {
+    //   showErrorMessage(context, 'Error', 'Please select an employee');
+    //   return;
+    // }
 
-    if (_selectedDepartment.isEmpty) {
-      showErrorMessage(context, 'Error', 'Please select department');
-      return;
-    }
+    // if (_selectedDepartment.isEmpty) {
+    //   showErrorMessage(context, 'Error', 'Please select department');
+    //   return;
+    // }
 
     if (_isEditMode && widget.weekOffMappingMasterModel != null) {
       _weekOffMappingMasterCubit.updateWeekOffMapping(
@@ -112,17 +112,27 @@ class _AddWeekOffMappingMasterScreenState
         weekOffMappingMasterId:
             widget.weekOffMappingMasterModel!.weekOffPolicyMasterMappingId,
         weekOffMasterId: _selectedWeekOff.first['zAttributesId'] as int,
-        employeeId: _selectedEmployee.first['zAttributesId'].toString(),
+        employeeId:
+            _selectedEmployee.isEmpty
+                ? null
+                : _selectedEmployee.first['zAttributesId'].toString(),
         departmentMasterId:
-            _selectedDepartment.first['zAttributesId'].toString(),
+            _selectedDepartment.isEmpty
+                ? null
+                : _selectedDepartment.first['zAttributesId'].toString(),
       );
     } else {
       _weekOffMappingMasterCubit.addWeekOffMapping(
         context: context,
-        employeeId: _selectedEmployee.first['zAttributesId'].toString(),
         weekOffMasterId: _selectedWeekOff.first['zAttributesId'] as int,
+        employeeId:
+            _selectedEmployee.isEmpty
+                ? null
+                : _selectedEmployee.first['zAttributesId'].toString(),
         departmentMasterId:
-            _selectedDepartment.first['zAttributesId'].toString(),
+            _selectedDepartment.isEmpty
+                ? null
+                : _selectedDepartment.first['zAttributesId'].toString(),
       );
     }
   }
@@ -209,8 +219,9 @@ class _AddWeekOffMappingMasterScreenState
                         dataFetchCallBack:
                             _weekOffMappingMasterCubit.fetchEmployees,
                         validator: (value) {
-                          if ((value == null || value.isEmpty) &&
-                              state.selectedOption == state.options[0]) {
+                          if ((state.selectedOption.toLowerCase() ==
+                                  state.options[0].toLowerCase()) &&
+                              (value == null || value.isEmpty)) {
                             return "Employee is required";
                           }
                           return null;
@@ -232,8 +243,9 @@ class _AddWeekOffMappingMasterScreenState
                         dataFetchCallBack:
                             _weekOffMappingMasterCubit.fetchDepartment,
                         validator: (value) {
-                          if ((value == null || value.isEmpty) &&
-                              state.selectedOption == state.options[1]) {
+                          if ((state.selectedOption.toLowerCase() ==
+                                  state.options[1].toLowerCase()) &&
+                              (value == null || value.isEmpty)) {
                             return "Department is required";
                           }
                           return null;

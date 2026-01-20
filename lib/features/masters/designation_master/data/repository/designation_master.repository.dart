@@ -14,7 +14,7 @@ abstract interface class DesignationMasterRepository {
     required Map<String, dynamic> requestBody,
   });
 
-  Future<Either<Failure, int>> deleteDesignation({
+  Future<Either<Failure, Map<String, dynamic>>> deleteDesignation({
     required int designationtMasterId,
     required String uniqueKey,
   });
@@ -48,15 +48,17 @@ class DesignationRepositoryImpl implements DesignationMasterRepository {
           .apicallAddUpdateDesignationMaster(requestBody: requestBody);
       return right(result);
     } catch (error) {
-      return left(Failure(
-        message: ErrorHandler.getErrorMessage(error),
-        isMenuChanged: ErrorHandler.isMenuChangedException(error),
-      ));
+      return left(
+        Failure(
+          message: ErrorHandler.getErrorMessage(error),
+          isMenuChanged: ErrorHandler.isMenuChangedException(error),
+        ),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, int>> deleteDesignation({
+  Future<Either<Failure, Map<String, dynamic>>> deleteDesignation({
     required int designationtMasterId,
     required String uniqueKey,
   }) async {
@@ -68,10 +70,12 @@ class DesignationRepositoryImpl implements DesignationMasterRepository {
           );
       return right(result);
     } catch (error) {
-      return left(Failure(
-        message: ErrorHandler.getErrorMessage(error),
-        isMenuChanged: ErrorHandler.isMenuChangedException(error),
-      ));
+      return left(
+        Failure(
+          message: ErrorHandler.getErrorMessage(error),
+          isMenuChanged: ErrorHandler.isMenuChangedException(error),
+        ),
+      );
     }
   }
 
@@ -90,10 +94,12 @@ class DesignationRepositoryImpl implements DesignationMasterRepository {
           );
       return right(result);
     } catch (error) {
-      return left(Failure(
-        message: ErrorHandler.getErrorMessage(error),
-        isMenuChanged: ErrorHandler.isMenuChangedException(error),
-      ));
+      return left(
+        Failure(
+          message: ErrorHandler.getErrorMessage(error),
+          isMenuChanged: ErrorHandler.isMenuChangedException(error),
+        ),
+      );
     }
   }
 
@@ -112,10 +118,12 @@ class DesignationRepositoryImpl implements DesignationMasterRepository {
           );
       return right(result);
     } catch (error) {
-      return left(Failure(
-        message: ErrorHandler.getErrorMessage(error),
-        isMenuChanged: ErrorHandler.isMenuChangedException(error),
-      ));
+      return left(
+        Failure(
+          message: ErrorHandler.getErrorMessage(error),
+          isMenuChanged: ErrorHandler.isMenuChangedException(error),
+        ),
+      );
     }
   }
 
@@ -130,10 +138,12 @@ class DesignationRepositoryImpl implements DesignationMasterRepository {
           );
       return right(result);
     } catch (error) {
-      return left(Failure(
-        message: ErrorHandler.getErrorMessage(error),
-        isMenuChanged: ErrorHandler.isMenuChangedException(error),
-      ));
+      return left(
+        Failure(
+          message: ErrorHandler.getErrorMessage(error),
+          isMenuChanged: ErrorHandler.isMenuChangedException(error),
+        ),
+      );
     }
   }
 
@@ -146,10 +156,12 @@ class DesignationRepositoryImpl implements DesignationMasterRepository {
           .apiCallToAddUpdateModulePermissions(requestBody: requestBody);
       return right(result);
     } catch (error) {
-      return left(Failure(
-        message: ErrorHandler.getErrorMessage(error),
-        isMenuChanged: ErrorHandler.isMenuChangedException(error),
-      ));
+      return left(
+        Failure(
+          message: ErrorHandler.getErrorMessage(error),
+          isMenuChanged: ErrorHandler.isMenuChangedException(error),
+        ),
+      );
     }
   }
 }

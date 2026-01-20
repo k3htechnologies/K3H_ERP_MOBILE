@@ -226,9 +226,8 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
         onSearchSubmit: (value) {
           _documentCubit.searchApprovalDocument(value, context);
         },
-        onProjectChangeCallback: (project) async {
+        onProjectChangeCallback: (project) {
           projectId = project.projectId;
-          await _documentCubit.clearApprovalDocument();
           if (context.mounted) {
             _documentCubit.getCategoryList(context, 1, projectId);
           }
@@ -398,7 +397,6 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                       Flexible(
                         child: GestureDetector(
                           onTap: () async {
-                            await _documentCubit.clearSubApprovalDocument();
                             await goRouter.pushNamed(
                               AppRoutes.viewApprovalDocument,
                               queryParameters: {

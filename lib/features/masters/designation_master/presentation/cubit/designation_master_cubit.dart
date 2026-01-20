@@ -46,22 +46,17 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
         );
       },
       (response) {
+        final List<DesignationMasterModel> newData =
+            List<DesignationMasterModel>.from(response['data'] ?? []);
+
         // Replace list when pageNumber == 1, otherwise append for pagination
         List<DesignationMasterModel> updatedList =
-            pageNumber == 1
-                  ? List<DesignationMasterModel>.from(
-                    response['data'] as List<DesignationMasterModel>,
-                  )
-                  : List<DesignationMasterModel>.from(state.designationList)
-              ..addAll(response['data'] as List<DesignationMasterModel>);
+            pageNumber == 1 ? newData : [...state.designationList, ...newData];
         emit(
           state.copyWith(
             isLoading: false,
             designationList: updatedList,
-            totalNumberOfRecord:
-                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
-                    ? state.totalNumberOfRecord - 1
-                    : response['totalNumberOfRecord'],
+            totalNumberOfRecord: response['totalNumberOfRecord'],
             currentPage: pageNumber,
           ),
         );
@@ -163,12 +158,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
             state.designationList,
           );
           updatedList[index] = updatedDesignation;
-          emit(
-            state.copyWith(
-              designationList: updatedList,
-              currentPage: state.currentPage,
-            ),
-          );
+          emit(state.copyWith(designationList: updatedList, isLoading: false));
         }
 
         showSuccessMessage(
@@ -215,7 +205,12 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
             state.designationList,
           );
           updatedList.removeAt(index);
-          emit(state.copyWith(designationList: updatedList));
+          emit(
+            state.copyWith(
+              designationList: updatedList,
+              totalNumberOfRecord: response['totalNumberOfRecord'],
+            ),
+          );
         } else {
           getDesignationList(context, pageNumber);
         }

@@ -1,5 +1,5 @@
 import 'package:k3h_erp_app/core/base_state.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/week_off_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
 
 class WeekOffMappingMasterState extends BaseState {
   final List<WeekOffMappingModel> weekOffMappingList;

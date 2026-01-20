@@ -17,10 +17,7 @@ class CustomClickToCallText extends StatelessWidget {
   Future<void> _call() async {
     final uri = Uri.parse("tel:$phoneNumber");
 
-    await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   @override
@@ -30,15 +27,12 @@ class CustomClickToCallText extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.phone,
-            size: 18,
-            color: iconColor,
-          ),
+          Icon(Icons.phone, size: 15, color: iconColor),
           const SizedBox(width: 6),
           Text(
             phoneNumber,
-            style: textStyle ??
+            style:
+                textStyle ??
                 const TextStyle(
                   color: Colors.blue,
                   decoration: TextDecoration.underline,

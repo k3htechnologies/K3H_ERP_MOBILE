@@ -67,7 +67,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _reraDocumentCubit.getProjectRERADocumentList(
+          _reraDocumentCubit.getRERADocumentList(
             context: context,
             pageNumber: _reraDocumentCubit.state.currentPage + 1,
           );
@@ -226,8 +226,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
         onSearchSubmit: (value) {
           _reraDocumentCubit.searchDocument(value, context);
         },
-        onProjectChangeCallback: (project) async {
-          _reraDocumentCubit.clearRERADocument();
+        onProjectChangeCallback: (project) {
           projectId = project.projectId;
           _reraDocumentCubit.getCategoryList(context, 1, projectId);
         },
@@ -393,7 +392,6 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                       Flexible(
                         child: GestureDetector(
                           onTap: () async {
-                            await _reraDocumentCubit.clearRERASubDocument();
                             await goRouter.pushNamed(
                               AppRoutes.viewReraDocument,
                               queryParameters: {

@@ -172,7 +172,12 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
           final updatedList = List<DepartmentModel>.from(state.departmentList);
           updatedList.removeAt(index);
 
-          emit(state.copyWith(departmentList: updatedList));
+          emit(
+            state.copyWith(
+              departmentList: updatedList,
+              totalNumberOfRecord: response['totalNumberOfRecord'],
+            ),
+          );
         } else {
           getDepartmentList(context, state.currentPage);
         }

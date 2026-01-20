@@ -45,7 +45,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
 
     var result = await holidayMappingMasterRepository.getMappedHolidayList(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 5,
       queryParams: queryParams,
     );
 

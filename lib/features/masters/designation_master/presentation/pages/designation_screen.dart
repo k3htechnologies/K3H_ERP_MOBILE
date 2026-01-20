@@ -123,10 +123,6 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
         },
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addDesignation);
-          // Refresh list when returning from add screen
-          if (context.mounted) {
-            _designationMasterCubit.getDesignationList(context, 1);
-          }
         },
         onSearchSubmit: (value) {
           _designationMasterCubit.searchDesignation(context, value);
