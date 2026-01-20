@@ -8,7 +8,7 @@ class ProfileState extends BaseState {
   final int currentTabIndex;
   final List<EmployeeDocumentModel> employeeDocumentList;
   final List<AssetMappingModel> assetMappingList;
-  final List<ShiftManagementMappingModel> shiftManagementList;
+  final List<ShiftMappingModel> shiftManagementList;
   final List<WeekOffMappingModel> weekOffMappingList;
 
   const ProfileState({
@@ -25,15 +25,15 @@ class ProfileState extends BaseState {
   });
 
   factory ProfileState.initial() => const ProfileState(
-        projectList: [],
-        isLoadingProjects: false,
-        currentTabIndex: 0,
-        isLoading: false,
-        employeeDocumentList: [],
-        assetMappingList: [],
-        shiftManagementList: [],
-        weekOffMappingList: [],
-      );
+    projectList: [],
+    isLoadingProjects: false,
+    currentTabIndex: 0,
+    isLoading: false,
+    employeeDocumentList: [],
+    assetMappingList: [],
+    shiftManagementList: [],
+    weekOffMappingList: [],
+  );
 
   ProfileState copyWith({
     bool? isLoading,
@@ -44,7 +44,7 @@ class ProfileState extends BaseState {
     int? currentTabIndex,
     List<EmployeeDocumentModel>? employeeDocumentList,
     List<AssetMappingModel>? assetMappingList,
-    List<ShiftManagementMappingModel>? shiftManagementList,
+    List<ShiftMappingModel>? shiftManagementList,
     List<WeekOffMappingModel>? weekOffMappingList,
   }) {
     return ProfileState(
@@ -63,16 +63,15 @@ class ProfileState extends BaseState {
 
   @override
   List<Object?> get props => [
-        isLoading,
-        user,
-        selectedProject,
-        projectList,
-        isLoadingProjects,
-        currentTabIndex,
-        employeeDocumentList,
-        assetMappingList,
-        shiftManagementList,
-        weekOffMappingList,
-      ];
+    isLoading,
+    user,
+    selectedProject,
+    projectList,
+    isLoadingProjects,
+    currentTabIndex,
+    employeeDocumentList,
+    assetMappingList,
+    shiftManagementList,
+    weekOffMappingList,
+  ];
 }
-

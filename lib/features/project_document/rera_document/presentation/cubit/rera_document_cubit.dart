@@ -61,14 +61,14 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           ),
         );
         if ((response['data'] as List<RERADocumentCategoryModel>).isNotEmpty) {
-          getProjectRERADocumentList(context: context, pageNumber: 1);
+          getRERADocumentList(context: context, pageNumber: 1);
         }
       },
     );
   }
 
   // <---- GET PROJECT RERA DOCUMENT ---->
-  Future getProjectRERADocumentList({
+  Future getRERADocumentList({
     required BuildContext context,
     required int pageNumber,
     int? projectRERADocumentId,
@@ -98,10 +98,10 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         );
 
         if (projectRERADocumentId == null) {
-          final List<RERADocumentModel> updatedList = [
-            ...state.reraDocumentList,
-            ...newData,
-          ];
+          final List<RERADocumentModel> updatedList =
+              pageNumber == 1
+                  ? newData
+                  : [...state.reraDocumentList, ...newData];
           emit(
             state.copyWith(
               isLoading: false,
@@ -111,10 +111,10 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
             ),
           );
         } else {
-          final List<RERADocumentModel> updatedSubDocList = [
-            ...state.reraSubDocumentList,
-            ...newData,
-          ];
+          final List<RERADocumentModel> updatedSubDocList =
+              pageNumber == 1
+                  ? newData
+                  : [...state.reraSubDocumentList, ...newData];
           emit(
             state.copyWith(
               isLoading: false,
@@ -411,7 +411,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         reraDocumentList: [],
       ),
     );
-    getProjectRERADocumentList(context: context, pageNumber: 1);
+    getRERADocumentList(context: context, pageNumber: 1);
   }
 
   // SEARCH BASED ON SHIFT
@@ -424,7 +424,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         currentPage: 1,
       ),
     );
-    getProjectRERADocumentList(context: context, pageNumber: 1);
+    getRERADocumentList(context: context, pageNumber: 1);
   }
 
   // <---- DELETE RERA DOCUMENT FROM CATEGORY  ---->
@@ -465,13 +465,5 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         showSuccessMessage(context, subTitle: "Document Deleted Successfully");
       },
     );
-  }
-
-  Future clearRERASubDocument() async {
-    emit(state.copyWith(reraSubDocumentList: []));
-  }
-
-  Future clearRERADocument() async {
-    emit(state.copyWith(reraDocumentList: []));
   }
 }

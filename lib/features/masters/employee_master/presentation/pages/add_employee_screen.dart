@@ -129,7 +129,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   // EMPLOYEE INFO SHEET
   DateTime? joiningDate;
 
-  Future<void> _prefillDialogToAddUpdateEmployeeMaster(
+  Future<void> _prefillDetailsToAddUpdateEmployeeMaster(
     UserModel employee,
   ) async {
     // BASIC EMPLOYEE DETAILS
@@ -209,7 +209,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       'zAttributesId': employee.cityMasterId,
       'DisplayName': employee.cityName,
     };
-
     // Dates
     dateOfBirth = employee.dateOfBirth;
     joiningDate = employee.joiningDate;
@@ -222,7 +221,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     _initializeTextEditingController();
     _initializeDropdowns();
     if (widget.employee != null) {
-      _prefillDialogToAddUpdateEmployeeMaster(widget.employee!);
+      _prefillDetailsToAddUpdateEmployeeMaster(widget.employee!);
     }
   }
 

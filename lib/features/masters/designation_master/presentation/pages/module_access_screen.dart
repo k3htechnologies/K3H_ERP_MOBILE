@@ -632,56 +632,6 @@ class _SubModuleTileState extends State<SubModuleTile> {
   }
 }
 
-class LinePainter extends CustomPainter {
-  final bool isLast;
-  LinePainter({this.isLast = false});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint paint =
-        Paint()
-          ..color = AppColor.grey30
-          ..strokeWidth = 1
-          ..style = PaintingStyle.stroke
-          ..isAntiAlias = true;
-    double halfSize = size.height / 2;
-    // First draw the vertical line
-    final Path verticalLine =
-        Path()
-          ..moveTo(3, 0)
-          ..lineTo(3, isLast ? halfSize : size.height);
-    canvas.drawPath(verticalLine, paint);
-
-    // Then draw the rest
-    final Path horizontalPath =
-        Path()
-          ..moveTo(3, halfSize)
-          ..lineTo(14, halfSize);
-
-    canvas.drawPath(horizontalPath, paint);
-
-    final Path arrowPath =
-        Path()
-          ..moveTo(14, halfSize)
-          ..lineTo(17, halfSize - 3)
-          ..lineTo(20, halfSize)
-          ..lineTo(17, halfSize + 3)
-          ..close();
-
-    final Paint paint2 =
-        Paint()
-          ..color = AppColor.grey30
-          ..strokeWidth = 1
-          ..style = PaintingStyle.fill
-          ..isAntiAlias = true;
-
-    canvas.drawPath(arrowPath, paint2);
-  }
-
-  @override
-  bool shouldRepaint(LinePainter oldDelegate) => false;
-}
-
 class CustomCheckBox extends StatefulWidget {
   final bool isSelected;
   final String? title;

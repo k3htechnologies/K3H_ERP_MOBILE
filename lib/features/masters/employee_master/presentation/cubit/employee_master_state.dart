@@ -4,7 +4,7 @@ class EmployeeMasterState extends BaseState {
   final List<UserModel> employeeMasterList;
   final List<EmployeeDocumentModel> employeeDocumentList;
   final List<AssetMappingModel> assetMappingList;
-  final List<ShiftManagementMappingModel> shiftManagementList;
+  final List<ShiftMappingModel> shiftManagementList;
   final List<WeekOffMappingModel> weekOffMappingList;
   final Map<int, List<CityModel>> stateMap;
   final Map<int, List<CityModel>> districtMap;
@@ -81,7 +81,7 @@ class EmployeeMasterState extends BaseState {
     List<UserModel>? employeeMasterList,
     List<EmployeeDocumentModel>? employeeDocumentList,
     List<AssetMappingModel>? assetMappingList,
-    List<ShiftManagementMappingModel>? shiftManagementList,
+    List<ShiftMappingModel>? shiftManagementList,
     List<WeekOffMappingModel>? weekOffMappingList,
     bool? isAllSelected,
     Map<int, List<CityModel>>? stateMap,
@@ -121,7 +121,7 @@ class EmployeeMasterState extends BaseState {
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       filterDepartmentName: filterDepartmentName ?? this.filterDepartmentName,
       filterDesignationName:
-      filterDesignationName ?? this.filterDesignationName,
+          filterDesignationName ?? this.filterDesignationName,
       selectedProject: selectedProject ?? this.selectedProject,
       projectList: projectList ?? this.projectList,
       isLoadingProjects: isLoadingProjects ?? this.isLoadingProjects,
@@ -153,5 +153,4 @@ class EmployeeMasterState extends BaseState {
     isLoadingProjects,
     currentTabIndex,
   ];
-
 }

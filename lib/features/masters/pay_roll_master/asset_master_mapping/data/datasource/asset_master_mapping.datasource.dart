@@ -1,4 +1,4 @@
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/asset_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 

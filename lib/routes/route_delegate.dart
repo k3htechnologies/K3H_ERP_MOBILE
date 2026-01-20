@@ -26,7 +26,7 @@ import 'package:k3h_erp_app/features/inventory/presentation/pages/unit_specifica
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/week_off_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/pages/asset_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/pages/asset_mapping_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/data/model/branch_association_master.model.dart';
@@ -144,7 +144,7 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/data/m
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/cubit/asset_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/pages/add_asset_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/pages/asset_master_screen.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/asset_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/cubit/asset_mapping_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/pages/add_asset_mapping_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/pages/asset_mapping_master_screen.dart';

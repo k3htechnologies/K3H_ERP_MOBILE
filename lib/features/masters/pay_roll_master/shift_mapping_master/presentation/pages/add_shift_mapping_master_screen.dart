@@ -100,7 +100,8 @@ class _AddShiftMappingMasterScreenState
         index: widget.index,
         context: context,
         uniqueKey: widget.shiftMappingModel!.uniqueKey,
-        shiftMappingMasterId: widget.shiftMappingModel!.shiftMappingMasterId,
+        shiftMappingMasterId:
+            widget.shiftMappingModel!.shiftManagementMasterMappingId,
         shiftMasterId: _selectedShift.first['zAttributesId'] as int,
         employeeId: _selectedEmployee.first['zAttributesId'].toString(),
         departmentMasterId:

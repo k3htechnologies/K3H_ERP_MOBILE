@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/asset_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/repository/asset_master_mapping.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';

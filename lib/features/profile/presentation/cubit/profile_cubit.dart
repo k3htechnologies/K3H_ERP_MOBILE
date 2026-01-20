@@ -7,11 +7,11 @@ import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/asset_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_document.model.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/shift_management_mapping.model.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/week_off_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
@@ -235,12 +235,12 @@ class ProfileCubit extends Cubit<ProfileState> {
       },
       (response) {
         final dataList = response['data'] as List;
-        List<ShiftManagementMappingModel> newList =
+        List<ShiftMappingModel> newList =
             pageNumber == 1
-                ? List<ShiftManagementMappingModel>.from(dataList)
+                ? List<ShiftMappingModel>.from(dataList)
                 : [
                   ...state.shiftManagementList,
-                  ...List<ShiftManagementMappingModel>.from(dataList),
+                  ...List<ShiftMappingModel>.from(dataList),
                 ];
 
         emit(state.copyWith(isLoading: false, shiftManagementList: newList));

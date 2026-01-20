@@ -191,7 +191,7 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
   ) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _shiftMasterMappingRepository.deleteShiftMapping(
-      shiftMasterMappingId: shiftMapping.shiftMappingMasterId,
+      shiftMasterMappingId: shiftMapping.shiftManagementMasterMappingId,
       uniqueKey: shiftMapping.uniqueKey,
     );
     goRouter.pop();

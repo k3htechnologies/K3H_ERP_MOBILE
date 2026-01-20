@@ -49,7 +49,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
     _documentCubit = context.read<RERADocumentCubit>();
     _routeAuthorizationModel = AuthorizationModel();
 
-    _documentCubit.getProjectRERADocumentList(
+    _documentCubit.getRERADocumentList(
       context: context,
       pageNumber: 1,
       projectRERADocumentId: widget.documentModel.projectRERADocumentId,
@@ -68,7 +68,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _documentCubit.getProjectRERADocumentList(
+          _documentCubit.getRERADocumentList(
             context: context,
             pageNumber: _documentCubit.state.currentPageOfSubDoc + 1,
             projectRERADocumentId: widget.documentModel.projectRERADocumentId,

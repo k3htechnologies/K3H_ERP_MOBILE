@@ -100,10 +100,8 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
             List<ApprovalDocumentModel>.from(response['data'] ?? []);
 
         if (approvalDocumentId == null) {
-          final List<ApprovalDocumentModel> updatedList = [
-            ...state.documentList,
-            ...newData,
-          ];
+          final List<ApprovalDocumentModel> updatedList =
+              pageNumber == 1 ? newData : [...state.documentList, ...newData];
           emit(
             state.copyWith(
               isLoading: false,
@@ -113,10 +111,10 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
             ),
           );
         } else {
-          final List<ApprovalDocumentModel> updatedSubDocList = [
-            ...state.subApprovalDocumentList,
-            ...newData,
-          ];
+          final List<ApprovalDocumentModel> updatedSubDocList =
+              pageNumber == 1
+                  ? newData
+                  : [...state.subApprovalDocumentList, ...newData];
           emit(
             state.copyWith(
               isLoading: false,
@@ -457,13 +455,5 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
         );
       },
     );
-  }
-
-  Future clearSubApprovalDocument() async {
-    emit(state.copyWith(subApprovalDocumentList: []));
-  }
-
-  Future clearApprovalDocument() async {
-    emit(state.copyWith(documentList: []));
   }
 }

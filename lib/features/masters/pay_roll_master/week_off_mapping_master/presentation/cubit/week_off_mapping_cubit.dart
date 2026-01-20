@@ -4,7 +4,7 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/week_off_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/respository/week_off_mapping_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/presentation/cubit/week_off_mapping_state.dart';
@@ -93,9 +93,9 @@ class WeekOffMappingMasterCubit extends Cubit<WeekOffMappingMasterState> {
   // ADD WEEK OFF MAPPING
   Future addWeekOffMapping({
     required BuildContext context,
-    required String employeeId,
+    required String? employeeId,
     required int weekOffMasterId,
-    required String departmentMasterId,
+    required String? departmentMasterId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var body = {
@@ -142,9 +142,9 @@ class WeekOffMappingMasterCubit extends Cubit<WeekOffMappingMasterState> {
     required BuildContext context,
     required String uniqueKey,
     required int weekOffMappingMasterId,
-    required String employeeId,
+    required String? employeeId,
     required int weekOffMasterId,
-    required String departmentMasterId,
+    required String? departmentMasterId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var body = {

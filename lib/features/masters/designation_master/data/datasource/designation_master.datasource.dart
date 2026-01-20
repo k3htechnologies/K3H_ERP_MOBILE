@@ -14,7 +14,7 @@ abstract interface class DesignationMasterDatasource {
     required Map<String, dynamic> requestBody,
   });
 
-  Future<int> apicallDeleteDesignationMaster({
+  Future<Map<String, dynamic>> apicallDeleteDesignationMaster({
     required int designationMasterId,
     required String uniqueKey,
   });
@@ -101,7 +101,7 @@ class DesignationDataSoucreImp implements DesignationMasterDatasource {
   }
 
   @override
-  Future<int> apicallDeleteDesignationMaster({
+  Future<Map<String, dynamic>> apicallDeleteDesignationMaster({
     required int designationMasterId,
     required String uniqueKey,
   }) async {
@@ -119,7 +119,11 @@ class DesignationDataSoucreImp implements DesignationMasterDatasource {
           uniqueKey: uniqueKey,
         ),
       );
-      return networkResponse["data"];
+
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
     } catch (error) {
       rethrow;
     }
@@ -155,7 +159,7 @@ class DesignationDataSoucreImp implements DesignationMasterDatasource {
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
-      if(error is TokenExpiredException){
+      if (error is TokenExpiredException) {
         apicallPullDesignationMasterForExport(
           pageNumber: pageNumber,
           pageSize: pageSize,
@@ -184,7 +188,7 @@ class DesignationDataSoucreImp implements DesignationMasterDatasource {
         ),
       };
     } catch (error) {
-      if(error is TokenExpiredException){
+      if (error is TokenExpiredException) {
         apiCallPullModulePermissions(designationMasterId: designationMasterId);
       }
       rethrow;
@@ -209,7 +213,7 @@ class DesignationDataSoucreImp implements DesignationMasterDatasource {
         ),
       };
     } catch (error) {
-      if(error is TokenExpiredException){
+      if (error is TokenExpiredException) {
         apiCallToAddUpdateModulePermissions(requestBody: requestBody);
       }
       rethrow;

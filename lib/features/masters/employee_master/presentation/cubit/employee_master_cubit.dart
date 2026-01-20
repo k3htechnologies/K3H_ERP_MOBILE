@@ -14,11 +14,11 @@ import 'package:k3h_erp_app/features/masters/department_master/data/model/depart
 import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/repository/designation_master.repository.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/asset_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_document.model.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/shift_management_mapping.model.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/week_off_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -192,9 +192,9 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        List<ShiftManagementMappingModel> newList =
+        List<ShiftMappingModel> newList =
             pageNumber == 1
-                ? List<ShiftManagementMappingModel>.from(response['data'])
+                ? List<ShiftMappingModel>.from(response['data'])
                 : [...state.shiftManagementList, ...response['data']];
 
         emit(
@@ -760,13 +760,13 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     if (index == 2) {
       getEmployeeAssetList(context, 1, 100, employeeId);
     }
-    if (index == 3 && state.projectList.isEmpty) {
+    if (index == 3) {
       getEmployeeProjects(employeeId);
     }
     if (index == 4) {
       getShiftManagementList(context, 1, 100, employeeId);
     }
-    if (index == 4) {
+    if (index == 5) {
       getWeekOffMappingList(context, 1, 100, employeeId);
     } else {
       return;
