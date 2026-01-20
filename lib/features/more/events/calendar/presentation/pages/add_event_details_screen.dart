@@ -122,30 +122,7 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
               verticalSpacing(),
               Container(
                 padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColor.black.withValues(alpha: 0.05),
-                      spreadRadius: 0,
-                      blurRadius: 2,
-                      offset: Offset(0, 1),
-                    ),
-                    BoxShadow(
-                      color: AppColor.black.withValues(alpha: 0.0),
-                      spreadRadius: 0,
-                      blurRadius: 0,
-                      offset: Offset(0, 0),
-                    ),
-                    BoxShadow(
-                      color: AppColor.black.withValues(alpha: 0.0),
-                      spreadRadius: 0,
-                      blurRadius: 0,
-                      offset: Offset(0, 0),
-                    ),
-                  ],
-                ),
+                decoration: commonCardDecoration(),
                 child: StatefulBuilder(
                   builder: (_, innerState) {
                     return Form(
@@ -522,7 +499,6 @@ class _AddEventDetailsScreenState extends State<AddEventDetailsScreen> {
               String startTimeStr = "";
               String endTimeStr = "";
 
-              // start time only for 2 & 3
               if ((typeId == "1" || typeId == "2" || typeId == "3") &&
                   selectedStartTime != null) {
                 startTimeStr = formatTimeOfDayHHmm(selectedStartTime!);

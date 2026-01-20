@@ -75,7 +75,6 @@ class CalendarCubit extends Cubit<CalendarState> {
     required BuildContext context,
     required DateTime date,
   }) async {
-    // Clear previous events first to avoid showing stale data
     emit(state.copyWith(
       isLoadingDateDetail: true,
       dateDetailEvents: const [],
@@ -264,7 +263,6 @@ class CalendarCubit extends Cubit<CalendarState> {
         final List<CalendarEventModel> apiEvents =
             List<CalendarEventModel>.from(response['data']);
 
-        // prepend latest event(s)
         emit(
           state.copyWith(
             eventsList: [...apiEvents, ...state.eventsList],

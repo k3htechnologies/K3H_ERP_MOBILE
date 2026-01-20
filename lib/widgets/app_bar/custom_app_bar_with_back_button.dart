@@ -249,61 +249,67 @@ class _CustomAppBarWithBackButtonState
             );
           },
         ),
-        horizontalSpacing(),
-        if (widget.showNotification)
-          CustomIconButton(
-            onPressed: () {
-              goRouter.pushNamed(AppRoutes.notificationScreenMobile);
-            },
-            icon: SvgPicture.asset(
-              AppAssets.notificationIcon,
-              height: 16,
-            ),
-            backgroundColor: AppColor.lightBlue,
-          ),
         if (widget.authorization.isAction) ...[
           if (widget.onAddCallback != null)
-            _buildAction(
-              icon: Icons.add,
-              onTap: () {
-                widget.onAddCallback!();
-              },
-              backgroundColor: AppColor.lightGreen,
-              iconColor: AppColor.darkGreen,
-            ),
-          horizontalSpacing(),
+            ...[
+              horizontalSpacing(),
+              _buildAction(
+                icon: Icons.add,
+                onTap: () {
+                  widget.onAddCallback!();
+                },
+                backgroundColor: AppColor.lightGreen,
+                iconColor: AppColor.darkGreen,
+              ),
+            ],
           if (widget.onExportCallback != null)
-            _buildAction(
-              icon: Icons.file_download,
-              onTap: () {
-                final box = context.findRenderObject() as RenderBox;
-                final position = box.localToGlobal(Offset.zero);
-                CustomOverlayMenu.show(
-                  width: 180,
-                  context: context,
-                  position: Offset(position.dx + 10, position.dy + (115)),
-                  items: [
-                    AddImportExportOverlayMenuItem(
-                      icon: Icons.file_download_outlined,
-                      label: 'Export Excel',
-                      value: 'EXCEL',
-                      onTap: widget.onExportCallback!,
-                      iconColor: AppColor.primary,
-                    ),
-                    AddImportExportOverlayMenuItem(
-                      icon: Icons.file_download_outlined,
-                      label: 'Export PDF',
-                      value: 'PDF',
-                      onTap: widget.onExportCallback!,
-                      iconColor: AppColor.primary,
-                    ),
-                  ],
-                );
-              },
-              backgroundColor: AppColor.lightBlue,
-              iconColor: AppColor.primary,
-            ),
+           ...[
+             horizontalSpacing(),
+             _buildAction(
+               icon: Icons.file_download,
+               onTap: () {
+                 final box = context.findRenderObject() as RenderBox;
+                 final position = box.localToGlobal(Offset.zero);
+                 CustomOverlayMenu.show(
+                   width: 180,
+                   context: context,
+                   position: Offset(position.dx + 10, position.dy + (115)),
+                   items: [
+                     AddImportExportOverlayMenuItem(
+                       icon: Icons.file_download_outlined,
+                       label: 'Export Excel',
+                       value: 'EXCEL',
+                       onTap: widget.onExportCallback!,
+                       iconColor: AppColor.primary,
+                     ),
+                     AddImportExportOverlayMenuItem(
+                       icon: Icons.file_download_outlined,
+                       label: 'Export PDF',
+                       value: 'PDF',
+                       onTap: widget.onExportCallback!,
+                       iconColor: AppColor.primary,
+                     ),
+                   ],
+                 );
+               },
+               backgroundColor: AppColor.lightBlue,
+               iconColor: AppColor.primary,
+             ),
+           ]
         ],
+        if (widget.showNotification)
+          ...[
+            CustomIconButton(
+              onPressed: () {
+                goRouter.pushNamed(AppRoutes.notificationScreenMobile);
+              },
+              icon: SvgPicture.asset(
+                AppAssets.notificationIcon,
+                height: 16,
+              ),
+              backgroundColor: AppColor.lightBlue,
+            ),
+          ],
         horizontalSpacing(width: 16)
       ],
     );

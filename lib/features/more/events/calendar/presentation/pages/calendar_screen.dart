@@ -51,10 +51,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
   bool _isInitialLoad = true;
   DateTime? _lastRefreshTime;
 
+  // AUTHORIZATION
+  late AuthorizationModel _routeAuthorization;
+
   @override
   void initState() {
     super.initState();
     _calendarCubit = context.read<CalendarCubit>();
+    _routeAuthorization = Authorization.routeAuthorizationMap[AppRoutes.calendar]!;
     selectedDate = DateTime.now();
     visibleMonth = DateTime(selectedDate.year, selectedDate.month);
     final now = DateTime.now();
@@ -70,8 +74,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Refresh events when screen becomes active (after navigation back)
-    // Only refresh if enough time has passed since last refresh to avoid unnecessary calls
     final now = DateTime.now();
     if (!_isInitialLoad && 
         mounted && 
@@ -85,16 +87,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
+  // FETCH MONTH EVENTS
   void _fetchMonthEvents() {
     final start = DateTime(visibleMonth.year, visibleMonth.month, 1);
     final end = DateTime(visibleMonth.year, visibleMonth.month + 1, 0, 23, 59);
     _calendarCubit.getEvents(context: context, fromDate: start, toDate: end);
   }
 
+  // MONTH TITLE
   String _monthTitle(DateTime month) {
     return DateFormat('MMMM yyyy').format(month);
   }
 
+  // EVENT LIST FOR DATE
   List<CalendarEventModel> _eventsForDate(
     List<CalendarEventModel> source,
     DateTime date,
@@ -120,6 +125,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
+  // DAY IN MONTH
   int _daysInMonth(DateTime month) {
     final beginningNextMonth =
         (month.month == 12)
@@ -128,6 +134,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return beginningNextMonth.subtract(const Duration(days: 1)).day;
   }
 
+  // HELPER FUNCTIONS FOR DATE
   void _goToPreviousMonth() {
     setState(() {
       visibleMonth = DateTime(visibleMonth.year, visibleMonth.month - 1);
@@ -135,6 +142,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _fetchMonthEvents();
   }
 
+  // HELPER FUNCTIONS FOR DATE
   void _goToNextMonth() {
     setState(() {
       visibleMonth = DateTime(visibleMonth.year, visibleMonth.month + 1);
@@ -142,24 +150,28 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _fetchMonthEvents();
   }
 
+  // HELPER FUNCTIONS FOR DATE
   void _goToPreviousWeek() {
     setState(() {
       visibleWeek = visibleWeek.subtract(const Duration(days: 7));
     });
   }
 
+  // HELPER FUNCTIONS FOR DATE
   void _goToNextWeek() {
     setState(() {
       visibleWeek = visibleWeek.add(const Duration(days: 7));
     });
   }
 
+  // HELPER FUNCTIONS FOR DATE
   List<DateTime> _getWeekDates(DateTime weekStart) {
     return List.generate(7, (index) {
       return weekStart.add(Duration(days: index));
     });
   }
 
+  // HELPER FUNCTIONS FOR DATE
   String _weekTitle(DateTime weekStart) {
     final weekEnd = weekStart.add(const Duration(days: 6));
     if (weekStart.month == weekEnd.month) {
@@ -169,6 +181,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
+  // ON DATE SELECTED
   void _onDateSelected(DateTime date, List<CalendarEventModel> source) {
     setState(() {
       selectedDate = date;
@@ -338,34 +351,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
-  // RADIO BUTTON
-  Widget _buildRadio({
-    required String title,
-    required SortType value,
-    required SortType? groupValue,
-    required ValueChanged<SortType?> onChanged,
-  }) {
-    return InkWell(
-      onTap: () => onChanged(value),
-      child: Row(
-        children: [
-          Radio<SortType>(
-            value: value,
-            groupValue: groupValue,
-            onChanged: onChanged,
-          ),
-          Text(title),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Calendar",
-        authorization: AuthorizationModel(isAction: true),
+        authorization: _routeAuthorization,
         onAddCallback: () {
           goRouter.pushNamed(AppRoutes.addDetailsCalendar);
         },
@@ -412,12 +403,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 color: AppColor.mediumBlue,
                                 eventType: "Task",
                               ),
-                              const SizedBox(width: 10),
+                              horizontalSpacing(),
                               _eventTypeWidget(
                                 color: AppColor.error,
                                 eventType: "Meeting",
                               ),
-                              const SizedBox(width: 10),
+                              horizontalSpacing(),
                               _eventTypeWidget(
                                 color: AppColor.warning,
                                 eventType: "Conference Room",
@@ -474,12 +465,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 color: AppColor.green,
                                 eventType: "Low",
                               ),
-                              const SizedBox(width: 10),
+                              horizontalSpacing(),
                               _eventTypeWidget(
                                 color: AppColor.mediumBlue,
                                 eventType: "Medium",
                               ),
-                              const SizedBox(width: 10),
+                              horizontalSpacing(),
                               _eventTypeWidget(
                                 color: AppColor.error,
                                 eventType: "High",
@@ -626,6 +617,28 @@ class _CalendarScreenState extends State<CalendarScreen> {
           },
           ),
         ),
+      ),
+    );
+  }
+
+  // RADIO BUTTON
+  Widget _buildRadio({
+    required String title,
+    required SortType value,
+    required SortType? groupValue,
+    required ValueChanged<SortType?> onChanged,
+  }) {
+    return InkWell(
+      onTap: () => onChanged(value),
+      child: Row(
+        children: [
+          Radio<SortType>(
+            value: value,
+            groupValue: groupValue,
+            onChanged: onChanged,
+          ),
+          Text(title),
+        ],
       ),
     );
   }
@@ -793,7 +806,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       );
     }
 
-    // Group events by type
     final Map<CalendarEventType, List<CalendarEventModel>> eventsByType = {};
     for (final event in selectedEvents) {
       final type = event.type.toCalendarEventType();
@@ -801,7 +813,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       eventsByType[type]!.add(event);
     }
 
-    // Sort events within each type by time
     eventsByType.forEach((type, events) {
       events.sort((a, b) {
         final aTime = a.getStartTimeAsDateTime();
@@ -815,7 +826,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       });
     });
 
-    // Define order: Task, Meeting, Conference Room
     final eventTypeOrder = [
       CalendarEventType.task,
       CalendarEventType.meeting,
@@ -833,7 +843,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
             style: AppTextStyle.ts14M(),
           ),
         ),
-        // Events grouped by type (vertically)
         ...eventTypeOrder.map((type) {
           final typeEvents = eventsByType[type] ?? [];
           if (typeEvents.isEmpty) {
@@ -866,7 +875,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     ],
                   ),
                 ),
-                // Events for this type (horizontal scroll)
                 SizedBox(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -1021,7 +1029,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
     for (final date in weekDates) {
       final allDayEvents = _eventsForDate(sourceEvents, date);
 
-      // Apply type filter when specific filter selected
       final filterType = _mapSortTypeToEventType(selectedSortType);
       final dayEvents =
           filterType == null
@@ -1046,7 +1053,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       }
     }
 
-    // Find the maximum number of events in any day to determine height
     int maxEvents = 0;
     for (final date in weekDates) {
       final dayEvents = eventsByDate[date] ?? [];
@@ -1067,7 +1073,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       );
     }
 
-    // Build vertical list of days, each with a horizontal list of events
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children:
@@ -1099,7 +1104,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     ),
                   ),
                   verticalSpacing(height: 6),
-                  // Events for this day (horizontal)
                   if (dayEvents.isEmpty)
                     Text(
                       'No events',
@@ -1131,6 +1135,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  // BUILD EVENT CARD FOR CURRENT FILTER
   Widget _buildEventCardForCurrentFilter(CalendarEventModel event) {
     switch (selectedSortType) {
       case null:

@@ -45,6 +45,13 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // SORT EVENTS
   List<CalendarEventModel> _sorted(List<CalendarEventModel> list) {
     final sorted = List<CalendarEventModel>.from(list);
     sorted.sort((a, b) {
@@ -60,6 +67,7 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
     return sorted;
   }
 
+  // FETCH EVENTS FOR DATE
   Future<List<CalendarEventModel>> _fetchEventsForDate(DateTime date) async {
     // If it's the initial date, return the events from widget
     if (_isSameDate(date, widget.date)) {
@@ -72,50 +80,54 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
     return events;
   }
 
+  // FORMAT DATE
   String _formatDate(DateTime date) {
     return DateFormat('dd MMMM, yyyy').format(date);
   }
 
+  // FORMAT TIME
   String _formatTime(TimeOfDay time) {
     final dt = DateTime(0, 0, 0, time.hour, time.minute);
     return DateFormat('hh:mm a').format(dt);
   }
 
+  // CHECK IF DATES ARE SAME
   bool _isSameDate(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
+  // CHANGE DATE
   Future<void> _changeDate(int days) async {
     final targetDate = _currentDate.add(Duration(days: days));
-    
-    // Clear events immediately
+
     setState(() {
       _isLoading = true;
       _currentDate = targetDate;
       _currentEvents = const [];
     });
-    
-    // Force a rebuild to show the cleared state
+
     await Future.delayed(const Duration(milliseconds: 50));
-    
+
     try {
       final fetched = await _fetchEventsForDate(targetDate);
       if (!mounted) return;
-      
-      // Filter out any events that don't match the target date (safety check)
-      final filteredEvents = fetched.where((event) {
-        final eventDate = event.getEventDate();
-        if (eventDate == null) return false;
-        return eventDate.year == targetDate.year &&
-               eventDate.month == targetDate.month &&
-               eventDate.day == targetDate.day;
-      }).toList();
-      
+
+      final filteredEvents =
+          fetched.where((event) {
+            final eventDate = event.getEventDate();
+            if (eventDate == null) return false;
+            return eventDate.year == targetDate.year &&
+                eventDate.month == targetDate.month &&
+                eventDate.day == targetDate.day;
+          }).toList();
+
       setState(() {
         _currentEvents = _sorted(filteredEvents);
         _isLoading = false;
       });
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToCurrentTime());
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _scrollToCurrentTime(),
+      );
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -125,22 +137,26 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
     }
   }
 
+  // TIME SLOTS
   List<int> _timeSlots() {
     // FULL DAY: 12 AM to 11 PM (0-23)
     return List<int>.generate(24, (i) => i);
   }
 
+  // FORMAT HOUR
   String _formatHour(int hour) {
     final dt = DateTime(0, 0, 0, hour);
     return DateFormat('hh a').format(dt);
   }
 
+  // ENSURE SLOT KEYS
   void _ensureSlotKeys(int count) {
     if (_slotKeys.length != count) {
       _slotKeys = List<GlobalKey>.generate(count, (_) => GlobalKey());
     }
   }
 
+  // SCROLL TO CURRENT TIME
   void _scrollToCurrentTime() {
     if (!_scrollController.hasClients) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -155,20 +171,15 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
     final ctx = _slotKeys[nowHour].currentContext;
     if (ctx == null) return;
 
-    // The list view’s render box
     final listBox =
         _scrollController.position.context.storageContext.findRenderObject()
             as RenderBox;
 
-    // The item’s render box
     final itemBox = ctx.findRenderObject() as RenderBox;
 
-    // Position of item relative to LIST, not the screen
     final itemOffset = itemBox.localToGlobal(Offset.zero, ancestor: listBox).dy;
 
-    // Current scroll offset + item’s position in the list
-    final targetOffset =
-        _scrollController.offset + itemOffset - 20; // small padding
+    final targetOffset = _scrollController.offset + itemOffset - 20;
 
     final max = _scrollController.position.maxScrollExtent;
     final offset = targetOffset.clamp(0.0, max);
@@ -181,18 +192,12 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
   }
 
   @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final slots = _timeSlots();
     _ensureSlotKeys(slots.length);
     final eventsByHour = <int, List<CalendarEventModel>>{};
     final eventsWithoutTime = <CalendarEventModel>[];
-    
+
     for (final e in _currentEvents) {
       final time = e.getStartTimeAsDateTime();
       if (time != null) {
@@ -202,7 +207,7 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
         eventsWithoutTime.add(e);
       }
     }
-    
+
     // Add events without time to hour 0 (midnight) or first available slot
     if (eventsWithoutTime.isNotEmpty) {
       eventsByHour.putIfAbsent(0, () => []).addAll(eventsWithoutTime);
@@ -272,7 +277,7 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                horizontalSpacing(width: 8),
                                 Expanded(
                                   child:
                                       hourEvents.isEmpty
@@ -341,7 +346,7 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
                                                                       ),
                                                                 ),
                                                               ),
-                                                              const SizedBox(
+                                                              horizontalSpacing(
                                                                 width: 8,
                                                               ),
                                                               Expanded(
@@ -356,15 +361,16 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
                                                                       style:
                                                                           AppTextStyle.ts16SB(),
                                                                     ),
-                                                                    const SizedBox(
+                                                                    verticalSpacing(
                                                                       height: 4,
                                                                     ),
                                                                     Text(
                                                                       _formatTime(
-                                                                        event.getStartTimeAsDateTime() != null
+                                                                        event.getStartTimeAsDateTime() !=
+                                                                                null
                                                                             ? TimeOfDay.fromDateTime(
-                                                                                event.getStartTimeAsDateTime()!,
-                                                                              )
+                                                                              event.getStartTimeAsDateTime()!,
+                                                                            )
                                                                             : TimeOfDay.now(),
                                                                       ),
                                                                       style: AppTextStyle.ts12SB(
@@ -372,7 +378,7 @@ class _CalendarDateDetailScreenState extends State<CalendarDateDetailScreen> {
                                                                             AppColor.darkGrey,
                                                                       ),
                                                                     ),
-                                                                    const SizedBox(
+                                                                    verticalSpacing(
                                                                       height: 4,
                                                                     ),
                                                                     Text(
