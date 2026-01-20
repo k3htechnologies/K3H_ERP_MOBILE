@@ -51,11 +51,13 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
     super.dispose();
   }
 
+  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _gstOnAreaByMemberPercentController = TextEditingController();
     _gstOnAreaByDeveloperPercentController = TextEditingController();
   }
 
+  // FILL DATA
   void fillData() {
     var gstModel = _cubit.state.gstOnExistingPlusFreeArea!;
     _gstOnAreaByMemberPercentController.text =
@@ -64,6 +66,7 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
         gstModel.gstOnAreaByDeveloperPercent.toString();
   }
 
+  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       _cubit.addUpdateGSTonExistingPlusFreeArea(
@@ -85,145 +88,148 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
     return Expanded(
       child: BlocConsumer<ProposedOfferCubit, ProposedOfferState>(
         listener: (context, state) {
-      if (state.gstOnExistingPlusFreeArea != null) {
-        fillData();
-      } else {
-        _gstOnAreaByMemberPercentController.clear();
-        _gstOnAreaByDeveloperPercentController.clear();
-      }
+          if (state.gstOnExistingPlusFreeArea != null) {
+            fillData();
+          } else {
+            _gstOnAreaByMemberPercentController.clear();
+            _gstOnAreaByDeveloperPercentController.clear();
+          }
         },
         builder: (context, state) {
-      if (state.isLoading == true) {
-        return loader();
-      }
-      return SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.all(16),
-          margin: EdgeInsets.all(16),
-          decoration: commonCardDecoration(),
-          child: Form(
-            key: _formKey,
-            child: Builder(
-              builder: (context) {
-                bool isMemberEditing = false;
-                bool isDeveloperEditing = false;
+          if (state.isLoading == true) {
+            return loader();
+          }
+          return SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.all(16),
+              margin: EdgeInsets.all(16),
+              decoration: commonCardDecoration(),
+              child: Form(
+                key: _formKey,
+                child: Builder(
+                  builder: (context) {
+                    bool isMemberEditing = false;
+                    bool isDeveloperEditing = false;
 
-                adjustValues({required bool fromMember}) {
-                  if (fromMember) {
-                    final member =
-                        double.tryParse(
-                          _gstOnAreaByMemberPercentController.text,
-                        ) ??
-                        0;
-                    final developer = (100 - member).clamp(0, 100);
+                    adjustValues({required bool fromMember}) {
+                      if (fromMember) {
+                        final member =
+                            double.tryParse(
+                              _gstOnAreaByMemberPercentController.text,
+                            ) ??
+                            0;
+                        final developer = (100 - member).clamp(0, 100);
 
-                    if (!isDeveloperEditing) {
-                      _gstOnAreaByDeveloperPercentController.text = developer
-                          .toStringAsFixed(2);
+                        if (!isDeveloperEditing) {
+                          _gstOnAreaByDeveloperPercentController
+                              .text = developer.toStringAsFixed(2);
+                        }
+                      } else {
+                        final developer =
+                            double.tryParse(
+                              _gstOnAreaByDeveloperPercentController.text,
+                            ) ??
+                            0;
+                        final member = (100 - developer).clamp(0, 100);
+
+                        if (!isMemberEditing) {
+                          _gstOnAreaByMemberPercentController.text = member
+                              .toStringAsFixed(2);
+                        }
+                      }
                     }
-                  } else {
-                    final developer =
-                        double.tryParse(
-                          _gstOnAreaByDeveloperPercentController.text,
-                        ) ??
-                        0;
-                    final member = (100 - developer).clamp(0, 100);
 
-                    if (!isMemberEditing) {
-                      _gstOnAreaByMemberPercentController.text = member
-                          .toStringAsFixed(2);
-                    }
-                  }
-                }
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "GST on Existing + Free Area",
-                      style: AppTextStyle.ts16M(),
-                    ),
-                    verticalSpacing(height: 15),
-                    Focus(
-                      onFocusChange: (hasFocus) {
-                        isMemberEditing = hasFocus;
-                      },
-                      child: CustomTextField(
-                        title: 'GST on Area by Member Percent (%)',
-                        isRequired: true,
-                        hint: "Enter GST on Area by Member Percent (%)",
-                        textController: _gstOnAreaByMemberPercentController,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "GST on Existing + Free Area",
+                          style: AppTextStyle.ts16M(),
                         ),
-                        inputFormatterList: [
-                          // allow decimals up to 2 digits
-                          FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d{0,3}(\.\d{0,2})?$'),
+                        verticalSpacing(height: 15),
+                        Focus(
+                          onFocusChange: (hasFocus) {
+                            isMemberEditing = hasFocus;
+                          },
+                          child: CustomTextField(
+                            title: 'GST on Area by Member Percent (%)',
+                            isRequired: true,
+                            hint: "Enter GST on Area by Member Percent (%)",
+                            textController: _gstOnAreaByMemberPercentController,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            inputFormatterList: [
+                              // allow decimals up to 2 digits
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d{0,3}(\.\d{0,2})?$'),
+                              ),
+                            ],
+                            onChangeFunction:
+                                (_) => adjustValues(fromMember: true),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return "GST on area by member percent is required";
+                              }
+
+                              final numValue = double.tryParse(value);
+                              if (numValue == null) return "Invalid number";
+
+                              if (numValue < 0 || numValue > 100) {
+                                return "Value must be between 0 and 100";
+                              }
+
+                              return null;
+                            },
                           ),
-                        ],
-                        onChangeFunction: (_) => adjustValues(fromMember: true),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "GST on area by member percent is required";
-                          }
-
-                          final numValue = double.tryParse(value);
-                          if (numValue == null) return "Invalid number";
-
-                          if (numValue < 0 || numValue > 100) {
-                            return "Value must be between 0 and 100";
-                          }
-
-                          return null;
-                        },
-                      ),
-                    ),
-                    Focus(
-                      onFocusChange: (hasFocus) {
-                        isDeveloperEditing = hasFocus;
-                      },
-                      child: CustomTextField(
-                        title: 'GST on Area by Developer Percent (%)',
-                        isRequired: true,
-                        hint: "Enter GST on Area by Developer Percent (%)",
-                        textController: _gstOnAreaByDeveloperPercentController,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
                         ),
-                        inputFormatterList: [
-                          // allow decimals up to 2 digits
-                          FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d{0,3}(\.\d{0,2})?$'),
+                        Focus(
+                          onFocusChange: (hasFocus) {
+                            isDeveloperEditing = hasFocus;
+                          },
+                          child: CustomTextField(
+                            title: 'GST on Area by Developer Percent (%)',
+                            isRequired: true,
+                            hint: "Enter GST on Area by Developer Percent (%)",
+                            textController:
+                                _gstOnAreaByDeveloperPercentController,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            inputFormatterList: [
+                              // allow decimals up to 2 digits
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d{0,3}(\.\d{0,2})?$'),
+                              ),
+                            ],
+                            onChangeFunction:
+                                (_) => adjustValues(fromMember: false),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return "GST on area by developer percent is required";
+                              }
+
+                              final numValue = double.tryParse(value);
+                              if (numValue == null) return "Invalid number";
+
+                              if (numValue < 0 || numValue > 100) {
+                                return "Value must be between 0 and 100";
+                              }
+
+                              return null;
+                            },
                           ),
-                        ],
-                        onChangeFunction: (_) => adjustValues(fromMember: false),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "GST on area by developer percent is required";
-                          }
-
-                          final numValue = double.tryParse(value);
-                          if (numValue == null) return "Invalid number";
-
-                          if (numValue < 0 || numValue > 100) {
-                            return "Value must be between 0 and 100";
-                          }
-
-                          return null;
-                        },
-                      ),
-                    ),
-                    verticalSpacing(height: 30),
-                    CustomButton(text: "Save", onPressed: _onSave),
-                    verticalSpacing(),
-                  ],
-                );
-              },
+                        ),
+                        verticalSpacing(height: 30),
+                        CustomButton(text: "Save", onPressed: _onSave),
+                        verticalSpacing(),
+                      ],
+                    );
+                  },
+                ),
+              ),
             ),
-          ),
-        ),
-      );
+          );
         },
       ),
     );

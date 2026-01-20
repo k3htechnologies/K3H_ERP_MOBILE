@@ -113,6 +113,14 @@ class _AddressWidgetState extends State<AddressWidget> {
   }
 
   void handleStateChange(int stateIdF) {
+    // Guard against missing state data
+    if (!groupedStateData.containsKey(stateIdF)) {
+      districtList.value = [];
+      cityList.value = [];
+      villageList.value = [];
+      return;
+    }
+
     final newDistrictList = <Map<String, dynamic>>[];
     cityList.value = [];
     villageList.value = [];
@@ -133,6 +141,13 @@ class _AddressWidgetState extends State<AddressWidget> {
   }
 
   void handleDistrictChange(int districtId) {
+    // Guard against missing district data
+    if (!districtMap.containsKey(districtId)) {
+      cityList.value = [];
+      villageList.value = [];
+      return;
+    }
+
     final newCityList = <Map<String, dynamic>>[];
     villageList.value = [];
 
@@ -156,10 +171,12 @@ class _AddressWidgetState extends State<AddressWidget> {
       final villageMap = groupBy(villageData, (e) => e.villageMasterId);
 
       villageMap.forEach((key, value) {
-        newVillageList.add({
-          "zAttributesId": value[0].villageMasterId,
-          "DisplayName": value[0].villageName,
-        });
+        if (value.isNotEmpty) {
+          newVillageList.add({
+            "zAttributesId": value[0].villageMasterId,
+            "DisplayName": value[0].villageName,
+          });
+        }
       });
     }
 
@@ -221,13 +238,20 @@ class _AddressWidgetState extends State<AddressWidget> {
                           '${currentDistrictId}_${currentDistrictList.length}',
                         ),
                         initialValue:
-                            currentDistrictId == null
+                            currentDistrictId == null ||
+                                    currentDistrictList.isEmpty
                                 ? null
-                                : currentDistrictList.firstWhere(
+                                : currentDistrictList.any(
                                   (district) =>
                                       district['zAttributesId'] ==
                                       currentDistrictId,
-                                ),
+                                )
+                                    ? currentDistrictList.firstWhere(
+                                      (district) =>
+                                          district['zAttributesId'] ==
+                                          currentDistrictId,
+                                    )
+                                    : null,
                         title: "District",
                         isRequired: true,
                         dataList: currentDistrictList,
@@ -262,11 +286,15 @@ class _AddressWidgetState extends State<AddressWidget> {
                 return CustomDropDownWidget(
                   key: ValueKey('${currentCityId}_${currentCityList.length}'),
                   initialValue:
-                      currentCityId == null
+                      currentCityId == null || currentCityList.isEmpty
                           ? null
-                          : currentCityList.firstWhere(
+                          : currentCityList.any(
                             (city) => city['zAttributesId'] == currentCityId,
-                          ),
+                          )
+                              ? currentCityList.firstWhere(
+                                (city) => city['zAttributesId'] == currentCityId,
+                              )
+                              : null,
                   title: "City",
                   isRequired: true,
                   dataList: currentCityList,
@@ -298,12 +326,17 @@ class _AddressWidgetState extends State<AddressWidget> {
                     '${currentVillageId}_${currentVillageList.length}',
                   ),
                   initialValue:
-                      currentVillageId == null
+                      currentVillageId == null || currentVillageList.isEmpty
                           ? null
-                          : currentVillageList.firstWhere(
+                          : currentVillageList.any(
                             (village) =>
                                 village['zAttributesId'] == currentVillageId,
-                          ),
+                          )
+                              ? currentVillageList.firstWhere(
+                                (village) =>
+                                    village['zAttributesId'] == currentVillageId,
+                              )
+                              : null,
                   title: "Village",
                   isRequired: true,
                   dataList: currentVillageList,

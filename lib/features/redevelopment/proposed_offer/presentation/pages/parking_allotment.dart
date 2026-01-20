@@ -52,11 +52,13 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
     super.dispose();
   }
 
+  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _numberOfParkingController = TextEditingController();
     _totalParkingPercentageController = TextEditingController();
   }
 
+  // FILL DATA
   void fillData() {
     var parkingAllotmentModel = _cubit.state.parkingAllotment!;
     _numberOfParkingController.text =
@@ -66,6 +68,7 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
             .toString();
   }
 
+  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       _cubit.addUpdateParkingAllotment(

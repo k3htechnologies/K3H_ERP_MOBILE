@@ -46,14 +46,16 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
     {'zAttributesId': 2, 'DisplayName': 'Commercial'},
   ];
 
-  final List<ProposedOfferLienToSocietyDetailsWithPaymentStageData> _lienList =
-      [];
+  final ValueNotifier<List<ProposedOfferLienToSocietyDetailsWithPaymentStageData>> _lienListNotifier =
+      ValueNotifier<List<ProposedOfferLienToSocietyDetailsWithPaymentStageData>>([]);
+  
+  List<ProposedOfferLienToSocietyDetailsWithPaymentStageData> get _lienList => _lienListNotifier.value;
 
   // LIEN FORM CONTROLLERS
-  Map<String, dynamic>? _selectedLienType;
+  final ValueNotifier<Map<String, dynamic>?> _selectedLienType = ValueNotifier<Map<String, dynamic>?>(null);
   late TextEditingController _stageController;
   late TextEditingController _carpetAreaController;
-  bool _isRelease = false;
+  final ValueNotifier<bool> _isRelease = ValueNotifier<bool>(false);
   final GlobalKey<FormState> _lienFormKey = GlobalKey<FormState>();
 
   @override
@@ -67,6 +69,21 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
     );
   }
 
+  @override
+  void dispose() {
+    _residentialAreaController.dispose();
+    _commercialAreaController.dispose();
+    _residentialUnitsController.dispose();
+    _commercialUnitsController.dispose();
+    _stageController.dispose();
+    _carpetAreaController.dispose();
+    _lienListNotifier.dispose();
+    _selectedLienType.dispose();
+    _isRelease.dispose();
+    super.dispose();
+  }
+
+  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _residentialAreaController = TextEditingController();
     _commercialAreaController = TextEditingController();
@@ -76,6 +93,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
     _carpetAreaController = TextEditingController();
   }
 
+  // UPDATE LIEN UNIT COUNTS
   void _updateLienUnitCounts() {
     final residentialCount =
         _lienList
@@ -91,6 +109,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
     _commercialUnitsController.text = commercialCount.toString();
   }
 
+  // FILL DATA
   void fillData() {
     var lienDetailsModel = _cubit.state.lienToSocietyDetails!;
     _residentialAreaController.text =
@@ -102,25 +121,12 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
     _commercialUnitsController.text =
         lienDetailsModel.numberOfCommercialLienUnits.toString();
 
-    _lienList.clear();
-    _lienList.addAll(
+    _lienListNotifier.value = List.from(
       lienDetailsModel.proposedOfferLienToSocietyDetailsWithPaymentStageData,
     );
-
-    setState(() {});
   }
 
-  @override
-  void dispose() {
-    _residentialAreaController.dispose();
-    _commercialAreaController.dispose();
-    _residentialUnitsController.dispose();
-    _commercialUnitsController.dispose();
-    _stageController.dispose();
-    _carpetAreaController.dispose();
-    super.dispose();
-  }
-
+  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       if (_lienList.isEmpty) {
@@ -146,45 +152,48 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
     }
   }
 
+  // LIEN BOTTOM SHEET
   Future<void> _showLienBottomSheet({
     ProposedOfferLienToSocietyDetailsWithPaymentStageData? lien,
     int? index,
   }) async {
     if (lien != null) {
-      _prefillDialog(lien);
+      _prefillBottomSheet(lien);
     }
 
     await DialogHelper.showCustomBottomSheet(
       context,
       "Add Lien to Society Details",
       SingleChildScrollView(
-        child: StatefulBuilder(
-          builder: (context, setModalState) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Form(
-                key: _lienFormKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    /// TYPE
-                    CustomDropDownWidget(
-                      isRequired: true,
-                      initialValue: _selectedLienType,
-                      dataList: _lienTypeList,
-                      onSelected: (value) {
-                        setModalState(() {
-                          _selectedLienType = value;
-                        });
-                      },
-                      title: "Type*",
-                      validator: (value) {
-                        if (value == null || value['zAttributesId'] == -1) {
-                          return "Type is required";
-                        }
-                        return null;
-                      },
-                    ),
+        child: ValueListenableBuilder<Map<String, dynamic>?>(
+          valueListenable: _selectedLienType,
+          builder: (context, selectedLienType, _) {
+            return ValueListenableBuilder<bool>(
+              valueListenable: _isRelease,
+              builder: (context, isRelease, __) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Form(
+                    key: _lienFormKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        /// TYPE
+                        CustomDropDownWidget(
+                          isRequired: true,
+                          initialValue: selectedLienType,
+                          dataList: _lienTypeList,
+                          onSelected: (value) {
+                            _selectedLienType.value = value;
+                          },
+                          title: "Type*",
+                          validator: (value) {
+                            if (value == null || value['zAttributesId'] == -1) {
+                              return "Type is required";
+                            }
+                            return null;
+                          },
+                        ),
 
                     /// STAGE
                     CustomTextField(
@@ -203,7 +212,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                       },
                     ),
 
-                    /// CARPET AREA
+                    // CARPET AREA
                     CustomTextField(
                       title: "Carpet Area (Sq Ft)",
                       isRequired: true,
@@ -220,7 +229,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                           return "Carpet area should be greater than 0";
                         }
 
-                        final selectedType = _selectedLienType?['DisplayName'];
+                        final selectedType = selectedLienType?['DisplayName'];
                         if (selectedType == null) {
                           return "Type is required";
                         }
@@ -266,16 +275,14 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                       },
                     ),
 
-                    /// RELEASE CHECKBOX
+                    // RELEASE CHECKBOX
                     Row(
                       children: [
                         Checkbox(
                           activeColor: AppColor.green,
-                          value: _isRelease,
+                          value: isRelease,
                           onChanged: (value) {
-                            setModalState(() {
-                              _isRelease = value ?? false;
-                            });
+                            _isRelease.value = value ?? false;
                           },
                         ),
                         const Text("Is Release"),
@@ -284,69 +291,71 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
 
                     verticalSpacing(height: 25),
 
-                    /// SAVE
-                    CustomButton(
-                      text: "Save",
-                      onPressed: () {
-                        if (_lienFormKey.currentState!.validate()) {
-                          if (lien == null) {
-                            _lienList.add(
-                              ProposedOfferLienToSocietyDetailsWithPaymentStageData(
-                                proposedOfferLienToSocietyDetailsWithPaymentStageId:
-                                    0,
-                                uniquekey: '',
-                                buildingId: widget.buildingId,
-                                projectId: widget.projectId,
-                                type: _selectedLienType!['DisplayName'],
-                                stage: _stageController.text,
-                                carpetAreaSqFt: double.parse(
-                                  _carpetAreaController.text,
-                                ),
-                                isRelease: _isRelease,
-                                createdById: 1,
-                                createdBy: 'Current User',
-                                createdDate: DateTime.now(),
-                                modifiedById: 0,
-                                modifiedBy: '',
-                                modifiedDate: null,
-                              ),
-                            );
-                          } else {
-                            _lienList[index!] =
-                                ProposedOfferLienToSocietyDetailsWithPaymentStageData(
-                                  proposedOfferLienToSocietyDetailsWithPaymentStageId:
-                                      lien.proposedOfferLienToSocietyDetailsWithPaymentStageId,
-                                  uniquekey: lien.uniquekey,
-                                  buildingId: lien.buildingId,
-                                  projectId: lien.projectId,
-                                  type: _selectedLienType!['DisplayName'],
-                                  stage: _stageController.text,
-                                  carpetAreaSqFt: double.parse(
-                                    _carpetAreaController.text,
+                        // SAVE
+                        CustomButton(
+                          text: "Save",
+                          onPressed: () {
+                            if (_lienFormKey.currentState!.validate()) {
+                              final newList = List<ProposedOfferLienToSocietyDetailsWithPaymentStageData>.from(_lienList);
+                              if (lien == null) {
+                                newList.add(
+                                  ProposedOfferLienToSocietyDetailsWithPaymentStageData(
+                                    proposedOfferLienToSocietyDetailsWithPaymentStageId:
+                                        0,
+                                    uniquekey: '',
+                                    buildingId: widget.buildingId,
+                                    projectId: widget.projectId,
+                                    type: selectedLienType!['DisplayName'],
+                                    stage: _stageController.text,
+                                    carpetAreaSqFt: double.parse(
+                                      _carpetAreaController.text,
+                                    ),
+                                    isRelease: isRelease,
+                                    createdById: 1,
+                                    createdBy: 'Current User',
+                                    createdDate: DateTime.now(),
+                                    modifiedById: 0,
+                                    modifiedBy: '',
+                                    modifiedDate: null,
                                   ),
-                                  isRelease: _isRelease,
-                                  createdById: lien.createdById,
-                                  createdBy: lien.createdBy,
-                                  createdDate: lien.createdDate,
-                                  modifiedById: lien.modifiedById,
-                                  modifiedBy: lien.modifiedBy,
-                                  modifiedDate: lien.modifiedDate,
                                 );
-                          }
+                              } else {
+                                newList[index!] =
+                                    ProposedOfferLienToSocietyDetailsWithPaymentStageData(
+                                      proposedOfferLienToSocietyDetailsWithPaymentStageId:
+                                          lien.proposedOfferLienToSocietyDetailsWithPaymentStageId,
+                                      uniquekey: lien.uniquekey,
+                                      buildingId: lien.buildingId,
+                                      projectId: lien.projectId,
+                                      type: selectedLienType!['DisplayName'],
+                                      stage: _stageController.text,
+                                      carpetAreaSqFt: double.parse(
+                                        _carpetAreaController.text,
+                                      ),
+                                      isRelease: isRelease,
+                                      createdById: lien.createdById,
+                                      createdBy: lien.createdBy,
+                                      createdDate: lien.createdDate,
+                                      modifiedById: lien.modifiedById,
+                                      modifiedBy: lien.modifiedBy,
+                                      modifiedDate: lien.modifiedDate,
+                                    );
+                              }
 
-                          setState(() {
-                            _updateLienUnitCounts();
-                          });
+                              _lienListNotifier.value = newList;
+                              _updateLienUnitCounts();
 
-                          Navigator.pop(context);
-                        }
-                      },
+                              Navigator.pop(context);
+                            }
+                          },
+                        ),
+
+                        verticalSpacing(height: 20),
+                      ],
                     ),
-
-                    verticalSpacing(height: 20),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             );
           },
         ),
@@ -356,33 +365,32 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
     _clearDialog();
   }
 
-  void _prefillDialog(
+  // PREFILL BOTTOM ShEET
+  void _prefillBottomSheet(
     ProposedOfferLienToSocietyDetailsWithPaymentStageData lien,
   ) {
-    _selectedLienType = _lienTypeList.firstWhere(
+    _selectedLienType.value = _lienTypeList.firstWhere(
       (e) => e['DisplayName'] == lien.type,
       orElse: () => _lienTypeList.first,
     );
     _stageController.text = lien.stage;
     _carpetAreaController.text = lien.carpetAreaSqFt.toString();
-    _isRelease = lien.isRelease;
+    _isRelease.value = lien.isRelease;
   }
 
   void _clearDialog() {
-    _selectedLienType = null;
+    _selectedLienType.value = null;
     _stageController.clear();
     _carpetAreaController.clear();
-    _isRelease = false;
+    _isRelease.value = false;
   }
 
   void _handleResidentialAreaChange(double value) {
     // This method can be used if you want to recalculate something when residential area changes
-    setState(() {});
   }
 
   void _handleCommercialAreaChange(double value) {
     // This method can be used if you want to recalculate something when commercial area changes
-    setState(() {});
   }
 
   @override
@@ -397,11 +405,11 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
             _commercialAreaController.clear();
             _residentialUnitsController.clear();
             _commercialUnitsController.clear();
-            _selectedLienType = null;
-            _lienList.clear();
+            _selectedLienType.value = null;
+            _lienListNotifier.value = [];
             _stageController.clear();
             _carpetAreaController.clear();
-            _isRelease = false;
+            _isRelease.value = false;
             _updateLienUnitCounts();
           }
         },
@@ -517,100 +525,105 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                       ],
                     ),
                     verticalSpacing(height: 20),
-                    if (_lienList.isNotEmpty) ...[
-                      Column(
-                        children: List.generate(_lienList.length, (index) {
-                          final lien = _lienList[index];
+                    ValueListenableBuilder<List<ProposedOfferLienToSocietyDetailsWithPaymentStageData>>(
+                      valueListenable: _lienListNotifier,
+                      builder: (context, lienList, _) {
+                        if (lienList.isNotEmpty) {
+                          return Column(
+                            children: List.generate(lienList.length, (index) {
+                              final lien = lienList[index];
 
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            decoration: BoxDecoration(
-                              color: AppColor.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: AppColor.grey.withValues(alpha: 0.3),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                decoration: BoxDecoration(
+                                  color: AppColor.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: AppColor.grey.withValues(alpha: 0.3),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.05),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  /// HEADER (TYPE + ACTIONS)
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        lien.type,
-                                        style: AppTextStyle.ts16M(),
-                                      ),
-
+                                      /// HEADER (TYPE + ACTIONS)
                                       Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          CustomIconButton.edit(
-                                            onPressed: () {
-                                              _showLienBottomSheet(
-                                                lien: lien,
-                                                index: index,
-                                              );
-                                            },
+                                          Text(
+                                            lien.type,
+                                            style: AppTextStyle.ts16M(),
                                           ),
 
-                                          const SizedBox(width: 12),
+                                          Row(
+                                            children: [
+                                              CustomIconButton.edit(
+                                                onPressed: () {
+                                                  _showLienBottomSheet(
+                                                    lien: lien,
+                                                    index: index,
+                                                  );
+                                                },
+                                              ),
 
-                                          CustomIconButton.delete(
-                                            onPressed: () {
-                                              setState(() {
-                                                _lienList.removeAt(index);
-                                                _updateLienUnitCounts();
-                                              });
-                                            },
+                                              const SizedBox(width: 12),
+
+                                              CustomIconButton.delete(
+                                                onPressed: () {
+                                                  final newList = List<ProposedOfferLienToSocietyDetailsWithPaymentStageData>.from(lienList);
+                                                  newList.removeAt(index);
+                                                  _lienListNotifier.value = newList;
+                                                  _updateLienUnitCounts();
+                                                },
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
+
+                                      Divider(
+                                        color: AppColor.grey.withValues(alpha: 0.4),
+                                      ),
+
+                                      _buildLienInfoRow("Stage", lien.stage),
+
+                                      _buildLienInfoRow(
+                                        "Carpet Area",
+                                        "${lien.carpetAreaSqFt.toStringAsFixed(2)} Sq Ft",
+                                      ),
+
+                                      _buildLienInfoRow(
+                                        "Is Release",
+                                        lien.isRelease ? "Yes" : "No",
+                                      ),
                                     ],
                                   ),
-
-                                  Divider(
-                                    color: AppColor.grey.withValues(alpha: 0.4),
-                                  ),
-
-                                  _buildLienInfoRow("Stage", lien.stage),
-
-                                  _buildLienInfoRow(
-                                    "Carpet Area",
-                                    "${lien.carpetAreaSqFt.toStringAsFixed(2)} Sq Ft",
-                                  ),
-
-                                  _buildLienInfoRow(
-                                    "Is Release",
-                                    lien.isRelease ? "Yes" : "No",
-                                  ),
-                                ],
+                                ),
+                              );
+                            }),
+                          );
+                        } else {
+                          return Container(
+                            padding: const EdgeInsets.all(40),
+                            child: Center(
+                              child: Text(
+                                'No details added',
+                                style: AppTextStyle.ts16R(color: AppColor.grey),
                               ),
                             ),
                           );
-                        }),
-                      ),
-                    ] else ...[
-                      Container(
-                        padding: const EdgeInsets.all(40),
-                        child: Center(
-                          child: Text(
-                            'No details added',
-                            style: AppTextStyle.ts16R(color: AppColor.grey),
-                          ),
-                        ),
-                      ),
-                    ],
+                        }
+                      },
+                    ),
                     verticalSpacing(height: 30),
                     CustomButton(text: "Save", onPressed: _onSave),
                     verticalSpacing(),

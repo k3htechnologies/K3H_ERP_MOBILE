@@ -1,17 +1,23 @@
+import 'dart:convert';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_document.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/building_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -273,7 +279,9 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                               widget.building.googleLocation.isEmpty
                                   ? "-"
                                   : widget.building.googleLocation,
-                              style: AppTextStyle.ts14M(color: AppColor.primary),
+                              style: AppTextStyle.ts14M(
+                                color: AppColor.primary,
+                              ),
                             ),
                           ),
                         ],
@@ -554,6 +562,27 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Column(
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  CustomButton(
+                    text: "Update",
+                    onPressed: () {
+                      goRouter.pushNamed(
+                        AppRoutes.editBuildingDetails,
+                        queryParameters: {
+                          "buildingDetail": Uri.encodeComponent(
+                            EncryptionManager.encryptData(
+                              jsonEncode(state.buildingDetails!.toJson()),
+                            ),
+                          ),
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+              verticalSpacing(),
               // BUILDING PLOT AREA
               Container(
                 margin: EdgeInsets.only(bottom: 10),

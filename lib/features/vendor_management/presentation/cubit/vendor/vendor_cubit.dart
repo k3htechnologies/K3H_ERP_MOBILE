@@ -182,26 +182,4 @@ class VendorCubit extends Cubit<VendorState> {
       },
     );
   }
-
-  // <---- GET MAGIC LINK ---->
-  /* Future<String?> getMagicLink(
-    BuildContext context,
-    int clientRegistrationId,
-  ) async {
-    DialogHelper.showProcessingOverlay(context);
-    var result = await vendorRepository.getMagicLink(
-      magicLinkType: "VENDOR MANAGEMENT",
-      clientRegistrationId: clientRegistrationId,
-    );
-    goRouter.pop();
-    return result.fold(
-      (failure) {
-        showErrorMessage(context, 'Error', failure.message);
-        return null;
-      },
-      (url) {
-        return url;
-      },
-    );
-  }*/
 }

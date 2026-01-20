@@ -390,6 +390,37 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
   }
 
+  // <---- UPDATE BUILDING DETAILS ---->
+  Future<void> updateBuildingDetails({
+    required BuildContext context,
+    required Map<String, dynamic> buildingDetailsData,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final result = await _buildingRepository.addUpdateBuildingDetails(
+      requestBody: buildingDetailsData,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: 'Building Details Updated Successfully');
+        if (buildingDetailsData['BuildingId'] != null) {
+          getBuildingDetails(
+            context: context,
+            buildingId: buildingDetailsData['BuildingId'] as int,
+            projectId: buildingDetailsData['ProjectId'] as int,
+          );
+        }
+      },
+    );
+  }
+
   // <---- ON TAB CHANGED ---->
   void onTabChanged(
     int index,

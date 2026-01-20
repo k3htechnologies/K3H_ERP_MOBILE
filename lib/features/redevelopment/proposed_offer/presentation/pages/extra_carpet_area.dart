@@ -63,11 +63,13 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
     super.dispose();
   }
 
+  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _residentialPercentController = TextEditingController();
     _commercialPercentController = TextEditingController();
   }
 
+  // FILL DATA
   void fillData() {
     var extraCarpetModel = _cubit.state.extraCarpetArea!;
 
@@ -78,11 +80,12 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
         extraCarpetModel.commercialExtraCarpetPercent.toString();
 
     _selectedExtraCarpetType = _extraCarpetTypeList.firstWhere(
-          (e) => e['DisplayName'] == extraCarpetModel.extraCarpetAreaOfferedType,
+      (e) => e['DisplayName'] == extraCarpetModel.extraCarpetAreaOfferedType,
       orElse: () => _extraCarpetTypeList.first,
     );
   }
 
+  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       _cubit.addUpdateExtraCarpetArea(

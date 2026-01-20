@@ -510,7 +510,21 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomTextField(
                     title: 'Driving License Number',
                     textController: _drivingLicenseC,
-                    inputFormatterList: [LengthLimitingTextInputFormatter(20)],
+                    inputFormatterList: InputValidator.textDigit(20),
+                    validator: (value) {
+                      if (drivingLicenseFile.fileNameList.isEmpty) {
+                        return null;
+                      }
+                      if (value == null || value.isEmpty) {
+                        return "Driving License is required";
+                      }
+
+                      if (InputValidator.isValidDrivingLicence(value)) {
+                        return "Driving License Number is invalid";
+                      }
+
+                      return null;
+                    },
                   ),
                   CustomMultiFilePicker(
                     title: "Upload Driving License",
@@ -532,7 +546,24 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomTextField(
                     title: 'Voting ID Number',
                     textController: _votingIdC,
-                    inputFormatterList: [LengthLimitingTextInputFormatter(20)],
+                    inputFormatterList: InputValidator.textDigit(20),
+                    validator: (value) {
+                      if (votingIdFile.fileNameList.isNotEmpty) {
+                        if (value == null || value.isEmpty) {
+                          return "Voting Id is required";
+                        }
+                        if (!InputValidator.isValidVoterId(value)) {
+                          return "Voting Id is invalid";
+                        }
+                      } else {
+                        if (value != null &&
+                            value.isNotEmpty &&
+                            !InputValidator.isValidVoterId(value)) {
+                          return "Voting Id is invalid";
+                        }
+                      }
+                      return null;
+                    },
                   ),
                   CustomMultiFilePicker(
                     title: "Upload Voting ID",
@@ -556,10 +587,19 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     textController: _gstC,
                     inputFormatterList: InputValidator.gstInputFormatters(),
                     validator: (value) {
-                      if (value != null &&
-                          value.trim().isNotEmpty &&
-                          !InputValidator.isValidGST(value.trim())) {
-                        return "Invalid GST Number";
+                      if (gstFile.fileNameList.isNotEmpty) {
+                        if (value == null || value.isEmpty) {
+                          return "GST Number is required";
+                        }
+                        if (!InputValidator.isValidGST(value)) {
+                          return "GST Number is invalid";
+                        }
+                      } else {
+                        if (value != null &&
+                            value.isNotEmpty &&
+                            !InputValidator.isValidGST(value)) {
+                          return "GST Number is invalid";
+                        }
                       }
                       return null;
                     },
@@ -595,12 +635,6 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                           });
                         },
                         dataFetchCallBack: _fetchBank,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Bank is required";
-                          }
-                          return null;
-                        },
                       );
                     },
                   ),

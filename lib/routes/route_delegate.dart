@@ -187,10 +187,12 @@ import 'package:k3h_erp_app/features/project_management/approved_bank/presentati
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_file_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_folder_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/building_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_view_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/edit_building_details_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_secondary_screen.dart';
@@ -1699,6 +1701,42 @@ final GoRouter goRouter = GoRouter(
             return BlocProvider.value(
               value: serviceLocator<BuildingCubit>(),
               child: BuildingViewScreen(building: building!),
+            );
+          },
+        ),
+        GoRoute(
+          name: AppRoutes.editBuildingDetails,
+          path: AppRoutes.editBuildingDetails,
+          builder: (context, state) {
+            // Check for both parameter names (buildingDetail and buildingDetails)
+            final queryParameterBuildingDetail =
+                state.uri.queryParameters['buildingDetail'] ??
+                    state.uri.queryParameters['buildingDetails'];
+
+            if (queryParameterBuildingDetail == null) {
+              // Return error screen or navigate back
+              return Scaffold(
+                appBar: AppBar(title: const Text('Error')),
+                body: const Center(
+                  child: Text('Building details not found'),
+                ),
+              );
+            }
+
+            final BuildingDetailsModel buildingDetail =
+                BuildingDetailsModel.fromJson(
+              jsonDecode(
+                EncryptionManager.decryptData(
+                  Uri.decodeComponent(queryParameterBuildingDetail),
+                ),
+              ),
+            );
+
+            return BlocProvider.value(
+              value: serviceLocator<BuildingCubit>(),
+              child: EditBuildingDetailsScreen(
+                buildingDetailsModel: buildingDetail,
+              ),
             );
           },
         ),

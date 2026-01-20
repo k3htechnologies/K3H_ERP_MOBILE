@@ -63,10 +63,10 @@ class _VendorScreenState extends State<VendorScreen> {
 
   // DELETE VENDOR DIALOG
   void _showPopUpToDeleteVendor(
-      BuildContext context,
-      VendorModel vendor,
-      int index,
-      ) async {
+    BuildContext context,
+    VendorModel vendor,
+    int index,
+  ) async {
     var result = await DialogHelper.deleteDialog(
       context,
       "You are about to delete a vendor ",
@@ -92,62 +92,17 @@ class _VendorScreenState extends State<VendorScreen> {
     scrollController = ScrollController();
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
-          scrollController.position.maxScrollExtent - 100 &&
+              scrollController.position.maxScrollExtent - 100 &&
           !_vendorCubit.state.isLoading! &&
           _vendorCubit.state.vendorList.length <
               _vendorCubit.state.totalNumberOfRecord) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _vendorCubit.getVendors(
-            context,
-            _vendorCubit.state.currentPage + 1,
-          );
+          _vendorCubit.getVendors(context, _vendorCubit.state.currentPage + 1);
         });
       }
     });
-  }
-
-  // <---- BUILD ROW TITLE AND VALUE WIDGET ---->
-  Widget _buildRowTitleVale({
-    required String title,
-    required String value,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          // TITLE
-          SizedBox(
-            width: 140,
-            child: Text(
-              title,
-              style: AppTextStyle.ts14R(color: AppColor.grey),
-            ),
-          ),
-
-          // COLON
-          SizedBox(
-            width: 20,
-            child: Text(
-              ":",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColor.grey)
-            ),
-          ),
-
-          // VALUE
-          Expanded(
-            child: Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.ts14R(),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -169,9 +124,6 @@ class _VendorScreenState extends State<VendorScreen> {
           _vendorCubit.searchVendor(context, value);
         },
         textController: _searchC,
-        onSortOptionCallback: (value) async {},
-        sortOptionList: ["Created Date"],
-        initialSortType: "Created Date",
       ),
       body: BlocBuilder<VendorCubit, VendorState>(
         builder: (context, state) {
@@ -217,7 +169,7 @@ class _VendorScreenState extends State<VendorScreen> {
                                       jsonEncode(vendor),
                                     ),
                                   ),
-                                  "index": "$index"
+                                  "index": "$index",
                                 },
                               );
                             },
@@ -228,10 +180,8 @@ class _VendorScreenState extends State<VendorScreen> {
                               ),
                               decoration: BoxDecoration(
                                 border: Border(
-                                  bottom: BorderSide(
-                                    color: AppColor.primary
-                                  )
-                                )
+                                  bottom: BorderSide(color: AppColor.primary),
+                                ),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -265,29 +215,84 @@ class _VendorScreenState extends State<VendorScreen> {
                                   },
                                 );
                                 if (context.mounted) {
-                                  _vendorCubit.getVendors(context, state.currentPage);
+                                  _vendorCubit.getVendors(
+                                    context,
+                                    state.currentPage,
+                                  );
                                 }
                               },
                             ),
                             CustomIconButton.delete(
                               onPressed: () {
-                                _showPopUpToDeleteVendor(context, vendor, index);
+                                _showPopUpToDeleteVendor(
+                                  context,
+                                  vendor,
+                                  index,
+                                );
                               },
                             ),
                           ],
                         ),
                       ],
                     ),
-                    _buildRowTitleVale(title: "Company Name", value: vendor.companyName),
-                    _buildRowTitleVale(title: "Company Type", value: vendor.companyType),
-                    _buildRowTitleVale(title: "Mobile Number", value: vendor.mobileNumber),
-                    _buildRowTitleVale(title: "Email ID", value: vendor.emailId),
+                    _buildRowTitleVale(
+                      title: "Company Name",
+                      value: vendor.companyName,
+                    ),
+                    _buildRowTitleVale(
+                      title: "Company Type",
+                      value: vendor.companyType,
+                    ),
+                    _buildRowTitleVale(
+                      title: "Mobile Number",
+                      value: vendor.mobileNumber,
+                    ),
+                    _buildRowTitleVale(
+                      title: "Email ID",
+                      value: vendor.emailId,
+                    ),
                   ],
                 ),
               );
             },
           );
         },
+      ),
+    );
+  }
+
+  // <---- BUILD ROW TITLE AND VALUE WIDGET ---->
+  Widget _buildRowTitleVale({required String title, required String value}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          // TITLE
+          SizedBox(
+            width: 140,
+            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
+          ),
+
+          // COLON
+          SizedBox(
+            width: 20,
+            child: Text(
+              ":",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColor.grey),
+            ),
+          ),
+
+          // VALUE
+          Expanded(
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyle.ts14R(),
+            ),
+          ),
+        ],
       ),
     );
   }

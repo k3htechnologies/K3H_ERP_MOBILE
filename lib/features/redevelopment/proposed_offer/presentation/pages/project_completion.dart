@@ -51,11 +51,13 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
     super.dispose();
   }
 
+  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _completionTimelineController = TextEditingController();
     _gracePeriodController = TextEditingController();
   }
 
+  // FILL DATA
   void fillData() {
     if (_cubit.state.projectCompletion != null) {
       var projectCompletionModel = _cubit.state.projectCompletion!;
@@ -66,6 +68,7 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
     }
   }
 
+  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       _cubit.addUpdateProjectCompletion(

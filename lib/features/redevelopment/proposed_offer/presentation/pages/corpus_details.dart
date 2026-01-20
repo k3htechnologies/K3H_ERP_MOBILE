@@ -43,10 +43,16 @@ class _CorpusDetailsState extends State<CorpusDetails> {
     {'zAttributesId': 2, 'DisplayName': 'Commercial'},
   ];
 
-  final List<ProposedOfferCorpusDetailsWithPaymentStageData> _corpusList = [];
+  final ValueNotifier<List<ProposedOfferCorpusDetailsWithPaymentStageData>>
+  _corpusListNotifier =
+      ValueNotifier<List<ProposedOfferCorpusDetailsWithPaymentStageData>>([]);
+
+  List<ProposedOfferCorpusDetailsWithPaymentStageData> get _corpusList =>
+      _corpusListNotifier.value;
 
   // LITIGATION FORM CONTROLLERS
-  Map<String, dynamic>? _selectedCorpusType;
+  final ValueNotifier<Map<String, dynamic>?> _selectedCorpusType =
+      ValueNotifier<Map<String, dynamic>?>(null);
   late TextEditingController _stageController;
   late TextEditingController _stagePercentageController;
   late TextEditingController _amountController;
@@ -70,9 +76,12 @@ class _CorpusDetailsState extends State<CorpusDetails> {
     _stageController.dispose();
     _stagePercentageController.dispose();
     _amountController.dispose();
+    _corpusListNotifier.dispose();
+    _selectedCorpusType.dispose();
     super.dispose();
   }
 
+  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _residentialAmountController = TextEditingController();
     _commercialAmountController = TextEditingController();
@@ -81,11 +90,13 @@ class _CorpusDetailsState extends State<CorpusDetails> {
     _amountController = TextEditingController();
   }
 
+  // CHECK IF AMOUNT EXCEEDS ALLOCATED LIMIT
   bool _isAmountExceedingForSelectedType(int? editIndex) {
-    if (_selectedCorpusType == null) return false;
+    final selectedType = _selectedCorpusType.value;
+    if (selectedType == null) return false;
 
     double limit = 0;
-    final typeId = _selectedCorpusType!['zAttributesId'];
+    final typeId = selectedType['zAttributesId'];
 
     if (typeId == 1) {
       limit = double.tryParse(_residentialAmountController.text) ?? 0;
@@ -101,7 +112,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
 
       final item = _corpusList[i];
 
-      if (item.type == _selectedCorpusType!['DisplayName']) {
+      if (item.type == selectedType['DisplayName']) {
         sum += item.amount;
       }
     }
@@ -109,6 +120,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
     return sum > limit;
   }
 
+  // FILL DATA
   void fillData() {
     var corpusDetailsModel = _cubit.state.corpusDetails!;
     _residentialAmountController.text =
@@ -116,12 +128,12 @@ class _CorpusDetailsState extends State<CorpusDetails> {
     _commercialAmountController.text =
         corpusDetailsModel.corpusOfferedToCommercialAmount.toString();
 
-    _corpusList.clear();
-    _corpusList.addAll(
+    _corpusListNotifier.value = List.from(
       corpusDetailsModel.proposedOfferCorpusDetailsWithPaymentStageData,
     );
   }
 
+  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       if (_corpusList.isEmpty) {
@@ -143,58 +155,67 @@ class _CorpusDetailsState extends State<CorpusDetails> {
     }
   }
 
+  // HANDLE AMOUNT CHANGE
   void _handleResidentialAmountChange(double value) {
-    for (int i = 0; i < _corpusList.length; i++) {
-      if (_corpusList[i].type == 'Residential') {
-        _corpusList[i] = ProposedOfferCorpusDetailsWithPaymentStageData(
+    final newList = List<ProposedOfferCorpusDetailsWithPaymentStageData>.from(
+      _corpusList,
+    );
+    for (int i = 0; i < newList.length; i++) {
+      if (newList[i].type == 'Residential') {
+        newList[i] = ProposedOfferCorpusDetailsWithPaymentStageData(
           proposedOfferCorpusDetailsWithPaymentStageId:
-              _corpusList[i].proposedOfferCorpusDetailsWithPaymentStageId,
-          uniquekey: _corpusList[i].uniquekey,
-          buildingId: _corpusList[i].buildingId,
-          projectId: _corpusList[i].projectId,
-          type: _corpusList[i].type,
-          stage: _corpusList[i].stage,
-          stagePercentage: _corpusList[i].stagePercentage,
-          amount: value * (_corpusList[i].stagePercentage / 100),
-          createdById: _corpusList[i].createdById,
-          createdBy: _corpusList[i].createdBy,
-          createdDate: _corpusList[i].createdDate,
-          modifiedById: _corpusList[i].modifiedById,
-          modifiedBy: _corpusList[i].modifiedBy,
-          modifiedDate: _corpusList[i].modifiedDate,
+              newList[i].proposedOfferCorpusDetailsWithPaymentStageId,
+          uniquekey: newList[i].uniquekey,
+          buildingId: newList[i].buildingId,
+          projectId: newList[i].projectId,
+          type: newList[i].type,
+          stage: newList[i].stage,
+          stagePercentage: newList[i].stagePercentage,
+          amount: value * (newList[i].stagePercentage / 100),
+          createdById: newList[i].createdById,
+          createdBy: newList[i].createdBy,
+          createdDate: newList[i].createdDate,
+          modifiedById: newList[i].modifiedById,
+          modifiedBy: newList[i].modifiedBy,
+          modifiedDate: newList[i].modifiedDate,
         );
       }
     }
-    setState(() {});
+    _corpusListNotifier.value = newList;
   }
 
+  // HANDLE AMOUNT CHANGE
   void _handleCommercialAmountChange(double value) {
-    for (int i = 0; i < _corpusList.length; i++) {
-      if (_corpusList[i].type == 'Commercial') {
-        _corpusList[i] = ProposedOfferCorpusDetailsWithPaymentStageData(
+    final newList = List<ProposedOfferCorpusDetailsWithPaymentStageData>.from(
+      _corpusList,
+    );
+    for (int i = 0; i < newList.length; i++) {
+      if (newList[i].type == 'Commercial') {
+        newList[i] = ProposedOfferCorpusDetailsWithPaymentStageData(
           proposedOfferCorpusDetailsWithPaymentStageId:
-              _corpusList[i].proposedOfferCorpusDetailsWithPaymentStageId,
-          uniquekey: _corpusList[i].uniquekey,
-          buildingId: _corpusList[i].buildingId,
-          projectId: _corpusList[i].projectId,
-          type: _corpusList[i].type,
-          stage: _corpusList[i].stage,
-          stagePercentage: _corpusList[i].stagePercentage,
-          amount: value * (_corpusList[i].stagePercentage / 100),
-          createdById: _corpusList[i].createdById,
-          createdBy: _corpusList[i].createdBy,
-          createdDate: _corpusList[i].createdDate,
-          modifiedById: _corpusList[i].modifiedById,
-          modifiedBy: _corpusList[i].modifiedBy,
-          modifiedDate: _corpusList[i].modifiedDate,
+              newList[i].proposedOfferCorpusDetailsWithPaymentStageId,
+          uniquekey: newList[i].uniquekey,
+          buildingId: newList[i].buildingId,
+          projectId: newList[i].projectId,
+          type: newList[i].type,
+          stage: newList[i].stage,
+          stagePercentage: newList[i].stagePercentage,
+          amount: value * (newList[i].stagePercentage / 100),
+          createdById: newList[i].createdById,
+          createdBy: newList[i].createdBy,
+          createdDate: newList[i].createdDate,
+          modifiedById: newList[i].modifiedById,
+          modifiedBy: newList[i].modifiedBy,
+          modifiedDate: newList[i].modifiedDate,
         );
       }
     }
-    setState(() {});
+    _corpusListNotifier.value = newList;
   }
 
-  void _prefillDialog(ProposedOfferCorpusDetailsWithPaymentStageData corpus) {
-    _selectedCorpusType = _litigationTypeList.firstWhere(
+  // PREFILL BOTTOM SHEET
+  void _prefillBottomSheet(ProposedOfferCorpusDetailsWithPaymentStageData corpus) {
+    _selectedCorpusType.value = _litigationTypeList.firstWhere(
       (e) => e['DisplayName'] == corpus.type,
       orElse: () => _litigationTypeList.first,
     );
@@ -203,27 +224,30 @@ class _CorpusDetailsState extends State<CorpusDetails> {
     _amountController.text = corpus.amount.toString();
   }
 
+  // CLEAR DIALOG
   void _clearDialog() {
-    _selectedCorpusType = null;
+    _selectedCorpusType.value = null;
     _stageController.clear();
     _stagePercentageController.clear();
     _amountController.clear();
   }
 
+  // SHOW CORPUS BOTTOM SHEET
   Future<void> _showCorpusBottomSheet({
     ProposedOfferCorpusDetailsWithPaymentStageData? corpus,
     int? index,
   }) async {
     if (corpus != null) {
-      _prefillDialog(corpus);
+      _prefillBottomSheet(corpus);
     }
 
     await DialogHelper.showCustomBottomSheet(
       context,
       "Corpus Details",
       SingleChildScrollView(
-        child: StatefulBuilder(
-          builder: (context, setModalState) {
+        child: ValueListenableBuilder<Map<String, dynamic>?>(
+          valueListenable: _selectedCorpusType,
+          builder: (context, selectedCorpusType, _) {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Form(
@@ -234,14 +258,12 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                     /// TYPE
                     CustomDropDownWidget(
                       isRequired: true,
-                      initialValue: _selectedCorpusType,
+                      initialValue: selectedCorpusType,
                       dataList: _litigationTypeList,
                       onSelected: (value) {
-                        setModalState(() {
-                          _selectedCorpusType = value;
-                          _amountController.text = '0.0';
-                          _stagePercentageController.text = '0.0';
-                        });
+                        _selectedCorpusType.value = value;
+                        _amountController.text = '0.0';
+                        _stagePercentageController.text = '0.0';
                       },
                       title: "Type",
                       validator: (value) {
@@ -252,7 +274,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                       },
                     ),
 
-                    /// STAGE
+                    // STAGE
                     CustomTextField(
                       title: "Stage",
                       isRequired: true,
@@ -269,7 +291,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                       },
                     ),
 
-                    /// STAGE %
+                    // STAGE %
                     CustomTextField(
                       title: "Stage Percentage (%)",
                       isRequired: true,
@@ -289,14 +311,14 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                         return null;
                       },
                       onChangeFunction: (value) {
-                        if (_selectedCorpusType == null ||
-                            _selectedCorpusType!['zAttributesId'] == -1) {
+                        if (selectedCorpusType == null ||
+                            selectedCorpusType['zAttributesId'] == -1) {
                           return;
                         }
 
                         double percentage = double.tryParse(value) ?? 0;
 
-                        if (_selectedCorpusType!['zAttributesId'] == 1) {
+                        if (selectedCorpusType['zAttributesId'] == 1) {
                           _amountController.text =
                               ((double.tryParse(
                                             _residentialAmountController.text,
@@ -305,7 +327,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                                       percentage /
                                       100)
                                   .toString();
-                        } else if (_selectedCorpusType!['zAttributesId'] == 2) {
+                        } else if (selectedCorpusType['zAttributesId'] == 2) {
                           _amountController.text =
                               ((double.tryParse(
                                             _commercialAmountController.text,
@@ -315,12 +337,10 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                                       100)
                                   .toString();
                         }
-
-                        setModalState(() {});
                       },
                     ),
 
-                    /// AMOUNT
+                    // AMOUNT
                     CustomTextField(
                       title: "Amount (₹)",
                       textController: _amountController,
@@ -333,12 +353,12 @@ class _CorpusDetailsState extends State<CorpusDetails> {
 
                         double amount = double.tryParse(value) ?? 0;
 
-                        if (_selectedCorpusType == null ||
-                            _selectedCorpusType!['zAttributesId'] == -1) {
+                        if (selectedCorpusType == null ||
+                            selectedCorpusType['zAttributesId'] == -1) {
                           return "Type must be selected first";
                         }
 
-                        if (_selectedCorpusType!['zAttributesId'] == 1 &&
+                        if (selectedCorpusType['zAttributesId'] == 1 &&
                             (double.tryParse(
                                       _residentialAmountController.text,
                                     ) ??
@@ -347,7 +367,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                           return "Residential amount is required";
                         }
 
-                        if (_selectedCorpusType!['zAttributesId'] == 2 &&
+                        if (selectedCorpusType['zAttributesId'] == 2 &&
                             (double.tryParse(
                                       _commercialAmountController.text,
                                     ) ??
@@ -366,12 +386,12 @@ class _CorpusDetailsState extends State<CorpusDetails> {
 
                     verticalSpacing(height: 20),
 
-                    /// SAVE BUTTON
+                    // SAVE BUTTON
                     CustomButton(
                       text: "Save",
                       onPressed: () {
                         if (_corpusFormKey.currentState!.validate()) {
-                          if (_selectedCorpusType!['zAttributesId'] == 1 &&
+                          if (selectedCorpusType!['zAttributesId'] == 1 &&
                               (double.tryParse(
                                         _residentialAmountController.text,
                                       ) ??
@@ -385,7 +405,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                             return;
                           }
 
-                          if (_selectedCorpusType!['zAttributesId'] == 2 &&
+                          if (selectedCorpusType['zAttributesId'] == 2 &&
                               (double.tryParse(
                                         _commercialAmountController.text,
                                       ) ??
@@ -399,14 +419,17 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                             return;
                           }
 
+                          final newList = List<
+                            ProposedOfferCorpusDetailsWithPaymentStageData
+                          >.from(_corpusList);
                           if (corpus == null) {
-                            _corpusList.add(
+                            newList.add(
                               ProposedOfferCorpusDetailsWithPaymentStageData(
                                 proposedOfferCorpusDetailsWithPaymentStageId: 0,
                                 uniquekey: '',
                                 buildingId: widget.buildingId,
                                 projectId: widget.projectId,
-                                type: _selectedCorpusType!['DisplayName'],
+                                type: selectedCorpusType['DisplayName'],
                                 stage: _stageController.text,
                                 stagePercentage: double.parse(
                                   _stagePercentageController.text,
@@ -421,7 +444,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                               ),
                             );
                           } else {
-                            _corpusList[index!] =
+                            newList[index!] =
                                 ProposedOfferCorpusDetailsWithPaymentStageData(
                                   proposedOfferCorpusDetailsWithPaymentStageId:
                                       corpus
@@ -429,7 +452,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                                   uniquekey: corpus.uniquekey,
                                   buildingId: corpus.buildingId,
                                   projectId: corpus.projectId,
-                                  type: _selectedCorpusType!['DisplayName'],
+                                  type: selectedCorpusType['DisplayName'],
                                   stage: _stageController.text,
                                   stagePercentage: double.parse(
                                     _stagePercentageController.text,
@@ -444,7 +467,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                                 );
                           }
 
-                          setState(() {});
+                          _corpusListNotifier.value = newList;
                           Navigator.pop(context);
                         }
                       },
@@ -472,8 +495,8 @@ class _CorpusDetailsState extends State<CorpusDetails> {
           } else {
             _residentialAmountController.clear();
             _commercialAmountController.clear();
-            _selectedCorpusType = null;
-            _corpusList.clear();
+            _selectedCorpusType.value = null;
+            _corpusListNotifier.value = [];
             _stageController.clear();
             _stagePercentageController.clear();
             _amountController.clear();
@@ -506,7 +529,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                       hint: "Enter Residential Corpus Amount (₹)",
                       textController: _residentialAmountController,
                       keyboardType: TextInputType.number,
-                      readOnly: _corpusList.any(
+                      readOnly: _corpusListNotifier.value.any(
                         (item) => item.type.toLowerCase() == 'residential',
                       ),
                       inputFormatterList:
@@ -532,7 +555,7 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                       hint: "Enter Commercial Corpus Amount (₹)",
                       textController: _commercialAmountController,
                       keyboardType: TextInputType.number,
-                      readOnly: _corpusList.any(
+                      readOnly: _corpusListNotifier.value.any(
                         (item) => item.type.toLowerCase() == 'commercial',
                       ),
                       inputFormatterList:
@@ -569,100 +592,112 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                           ],
                         ),
                         verticalSpacing(height: 20),
-                        if (_corpusList.isNotEmpty) ...[
-                          Column(
-                            children: List.generate(_corpusList.length, (
-                              index,
-                            ) {
-                              final corpus = _corpusList[index];
+                        ValueListenableBuilder<
+                          List<ProposedOfferCorpusDetailsWithPaymentStageData>
+                        >(
+                          valueListenable: _corpusListNotifier,
+                          builder: (context, corpusList, _) {
+                            if (corpusList.isNotEmpty) {
+                              return Column(
+                                children: List.generate(corpusList.length, (
+                                  index,
+                                ) {
+                                  final corpus = corpusList[index];
 
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                decoration: BoxDecoration(
-                                  color: AppColor.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: AppColor.grey.withAlpha(80),
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withAlpha(10),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 2),
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    decoration: BoxDecoration(
+                                      color: AppColor.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: AppColor.grey.withAlpha(80),
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withAlpha(10),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      /// HEADER ROW (TYPE + ACTIONS)
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            corpus.type,
-                                            style: AppTextStyle.ts16M(),
-                                          ),
-
+                                          /// HEADER ROW (TYPE + ACTIONS)
                                           Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
-                                              CustomIconButton.edit(
-                                                onPressed: () {
-                                                  _showCorpusBottomSheet(
-                                                    corpus: corpus,
-                                                    index: index,
-                                                  );
-                                                },
+                                              Text(
+                                                corpus.type,
+                                                style: AppTextStyle.ts16M(),
                                               ),
 
-                                              const SizedBox(width: 12),
+                                              Row(
+                                                children: [
+                                                  CustomIconButton.edit(
+                                                    onPressed: () {
+                                                      _showCorpusBottomSheet(
+                                                        corpus: corpus,
+                                                        index: index,
+                                                      );
+                                                    },
+                                                  ),
 
-                                              CustomIconButton.delete(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    _corpusList.removeAt(index);
-                                                  });
-                                                },
+                                                  const SizedBox(width: 12),
+
+                                                  CustomIconButton.delete(
+                                                    onPressed: () {
+                                                      final newList = List<
+                                                        ProposedOfferCorpusDetailsWithPaymentStageData
+                                                      >.from(corpusList);
+                                                      newList.removeAt(index);
+                                                      _corpusListNotifier
+                                                          .value = newList;
+                                                    },
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
+
+                                          Divider(
+                                            color: AppColor.grey.withAlpha(60),
+                                          ),
+
+                                          _buildInfoRow("Stage", corpus.stage),
+                                          _buildInfoRow(
+                                            "Stage %",
+                                            "${corpus.stagePercentage.toStringAsFixed(2)}%",
+                                          ),
+                                          _buildInfoRow(
+                                            "Amount",
+                                            "₹${corpus.amount.toStringAsFixed(2)}",
+                                          ),
                                         ],
                                       ),
-
-                                      Divider(
-                                        color: AppColor.grey.withAlpha(60),
-                                      ),
-
-                                      _buildInfoRow("Stage", corpus.stage),
-                                      _buildInfoRow(
-                                        "Stage %",
-                                        "${corpus.stagePercentage.toStringAsFixed(2)}%",
-                                      ),
-                                      _buildInfoRow(
-                                        "Amount",
-                                        "₹${corpus.amount.toStringAsFixed(2)}",
-                                      ),
-                                    ],
+                                    ),
+                                  );
+                                }),
+                              );
+                            } else {
+                              return Container(
+                                padding: const EdgeInsets.all(40),
+                                child: Center(
+                                  child: Text(
+                                    'No details added',
+                                    style: AppTextStyle.ts16R(
+                                      color: AppColor.grey,
+                                    ),
                                   ),
                                 ),
                               );
-                            }),
-                          ),
-                        ] else ...[
-                          Container(
-                            padding: const EdgeInsets.all(40),
-                            child: Center(
-                              child: Text(
-                                'No details added',
-                                style: AppTextStyle.ts16R(color: AppColor.grey),
-                              ),
-                            ),
-                          ),
-                        ],
+                            }
+                          },
+                        ),
                         verticalSpacing(height: 20),
                         CustomButton(text: "Save", onPressed: _onSave),
                         verticalSpacing(height: 20),

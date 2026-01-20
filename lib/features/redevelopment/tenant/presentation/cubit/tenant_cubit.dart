@@ -68,25 +68,43 @@ class TenantCubit extends Cubit<TenantState> {
         showErrorMessage(context, "Error Message", failure.message);
         return state.buildingList;
       },
+
       (response) {
-        final newData = List<RedevelopmentBuildingModel>.from(
-          response['data'] as List<RedevelopmentBuildingModel>,
-        );
-        final existingIds = state.buildingList.map((b) => b.buildingId).toSet();
-        final uniqueNewData =
-            newData
-                .where((building) => !existingIds.contains(building.buildingId))
-                .toList();
-        List<RedevelopmentBuildingModel> updatedList = List.from(
-          state.buildingList,
-        );
-        updatedList.addAll(uniqueNewData);
+        final newData = List<RedevelopmentBuildingModel>.from(response['data']);
+
+        List<RedevelopmentBuildingModel> updatedList;
+
+        if (pageNumber == 1) {
+          updatedList =
+              state.buildingList
+                  .where((b) => b.projectId != projectId)
+                  .toList();
+        } else {
+          updatedList = List.from(state.buildingList);
+        }
+
+        final Map<int, RedevelopmentBuildingModel> uniqueMap = {
+          for (var b in updatedList) b.buildingId: b,
+        };
+
+        for (final b in newData) {
+          if (b.projectId == projectId) {
+            uniqueMap[b.buildingId] = b;
+          }
+        }
+
+        updatedList = uniqueMap.values.toList();
+
         final totalCount = response['totalNumberOfRecord'] ?? 0;
-        emit(state.copyWith(
-          isLoading: false,
-          buildingList: updatedList,
-          buildingTotalCount: totalCount,
-        ));
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            buildingList: updatedList,
+            buildingTotalCount: totalCount,
+          ),
+        );
+
         return updatedList;
       },
     );

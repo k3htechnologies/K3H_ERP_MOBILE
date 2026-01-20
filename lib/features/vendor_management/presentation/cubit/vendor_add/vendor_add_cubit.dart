@@ -98,6 +98,7 @@ class VendorAddCubit extends Cubit<VendorAddState> {
     required String stateMasterId,
     required String districtMasterId,
     required String cityMasterId,
+    required String villageMasterId,
     required String subMaterialIds,
     required String contractIds,
     required MultiFilePickerModel aadharCard,
@@ -123,6 +124,7 @@ class VendorAddCubit extends Cubit<VendorAddState> {
       "StateMasterId": stateMasterId,
       "DistrictMasterId": districtMasterId,
       "CityMasterId": cityMasterId,
+      "VillageMasterId": villageMasterId,
       "AvailableMaterialList": subMaterialIds,
       "AvailableContractList": "",
     };
@@ -188,6 +190,7 @@ class VendorAddCubit extends Cubit<VendorAddState> {
     required String stateMasterId,
     required String districtMasterId,
     required String cityMasterId,
+    required String villageMasterId,
     required String subMaterialIds,
     required String contractIds,
     required MultiFilePickerModel aadharCard,
@@ -215,6 +218,7 @@ class VendorAddCubit extends Cubit<VendorAddState> {
       "StateMasterId": stateMasterId,
       "DistrictMasterId": districtMasterId,
       "CityMasterId": cityMasterId,
+      "VillageMasterId": villageMasterId,
       "AvailableMaterialList": subMaterialIds,
       "AvailableContractList": "",
     };

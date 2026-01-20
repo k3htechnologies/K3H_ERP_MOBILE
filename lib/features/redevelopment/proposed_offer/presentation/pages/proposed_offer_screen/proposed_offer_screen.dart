@@ -59,55 +59,82 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
   }
 
   Future<Map<String, dynamic>> _fetchBuildings(
-    int pageNumber, {
-    String? value,
-  }) async {
-    final buildingList =
-        _proposedOfferCubit.state.buildingList
-            .where((b) => b.projectId == _project.projectId)
-            .toList();
+      int pageNumber, {
+        String? value,
+      }) async {
 
+    final buildingList = _proposedOfferCubit.state.buildingList
+        .where((b) => b.projectId == _project.projectId)
+        .toList();
+
+    final totalCount =
+        _proposedOfferCubit.state.buildingTotalCount;
+
+    final pageSize = 12;
+
+    //  SEARCH MODE
     if (value != null && value.isNotEmpty) {
-      final filteredBuildings =
-          buildingList
-              .where(
-                (building) => building.buildingName.toLowerCase().contains(
-                  value.toLowerCase(),
-                ),
-              )
-              .toList();
+
+      final filteredBuildings = buildingList.where((building) =>
+          building.buildingName
+              .toLowerCase()
+              .contains(value.toLowerCase())
+      ).toList();
+
+      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
+
+      for (final b in filteredBuildings) {
+        uniqueFiltered[b.buildingId] = {
+          "zAttributesId": b.buildingId,
+          "DisplayName": b.buildingName,
+        };
+      }
 
       return {
-        "itemList":
-            filteredBuildings.map((building) {
-              return {
-                "zAttributesId": building.buildingId,
-                "DisplayName": building.buildingName,
-              };
-            }).toList(),
-        "totalNumberOfRecord": filteredBuildings.length,
+        "itemList": uniqueFiltered.values.toList(),
+        "totalNumberOfRecord": uniqueFiltered.length,
+      };
+    }
+
+    final currentLoadedCount = buildingList.length;
+
+    if (currentLoadedCount < totalCount) {
+
+      await _proposedOfferCubit.getBuildingList(
+        context,
+        pageNumber,
+        pageSize,
+        _project.projectId,
+      );
+    }
+
+    final updatedList = _proposedOfferCubit.state.buildingList
+        .where((b) => b.projectId == _project.projectId)
+        .toList();
+
+    final Map<int, Map<String, dynamic>> uniqueBuildings = {};
+
+    for (final b in updatedList) {
+      uniqueBuildings[b.buildingId] = {
+        "zAttributesId": b.buildingId,
+        "DisplayName": b.buildingName,
       };
     }
 
     return {
-      "itemList":
-          buildingList.map((building) {
-            return {
-              "zAttributesId": building.buildingId,
-              "DisplayName": building.buildingName,
-            };
-          }).toList(),
-      "totalNumberOfRecord": buildingList.length,
+      "itemList": uniqueBuildings.values.toList(),
+      "totalNumberOfRecord":
+      totalCount > 0 ? totalCount : uniqueBuildings.length,
     };
   }
 
   // LOAD BUILDINGS FOR PROJECT
   Future<void> _loadBuildingsForProject(int projectId) async {
-    if (_proposedOfferCubit.state.buildingList.isEmpty ||
-        _proposedOfferCubit.state.buildingList.any(
-          (b) => b.projectId != projectId,
-        )) {
-      await _proposedOfferCubit.getBuildingList(context, 1, 100, projectId);
+    final hasBuildingsForProject = _proposedOfferCubit.state.buildingList
+        .any((b) => b.projectId == projectId);
+    
+    if (!hasBuildingsForProject || _proposedOfferCubit.state.buildingList.isEmpty) {
+      await _proposedOfferCubit.getBuildingList(context, 1, 12, projectId);
     }
     if (mounted) {
       _selectedBuildingNotifier.value = [];

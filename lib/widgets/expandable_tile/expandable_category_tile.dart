@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/models/amenity_category.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/amenity_category.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';

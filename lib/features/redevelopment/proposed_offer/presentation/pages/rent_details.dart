@@ -41,8 +41,10 @@ class _RentDetailsState extends State<RentDetails> {
   late TextEditingController _carpetAreaSqFtController;
 
   // DATE VARIABLES
-  DateTime? _rentStartDate;
-  DateTime? _rentEndDate;
+  final ValueNotifier<DateTime?> _rentStartDate = ValueNotifier<DateTime?>(
+    null,
+  );
+  final ValueNotifier<DateTime?> _rentEndDate = ValueNotifier<DateTime?>(null);
 
   // DROPDOWN SELECTIONS
   Map<String, dynamic>? _selectedType;
@@ -50,8 +52,8 @@ class _RentDetailsState extends State<RentDetails> {
   Map<String, dynamic>? _selectedUnitSqFtLumsum;
 
   // BOOLEAN VALUES
-  bool _isAdditionalRent = false;
-  bool _isPayBrokerage = false;
+  final ValueNotifier<bool> _isAdditionalRent = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _isPayBrokerage = ValueNotifier<bool>(false);
 
   // DROPDOWN LISTS
   final List<Map<String, dynamic>> _typeList = [
@@ -60,6 +62,7 @@ class _RentDetailsState extends State<RentDetails> {
     {"zAttributesId": 2, "DisplayName": "Commercial"},
   ];
 
+  // TENURE LIST
   final List<Map<String, dynamic>> _tenureList = [
     {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "Tenure 1"},
@@ -69,6 +72,7 @@ class _RentDetailsState extends State<RentDetails> {
     {"zAttributesId": 5, "DisplayName": "Tenure 5"},
   ];
 
+  // UNIT SQ FT LUMSUM LIST
   final List<Map<String, dynamic>> _unitSqFtLumsumList = [
     {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "Per Sq Ft"},
@@ -90,16 +94,21 @@ class _RentDetailsState extends State<RentDetails> {
     });
   }
 
-  void _initializeControllers() {
-    _amountController = TextEditingController();
-    _carpetAreaSqFtController = TextEditingController();
-  }
-
   @override
   void dispose() {
     _amountController.dispose();
     _carpetAreaSqFtController.dispose();
+    _rentStartDate.dispose();
+    _rentEndDate.dispose();
+    _isAdditionalRent.dispose();
+    _isPayBrokerage.dispose();
     super.dispose();
+  }
+
+  // INITIALIZE CONTROLLERS
+  void _initializeControllers() {
+    _amountController = TextEditingController();
+    _carpetAreaSqFtController = TextEditingController();
   }
 
   // DIALOGUE TO DELETE RENT DETAILS
@@ -125,13 +134,16 @@ class _RentDetailsState extends State<RentDetails> {
     }
   }
 
-  void _prefillDialogueToUpdatedRentDetails(RentDetailsModel rentDetailsModel) {
+  // BOTTOM SHEET TO UPDATE RENT DETAILS
+  void __prefillBottomSheetToUpdatedRentDetails(
+    RentDetailsModel rentDetailsModel,
+  ) {
     _amountController.text = rentDetailsModel.amount.toString();
     _carpetAreaSqFtController.text = rentDetailsModel.carpetAreaSqFt.toString();
-    _rentStartDate = rentDetailsModel.rentStartDate;
-    _rentEndDate = rentDetailsModel.rentEndDate;
-    _isAdditionalRent = rentDetailsModel.isAdditionalRent;
-    _isPayBrokerage = rentDetailsModel.isPayBrokerage;
+    _rentStartDate.value = rentDetailsModel.rentStartDate;
+    _rentEndDate.value = rentDetailsModel.rentEndDate;
+    _isAdditionalRent.value = rentDetailsModel.isAdditionalRent;
+    _isPayBrokerage.value = rentDetailsModel.isPayBrokerage;
 
     // Prefill dropdowns
     _selectedType = _typeList.firstWhere(
@@ -150,6 +162,7 @@ class _RentDetailsState extends State<RentDetails> {
     );
   }
 
+  // COMMON CARD SECTION
   Widget _buildCardSection(String title, List<Widget> children) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -166,6 +179,7 @@ class _RentDetailsState extends State<RentDetails> {
     );
   }
 
+  // RADIO BUTTON
   Widget _buildRadio({
     required String title,
     required String value,
@@ -188,260 +202,277 @@ class _RentDetailsState extends State<RentDetails> {
     );
   }
 
+  // BOTTOM SHEET TO ADD RENT DETAILS
   Future<void> _showBottomSheetToAddRentDetails({
     RentDetailsModel? rentDetailsModel,
     int? index,
   }) async {
     if (rentDetailsModel != null) {
-      _prefillDialogueToUpdatedRentDetails(rentDetailsModel);
+      __prefillBottomSheetToUpdatedRentDetails(rentDetailsModel);
     }
 
     await DialogHelper.showCustomBottomSheet(
       context,
       "Add Details",
-      StatefulBuilder(
-        builder: (context, setStateSB) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // BASIC DETAILS
-                  _buildCardSection("Basic Details", [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildRadio(
-                            title: "Is Additional Rent",
-                            value: 'additional',
-                            groupValue:
-                                _isAdditionalRent
-                                    ? 'additional'
-                                    : _isPayBrokerage
-                                    ? 'brokerage'
-                                    : null,
-                            onChanged: (val) {
-                              setStateSB(() {
-                                _isAdditionalRent = true;
-                                _isPayBrokerage = false;
-                              });
-                            },
-                          ),
-                        ),
-                        horizontalSpacing(),
-                        Expanded(
-                          child: _buildRadio(
-                            title: "Is Pay Brokerage",
-                            value: 'brokerage',
-                            groupValue:
-                                _isAdditionalRent
-                                    ? 'additional'
-                                    : _isPayBrokerage
-                                    ? 'brokerage'
-                                    : null,
-                            onChanged: (val) {
-                              setStateSB(() {
-                                _isAdditionalRent = false;
-                                _isPayBrokerage = true;
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    verticalSpacing(),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomDropDownWidget(
-                            title: 'Type',
-                            isRequired: true,
-                            dataList: _typeList,
-                            initialValue: _selectedType,
-                            onSelected: (v) => _selectedType = v,
-                            validator:
-                                (v) =>
-                                    v == null || v['zAttributesId'] == -1
-                                        ? "Type is required"
+      ValueListenableBuilder<bool>(
+        valueListenable: _isAdditionalRent,
+        builder: (context, isAdditionalRent, _) {
+          return ValueListenableBuilder<bool>(
+            valueListenable: _isPayBrokerage,
+            builder: (context, isPayBrokerage, __) {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // BASIC DETAILS
+                      _buildCardSection("Basic Details", [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildRadio(
+                                title: "Is Additional Rent",
+                                value: 'additional',
+                                groupValue:
+                                    isAdditionalRent
+                                        ? 'additional'
+                                        : isPayBrokerage
+                                        ? 'brokerage'
                                         : null,
-                          ),
+                                onChanged: (val) {
+                                  _isAdditionalRent.value = true;
+                                  _isPayBrokerage.value = false;
+                                },
+                              ),
+                            ),
+                            horizontalSpacing(),
+                            Expanded(
+                              child: _buildRadio(
+                                title: "Is Pay Brokerage",
+                                value: 'brokerage',
+                                groupValue:
+                                    isAdditionalRent
+                                        ? 'additional'
+                                        : isPayBrokerage
+                                        ? 'brokerage'
+                                        : null,
+                                onChanged: (val) {
+                                  _isAdditionalRent.value = false;
+                                  _isPayBrokerage.value = true;
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                        horizontalSpacing(),
-                        Expanded(
-                          child:
-                              !_isAdditionalRent
-                                  ? CustomDropDownWidget(
-                                    title: 'Tenure',
-                                    isRequired: true,
-                                    dataList: _tenureList,
-                                    initialValue: _selectedTenure,
-                                    onSelected: (v) => _selectedTenure = v,
-                                    validator: (v) {
-                                      if (_isAdditionalRent) return null;
-                                      if (v == null ||
-                                          v['zAttributesId'] == -1) {
-                                        return "Tenure is required";
-                                      }
-                                      return null;
-                                    },
-                                  )
-                                  : const SizedBox(),
-                        ),
-                      ],
-                    ),
-                  ]),
 
-                  // AMOUNT & AREA
-                  _buildCardSection("Amount & Area Details*", [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextField(
-                            title: "Amount",
-                            isRequired: true,
-                            hint: "Enter Amount",
-                            textController: _amountController,
-                            keyboardType: TextInputType.number,
-                            inputFormatterList:
-                                inputFormatterListForDecimalValuesFixedToTwo(
-                                  10,
+                        verticalSpacing(),
+
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomDropDownWidget(
+                                title: 'Type',
+                                isRequired: true,
+                                dataList: _typeList,
+                                initialValue: _selectedType,
+                                onSelected: (v) => _selectedType = v,
+                                validator:
+                                    (v) =>
+                                        v == null || v['zAttributesId'] == -1
+                                            ? "Type is required"
+                                            : null,
+                              ),
+                            ),
+                            horizontalSpacing(),
+                            Expanded(
+                              child:
+                                  !isAdditionalRent
+                                      ? CustomDropDownWidget(
+                                        title: 'Tenure',
+                                        isRequired: true,
+                                        dataList: _tenureList,
+                                        initialValue: _selectedTenure,
+                                        onSelected: (v) => _selectedTenure = v,
+                                        validator: (v) {
+                                          if (isAdditionalRent) return null;
+                                          if (v == null ||
+                                              v['zAttributesId'] == -1) {
+                                            return "Tenure is required";
+                                          }
+                                          return null;
+                                        },
+                                      )
+                                      : const SizedBox(),
+                            ),
+                          ],
+                        ),
+                      ]),
+
+                      // AMOUNT & AREA
+                      _buildCardSection("Amount & Area Details*", [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomTextField(
+                                title: "Amount",
+                                isRequired: true,
+                                hint: "Enter Amount",
+                                textController: _amountController,
+                                keyboardType: TextInputType.number,
+                                inputFormatterList:
+                                    inputFormatterListForDecimalValuesFixedToTwo(
+                                      10,
+                                    ),
+                                validator:
+                                    (v) =>
+                                        v == null || v.isEmpty
+                                            ? "Amount is required"
+                                            : null,
+                              ),
+                            ),
+                            horizontalSpacing(),
+                            Expanded(
+                              child: CustomDropDownWidget(
+                                title: 'Unit Sq Ft Lumsum',
+                                isRequired: true,
+                                dataList: _unitSqFtLumsumList,
+                                initialValue: _selectedUnitSqFtLumsum,
+                                onSelected: (v) => _selectedUnitSqFtLumsum = v,
+                                validator:
+                                    (v) =>
+                                        v == null || v['zAttributesId'] == -1
+                                            ? "Unit Sq Ft Lumsum is required"
+                                            : null,
+                              ),
+                            ),
+                          ],
+                        ),
+                        CustomTextField(
+                          title: "Carpet Area Sq Ft",
+                          isRequired: true,
+                          hint: "Enter Carpet Area Sq Ft",
+                          textController: _carpetAreaSqFtController,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList:
+                              inputFormatterListForDecimalValuesFixedToTwo(10),
+                          validator:
+                              (v) =>
+                                  v == null || v.isEmpty
+                                      ? "Carpet Area Sq Ft is required"
+                                      : null,
+                        ),
+                      ]),
+
+                      // DATE DETAILS
+                      ValueListenableBuilder<DateTime?>(
+                        valueListenable: _rentStartDate,
+                        builder: (context, rentStartDate, _) {
+                          return ValueListenableBuilder<DateTime?>(
+                            valueListenable: _rentEndDate,
+                            builder: (context, rentEndDate, __) {
+                              return _buildCardSection("Date Details*", [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: CustomDatePicker(
+                                        title: "Rent Start Date",
+                                        isRequired: true,
+                                        initialDate: rentStartDate,
+                                        startDate: DateTime(2000),
+                                        endDate: DateTime(2100),
+                                        setValue:
+                                            (d) => _rentStartDate.value = d,
+                                        validator:
+                                            (v) =>
+                                                v == null
+                                                    ? "Rent Start Date is required"
+                                                    : null,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: CustomDatePicker(
+                                        title: "Rent End Date",
+                                        isRequired: true,
+                                        initialDate: rentEndDate,
+                                        startDate: DateTime(2000),
+                                        endDate: DateTime(2100),
+                                        setValue: (d) => _rentEndDate.value = d,
+                                        validator: (v) {
+                                          if (v == null) {
+                                            return "Rent End Date is required";
+                                          }
+                                          if (rentStartDate == v) {
+                                            return "Dates can't be same";
+                                          }
+                                          if (rentStartDate != null &&
+                                              rentStartDate.isAfter(v)) {
+                                            return "End date must be greater";
+                                          }
+                                          if (isAdditionalRent &&
+                                              (v.month !=
+                                                      rentStartDate?.month ||
+                                                  v.year !=
+                                                      rentStartDate?.year)) {
+                                            return "Must be same month";
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                            validator:
-                                (v) =>
-                                    v == null || v.isEmpty
-                                        ? "Amount is required"
-                                        : null,
-                          ),
-                        ),
-                        horizontalSpacing(),
-                        Expanded(
-                          child: CustomDropDownWidget(
-                            title: 'Unit Sq Ft Lumsum',
-                            isRequired: true,
-                            dataList: _unitSqFtLumsumList,
-                            initialValue: _selectedUnitSqFtLumsum,
-                            onSelected: (v) => _selectedUnitSqFtLumsum = v,
-                            validator:
-                                (v) =>
-                                    v == null || v['zAttributesId'] == -1
-                                        ? "Unit Sq Ft Lumsum is required"
-                                        : null,
-                          ),
-                        ),
-                      ],
-                    ),
-                    CustomTextField(
-                      title: "Carpet Area Sq Ft",
-                      isRequired: true,
-                      hint: "Enter Carpet Area Sq Ft",
-                      textController: _carpetAreaSqFtController,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(10),
-                      validator:
-                          (v) =>
-                              v == null || v.isEmpty
-                                  ? "Carpet Area Sq Ft is required"
-                                  : null,
-                    ),
-                  ]),
-
-                  // DATE DETAILS
-                  _buildCardSection("Date Details*", [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomDatePicker(
-                            title: "Rent Start Date",
-                            isRequired: true,
-                            initialDate: _rentStartDate,
-                            startDate: DateTime(2000),
-                            endDate: DateTime(2100),
-                            setValue:
-                                (d) => setStateSB(() => _rentStartDate = d),
-                            validator:
-                                (v) =>
-                                    v == null
-                                        ? "Rent Start Date is required"
-                                        : null,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: CustomDatePicker(
-                            title: "Rent End Date",
-                            isRequired: true,
-                            initialDate: _rentEndDate,
-                            startDate: DateTime(2000),
-                            endDate: DateTime(2100),
-                            setValue: (d) => setStateSB(() => _rentEndDate = d),
-                            validator: (v) {
-                              if (v == null) {
-                                return "Rent End Date is required";
-                              }
-                              if (_rentStartDate == v) {
-                                return "Dates can't be same";
-                              }
-                              if (_rentStartDate != null &&
-                                  _rentStartDate!.isAfter(v)) {
-                                return "End date must be greater";
-                              }
-                              if (_isAdditionalRent &&
-                                  (v.month != _rentStartDate?.month ||
-                                      v.year != _rentStartDate?.year)) {
-                                return "Must be same month";
-                              }
-                              return null;
+                              ]);
                             },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ]),
-
-                  verticalSpacing(height: 20),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: CustomButton(
-                      text: "Save",
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          if (_isAdditionalRent &&
-                              (_rentStartDate?.month != _rentEndDate?.month ||
-                                  _rentStartDate?.year != _rentEndDate?.year)) {
-                            showErrorMessage(
-                              context,
-                              "Invalid Dates",
-                              "Dates must be in same month.",
-                            );
-                            return;
-                          }
-
-                          if (_isAdditionalRent) {
-                            _selectedTenure = {
-                              'zAttributesId': -1,
-                              'zAttributesName': '',
-                            };
-                          }
-
-                          _onSave(
-                            rentDetailsModel: rentDetailsModel,
-                            index: index,
                           );
+                        },
+                      ),
 
-                          Navigator.pop(context);
-                        }
-                      },
-                    ),
+                      verticalSpacing(height: 20),
+
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: CustomButton(
+                          text: "Save",
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              final startDate = _rentStartDate.value;
+                              final endDate = _rentEndDate.value;
+                              if (isAdditionalRent &&
+                                  (startDate?.month != endDate?.month ||
+                                      startDate?.year != endDate?.year)) {
+                                showErrorMessage(
+                                  context,
+                                  "Invalid Dates",
+                                  "Dates must be in same month.",
+                                );
+                                return;
+                              }
+
+                              if (isAdditionalRent) {
+                                _selectedTenure = {
+                                  'zAttributesId': -1,
+                                  'zAttributesName': '',
+                                };
+                              }
+
+                              _onSave(
+                                rentDetailsModel: rentDetailsModel,
+                                index: index,
+                              );
+
+                              Navigator.pop(context);
+                            }
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -450,16 +481,17 @@ class _RentDetailsState extends State<RentDetails> {
     _clearDialogueToUpdatedRentDetails();
   }
 
+  // CLEAR DIALOGUE TO UPDATED RENT DETAILS
   void _clearDialogueToUpdatedRentDetails() {
     _selectedType = null;
     _selectedTenure = null;
     _selectedUnitSqFtLumsum = null;
     _amountController.clear();
     _carpetAreaSqFtController.clear();
-    _rentStartDate = null;
-    _rentEndDate = null;
-    _isAdditionalRent = false;
-    _isPayBrokerage = false;
+    _rentStartDate.value = null;
+    _rentEndDate.value = null;
+    _isAdditionalRent.value = false;
+    _isPayBrokerage.value = false;
   }
 
   // API CALLS TO ADD/UPDATE RENT DETAILS
@@ -478,34 +510,35 @@ class _RentDetailsState extends State<RentDetails> {
             proposedOfferRentDetailsId:
                 rentDetailsModel.proposedOfferRentDetailsId,
             uniqueKey: rentDetailsModel.uniquekey,
-            isAdditionalRent: _isAdditionalRent,
+            isAdditionalRent: _isAdditionalRent.value,
             type: _selectedType!['DisplayName'],
             tenure: _selectedTenure?['DisplayName'] ?? "",
             amount: double.parse(_amountController.text),
             unitSqFtLumsum: _selectedUnitSqFtLumsum!['DisplayName'],
             carpetAreaSqFt: double.parse(_carpetAreaSqFtController.text),
-            rentStartDate: _rentStartDate!,
-            rentEndDate: _rentEndDate!,
-            isPayBrokerage: _isPayBrokerage,
+            rentStartDate: _rentStartDate.value!,
+            rentEndDate: _rentEndDate.value!,
+            isPayBrokerage: _isPayBrokerage.value,
             index: index,
           )
           : _cubit.addUpdateRentDetails(
             context,
             buildingId: widget.buildingId,
             projectId: widget.projectId,
-            isAdditionalRent: _isAdditionalRent,
+            isAdditionalRent: _isAdditionalRent.value,
             type: _selectedType!['DisplayName'],
             tenure: _selectedTenure?['DisplayName'] ?? "",
             amount: double.parse(_amountController.text),
             unitSqFtLumsum: _selectedUnitSqFtLumsum!['DisplayName'],
             carpetAreaSqFt: double.parse(_carpetAreaSqFtController.text),
-            rentStartDate: _rentStartDate!,
-            rentEndDate: _rentEndDate!,
-            isPayBrokerage: _isPayBrokerage,
+            rentStartDate: _rentStartDate.value!,
+            rentEndDate: _rentEndDate.value!,
+            isPayBrokerage: _isPayBrokerage.value,
           );
     }
   }
 
+  // SAVE
   void _onSave({RentDetailsModel? rentDetailsModel, int? index}) {
     if (_formKey.currentState!.validate()) {
       _addUpdateRentDetails(
@@ -665,6 +698,7 @@ class _RentDetailsState extends State<RentDetails> {
     );
   }
 
+  // BUILD RENT INFO ROW
   Widget _buildRentInfoRow(String title, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),

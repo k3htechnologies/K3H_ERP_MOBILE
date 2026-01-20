@@ -428,7 +428,17 @@ class _DropdownListState extends State<DropdownList> {
 
     setState(() {
       totalNumberOfRecord = result["totalNumberOfRecord"] ?? 0;
-      tempDataListForSearch.addAll(fetchedItems);
+
+      final Map<dynamic, Map<String, dynamic>> uniqueMap = {
+        for (var item in tempDataListForSearch)
+          item['zAttributesId']: item
+      };
+
+      for (var item in fetchedItems) {
+        uniqueMap[item['zAttributesId']] = item;
+      }
+
+      tempDataListForSearch = uniqueMap.values.toList();
       isLoading = false;
     });
   }

@@ -41,11 +41,19 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     {'zAttributesId': 2, 'DisplayName': 'Commercial'},
   ];
 
-  final List<ProposedOfferSecurityDepositDetailsWithPaymentStageData>
-  _securityDepositList = [];
+  final ValueNotifier<
+    List<ProposedOfferSecurityDepositDetailsWithPaymentStageData>
+  >
+  _securityDepositListNotifier = ValueNotifier<
+    List<ProposedOfferSecurityDepositDetailsWithPaymentStageData>
+  >([]);
+
+  List<ProposedOfferSecurityDepositDetailsWithPaymentStageData>
+  get _securityDepositList => _securityDepositListNotifier.value;
 
   // SECURITY DEPOSIT FORM CONTROLLERS
-  Map<String, dynamic>? _selectedSecurityDepositType;
+  final ValueNotifier<Map<String, dynamic>?> _selectedSecurityDepositType =
+      ValueNotifier<Map<String, dynamic>?>(null);
   late TextEditingController _stageController;
   late TextEditingController _amountController;
   final GlobalKey<FormState> _securityDepositFormKey = GlobalKey<FormState>();
@@ -66,26 +74,30 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     _securityDepositAmountController.dispose();
     _stageController.dispose();
     _amountController.dispose();
+    _securityDepositListNotifier.dispose();
+    _selectedSecurityDepositType.dispose();
     super.dispose();
   }
 
+  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _securityDepositAmountController = TextEditingController();
     _stageController = TextEditingController();
     _amountController = TextEditingController();
   }
 
+  // FILL DATA
   void fillData() {
     var securityDepositDetailsModel = _cubit.state.securityDepositDetails!;
     _securityDepositAmountController.text =
         securityDepositDetailsModel.securityDepositToSocietyAmount.toString();
-    _securityDepositList.clear();
-    _securityDepositList.addAll(
+    _securityDepositListNotifier.value = List.from(
       securityDepositDetailsModel
           .proposedOfferSecurityDepositDetailsWithPaymentStageData,
     );
   }
 
+  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       if (_securityDepositList.isEmpty) {
@@ -108,20 +120,22 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     }
   }
 
+  // BOTTOM SHEET TO ADD SECURITY DEPOSIT DETAILS
   Future<void> _showSecurityDepositBottomSheet({
     ProposedOfferSecurityDepositDetailsWithPaymentStageData? securityDeposit,
     int? index,
   }) async {
     if (securityDeposit != null) {
-      _prefillDialog(securityDeposit);
+      _prefillBottomSheet(securityDeposit);
     }
 
     await DialogHelper.showCustomBottomSheet(
       context,
       "Add Security Deposit Details",
       SingleChildScrollView(
-        child: StatefulBuilder(
-          builder: (context, setModalState) {
+        child: ValueListenableBuilder<Map<String, dynamic>?>(
+          valueListenable: _selectedSecurityDepositType,
+          builder: (context, selectedSecurityDepositType, _) {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Form(
@@ -132,12 +146,10 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                     /// TYPE
                     CustomDropDownWidget(
                       isRequired: true,
-                      initialValue: _selectedSecurityDepositType,
+                      initialValue: selectedSecurityDepositType,
                       dataList: _securityDepositTypeList,
                       onSelected: (value) {
-                        setModalState(() {
-                          _selectedSecurityDepositType = value;
-                        });
+                        _selectedSecurityDepositType.value = value;
                       },
                       title: "Type*",
                       validator: (value) {
@@ -192,8 +204,11 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                       text: "Save",
                       onPressed: () {
                         if (_securityDepositFormKey.currentState!.validate()) {
+                          final newList = List<
+                            ProposedOfferSecurityDepositDetailsWithPaymentStageData
+                          >.from(_securityDepositList);
                           if (securityDeposit == null) {
-                            _securityDepositList.add(
+                            newList.add(
                               ProposedOfferSecurityDepositDetailsWithPaymentStageData(
                                 proposedOfferSecurityDepositDetailsWithPaymentStageId:
                                     0,
@@ -201,7 +216,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                                 buildingId: widget.buildingId,
                                 projectId: widget.projectId,
                                 type:
-                                    _selectedSecurityDepositType!['DisplayName'],
+                                    selectedSecurityDepositType!['DisplayName'],
                                 stage: _stageController.text,
                                 amount: double.parse(_amountController.text),
                                 createdById: 1,
@@ -213,7 +228,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                               ),
                             );
                           } else {
-                            _securityDepositList[index!] =
+                            newList[index!] =
                                 ProposedOfferSecurityDepositDetailsWithPaymentStageData(
                                   proposedOfferSecurityDepositDetailsWithPaymentStageId:
                                       securityDeposit
@@ -222,7 +237,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                                   buildingId: securityDeposit.buildingId,
                                   projectId: securityDeposit.projectId,
                                   type:
-                                      _selectedSecurityDepositType!['DisplayName'],
+                                      selectedSecurityDepositType!['DisplayName'],
                                   stage: _stageController.text,
                                   amount: double.parse(_amountController.text),
                                   createdById: securityDeposit.createdById,
@@ -234,7 +249,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                                 );
                           }
 
-                          setState(() {});
+                          _securityDepositListNotifier.value = newList;
                           Navigator.pop(context);
                         }
                       },
@@ -253,6 +268,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     _clearDialog();
   }
 
+  // CHECK IF SECURITY AMOUNT EXCEEDS
   bool _isSecurityAmountExceeding(int? editIndex) {
     double limit = double.tryParse(_securityDepositAmountController.text) ?? 0;
 
@@ -269,10 +285,11 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     return sum > limit;
   }
 
-  void _prefillDialog(
+  // PREFILL BOTTOM SHEET
+  void _prefillBottomSheet(
     ProposedOfferSecurityDepositDetailsWithPaymentStageData securityDeposit,
   ) {
-    _selectedSecurityDepositType = _securityDepositTypeList.firstWhere(
+    _selectedSecurityDepositType.value = _securityDepositTypeList.firstWhere(
       (e) => e['DisplayName'] == securityDeposit.type,
       orElse: () => _securityDepositTypeList.first,
     );
@@ -281,7 +298,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
   }
 
   void _clearDialog() {
-    _selectedSecurityDepositType = null;
+    _selectedSecurityDepositType.value = null;
     _stageController.clear();
     _amountController.clear();
   }
@@ -295,8 +312,8 @@ class _SecurityDepositState extends State<SecurityDeposit> {
             fillData();
           } else {
             _securityDepositAmountController.clear();
-            _selectedSecurityDepositType = null;
-            _securityDepositList.clear();
+            _selectedSecurityDepositType.value = null;
+            _securityDepositListNotifier.value = [];
             _stageController.clear();
             _amountController.clear();
           }
@@ -348,99 +365,114 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                           ],
                         ),
                         verticalSpacing(height: 20),
-                        if (_securityDepositList.isNotEmpty) ...[
-                          Column(
-                            children: List.generate(_securityDepositList.length, (
-                              index,
-                            ) {
-                              final securityDeposit =
-                                  _securityDepositList[index];
+                        ValueListenableBuilder<
+                          List<
+                            ProposedOfferSecurityDepositDetailsWithPaymentStageData
+                          >
+                        >(
+                          valueListenable: _securityDepositListNotifier,
+                          builder: (context, securityDepositList, _) {
+                            if (securityDepositList.isNotEmpty) {
+                              return Column(
+                                children: List.generate(securityDepositList.length, (
+                                  index,
+                                ) {
+                                  final securityDeposit =
+                                      securityDepositList[index];
 
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                decoration: BoxDecoration(
-                                  color: AppColor.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: AppColor.grey.withAlpha(80),
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withAlpha(10),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 2),
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    decoration: BoxDecoration(
+                                      color: AppColor.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: AppColor.grey.withAlpha(80),
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withAlpha(10),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      /// HEADER (TYPE + ACTIONS)
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            securityDeposit.type,
-                                            style: AppTextStyle.ts16M(),
-                                          ),
+                                          /// HEADER (TYPE + ACTIONS)
                                           Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
-                                              CustomIconButton.edit(
-                                                onPressed: () {
-                                                  _showSecurityDepositBottomSheet(
-                                                    securityDeposit:
-                                                        securityDeposit,
-                                                    index: index,
-                                                  );
-                                                },
+                                              Text(
+                                                securityDeposit.type,
+                                                style: AppTextStyle.ts16M(),
                                               ),
-                                              const SizedBox(width: 12),
-                                              CustomIconButton.delete(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    _securityDepositList
-                                                        .removeAt(index);
-                                                  });
-                                                },
+                                              Row(
+                                                children: [
+                                                  CustomIconButton.edit(
+                                                    onPressed: () {
+                                                      _showSecurityDepositBottomSheet(
+                                                        securityDeposit:
+                                                            securityDeposit,
+                                                        index: index,
+                                                      );
+                                                    },
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  CustomIconButton.delete(
+                                                    onPressed: () {
+                                                      final newList = List<
+                                                        ProposedOfferSecurityDepositDetailsWithPaymentStageData
+                                                      >.from(
+                                                        securityDepositList,
+                                                      );
+                                                      newList.removeAt(index);
+                                                      _securityDepositListNotifier
+                                                          .value = newList;
+                                                    },
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
+
+                                          Divider(
+                                            color: AppColor.grey.withAlpha(60),
+                                          ),
+
+                                          _buildSecurityInfoRow(
+                                            "Stage",
+                                            securityDeposit.stage,
+                                          ),
+                                          _buildSecurityInfoRow(
+                                            "Amount",
+                                            "₹${securityDeposit.amount.toStringAsFixed(2)}",
+                                          ),
                                         ],
                                       ),
-
-                                      Divider(
-                                        color: AppColor.grey.withAlpha(60),
-                                      ),
-
-                                      _buildSecurityInfoRow(
-                                        "Stage",
-                                        securityDeposit.stage,
-                                      ),
-                                      _buildSecurityInfoRow(
-                                        "Amount",
-                                        "₹${securityDeposit.amount.toStringAsFixed(2)}",
-                                      ),
-                                    ],
+                                    ),
+                                  );
+                                }),
+                              );
+                            } else {
+                              return Container(
+                                padding: const EdgeInsets.all(40),
+                                child: Center(
+                                  child: Text(
+                                    'No details added',
+                                    style: AppTextStyle.ts16R(
+                                      color: AppColor.grey,
+                                    ),
                                   ),
                                 ),
                               );
-                            }),
-                          ),
-                        ] else ...[
-                          Container(
-                            padding: const EdgeInsets.all(40),
-                            child: Center(
-                              child: Text(
-                                'No details added',
-                                style: AppTextStyle.ts16R(color: AppColor.grey),
-                              ),
-                            ),
-                          ),
-                        ],
+                            }
+                          },
+                        ),
                         verticalSpacing(height: 20),
                         CustomButton(text: "Save", onPressed: _onSave),
                         verticalSpacing(),

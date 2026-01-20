@@ -2,6 +2,7 @@ part of 'proposed_offer_cubit.dart';
 
 class ProposedOfferState extends BaseState {
   final List<RedevelopmentBuildingModel> buildingList;
+  final int buildingTotalCount;
   final ExtraCarpetAreaModel? extraCarpetArea;
   final CorpusDetailsModel? corpusDetails;
   final SecurityDepositModel? securityDepositDetails;
@@ -16,6 +17,7 @@ class ProposedOfferState extends BaseState {
   const ProposedOfferState({
     super.isLoading,
     required this.buildingList,
+    required this.buildingTotalCount,
     required this.extraCarpetArea,
     required this.corpusDetails,
     required this.securityDepositDetails,
@@ -30,6 +32,7 @@ class ProposedOfferState extends BaseState {
 
   factory ProposedOfferState.initial() => ProposedOfferState(
     buildingList: [],
+    buildingTotalCount: 0,
     isLoading: true,
     extraCarpetArea: null,
     corpusDetails: null,
@@ -46,6 +49,7 @@ class ProposedOfferState extends BaseState {
   ProposedOfferState copyWith({
     bool? isLoading,
     List<RedevelopmentBuildingModel>? buildingList,
+    int? buildingTotalCount,
     ExtraCarpetAreaModel? extraCarpetArea,
     bool clearExtraCarpet = false,
     CorpusDetailsModel? corpusDetails,
@@ -68,6 +72,7 @@ class ProposedOfferState extends BaseState {
     return ProposedOfferState(
       isLoading: isLoading ?? this.isLoading,
       buildingList: buildingList ?? this.buildingList,
+      buildingTotalCount: buildingTotalCount ?? this.buildingTotalCount,
       extraCarpetArea:
           clearExtraCarpet ? null : extraCarpetArea ?? this.extraCarpetArea,
       corpusDetails: clearCorpus ? null : corpusDetails ?? this.corpusDetails,
@@ -103,6 +108,7 @@ class ProposedOfferState extends BaseState {
   List<Object?> get props => [
     isLoading,
     buildingList,
+    buildingTotalCount,
     extraCarpetArea,
     corpusDetails,
     securityDepositDetails,

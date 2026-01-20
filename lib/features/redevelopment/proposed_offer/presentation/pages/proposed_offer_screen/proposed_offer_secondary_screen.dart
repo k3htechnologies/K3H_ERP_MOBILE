@@ -80,6 +80,7 @@ class _ProposedOfferSecondaryScreenState
     );
   }
 
+  // BUILD TYPE WIDGET
   Widget _buildTypeWidget(String type, int projectId, int buildingId) {
     switch (type) {
       case "Extra Carpet Area":

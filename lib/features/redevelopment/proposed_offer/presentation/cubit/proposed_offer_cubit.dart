@@ -54,22 +54,43 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
         showErrorMessage(context, "Error Message", failure.message);
         return state.buildingList;
       },
+
       (response) {
-        final newData = List<RedevelopmentBuildingModel>.from(
-          response['data'] as List<RedevelopmentBuildingModel>,
+        final newData = List<RedevelopmentBuildingModel>.from(response['data']);
+
+        List<RedevelopmentBuildingModel> updatedList;
+
+        if (pageNumber == 1) {
+          updatedList =
+              state.buildingList
+                  .where((b) => b.projectId != projectId)
+                  .toList();
+        } else {
+          updatedList = List.from(state.buildingList);
+        }
+
+        final Map<int, RedevelopmentBuildingModel> uniqueMap = {
+          for (var b in updatedList) b.buildingId: b,
+        };
+
+        for (final b in newData) {
+          if (b.projectId == projectId) {
+            uniqueMap[b.buildingId] = b;
+          }
+        }
+
+        updatedList = uniqueMap.values.toList();
+
+        final totalCount = response['totalNumberOfRecord'] ?? 0;
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            buildingList: updatedList,
+            buildingTotalCount: totalCount,
+          ),
         );
-        // Get existing building IDs to avoid duplicates
-        final existingIds = state.buildingList.map((b) => b.buildingId).toSet();
-        // Filter out duplicates from new data
-        final uniqueNewData =
-            newData
-                .where((building) => !existingIds.contains(building.buildingId))
-                .toList();
-        List<RedevelopmentBuildingModel> updatedList = List.from(
-          state.buildingList,
-        );
-        updatedList.addAll(uniqueNewData);
-        emit(state.copyWith(isLoading: false, buildingList: updatedList));
+
         return updatedList;
       },
     );

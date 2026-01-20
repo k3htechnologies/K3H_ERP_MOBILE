@@ -24,6 +24,8 @@ class VendorModel {
   String districtName;
   int cityMasterId;
   String cityName;
+  int villageMasterId;
+  String villageName;
   List<SubMaterialModel> submaterialList;
   List<String> contractList;
   int createdById;
@@ -56,6 +58,8 @@ class VendorModel {
     required this.districtName,
     required this.cityMasterId,
     required this.cityName,
+    required this.villageMasterId,
+    required this.villageName,
     required this.submaterialList,
     required this.contractList,
     required this.createdById,
@@ -89,6 +93,8 @@ class VendorModel {
     districtName: parseValue<String>(json, "DistrictName"),
     cityMasterId: parseValue(json, "CityMasterId"),
     cityName: parseValue<String>(json, "CityName"),
+    villageMasterId: parseValue(json, "VillageMasterId"),
+    villageName: parseValue<String>(json, "VillageName"),
     submaterialList: List<SubMaterialModel>.from(
       json["SubMaterialMasterData"].map((x) => SubMaterialModel.fromJson(x)),
     ),
@@ -129,6 +135,8 @@ class VendorModel {
     "DistrictName": districtName,
     "CityMasterId": cityMasterId,
     "CityName": cityName,
+    "VillageMasterId": villageMasterId,
+    "VillageName": villageName,
     "SubMaterialMasterData": List<SubMaterialModel>.from(
       submaterialList.map((x) => x),
     ),

@@ -43,11 +43,16 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     {'zAttributesId': 2, 'DisplayName': 'Commercial'},
   ];
 
-  final List<ProposedOfferShiftingDetailsWithPaymentStageData> _shiftingList =
-      [];
+  final ValueNotifier<List<ProposedOfferShiftingDetailsWithPaymentStageData>>
+  _shiftingListNotifier =
+      ValueNotifier<List<ProposedOfferShiftingDetailsWithPaymentStageData>>([]);
+
+  List<ProposedOfferShiftingDetailsWithPaymentStageData> get _shiftingList =>
+      _shiftingListNotifier.value;
 
   // LITIGATION FORM CONTROLLERS
-  Map<String, dynamic>? _selectedShiftingType;
+  final ValueNotifier<Map<String, dynamic>?> _selectedShiftingType =
+      ValueNotifier<Map<String, dynamic>?>(null);
   late TextEditingController _stageController;
   late TextEditingController _stagePercentageController;
   late TextEditingController _amountController;
@@ -64,6 +69,19 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     );
   }
 
+  @override
+  void dispose() {
+    _residentialAmountController.dispose();
+    _commercialAmountController.dispose();
+    _stageController.dispose();
+    _stagePercentageController.dispose();
+    _amountController.dispose();
+    _shiftingListNotifier.dispose();
+    _selectedShiftingType.dispose();
+    super.dispose();
+  }
+
+  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _residentialAmountController = TextEditingController();
     _commercialAmountController = TextEditingController();
@@ -72,11 +90,13 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     _amountController = TextEditingController();
   }
 
+  // CHECK IF AMOUNT EXCEEDS ALLOCATED LIMIT
   bool _isAmountExceedingForSelectedType(int? editIndex) {
-    if (_selectedShiftingType == null) return false;
+    final selectedType = _selectedShiftingType.value;
+    if (selectedType == null) return false;
 
     double limit = 0;
-    final typeId = _selectedShiftingType!['zAttributesId'];
+    final typeId = selectedType['zAttributesId'];
 
     if (typeId == 1) {
       limit = double.tryParse(_residentialAmountController.text) ?? 0;
@@ -92,7 +112,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
 
       final item = _shiftingList[i];
 
-      if (item.type == _selectedShiftingType!['DisplayName']) {
+      if (item.type == selectedType['DisplayName']) {
         sum += item.amount;
       }
     }
@@ -100,6 +120,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     return sum > limit;
   }
 
+  // FILL DATA
   void fillData() {
     var shiftingDetailsModel = _cubit.state.shiftingDetails!;
     _residentialAmountController.text =
@@ -107,22 +128,12 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     _commercialAmountController.text =
         shiftingDetailsModel.shiftingOfferedToCommercialAmount.toString();
 
-    _shiftingList.clear();
-    _shiftingList.addAll(
+    _shiftingListNotifier.value = List.from(
       shiftingDetailsModel.proposedOfferShiftingDetailsWithPaymentStageData,
     );
   }
 
-  @override
-  void dispose() {
-    _residentialAmountController.dispose();
-    _commercialAmountController.dispose();
-    _stageController.dispose();
-    _stagePercentageController.dispose();
-    _amountController.dispose();
-    super.dispose();
-  }
-
+  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       if (_shiftingList.isEmpty) {
@@ -148,10 +159,11 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     }
   }
 
+  // PREFILL DIALOG
   void _prefillDialog(
     ProposedOfferShiftingDetailsWithPaymentStageData shifting,
   ) {
-    _selectedShiftingType = _configurationTypeList.firstWhere(
+    _selectedShiftingType.value = _configurationTypeList.firstWhere(
       (e) => e['DisplayName'] == shifting.type,
       orElse: () => _configurationTypeList.first,
     );
@@ -160,13 +172,15 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     _amountController.text = shifting.amount.toString();
   }
 
+  // CLEAR DIALOG
   void _clearDialog() {
-    _selectedShiftingType = null;
+    _selectedShiftingType.value = null;
     _stageController.clear();
     _stagePercentageController.clear();
     _amountController.clear();
   }
 
+  // SHOW SHIFTING BOTTOM SHEET
   Future<void> _showShiftingBottomSheet({
     ProposedOfferShiftingDetailsWithPaymentStageData? shifting,
     int? index,
@@ -179,8 +193,9 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
       context,
       "Shifting Details",
       SingleChildScrollView(
-        child: StatefulBuilder(
-          builder: (context, setModalState) {
+        child: ValueListenableBuilder<Map<String, dynamic>?>(
+          valueListenable: _selectedShiftingType,
+          builder: (context, selectedShiftingType, _) {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Form(
@@ -191,14 +206,12 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                     /// TYPE
                     CustomDropDownWidget(
                       isRequired: true,
-                      initialValue: _selectedShiftingType,
+                      initialValue: selectedShiftingType,
                       dataList: _configurationTypeList,
                       onSelected: (value) {
-                        setModalState(() {
-                          _selectedShiftingType = value;
-                          _amountController.text = '0.0';
-                          _stagePercentageController.text = '0.0';
-                        });
+                        _selectedShiftingType.value = value;
+                        _amountController.text = '0.0';
+                        _stagePercentageController.text = '0.0';
                       },
                       title: "Type",
                       validator: (value) {
@@ -246,14 +259,14 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                         return null;
                       },
                       onChangeFunction: (value) {
-                        if (_selectedShiftingType == null ||
-                            _selectedShiftingType!['zAttributesId'] == -1) {
+                        if (selectedShiftingType == null ||
+                            selectedShiftingType['zAttributesId'] == -1) {
                           return;
                         }
 
                         double percentage = double.tryParse(value) ?? 0;
 
-                        if (_selectedShiftingType!['zAttributesId'] == 1) {
+                        if (selectedShiftingType['zAttributesId'] == 1) {
                           _amountController.text =
                               ((double.tryParse(
                                             _residentialAmountController.text,
@@ -262,8 +275,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                       percentage /
                                       100)
                                   .toString();
-                        } else if (_selectedShiftingType!['zAttributesId'] ==
-                            2) {
+                        } else if (selectedShiftingType['zAttributesId'] == 2) {
                           _amountController.text =
                               ((double.tryParse(
                                             _commercialAmountController.text,
@@ -273,8 +285,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                       100)
                                   .toString();
                         }
-
-                        setModalState(() {});
                       },
                     ),
 
@@ -293,12 +303,12 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
 
                         double amount = double.tryParse(value) ?? 0;
 
-                        if (_selectedShiftingType == null ||
-                            _selectedShiftingType!['zAttributesId'] == -1) {
+                        if (selectedShiftingType == null ||
+                            selectedShiftingType['zAttributesId'] == -1) {
                           return "Type must be selected first";
                         }
 
-                        if (_selectedShiftingType!['zAttributesId'] == 1 &&
+                        if (selectedShiftingType['zAttributesId'] == 1 &&
                             (double.tryParse(
                                       _residentialAmountController.text,
                                     ) ??
@@ -307,7 +317,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                           return "Residential amount is required";
                         }
 
-                        if (_selectedShiftingType!['zAttributesId'] == 2 &&
+                        if (selectedShiftingType['zAttributesId'] == 2 &&
                             (double.tryParse(
                                       _commercialAmountController.text,
                                     ) ??
@@ -326,12 +336,12 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
 
                     verticalSpacing(height: 25),
 
-                    /// SAVE
+                    // SAVE
                     CustomButton(
                       text: "Save",
                       onPressed: () {
                         if (_shiftingFormKey.currentState!.validate()) {
-                          if (_selectedShiftingType!['zAttributesId'] == 1 &&
+                          if (selectedShiftingType!['zAttributesId'] == 1 &&
                               (double.tryParse(
                                         _residentialAmountController.text,
                                       ) ??
@@ -345,7 +355,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                             return;
                           }
 
-                          if (_selectedShiftingType!['zAttributesId'] == 2 &&
+                          if (selectedShiftingType['zAttributesId'] == 2 &&
                               (double.tryParse(
                                         _commercialAmountController.text,
                                       ) ??
@@ -359,15 +369,18 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                             return;
                           }
 
+                          final newList = List<
+                            ProposedOfferShiftingDetailsWithPaymentStageData
+                          >.from(_shiftingList);
                           if (shifting == null) {
-                            _shiftingList.add(
+                            newList.add(
                               ProposedOfferShiftingDetailsWithPaymentStageData(
                                 proposedOfferShiftingDetailsWithPaymentStageId:
                                     0,
                                 uniquekey: '',
                                 buildingId: widget.buildingId,
                                 projectId: widget.projectId,
-                                type: _selectedShiftingType!['DisplayName'],
+                                type: selectedShiftingType['DisplayName'],
                                 stage: _stageController.text,
                                 stagePercentage: double.parse(
                                   _stagePercentageController.text,
@@ -382,7 +395,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                               ),
                             );
                           } else {
-                            _shiftingList[index!] =
+                            newList[index!] =
                                 ProposedOfferShiftingDetailsWithPaymentStageData(
                                   proposedOfferShiftingDetailsWithPaymentStageId:
                                       shifting
@@ -390,7 +403,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                   uniquekey: shifting.uniquekey,
                                   buildingId: shifting.buildingId,
                                   projectId: shifting.projectId,
-                                  type: _selectedShiftingType!['DisplayName'],
+                                  type: selectedShiftingType['DisplayName'],
                                   stage: _stageController.text,
                                   stagePercentage: double.parse(
                                     _stagePercentageController.text,
@@ -405,7 +418,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                 );
                           }
 
-                          setState(() {});
+                          _shiftingListNotifier.value = newList;
                           Navigator.pop(context);
                         }
                       },
@@ -424,54 +437,62 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     _clearDialog();
   }
 
+  // HANDLE AMOUNT CHANGE
   void _handleResidentialAmountChange(double value) {
-    for (int i = 0; i < _shiftingList.length; i++) {
-      if (_shiftingList[i].type == 'Residential') {
-        _shiftingList[i] = ProposedOfferShiftingDetailsWithPaymentStageData(
+    final newList = List<ProposedOfferShiftingDetailsWithPaymentStageData>.from(
+      _shiftingList,
+    );
+    for (int i = 0; i < newList.length; i++) {
+      if (newList[i].type == 'Residential') {
+        newList[i] = ProposedOfferShiftingDetailsWithPaymentStageData(
           proposedOfferShiftingDetailsWithPaymentStageId:
-              _shiftingList[i].proposedOfferShiftingDetailsWithPaymentStageId,
-          uniquekey: _shiftingList[i].uniquekey,
-          buildingId: _shiftingList[i].buildingId,
-          projectId: _shiftingList[i].projectId,
-          type: _shiftingList[i].type,
-          stage: _shiftingList[i].stage,
-          stagePercentage: _shiftingList[i].stagePercentage,
-          amount: value * (_shiftingList[i].stagePercentage / 100),
-          createdById: _shiftingList[i].createdById,
-          createdBy: _shiftingList[i].createdBy,
-          createdDate: _shiftingList[i].createdDate,
-          modifiedById: _shiftingList[i].modifiedById,
-          modifiedBy: _shiftingList[i].modifiedBy,
-          modifiedDate: _shiftingList[i].modifiedDate,
+              newList[i].proposedOfferShiftingDetailsWithPaymentStageId,
+          uniquekey: newList[i].uniquekey,
+          buildingId: newList[i].buildingId,
+          projectId: newList[i].projectId,
+          type: newList[i].type,
+          stage: newList[i].stage,
+          stagePercentage: newList[i].stagePercentage,
+          amount: value * (newList[i].stagePercentage / 100),
+          createdById: newList[i].createdById,
+          createdBy: newList[i].createdBy,
+          createdDate: newList[i].createdDate,
+          modifiedById: newList[i].modifiedById,
+          modifiedBy: newList[i].modifiedBy,
+          modifiedDate: newList[i].modifiedDate,
         );
       }
     }
-    setState(() {});
+    _shiftingListNotifier.value = newList;
   }
 
+  // HANDLE AMOUNT CHANGE
   void _handleCommercialAmountChange(double value) {
-    for (int i = 0; i < _shiftingList.length; i++) {
-      if (_shiftingList[i].type == 'Commercial') {
-        _shiftingList[i] = ProposedOfferShiftingDetailsWithPaymentStageData(
+    final newList = List<ProposedOfferShiftingDetailsWithPaymentStageData>.from(
+      _shiftingList,
+    );
+    for (int i = 0; i < newList.length; i++) {
+      if (newList[i].type == 'Commercial') {
+        newList[i] = ProposedOfferShiftingDetailsWithPaymentStageData(
           proposedOfferShiftingDetailsWithPaymentStageId:
-              _shiftingList[i].proposedOfferShiftingDetailsWithPaymentStageId,
-          uniquekey: _shiftingList[i].uniquekey,
-          buildingId: _shiftingList[i].buildingId,
-          projectId: _shiftingList[i].projectId,
-          type: _shiftingList[i].type,
-          stage: _shiftingList[i].stage,
-          stagePercentage: _shiftingList[i].stagePercentage,
-          amount: value * (_shiftingList[i].stagePercentage / 100),
-          createdById: _shiftingList[i].createdById,
-          createdBy: _shiftingList[i].createdBy,
-          createdDate: _shiftingList[i].createdDate,
-          modifiedById: _shiftingList[i].modifiedById,
-          modifiedBy: _shiftingList[i].modifiedBy,
-          modifiedDate: _shiftingList[i].modifiedDate,
+              newList[i].proposedOfferShiftingDetailsWithPaymentStageId,
+          uniquekey: newList[i].uniquekey,
+          buildingId: newList[i].buildingId,
+          projectId: newList[i].projectId,
+          type: newList[i].type,
+          stage: newList[i].stage,
+          stagePercentage: newList[i].stagePercentage,
+          amount: value * (newList[i].stagePercentage / 100),
+          createdById: newList[i].createdById,
+          createdBy: newList[i].createdBy,
+          createdDate: newList[i].createdDate,
+          modifiedById: newList[i].modifiedById,
+          modifiedBy: newList[i].modifiedBy,
+          modifiedDate: newList[i].modifiedDate,
         );
       }
     }
-    setState(() {});
+    _shiftingListNotifier.value = newList;
   }
 
   @override
@@ -484,8 +505,8 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
           } else {
             _residentialAmountController.clear();
             _commercialAmountController.clear();
-            _selectedShiftingType = null;
-            _shiftingList.clear();
+            _selectedShiftingType.value = null;
+            _shiftingListNotifier.value = [];
             _stageController.clear();
             _stagePercentageController.clear();
             _amountController.clear();
@@ -513,7 +534,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                       isRequired: true,
                       textController: _residentialAmountController,
                       keyboardType: TextInputType.number,
-                      readOnly: _shiftingList.any(
+                      readOnly: _shiftingListNotifier.value.any(
                         (item) => item.type.toLowerCase() == 'residential',
                       ),
                       inputFormatterList:
@@ -539,7 +560,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                       isRequired: true,
                       textController: _commercialAmountController,
                       keyboardType: TextInputType.number,
-                      readOnly: _shiftingList.any(
+                      readOnly: _shiftingListNotifier.value.any(
                         (item) => item.type.toLowerCase() == 'commercial',
                       ),
                       inputFormatterList:
@@ -571,102 +592,119 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                       ],
                     ),
                     verticalSpacing(height: 20),
-                    if (_shiftingList.isNotEmpty) ...[
-                      Column(
-                        children: List.generate(_shiftingList.length, (index) {
-                          final shifting = _shiftingList[index];
+                    ValueListenableBuilder<
+                      List<ProposedOfferShiftingDetailsWithPaymentStageData>
+                    >(
+                      valueListenable: _shiftingListNotifier,
+                      builder: (context, shiftingList, _) {
+                        if (shiftingList.isNotEmpty) {
+                          return Column(
+                            children: List.generate(shiftingList.length, (
+                              index,
+                            ) {
+                              final shifting = shiftingList[index];
 
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            decoration: BoxDecoration(
-                              color: AppColor.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: AppColor.grey.withValues(alpha: 0.3),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  /// HEADER (TYPE + ACTIONS)
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        shifting.type,
-                                        style: AppTextStyle.ts16M(),
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                decoration: BoxDecoration(
+                                  color: AppColor.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: AppColor.grey.withValues(alpha: 0.3),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.05,
                                       ),
-
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // HEADER (TYPE + ACTIONS)
                                       Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          CustomIconButton.edit(
-                                            onPressed: () {
-                                              _showShiftingBottomSheet(
-                                                shifting: shifting,
-                                                index: index,
-                                              );
-                                            },
+                                          Text(
+                                            shifting.type,
+                                            style: AppTextStyle.ts16M(),
                                           ),
 
-                                          const SizedBox(width: 12),
+                                          Row(
+                                            children: [
+                                              CustomIconButton.edit(
+                                                onPressed: () {
+                                                  _showShiftingBottomSheet(
+                                                    shifting: shifting,
+                                                    index: index,
+                                                  );
+                                                },
+                                              ),
 
-                                          CustomIconButton.delete(
-                                            onPressed: () {
-                                              setState(() {
-                                                _shiftingList.removeAt(index);
-                                              });
-                                            },
+                                              const SizedBox(width: 12),
+
+                                              CustomIconButton.delete(
+                                                onPressed: () {
+                                                  final newList = List<
+                                                    ProposedOfferShiftingDetailsWithPaymentStageData
+                                                  >.from(shiftingList);
+                                                  newList.removeAt(index);
+                                                  _shiftingListNotifier.value =
+                                                      newList;
+                                                },
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
+
+                                      Divider(
+                                        color: AppColor.grey.withValues(
+                                          alpha: 0.4,
+                                        ),
+                                      ),
+
+                                      _buildShiftingInfoRow(
+                                        "Stage",
+                                        shifting.stage,
+                                      ),
+
+                                      _buildShiftingInfoRow(
+                                        "Stage %",
+                                        "${shifting.stagePercentage.toStringAsFixed(2)}%",
+                                      ),
+
+                                      _buildShiftingInfoRow(
+                                        "Amount",
+                                        "₹${shifting.amount.toStringAsFixed(2)}",
+                                      ),
                                     ],
                                   ),
-
-                                  Divider(
-                                    color: AppColor.grey.withValues(alpha: 0.4),
-                                  ),
-
-                                  _buildShiftingInfoRow(
-                                    "Stage",
-                                    shifting.stage,
-                                  ),
-
-                                  _buildShiftingInfoRow(
-                                    "Stage %",
-                                    "${shifting.stagePercentage.toStringAsFixed(2)}%",
-                                  ),
-
-                                  _buildShiftingInfoRow(
-                                    "Amount",
-                                    "₹${shifting.amount.toStringAsFixed(2)}",
-                                  ),
-                                ],
+                                ),
+                              );
+                            }),
+                          );
+                        } else {
+                          return Container(
+                            padding: const EdgeInsets.all(40),
+                            child: Center(
+                              child: Text(
+                                'No details added',
+                                style: AppTextStyle.ts16R(color: AppColor.grey),
                               ),
                             ),
                           );
-                        }),
-                      ),
-                    ] else ...[
-                      Container(
-                        padding: const EdgeInsets.all(40),
-                        child: Center(
-                          child: Text(
-                            'No details added',
-                            style: AppTextStyle.ts16R(color: AppColor.grey),
-                          ),
-                        ),
-                      ),
-                    ],
+                        }
+                      },
+                    ),
                     verticalSpacing(height: 20),
                     CustomButton(text: "Save", onPressed: _onSave),
                     verticalSpacing(),

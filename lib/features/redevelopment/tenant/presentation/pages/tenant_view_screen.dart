@@ -303,7 +303,12 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                     ),
                     _buildColumnTitleValue(
                       title: "Free Area Offered(Sq.ft)",
-                      value: "NA",
+                      value:
+                          widget.tenant.freeAreaOfferedPercentage == 0
+                              ? "0"
+                              : (widget.tenant.flatCarpetAreaSqFt /
+                                      widget.tenant.freeAreaOfferedPercentage)
+                                  .toString(),
                     ),
                   ],
                 ),
