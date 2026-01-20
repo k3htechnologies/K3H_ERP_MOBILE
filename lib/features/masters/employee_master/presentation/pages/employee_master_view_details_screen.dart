@@ -71,7 +71,7 @@ class _EmployeeMasterViewDetailsScreenState
               children: [
                 verticalSpacing(),
                 Container(
-                  height: 48,
+                  height: 35,
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     color: AppColor.white,

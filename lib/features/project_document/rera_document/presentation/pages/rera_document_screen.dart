@@ -325,7 +325,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
       alignment: Alignment.centerLeft,
       child: IntrinsicWidth(
         child: Container(
-          height: 30,
+          height: 35,
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: AppColor.white,

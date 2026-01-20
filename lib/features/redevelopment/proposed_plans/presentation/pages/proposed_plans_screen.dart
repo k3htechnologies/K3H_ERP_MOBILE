@@ -375,7 +375,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
                 alignment: Alignment.centerLeft,
                 child: IntrinsicWidth(
                   child: Container(
-                    height: 40,
+                    height: 35,
                     margin: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
                       color: AppColor.white,

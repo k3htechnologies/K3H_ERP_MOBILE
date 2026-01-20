@@ -72,7 +72,6 @@ class _ParkingScreenState extends State<ParkingScreen>
   void _initializeControllersIfNeeded(ParkingState state) {
     if (!mounted || _isDisposing) return;
 
-
     // Initialize building controller if we have data
     if (state.groupedData != null && state.groupedData!.isNotEmpty) {
       final buildingKeys = state.groupedData!.keys.toList();
@@ -336,7 +335,7 @@ class _ParkingScreenState extends State<ParkingScreen>
       alignment: Alignment.centerLeft,
       child: IntrinsicWidth(
         child: Container(
-          height: 30,
+          height: 35,
           margin: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: AppColor.white,

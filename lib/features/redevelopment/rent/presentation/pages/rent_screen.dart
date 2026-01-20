@@ -373,7 +373,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                 alignment: Alignment.centerLeft,
                 child: IntrinsicWidth(
                   child: Container(
-                    height: 40,
+                    height: 35,
                     margin: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
                       color: AppColor.white,
@@ -437,7 +437,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                       alignment: Alignment.centerLeft,
                       child: IntrinsicWidth(
                         child: Container(
-                          height: 40,
+                          height: 35,
                           margin: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 8,

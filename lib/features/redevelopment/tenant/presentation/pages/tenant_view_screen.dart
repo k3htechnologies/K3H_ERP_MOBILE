@@ -73,7 +73,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
               alignment: Alignment.centerLeft,
               child: IntrinsicWidth(
                 child: Container(
-                  height: 48,
+                  height: 35,
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     color: AppColor.white,

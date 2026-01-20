@@ -589,9 +589,9 @@ class _ProfileScreenState extends State<ProfileScreen>
         }
 
         if (state.assetMappingList.isEmpty) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -601,10 +601,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     height: 150.0,
                   ),
                   verticalSpacing(),
-                  Text(
-                    "No Data Available!",
-                    style: AppTextStyle.ts14B(),
-                  ),
+                  Text("No Data Available!", style: AppTextStyle.ts14B()),
                 ],
               ),
             ),
@@ -635,7 +632,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                         ),
                         horizontalSpacing(width: 16),
                         Expanded(
-                          child: _buildInfoItem("Asset Brand", asset.assetBrand),
+                          child: _buildInfoItem(
+                            "Asset Brand",
+                            asset.assetBrand,
+                          ),
                         ),
                       ],
                     ),
@@ -643,7 +643,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                     Row(
                       children: [
                         Expanded(
-                          child: _buildInfoItem("Asset Model", asset.assetModel),
+                          child: _buildInfoItem(
+                            "Asset Model",
+                            asset.assetModel,
+                          ),
                         ),
                         horizontalSpacing(width: 16),
                         Expanded(
@@ -655,12 +658,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                     Row(
                       children: [
                         Expanded(
-                          child: _buildInfoItem("Serial Number", asset.serialNumber),
+                          child: _buildInfoItem(
+                            "Serial Number",
+                            asset.serialNumber,
+                          ),
                         ),
                         horizontalSpacing(width: 16),
-                        Expanded(
-                          child: _buildInfoItem("Status", asset.status),
-                        ),
+                        Expanded(child: _buildInfoItem("Status", asset.status)),
                       ],
                     ),
                     verticalSpacing(),
@@ -694,7 +698,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                         ),
                         horizontalSpacing(width: 16),
                         Expanded(
-                          child: _buildInfoItem("Supplier Name", asset.supplierName),
+                          child: _buildInfoItem(
+                            "Supplier Name",
+                            asset.supplierName,
+                          ),
                         ),
                       ],
                     ),
@@ -733,10 +740,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     height: 150.0,
                   ),
                   verticalSpacing(),
-                  Text(
-                    "No Data Available!",
-                    style: AppTextStyle.ts14B(),
-                  ),
+                  Text("No Data Available!", style: AppTextStyle.ts14B()),
                 ],
               ),
             ),
@@ -758,10 +762,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Shift Policy Details",
-                      style: AppTextStyle.ts14SB(),
-                    ),
+                    Text("Shift Policy Details", style: AppTextStyle.ts14SB()),
                     verticalSpacing(),
                     Row(
                       children: [
@@ -871,10 +872,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     height: 150.0,
                   ),
                   verticalSpacing(),
-                  Text(
-                    "No Data Available!",
-                    style: AppTextStyle.ts14B(),
-                  ),
+                  Text("No Data Available!", style: AppTextStyle.ts14B()),
                 ],
               ),
             ),
@@ -1000,98 +998,100 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ProfileCubit, ProfileState>(
-        builder: (context, state) {
-          if (state.user == null) {
-            return Scaffold(
-              appBar: AppBar(
-                centerTitle: false,
-                automaticallyImplyLeading: false,
-                title: Text('Profile', style: AppTextStyle.ts16SB()),
-              ),
-              body: const Center(child: Text("No user information found")),
-            );
-          }
-
+      builder: (context, state) {
+        if (state.user == null) {
           return Scaffold(
             appBar: AppBar(
               centerTitle: false,
               automaticallyImplyLeading: false,
               title: Text('Profile', style: AppTextStyle.ts16SB()),
             ),
-            body: SafeArea(
-              child: Column(
-                children: [
-                  verticalSpacing(),
-                  _buildHeader(state.user!, state.selectedProject),
-                  verticalSpacing(),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IntrinsicWidth(
-                      child: Container(
-                        height: 48,
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: AppColor.white,
+            body: const Center(child: Text("No user information found")),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            centerTitle: false,
+            automaticallyImplyLeading: false,
+            title: Text('Profile', style: AppTextStyle.ts16SB()),
+          ),
+          body: SafeArea(
+            child: Column(
+              children: [
+                verticalSpacing(),
+                _buildHeader(state.user!, state.selectedProject),
+                verticalSpacing(),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IntrinsicWidth(
+                    child: Container(
+                      height: 35,
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: AppColor.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppColor.grey.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: TabBar(
+                        controller: _tabController,
+                        isScrollable: true,
+                        tabAlignment: TabAlignment.start,
+                        labelColor: AppColor.primary,
+                        unselectedLabelColor: AppColor.grey,
+                        indicator: BoxDecoration(
+                          color: AppColor.lightBlue,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: AppColor.grey.withValues(alpha: 0.2),
-                          ),
                         ),
-                        child: TabBar(
-                          controller: _tabController,
-                          isScrollable: true,
-                          tabAlignment: TabAlignment.start,
-                          labelColor: AppColor.primary,
-                          unselectedLabelColor: AppColor.grey,
-                          indicator: BoxDecoration(
-                            color: AppColor.lightBlue,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          dividerColor: Colors.transparent,
-                          labelStyle: AppTextStyle.ts14M(),
-                          unselectedLabelStyle: AppTextStyle.ts14M(),
-                          labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                          padding: EdgeInsets.zero,
-                          tabs: const [
-                            Tab(text: 'Overview'),
-                            Tab(text: 'Document'),
-                            Tab(text: 'Assets'),
-                            Tab(text: 'Project'),
-                            Tab(text: 'Shift Policy'),
-                            Tab(text: 'Week Off Policy'),
-                          ],
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        dividerColor: Colors.transparent,
+                        labelStyle: AppTextStyle.ts14M(),
+                        unselectedLabelStyle: AppTextStyle.ts14M(),
+                        labelPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
                         ),
+                        padding: EdgeInsets.zero,
+                        tabs: const [
+                          Tab(text: 'Overview'),
+                          Tab(text: 'Document'),
+                          Tab(text: 'Assets'),
+                          Tab(text: 'Project'),
+                          Tab(text: 'Shift Policy'),
+                          Tab(text: 'Week Off Policy'),
+                        ],
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        _buildOverviewTab(state.user!),
-                        _buildDocumentTab(),
-                        _buildAssetTab(),
-                        _buildProjectTab(
-                          state.projectList,
-                          state.isLoadingProjects,
-                        ),
-                        _buildShiftPolicyTab(),
-                        _buildWeekOffPolicyTab(),
-                      ],
-                    ),
+                ),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildOverviewTab(state.user!),
+                      _buildDocumentTab(),
+                      _buildAssetTab(),
+                      _buildProjectTab(
+                        state.projectList,
+                        state.isLoadingProjects,
+                      ),
+                      _buildShiftPolicyTab(),
+                      _buildWeekOffPolicyTab(),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        );
+      },
     );
   }
 
   Widget _buildDocumentTab() {
     return BlocBuilder<ProfileCubit, ProfileState>(
-        builder: (context, state) {
+      builder: (context, state) {
         if (state.isLoading == true && state.employeeDocumentList.isEmpty) {
           return const Center(
             child: Padding(
@@ -1141,8 +1141,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                             subtitle: "${doc.documentName} is not available",
                             isError: true,
                           );
-                        }else{
-                          showFilePreviewDialog(context, doc.documentUrl.split(","));
+                        } else {
+                          showFilePreviewDialog(
+                            context,
+                            doc.documentUrl.split(","),
+                          );
                         }
                       },
                       icon: Icon(
@@ -1158,9 +1161,8 @@ class _ProfileScreenState extends State<ProfileScreen>
               );
             },
           ),
-          );
-        },
+        );
+      },
     );
   }
-
 }
