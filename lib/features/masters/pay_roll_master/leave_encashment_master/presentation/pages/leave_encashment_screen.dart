@@ -230,33 +230,33 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
                             ],
                           ),
                           verticalSpacing(height: 10),
-                          _buildRowTitleValue(
+                          buildRowTitleValue(
                             title: "Minimum Salary",
                             value: leaveEncashment.minSalary.toString(),
                           ),
-                          _buildRowTitleValue(
+                          buildRowTitleValue(
                             title: "Maximum Salary",
                             value: leaveEncashment.maxSalary.toString(),
                           ),
-                          _buildRowTitleValue(
+                          buildRowTitleValue(
                             title: "Encashment Rate",
                             value: leaveEncashment.encashmentRate.toString(),
                           ),
-                          _buildRowTitleValue(
+                          buildRowTitleValue(
                             title: "Created By",
                             value: leaveEncashment.createdBy,
                           ),
-                          _buildRowTitleValue(
+                          buildRowTitleValue(
                             title: "Created Date",
                             value: formatDateTimeAsDDMMMYYYY(
                               leaveEncashment.createdDate,
                             ),
                           ),
-                          _buildRowTitleValue(
+                          buildRowTitleValue(
                             title: "Modified By",
                             value: leaveEncashment.modifiedBy,
                           ),
-                          _buildRowTitleValue(
+                          buildRowTitleValue(
                             title: "Modified Date",
                             value:
                                 leaveEncashment.modifiedDate != null
@@ -279,7 +279,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
   }
 
   // BUILD ROW TITLE VALUE
-  Widget _buildRowTitleValue({required String title, required String value}) {
+  Widget buildRowTitleValue({required String title, required String value}) {
     if (value.isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),

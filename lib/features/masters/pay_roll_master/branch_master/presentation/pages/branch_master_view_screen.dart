@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/data/model/branch_master.model.dart';
-import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
-import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class BranchMasterViewScreen extends StatelessWidget {
   final BranchMasterModel? branch;
@@ -14,7 +13,10 @@ class BranchMasterViewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBarWithBackButton(screenTitle: "Branch", authorization: AuthorizationModel()),
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: "Branch",
+        authorization: AuthorizationModel(),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
@@ -32,11 +34,11 @@ class BranchMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Branch Name",
                           value: branch!.branchName,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Branch Code",
                           value: branch!.branchCode,
                         ),
@@ -45,11 +47,11 @@ class BranchMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Location",
                           value: branch!.location,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Employee Count",
                           value: branch!.numberOfEmployee.toString(),
                         ),
@@ -58,11 +60,11 @@ class BranchMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Head Office",
                           value: branch!.isHeadOffice ? "Yes" : "No",
                         ),
-                        Expanded(child: SizedBox())
+                        Expanded(child: SizedBox()),
                       ],
                     ),
                   ],
@@ -79,36 +81,34 @@ class BranchMasterViewScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Created By",
                           value: branch!.createdBy,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(
-                            branch!.createdDate,
-                          ),
+                          value: formatDateTimeAsDDMMMYYYY(branch!.createdDate),
                         ),
                       ],
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Modified By",
                           value:
-                          branch!.modifiedBy.isEmpty
-                              ? "-"
-                              : branch!.modifiedBy,
+                              branch!.modifiedBy.isEmpty
+                                  ? "-"
+                                  : branch!.modifiedBy,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Modified Date",
                           value:
-                          branch!.modifiedDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                            branch!.modifiedDate!,
-                          )
-                              : "-",
+                              branch!.modifiedDate != null
+                                  ? formatDateTimeAsDDMMMYYYY(
+                                    branch!.modifiedDate!,
+                                  )
+                                  : "-",
                         ),
                       ],
                     ),
@@ -118,23 +118,6 @@ class BranchMasterViewScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  // BUILD COLUMN TITLE VALUE
-  Widget _buildColumnTitleValue({
-    required String title,
-    required String value,
-  }) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          Text(value, style: AppTextStyle.ts14M()),
-        ],
       ),
     );
   }

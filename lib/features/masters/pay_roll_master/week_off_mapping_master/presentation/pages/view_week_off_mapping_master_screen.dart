@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
-import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
-import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class ViewWeekOffMappingMasterScreen extends StatelessWidget {
   final WeekOffMappingModel weekOffMappingMasterModel;
@@ -41,11 +40,11 @@ class ViewWeekOffMappingMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Week Off Policy Name",
                           value: weekOffMappingMasterModel.weekOffPolicyName,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Week Off Policy Code",
                           value: weekOffMappingMasterModel.weekOffPolicyCode,
                         ),
@@ -54,7 +53,7 @@ class ViewWeekOffMappingMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Department Name",
                           value:
                               weekOffMappingMasterModel
@@ -63,7 +62,7 @@ class ViewWeekOffMappingMasterScreen extends StatelessWidget {
                                   ? weekOffMappingMasterModel.departmentName
                                   : '-',
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Employee Name",
                           value:
                               weekOffMappingMasterModel.employeeName.isNotEmpty
@@ -75,11 +74,11 @@ class ViewWeekOffMappingMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Week Days",
                           value: weekOffMappingMasterModel.weekDays.toString(),
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Week Days Starts On",
                           value: weekOffMappingMasterModel.weekDaysStartsOn,
                         ),
@@ -88,11 +87,11 @@ class ViewWeekOffMappingMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Weekly Off",
                           value: weekOffMappingMasterModel.weeklyOff,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Weekly Off2",
                           value: weekOffMappingMasterModel.weeklyOff2,
                         ),
@@ -101,11 +100,11 @@ class ViewWeekOffMappingMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Weekly Off2 Type",
                           value: weekOffMappingMasterModel.weeklyOff2Type,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Not Applicable For Months",
                           value:
                               weekOffMappingMasterModel.notApplicableForMonths,
@@ -127,11 +126,11 @@ class ViewWeekOffMappingMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Created By",
                           value: weekOffMappingMasterModel.createdBy,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Created Date",
                           value: formatDateTimeAsDDMMMYYYY(
                             weekOffMappingMasterModel.createdDate,
@@ -142,11 +141,11 @@ class ViewWeekOffMappingMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Modified By",
                           value: weekOffMappingMasterModel.modifiedBy,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Modified Date",
                           value:
                               weekOffMappingMasterModel.modifiedDate != null
@@ -163,22 +162,6 @@ class ViewWeekOffMappingMasterScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildColumnTitleValue({
-    required String title,
-    required String value,
-  }) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          Text(value, style: AppTextStyle.ts14M()),
-        ],
       ),
     );
   }

@@ -5,6 +5,8 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -66,11 +68,9 @@ class ViewCompanyPartnerScreen extends StatelessWidget {
                                         color: AppColor.grey,
                                       ),
                                     ),
-                                    Text(
-                                      p.mobileNumber,
-                                      style: AppTextStyle.ts14M(
-                                        color: AppColor.grey,
-                                      ),
+
+                                    CustomClickToContactText(
+                                      value: p.mobileNumber,
                                     ),
                                   ],
                                 ),
@@ -80,25 +80,45 @@ class ViewCompanyPartnerScreen extends StatelessWidget {
                           verticalSpacing(height: 12),
                           Row(
                             children: [
-                              _collum(
-                                "Share %",
-                                "${p.partnerPercentage.toStringAsFixed(1)}%",
+                              buildColumnTitleValue(
+                                title: "Share %",
+                                value:
+                                    "${p.partnerPercentage.toStringAsFixed(1)}%",
                               ),
-                              _collum("E-mail ID", p.emailId),
+                              buildColumnTitleValue(
+                                title: "E-mail ID",
+                                value: p.emailId,
+                                customValueWidget: CustomClickToContactText(
+                                  value: p.emailId,
+                                  type: ContactType.email,
+                                ),
+                              ),
                             ],
                           ),
                           verticalSpacing(),
                           Row(
                             children: [
-                              _collum("DOB", _formatDate(p.dateOfBirth)),
-                              _collum("Gender", p.gender),
+                              buildColumnTitleValue(
+                                title: "DOB",
+                                value: _formatDate(p.dateOfBirth),
+                              ),
+                              buildColumnTitleValue(
+                                title: "Gender",
+                                value: p.gender,
+                              ),
                             ],
                           ),
                           verticalSpacing(),
                           Row(
                             children: [
-                              _collum("Aadhaar Card No.", p.aadharCardNumber),
-                              _collum("PAN Card No.", p.panNumber),
+                              buildColumnTitleValue(
+                                title: "Aadhaar Card No.",
+                                value: p.aadharCardNumber,
+                              ),
+                              buildColumnTitleValue(
+                                title: "PAN Card No.",
+                                value: p.panNumber,
+                              ),
                             ],
                           ),
                           verticalSpacing(),
@@ -189,18 +209,6 @@ class ViewCompanyPartnerScreen extends StatelessWidget {
                     );
                   },
                 ),
-      ),
-    );
-  }
-
-  Widget _collum(String label, String value) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          Text(value.isEmpty ? "-" : value, style: AppTextStyle.ts14R()),
-        ],
       ),
     );
   }

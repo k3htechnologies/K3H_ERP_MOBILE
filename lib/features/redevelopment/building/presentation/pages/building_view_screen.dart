@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -216,11 +217,11 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Building Name",
                       value: widget.building.buildingName,
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "CTS Number",
                       value: widget.building.ctsNumber,
                     ),
@@ -230,11 +231,11 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Road Width",
                       value: widget.building.roadWidth,
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Land Ownership",
                       value: widget.building.landOwnershipType,
                     ),
@@ -305,11 +306,11 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Total Plot Area(Sq. ft)",
                       value: widget.building.totalPlotAreaSqFt.toString(),
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Total Floors",
                       value: widget.building.numberOfFloors.toString(),
                     ),
@@ -319,12 +320,12 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Utilized Unit Area(Sq. ft)",
                       value:
                           widget.building.totalUnitsAreaUtilizedSqFt.toString(),
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Total Units",
                       value: widget.building.totalNumberOfUnits.toString(),
                     ),
@@ -346,11 +347,11 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Country",
                       value: widget.building.countryName,
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "State",
                       value: widget.building.stateName,
                     ),
@@ -360,11 +361,11 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "District",
                       value: widget.building.districtName,
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "City",
                       value: widget.building.cityName,
                     ),
@@ -374,7 +375,7 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Village",
                       value:
                           widget.building.villageName.isEmpty
@@ -399,11 +400,11 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Garden Structure",
                       value: widget.building.isGarden ? "Yes" : "No",
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Garden Area(Sq. ft)",
                       value: widget.building.totalGardenAreaSqFt.toString(),
                     ),
@@ -425,12 +426,12 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Religious Structure",
                       value:
                           widget.building.isReligiousStructure ? "Yes" : "No",
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Structure Area(Sq. ft)",
                       value:
                           widget.building.totalReligiousStructureAreaSqFt
@@ -454,11 +455,11 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "FSI/TDR Utilization(Sq. ft)",
                       value: widget.building.fsiTdrUtilizationSqFt.toString(),
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Property Age (Years)",
                       value: widget.building.propertyAgeYears.toString(),
                     ),
@@ -480,11 +481,11 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Litigation",
                       value: widget.building.isLitigation ? "Yes" : "No",
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Litigation Remark",
                       value: widget.building.litigationRemarks,
                     ),
@@ -506,11 +507,11 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Created By",
                       value: widget.building.createdBy,
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Created Date",
                       value: formatDateTimeAsDDMMMYYYY(
                         widget.building.createdDate,
@@ -522,14 +523,14 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Modified By",
                       value:
                           widget.building.modifiedBy.isEmpty
                               ? "-"
                               : widget.building.modifiedBy,
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Modified Date",
                       value:
                           widget.building.modifiedDate != null
@@ -597,13 +598,13 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Gross Plot Area (Sq. ft)",
                           value:
                               state.buildingDetails!.grossPlotAreaSqFt
                                   .toString(),
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "PR Card Area(Sq. ft)",
                           value:
                               state.buildingDetails!.plotAreaPRCardSqFt
@@ -616,13 +617,13 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Old Approved Plan Area (Sq. ft)",
                           value:
                               state.buildingDetails!.plotAreaOldApprovedPlanSqFt
                                   .toString(),
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Conveyance Area (Sq. ft)",
                           value:
                               state.buildingDetails!.plotAreaConveyanceSqFt
@@ -634,7 +635,7 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Physical Survey Area (Sq. ft)",
                           value:
                               state.buildingDetails!.plotAreaPhysicalSurveySqFt
@@ -663,13 +664,13 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Total Build Up Area (Sq. ft)",
                           value:
                               state.buildingDetails!.totalBuiltUpAreaSqFt
                                   .toString(),
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Total Residential Units",
                           value:
                               state.buildingDetails!.totalResidentialUnits
@@ -682,7 +683,7 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Residential Carpet Area (Sq. ft)",
                           value:
                               state
@@ -690,7 +691,7 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                                   .totalResidentialCarpetAreaSqFt
                                   .toString(),
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Total Commercial Units",
                           value:
                               state.buildingDetails!.totalCommercialUnits
@@ -702,7 +703,7 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Commercial Carpet Area (Sq. ft)",
                           value:
                               state
@@ -755,14 +756,14 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildColumnTitleValue(
+                                  buildColumnTitleValue(
                                     title: "Contact Type",
                                     value:
                                         contact.contactType.isEmpty
                                             ? "-"
                                             : contact.contactType,
                                   ),
-                                  _buildColumnTitleValue(
+                                  buildColumnTitleValue(
                                     title: "Contact Name",
                                     value:
                                         contact.contactName.isEmpty
@@ -774,14 +775,14 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildColumnTitleValue(
+                                  buildColumnTitleValue(
                                     title: "Mobile Number",
                                     value:
                                         contact.mobileNumber.isEmpty
                                             ? "-"
                                             : contact.mobileNumber,
                                   ),
-                                  _buildColumnTitleValue(
+                                  buildColumnTitleValue(
                                     title: "Email Id",
                                     value:
                                         contact.emailId.isEmpty
@@ -1049,23 +1050,6 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
           ),
         );
       },
-    );
-  }
-
-  // BUILD COLUMN TITLE VALUE
-  Widget _buildColumnTitleValue({
-    required String title,
-    required String value,
-  }) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          Text(value, style: AppTextStyle.ts14M()),
-        ],
-      ),
     );
   }
 }

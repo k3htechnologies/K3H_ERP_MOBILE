@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class TenantViewScreen extends StatefulWidget {
@@ -54,7 +55,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
         context,
         widget.tenant.projectId,
         widget.tenant.buildingId,
-        widget.tenant.tenantId
+        widget.tenant.tenantId,
       );
     }
   }
@@ -173,14 +174,14 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildColumnTitleValue(
+                                buildColumnTitleValue(
                                   title: "Contact Number",
                                   value:
                                       applicant.applicantMobileNumber.isEmpty
                                           ? "-"
                                           : applicant.applicantMobileNumber,
                                 ),
-                                _buildColumnTitleValue(
+                                buildColumnTitleValue(
                                   title: "Email ID",
                                   value:
                                       applicant.applicantEmailId.isEmpty
@@ -192,14 +193,14 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildColumnTitleValue(
+                                buildColumnTitleValue(
                                   title: "Aadhaar Card No.",
                                   value:
                                       applicant.aadharCardNumber.isEmpty
                                           ? "-"
                                           : applicant.aadharCardNumber,
                                 ),
-                                _buildColumnTitleValue(
+                                buildColumnTitleValue(
                                   title: "PANCard No.",
                                   value:
                                       applicant.panNumber.isEmpty
@@ -211,14 +212,14 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildColumnTitleValue(
+                                buildColumnTitleValue(
                                   title: "Driving License",
                                   value:
                                       applicant.drivingLicenseNumber.isEmpty
                                           ? "-"
                                           : applicant.drivingLicenseNumber,
                                 ),
-                                _buildColumnTitleValue(
+                                buildColumnTitleValue(
                                   title: "Voting ID No.",
                                   value:
                                       applicant.votingIdNumber.isEmpty
@@ -230,14 +231,14 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildColumnTitleValue(
+                                buildColumnTitleValue(
                                   title: "Passport No.",
                                   value:
                                       applicant.passportNumber.isEmpty
                                           ? "-"
                                           : applicant.passportNumber,
                                 ),
-                                _buildColumnTitleValue(
+                                buildColumnTitleValue(
                                   title: "GST No.",
                                   value:
                                       applicant.gstNumber.isEmpty
@@ -249,14 +250,14 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildColumnTitleValue(
+                                buildColumnTitleValue(
                                   title: "Bank Name",
                                   value:
                                       applicant.bankName.isEmpty
                                           ? "-"
                                           : applicant.bankName,
                                 ),
-                                _buildColumnTitleValue(
+                                buildColumnTitleValue(
                                   title: "Account No.",
                                   value:
                                       applicant.accountNumber.isEmpty
@@ -268,7 +269,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildColumnTitleValue(
+                                buildColumnTitleValue(
                                   title: "IFSC Code",
                                   value:
                                       applicant.ifscCode.isEmpty
@@ -298,11 +299,11 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                 Text("Offer", style: AppTextStyle.ts16SB()),
                 Row(
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Free Area Offered(%)",
                       value: widget.tenant.freeAreaOfferedPercentage.toString(),
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Free Area Offered(Sq.ft)",
                       value:
                           widget.tenant.freeAreaOfferedPercentage == 0
@@ -315,7 +316,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                 ),
                 Row(
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Total Area(Sq.ft)",
                       value: widget.tenant.totalAreaSqFt.toString(),
                     ),
@@ -337,14 +338,14 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Unit Number",
                       value:
                           widget.tenant.flatNumber.isEmpty
                               ? "-"
                               : widget.tenant.flatNumber,
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Carpet Area (Sq ft)",
                       value: widget.tenant.flatCarpetAreaSqFt.toString(),
                     ),
@@ -353,14 +354,14 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Unit Facing",
                       value:
                           widget.tenant.facing.isEmpty
                               ? "-"
                               : widget.tenant.facing,
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Unit Type",
                       value:
                           widget.tenant.flatType.isEmpty
@@ -372,7 +373,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Unit Configuration",
                       value:
                           widget.tenant.flatConfiguration.isEmpty
@@ -397,38 +398,35 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
-                      title: "Building Number",
-                      value: "-",
-                    ),
-                    _buildColumnTitleValue(title: "Floor", value: "-"),
+                    buildColumnTitleValue(title: "Building Number", value: "-"),
+                    buildColumnTitleValue(title: "Floor", value: "-"),
                   ],
                 ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(title: "Unit Number", value: "-"),
-                    _buildColumnTitleValue(title: "Unit Type", value: "-"),
+                    buildColumnTitleValue(title: "Unit Number", value: "-"),
+                    buildColumnTitleValue(title: "Unit Type", value: "-"),
                   ],
                 ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Unit Configuration",
                       value: "-",
                     ),
-                    _buildColumnTitleValue(title: "Unit Facing", value: "-"),
+                    buildColumnTitleValue(title: "Unit Facing", value: "-"),
                   ],
                 ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "Extra Area Purchased(Sq.ft)",
                       value: "-",
                     ),
-                    _buildColumnTitleValue(
+                    buildColumnTitleValue(
                       title: "RERA Carpet Area(Sq.ft)",
                       value: "-",
                     ),
@@ -437,7 +435,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumnTitleValue(title: "Parking Number", value: "-"),
+                    buildColumnTitleValue(title: "Parking Number", value: "-"),
                     Expanded(child: SizedBox()),
                   ],
                 ),
@@ -475,7 +473,12 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                 decoration: commonCardDecoration(),
                 child: Row(
                   children: [
-                    Expanded(child: Text(doc.documentName, style: AppTextStyle.ts14SB())),
+                    Expanded(
+                      child: Text(
+                        doc.documentName,
+                        style: AppTextStyle.ts14SB(),
+                      ),
+                    ),
                     horizontalSpacing(),
 
                     CustomIconButton(
@@ -574,23 +577,6 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                   ? AppColor.primary
                   : AppColor.purple,
         ),
-      ),
-    );
-  }
-
-  // BUILD COLUMN TITLE VALUE
-  Widget _buildColumnTitleValue({
-    required String title,
-    required String value,
-  }) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          Text(value, style: AppTextStyle.ts14R()),
-        ],
       ),
     );
   }

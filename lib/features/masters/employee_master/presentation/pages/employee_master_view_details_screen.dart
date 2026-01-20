@@ -227,7 +227,16 @@ class _EmployeeMasterViewDetailsScreenState
               ),
               horizontalSpacing(width: 16),
               Expanded(
-                child: _buildInfoItem('Office Mobile', user.officeMobileNumber),
+                child: _buildInfoItem(
+                  'Office Mobile',
+                  user.officeMobileNumber,
+                  customValueWidget:
+                      user.officeMobileNumber.isNotEmpty
+                          ? CustomClickToContactText(
+                            value: user.officeMobileNumber,
+                          )
+                          : null,
+                ),
               ),
             ],
           ),
@@ -250,7 +259,17 @@ class _EmployeeMasterViewDetailsScreenState
               ),
               horizontalSpacing(width: 16),
               Expanded(
-                child: _buildInfoItem('Office Email', user.officeEmailId),
+                child: _buildInfoItem(
+                  'Office Email',
+                  user.officeEmailId,
+                  customValueWidget:
+                      user.officeEmailId.isNotEmpty
+                          ? CustomClickToContactText(
+                            value: user.officeEmailId,
+                            type: ContactType.email,
+                          )
+                          : null,
+                ),
               ),
             ],
           ),

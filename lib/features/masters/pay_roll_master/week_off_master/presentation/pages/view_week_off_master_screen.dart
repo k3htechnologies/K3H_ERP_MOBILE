@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/data/model/week_off_master.model.dart';
-import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
-import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class ViewWeekOffMasterScreen extends StatelessWidget {
   final WeekOffMasterModel weekOffMaster;
@@ -36,11 +35,11 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Week Off Policy Name",
                           value: weekOffMaster.weekOffPolicyName,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Week Off Policy Code",
                           value: weekOffMaster.weekOffPolicyCode,
                         ),
@@ -49,11 +48,11 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Week Days",
                           value: weekOffMaster.weekDays.toString(),
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Weekly Off",
                           value: weekOffMaster.weeklyOff,
                         ),
@@ -74,11 +73,11 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Weekly Off2",
                           value: weekOffMaster.weeklyOff2,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Weekly Off2 Type",
                           value: weekOffMaster.weeklyOff2Type,
                         ),
@@ -87,11 +86,11 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Week Days Starts On",
                           value: weekOffMaster.weekDaysStartsOn,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Not Applicable For Months",
                           value: weekOffMaster.notApplicableForMonths,
                         ),
@@ -111,11 +110,11 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Created By",
                           value: weekOffMaster.createdBy,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Created Date",
                           value: formatDateTimeAsDDMMMYYYY(
                             weekOffMaster.createdDate,
@@ -126,11 +125,11 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Modified By",
                           value: weekOffMaster.modifiedBy,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Modified Date",
                           value: formatDateTimeAsDDMMMYYYY(
                             weekOffMaster.modifiedDate,
@@ -144,22 +143,6 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildColumnTitleValue({
-    required String title,
-    required String value,
-  }) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          Text(value, style: AppTextStyle.ts14M()),
-        ],
       ),
     );
   }

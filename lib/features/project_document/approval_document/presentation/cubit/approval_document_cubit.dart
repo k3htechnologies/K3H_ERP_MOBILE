@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/features/project_document/approval_category/data/rep
 import 'package:k3h_erp_app/features/project_document/approval_document/data/model/approval_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/approval_document/data/repository/approval_document.repository.dart';
 import 'package:k3h_erp_app/features/project_document/approval_document/presentation/cubit/approval_document_state.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -261,8 +262,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
         return;
       },
       (response) {
-        goRouter.pop();
-        goRouter.pop();
+        goRouter.goNamed(AppRoutes.approvalDocument);
 
         if (state.documentList.isNotEmpty &&
             index < state.documentList.length) {

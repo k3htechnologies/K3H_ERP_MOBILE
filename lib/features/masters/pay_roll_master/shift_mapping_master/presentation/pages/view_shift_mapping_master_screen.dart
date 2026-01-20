@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
-import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
-import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class ViewShiftMappingMasterScreen extends StatelessWidget {
   final ShiftMappingModel shiftMappingModel;
@@ -38,11 +37,11 @@ class ViewShiftMappingMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Department Name",
                           value: shiftMappingModel.departmentName,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Employee Name",
                           value: shiftMappingModel.employeeName,
                         ),
@@ -51,11 +50,11 @@ class ViewShiftMappingMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Shift Name",
                           value: shiftMappingModel.shiftName,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Shift Code",
                           value: shiftMappingModel.shiftCode,
                         ),
@@ -64,11 +63,11 @@ class ViewShiftMappingMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Shift Begin Time",
                           value: shiftMappingModel.shiftBeginTime,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Shift End Time",
                           value: shiftMappingModel.shiftEndTime,
                         ),
@@ -77,11 +76,11 @@ class ViewShiftMappingMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Shift Duration Time",
                           value: shiftMappingModel.shiftDurationTime,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Shift Work Duration Time",
                           value: shiftMappingModel.shiftWorkDurationTime,
                         ),
@@ -90,7 +89,7 @@ class ViewShiftMappingMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Remarks",
                           value: shiftMappingModel.remarks,
                         ),
@@ -111,11 +110,11 @@ class ViewShiftMappingMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Created By",
                           value: shiftMappingModel.createdBy,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Created Date",
                           value: formatDateTimeAsDDMMMYYYY(
                             shiftMappingModel.createdDate,
@@ -126,11 +125,11 @@ class ViewShiftMappingMasterScreen extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Modified By",
                           value: shiftMappingModel.modifiedBy,
                         ),
-                        _buildColumnTitleValue(
+                        buildColumnTitleValue(
                           title: "Modified Date",
                           value: formatDateTimeAsDDMMMYYYY(
                             shiftMappingModel.modifiedDate,
@@ -144,22 +143,6 @@ class ViewShiftMappingMasterScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildColumnTitleValue({
-    required String title,
-    required String value,
-  }) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          Text(value, style: AppTextStyle.ts14M()),
-        ],
       ),
     );
   }

@@ -15,6 +15,8 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CompanyMasterScreen extends StatefulWidget {
@@ -233,17 +235,21 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                         ),
                       ],
                     ),
-                    _buildRowTitleVale(
+                    buildRowTitleValue(
                       title: "Company Type",
                       value: company.companyType,
                     ),
-                    _buildRowTitleVale(
+                    buildRowTitleValue(
                       title: "Contact Person",
                       value: company.contactPerson,
                     ),
-                    _buildRowTitleVale(
+                    buildRowTitleValue(
                       title: "Email ID",
                       value: company.emailId,
+                      customValueWidget: CustomClickToContactText(
+                        value: company.emailId,
+                        type: ContactType.email,
+                      ),
                     ),
                   ],
                 ),
@@ -251,42 +257,6 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
             },
           );
         },
-      ),
-    );
-  }
-
-  // BUILD ROW TITLE VALUE
-  Widget _buildRowTitleVale({required String title, required String value}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          // TITLE
-          SizedBox(
-            width: 140,
-            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
-          ),
-
-          // COLON
-          SizedBox(
-            width: 20,
-            child: Text(
-              ":",
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColor.grey),
-            ),
-          ),
-
-          // VALUE
-          Expanded(
-            child: Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTextStyle.ts14R(),
-            ),
-          ),
-        ],
       ),
     );
   }

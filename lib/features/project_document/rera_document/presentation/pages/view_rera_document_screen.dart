@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewRERADocumentScreen extends StatefulWidget {
@@ -161,25 +162,6 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
     );
   }
 
-  // BUILD TITLE WIDGET
-  Widget _buildColumnTitleValue({
-    required String title,
-    String? value,
-    Widget? valueWidget,
-  }) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          valueWidget ??
-              Text(value!.isEmpty ? "-" : value, style: AppTextStyle.ts14M()),
-        ],
-      ),
-    );
-  }
-
   //DOCUMENT CARD
   Widget _buildDocumentCard(RERADocumentModel document, int index) {
     return Container(
@@ -223,9 +205,10 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Status",
-                valueWidget: Container(
+                value: document.projectRERADocumentStatus,
+                customValueWidget: Container(
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
                   decoration: BoxDecoration(
                     color: getBgColorByStatus(
@@ -243,7 +226,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                   ),
                 ),
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Expiry Date",
                 value:
                     document.projectRERADocumentExpiryDate != null
@@ -257,11 +240,11 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Last Modified By",
                 value: document.modifiedBy,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Last Modified Date",
                 value:
                     document.modifiedDate != null
@@ -273,13 +256,14 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "Remark",
                 value: document.projectRERADocumentRemark,
               ),
-              _buildColumnTitleValue(
+              buildColumnTitleValue(
                 title: "View Document",
-                valueWidget: GestureDetector(
+                value: document.projectRERADocumentURL,
+                customValueWidget: GestureDetector(
                   onTap: () {
                     showFilePreviewDialog(
                       context,
