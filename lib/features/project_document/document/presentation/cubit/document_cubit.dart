@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -86,7 +87,7 @@ class DocumentCubit extends Cubit<DocumentState> {
 
     var result = await _documentRepository.pullProjectDocument(
       pageNumber: pageNumber,
-      pageSize: 5,
+      pageSize: 10,
       projectId: getProject().projectId,
       queryParams: queryParams,
     );
@@ -258,7 +259,12 @@ class DocumentCubit extends Cubit<DocumentState> {
         return;
       },
       (response) {
-        goRouter.goNamed(AppRoutes.document);
+        goRouter.pop();
+        final currentPath = goRouter.state.path;
+        if (currentPath == AppRoutes.viewDocument) {
+          goRouter.pop();
+        }
+
 
         if (state.documentList.isNotEmpty &&
             index < state.documentList.length) {
@@ -442,11 +448,5 @@ class DocumentCubit extends Cubit<DocumentState> {
     );
   }
 
-  Future clearSubDocument() async {
-    emit(state.copyWith(subDocumentList: []));
-  }
 
-  Future clearDocument() async {
-    emit(state.copyWith(documentList: []));
-  }
 }

@@ -84,7 +84,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
 
     var result = await _reraDocumentRepository.pullProjectRERADocument(
       pageNumber: pageNumber,
-      pageSize: 5,
+      pageSize: 10,
       projectId: getProject().projectId,
       queryParams: queryParams,
     );
@@ -201,7 +201,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Project Document Updated Successfully",
+          subTitle: "RERA Document Updated Successfully",
         );
       },
     );
@@ -261,7 +261,12 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         return;
       },
       (response) {
-        goRouter.goNamed(AppRoutes.rera);
+        goRouter.pop();
+        final currentPath = goRouter.state.path;
+        if (currentPath == AppRoutes.viewReraDocument) {
+          goRouter.pop();
+        }
+
         if (state.reraDocumentList.isNotEmpty &&
             index < state.reraDocumentList.length) {
           final updatedListModel = List<RERADocumentModel>.from(
@@ -290,7 +295,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Project Document Updated Successfully",
+          subTitle: "RERA Document Updated Successfully",
         );
       },
     );
@@ -347,7 +352,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Project Document Updated Successfully",
+          subTitle: "RERA Document Updated Successfully",
         );
       },
     );
@@ -392,7 +397,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Project Document Added Successfully",
+          subTitle: "RERA Document Added Successfully",
         );
       },
     );

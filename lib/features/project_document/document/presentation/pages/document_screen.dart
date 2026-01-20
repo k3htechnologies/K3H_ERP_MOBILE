@@ -226,9 +226,8 @@ class _DocumentScreenState extends State<DocumentScreen>
         onSearchSubmit: (value) {
           _documentCubit.searchDocument(value, context);
         },
-        onProjectChangeCallback: (project) async {
+        onProjectChangeCallback: (project) {
           projectId = project.projectId;
-          await _documentCubit.clearDocument();
           if (context.mounted) {
             _documentCubit.getCategoryList(context, 1, projectId);
           }
@@ -396,7 +395,6 @@ class _DocumentScreenState extends State<DocumentScreen>
                       Flexible(
                         child: GestureDetector(
                           onTap: () async {
-                            await _documentCubit.clearSubDocument();
                             await goRouter.pushNamed(
                               AppRoutes.viewDocument,
                               queryParameters: {
@@ -501,5 +499,4 @@ class _DocumentScreenState extends State<DocumentScreen>
       },
     );
   }
-
 }

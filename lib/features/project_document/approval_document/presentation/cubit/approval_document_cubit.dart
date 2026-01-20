@@ -87,7 +87,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
 
     var result = await _documentRepository.pullProjectApprovalDocument(
       pageNumber: pageNumber,
-      pageSize: 5,
+      pageSize: 10,
       projectId: getProject().projectId,
       queryParams: queryParams,
     );
@@ -202,7 +202,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Project ApprovalDocument Updated Successfully",
+          subTitle: "Approval Document Updated Successfully",
         );
       },
     );
@@ -262,8 +262,11 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
         return;
       },
       (response) {
-        goRouter.goNamed(AppRoutes.approvalDocument);
-
+        goRouter.pop();
+        final currentPath = goRouter.state.path;
+        if (currentPath == AppRoutes.viewApprovalDocument) {
+          goRouter.pop();
+        }
         if (state.documentList.isNotEmpty &&
             index < state.documentList.length) {
           final updatedListModel = List<ApprovalDocumentModel>.from(
@@ -287,7 +290,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Project ApprovalDocument Updated Successfully",
+          subTitle: "Approval Document Updated Successfully",
         );
       },
     );
@@ -342,7 +345,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Project ApprovalDocument Updated Successfully",
+          subTitle: "Approval Document Updated Successfully",
         );
       },
     );
@@ -387,7 +390,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Project ApprovalDocument Added Successfully",
+          subTitle: "Approval Document Added Successfully",
         );
       },
     );
@@ -451,7 +454,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
         emit(state.copyWith(documentList: updatedList));
         showSuccessMessage(
           context,
-          subTitle: "ApprovalDocument Deleted Successfully",
+          subTitle: "Approval Document Deleted Successfully",
         );
       },
     );

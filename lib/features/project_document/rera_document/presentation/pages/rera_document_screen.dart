@@ -221,7 +221,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "Document",
+        screenTitle: "RERA Document",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
         onSearchSubmit: (value) {
@@ -372,7 +372,8 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
 
           itemBuilder: (context, index) {
             if (index == documents.length) {
-              return state.reraDocumentList.length < state.totalNumberOfRecord
+              return state.isLoading! &&
+                      state.reraDocumentList.length < state.totalNumberOfRecord
                   ? const Padding(
                     padding: EdgeInsets.all(16),
                     child: Center(child: CircularProgressIndicator()),
