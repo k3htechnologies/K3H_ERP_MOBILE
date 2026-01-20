@@ -115,8 +115,8 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
             // ───── HEADER ─────
             Row(
               children: [
-                Text(widget.title, style: AppTextStyle.ts16SB()),
-                const Spacer(),
+                Expanded(child: Text(widget.title, style: AppTextStyle.ts16SB())),
+                horizontalSpacing(),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: const Icon(Icons.close),

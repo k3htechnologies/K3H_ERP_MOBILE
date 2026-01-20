@@ -241,7 +241,7 @@ class _CustomAppBarWithBackButtonState
                 _showOverlayNotifier.value = true;
               },
               icon: const Icon(
-                Icons.apartment_rounded,
+                Icons.apartment_outlined,
                 size: 16,
                 color: AppColor.primary,
               ),

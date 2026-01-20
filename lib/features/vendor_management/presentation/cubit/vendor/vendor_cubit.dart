@@ -39,20 +39,22 @@ class VendorCubit extends Cubit<VendorState> {
     );
 
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
-        final List<VendorModel> newData =
-        List<VendorModel>.from(response['data'] ?? []);
+      (response) {
+        final List<VendorModel> newData = List<VendorModel>.from(
+          response['data'] ?? [],
+        );
 
-        final List<VendorModel> updatedList = pageNumber == 1
-            ? newData
-            : {
-          for (final v in [...state.vendorList, ...newData])
-            v.vendorId: v
-        }.values.toList();
+        final List<VendorModel> updatedList =
+            pageNumber == 1
+                ? newData
+                : {
+                  for (final v in [...state.vendorList, ...newData])
+                    v.vendorId: v,
+                }.values.toList();
 
         emit(
           state.copyWith(
@@ -115,12 +117,7 @@ class VendorCubit extends Cubit<VendorState> {
       final updatedList = List<VendorModel>.from(state.vendorList);
       updatedList[index] = updatedVendor;
 
-      emit(
-        state.copyWith(
-          vendorList: updatedList,
-          isLoading: false,
-        ),
-      );
+      emit(state.copyWith(vendorList: updatedList, isLoading: false));
     }
   }
 

@@ -46,7 +46,7 @@ class CustomClickToContactText extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            type == ContactType.phone ? Icons.phone : Icons.email,
+            type == ContactType.phone ? Icons.phone : Icons.email_outlined,
             size: iconSize,
             color: iconColor,
           ),

@@ -170,34 +170,20 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                             ),
                           ),
                         ),
-                        Row(
-                          spacing: 10,
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addProjectMaster,
-                                  queryParameters: {
-                                    "project": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(project),
-                                      ),
-                                    ),
-                                    'index': index.toString(),
-                                  },
-                                );
+                        CustomIconButton.edit(
+                          onPressed: () async {
+                            await goRouter.pushNamed(
+                              AppRoutes.addProjectMaster,
+                              queryParameters: {
+                                "project": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(project),
+                                  ),
+                                ),
+                                'index': index.toString(),
                               },
-                            ),
-                            CustomIconButton(
-                              onPressed: () {},
-                              icon: Icon(
-                                Icons.more_vert,
-                                color: AppColor.primary,
-                                size: 16,
-                              ),
-                              backgroundColor: AppColor.lightBlue,
-                            ),
-                          ],
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -285,6 +271,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
     );
   }
 
+  // BUILD PROJECT STATUS WIDGET
   Widget _buildProjectStatusWidget(String projectStatus) {
     if (projectStatus.isEmpty) return const SizedBox.shrink();
 

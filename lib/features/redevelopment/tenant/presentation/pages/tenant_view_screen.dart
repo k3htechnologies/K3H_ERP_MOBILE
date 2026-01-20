@@ -54,6 +54,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
         context,
         widget.tenant.projectId,
         widget.tenant.buildingId,
+        widget.tenant.tenantId
       );
     }
   }
@@ -474,8 +475,8 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                 decoration: commonCardDecoration(),
                 child: Row(
                   children: [
-                    Text(doc.documentName, style: AppTextStyle.ts14SB()),
-                    const Spacer(),
+                    Expanded(child: Text(doc.documentName, style: AppTextStyle.ts14SB())),
+                    horizontalSpacing(),
 
                     CustomIconButton(
                       onPressed: () {
@@ -508,6 +509,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                     projectId: doc.projectId,
                                     buildingId: doc.buildingId,
                                     documentName: doc.documentName,
+                                    tenantId: doc.tenantId,
                                     files: files,
                                   );
                                 },
@@ -527,6 +529,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                     projectId: doc.projectId,
                                     buildingId: doc.buildingId,
                                     documentName: doc.documentName,
+                                    tenantId: doc.tenantId,
                                     files: files,
                                   );
                                 },

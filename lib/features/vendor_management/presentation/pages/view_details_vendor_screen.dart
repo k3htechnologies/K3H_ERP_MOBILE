@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewDetailsVendorScreen extends StatefulWidget {
@@ -108,9 +109,19 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildColumnTitleValue(
-                title: "Mobile Number",
-                value: widget.vendor.mobileNumber,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Mobile Number",
+                      style: AppTextStyle.ts14M(color: AppColor.grey),
+                    ),
+                    CustomClickToContactText(
+                      value: widget.vendor.mobileNumber,
+                    ),
+                  ],
+                ),
               ),
               _buildColumnTitleValue(
                 title: "E-mail ID",
@@ -225,18 +236,20 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildTitle(title: "Document"),
-          CustomIconButton(onPressed: () async {
-            await goRouter.pushNamed(
-              AppRoutes.viewVendorDocument,
-              queryParameters: {
-                "vendor": Uri.encodeQueryComponent(
-                  EncryptionManager.encryptData(
-                    jsonEncode(widget.vendor),
+          CustomIconButton(
+            onPressed: () async {
+              await goRouter.pushNamed(
+                AppRoutes.viewVendorDocument,
+                queryParameters: {
+                  "vendor": Uri.encodeQueryComponent(
+                    EncryptionManager.encryptData(jsonEncode(widget.vendor)),
                   ),
-                ),
-              },
-            );
-          }, icon: Icon(Icons.file_copy,size: 16,color: AppColor.primary,),backgroundColor: AppColor.lightBlue,)
+                },
+              );
+            },
+            icon: Icon(Icons.file_copy, size: 16, color: AppColor.primary),
+            backgroundColor: AppColor.lightBlue,
+          ),
         ],
       ),
     );

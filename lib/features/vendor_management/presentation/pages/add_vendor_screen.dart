@@ -239,7 +239,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     final selectedItems = await CustomMultipleSelectPopup.showBottomSheet(
       context: context,
       title: "Add Materials and Sub-Materials",
-      dataList: null, // Don't pass dataList, fetch from API instead
+      dataList: null,
       initialValue: initialValue,
       isMultiSelect: true,
       dataFetchCallBack: (pageNumber, {String? value}) async {
@@ -344,6 +344,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     }
   }
 
+  // --------------------------- SEARCH METHODS --------------------------- //
   void _searchMaterial() {
     if (searchC.text.trim().isEmpty) {
       subMaterialListForSelectionWithSearch.value = List.from(
@@ -709,11 +710,13 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
                 child: Row(
                   children: [
                     Expanded(
+                      flex: 1,
                       child: Text("Select:", style: AppTextStyle.ts14M()),
                     ),
 
                     // MATERIAL
                     Expanded(
+                      flex: 2,
                       child: InkWell(
                         splashColor: Colors.transparent,
                         hoverColor: Colors.transparent,
@@ -743,6 +746,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
 
                     // CONTRACT
                     Expanded(
+                      flex: 2,
                       child: InkWell(
                         splashColor: Colors.transparent,
                         hoverColor: Colors.transparent,
@@ -914,7 +918,6 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
   }
 
   // --------------------------- SUBMIT HANDLER --------------------------- //
-
   void _handleSubmit() {
     final isBasicValid = _formKeys[0].currentState?.validate() ?? false;
     final isGovValid = _formKeys[1].currentState?.validate() ?? false;

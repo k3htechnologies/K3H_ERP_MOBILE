@@ -65,6 +65,16 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
     _projectMasterCubit = context.read<ProjectMasterCubit>();
   }
 
+  @override
+  void dispose() {
+    _beneficiaryAccountHolderNameC.dispose();
+    _accountNumberC.dispose();
+    _branchC.dispose();
+    _ifscCodeC.dispose();
+    super.dispose();
+  }
+
+  // INITIALISING TEXT CONTROLLERS
   void _initializeTextControllers() {
     _beneficiaryAccountHolderNameC = TextEditingController(
       text: widget.bankDetailsModel?.beneficiaryAccountHolderName ?? '',
@@ -80,6 +90,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
     );
   }
 
+  // INITIALISING DROPDOWN
   void _initializeDropdowns() {
     if (widget.bankDetailsModel != null) {
       selectedBank = {
@@ -87,7 +98,6 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
         'DisplayName': widget.bankDetailsModel!.bankName,
       };
 
-      // Set account type based on acType value
       final acType = widget.bankDetailsModel!.acType.toLowerCase();
       if (acType.contains('current')) {
         selectedAccountType = accountTypeList[1]; // Current
@@ -108,15 +118,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    _beneficiaryAccountHolderNameC.dispose();
-    _accountNumberC.dispose();
-    _branchC.dispose();
-    _ifscCodeC.dispose();
-    super.dispose();
-  }
-
+  // HANDLE SUBMIT
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -136,8 +138,8 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
     Map<String, dynamic> bankRequestBody = {
       "ProjectWithBankDetailsId":
           widget.bankDetailsModel?.projectWithBankDetailsId ?? 0,
-      if(widget.bankDetailsModel?.uniquekey!=null)
-      "Uniquekey": widget.bankDetailsModel?.uniquekey,
+      if (widget.bankDetailsModel?.uniquekey != null)
+        "Uniquekey": widget.bankDetailsModel?.uniquekey,
       "ProjectId": widget.project.projectId,
       "BeneficiaryAccountHolderName":
           _beneficiaryAccountHolderNameC.text.trim(),
@@ -153,7 +155,6 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
       projectId: widget.project.projectId.toString(),
       context: context,
     );
-
   }
 
   @override

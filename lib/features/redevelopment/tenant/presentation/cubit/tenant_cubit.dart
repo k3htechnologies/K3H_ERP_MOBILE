@@ -170,11 +170,12 @@ class TenantCubit extends Cubit<TenantState> {
   }
 
   // <---- GET TENANT DOCUMENT LIST ---->
-  Future<void> getTenantDocumentList(
-    BuildContext context,
-    int projectId,
-    int buildingId,
-  ) async {
+  Future<void> getTenantDocumentList({
+    required BuildContext context,
+    int? tenantId,
+    required int projectId,
+    required int buildingId,
+  }) async {
     emit(state.copyWith(isLoading: true));
 
     final result = await _tenantRepository.getTenantDocumentList(
@@ -182,7 +183,7 @@ class TenantCubit extends Cubit<TenantState> {
       pageSize: 100,
       projectId: projectId,
       buildingId: buildingId,
-      queryParams: {"IsCheckPermission": true, "TenantDocumentId": 0},
+      queryParams: {"IsCheckPermission": true, "TenantId": tenantId},
     );
 
     result.fold(
@@ -685,6 +686,7 @@ class TenantCubit extends Cubit<TenantState> {
     required BuildContext context,
     required int tenantDocumentId,
     required String uniqueKey,
+    required int tenantId,
     required int projectId,
     required int buildingId,
     required String documentName,
@@ -745,7 +747,7 @@ class TenantCubit extends Cubit<TenantState> {
       (response) async {
         if (isClosed) return;
         showSuccessMessage(context, subTitle: "Upload Successfully");
-        await getTenantDocumentList(context, projectId, buildingId);
+        await getTenantDocumentList( context: context,projectId: projectId, buildingId: buildingId,tenantId: tenantId);
       },
     );
   }
@@ -756,12 +758,13 @@ class TenantCubit extends Cubit<TenantState> {
     BuildContext context,
     int projectId,
     int buildingId,
+    int tenantId,
   ) {
     emit(state.copyWith(currentTabIndex: index));
 
     if (index == 1) {
       // Document tab
-      getTenantDocumentList(context, projectId, buildingId);
+      getTenantDocumentList(context: context,projectId: projectId,buildingId: buildingId,tenantId: tenantId);
     }
   }
 }

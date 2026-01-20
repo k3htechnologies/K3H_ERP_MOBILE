@@ -22,6 +22,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:shimmer/shimmer.dart';
@@ -80,6 +81,20 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     _onBankScroll();
   }
 
+  @override
+  void dispose() {
+    pageController.dispose();
+    _tabController.dispose();
+    employeeScrollController.dispose();
+    companyScrollController.dispose();
+    bankScrollController.dispose();
+    _debounce?.cancel();
+    _companyDebounce?.cancel();
+    _bankDebounce?.cancel();
+    super.dispose();
+  }
+
+  // <---- TAB CHANGE ---->
   void _handleTabChange() {
     final index = _tabController.index;
     if (index == _lastTabIndex) return;
@@ -166,19 +181,6 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
   }
 
   @override
-  void dispose() {
-    pageController.dispose();
-    _tabController.dispose();
-    employeeScrollController.dispose();
-    companyScrollController.dispose();
-    bankScrollController.dispose();
-    _debounce?.cancel();
-    _companyDebounce?.cancel();
-    _bankDebounce?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
@@ -198,7 +200,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
             ),
             verticalSpacing(),
             Container(
-              height: 48,
+              height: 35,
               margin: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
                 color: AppColor.white,
@@ -638,6 +640,27 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                               ? widget.project.siteContactMobileNumber
                               : "-",
                     ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Site Contact Mobile Number",
+                            style: AppTextStyle.ts14M(color: AppColor.grey),
+                          ),
+                          verticalSpacing(),
+                          CustomClickToContactText(
+                            value:
+                                widget
+                                        .project
+                                        .siteContactMobileNumber
+                                        .isNotEmpty
+                                    ? widget.project.siteContactMobileNumber
+                                    : "-",
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -754,9 +777,22 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                               title: "E-mail ID",
                               value: employee.emailId,
                             ),
-                            _buildColumTitleVale(
-                              title: "Contact Number",
-                              value: employee.personalMobileNumber,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Contact Number",
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.grey,
+                                    ),
+                                  ),
+                                  verticalSpacing(),
+                                  CustomClickToContactText(
+                                    value: employee.personalMobileNumber,
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -987,9 +1023,21 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildColumTitleVale(
-                                  title: "Contact Number",
-                                  value: company.mobileNumber,
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Contact Number",
+                                        style: AppTextStyle.ts14M(
+                                          color: AppColor.grey,
+                                        ),
+                                      ),
+                                      verticalSpacing(),
+                                      CustomClickToContactText(value: company.mobileNumber),
+                                    ],
+                                  ),
                                 ),
                                 _buildColumTitleVale(
                                   title: "City",
