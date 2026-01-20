@@ -190,7 +190,6 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     districtMasterId = vendor.districtMasterId.toString();
     cityMasterId = vendor.cityMasterId.toString();
 
-
     selectedCompanyType = companyTypeList.firstWhere(
       (element) => element['DisplayName'] == vendor.companyType,
       orElse: () => companyTypeList.first,
@@ -962,7 +961,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
       );
     } else {
       _vendorAddCubit.updateVendor(
-        index: widget.index??0,
+        index: widget.index ?? 0,
         vendor: widget.vendor,
         context: context,
         companyName: companyNameC.value.text,

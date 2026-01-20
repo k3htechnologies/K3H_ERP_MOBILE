@@ -12,7 +12,7 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
-import 'package:k3h_erp_app/widgets/custom_click_to_call_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -217,9 +217,12 @@ class _EmployeeMasterViewDetailsScreenState
                 child: _buildInfoItem(
                   'Personal Mobile',
                   user.personalMobileNumber,
-                  customValueWidget: user.personalMobileNumber.isNotEmpty
-                      ? CustomClickToCallText(phoneNumber: user.personalMobileNumber)
-                      : null,
+                  customValueWidget:
+                      user.personalMobileNumber.isNotEmpty
+                          ? CustomClickToContactText(
+                            value: user.personalMobileNumber,
+                          )
+                          : null,
                 ),
               ),
               horizontalSpacing(width: 16),
@@ -233,7 +236,17 @@ class _EmployeeMasterViewDetailsScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: _buildInfoItem('Email', user.emailId),
+                child: _buildInfoItem(
+                  'Email',
+                  user.emailId,
+                  customValueWidget:
+                      user.emailId.isNotEmpty
+                          ? CustomClickToContactText(
+                            value: user.emailId,
+                            type: ContactType.email,
+                          )
+                          : null,
+                ),
               ),
               horizontalSpacing(width: 16),
               Expanded(
@@ -245,9 +258,12 @@ class _EmployeeMasterViewDetailsScreenState
           _buildInfoItem(
             'Emergency Contact',
             user.emergencyMobileNumber,
-            customValueWidget: user.emergencyMobileNumber.isNotEmpty
-                ? CustomClickToCallText(phoneNumber: user.emergencyMobileNumber)
-                : null,
+            customValueWidget:
+                user.emergencyMobileNumber.isNotEmpty
+                    ? CustomClickToContactText(
+                      value: user.emergencyMobileNumber,
+                    )
+                    : null,
           ),
         ],
       ),
@@ -268,7 +284,8 @@ class _EmployeeMasterViewDetailsScreenState
     Widget? customValueWidget,
   }) {
     final displayValue = _getDisplayValue(value);
-    final valueWidget = customValueWidget ?? Text(displayValue, style: AppTextStyle.ts14R());
+    final valueWidget =
+        customValueWidget ?? Text(displayValue, style: AppTextStyle.ts14R());
 
     if (isFullWidth) {
       return Column(
