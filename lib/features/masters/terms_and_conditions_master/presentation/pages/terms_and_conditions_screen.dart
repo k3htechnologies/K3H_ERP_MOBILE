@@ -56,9 +56,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
   @override
   void initState() {
     super.initState();
-    _termsAndConditionsCubit = BlocProvider.of<TermsAndConditionsCubit>(
-      context,
-    );
+    _termsAndConditionsCubit = context.read<TermsAndConditionsCubit>();
     _searchC = TextEditingController();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
@@ -66,21 +64,20 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
         Authorization.routeAuthorizationMap[AppRoutes.termsAndConditions]!;
     project = getProject();
 
-    // Initialize scroll controllers
+    // INITIALIZE SCROLL CONTROLLERS
     _materialRequisitionScrollController = ScrollController();
     _bookingScrollController = ScrollController();
 
-    // Add scroll listeners for pagination
+    // ADD SCROLL LISTENER
     _materialRequisitionScrollController.addListener(
       _onMaterialRequisitionScroll,
     );
     _bookingScrollController.addListener(_onBookingScroll);
 
-    // Load initial data
+    // LOAD INITIAL DATA
     _termsAndConditionsCubit.getMaterialRequisitionTermsAndConditionList(
       context,
       1,
-      10,
     );
   }
 
@@ -127,7 +124,6 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
                     .state
                     .materialRequisitionCurrentPageTermsAndConditions +
                 1,
-            10,
           );
         },
       );
@@ -151,7 +147,6 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
           context,
           _termsAndConditionsCubit.state.bookingCurrentPageTermsAndConditions +
               1,
-          10,
         );
       });
     }
@@ -223,14 +218,27 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
           }
         },
         textController: _searchC,
-        onAddCallback: () {
-          goRouter.pushNamed(
+        onAddCallback: () async {
+          await goRouter.pushNamed(
             AppRoutes.addTermsAndConditions,
             queryParameters: {
               'tabIndex':
                   _termsAndConditionsCubit.state.currentTabIndex.toString(),
             },
           );
+          if (context.mounted) {
+            if (_termsAndConditionsCubit.state.currentTabIndex == 0) {
+              _termsAndConditionsCubit.getMaterialRequisitionTermsAndConditionList(
+                context,
+                1,
+              );
+            } else {
+              _termsAndConditionsCubit.getBookingTermsAndConditionList(
+                context,
+                1,
+              );
+            }
+          }
         },
         onExportCallback: (value) {
           if (_termsAndConditionsCubit.state.currentTabIndex == 0) {
@@ -450,25 +458,6 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
                           'tabIndex': isMaterialRequisition ? '0' : '1',
                         },
                       );
-                      if (context.mounted) {
-                        if (isMaterialRequisition && mounted) {
-                          _termsAndConditionsCubit
-                              .getMaterialRequisitionTermsAndConditionList(
-                                context,
-                                1,
-                                10,
-                              );
-                        } else {
-                          if (mounted) {
-                            _termsAndConditionsCubit
-                                .getBookingTermsAndConditionList(
-                                  context,
-                                  1,
-                                  10,
-                                );
-                          }
-                        }
-                      }
                     },
                   ),
                   horizontalSpacing(),

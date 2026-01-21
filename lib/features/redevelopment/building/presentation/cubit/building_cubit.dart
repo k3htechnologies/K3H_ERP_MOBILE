@@ -30,6 +30,27 @@ class BuildingCubit extends Cubit<BuildingState> {
     await getBuildingList(context, 1, projectId);
   }
 
+  // APPLY FILTER AND SORT
+  Future applyFilterAndSort({
+    required BuildContext context,
+    required int projectId,
+    required String filterCTSNumber,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
+    emit(
+      state.copyWith(
+        filterCTSNumber: filterCTSNumber,
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
+        buildingList: [],
+        currentPage: 1,
+      ),
+    );
+
+    await getBuildingList(context, 1, projectId);
+  }
+
   // <---- GET ASSET LIST ---->
   Future getBuildingList(
     BuildContext context,
@@ -41,6 +62,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     final queryParams = {
       "BuildingName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+      "CTSNumber": state.filterCTSNumber,
     };
 
     final result = await _buildingRepository.pullBuilding(
@@ -262,19 +284,6 @@ class BuildingCubit extends Cubit<BuildingState> {
       },
       (response) {
         goRouter.pop();
-
-        final newBuilding = response['data'][0] as RedevelopmentBuildingModel;
-        var list = [newBuilding, ...state.buildingList];
-        emit(
-          state.copyWith(
-            buildingList: list,
-            totalNumberOfRecord:
-                state.totalNumberOfRecord == -1
-                    ? 1
-                    : state.totalNumberOfRecord + 1,
-          ),
-        );
-
         showSuccessMessage(context, subTitle: 'Building Added Successfully');
       },
     );
@@ -350,7 +359,15 @@ class BuildingCubit extends Cubit<BuildingState> {
           );
           updatedList.removeAt(index);
 
-          emit(state.copyWith(buildingList: updatedList));
+          emit(
+            state.copyWith(
+              buildingList: updatedList,
+              totalNumberOfRecord:
+                  state.totalNumberOfRecord > 0
+                      ? state.totalNumberOfRecord - 1
+                      : 0,
+            ),
+          );
         } else {
           getBuildingList(context, state.currentPage, projectId);
         }
@@ -409,7 +426,10 @@ class BuildingCubit extends Cubit<BuildingState> {
       },
       (response) {
         goRouter.pop();
-        showSuccessMessage(context, subTitle: 'Building Details Updated Successfully');
+        showSuccessMessage(
+          context,
+          subTitle: 'Building Details Updated Successfully',
+        );
         if (buildingDetailsData['BuildingId'] != null) {
           getBuildingDetails(
             context: context,

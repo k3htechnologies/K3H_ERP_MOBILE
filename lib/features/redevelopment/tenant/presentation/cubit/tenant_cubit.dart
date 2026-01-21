@@ -47,6 +47,35 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
+  // APPLY FILTER AND SORT
+  Future applyFilterAndSort({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+    required String filterFlatType,
+    required String filterFlatConfiguration,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
+    emit(
+      state.copyWith(
+        filterFlatType: filterFlatType,
+        filterFlatConfiguration: filterFlatConfiguration,
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
+        buildingList: [],
+        currentPage: 1,
+      ),
+    );
+
+    await getTenantList(
+      context: context,
+      projectId: projectId,
+      buildingId: buildingId,
+      pageNumber: 1,
+    );
+  }
+
   // <---- GET BUILDING LIST ---->
   Future<List<RedevelopmentBuildingModel>> getBuildingList(
     BuildContext context,
@@ -123,13 +152,15 @@ class TenantCubit extends Cubit<TenantState> {
 
     Map<String, dynamic> queryParams = {
       "FlatNumber": state.searchText,
+      "FlatType": state.filterFlatType,
+      "FlatConfiguration": state.filterFlatConfiguration,
       "IsCheckPermission": false,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 
     final result = await _tenantRepository.getTenantList(
       pageNumber: pageNumber,
-      pageSize: 4,
+      pageSize: 10,
       projectId: projectId,
       buildingId: buildingId,
       queryParams: queryParams,
@@ -145,23 +176,13 @@ class TenantCubit extends Cubit<TenantState> {
           response['data'] ?? [],
         );
 
-        List<TenantModel> updatedList;
-        if (pageNumber == 1) {
-          updatedList = newData;
-        } else {
-          final existingIds = state.tenantList.map((t) => t.tenantId).toSet();
-          final uniqueNewData =
-              newData
-                  .where((tenant) => !existingIds.contains(tenant.tenantId))
-                  .toList();
-          updatedList = [...state.tenantList, ...uniqueNewData];
-        }
-
+        final List<TenantModel> updatedList =
+            pageNumber == 1 ? newData : [...state.tenantList, ...newData];
         emit(
           state.copyWith(
             tenantList: updatedList,
             isLoading: false,
-            totalNumberOfRecord: response['totalNumberOfRecord'] ?? 0,
+            totalNumberOfRecord: response["totalNumberOfRecord"],
             currentPage: pageNumber,
           ),
         );
@@ -382,19 +403,6 @@ class TenantCubit extends Cubit<TenantState> {
       },
       (response) {
         goRouter.pop();
-        final newTenant = response['data'][0] as TenantModel;
-
-        var list = [newTenant, ...state.tenantList];
-        emit(
-          state.copyWith(
-            tenantList: list,
-            totalNumberOfRecord:
-                state.totalNumberOfRecord == -1
-                    ? 1
-                    : state.totalNumberOfRecord + 1,
-          ),
-        );
-
         showSuccessMessage(context, subTitle: 'Tenant Added Successfully');
       },
     );
@@ -634,7 +642,15 @@ class TenantCubit extends Cubit<TenantState> {
           final updatedList = List<TenantModel>.from(state.tenantList);
           updatedList.removeAt(index);
 
-          emit(state.copyWith(tenantList: updatedList));
+          emit(
+            state.copyWith(
+              tenantList: updatedList,
+              totalNumberOfRecord:
+                  state.totalNumberOfRecord > 0
+                      ? state.totalNumberOfRecord - 1
+                      : 0,
+            ),
+          );
         } else {
           getTenantList(
             context: context,
@@ -747,7 +763,12 @@ class TenantCubit extends Cubit<TenantState> {
       (response) async {
         if (isClosed) return;
         showSuccessMessage(context, subTitle: "Upload Successfully");
-        await getTenantDocumentList( context: context,projectId: projectId, buildingId: buildingId,tenantId: tenantId);
+        await getTenantDocumentList(
+          context: context,
+          projectId: projectId,
+          buildingId: buildingId,
+          tenantId: tenantId,
+        );
       },
     );
   }
@@ -764,7 +785,12 @@ class TenantCubit extends Cubit<TenantState> {
 
     if (index == 1) {
       // Document tab
-      getTenantDocumentList(context: context,projectId: projectId,buildingId: buildingId,tenantId: tenantId);
+      getTenantDocumentList(
+        context: context,
+        projectId: projectId,
+        buildingId: buildingId,
+        tenantId: tenantId,
+      );
     }
   }
 }

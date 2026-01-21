@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BuildingScreen extends StatefulWidget {
@@ -42,7 +43,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
   final ScrollController scrollController = ScrollController();
 
   // TEXT EDITING CONTROLLER
-  late TextEditingController _searchC;
+  late TextEditingController _searchC, _filterCTSNumberC;
 
   @override
   void initState() {
@@ -67,12 +68,14 @@ class _BuildingScreenState extends State<BuildingScreen> {
   void dispose() {
     scrollController.dispose();
     _searchC.dispose();
+    _filterCTSNumberC.dispose();
     super.dispose();
   }
 
   // INITIALIZE TEXT EDITING CONTROLLER
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterCTSNumberC = TextEditingController();
   }
 
   // PAGINATION
@@ -110,6 +113,135 @@ class _BuildingScreenState extends State<BuildingScreen> {
     }
   }
 
+  // BUILDING FILTER
+  Future<void> _showBottomSheetToFilterBuilding(BuildContext context) async {
+    final state = _buildingCubit.state;
+
+    _filterCTSNumberC.text = state.filterCTSNumber;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Building Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String initialCTSNumber = _filterCTSNumberC.text;
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool applied = false;
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_filterCTSNumberC.text.trim() != initialCTSNumber) ||
+            (selectedDirection != initialDirection);
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Building",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Sort By Building Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20),
+                CustomTextField(
+                  title: "CTS Number",
+                  hint: "Enter CTS Number",
+                  textController: _filterCTSNumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(),
+              ],
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _buildingCubit.applyFilterAndSort(
+          context: context,
+          projectId: _project.projectId,
+          filterCTSNumber: "",
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
+        );
+      },
+      onApply: () {
+        applied = true;
+        _buildingCubit.applyFilterAndSort(
+          context: context,
+          filterCTSNumber: _filterCTSNumberC.text,
+          projectId: _project.projectId,
+          sortColumn: selectedDirection != null ? "Building Name" : null,
+          sortDirection: selectedDirection,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
+    if (!applied && manualClose) {
+      _filterCTSNumberC.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,11 +252,14 @@ class _BuildingScreenState extends State<BuildingScreen> {
           _buildingCubit.searchBuilding(context, _project.projectId, value);
         },
         textController: _searchC,
-        onAddCallback: () {
-          goRouter.pushNamed(
+        onAddCallback: () async {
+          await goRouter.pushNamed(
             AppRoutes.addBuilding,
             queryParameters: {'projectId': _project.projectId.toString()},
           );
+          if (context.mounted) {
+            _buildingCubit.getBuildingList(context, 1, _project.projectId);
+          }
         },
         onExportCallback: (value) {
           _buildingCubit.exportExcelPdf(context, value, _project.projectId);
@@ -132,6 +267,10 @@ class _BuildingScreenState extends State<BuildingScreen> {
         onProjectChangeCallback: (project) {
           _project = project;
           _buildingCubit.getBuildingList(context, 1, _project.projectId);
+        },
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterBuilding(context);
         },
       ),
       body: Column(

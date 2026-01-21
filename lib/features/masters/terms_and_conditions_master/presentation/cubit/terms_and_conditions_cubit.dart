@@ -16,16 +16,10 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
   final TermsAndConditionsMasterRepository _termsAndConditionsMasterRepository =
       serviceLocator<TermsAndConditionsMasterRepository>();
 
-  // <---- RESET STATE ---->
-  void resetState() {
-    emit(TermsAndConditionsState.initial());
-  }
-
   // <---- GET MATERIAL REQUISITION LIST ---->
   Future getMaterialRequisitionTermsAndConditionList(
     BuildContext context,
     int pageNumber,
-    int pageSize,
   ) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
@@ -36,7 +30,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     var result = await _termsAndConditionsMasterRepository
         .getTermsAndConditionsList(
           pageNumber: pageNumber,
-          pageSize: pageSize,
+          pageSize: 10,
           moduleName: "MATERIAL REQUISITION",
           queryParams: queryParams,
         );
@@ -73,7 +67,6 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
   Future getBookingTermsAndConditionList(
     BuildContext context,
     int pageNumber,
-    int pageSize,
   ) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
@@ -84,7 +77,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     var result = await _termsAndConditionsMasterRepository
         .getTermsAndConditionsList(
           pageNumber: pageNumber,
-          pageSize: pageSize,
+          pageSize: 10,
           moduleName: "BOOKING",
           queryParams: queryParams,
         );
@@ -139,13 +132,10 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         return;
       },
       (response) {
-        // Refresh the list from API to ensure consistency
-        getMaterialRequisitionTermsAndConditionList(context, 1, 10);
         showSuccessMessage(
           context,
           subTitle: "Terms and Conditions Added Successfully",
         );
-        // Pop the add screen after successful add
         goRouter.pop();
       },
     );
@@ -178,27 +168,28 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         return;
       },
       (response) {
-        final updatedList = List<TermsAndConditionsModel>.from(
-          state.materialRequisitionTermsAndConditionsList,
-        );
-        // Check if index is valid, otherwise refresh the list
-        if (index >= 0 && index < updatedList.length) {
-          updatedList[index] = (response['data'][0] as TermsAndConditionsModel);
+        goRouter.pop();
+        final updatedItem =
+            response['data'][0] as TermsAndConditionsModel;
+
+        if (state.materialRequisitionTermsAndConditionsList.isNotEmpty &&
+            index < state.materialRequisitionTermsAndConditionsList.length) {
+          final updatedList = List<TermsAndConditionsModel>.from(
+            state.materialRequisitionTermsAndConditionsList,
+          );
+          updatedList[index] = updatedItem;
           emit(
             state.copyWith(
               materialRequisitionTermsAndConditionsList: updatedList,
+              isLoading: false,
             ),
           );
-        } else {
-          // If index is invalid, refresh the list from API
-          getMaterialRequisitionTermsAndConditionList(context, 1, 10);
         }
+
         showSuccessMessage(
           context,
           subTitle: "Terms and Conditions Updated Successfully",
         );
-        // Pop the edit screen after successful update
-        goRouter.pop();
       },
     );
   }
@@ -219,20 +210,17 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     };
     var addResult = await _termsAndConditionsMasterRepository
         .addUpdateTermsAndConditions(body: requestBody);
-    goRouter.pop(); // Close processing overlay
+    goRouter.pop();
     addResult.fold(
       (failure) {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
       (response) {
-        // Refresh the list from API to ensure consistency
-        getBookingTermsAndConditionList(context, 1, 10);
         showSuccessMessage(
           context,
           subTitle: "Terms and Conditions Added Successfully",
         );
-        // Pop the add screen after successful add
         goRouter.pop();
       },
     );
@@ -265,23 +253,28 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         return;
       },
       (response) {
-        final updatedList = List<TermsAndConditionsModel>.from(
-          state.bookingTermsAndConditionsList,
-        );
-        // Check if index is valid, otherwise refresh the list
-        if (index >= 0 && index < updatedList.length) {
-          updatedList[index] = (response['data'][0] as TermsAndConditionsModel);
-          emit(state.copyWith(bookingTermsAndConditionsList: updatedList));
-        } else {
-          // If index is invalid, refresh the list from API
-          getBookingTermsAndConditionList(context, 1, 10);
+        goRouter.pop();
+        final updatedItem =
+            response['data'][0] as TermsAndConditionsModel;
+
+        if (state.bookingTermsAndConditionsList.isNotEmpty &&
+            index < state.bookingTermsAndConditionsList.length) {
+          final updatedList = List<TermsAndConditionsModel>.from(
+            state.bookingTermsAndConditionsList,
+          );
+          updatedList[index] = updatedItem;
+          emit(
+            state.copyWith(
+              bookingTermsAndConditionsList: updatedList,
+              isLoading: false,
+            ),
+          );
         }
+
         showSuccessMessage(
           context,
           subTitle: "Terms and Conditions Updated Successfully",
         );
-        // Pop the edit screen after successful update
-        goRouter.pop();
       },
     );
   }
@@ -328,7 +321,6 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
           getMaterialRequisitionTermsAndConditionList(
             context,
             pageNumber,
-            pageSize,
           );
         }
       },
@@ -374,7 +366,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
             ),
           );
         } else {
-          getBookingTermsAndConditionList(context, pageNumber, pageSize);
+          getBookingTermsAndConditionList(context, pageNumber);
         }
       },
     );
@@ -388,7 +380,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         bookingTermsAndConditionsList: [],
       ),
     );
-    await getBookingTermsAndConditionList(context, 1, 10);
+    await getBookingTermsAndConditionList(context, 1);
   }
 
   // <---- SORT BOOKING ---->
@@ -404,7 +396,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         bookingTermsAndConditionsList: [],
       ),
     );
-    await getBookingTermsAndConditionList(context, 1, 10);
+    await getBookingTermsAndConditionList(context, 1);
   }
 
   // <---- SEARCH MATERIAL REQUISITION ---->
@@ -415,7 +407,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         materialRequisitionTermsAndConditionsList: [],
       ),
     );
-    await getMaterialRequisitionTermsAndConditionList(context, 1, 20);
+    await getMaterialRequisitionTermsAndConditionList(context, 1);
   }
 
   // <---- SORT MATERIAL REQUISITION ---->
@@ -431,7 +423,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         materialRequisitionTermsAndConditionsList: [],
       ),
     );
-    await getMaterialRequisitionTermsAndConditionList(context, 1, 10);
+    await getMaterialRequisitionTermsAndConditionList(context, 1);
   }
 
   // <---- EXPORT EXCEL PDF ---->
@@ -503,10 +495,10 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     emit(state.copyWith(currentTabIndex: index));
     if (index == 0) {
       // Always start from page 1 when switching tabs to avoid duplicates
-      getMaterialRequisitionTermsAndConditionList(context, 1, 10);
+      getMaterialRequisitionTermsAndConditionList(context, 1);
     } else if (index == 1) {
       // Always start from page 1 when switching tabs to avoid duplicates
-      getBookingTermsAndConditionList(context, 1, 10);
+      getBookingTermsAndConditionList(context, 1);
     }
   }
 }

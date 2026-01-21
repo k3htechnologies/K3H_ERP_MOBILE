@@ -234,33 +234,27 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
         },
       ),
       onClear: () {
-        _filterDepartmentC.clear();
-        _filterDesignationC.clear();
-        _employeeMasterCubit.filterEmployee(
+        _employeeMasterCubit.applyFilterAndSort(
           context: context,
           departmentName: "",
           designationName: "",
           mobileNumber: "",
           branchName: "",
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
         );
-        _employeeMasterCubit.sortEmployee(context, "Created Date", "DESC");
       },
       onApply: () {
         applied = true;
-        _employeeMasterCubit.filterEmployee(
+        _employeeMasterCubit.applyFilterAndSort(
           context: context,
           departmentName: _filterDepartmentC.text,
           designationName: _filterDesignationC.text,
           mobileNumber: _filterMobileNumber.text,
           branchName: _filterBranchName.text,
+          sortColumn: selectedDirection != null ? "Full Name" : null,
+          sortDirection: selectedDirection,
         );
-        if (selectedDirection != null) {
-          _employeeMasterCubit.sortEmployee(
-            context,
-            "Full Name",
-            selectedDirection!,
-          );
-        }
       },
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
@@ -293,9 +287,6 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
           if (context.mounted) {
             _employeeMasterCubit.getEmployeeMasterList(context, 1);
           }
-        },
-        onSortOptionCallback: (value) async {
-          _employeeMasterCubit.sortEmployee(context, value, "DESC");
         },
         isFilterOn: true,
         onFilterTap: () {

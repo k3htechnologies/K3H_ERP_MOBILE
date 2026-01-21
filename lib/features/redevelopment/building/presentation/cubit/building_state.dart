@@ -10,7 +10,7 @@ class BuildingState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
-  final int resetCounter;
+  final String filterCTSNumber;
 
   const BuildingState({
     super.isLoading,
@@ -24,7 +24,7 @@ class BuildingState extends BaseState {
     required this.searchText,
     required this.currentSortColumn,
     required this.currentSortDirection,
-    this.resetCounter = 0,
+    required this.filterCTSNumber,
   });
 
   factory BuildingState.initial() => BuildingState(
@@ -38,7 +38,7 @@ class BuildingState extends BaseState {
     isLoading: true,
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
-    resetCounter: 0,
+    filterCTSNumber: "",
   );
 
   BuildingState copyWith({
@@ -53,7 +53,7 @@ class BuildingState extends BaseState {
     String? searchText,
     String? currentSortColumn,
     String? currentSortDirection,
-    int? resetCounter,
+    String? filterCTSNumber,
   }) {
     return BuildingState(
       isLoading: isLoading ?? this.isLoading,
@@ -67,7 +67,7 @@ class BuildingState extends BaseState {
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
-      resetCounter: resetCounter ?? this.resetCounter,
+      filterCTSNumber: filterCTSNumber ?? this.filterCTSNumber,
     );
   }
 
@@ -83,5 +83,6 @@ class BuildingState extends BaseState {
     searchText,
     currentSortColumn,
     currentSortDirection,
+    filterCTSNumber,
   ];
 }

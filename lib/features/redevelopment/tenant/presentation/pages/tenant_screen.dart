@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class TenantScreen extends StatefulWidget {
@@ -47,7 +48,7 @@ class _TenantScreenState extends State<TenantScreen> {
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC;
+  late TextEditingController _searchC,_filterFlatTypeC,_filterFlatConfigurationC;
 
   // FLAGS TO PREVENT INFINITE CALLS
   int? _lastFetchedBuildingId;
@@ -75,6 +76,8 @@ class _TenantScreenState extends State<TenantScreen> {
     _debounce?.cancel();
     scrollController.dispose();
     _searchC.dispose();
+    _filterFlatTypeC.dispose();
+    _filterFlatConfigurationC.dispose();
     _selectedBuildingNotifier.dispose();
     super.dispose();
   }
@@ -120,6 +123,8 @@ class _TenantScreenState extends State<TenantScreen> {
   // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterFlatTypeC = TextEditingController();
+    _filterFlatConfigurationC = TextEditingController();
   }
 
   // FETCH BUILDINGS
@@ -216,6 +221,151 @@ class _TenantScreenState extends State<TenantScreen> {
     });
   }
 
+  // BUILDING FILTER
+  Future<void> _showBottomSheetToFilterTenant(BuildContext context) async {
+    final state = _tenantCubit.state;
+
+    _filterFlatTypeC.text = state.filterFlatType;
+    _filterFlatConfigurationC.text = state.filterFlatConfiguration;
+
+
+    String? selectedDirection =
+        state.currentSortColumn == "Applicant Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String initialFlatType = _filterFlatTypeC.text;
+    final String initialFlatConfiguration = _filterFlatConfigurationC.text;
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool applied = false;
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_filterFlatTypeC.text.trim() != initialFlatType) ||
+            (_filterFlatConfigurationC.text.trim() != initialFlatConfiguration) ||
+            (selectedDirection != initialDirection);
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Tenant",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Sort By Applicant Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20),
+                CustomTextField(
+                  title: "Flat Type",
+                  hint: "Enter Flat Type",
+                  textController: _filterFlatTypeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(height: 5),
+                CustomTextField(
+                  title: "Flat Configuration",
+                  hint: "Enter Flat Configuration",
+                  textController: _filterFlatConfigurationC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(),
+              ],
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _tenantCubit.applyFilterAndSort(
+          context: context,
+          projectId: _project.projectId,
+          buildingId: _selectedBuildingNotifier.value.first["zAttributesId"] as int,
+          filterFlatType: "",
+          filterFlatConfiguration: "",
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
+        );
+      },
+      onApply: () {
+        applied = true;
+        _tenantCubit.applyFilterAndSort(
+          context: context,
+          filterFlatType: _filterFlatTypeC.text,
+          filterFlatConfiguration: _filterFlatConfigurationC.text,
+          projectId: _project.projectId,
+          buildingId: _selectedBuildingNotifier.value.first["zAttributesId"] as int,
+          sortColumn: selectedDirection != null ? "Applicant Name" : null,
+          sortDirection: selectedDirection,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
+    if (!applied && manualClose) {
+      _filterFlatTypeC.clear();
+      _filterFlatConfigurationC.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -234,9 +384,9 @@ class _TenantScreenState extends State<TenantScreen> {
         },
         textController: _searchC,
         searchHintText: "Search By Flat Number",
-        onAddCallback: () {
+        onAddCallback: () async {
           if (_selectedBuildingNotifier.value.isNotEmpty) {
-            goRouter.pushNamed(
+            await goRouter.pushNamed(
               AppRoutes.addTenant,
               queryParameters: {
                 'projectId': _project.projectId.toString(),
@@ -245,6 +395,15 @@ class _TenantScreenState extends State<TenantScreen> {
                         .toString(),
               },
             );
+            if (context.mounted) {
+              _tenantCubit.getTenantList(
+                context: context,
+                projectId: _project.projectId,
+                buildingId:
+                    _selectedBuildingNotifier.value.first["zAttributesId"],
+                pageNumber: 1,
+              );
+            }
           } else {
             showErrorMessage(context, "Error", "Please select building");
           }
@@ -266,6 +425,10 @@ class _TenantScreenState extends State<TenantScreen> {
           _selectedBuildingNotifier.value = [];
           _lastFetchedBuildingId = null;
           _loadBuildingsForProject(_project.projectId);
+        },
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterTenant(context);
         },
         extraHeight: 90,
         widgets: BlocBuilder<TenantCubit, TenantState>(

@@ -11,6 +11,9 @@ class TenantState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
+  final String filterFlatType;
+  final String filterFlatConfiguration;
+
 
   const TenantState({
     super.isLoading,
@@ -24,9 +27,12 @@ class TenantState extends BaseState {
     required this.searchText,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    required this.filterFlatType,
+    required this.filterFlatConfiguration,
   });
 
   factory TenantState.initial() => TenantState(
+    isLoading: true,
     tenantList: [],
     tenantDocumentList: [],
     buildingList: [],
@@ -37,7 +43,8 @@ class TenantState extends BaseState {
     searchText: "",
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
-    isLoading: true,
+    filterFlatType: "",
+    filterFlatConfiguration: "",
   );
 
   TenantState copyWith({
@@ -52,6 +59,8 @@ class TenantState extends BaseState {
     String? searchText,
     String? currentSortColumn,
     String? currentSortDirection,
+    String? filterFlatType,
+    String? filterFlatConfiguration,
   }) {
     return TenantState(
       isLoading: isLoading ?? this.isLoading,
@@ -65,6 +74,8 @@ class TenantState extends BaseState {
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      filterFlatType: filterFlatType ?? this.filterFlatType,
+      filterFlatConfiguration: filterFlatConfiguration ?? this.filterFlatConfiguration
     );
   }
 
@@ -81,5 +92,7 @@ class TenantState extends BaseState {
     searchText,
     currentSortColumn,
     currentSortDirection,
+    filterFlatType,
+    filterFlatConfiguration,
   ];
 }

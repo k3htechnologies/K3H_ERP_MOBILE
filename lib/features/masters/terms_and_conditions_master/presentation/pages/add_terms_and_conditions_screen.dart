@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/cubit/terms_and_conditions_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -47,8 +47,8 @@ class _AddTermsAndConditionsScreenState
   @override
   void initState() {
     super.initState();
-    // Use service locator to get the singleton cubit instance
-    _termsAndConditionsCubit = serviceLocator<TermsAndConditionsCubit>();
+    // Use the same cubit instance provided by BlocProvider in the screen tree
+    _termsAndConditionsCubit = BlocProvider.of<TermsAndConditionsCubit>(context);
     _initializeTextEditingControllers();
     _currentTabIndex = widget.tabIndex ?? 0;
     if (widget.termsAndConditions != null) {

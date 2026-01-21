@@ -40,24 +40,30 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   final ProjectMasterRepository _projectMasterRepository =
       serviceLocator<ProjectMasterRepository>();
 
-  // <---- FILTER EMPLOYEE ---->
-  Future filterEmployee({
+  Future applyFilterAndSort({
     required BuildContext context,
     required String departmentName,
     required String designationName,
     required String mobileNumber,
     required String branchName,
+    String? sortColumn,
+    String? sortDirection,
   }) async {
+
     emit(
       state.copyWith(
         filterDepartmentName: departmentName,
         filterDesignationName: designationName,
         filterMobileNumber: mobileNumber,
         filterBranchName: branchName,
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
         employeeMasterList: [],
+        currentPage: 1,
       ),
     );
-    await getEmployeeMasterList(context, state.currentPage);
+
+    await getEmployeeMasterList(context, 1);
   }
 
   // <---- GET EMPLOYEE MASTER LIST ---->
@@ -676,22 +682,6 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   // <---- SEARCH EMPLOYEE ---->
   Future searchEmployee(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, employeeMasterList: []));
-    await getEmployeeMasterList(context, 1);
-  }
-
-  // <---- SORT EMPLOYEE ---->
-  Future sortEmployee(
-    BuildContext context,
-    String value,
-    String direction,
-  ) async {
-    emit(
-      state.copyWith(
-        currentSortColumn: value,
-        currentSortDirection: direction,
-        employeeMasterList: [],
-      ),
-    );
     await getEmployeeMasterList(context, 1);
   }
 
