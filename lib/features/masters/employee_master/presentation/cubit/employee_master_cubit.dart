@@ -45,11 +45,15 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     required BuildContext context,
     required String departmentName,
     required String designationName,
+    required String mobileNumber,
+    required String branchName,
   }) async {
     emit(
       state.copyWith(
         filterDepartmentName: departmentName,
         filterDesignationName: designationName,
+        filterMobileNumber: mobileNumber,
+        filterBranchName: branchName,
         employeeMasterList: [],
       ),
     );
@@ -68,6 +72,8 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
         "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
         "DepartmentName": state.filterDepartmentName,
         "DesignationName": state.filterDesignationName,
+        "MobileNumber": state.filterMobileNumber,
+        "BranchName": state.filterBranchName,
       },
     );
 

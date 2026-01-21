@@ -111,6 +111,103 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
     }
   }
 
+  // DESIGNATION FILTER
+  Future<void> _showBottomSheetToFilterDesignationMaster(
+    BuildContext context,
+  ) async {
+    final state = _designationMasterCubit.state;
+    String? selectedDirection =
+        state.currentSortColumn == "Designation Name"
+            ? state.currentSortDirection
+            : null;
+    final String? initialDirection = selectedDirection;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Designation",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            applyEnabled.value = selectedDirection != null &&
+                selectedDirection != initialDirection;
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Sort By Designation Name", style: AppTextStyle.ts14M()),
+              verticalSpacing(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () => selectDirection("ASC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "ASC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("A-Z", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                  horizontalSpacing(),
+                  GestureDetector(
+                    onTap: () => selectDirection("DESC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "DESC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("Z-A", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+      onClear: () {
+        _designationMasterCubit.sortDesignation(
+          context,
+          "Created Date",
+          "DESC",
+        );
+      },
+      onApply: () {
+        if (selectedDirection != null &&
+            selectedDirection != initialDirection) {
+          _designationMasterCubit.sortDesignation(
+            context,
+            "Designation Name",
+            selectedDirection!,
+          );
+        }
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,8 +231,10 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
         onSortOptionCallback: (value) async {
           _designationMasterCubit.sortDesignation(context, value, "DESC");
         },
-        sortOptionList: ["Created Date", "Designation Name", "Modified Date"],
-        initialSortType: "Created Date",
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterDesignationMaster(context);
+        },
       ),
       body: BlocBuilder<DesignationMasterCubit, DesignationMasterState>(
         builder: (context, state) {

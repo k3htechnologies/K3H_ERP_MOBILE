@@ -11,10 +11,12 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class EmployeeMasterScreen extends StatefulWidget {
@@ -37,12 +39,16 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC;
+  late TextEditingController _searchC,
+      _filterDepartmentC,
+      _filterDesignationC,
+      _filterMobileNumber,
+      _filterBranchName;
 
   @override
   void initState() {
     super.initState();
-    _employeeMasterCubit = BlocProvider.of<EmployeeMasterCubit>(context);
+    _employeeMasterCubit = context.read<EmployeeMasterCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.employeeMaster]!;
     _initializeTextEditingController();
@@ -54,6 +60,10 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
   void dispose() {
     super.dispose();
     _searchC.dispose();
+    _filterDepartmentC.dispose();
+    _filterDesignationC.dispose();
+    _filterMobileNumber.dispose();
+    _filterBranchName.dispose();
     _scrollController.dispose();
   }
 
@@ -64,6 +74,10 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
 
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterDepartmentC = TextEditingController();
+    _filterDesignationC = TextEditingController();
+    _filterMobileNumber = TextEditingController();
+    _filterBranchName = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -85,6 +99,180 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
         });
       }
     });
+  }
+
+  // EMPLOYEE FILTER
+  Future<void> _showBottomSheetToFilterEmployeeMaster(
+    BuildContext context,
+  ) async {
+    final state = _employeeMasterCubit.state;
+
+    _filterDepartmentC.text = state.filterDepartmentName;
+    _filterDesignationC.text = state.filterDesignationName;
+    _filterMobileNumber.text = state.filterMobileNumber;
+    _filterBranchName.text = state.filterBranchName;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Full Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String initialDept = _filterDepartmentC.text;
+    final String initialDesig = _filterDesignationC.text;
+    final String initialMobileNumber = _filterMobileNumber.text;
+    final String initialBranchName = _filterBranchName.text;
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool applied = false;
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_filterDepartmentC.text.trim() != initialDept) ||
+            (_filterDesignationC.text.trim() != initialDesig) ||
+            (_filterMobileNumber.text.trim() != initialMobileNumber) ||
+            (_filterBranchName.text.trim() != initialBranchName) ||
+            (selectedDirection != initialDirection);
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Employee",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Sort By Employee Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20),
+                CustomTextField(
+                  title: "Branch Name",
+                  hint: "Enter Branch Name",
+                  textController: _filterBranchName,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(height: 5),
+                CustomTextField(
+                  title: "Department",
+                  hint: "Enter Department",
+                  textController: _filterDepartmentC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(height: 5),
+                CustomTextField(
+                  title: "Designation",
+                  hint: "Enter Designation",
+                  textController: _filterDesignationC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(height: 5),
+                CustomTextField(
+                  title: "Mobile Number",
+                  hint: "Enter Mobile Number",
+                  textController: _filterMobileNumber,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(),
+              ],
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _filterDepartmentC.clear();
+        _filterDesignationC.clear();
+        _employeeMasterCubit.filterEmployee(
+          context: context,
+          departmentName: "",
+          designationName: "",
+          mobileNumber: "",
+          branchName: "",
+        );
+        _employeeMasterCubit.sortEmployee(context, "Created Date", "DESC");
+      },
+      onApply: () {
+        applied = true;
+        _employeeMasterCubit.filterEmployee(
+          context: context,
+          departmentName: _filterDepartmentC.text,
+          designationName: _filterDesignationC.text,
+          mobileNumber: _filterMobileNumber.text,
+          branchName: _filterBranchName.text,
+        );
+        if (selectedDirection != null) {
+          _employeeMasterCubit.sortEmployee(
+            context,
+            "Full Name",
+            selectedDirection!,
+          );
+        }
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
+    if (!applied && manualClose) {
+      _filterDepartmentC.clear();
+      _filterDesignationC.clear();
+      _filterMobileNumber.clear();
+      _filterBranchName.clear();
+    }
   }
 
   @override
@@ -109,20 +297,22 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
         onSortOptionCallback: (value) async {
           _employeeMasterCubit.sortEmployee(context, value, "DESC");
         },
-        sortOptionList: ["Created Date", "Full Name", "Department"],
-        initialSortType: "Created Date",
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterEmployeeMaster(context);
+        },
       ),
       body: SafeArea(
         child: BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
           builder: (context, state) {
-            if ((state.isLoading ?? true) && state.employeeMasterList.isEmpty) {
+            if (state.isLoading! && state.employeeMasterList.isEmpty) {
               return Center(child: loader());
             }
             if (state.employeeMasterList.isEmpty) {
               return Center(child: noDataWidget());
             }
 
-            return ListView.builder(
+            final listView = ListView.builder(
               padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               controller: _scrollController,
               itemCount:
@@ -300,6 +490,21 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                   ),
                 );
               },
+            );
+
+            return Stack(
+              children: [
+                listView,
+                if (state.isLoading ?? false)
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: Container(
+                        color: Colors.transparent,
+                        child: Center(child: loader()),
+                      ),
+                    ),
+                  ),
+              ],
             );
           },
         ),
