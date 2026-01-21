@@ -8,7 +8,6 @@ import 'package:k3h_erp_app/features/masters/company_master/data/repository/comp
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-
 part 'company_master_state.dart';
 
 class CompanyMasterCubit extends Cubit<CompanyMasterState> {
@@ -19,11 +18,33 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
       serviceLocator<CompanyMasterRepository>();
 
   // <---- FILTER COMPANY ---->
-  Future filterCompany({
+  Future applyCompanyFilterAndSort({
     required BuildContext context,
-    required String companyType,
+    String? companyType,
+    String? sortColumn,
+    String? sortDirection,
+    bool? isClear,
   }) async {
-    emit(state.copyWith(filterByCompanyType: companyType, companyList: []));
+    if (isClear ?? false) {
+      emit(
+        state.copyWith(
+          filterByCompanyType: "",
+          currentSortColumn: "Created Date",
+          currentSortDirection: "DESC",
+          currentPage: 1,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          filterByCompanyType: companyType ?? state.filterByCompanyType,
+          currentSortColumn: sortColumn ?? state.currentSortColumn,
+          currentSortDirection: sortDirection ?? state.currentSortDirection,
+          currentPage: 1,
+        ),
+      );
+    }
+
     await getCompanyMaster(context, 1);
   }
 
