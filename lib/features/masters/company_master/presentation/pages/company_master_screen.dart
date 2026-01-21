@@ -215,7 +215,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
         _companyMasterCubit.applyCompanyFilterAndSort(
           context: context,
           companyType: _filterCompanyTypeC.text.trim(),
-          sortColumn: "Company Name",
+          sortColumn: selectedDirection != null ? "Company Name" : null,
           sortDirection: selectedDirection,
         );
       },
