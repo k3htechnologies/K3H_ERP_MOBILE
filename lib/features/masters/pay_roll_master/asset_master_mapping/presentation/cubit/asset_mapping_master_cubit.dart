@@ -207,7 +207,10 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
           state.copyWith(
             assetMappingList: updatedList,
             isLoading: false,
-            totalNumberOfRecord: success["totalNumberOfRecord"],
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
           ),
         );
 

@@ -71,10 +71,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
           state.copyWith(
             isLoading: false,
             companyList: updatedList,
-            totalNumberOfRecord:
-                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
-                    ? state.totalNumberOfRecord - 1
-                    : response['totalNumberOfRecord'],
+            totalNumberOfRecord: response['totalNumberOfRecord'],
             currentPage: pageNumber,
           ),
         );
@@ -106,7 +103,15 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         if (index != null) {
           final updatedList = List<CompanyModel>.from(state.companyList);
           updatedList.removeAt(index);
-          emit(state.copyWith(companyList: updatedList));
+          emit(
+            state.copyWith(
+              companyList: updatedList,
+              totalNumberOfRecord:
+                  state.totalNumberOfRecord > 0
+                      ? state.totalNumberOfRecord - 1
+                      : 0,
+            ),
+          );
         } else {
           getCompanyMaster(context, pageNumber);
         }

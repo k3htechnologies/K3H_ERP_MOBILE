@@ -81,7 +81,10 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
           state.copyWith(
             leaveEncashmentList: updatedList,
             isLoading: false,
-            totalNumberOfRecord: success["totalNumberOfRecord"],
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
           ),
         );
 

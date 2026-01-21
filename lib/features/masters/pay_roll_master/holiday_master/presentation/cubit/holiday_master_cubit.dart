@@ -201,7 +201,10 @@ class HolidayMasterCubit extends Cubit<HolidayMasterState> {
           state.copyWith(
             holidays: updatedList,
             isLoading: false,
-            totalNumberOfRecord: success["totalNumberOfRecord"],
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
           ),
         );
         showSuccessMessage(context, subTitle: "Holiday Deleted Successfully");

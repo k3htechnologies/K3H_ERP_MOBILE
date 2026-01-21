@@ -73,7 +73,10 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
           state.copyWith(
             shiftMasterList: updatedList,
             isLoading: false,
-            totalNumberOfRecord: success["totalNumberOfRecord"],
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
           ),
         );
         showSuccessMessage(context, subTitle: "Shift Deleted Successfully");

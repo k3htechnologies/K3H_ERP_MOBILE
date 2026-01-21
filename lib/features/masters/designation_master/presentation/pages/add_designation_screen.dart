@@ -139,6 +139,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                       title: "Notice Period (in days)",
                       isRequired: true,
                       textController: _noticePeriodC,
+                      keyboardType: TextInputType.number,
                       inputFormatterList: InputValidator.digit(3),
                       validator: (value) {
                         if ((value == null || value.trim().isEmpty)) {

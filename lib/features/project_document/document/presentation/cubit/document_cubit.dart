@@ -451,7 +451,10 @@ class DocumentCubit extends Cubit<DocumentState> {
         emit(
           state.copyWith(
             documentList: updatedList,
-            totalNumberOfRecord: state.totalNumberOfRecord - 1,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
           ),
         );
         showSuccessMessage(context, subTitle: "Document Deleted Successfully");

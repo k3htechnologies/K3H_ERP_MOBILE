@@ -196,7 +196,10 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
           state.copyWith(
             deductionList: updatedList,
             isLoading: false,
-            totalNumberOfRecord: success["totalNumberOfRecord"],
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
           ),
         );
 
