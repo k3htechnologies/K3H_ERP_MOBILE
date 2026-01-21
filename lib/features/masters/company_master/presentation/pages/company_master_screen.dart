@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CompanyMasterScreen extends StatefulWidget {
@@ -38,7 +39,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC;
+  late TextEditingController _searchC, _filterCompanyTypeC;
 
   @override
   void initState() {
@@ -57,6 +58,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
   void initialiseControllers() {
     _searchC = TextEditingController();
     scrollController = ScrollController();
+    _filterCompanyTypeC = TextEditingController();
   }
 
   // PAGINATION
@@ -100,6 +102,140 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     }
   }
 
+  // COMPANY FILTER
+  Future<void> _showBottomSheetToFilterCompanyMaster(
+    BuildContext context,
+  ) async {
+    final state = _companyMasterCubit.state;
+
+    _filterCompanyTypeC.text = state.filterByCompanyType;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Company Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String initialCompanyType = _filterCompanyTypeC.text;
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool applied = false;
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_filterCompanyTypeC.text.trim() != initialCompanyType) ||
+            (selectedDirection != initialDirection);
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Company",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Sort By Company Type", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20),
+                CustomTextField(
+                  title: "Company Type",
+                  hint: "Enter Company Type",
+                  textController: _filterCompanyTypeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _filterCompanyTypeC.clear();
+        _companyMasterCubit.applyCompanyFilterAndSort(
+          context: context,
+          isClear: true,
+        );
+      },
+      onApply: () {
+        applied = true;
+        _companyMasterCubit.applyCompanyFilterAndSort(
+          context: context,
+          companyType: _filterCompanyTypeC.text.trim(),
+          sortColumn: "Company Name",
+          sortDirection: selectedDirection,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
+    if (!applied && manualClose) {
+      _filterCompanyTypeC.clear();
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchC.dispose();
+    _filterCompanyTypeC.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,8 +259,12 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
         onSortOptionCallback: (value) async {
           _companyMasterCubit.sortCompany(context, value, "DESC");
         },
+        isFilterOn: true,
         sortOptionList: ["Created Date", "Company Name", "Company Type"],
         initialSortType: "Created Date",
+        onFilterTap: () {
+          _showBottomSheetToFilterCompanyMaster(context);
+        },
       ),
       body: BlocBuilder<CompanyMasterCubit, CompanyMasterState>(
         builder: (context, state) {

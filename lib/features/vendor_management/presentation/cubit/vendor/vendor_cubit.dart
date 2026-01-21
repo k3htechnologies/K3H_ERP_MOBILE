@@ -122,18 +122,37 @@ class VendorCubit extends Cubit<VendorState> {
   }
 
   // <--- SORT VENDOR ---->
-  Future sortVendor(
-    BuildContext context,
-    String value,
-    String direction,
-  ) async {
-    emit(
-      state.copyWith(
-        currentSortColumn: value,
-        currentSortDirection: direction,
-        vendorList: [],
-      ),
-    );
+
+  Future sortVendor({
+    required BuildContext context,
+    String? companyType,
+    String? companyName,
+    String? sortColumn,
+    String? sortDirection,
+    bool? isClear,
+  }) async {
+    if (isClear ?? false) {
+      emit(
+        state.copyWith(
+          filterByCompanyType: "",
+          filterByCompanyName: "",
+          currentSortColumn: "Created Date",
+          currentSortDirection: "DESC",
+          currentPage: 1,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          filterByCompanyType: companyType ?? state.filterByCompanyType,
+          filterByCompanyName: companyName ?? state.filterByCompanyName,
+          currentSortColumn: sortColumn ?? state.currentSortColumn,
+          currentSortDirection: sortDirection ?? state.currentSortDirection,
+          currentPage: 1,
+        ),
+      );
+    }
+
     await getVendors(context, 1);
   }
 

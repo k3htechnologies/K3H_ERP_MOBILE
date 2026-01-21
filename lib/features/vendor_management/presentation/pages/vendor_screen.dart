@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class VendorScreen extends StatefulWidget {
@@ -38,7 +39,7 @@ class _VendorScreenState extends State<VendorScreen> {
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC;
+  late TextEditingController _searchC, _filterCompanyNameC, _filterCompanyTypeC;
 
   @override
   void initState() {
@@ -60,6 +61,8 @@ class _VendorScreenState extends State<VendorScreen> {
   void dispose() {
     super.dispose();
     _searchC.dispose();
+    _filterCompanyNameC.dispose();
+    _filterCompanyTypeC.dispose();
     scrollController.dispose();
   }
 
@@ -87,6 +90,8 @@ class _VendorScreenState extends State<VendorScreen> {
   // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterCompanyTypeC = TextEditingController();
+    _filterCompanyNameC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -105,6 +110,143 @@ class _VendorScreenState extends State<VendorScreen> {
         });
       }
     });
+  }
+
+  // VENDOR FILTER
+  Future<void> _showBottomSheetToFilterVendorMaster(
+    BuildContext context,
+  ) async {
+    final state = _vendorCubit.state;
+
+    _filterCompanyTypeC.text = state.filterByCompanyType;
+    _filterCompanyNameC.text = state.filterByCompanyName;
+    debugPrint("state.currentSortColumn: ${state.currentSortColumn}");
+    String? selectedDirection =
+        state.currentSortColumn == "Vendor Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String initialCompanyName = _filterCompanyNameC.text;
+    final String initialCompanyType = _filterCompanyTypeC.text;
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool applied = false;
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_filterCompanyTypeC.text.trim() != initialCompanyType) ||
+            (_filterCompanyNameC.text.trim() != initialCompanyName) ||
+            (selectedDirection != initialDirection);
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Vendor",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Sort By Vendor Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20),
+                CustomTextField(
+                  title: "Company Name",
+                  hint: "Enter Company Name",
+                  textController: _filterCompanyNameC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(height: 5),
+                CustomTextField(
+                  title: "Company Type",
+                  hint: "Enter Company Type",
+                  textController: _filterCompanyTypeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _filterCompanyTypeC.clear();
+        _filterCompanyNameC.clear();
+        _vendorCubit.sortVendor(context: context, isClear: true);
+      },
+      onApply: () {
+        applied = true;
+        _vendorCubit.sortVendor(
+          context: context,
+          companyType: _filterCompanyTypeC.text.trim(),
+          sortColumn: "Vendor Name",
+          companyName: _filterCompanyNameC.text.trim(),
+          sortDirection: selectedDirection,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
+    if (!applied && manualClose) {
+      _filterCompanyTypeC.clear();
+      _filterCompanyNameC.clear();
+    }
   }
 
   @override
@@ -126,6 +268,10 @@ class _VendorScreenState extends State<VendorScreen> {
           _vendorCubit.searchVendor(context, value);
         },
         textController: _searchC,
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterVendorMaster(context);
+        },
       ),
       body: BlocBuilder<VendorCubit, VendorState>(
         builder: (context, state) {
