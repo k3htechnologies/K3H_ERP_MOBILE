@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/masters/bank_list_master/datasource/model/bank_list_master.model.dart';
+import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 

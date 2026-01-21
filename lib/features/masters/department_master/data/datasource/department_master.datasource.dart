@@ -117,7 +117,7 @@ class DepartmentMasterDataSourceImpl implements DepartmentMasterDatasource {
       );
       return {
         'data': networkResponse["data"],
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'totalNumberOfRecord': networkResponse['TotalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {

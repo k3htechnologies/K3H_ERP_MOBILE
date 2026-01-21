@@ -570,46 +570,53 @@ final GoRouter goRouter = GoRouter(
           },
         ),
         // TERMS AND CONDITIONS MASTER
-        GoRoute(
-          name: AppRoutes.termsAndConditions,
-          path: AppRoutes.termsAndConditions,
-          builder: (context, state) {
+        ShellRoute(
+          builder: (context, state, child) {
             return BlocProvider(
-              create: (context) => TermsAndConditionsCubit(),
-              child: TermsAndConditionsScreen(),
+              create: (_) => TermsAndConditionsCubit(),
+              child: child,
             );
           },
-        ),
-        GoRoute(
-          name: AppRoutes.addTermsAndConditions,
-          path: AppRoutes.addTermsAndConditions,
-          builder: (context, state) {
-            final queryParameterTnc =
-                state.uri.queryParameters['termsAndCondition'];
-            final TermsAndConditionsModel? termsAndCondition =
-                queryParameterTnc != null
-                    ? TermsAndConditionsModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterTnc),
-                        ),
-                      ),
-                    )
-                    : null;
-            final index =
-                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-            final tabIndex =
-                int.tryParse(state.uri.queryParameters['tabIndex'] ?? '0') ?? 0;
-            // Use BlocProvider.value with service locator to get the singleton instance
-            return BlocProvider.value(
-              value: serviceLocator<TermsAndConditionsCubit>(),
-              child: AddTermsAndConditionsScreen(
-                termsAndConditions: termsAndCondition,
-                index: index,
-                tabIndex: tabIndex,
-              ),
-            );
-          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.termsAndConditions,
+              path: AppRoutes.termsAndConditions,
+              builder: (context, state) {
+                return TermsAndConditionsScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addTermsAndConditions,
+              path: AppRoutes.addTermsAndConditions,
+              builder: (context, state) {
+                final queryParameterTnc =
+                    state.uri.queryParameters['termsAndCondition'];
+                final TermsAndConditionsModel? termsAndCondition =
+                    queryParameterTnc != null
+                        ? TermsAndConditionsModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterTnc),
+                            ),
+                          ),
+                        )
+                        : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                final tabIndex =
+                    int.tryParse(
+                      state.uri.queryParameters['tabIndex'] ?? '0',
+                    ) ??
+                    0;
+                // Use BlocProvider.value with service locator to get the singleton instance
+                return AddTermsAndConditionsScreen(
+                  termsAndConditions: termsAndCondition,
+                  index: index,
+                  tabIndex: tabIndex,
+                );
+              },
+            ),
+          ],
         ),
         // ASSET MASTER
         ShellRoute(
@@ -1711,26 +1718,24 @@ final GoRouter goRouter = GoRouter(
             // Check for both parameter names (buildingDetail and buildingDetails)
             final queryParameterBuildingDetail =
                 state.uri.queryParameters['buildingDetail'] ??
-                    state.uri.queryParameters['buildingDetails'];
+                state.uri.queryParameters['buildingDetails'];
 
             if (queryParameterBuildingDetail == null) {
               // Return error screen or navigate back
               return Scaffold(
                 appBar: AppBar(title: const Text('Error')),
-                body: const Center(
-                  child: Text('Building details not found'),
-                ),
+                body: const Center(child: Text('Building details not found')),
               );
             }
 
             final BuildingDetailsModel buildingDetail =
                 BuildingDetailsModel.fromJson(
-              jsonDecode(
-                EncryptionManager.decryptData(
-                  Uri.decodeComponent(queryParameterBuildingDetail),
-                ),
-              ),
-            );
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterBuildingDetail),
+                    ),
+                  ),
+                );
 
             return BlocProvider.value(
               value: serviceLocator<BuildingCubit>(),

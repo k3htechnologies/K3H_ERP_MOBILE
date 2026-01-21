@@ -328,19 +328,6 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
       },
       (response) {
         goRouter.pop();
-        var list = [
-          response['data'][0] as UserModel,
-          ...state.employeeMasterList,
-        ];
-        emit(
-          state.copyWith(
-            employeeMasterList: list,
-            totalNumberOfRecord:
-                state.totalNumberOfRecord == -1
-                    ? 1
-                    : state.totalNumberOfRecord + 1,
-          ),
-        );
         showSuccessMessage(context, subTitle: "Employee Added Successfully");
       },
     );

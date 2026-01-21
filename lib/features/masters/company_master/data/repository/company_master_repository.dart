@@ -17,7 +17,7 @@ abstract interface class CompanyMasterRepository {
     required int pageSize,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> deleteCompanyList({
+  Future<Either<Failure, Map<String, dynamic>>> deleteCompany({
     required int companyId,
     required String uniqueKey,
   });
@@ -69,7 +69,7 @@ class CompanyMasterRepositoryImp implements CompanyMasterRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> deleteCompanyList({
+  Future<Either<Failure, Map<String, dynamic>>> deleteCompany({
     required int companyId,
     required String uniqueKey,
   }) async {

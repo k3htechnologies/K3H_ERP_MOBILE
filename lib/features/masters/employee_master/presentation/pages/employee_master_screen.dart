@@ -100,8 +100,11 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
         onExportCallback: (value) {
           _employeeMasterCubit.exportExcelPdf(context, value);
         },
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addUpdateEmployee);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addUpdateEmployee);
+          if (context.mounted) {
+            _employeeMasterCubit.getEmployeeMasterList(context, 1);
+          }
         },
         onSortOptionCallback: (value) async {
           _employeeMasterCubit.sortEmployee(context, value, "DESC");

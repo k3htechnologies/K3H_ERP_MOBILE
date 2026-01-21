@@ -89,7 +89,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     int? index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-    var deleteResult = await _companyMasterRepository.deleteCompanyList(
+    var deleteResult = await _companyMasterRepository.deleteCompany(
       companyId: companyMasterId,
       uniqueKey: uniqueKey,
     );

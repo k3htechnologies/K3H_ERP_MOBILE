@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/masters/bank_list_master/datasource/model/bank_list_master.model.dart';
+import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
