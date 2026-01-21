@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -265,7 +264,6 @@ class DocumentCubit extends Cubit<DocumentState> {
           goRouter.pop();
         }
 
-
         if (state.documentList.isNotEmpty &&
             index < state.documentList.length) {
           final updatedListModel = List<DocumentModel>.from(state.documentList);
@@ -379,7 +377,15 @@ class DocumentCubit extends Cubit<DocumentState> {
         final updatedList = response['data'][0] as DocumentModel;
         var list = [updatedList, ...state.documentList];
 
-        emit(state.copyWith(documentList: list));
+        emit(
+          state.copyWith(
+            documentList: list,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord == -1
+                    ? 1
+                    : state.totalNumberOfRecord + 1,
+          ),
+        );
 
         showSuccessMessage(
           context,
@@ -442,11 +448,14 @@ class DocumentCubit extends Cubit<DocumentState> {
       (success) {
         final updatedList = List<DocumentModel>.from(state.documentList);
         updatedList.removeAt(index);
-        emit(state.copyWith(documentList: updatedList));
+        emit(
+          state.copyWith(
+            documentList: updatedList,
+            totalNumberOfRecord: state.totalNumberOfRecord - 1,
+          ),
+        );
         showSuccessMessage(context, subTitle: "Document Deleted Successfully");
       },
     );
   }
-
-
 }

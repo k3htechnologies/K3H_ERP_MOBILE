@@ -215,6 +215,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     title: 'First Name',
                     isRequired: true,
                     textController: _firstNameC,
+                    hint: "Enter First Name",
                     inputFormatterList: InputValidator.textOnly(50),
                     validator:
                         (v) =>
@@ -226,6 +227,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     title: 'Middle Name',
                     isRequired: true,
                     textController: _middleNameC,
+                    hint: "Enter Middle Name",
                     inputFormatterList: InputValidator.textOnly(50),
                     validator:
                         (v) =>
@@ -237,6 +239,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     title: 'Last Name',
                     isRequired: true,
                     textController: _lastNameC,
+                    hint: "Enter Last Name",
                     inputFormatterList: InputValidator.textOnly(50),
                     validator:
                         (v) =>
@@ -274,6 +277,8 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     title: 'Mobile Number',
                     isRequired: true,
                     textController: _mobileC,
+                    hint: "Enter Mobile Number",
+                    keyboardType: TextInputType.number,
                     inputFormatterList: InputValidator.digit(10),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -289,6 +294,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     title: 'Email Id',
                     isRequired: true,
                     textController: _emailC,
+                    hint: "Enter Email Id",
                     inputFormatterList: InputValidator.emailInputFormatters(),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -304,6 +310,8 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     title: 'Partner Percentage',
                     isRequired: true,
                     textController: _percentageC,
+                    keyboardType: TextInputType.number,
+                    hint: 'Enter Partner Percentage',
                     inputFormatterList: [
                       FilteringTextInputFormatter.allow(
                         RegExp(r'^\d{0,3}(\.\d{0,2})?$'),
@@ -344,6 +352,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                   CustomTextField(
                     title: 'PAN Number',
                     textController: _panC,
+                    hint: "Enter PAN Number",
                     inputFormatterList: InputValidator.panInputFormatters(),
                     validator: (value) {
                       if (panFile.fileBytesList.isNotEmpty &&
@@ -379,6 +388,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     title: 'Aadhaar Card Number',
                     isRequired: true,
                     textController: _aadhaarC,
+                    hint: "Enter Aadhar Card Number",
                     inputFormatterList:
                         InputValidator.aadharNumberInputFormatter(),
                     validator: (value) {

@@ -271,24 +271,45 @@ class _ViewApprovalDocumentScreenState
                 value: document.approvalDocumentURL,
                 customValueWidget: GestureDetector(
                   onTap: () {
-                    showFilePreviewDialog(
-                      context,
-                      document.approvalDocumentURL.split(","),
-                    );
+                    if (document.approvalDocumentURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        document.approvalDocumentURL.split(","),
+                      );
+                    }
                   },
                   child: Row(
                     spacing: 10,
                     children: [
                       Text(
                         "Document",
-                        style: AppTextStyle.ts14M(color: AppColor.primary),
+                        style: AppTextStyle.ts14M(
+                          color:
+                              document.approvalDocumentURL.isNotEmpty
+                                  ? AppColor.primary
+                                  : AppColor.grey,
+                        ),
                       ),
 
                       CustomIconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          if (document.approvalDocumentURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              document.approvalDocumentURL.split(","),
+                            );
+                          }
+                        },
+                        backgroundColor:
+                            document.approvalDocumentURL.isNotEmpty
+                                ? AppColor.lightBlue
+                                : AppColor.lightGrey,
                         icon: Icon(
                           Icons.remove_red_eye_outlined,
-                          color: AppColor.primary,
+                          color:
+                              document.approvalDocumentURL.isNotEmpty
+                                  ? AppColor.primary
+                                  : AppColor.grey,
                           size: 16,
                         ),
                       ),

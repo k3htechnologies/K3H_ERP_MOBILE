@@ -451,7 +451,12 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
           state.documentList,
         );
         updatedList.removeAt(index);
-        emit(state.copyWith(documentList: updatedList));
+        emit(
+          state.copyWith(
+            documentList: updatedList,
+            totalNumberOfRecord: state.totalNumberOfRecord - 1,
+          ),
+        );
         showSuccessMessage(
           context,
           subTitle: "Approval Document Deleted Successfully",

@@ -581,7 +581,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             },
           ),
           CustomMultiFilePicker(
-            title: 'PAN URL',
+            title: 'Upload PAN Card',
             isRequired: true,
             initialFileList: selectedPANCardFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
@@ -608,7 +608,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             inputFormatterList: InputValidator.cinInputFormatters(),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return "Cin Number is required";
+                return "CIN Number is required";
               }
               if (!InputValidator.isValidCIN(value)) {
                 return "Invalid CIN number";
@@ -617,7 +617,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             },
           ),
           CustomMultiFilePicker(
-            title: 'CIN URL',
+            title: 'Upload CIN Card',
             isRequired: true,
             initialFileList: cinPhotoFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
