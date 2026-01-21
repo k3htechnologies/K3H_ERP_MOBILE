@@ -178,7 +178,10 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
           state.copyWith(
             earningList: updatedList,
             isLoading: false,
-            totalNumberOfRecord: success["totalNumberOfRecord"],
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
           ),
         );
         showSuccessMessage(context, subTitle: "Earning Deleted Successfully");

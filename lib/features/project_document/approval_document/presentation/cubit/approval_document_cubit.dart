@@ -454,7 +454,10 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
         emit(
           state.copyWith(
             documentList: updatedList,
-            totalNumberOfRecord: state.totalNumberOfRecord - 1,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
           ),
         );
         showSuccessMessage(

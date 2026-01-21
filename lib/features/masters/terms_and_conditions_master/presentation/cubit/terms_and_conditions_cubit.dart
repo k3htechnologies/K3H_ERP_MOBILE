@@ -46,11 +46,10 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        List<TermsAndConditionsModel> updatedList = pageNumber == 1
-            ? []
-            : List.from(
-                state.materialRequisitionTermsAndConditionsList,
-              );
+        List<TermsAndConditionsModel> updatedList =
+            pageNumber == 1
+                ? []
+                : List.from(state.materialRequisitionTermsAndConditionsList);
         updatedList.addAll(response['data'] as List<TermsAndConditionsModel>);
         emit(
           state.copyWith(
@@ -95,11 +94,10 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        List<TermsAndConditionsModel> updatedList = pageNumber == 1
-            ? []
-            : List.from(
-                state.bookingTermsAndConditionsList,
-              );
+        List<TermsAndConditionsModel> updatedList =
+            pageNumber == 1
+                ? []
+                : List.from(state.bookingTermsAndConditionsList);
         updatedList.addAll(response['data'] as List<TermsAndConditionsModel>);
 
         emit(
@@ -511,5 +509,4 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
       getBookingTermsAndConditionList(context, 1, 10);
     }
   }
-
 }

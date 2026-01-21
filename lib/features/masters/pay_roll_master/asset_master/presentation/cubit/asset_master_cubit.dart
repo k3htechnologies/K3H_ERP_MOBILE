@@ -236,7 +236,10 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
           state.copyWith(
             assetList: updatedList,
             isLoading: false,
-            totalNumberOfRecord: success["totalNumberOfRecord"],
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
           ),
         );
         showSuccessMessage(context, subTitle: "Asset Deleted Successfully");

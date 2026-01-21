@@ -91,20 +91,6 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
       },
       (response) {
         goRouter.pop();
-        var list = [
-          response['data'][0] as DesignationMasterModel,
-          ...state.designationList,
-        ];
-
-        emit(
-          state.copyWith(
-            designationList: list,
-            totalNumberOfRecord:
-                state.totalNumberOfRecord == -1
-                    ? 1
-                    : state.totalNumberOfRecord + 1,
-          ),
-        );
         showSuccessMessage(
           context,
           subTitle: 'Designation Added Successfully!!!',
@@ -208,7 +194,10 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
           emit(
             state.copyWith(
               designationList: updatedList,
-              totalNumberOfRecord: response['totalNumberOfRecord'],
+              totalNumberOfRecord:
+                  state.totalNumberOfRecord > 0
+                      ? state.totalNumberOfRecord - 1
+                      : 0,
             ),
           );
         } else {

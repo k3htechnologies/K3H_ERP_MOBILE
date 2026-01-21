@@ -463,7 +463,10 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         emit(
           state.copyWith(
             reraDocumentList: updatedList,
-            totalNumberOfRecord: success["totalNumberOfRecord"],
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
           ),
         );
         showSuccessMessage(context, subTitle: "Document Deleted Successfully");

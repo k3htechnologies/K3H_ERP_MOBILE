@@ -189,7 +189,10 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
           state.copyWith(
             holidayMappingList: updatedList,
             isLoading: false,
-            totalNumberOfRecord: success["totalNumberOfRecord"],
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
           ),
         );
 

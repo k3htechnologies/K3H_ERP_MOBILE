@@ -162,7 +162,10 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
           emit(
             state.copyWith(
               departmentList: updatedList,
-              totalNumberOfRecord: state.totalNumberOfRecord - 1,
+              totalNumberOfRecord:
+                  state.totalNumberOfRecord > 0
+                      ? state.totalNumberOfRecord - 1
+                      : 0,
             ),
           );
         } else {
