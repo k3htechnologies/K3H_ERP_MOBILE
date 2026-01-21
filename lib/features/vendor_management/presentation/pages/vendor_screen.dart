@@ -120,7 +120,6 @@ class _VendorScreenState extends State<VendorScreen> {
 
     _filterCompanyTypeC.text = state.filterByCompanyType;
     _filterCompanyNameC.text = state.filterByCompanyName;
-    debugPrint("state.currentSortColumn: ${state.currentSortColumn}");
     String? selectedDirection =
         state.currentSortColumn == "Vendor Name"
             ? state.currentSortDirection
@@ -233,7 +232,7 @@ class _VendorScreenState extends State<VendorScreen> {
         _vendorCubit.sortVendor(
           context: context,
           companyType: _filterCompanyTypeC.text.trim(),
-          sortColumn: "Vendor Name",
+          sortColumn: selectedDirection != null ? "Vendor Name" : null,
           companyName: _filterCompanyNameC.text.trim(),
           sortDirection: selectedDirection,
         );

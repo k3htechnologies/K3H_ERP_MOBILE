@@ -66,8 +66,12 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     var result = await _projectMasterRepository.getProjectList(
       pageNumber: pageNumber,
       pageSize: state.pageSize,
-      queryParams:
-          state.searchText != "" ? {"ProjectName": state.searchText} : null,
+      queryParams: {
+        "ProjectName": state.searchText,
+        "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+        "ProjectLocation": state.filterProjectLocation,
+        "CTCNumber": state.filterCTCNumber,
+      },
     );
     result.fold(
       (failure) {
@@ -285,8 +289,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         await _updateProjectInLocalStorage(response['data'][0] as ProjectModel);
         final updatedDepartment = response['data'][0] as ProjectModel;
 
-        if (state.projectList.isNotEmpty &&
-            index < state.projectList.length) {
+        if (state.projectList.isNotEmpty && index < state.projectList.length) {
           final updatedList = List<ProjectModel>.from(state.projectList);
           updatedList[index] = updatedDepartment;
           emit(state.copyWith(projectList: updatedList, isLoading: false));
@@ -995,6 +998,41 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       );
       getProjectWithCompany(context: context, projectId: projectId);
     }
+  }
+
+  // <--- SORT VENDOR ---->
+
+  Future sortProject({
+    required BuildContext context,
+    String? ctsNumber,
+    String? projectLocation,
+    String? sortColumn,
+    String? sortDirection,
+    bool? isClear,
+  }) async {
+    if (isClear ?? false) {
+      emit(
+        state.copyWith(
+          filterCTSNumber: "",
+          filterProjectLocation: "",
+          currentSortColumn: "Created Date",
+          currentSortDirection: "DESC",
+          currentPage: 1,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          filterCTSNumber: ctsNumber ?? state.filterCTCNumber,
+          filterProjectLocation: projectLocation ?? state.filterProjectLocation,
+          currentSortColumn: sortColumn ?? state.currentSortColumn,
+          currentSortDirection: sortDirection ?? state.currentSortDirection,
+          currentPage: 1,
+        ),
+      );
+    }
+
+    await getProjectList(context: context, pageNumber: 1);
   }
 
   /*// <---- PULL MODULE WORK FLOW LIST ---->
