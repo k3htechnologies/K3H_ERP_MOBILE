@@ -257,4 +257,100 @@ class DialogHelper {
           ),
     );
   }
+
+  // FILTER BOTTOM SHEET
+  static Future showCustomFilterBottomSheet(
+    BuildContext context, {
+    required String title,
+    required Widget contentWidget,
+    required VoidCallback onClear,
+    required VoidCallback onApply,
+  }) async {
+    return await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder:
+          (BuildContext context) => SizedBox(
+            height: getActualHeight(context) * 0.60,
+            width: getActualWidth(context),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  // DRAG HANDLE
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    height: 5,
+                    width: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppColor.grey,
+                    ),
+                  ),
+
+                  // TITLE
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.only(bottom: 12, left: 16),
+                    child: Text(title, style: AppTextStyle.ts16SB()),
+                  ),
+
+                  Divider(color: AppColor.grey, thickness: .3),
+
+                  /// CONTENT
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                        left: 16,
+                        right: 16,
+                      ),
+                      child: contentWidget,
+                    ),
+                  ),
+
+                  // FIXED BOTTOM BUTTONS
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(color: AppColor.black.withValues(alpha: .3), blurRadius: 2),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        // CLEAR
+                        Expanded(
+                          child: CustomButton.clearOutline(
+                            onPressed: () {
+                              goRouter.pop();
+                              onClear();
+                            },
+                          ),
+                        ),
+
+                        horizontalSpacing(width: 12),
+
+                        // APPLY
+                        Expanded(
+                          child: CustomButton(
+                            text: "Apply",
+                            onPressed: () {
+                              goRouter.pop();
+                              onApply();
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+    );
+  }
 }

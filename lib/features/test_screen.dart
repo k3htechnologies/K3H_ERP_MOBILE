@@ -122,7 +122,7 @@ class TestScreen extends StatelessWidget {
               Row(
                 spacing: 20,
                 children: [
-                  Expanded(child: CustomButton.resetOutline(onPressed: () {})),
+                  Expanded(child: CustomButton.clearOutline(onPressed: () {})),
                   Expanded(child: CustomButton.cancelOutline(onPressed: () {})),
                 ],
               ),

@@ -36,6 +36,8 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final Future Function(String)? onSortOptionCallback;
   final double extraHeight;
   final Function(ProjectModel)? onProjectChangeCallback;
+  final bool isFilterOn;
+  final VoidCallback? onFilterTap;
 
   const CustomAppBar({
     super.key,
@@ -54,6 +56,8 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.onSortOptionCallback,
     this.extraHeight = 0,
     this.onProjectChangeCallback,
+    this.isFilterOn = false,
+    this.onFilterTap,
   });
 
   static const double _baseHeight = 90;
@@ -169,7 +173,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
             _selectedProject = storedProject;
           }
         }
-        return; // Exit early if loaded from storage
+        return;
       }
 
       // Only make API call if not in storage
@@ -332,6 +336,8 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                         onSubmit: widget.onSearchSubmit!,
                         hintText: widget.searchHintText ?? "Search...",
                         textController: widget.textController!,
+                        isFilterOn: widget.isFilterOn,
+                        onFilterTap: widget.onFilterTap,
                       ),
                     ),
 

@@ -178,14 +178,14 @@ class CustomButton extends StatelessWidget {
   );
 
 // RESET (OUTLINE)
-  CustomButton.resetOutline({Key? key, required VoidCallback onPressed})
+  CustomButton.clearOutline({Key? key, required VoidCallback onPressed})
       : this(
     key: key,
     onPressed: onPressed,
-    text: 'Reset',
+    text: 'Clear',
     backgroundColor: Colors.transparent,
-    textColor: AppColor.warning,
-    borderColor: AppColor.warning,
+    textColor: AppColor.primary,
+    borderColor: AppColor.primary,
     elevation: 0,
     boxShadow: [],
   );
