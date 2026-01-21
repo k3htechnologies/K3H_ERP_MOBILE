@@ -78,19 +78,6 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
       },
       (response) {
         goRouter.pop();
-        final newDepartment = response['data'][0] as DepartmentModel;
-
-        var list = [newDepartment, ...state.departmentList];
-        emit(
-          state.copyWith(
-            departmentList: list,
-            totalNumberOfRecord:
-                state.totalNumberOfRecord == -1
-                    ? 1
-                    : state.totalNumberOfRecord + 1,
-          ),
-        );
-
         showSuccessMessage(
           context,
           subTitle: 'Department Added Successfully!!!',
@@ -175,7 +162,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
           emit(
             state.copyWith(
               departmentList: updatedList,
-              totalNumberOfRecord: response['totalNumberOfRecord'],
+              totalNumberOfRecord: state.totalNumberOfRecord - 1,
             ),
           );
         } else {

@@ -265,24 +265,45 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                 value: document.projectRERADocumentURL,
                 customValueWidget: GestureDetector(
                   onTap: () {
-                    showFilePreviewDialog(
-                      context,
-                      document.projectRERADocumentURL.split(","),
-                    );
+                    if (document.projectRERADocumentURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        document.projectRERADocumentURL.split(","),
+                      );
+                    }
                   },
                   child: Row(
                     spacing: 10,
                     children: [
                       Text(
                         "Document",
-                        style: AppTextStyle.ts14M(color: AppColor.primary),
+                        style: AppTextStyle.ts14M(
+                          color:
+                              document.projectRERADocumentURL.isNotEmpty
+                                  ? AppColor.primary
+                                  : AppColor.grey,
+                        ),
                       ),
 
                       CustomIconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          if (document.projectRERADocumentURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              document.projectRERADocumentURL.split(","),
+                            );
+                          }
+                        },
+                        backgroundColor:
+                            document.projectRERADocumentURL.isNotEmpty
+                                ? AppColor.lightBlue
+                                : AppColor.lightGrey,
                         icon: Icon(
                           Icons.remove_red_eye_outlined,
-                          color: AppColor.primary,
+                          color:
+                              document.projectRERADocumentURL.isNotEmpty
+                                  ? AppColor.primary
+                                  : AppColor.grey,
                           size: 16,
                         ),
                       ),

@@ -282,23 +282,12 @@ class _DocumentScreenState extends State<DocumentScreen>
                       controller: _categoryTabController,
                       children:
                           state.documentCategoryModelList.map((category) {
-                            final documentsForCategory =
-                                state.documentList
-                                    .where(
-                                      (d) =>
-                                          d.projectDocumentCategoryId ==
-                                          category.projectDocumentCategoryId,
-                                    )
-                                    .toList();
-
                             return (state.documentList.isEmpty &&
                                     state.isLoading!)
                                 ? const Center(
                                   child: CircularProgressIndicator(),
                                 )
-                                : _buildDocumentListForCategory(
-                                  documentsForCategory,
-                                );
+                                : _buildDocumentListForCategory(state);
                           }).toList(),
                     ),
                   ),
@@ -358,8 +347,8 @@ class _DocumentScreenState extends State<DocumentScreen>
     );
   }
 
-  Widget _buildDocumentListForCategory(List<DocumentModel> documents) {
-    if (documents.isEmpty) {
+  Widget _buildDocumentListForCategory(DocumentState state) {
+    if (state.documentList.isEmpty) {
       return noDataWidget();
     }
 
@@ -367,11 +356,11 @@ class _DocumentScreenState extends State<DocumentScreen>
       builder: (context, state) {
         return ListView.builder(
           controller: scrollController,
-          itemCount: documents.length + 1,
+          itemCount: state.documentList.length + 1,
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
           itemBuilder: (context, index) {
             // Pagination loader
-            if (index == documents.length) {
+            if (index == state.documentList.length) {
               return state.documentList.length < state.totalNumberOfRecord
                   ? const Padding(
                     padding: EdgeInsets.all(16),
@@ -380,7 +369,7 @@ class _DocumentScreenState extends State<DocumentScreen>
                   : const SizedBox.shrink();
             }
 
-            final document = documents[index];
+            final document = state.documentList[index];
 
             return Container(
               padding: EdgeInsets.all(16),

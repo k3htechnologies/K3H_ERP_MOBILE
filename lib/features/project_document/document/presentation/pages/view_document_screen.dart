@@ -270,24 +270,46 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                 value: document.projectDocumentURL,
                 customValueWidget: GestureDetector(
                   onTap: () {
-                    showFilePreviewDialog(
-                      context,
-                      document.projectDocumentURL.split(","),
-                    );
+                    if (document.projectDocumentURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        document.projectDocumentURL.split(","),
+                      );
+                    }
                   },
                   child: Row(
                     spacing: 10,
                     children: [
                       Text(
                         "Document",
-                        style: AppTextStyle.ts14M(color: AppColor.primary),
+                        style: AppTextStyle.ts14M(
+                          color:
+                              document.projectDocumentURL.isNotEmpty
+                                  ? AppColor.primary
+                                  : AppColor.grey,
+                        ),
                       ),
 
                       CustomIconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          if (document.projectDocumentURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              document.projectDocumentURL.split(","),
+                            );
+                          }
+                        },
+                        backgroundColor:
+                            document.projectDocumentURL.isNotEmpty
+                                ? AppColor.lightBlue
+                                : AppColor.lightGrey,
                         icon: Icon(
                           Icons.remove_red_eye_outlined,
-                          color: AppColor.primary,
+
+                          color:
+                              document.projectDocumentURL.isNotEmpty
+                                  ? AppColor.primary
+                                  : AppColor.grey,
                           size: 16,
                         ),
                       ),
