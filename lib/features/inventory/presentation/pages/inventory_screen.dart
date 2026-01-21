@@ -17,7 +17,6 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -57,20 +56,37 @@ class _InventoryScreenState extends State<InventoryScreen>
     _initControllers();
     _inventoryCubit = context.read<InventoryCubit>();
 
-    // Call API directly in initState, similar to DepartmentMasterScreen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final state = _inventoryCubit.state;
         if (state.buildingList.isEmpty) {
           _inventoryCubit.getInventory(context, _project.projectId);
         } else {
-          // Initialize controllers if data already exists
           _initializeControllersIfNeeded(state);
         }
       }
     });
   }
 
+  @override
+  void dispose() {
+    _isDisposing = true;
+    if (_buildingTabController != null) {
+      _buildingTabController!.removeListener(_onBuildingTabChanged);
+      _buildingTabController!.dispose();
+      _buildingTabController = null;
+    }
+    if (_wingTabController != null) {
+      _wingTabController!.removeListener(_onWingTabChanged);
+      _wingTabController!.dispose();
+      _wingTabController = null;
+    }
+    _searchC.dispose();
+    _expandedFloors.dispose();
+    super.dispose();
+  }
+
+  // INITIALIZE CONTROLLERS
   void _initializeControllersIfNeeded(InventoryState state) {
     if (!mounted || _isDisposing) return;
 
@@ -93,24 +109,6 @@ class _InventoryScreenState extends State<InventoryScreen>
         }
       }
     }
-  }
-
-  @override
-  void dispose() {
-    _isDisposing = true;
-    if (_buildingTabController != null) {
-      _buildingTabController!.removeListener(_onBuildingTabChanged);
-      _buildingTabController!.dispose();
-      _buildingTabController = null;
-    }
-    if (_wingTabController != null) {
-      _wingTabController!.removeListener(_onWingTabChanged);
-      _wingTabController!.dispose();
-      _wingTabController = null;
-    }
-    _searchC.dispose();
-    _expandedFloors.dispose();
-    super.dispose();
   }
 
   // BUILDING TAB
@@ -286,7 +284,6 @@ class _InventoryScreenState extends State<InventoryScreen>
 
               final wingList = selectedBuilding.wingList;
 
-              // Show loading if building controller is not initialized yet
               if (state.buildingList.isNotEmpty &&
                   (_buildingTabController == null ||
                       _buildingTabController!.length !=
@@ -742,28 +739,67 @@ class _InventoryScreenState extends State<InventoryScreen>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
-                              child: buildColumnTitleValue(
-                                title: "Type",
-                                value:
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Type",
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.grey,
+                                    ),
+                                  ),
+                                  verticalSpacing(height: 4),
+                                  Text(
                                     flat.flatType != "" ? flat.flatType : "-",
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.black,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             Expanded(
-                              child: buildColumnTitleValue(
-                                title: "Area(Sq.ft)",
-                                value:
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Area(Sq.ft)",
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.grey,
+                                    ),
+                                  ),
+                                  verticalSpacing(height: 4),
+                                  Text(
                                     flat.reraCarpetAreaSqFt.toString().isEmpty
                                         ? "-"
                                         : flat.reraCarpetAreaSqFt.toString(),
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.black,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             Expanded(
-                              child: buildColumnTitleValue(
-                                title: "Configuration",
-                                value:
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Configuration",
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.grey,
+                                    ),
+                                  ),
+                                  verticalSpacing(height: 4),
+                                  Text(
                                     flat.flatConfiguration.toString().isEmpty
                                         ? "-"
                                         : flat.flatConfiguration,
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.black,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],

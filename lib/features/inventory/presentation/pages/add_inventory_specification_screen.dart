@@ -156,42 +156,87 @@ class _AddInventorySpecificationScreenState
 
   // PREFILL FLAT DATA
   void _prefillFlat(FlatModel flat) {
-    _flatC.text = flat.flat.split('-').last.trimLeft();
+    // Handle flat number - might be empty when adding
+    if (flat.flat.isNotEmpty) {
+      _flatC.text = flat.flat.split('-').last.trimLeft();
+    }
+
+    // Handle area - might be 0 when adding
     if (flat.reraCarpetAreaSqFt > 0) {
       _flatSqftC.text = flat.reraCarpetAreaSqFt.toStringAsFixed(2);
     }
-    selectedFlatType.value = flatTypeList.firstWhere(
-      (e) => e['DisplayName'].toLowerCase() == flat.flatType.toLowerCase(),
-      orElse: () => flatTypeList.first,
-    );
-    selectedFlatStatus.value = flatStatusList.firstWhere(
-      (e) => e['DisplayName'].toLowerCase() == flat.flatStatus.toLowerCase(),
-      orElse: () => flatStatusList.first,
-    );
-    selectedFlatFacing.value = flatFacingList.firstWhere(
-      (e) => e['DisplayName'].toLowerCase() == flat.flatFacing.toLowerCase(),
-      orElse: () => flatFacingList.first,
-    );
-    switch (flat.flatType) {
-      case 'Residential':
-        selectedFlatConfiguration.value = residentialFlatList.firstWhere(
-          (e) => e['DisplayName'] == flat.flatConfiguration,
-          orElse: () => residentialFlatList.first,
-        );
-        break;
-      case 'Commercial':
-        selectedFlatConfiguration.value = commercialFlatList.firstWhere(
-          (e) => e['DisplayName'] == flat.flatConfiguration,
-          orElse: () => commercialFlatList.first,
-        );
-        break;
-      default:
-        selectedFlatConfiguration.value = null;
+
+    // Handle flat type - only set if not empty (for editing)
+    if (flat.flatType.isNotEmpty) {
+      selectedFlatType.value = flatTypeList.firstWhere(
+        (e) => e['DisplayName'].toLowerCase() == flat.flatType.toLowerCase(),
+        orElse: () => flatTypeList.first,
+      );
     }
-    flatSpecificationList.value = List<FlatSpecificationModel>.from(
-      flat.specificationList,
-    );
-    _calculateTotalArea();
+
+    // Handle flat status - only set if not empty (for editing)
+    if (flat.flatStatus.isNotEmpty) {
+      selectedFlatStatus.value = flatStatusList.firstWhere(
+        (e) => e['DisplayName'].toLowerCase() == flat.flatStatus.toLowerCase(),
+        orElse: () => flatStatusList.first,
+      );
+    }
+
+    // Handle flat facing - only set if not empty (for editing)
+    if (flat.flatFacing.isNotEmpty) {
+      selectedFlatFacing.value = flatFacingList.firstWhere(
+        (e) => e['DisplayName'].toLowerCase() == flat.flatFacing.toLowerCase(),
+        orElse: () => flatFacingList.first,
+      );
+    }
+
+    // Handle flat configuration - only set if not empty (for editing)
+    if (flat.flatType.isNotEmpty && flat.flatConfiguration.isNotEmpty) {
+      switch (flat.flatType) {
+        case 'Residential':
+          selectedFlatConfiguration.value = residentialFlatList.firstWhere(
+            (e) => e['DisplayName'] == flat.flatConfiguration,
+            orElse: () => residentialFlatList.first,
+          );
+          break;
+        case 'Commercial':
+          selectedFlatConfiguration.value = commercialFlatList.firstWhere(
+            (e) => e['DisplayName'] == flat.flatConfiguration,
+            orElse: () => commercialFlatList.first,
+          );
+          break;
+        default:
+          selectedFlatConfiguration.value = null;
+      }
+    }
+
+    // Always bind specification list (for both adding with defaults and updating with existing)
+    if (flat.specificationList.isNotEmpty) {
+      // Deduplicate specifications by uniquekey to prevent duplicates
+      final Map<String, FlatSpecificationModel> specMap = {};
+      int defaultSpecIndex = 0; // For specs with empty uniquekey
+
+      for (final spec in flat.specificationList) {
+        // Use uniquekey if available, otherwise use layout + index for default specs
+        String key;
+        if (spec.uniquekey.isNotEmpty) {
+          key = spec.uniquekey;
+        } else if (spec.inventoryFlatSpecificationId > 0) {
+          // Existing spec with ID but no uniquekey (shouldn't happen, but handle it)
+          key = 'id_${spec.inventoryFlatSpecificationId}_${spec.flatLayout}';
+        } else {
+          // Default spec (new) - use layout + index
+          key = '${spec.flatLayout}_default_$defaultSpecIndex';
+          defaultSpecIndex++;
+        }
+
+        if (!specMap.containsKey(key)) {
+          specMap[key] = spec;
+        }
+      }
+      flatSpecificationList.value = specMap.values.toList();
+      _calculateTotalArea();
+    }
   }
 
   // CALCULATE TOTAL AREA FROM SPECIFICATIONS
@@ -253,16 +298,80 @@ class _AddInventorySpecificationScreenState
     if (result != null) {
       Future.microtask(() {
         if (unitSpec == null) {
-          flatSpecificationList.value = [
-            ...flatSpecificationList.value,
-            result,
-          ];
+          // ADD NEW SPECIFICATION
+          final existingIds =
+              flatSpecificationList.value
+                  .where((s) => s.inventoryFlatSpecificationId > 0)
+                  .map((s) => s.inventoryFlatSpecificationId)
+                  .toSet();
+          final existingKeys =
+              flatSpecificationList.value.map((s) => s.uniquekey).toSet();
+
+          // ONLY ADD IF NOT EXIST
+          if ((result.inventoryFlatSpecificationId == 0 ||
+                  !existingIds.contains(result.inventoryFlatSpecificationId)) &&
+              !existingKeys.contains(result.uniquekey)) {
+            flatSpecificationList.value = [
+              ...flatSpecificationList.value,
+              result,
+            ];
+          }
         } else {
-          final newList = List<FlatSpecificationModel>.from(
-            flatSpecificationList.value,
-          );
-          newList[index!] = result;
-          flatSpecificationList.value = newList;
+          final Map<String, FlatSpecificationModel> specMap = {};
+          bool replaced = false;
+
+          for (final spec in flatSpecificationList.value) {
+            bool isOldSpec = false;
+
+            if (unitSpec.inventoryFlatSpecificationId > 0 &&
+                spec.inventoryFlatSpecificationId > 0) {
+              isOldSpec =
+                  spec.inventoryFlatSpecificationId ==
+                  unitSpec.inventoryFlatSpecificationId;
+            }
+
+            if (!isOldSpec &&
+                unitSpec.uniquekey.isNotEmpty &&
+                spec.uniquekey.isNotEmpty) {
+              isOldSpec = spec.uniquekey == unitSpec.uniquekey;
+            }
+
+            if (!isOldSpec &&
+                unitSpec.uniquekey.isEmpty &&
+                spec.uniquekey.isEmpty) {
+              isOldSpec = spec.flatLayout == unitSpec.flatLayout;
+            }
+
+            if (isOldSpec && !replaced) {
+              if (result.uniquekey.isNotEmpty) {
+                specMap[result.uniquekey] = result;
+              } else {
+                specMap['default_${result.flatLayout}'] = result;
+              }
+              replaced = true;
+            } else if (!isOldSpec) {
+              String key;
+              if (spec.uniquekey.isNotEmpty) {
+                key = spec.uniquekey;
+              } else {
+                key = 'default_${spec.flatLayout}';
+              }
+
+              if (!specMap.containsKey(key)) {
+                specMap[key] = spec;
+              }
+            }
+          }
+
+          if (!replaced) {
+            if (result.uniquekey.isNotEmpty) {
+              specMap[result.uniquekey] = result;
+            } else {
+              specMap['default_${result.flatLayout}'] = result;
+            }
+          }
+
+          flatSpecificationList.value = specMap.values.toList();
         }
         _calculateTotalArea();
       });

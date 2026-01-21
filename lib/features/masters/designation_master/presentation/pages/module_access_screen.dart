@@ -31,15 +31,9 @@ class _ModuleAccessScreenState extends State<ModuleAccessScreen> {
   void initState() {
     super.initState();
     _designationMasterCubit = context.read<DesignationMasterCubit>();
-    // Only fetch if we don't already have data for this specific designation,
-    // to preserve unsaved changes when navigating back
     final currentState = _designationMasterCubit.state;
     final currentDesignationId = widget.designation.designationMasterId;
 
-    // Only fetch if:
-    // 1. We don't have any data, OR
-    // 2. The state type doesn't match, OR
-    // 3. We have data but it's for a different designation
     if (currentState.modulesPermissionsList.isEmpty ||
         currentState.stateType != StateType.employeeMasterModuleAccessState ||
         currentState.currentDesignationId != currentDesignationId) {
@@ -59,19 +53,15 @@ class _ModuleAccessScreenState extends State<ModuleAccessScreen> {
       ),
       body: SafeArea(
         child: BlocBuilder<DesignationMasterCubit, DesignationMasterState>(
-          // Remove buildWhen to always rebuild on any state change
           builder: (context, state) {
-            // Show loader if loading
             if (state.isLoading == true) {
               return Center(child: loader());
             }
 
-            // If stateType doesn't match, show loader (waiting for correct state)
             if (state.stateType != StateType.employeeMasterModuleAccessState) {
               return Center(child: loader());
             }
 
-            // Check for empty list only when in correct state and not loading
             if (state.modulesPermissionsList.isEmpty) {
               return Center(child: noDataWidget());
             }
@@ -84,13 +74,11 @@ class _ModuleAccessScreenState extends State<ModuleAccessScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Designation Name Header
                   Text(
                     widget.designation.designationName,
                     style: AppTextStyle.ts16SB(),
                   ),
                   verticalSpacing(),
-                  // Select All Row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -181,7 +169,7 @@ class _ModuleAccessScreenState extends State<ModuleAccessScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
-          height: 70,
+          height: 60,
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: CustomButton(
             text: 'Update',
