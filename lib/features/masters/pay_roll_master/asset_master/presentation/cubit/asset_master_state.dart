@@ -7,6 +7,7 @@ class AssetMasterState extends BaseState {
   final int totalNumberOfRecord;
   final String currentSortColumn;
   final String currentSortDirection;
+  final String filterAssetStatus;
 
   const AssetMasterState({
     required this.assetList,
@@ -16,13 +17,18 @@ class AssetMasterState extends BaseState {
     this.totalNumberOfRecord = 0,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    this.filterAssetStatus = "",
   });
 
   factory AssetMasterState.initial() => AssetMasterState(
+    isLoading: true,
     assetList: [],
     currentPage: 1,
     currentSortColumn: 'Created Date',
     currentSortDirection: 'DESC',
+    searchText: "",
+    totalNumberOfRecord: 0,
+    filterAssetStatus: "",
   );
 
   AssetMasterState copyWith({
@@ -35,6 +41,7 @@ class AssetMasterState extends BaseState {
     int? currentPage,
     String? currentSortColumn,
     String? currentSortDirection,
+    String? filterAssetStatus,
   }) {
     return AssetMasterState(
       assetList: assetList ?? this.assetList,
@@ -44,6 +51,7 @@ class AssetMasterState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      filterAssetStatus: filterAssetStatus ?? this.filterAssetStatus,
     );
   }
 
@@ -54,5 +62,8 @@ class AssetMasterState extends BaseState {
     currentPage,
     searchText,
     totalNumberOfRecord,
+    currentSortColumn,
+    currentSortDirection,
+    filterAssetStatus,
   ];
 }

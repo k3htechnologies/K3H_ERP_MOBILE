@@ -354,6 +354,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                     CustomTextField(
                       textController: _googleLocationC,
                       title: "Google Location",
+                      isRequired: true,
                       hint: "Enter Google Location",
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {

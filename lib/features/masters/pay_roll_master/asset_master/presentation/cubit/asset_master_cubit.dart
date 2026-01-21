@@ -16,11 +16,6 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
   final AssetMasterRepository assetMasterRepository =
       serviceLocator<AssetMasterRepository>();
 
-  // <---- RESET STATE ---->
-  void resetState() {
-    emit(AssetMasterState.initial());
-  }
-
   // <---- SEARCH ASSET ---->
   void searchAsset(String value, BuildContext context) {
     emit(
@@ -35,24 +30,26 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     getAssetsList(context: context, pageNumber: 1);
   }
 
-  // <---- SORT ASSET ---->
-  void sortAssetList(
-    BuildContext context,
-    String sortDirection,
-    String sortColumn,
-  ) {
+  // APPLY FILTER AND SORT
+  Future applyFilterAndSort({
+    required BuildContext context,
+    required String filterAssetStatus,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
     emit(
       state.copyWith(
-        currentSortColumn: sortColumn,
-        currentSortDirection: sortDirection,
+        filterAssetStatus: filterAssetStatus,
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
         assetList: [],
-        isLoading: true,
         currentPage: 1,
       ),
     );
 
-    getAssetsList(context: context, pageNumber: 1);
+    await getAssetsList(context: context, pageNumber: 1);
   }
+
 
   // <---- GET ASSET LIST ---->
   Future getAssetsList({
@@ -63,6 +60,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
 
     final queryParams = {
       "AssetName": state.searchText,
+      "Status": state.filterAssetStatus,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 

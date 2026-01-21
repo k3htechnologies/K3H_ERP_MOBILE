@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AssetMasterScreen extends StatefulWidget {
@@ -36,7 +37,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC;
+  late TextEditingController _searchC, _filterAssetStatusC;
 
   @override
   void initState() {
@@ -54,12 +55,14 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
   void dispose() {
     scrollController.dispose();
     _searchC.dispose();
+    _filterAssetStatusC.dispose();
     super.dispose();
   }
 
   // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterAssetStatusC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -100,6 +103,133 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     }
   }
 
+  // ASSET FILTER
+  Future<void> _showBottomSheetToFilterAsset(BuildContext context) async {
+    final state = _assetMasterCubit.state;
+
+    _filterAssetStatusC.text = state.filterAssetStatus;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Asset Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String initialAssetStatus = _filterAssetStatusC.text;
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool applied = false;
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_filterAssetStatusC.text.trim() != initialAssetStatus) ||
+            (selectedDirection != initialDirection);
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Asset",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Sort By Asset Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20),
+                CustomTextField(
+                  title: "Asset Status",
+                  hint: "Enter Asset Status",
+                  textController: _filterAssetStatusC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(),
+              ],
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _assetMasterCubit.applyFilterAndSort(
+          context: context,
+          filterAssetStatus: "",
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
+        );
+      },
+      onApply: () {
+        applied = true;
+        _assetMasterCubit.applyFilterAndSort(
+          context: context,
+          filterAssetStatus: _filterAssetStatusC.text,
+          sortColumn: selectedDirection != null ? "Asset Name" : null,
+          sortDirection: selectedDirection,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
+    if (!applied && manualClose) {
+      _filterAssetStatusC.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,6 +246,10 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
         },
         onExportCallback: (value) {
           _assetMasterCubit.exportExcelPdf(context, value);
+        },
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterAsset(context);
         },
       ),
       body: BlocBuilder<AssetMasterCubit, AssetMasterState>(
