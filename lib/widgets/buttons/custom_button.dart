@@ -54,7 +54,7 @@ class CustomButton extends StatelessWidget {
           gradient: gradient,
 
           // FOR NORMAL BUTTONS (NOT GRADIENT)
-          color: (gradient == null && borderColor == null) ? backgroundColor : null,
+          color: (gradient == null && borderColor == null) ? !isDisable?backgroundColor:AppColor.grey : null,
 
           // FOR OUTLINE BUTTONS
           border: borderColor != null ? Border.all(color: borderColor!) : null,
@@ -76,7 +76,7 @@ class CustomButton extends StatelessWidget {
                   text,
                   style: titleTextStyle ??
                       AppTextStyle.ts12SB(
-                          color: isDisable ? AppColor.black : textColor),
+                          color: isDisable ? AppColor.white : textColor),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),

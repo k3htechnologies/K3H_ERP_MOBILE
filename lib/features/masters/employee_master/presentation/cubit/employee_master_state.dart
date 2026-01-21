@@ -16,8 +16,10 @@ class EmployeeMasterState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
+  final String filterBranchName;
   final String filterDepartmentName;
   final String filterDesignationName;
+  final String filterMobileNumber;
   final ProjectModel? selectedProject;
   final List<ProjectModel> projectList;
   final bool isLoadingProjects;
@@ -41,8 +43,10 @@ class EmployeeMasterState extends BaseState {
     required this.searchText,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    required this.filterBranchName,
     required this.filterDepartmentName,
     required this.filterDesignationName,
+    required this.filterMobileNumber,
     this.selectedProject,
     required this.projectList,
     required this.isLoadingProjects,
@@ -65,8 +69,10 @@ class EmployeeMasterState extends BaseState {
     searchText: "",
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
+    filterBranchName: "",
     filterDepartmentName: "",
     filterDesignationName: "",
+    filterMobileNumber: "",
     isLoading: true,
     selectedProject: null,
     projectList: [],
@@ -94,8 +100,10 @@ class EmployeeMasterState extends BaseState {
     String? searchText,
     String? currentSortColumn,
     String? currentSortDirection,
+    String? filterBranchName,
     String? filterDepartmentName,
     String? filterDesignationName,
+    String? filterMobileNumber,
     ProjectModel? selectedProject,
     List<ProjectModel>? projectList,
     bool? isLoadingProjects,
@@ -119,9 +127,11 @@ class EmployeeMasterState extends BaseState {
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      filterBranchName: filterBranchName ?? this.filterBranchName,
       filterDepartmentName: filterDepartmentName ?? this.filterDepartmentName,
       filterDesignationName:
           filterDesignationName ?? this.filterDesignationName,
+      filterMobileNumber: filterMobileNumber ?? this.filterMobileNumber,
       selectedProject: selectedProject ?? this.selectedProject,
       projectList: projectList ?? this.projectList,
       isLoadingProjects: isLoadingProjects ?? this.isLoadingProjects,
@@ -146,8 +156,10 @@ class EmployeeMasterState extends BaseState {
     searchText,
     currentSortColumn,
     currentSortDirection,
+    filterBranchName,
     filterDepartmentName,
     filterDesignationName,
+    filterMobileNumber,
     selectedProject,
     projectList,
     isLoadingProjects,

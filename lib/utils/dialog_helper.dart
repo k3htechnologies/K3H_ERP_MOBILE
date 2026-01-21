@@ -260,97 +260,140 @@ class DialogHelper {
 
   // FILTER BOTTOM SHEET
   static Future showCustomFilterBottomSheet(
-    BuildContext context, {
-    required String title,
-    required Widget contentWidget,
-    required VoidCallback onClear,
-    required VoidCallback onApply,
-  }) async {
+      BuildContext context, {
+        required String title,
+        required Widget contentWidget,
+        required VoidCallback onClear,
+        required VoidCallback onApply,
+        bool isApplyEnabled = true,
+        ValueNotifier<bool>? applyEnabledNotifier,
+      }) async {
+
+    final ScrollController scrollController = ScrollController();
+
     return await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder:
-          (BuildContext context) => SizedBox(
-            height: getActualHeight(context) * 0.60,
-            width: getActualWidth(context),
-            child: SafeArea(
-              child: Column(
-                children: [
-                  // DRAG HANDLE
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    height: 5,
-                    width: 60,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: AppColor.grey,
-                    ),
-                  ),
+      builder: (BuildContext context) => SizedBox(
+        height: getActualHeight(context) * 0.60,
+        width: getActualWidth(context),
+        child: SafeArea(
+          child: Column(
+            children: [
 
-                  // TITLE
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.only(bottom: 12, left: 16),
-                    child: Text(title, style: AppTextStyle.ts16SB()),
-                  ),
+              /// DRAG HANDLE
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                height: 5,
+                width: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: AppColor.lightBlue,
+                ),
+              ),
 
-                  Divider(color: AppColor.grey, thickness: .3),
+              /// TITLE
+              Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.only(bottom: 12, left: 16),
+                child: Text(title, style: AppTextStyle.ts16SB()),
+              ),
 
-                  /// CONTENT
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom,
-                        left: 16,
-                        right: 16,
-                      ),
+              Divider(color: AppColor.grey, thickness: .3),
+
+              // CONTENT WITH SCROLLBAR
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: RawScrollbar(
+                    controller: scrollController,
+                    thumbVisibility: true,
+                    thickness: 6,
+                    radius: const Radius.circular(10),
+                    thumbColor: AppColor.mediumBlue.withValues(alpha: .8),
+                    trackColor: AppColor.lightGrey,
+                    trackVisibility: true,
+                    minThumbLength: 10,
+                    child: SingleChildScrollView(
+                      controller: scrollController,
                       child: contentWidget,
                     ),
                   ),
-
-                  // FIXED BOTTOM BUTTONS
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(color: AppColor.black.withValues(alpha: .3), blurRadius: 2),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        // CLEAR
-                        Expanded(
-                          child: CustomButton.clearOutline(
-                            onPressed: () {
-                              goRouter.pop();
-                              onClear();
-                            },
-                          ),
-                        ),
-
-                        horizontalSpacing(width: 12),
-
-                        // APPLY
-                        Expanded(
-                          child: CustomButton(
-                            text: "Apply",
-                            onPressed: () {
-                              goRouter.pop();
-                              onApply();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+
+              // FIXED BOTTOM BUTTONS
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColor.black.withValues(alpha: .3),
+                      blurRadius: 2,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+
+                    // CLEAR
+                    Expanded(
+                      child: SizedBox(
+                        height: 40,
+                        child: CustomButton.clearOutline(
+                          onPressed: () {
+                            goRouter.pop();
+                            onClear();
+                          },
+                        ),
+                      ),
+                    ),
+
+                    horizontalSpacing(width: 12),
+
+                    // APPLY
+                    Expanded(
+                      child: SizedBox(
+                        height: 40,
+                        child: applyEnabledNotifier == null
+                            ? CustomButton(
+                          text: "Apply",
+                          isDisable: !isApplyEnabled,
+                          onPressed: isApplyEnabled
+                              ? () {
+                            goRouter.pop();
+                            onApply();
+                          }
+                              : null,
+                        )
+                            : ValueListenableBuilder<bool>(
+                          valueListenable: applyEnabledNotifier,
+                          builder: (context, enabled, _) {
+                            return CustomButton(
+                              text: "Apply",
+                              isDisable: !enabled,
+                              onPressed: enabled
+                                  ? () {
+                                goRouter.pop();
+                                onApply();
+                              }
+                                  : null,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
+        ),
+      ),
     );
   }
 }
