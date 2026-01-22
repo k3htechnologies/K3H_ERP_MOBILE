@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/data/model/branch_association_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/presentation/cubit/branch_association_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -51,7 +53,6 @@ class _BranchAssociationMasterScreenState
     _branchAssociationMasterCubit.getBranchAssociationList(
       context: context,
       pageNumber: 1,
-      pageSize: 15,
     );
   }
 
@@ -81,11 +82,30 @@ class _BranchAssociationMasterScreenState
           _branchAssociationMasterCubit.getBranchAssociationList(
             context: context,
             pageNumber: _branchAssociationMasterCubit.state.currentPage + 1,
-            pageSize: 15,
           );
         });
       }
     });
+  }
+
+  // <---- DELETE ASSET MAPPING ---->
+  Future<void> _showPopupToDeleteBranchAssociationMaster(
+    BuildContext context,
+    BranchAssociationModel obj,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a Branch Association?',
+      'Deleting this Branch Association will permanently remove its contents.',
+    );
+    if (result && context.mounted) {
+      _branchAssociationMasterCubit.deleteBranchAssociation(
+        index,
+        obj,
+        context,
+      );
+    }
   }
 
   @override
@@ -98,8 +118,14 @@ class _BranchAssociationMasterScreenState
         onSearchSubmit: (value) {
           _branchAssociationMasterCubit.searchAssetMapping(value, context);
         },
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addBranchAssociation);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addBranchAssociation);
+          if (context.mounted) {
+            _branchAssociationMasterCubit.getBranchAssociationList(
+              context: context,
+              pageNumber: 1,
+            );
+          }
         },
         onExportCallback: (value) {
           _branchAssociationMasterCubit.exportExcelPdf(context, value);
@@ -144,10 +170,38 @@ class _BranchAssociationMasterScreenState
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            branchAssociation.employeeName,
-                            style: AppTextStyle.ts14SB(),
+                          GestureDetector(
+                            onTap: () {
+                              goRouter.pushNamed(
+                                AppRoutes.viewBranchAssociation,
+                                queryParameters: {
+                                  "branchAssociation": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(branchAssociation.toJson()),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 0,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: AppColor.primary),
+                                ),
+                              ),
+                              child: Text(
+                                branchAssociation.employeeName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                            ),
                           ),
+                          verticalSpacing(height: 5),
                           Text(
                             branchAssociation.branchName,
                             style: AppTextStyle.ts12M(color: AppColor.grey),
@@ -155,28 +209,35 @@ class _BranchAssociationMasterScreenState
                         ],
                       ),
                     ),
-                    CustomIconButton.edit(
-                      onPressed: () async {
-                        await goRouter.pushNamed(
-                          AppRoutes.addBranchAssociation,
-                          queryParameters: {
-                            "branchAssociation": Uri.encodeQueryComponent(
-                              EncryptionManager.encryptData(
-                                jsonEncode(branchAssociation.toJson()),
-                              ),
-                            ),
-                            "index": index.toString(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      spacing: 10,
+                      children: [
+                        CustomIconButton.edit(
+                          onPressed: () async {
+                            goRouter.pushNamed(
+                              AppRoutes.addBranchAssociation,
+                              queryParameters: {
+                                "branchAssociation": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(branchAssociation.toJson()),
+                                  ),
+                                ),
+                                "index": index.toString(),
+                              },
+                            );
                           },
-                        );
-                        if (context.mounted) {
-                          _branchAssociationMasterCubit
-                              .getBranchAssociationList(
-                                context: context,
-                                pageNumber: state.currentPage,
-                                pageSize: 10,
-                              );
-                        }
-                      },
+                        ),
+                        CustomIconButton.delete(
+                          onPressed: () {
+                            _showPopupToDeleteBranchAssociationMaster(
+                              context,
+                              branchAssociation,
+                              index,
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),

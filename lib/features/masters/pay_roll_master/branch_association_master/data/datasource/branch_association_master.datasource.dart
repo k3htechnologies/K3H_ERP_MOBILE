@@ -11,6 +11,10 @@ abstract interface class BranchAssociationMasterDatasource {
   Future<Map<String, dynamic>> apicallAddUpdateBranchAssociation({
     required Map<String, dynamic> body,
   });
+  Future<Map<String, dynamic>> apicallDeleteBranchAssociation({
+    required int branchAssociationId,
+    required String uniqueKey,
+  });
 }
 
 class BranchAssociationMasterDatasourceImpl
@@ -76,6 +80,35 @@ class BranchAssociationMasterDatasourceImpl
             (e) => BranchAssociationModel.fromJson(e),
           ),
         ),
+        'message': networkResponse['message'],
+      };
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeleteBranchAssociation({
+    required int branchAssociationId,
+    required String uniqueKey,
+  }) async {
+    String deleteBranchAssociation({
+      required int branchAssociationId,
+      required String uniqueKey,
+    }) {
+      return "BranchAssociations/DeleteBranchAssociations?BranchAssociationsId=$branchAssociationId&Uniquekey=$uniqueKey";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteBranchAssociation(
+          branchAssociationId: branchAssociationId,
+          uniqueKey: uniqueKey,
+        ),
+      );
+      return {
+        'data': networkResponse['data'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
         'message': networkResponse['message'],
       };
     } catch (error) {

@@ -29,13 +29,12 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
         currentPage: 1,
       ),
     );
-    getAssetMappingList(context: context, pageNumber: 1, pageSize: 15);
+    getAssetMappingList(context: context, pageNumber: 1);
   }
 
   Future getAssetMappingList({
     required BuildContext context,
     required int pageNumber,
-    required int pageSize,
   }) async {
     emit(state.copyWith(isLoading: true));
 
@@ -46,7 +45,7 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
 
     var result = await assetMasterMappingRepository.getAssetMasterMappedList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       queryParams: queryParams,
     );
 
@@ -80,9 +79,7 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
     required int employeeId,
     required int assetMasterId,
     required DateTime assignedDate,
-    required DateTime returnDate,
     required String conditionOnIssue,
-    required String conditionOnReturn,
     required String remarks,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -91,9 +88,9 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
       "EmployeeId": employeeId,
       "AssetMasterId": assetMasterId,
       "AssignedDate": assignedDate.toIso8601String(),
-      "ReturnDate": returnDate.toIso8601String(),
+      "ReturnDate": '1997-01-01',
       "ConditionOnIssue": conditionOnIssue,
-      "ConditionOnReturn": conditionOnReturn,
+      "ConditionOnReturn": '',
       "Remarks": remarks,
     };
     var result = await assetMasterMappingRepository.addUpdateAssetMapping(
@@ -107,18 +104,6 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
       },
       (response) {
         goRouter.pop();
-        final newResponse = response['data'][0] as AssetMappingModel;
-
-        var list = [newResponse, ...state.assetMappingList];
-        emit(
-          state.copyWith(
-            assetMappingList: list,
-            totalNumberOfRecord:
-                state.totalNumberOfRecord == -1
-                    ? 1
-                    : state.totalNumberOfRecord + 1,
-          ),
-        );
         showSuccessMessage(
           context,
           subTitle: 'Asset Mapping Added Successfully',
@@ -135,9 +120,9 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
     required int employeeId,
     required int assetMasterId,
     required DateTime assignedDate,
-    required DateTime returnDate,
+    required DateTime? returnDate,
     required String conditionOnIssue,
-    required String conditionOnReturn,
+    required String? conditionOnReturn,
     required String remarks,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -147,7 +132,8 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
       "EmployeeId": employeeId,
       "AssetMasterId": assetMasterId,
       "AssignedDate": assignedDate.toIso8601String(),
-      "ReturnDate": returnDate.toIso8601String(),
+      "ReturnDate":
+          returnDate != null ? returnDate.toIso8601String() : '1997-01-01',
       "ConditionOnIssue": conditionOnIssue,
       "ConditionOnReturn": conditionOnReturn,
       "Remarks": remarks,
@@ -163,21 +149,41 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
       },
       (response) {
         goRouter.pop();
-        final updatedList = response['data'][0] as AssetMappingModel;
+        if (response['data'] != null && response['data'].isNotEmpty) {
+          final updatedList = AssetMappingModel.fromJson(
+            response['data'][0] as Map<String, dynamic>,
+          );
 
-        if (state.assetMappingList.isNotEmpty &&
-            index < state.assetMappingList.length) {
+          if (state.assetMappingList.isNotEmpty &&
+              index < state.assetMappingList.length) {
+            final updatedListModel = List<AssetMappingModel>.from(
+              state.assetMappingList,
+            );
+            updatedListModel[index] = updatedList;
+            emit(state.copyWith(assetMappingList: updatedListModel));
+
+            showSuccessMessage(
+              context,
+              subTitle: "Asset Mapping Updated Successfully",
+            );
+          }
+        } else {
           final updatedListModel = List<AssetMappingModel>.from(
             state.assetMappingList,
           );
-          updatedListModel[index] = updatedList;
-          emit(state.copyWith(assetMappingList: updatedListModel));
-        }
+          updatedListModel.removeAt(index);
+          emit(
+            state.copyWith(
+              assetMappingList: updatedListModel,
+              totalNumberOfRecord: state.totalNumberOfRecord - 1,
+            ),
+          );
 
-        showSuccessMessage(
-          context,
-          subTitle: "Asset Mapping Updated Successfully",
-        );
+          showSuccessMessage(
+            context,
+            subTitle: "Asset Mapping Inactive Successfully",
+          );
+        }
       },
     );
   }

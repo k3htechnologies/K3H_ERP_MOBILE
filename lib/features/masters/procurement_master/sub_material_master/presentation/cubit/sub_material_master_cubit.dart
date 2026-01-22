@@ -86,8 +86,7 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
         return;
       },
       (response) {
-        // Refresh the list from API to ensure consistency
-        getSubMaterialMasterList(context, 1, 10);
+        goRouter.pop();
         showSuccessMessage(
           context,
           subTitle: "Sub Material Added Successfully",

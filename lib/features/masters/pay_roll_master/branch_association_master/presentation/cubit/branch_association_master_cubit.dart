@@ -30,13 +30,12 @@ class BranchAssociationMasterCubit extends Cubit<BranchAssociationMasterState> {
         currentPage: 1,
       ),
     );
-    getBranchAssociationList(context: context, pageNumber: 1, pageSize: 15);
+    getBranchAssociationList(context: context, pageNumber: 1);
   }
 
   Future getBranchAssociationList({
     required BuildContext context,
     required int pageNumber,
-    required int pageSize,
   }) async {
     emit(state.copyWith(isLoading: true));
 
@@ -48,7 +47,7 @@ class BranchAssociationMasterCubit extends Cubit<BranchAssociationMasterState> {
     var result = await branchAssociationMasterRepository
         .getBranchAssociationList(
           pageNumber: pageNumber,
-          pageSize: pageSize,
+          pageSize: 10,
           queryParams: queryParams,
         );
 
@@ -99,15 +98,6 @@ class BranchAssociationMasterCubit extends Cubit<BranchAssociationMasterState> {
       },
       (response) {
         goRouter.pop();
-        final newResponse = response['data'][0] as BranchAssociationModel;
-
-        var list = [newResponse, ...state.branchAssociationList];
-        emit(
-          state.copyWith(
-            branchAssociationList: list,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
-          ),
-        );
         showSuccessMessage(
           context,
           subTitle: 'Branch Association Added Successfully',
@@ -140,7 +130,6 @@ class BranchAssociationMasterCubit extends Cubit<BranchAssociationMasterState> {
         return;
       },
       (response) {
-
         final updatedList = response['data'][0] as BranchAssociationModel;
 
         if (state.branchAssociationList.isNotEmpty &&
@@ -178,8 +167,49 @@ class BranchAssociationMasterCubit extends Cubit<BranchAssociationMasterState> {
         exportExcelOrPdfMobile(
           success["data"],
           exportType.toLowerCase() == "pdf"
-              ? "branch_${DateTime.now()}.pdf"
-              : "branch_${DateTime.now()}.xlsx",
+              ? "branch_association_${DateTime.now()}.pdf"
+              : "branch_association_${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+
+  Future deleteBranchAssociation(
+    int index,
+    BranchAssociationModel branchAssociation,
+    BuildContext context,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await branchAssociationMasterRepository
+        .deleteBranchAssociation(
+          branchAssociationId: branchAssociation.branchAssociationsId,
+          uniqueKey: branchAssociation.uniquekey,
+        );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+        return;
+      },
+      (success) {
+        final updatedList = List<BranchAssociationModel>.from(
+          state.branchAssociationList,
+        );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            branchAssociationList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
+
+        showSuccessMessage(
+          context,
+          subTitle: "Asset Mapping Deleted Successfully",
         );
       },
     );

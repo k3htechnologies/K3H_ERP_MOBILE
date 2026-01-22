@@ -18,18 +18,12 @@ class UOMMasterCubit extends Cubit<UOMMasterState> {
       serviceLocator<UOMMasterRepository>();
 
   // <---- GET UOM MASTER ---->
-  Future getUOMMasterList(
-    BuildContext context,
-    int pageNumber,
-    int pageSize,
-  ) async {
+  Future getUOMMasterList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {
-      "Uom": state.searchText,
-    };
+    Map<String, dynamic> queryParams = {"Uom": state.searchText};
     var result = await _uomMasterRepository.getUOMList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 15,
       queryParams: queryParams,
     );
     result.fold(
@@ -38,13 +32,10 @@ class UOMMasterCubit extends Cubit<UOMMasterState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        List<UOMModel> updatedList = pageNumber == 1
-            ? []
-            : List.from(state.uomList);
+        List<UOMModel> updatedList =
+            pageNumber == 1 ? [] : List.from(state.uomList);
         updatedList.addAll(
-          (response['data'] as List)
-              .map((e) => UOMModel.fromJson(e))
-              .toList(),
+          (response['data'] as List).map((e) => UOMModel.fromJson(e)).toList(),
         );
         emit(
           state.copyWith(
@@ -64,7 +55,7 @@ class UOMMasterCubit extends Cubit<UOMMasterState> {
   // <---- SEARCH UOM ---->
   Future searchUOM(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, uomList: []));
-    await getUOMMasterList(context, 1, 15);
+    await getUOMMasterList(context, 1);
   }
 
   // <---- EXPORT EXCEL PDF ---->
@@ -94,4 +85,3 @@ class UOMMasterCubit extends Cubit<UOMMasterState> {
     );
   }
 }
-

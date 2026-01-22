@@ -32,7 +32,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
   // TEXT CONTROLLER
   late TextEditingController _searchC,
       _filterProjectLocationC,
-      _filterCTCNumberC;
+      _filterCTSNumberC;
 
   // FOR ACTIONS ( ADD/EDIT/DELETE/EXPORT )
   late AuthorizationModel _routeAuthorizationModel;
@@ -62,7 +62,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
   void _initialiseTextController() {
     _searchC = TextEditingController();
 
-    _filterCTCNumberC = TextEditingController();
+    _filterCTSNumberC = TextEditingController();
     _filterProjectLocationC = TextEditingController();
   }
 
@@ -93,16 +93,11 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
   ) async {
     final state = _projectMasterCubit.state;
 
-    _filterCTCNumberC.text = state.filterCTCNumber;
+    _filterCTSNumberC.text = state.filterCTSNumber;
     _filterProjectLocationC.text = state.filterProjectLocation;
-    String? selectedDirection =
-        state.currentSortColumn == "Project Name"
-            ? state.currentSortDirection
-            : null;
 
     final String initialProjectLocation = _filterProjectLocationC.text;
-    final String initialCTCNumber = _filterCTCNumberC.text;
-    final String? initialDirection = selectedDirection;
+    final String initialCTSNumber = _filterCTSNumberC.text;
 
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
@@ -111,9 +106,8 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
-            (_filterCTCNumberC.text.trim() != initialCTCNumber) ||
-            (_filterProjectLocationC.text.trim() != initialProjectLocation) ||
-            (selectedDirection != initialDirection);
+            (_filterCTSNumberC.text.trim() != initialCTSNumber) ||
+            (_filterProjectLocationC.text.trim() != initialProjectLocation);
         applyEnabled.value = manualClose;
       });
     }
@@ -123,73 +117,22 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
       title: "Filter Project",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
-          void selectDirection(String direction) {
-            innerState(() {
-              selectedDirection = direction;
-            });
-            updateApplyState(innerState);
-          }
-
           return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Sort By Project Name", style: AppTextStyle.ts14M()),
-                verticalSpacing(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () => selectDirection("ASC"),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 6,
-                          horizontal: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color:
-                              selectedDirection == "ASC"
-                                  ? AppColor.lightBlue
-                                  : Colors.transparent,
-                          border: Border.all(color: AppColor.grey, width: .5),
-                        ),
-                        child: Text("A-Z", style: AppTextStyle.ts12R()),
-                      ),
-                    ),
-                    horizontalSpacing(),
-                    GestureDetector(
-                      onTap: () => selectDirection("DESC"),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 6,
-                          horizontal: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color:
-                              selectedDirection == "DESC"
-                                  ? AppColor.lightBlue
-                                  : Colors.transparent,
-                          border: Border.all(color: AppColor.grey, width: .5),
-                        ),
-                        child: Text("Z-A", style: AppTextStyle.ts12R()),
-                      ),
-                    ),
-                  ],
-                ),
-                verticalSpacing(height: 20),
+                verticalSpacing(height: 5),
                 CustomTextField(
                   title: "Project Location",
                   hint: "Enter Project Location",
                   textController: _filterProjectLocationC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(height: 5),
                 CustomTextField(
-                  title: "CTC Number",
-                  hint: "Enter CTC Number",
-                  textController: _filterCTCNumberC,
+                  title: "CTS Number",
+                  hint: "Enter CTS Number",
+                  textController: _filterCTSNumberC,
+                  inputFormatterList: [],
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
               ],
@@ -198,7 +141,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
         },
       ),
       onClear: () {
-        _filterCTCNumberC.clear();
+        _filterCTSNumberC.clear();
         _filterProjectLocationC.clear();
         _projectMasterCubit.sortProject(context: context, isClear: true);
       },
@@ -206,10 +149,8 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
         applied = true;
         _projectMasterCubit.sortProject(
           context: context,
-          ctsNumber: _filterCTCNumberC.text.trim(),
-          sortColumn: selectedDirection != null ? "Project Name" : null,
+          ctsNumber: _filterCTSNumberC.text.trim(),
           projectLocation: _filterProjectLocationC.text.trim(),
-          sortDirection: selectedDirection,
         );
       },
       isApplyEnabled: applyEnabled.value,
@@ -218,7 +159,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
 
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
-      _filterCTCNumberC.clear();
+      _filterCTSNumberC.clear();
       _filterProjectLocationC.clear();
     }
   }
@@ -233,8 +174,11 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
           _projectMasterCubit.searchProject(context, value);
         },
         textController: _searchC,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addProjectMaster);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addProjectMaster);
+          if (context.mounted) {
+            _projectMasterCubit.getProjectList(context: context, pageNumber: 1);
+          }
         },
         onExportCallback: (value) {
           _projectMasterCubit.exportExcelPdf(context, value);
@@ -366,7 +310,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                       value: project.projectLocation,
                     ),
                     buildRowTitleValue(
-                      title: "CTC Number",
+                      title: "CTS Number",
                       value: project.ctsNumber,
                     ),
                     buildRowTitleValue(

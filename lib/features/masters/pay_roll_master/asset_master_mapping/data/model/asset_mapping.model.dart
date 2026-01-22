@@ -18,7 +18,7 @@ class AssetMappingModel {
   DateTime assignedDate;
   int employeeId;
   String employeeName;
-  DateTime returnDate;
+  DateTime? returnDate;
   String conditionOnIssue;
   String conditionOnReturn;
   String remarks;
@@ -78,7 +78,10 @@ class AssetMappingModel {
         assignedDate: DateTime.parse(json["AssignedDate"]),
         employeeId: parseValue<int>(json, "EmployeeId"),
         employeeName: parseValue<String>(json, "EmployeeName"),
-        returnDate: DateTime.parse(json["ReturnDate"]),
+        returnDate:
+            json["ReturnDate"] == null
+                ? null
+                : DateTime.parse(json["ReturnDate"]),
         conditionOnIssue: parseValue<String>(json, "ConditionOnIssue"),
         conditionOnReturn: parseValue<String>(json, "ConditionOnReturn"),
         remarks: parseValue<String>(json, "Remarks"),
@@ -111,7 +114,7 @@ class AssetMappingModel {
     "AssignedDate": assignedDate.toIso8601String(),
     "EmployeeId": employeeId,
     "EmployeeName": employeeName,
-    "ReturnDate": returnDate.toIso8601String(),
+    "ReturnDate": returnDate?.toIso8601String(),
     "ConditionOnIssue": conditionOnIssue,
     "ConditionOnReturn": conditionOnReturn,
     "Remarks": remarks,

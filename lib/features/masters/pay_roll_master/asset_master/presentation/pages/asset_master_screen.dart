@@ -241,8 +241,11 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
           _assetMasterCubit.searchAsset(value, context);
         },
         textController: _searchC,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addAssetMaster);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addAssetMaster);
+          if (context.mounted) {
+            _assetMasterCubit.getAssetsList(context: context, pageNumber: 1);
+          }
         },
         onExportCallback: (value) {
           _assetMasterCubit.exportExcelPdf(context, value);

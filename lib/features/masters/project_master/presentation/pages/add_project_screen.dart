@@ -86,11 +86,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     {"zAttributesId": 5, "DisplayName": "Planning"},
   ];
 
-  // DEFAULT IDS FOR STATE,DISTRICT,CITY
-  int stateMasterId = -1;
-  int districtMasterId = -1;
-  int cityMasterId = -1;
-
   @override
   void initState() {
     super.initState();
@@ -185,10 +180,19 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             .toList();
 
     // Prefill location data
-    stateMasterId = widget.project!.stateMasterId;
-    districtMasterId = widget.project!.districtMasterId;
-    cityMasterId = widget.project!.cityMasterId;
     isRedevelopment = widget.project!.isRedevelopment;
+    selectedDistrict = {
+      "DisplayName": widget.project!.districtName,
+      "zAttributesId": widget.project!.districtMasterId,
+    };
+    selectedCity = {
+      "DisplayName": widget.project!.cityName,
+      "zAttributesId": widget.project!.cityMasterId,
+    };
+    selectedState = {
+      "DisplayName": widget.project!.stateName,
+      "zAttributesId": widget.project!.stateMasterId,
+    };
   }
 
   // API CALL TO ADD/UPDATE PROJECT MASTER

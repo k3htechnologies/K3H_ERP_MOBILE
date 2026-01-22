@@ -8,6 +8,9 @@ class EarningMasterModel {
   double value;
   int branchMasterId;
   String branchName;
+  double minSalary;
+  double maxSalary;
+  String applicable;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -21,8 +24,11 @@ class EarningMasterModel {
     required this.name,
     required this.type,
     required this.value,
+    required this.applicable,
     required this.branchMasterId,
     required this.branchName,
+    required this.minSalary,
+    required this.maxSalary,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -38,6 +44,9 @@ class EarningMasterModel {
         name: parseValue<String>(json, "Name"),
         type: parseValue<String>(json, "Type"),
         value: parseValue<double>(json, "Value"),
+        minSalary: parseValue<double>(json, "MinSalary"),
+        maxSalary: parseValue<double>(json, "MaxSalary"),
+        applicable: parseValue<String>(json, "Applicable"),
         branchMasterId: parseValue<int>(json, "BranchMasterId"),
         branchName: parseValue<String>(json, "BranchName"),
         createdById: parseValue<int>(json, "CreatedById"),
@@ -57,8 +66,11 @@ class EarningMasterModel {
     "Name": name,
     "Type": type,
     "Value": value,
+    "Applicable": applicable,
     "BranchMasterId": branchMasterId,
     "BranchName": branchName,
+    "MinSalary": minSalary,
+    "MaxSalary": maxSalary,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

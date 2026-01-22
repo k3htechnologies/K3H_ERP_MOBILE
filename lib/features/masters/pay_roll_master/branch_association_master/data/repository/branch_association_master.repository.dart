@@ -14,6 +14,11 @@ abstract interface class BranchAssociationMasterRepository {
     required Map<String, dynamic> body,
   });
 
+  Future<Either<Failure, Map<String, dynamic>>> deleteBranchAssociation({
+    required int branchAssociationId,
+    required String uniqueKey,
+  });
+
   Future<Either<Failure, Map<String, dynamic>>> exportBranchAssociation({
     required int pageNumber,
     required int pageSize,
@@ -55,6 +60,23 @@ class BranchAssociationMasterRepositoryImpl
     try {
       var result = await branchAssociationMasterDataSource
           .apicallAddUpdateBranchAssociation(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteBranchAssociation({
+    required int branchAssociationId,
+    required String uniqueKey,
+  }) async {
+    try {
+      var result = await branchAssociationMasterDataSource
+          .apicallDeleteBranchAssociation(
+            branchAssociationId: branchAssociationId,
+            uniqueKey: uniqueKey,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

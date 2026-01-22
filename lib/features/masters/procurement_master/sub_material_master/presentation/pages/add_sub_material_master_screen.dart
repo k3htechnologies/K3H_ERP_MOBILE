@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/masters/procurement_master/material_master/data/model/material_master.model.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/data/repository/material_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/data/model/sub_material_master.model.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/presentation/cubit/sub_material_master_cubit.dart';
@@ -105,7 +104,6 @@ class _AddSubMaterialMasterScreenState
       (response) {
         List<Map<String, dynamic>> materialList =
             (response['data'] as List)
-                .map((material) => MaterialMasterModel.fromJson(material))
                 .map(
                   (material) => {
                     "zAttributesId": material.materialMasterId,

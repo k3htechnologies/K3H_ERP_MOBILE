@@ -106,17 +106,6 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
       },
       (response) {
         goRouter.pop();
-
-        final newBranch = response['data'][0] as BranchMasterModel;
-        final updatedList = [newBranch, ...state.branchList];
-
-        emit(
-          state.copyWith(
-            branchList: updatedList,
-            totalNumberOfRecord: state.totalNumberOfRecord + 1,
-          ),
-        );
-
         showSuccessMessage(context, subTitle: 'Branch Added Successfully');
       },
     );

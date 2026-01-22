@@ -24,11 +24,6 @@ abstract interface class VendorDatasource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
-
- /* Future<String> apicallPullMagicLinkWithValidate({
-    required String magicLinkType,
-    required int clientRegistrationId,
-  });*/
 }
 
 class VendorDataSourceImpl implements VendorDatasource {
@@ -163,20 +158,4 @@ class VendorDataSourceImpl implements VendorDatasource {
       rethrow;
     }
   }
-
-  /*@override
-  Future<String> apicallPullMagicLinkWithValidate({
-    required String magicLinkType,
-    required int clientRegistrationId,
-  }) async {
-    try {
-      var networkResponse = await k3hHttpClient.utils.pullMagicLinkWithValidate(
-        magicLinkType: magicLinkType,
-        clientRegistrationId: clientRegistrationId,
-      );
-      return networkResponse["data"] as String;
-    } catch (error) {
-      rethrow;
-    }
-  }*/
 }

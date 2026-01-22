@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -113,7 +112,9 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
         onAddCallback: () {
           goRouter.pushNamed(AppRoutes.addHolidayMaster);
         },
-        onExportCallback: (value) {},
+        onExportCallback: (value) {
+          holidayMasterCubit.exportExcelPdf(context, value);
+        },
       ),
       body: BlocBuilder<HolidayMasterCubit, HolidayMasterState>(
         builder: (context, state) {
@@ -148,23 +149,37 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Flexible(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 0,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: AppColor.primary),
+                          child: GestureDetector(
+                            onTap: () async {
+                              await goRouter.pushNamed(
+                                AppRoutes.viewHolidayMaster,
+                                queryParameters: {
+                                  "holiday": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(holiday.toJson()),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 0,
+                                vertical: 4,
                               ),
-                            ),
-                            child: Text(
-                              holiday.holidayName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: AppColor.primary),
+                                ),
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              child: Text(
+                                holiday.holidayName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ),
                         ),

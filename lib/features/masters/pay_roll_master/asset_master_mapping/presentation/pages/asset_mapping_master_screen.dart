@@ -51,7 +51,6 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     _assetMappingMasterCubit.getAssetMappingList(
       context: context,
       pageNumber: 1,
-      pageSize: 10,
     );
   }
 
@@ -81,7 +80,6 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
           _assetMappingMasterCubit.getAssetMappingList(
             context: context,
             pageNumber: _assetMappingMasterCubit.state.currentPage + 1,
-            pageSize: 10,
           );
         });
       }
@@ -115,8 +113,14 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
           _assetMappingMasterCubit.searchAssetMapping(value, context);
         },
         textController: _searchC,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addAssetMappingMaster);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addAssetMappingMaster);
+          if (context.mounted) {
+            _assetMappingMasterCubit.getAssetMappingList(
+              context: context,
+              pageNumber: 1,
+            );
+          }
         },
         onExportCallback: (value) {
           _assetMappingMasterCubit.exportExcelPdf(context, value);
@@ -193,7 +197,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                           children: [
                             CustomIconButton.edit(
                               onPressed: () async {
-                                await goRouter.pushNamed(
+                                goRouter.pushNamed(
                                   AppRoutes.addAssetMappingMaster,
                                   queryParameters: {
                                     "assetMapping": Uri.encodeQueryComponent(
@@ -204,13 +208,6 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                                     'index': index.toString(),
                                   },
                                 );
-                                if (context.mounted) {
-                                  _assetMappingMasterCubit.getAssetMappingList(
-                                    context: context,
-                                    pageNumber: state.currentPage,
-                                    pageSize: 10,
-                                  );
-                                }
                               },
                             ),
                             const SizedBox(width: 8),
@@ -241,7 +238,12 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                     ),
                     buildRowTitleValue(
                       title: "Return Date",
-                      value: formatDateTimeAsDDMMMYYYY(assetMapping.returnDate),
+                      value:
+                          assetMapping.returnDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                assetMapping.returnDate!,
+                              )
+                              : '-',
                     ),
                     if (assetMapping.conditionOnIssue.isNotEmpty)
                       buildRowTitleValue(

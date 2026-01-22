@@ -40,6 +40,9 @@ class CustomClickToContactText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (value.isEmpty) {
+      return Text("-");
+    }
     return InkWell(
       onTap: launchContact,
       child: Row(
@@ -53,14 +56,14 @@ class CustomClickToContactText extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Flexible(
-            child: Text(
-              value,
-              style:
-                  textStyle ??
-                  const TextStyle(
-                    color: AppColor.mediumBlue,
-                    decoration: TextDecoration.underline,
-                  ),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: AppColor.mediumBlue)),
+              ),
+              child: Text(
+                value,
+                style: textStyle ?? const TextStyle(color: AppColor.mediumBlue),
+              ),
             ),
           ),
         ],

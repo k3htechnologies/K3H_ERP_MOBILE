@@ -30,7 +30,7 @@ Widget buildRowTitleValue({
         ),
 
         // VALUE
-        Expanded(
+        Flexible(
           child:
               customValueWidget ??
               Text(

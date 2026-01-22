@@ -260,7 +260,18 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
+    if (selectedTypeList.isEmpty) {
+      showErrorMessage(context, 'Error', 'Please select deduction type');
+      return;
+    }
+    if (selectedStateList.isEmpty) {
+      showErrorMessage(context, 'Error', 'Please select state');
+      return;
+    }
+    if (selectedBranch.isEmpty) {
+      showErrorMessage(context, 'Error', 'Please select branch');
+      return;
+    }
     if (_isEditMode && widget.deductionMasterModel != null) {
       _deductionMasterCubit.updateDeduction(
         index: widget.index,
@@ -277,7 +288,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
         gender: selectedGender!['DisplayName'].toString(),
       );
     } else {
-      _deductionMasterCubit.addAssetMapping(
+      _deductionMasterCubit.addDeductionMapping(
         context: context,
         name: _nameC.text.trim(),
         type: selectedTypeList.first['DisplayName'].toString(),
@@ -346,6 +357,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                       hint: "Enter Deduction Value",
                       title: "Deduction Value",
                       isRequired: true,
+                      keyboardType: TextInputType.number,
                       inputFormatterList: [
                         FilteringTextInputFormatter.digitsOnly,
                         LengthLimitingTextInputFormatter(10),
@@ -400,6 +412,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                       textController: _minSalaryC,
                       title: "Min Salary",
                       hint: "Enter Min Salary",
+                      keyboardType: TextInputType.number,
                       isRequired: true,
                       validator: (p0) {
                         if (_minSalaryC.text.isEmpty) {
@@ -416,6 +429,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                       textController: _maxSalaryC,
                       title: "Max Salary",
                       hint: "Enter Max Salary",
+                      keyboardType: TextInputType.number,
                       isRequired: true,
                       validator: (p0) {
                         if (_maxSalaryC.text.isEmpty) {
@@ -430,7 +444,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),

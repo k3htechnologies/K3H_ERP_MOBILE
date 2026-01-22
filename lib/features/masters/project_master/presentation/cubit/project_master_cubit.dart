@@ -68,9 +68,8 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       pageSize: state.pageSize,
       queryParams: {
         "ProjectName": state.searchText,
-        "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
         "ProjectLocation": state.filterProjectLocation,
-        "CTCNumber": state.filterCTCNumber,
+        "CTCNumber": state.filterCTSNumber,
       },
     );
     result.fold(
@@ -181,15 +180,6 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       },
       (response) {
         goRouter.pop();
-        emit(
-          state.copyWith(
-            projectList: [
-              response['data'][0] as ProjectModel,
-              ...state.projectList,
-            ],
-            totalNumberOfRecord: state.totalNumberOfRecord + 1,
-          ),
-        );
 
         showSuccessMessage(context, subTitle: 'Project Added Successfully!!!');
       },
@@ -1006,8 +996,6 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required BuildContext context,
     String? ctsNumber,
     String? projectLocation,
-    String? sortColumn,
-    String? sortDirection,
     bool? isClear,
   }) async {
     if (isClear ?? false) {
@@ -1015,18 +1003,14 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         state.copyWith(
           filterCTSNumber: "",
           filterProjectLocation: "",
-          currentSortColumn: "Created Date",
-          currentSortDirection: "DESC",
           currentPage: 1,
         ),
       );
     } else {
       emit(
         state.copyWith(
-          filterCTSNumber: ctsNumber ?? state.filterCTCNumber,
+          filterCTSNumber: ctsNumber ?? state.filterCTSNumber,
           filterProjectLocation: projectLocation ?? state.filterProjectLocation,
-          currentSortColumn: sortColumn ?? state.currentSortColumn,
-          currentSortDirection: sortDirection ?? state.currentSortDirection,
           currentPage: 1,
         ),
       );

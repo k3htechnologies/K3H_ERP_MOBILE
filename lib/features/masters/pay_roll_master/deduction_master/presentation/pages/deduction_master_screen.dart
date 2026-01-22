@@ -110,8 +110,14 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
           _deductionMasterCubit.searchAssetMapping(value, context);
         },
         textController: _searchC,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addDeductionMaster);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addDeductionMaster);
+          if (context.mounted) {
+            _deductionMasterCubit.getDeductionList(
+              context: context,
+              pageNumber: 1,
+            );
+          }
         },
         onExportCallback: (value) {
           _deductionMasterCubit.exportExcelPdf(context, value);
@@ -149,23 +155,37 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Flexible(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 0,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: AppColor.primary),
+                          child: GestureDetector(
+                            onTap: () {
+                              goRouter.pushNamed(
+                                AppRoutes.viewDeductionMaster,
+                                queryParameters: {
+                                  "deduction": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(deduction.toJson()),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 0,
+                                vertical: 4,
                               ),
-                            ),
-                            child: Text(
-                              deduction.name,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: AppColor.primary),
+                                ),
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              child: Text(
+                                deduction.name,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ),
                         ),
@@ -184,12 +204,6 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
                                     'index': index.toString(),
                                   },
                                 );
-                                if (context.mounted) {
-                                  _deductionMasterCubit.getDeductionList(
-                                    context: context,
-                                    pageNumber: state.currentPage,
-                                  );
-                                }
                               },
                             ),
                             const SizedBox(width: 8),
@@ -228,48 +242,24 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
                       title: "Max Salary",
                       value: "₹ ${deduction.maxSalary}",
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 160,
-                            child: Text(
-                              "Gender",
-                              style: AppTextStyle.ts14R(color: AppColor.grey),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 20,
-                            child: Text(
-                              ":",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColor.grey),
-                            ),
-                          ),
-
-                          Flexible(
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColor.lightBlue,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                deduction.gender,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTextStyle.ts14R(
-                                  color: AppColor.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                    buildRowTitleValue(
+                      title: "Gender",
+                      value: deduction.gender,
+                      customValueWidget: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColor.lightBlue,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          deduction.gender,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyle.ts14R(color: AppColor.primary),
+                        ),
                       ),
                     ),
                     buildRowTitleValue(

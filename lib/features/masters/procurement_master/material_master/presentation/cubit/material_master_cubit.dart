@@ -81,8 +81,6 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
       },
       (response) {
         goRouter.pop(); // Close processing overlay
-        // Refresh the list from API to ensure consistency
-        getMaterialMasterList(context, 1, 10);
         showSuccessMessage(context, subTitle: "Material Added Successfully");
       },
     );
