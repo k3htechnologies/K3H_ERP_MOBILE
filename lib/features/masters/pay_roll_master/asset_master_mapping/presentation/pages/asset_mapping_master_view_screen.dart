@@ -103,9 +103,12 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                       children: [
                         buildColumnTitleValue(
                           title: "Return Date",
-                          value: formatDateTimeAsDDMMMYYYY(
-                            assetMapping.returnDate,
-                          ),
+                          value:
+                              assetMapping.returnDate != null
+                                  ? formatDateTimeAsDDMMMYYYY(
+                                    assetMapping.returnDate!,
+                                  )
+                                  : '-',
                         ),
                         buildColumnTitleValue(
                           title: "Condition On Issue",

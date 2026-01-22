@@ -10,6 +10,7 @@ class DeductionMasterModel {
   String branchName;
   double minSalary;
   double maxSalary;
+  String applicable;
   String gender;
   int stateMasterId;
   String stateName;
@@ -39,6 +40,7 @@ class DeductionMasterModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.applicable,
   });
 
   factory DeductionMasterModel.fromJson(Map<String, dynamic> json) =>
@@ -64,6 +66,7 @@ class DeductionMasterModel {
             json["ModifiedDate"] == null
                 ? null
                 : parseValue<DateTime>(json, "ModifiedDate"),
+        applicable: parseValue<String>(json, "Applicable"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -85,5 +88,6 @@ class DeductionMasterModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "Applicable": applicable,
   };
 }

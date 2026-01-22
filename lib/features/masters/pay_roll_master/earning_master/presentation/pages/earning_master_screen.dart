@@ -107,8 +107,11 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
       appBar: CustomAppBar(
         screenTitle: "Earning",
         authorization: _routeAuthorizationModel,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addEarningMaster);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addEarningMaster);
+          if (context.mounted) {
+            _earningMasterCubit.getEarningList(context: context, pageNumber: 1);
+          }
         },
         onSearchSubmit: (value) {
           _earningMasterCubit.searchEarning(value, context);
@@ -151,23 +154,37 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Flexible(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 0,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: AppColor.primary),
+                          child: GestureDetector(
+                            onTap: () async {
+                              await goRouter.pushNamed(
+                                AppRoutes.viewEarningMaster,
+                                queryParameters: {
+                                  "earning": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(earning.toJson()),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 0,
+                                vertical: 4,
                               ),
-                            ),
-                            child: Text(
-                              earning.name,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: AppColor.primary),
+                                ),
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              child: Text(
+                                earning.name,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ),
                         ),
@@ -186,12 +203,6 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
                                     'index': index.toString(),
                                   },
                                 );
-                                if (context.mounted) {
-                                  _earningMasterCubit.getEarningList(
-                                    context: context,
-                                    pageNumber: state.currentPage,
-                                  );
-                                }
                               },
                             ),
                             const SizedBox(width: 8),

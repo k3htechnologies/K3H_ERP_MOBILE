@@ -25,11 +25,6 @@ abstract interface class VendorRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
-
-  /*Future<Either<Failure, String>> getMagicLink({
-    required String magicLinkType,
-    required int clientRegistrationId,
-  });*/
 }
 
 class VendorRepositoryImpl implements VendorRepository {
@@ -106,20 +101,4 @@ class VendorRepositoryImpl implements VendorRepository {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
   }
-
-  /*@override
-  Future<Either<Failure, String>> getMagicLink({
-    required String magicLinkType,
-    required int clientRegistrationId,
-  }) async {
-    try {
-      var result = await vendorDatasource.apicallPullMagicLinkWithValidate(
-        magicLinkType: magicLinkType,
-        clientRegistrationId: clientRegistrationId,
-      );
-      return right(result);
-    } catch (error) {
-      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-    }
-  }*/
 }

@@ -63,7 +63,7 @@ class _AddAssetMappingMasterScreenState
   late AuthorizationModel _routeAuthorizationModel;
 
   bool get _isEditMode => widget.assetMapping != null;
-
+  bool _isInactive = false;
   @override
   void initState() {
     super.initState();
@@ -199,7 +199,7 @@ class _AddAssetMappingMasterScreenState
       return;
     }
 
-    if (_returnDate == null) {
+    if (_isInactive && _returnDate == null) {
       showErrorMessage(context, 'Error', 'Return Date is required');
       return;
     }
@@ -213,7 +213,7 @@ class _AddAssetMappingMasterScreenState
         employeeId: _selectedEmployee.first['zAttributesId'] as int,
         assetMasterId: _selectedAsset.first['zAttributesId'] as int,
         assignedDate: _assignedDate!,
-        returnDate: _returnDate!,
+        returnDate: _returnDate,
         conditionOnIssue: _conditionOnIssueC.text.trim(),
         conditionOnReturn: _conditionOnReturnC.text.trim(),
         remarks: _remarksC.text.trim(),
@@ -224,9 +224,7 @@ class _AddAssetMappingMasterScreenState
         employeeId: _selectedEmployee.first['zAttributesId'] as int,
         assetMasterId: _selectedAsset.first['zAttributesId'] as int,
         assignedDate: _assignedDate!,
-        returnDate: _returnDate!,
         conditionOnIssue: _conditionOnIssueC.text.trim(),
-        conditionOnReturn: _conditionOnReturnC.text.trim(),
         remarks: _remarksC.text.trim(),
       );
     }
@@ -245,134 +243,139 @@ class _AddAssetMappingMasterScreenState
           return Form(
             key: _formKey,
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomMultipleSelectPopup(
-                    title: 'Employee',
-                    isRequired: true,
-                    isMultiSelect: false,
-                    initialValue: _selectedEmployee,
-                    dataList: [],
-                    onSelected: (value) {
-                      setStateBuilder(() {
-                        _selectedEmployee = value;
-                      });
-                    },
-                    dataFetchCallBack: _fetchEmployees,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Employee is required";
-                      }
-                      return null;
-                    },
-                  ),
-                  verticalSpacing(height: 16),
-                  CustomMultipleSelectPopup(
-                    title: 'Asset',
-                    isRequired: true,
-                    isMultiSelect: false,
-                    initialValue: _selectedAsset,
-                    dataList: [],
-                    onSelected: (value) {
-                      setStateBuilder(() {
-                        _selectedAsset = value;
-                      });
-                    },
-                    dataFetchCallBack: _fetchAssets,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Asset is required";
-                      }
-                      return null;
-                    },
-                  ),
-                  verticalSpacing(height: 16),
-                  CustomDatePicker(
-                    title: 'Assigned Date',
-                    initialDate: _assignedDate,
-                    isRequired: true,
-                    setValue: (date) {
-                      setStateBuilder(() {
-                        _assignedDate = date;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return "Assigned Date is required";
-                      }
-                      return null;
-                    },
-                  ),
-                  verticalSpacing(height: 16),
-                  CustomDatePicker(
-                    title: 'Return Date',
-                    initialDate: _returnDate,
-                    startDate: _assignedDate,
-                    isRequired: true,
-                    setValue: (date) {
-                      setStateBuilder(() {
-                        _returnDate = date;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return "Return Date is required";
-                      }
-                      if (_assignedDate != null &&
-                          value.isBefore(_assignedDate!)) {
-                        return "Return Date must be after Assigned Date";
-                      }
-                      return null;
-                    },
-                  ),
-                  verticalSpacing(height: 16),
-                  CustomTextField(
-                    title: 'Condition on Issue',
-                    textController: _conditionOnIssueC,
-                    hint: "Enter Condition on Issue",
-                    inputFormatterList: InputValidator.textOnly(200),
-                    isRequired: true,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "Condition on Issue is required";
-                      }
-                      return null;
-                    },
-                  ),
-                  verticalSpacing(height: 16),
-                  CustomTextField(
-                    title: 'Condition on Return',
-                    textController: _conditionOnReturnC,
-                    hint: "Enter Condition on Return",
-                    inputFormatterList: InputValidator.textOnly(200),
-                    isRequired: true,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "Condition on Return is required";
-                      }
-                      return null;
-                    },
-                  ),
-                  verticalSpacing(height: 16),
-                  CustomTextField(
-                    title: 'Remarks',
-                    textController: _remarksC,
-                    isRequired: true,
-                    hint: "Enter Remarks",
-                    inputFormatterList: InputValidator.textOnly(500),
-                    minLines: 3,
-                    maxLines: 3,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "Remarks is required";
-                      }
-                      return null;
-                    },
-                  ),
-                  verticalSpacing(height: 16),
-                ],
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              child: Container(
+                decoration: commonCardDecoration(),
+                padding: const EdgeInsets.all(16),
+
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomMultipleSelectPopup(
+                      title: 'Employee',
+                      isRequired: true,
+                      isMultiSelect: false,
+                      initialValue: _selectedEmployee,
+                      dataList: [],
+                      onSelected: (value) {
+                        setStateBuilder(() {
+                          _selectedEmployee = value;
+                        });
+                      },
+                      dataFetchCallBack: _fetchEmployees,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Employee is required";
+                        }
+                        return null;
+                      },
+                    ),
+                    verticalSpacing(height: 16),
+                    CustomMultipleSelectPopup(
+                      title: 'Asset',
+                      isRequired: true,
+                      isMultiSelect: false,
+                      initialValue: _selectedAsset,
+                      dataList: [],
+                      onSelected: (value) {
+                        setStateBuilder(() {
+                          _selectedAsset = value;
+                        });
+                      },
+                      dataFetchCallBack: _fetchAssets,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Asset is required";
+                        }
+                        return null;
+                      },
+                    ),
+                    verticalSpacing(height: 16),
+                    CustomDatePicker(
+                      title: 'Assigned Date',
+                      initialDate: _assignedDate,
+                      isRequired: true,
+                      setValue: (date) {
+                        setStateBuilder(() {
+                          _assignedDate = date;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return "Assigned Date is required";
+                        }
+                        return null;
+                      },
+                    ),
+                    verticalSpacing(height: 16),
+                    CustomTextField(
+                      title: 'Condition on Issue',
+                      textController: _conditionOnIssueC,
+                      hint: "Enter Condition on Issue",
+                      inputFormatterList: InputValidator.textOnly(200),
+                      isRequired: true,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Condition on Issue is required";
+                        }
+                        return null;
+                      },
+                    ),
+                    verticalSpacing(height: 16),
+                    CustomTextField(
+                      title: 'Remarks',
+                      textController: _remarksC,
+                      hint: "Enter Remarks",
+                      inputFormatterList: InputValidator.textOnly(500),
+                      minLines: 3,
+                      maxLines: 3,
+                    ),
+                    Visibility(
+                      visible: _isEditMode,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          verticalSpacing(height: 16),
+                          CustomDatePicker(
+                            title: 'Return Date',
+                            initialDate: _returnDate,
+                            startDate: _assignedDate,
+                            setValue: (date) {
+                              setStateBuilder(() {
+                                _returnDate = date;
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null && _isInactive) {
+                                return "Return Date is required";
+                              }
+                              if (_assignedDate != null &&
+                                  _isInactive &&
+                                  value!.isBefore(_assignedDate!)) {
+                                return "Return Date must be after Assigned Date";
+                              }
+                              return null;
+                            },
+                          ),
+                          verticalSpacing(height: 16),
+                          CustomTextField(
+                            title: 'Condition on Return',
+                            textController: _conditionOnReturnC,
+                            hint: "Enter Condition on Return",
+                            inputFormatterList: InputValidator.textOnly(200),
+                            validator: (value) {
+                              if ((value == null || value.trim().isEmpty) &&
+                                  _isInactive) {
+                                return "Condition on Return is required";
+                              }
+                              return null;
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -382,9 +385,28 @@ class _AddAssetMappingMasterScreenState
         child: Container(
           height: 70,
           padding: EdgeInsets.all(16),
-          child: CustomButton(
-            text: _isEditMode ? "Update Asset Mapping" : "Add Asset Mapping",
-            onPressed: _submitForm,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 10,
+            children: [
+              Expanded(
+                child: CustomButton(
+                  text: _isEditMode ? "Update" : "Add",
+                  onPressed: _submitForm,
+                ),
+              ),
+              if (_isEditMode)
+                Expanded(
+                  child: CustomButton(
+                    backgroundColor: AppColor.red,
+                    text: "Inactive",
+                    onPressed: () {
+                      _isInactive = true;
+                      _submitForm();
+                    },
+                  ),
+                ),
+            ],
           ),
         ),
       ),

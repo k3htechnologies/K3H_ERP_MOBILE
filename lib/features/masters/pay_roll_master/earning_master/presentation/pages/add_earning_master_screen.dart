@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -37,7 +38,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
       serviceLocator<BranchMasterRepository>();
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _nameC, _typeC, _valueC;
+  late TextEditingController _nameC, _typeC, _valueC, _minSalaryC, _maxSalaryC;
 
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
@@ -63,6 +64,8 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
     _nameC.dispose();
     _typeC.dispose();
     _valueC.dispose();
+    _minSalaryC.dispose();
+    _maxSalaryC.dispose();
   }
 
   // INITIALIZE TEXT EDITING CONTROLLERS
@@ -70,6 +73,8 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
     _nameC = TextEditingController();
     _typeC = TextEditingController();
     _valueC = TextEditingController();
+    _minSalaryC = TextEditingController();
+    _maxSalaryC = TextEditingController();
   }
 
   void _populateFormFields(EarningMasterModel earningMasterModel) {
@@ -82,6 +87,8 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
         'DisplayName': earningMasterModel.branchName,
       },
     ];
+    _minSalaryC.text = earningMasterModel.minSalary.toString();
+    _maxSalaryC.text = earningMasterModel.maxSalary.toString();
   }
 
   Future<Map<String, dynamic>> _fetchBranch(
@@ -132,6 +139,8 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
         earningName: _nameC.text.trim(),
         earningType: _typeC.text.trim(),
         value: double.parse(_valueC.text.trim()),
+        minSalary: double.parse(_minSalaryC.text.trim()),
+        maxSalary: double.parse(_maxSalaryC.text.trim()),
       );
     } else {
       _earningMasterCubit.addEarning(
@@ -140,6 +149,8 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
         earningName: _nameC.text.trim(),
         earningType: _typeC.text.trim(),
         value: double.parse(_valueC.text.trim()),
+        minSalary: double.parse(_minSalaryC.text.trim()),
+        maxSalary: double.parse(_maxSalaryC.text.trim()),
       );
     }
   }
@@ -201,6 +212,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
                           title: "Value",
                           hint: "Enter Earning Value",
                           isRequired: true,
+                          keyboardType: TextInputType.number,
                           inputFormatterList: InputValidator.decimal(10),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
@@ -209,6 +221,41 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
                             return null;
                           },
                         ),
+                        CustomTextField(
+                          textController: _minSalaryC,
+                          title: "Min Salary",
+                          hint: "Enter Min Salary",
+                          keyboardType: TextInputType.number,
+                          isRequired: true,
+                          validator: (p0) {
+                            if (_minSalaryC.text.isEmpty) {
+                              return 'Min Salary is required';
+                            }
+                            return null;
+                          },
+                          inputFormatterList: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                        ),
+                        CustomTextField(
+                          textController: _maxSalaryC,
+                          title: "Max Salary",
+                          hint: "Enter Max Salary",
+                          keyboardType: TextInputType.number,
+                          isRequired: true,
+                          validator: (p0) {
+                            if (_maxSalaryC.text.isEmpty) {
+                              return 'Max Salary is required';
+                            }
+                            return null;
+                          },
+                          inputFormatterList: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                        ),
+
                         CustomMultipleSelectPopup(
                           title: 'Branch',
                           isRequired: true,

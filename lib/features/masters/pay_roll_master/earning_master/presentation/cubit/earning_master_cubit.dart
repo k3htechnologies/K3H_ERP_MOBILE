@@ -80,6 +80,8 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
     required String earningName,
     required String earningType,
     required double value,
+    required double minSalary,
+    required double maxSalary,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var body = {
@@ -88,6 +90,8 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
       "Name": earningName,
       "Type": earningType,
       "Value": value,
+      "MinSalary": minSalary,
+      "MaxSalary": maxSalary,
     };
     var result = await earningMasterRepository.addUpdateEarning(body: body);
     goRouter.pop();
@@ -98,15 +102,6 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
       },
       (response) {
         goRouter.pop();
-        final newResponse = response['data'][0] as EarningMasterModel;
-
-        var list = [newResponse, ...state.earningList];
-        emit(
-          state.copyWith(
-            earningList: list,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
-          ),
-        );
         showSuccessMessage(context, subTitle: 'Earning Added Successfully');
       },
     );
@@ -121,6 +116,8 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
     required String earningName,
     required String earningType,
     required double value,
+    required double minSalary,
+    required double maxSalary,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var body = {
@@ -130,6 +127,8 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
       "Name": earningName,
       "Type": earningType,
       "Value": value,
+      "MinSalary": minSalary,
+      "MaxSalary": maxSalary,
     };
     var result = await earningMasterRepository.addUpdateEarning(body: body);
     goRouter.pop();
@@ -205,8 +204,8 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
         exportExcelOrPdfMobile(
           success["data"],
           exportType.toLowerCase() == "pdf"
-              ? "asset_mapping_${DateTime.now()}.pdf"
-              : "asset_mapping_${DateTime.now()}.xlsx",
+              ? "earning_${DateTime.now()}.pdf"
+              : "earning_${DateTime.now()}.xlsx",
         );
       },
     );

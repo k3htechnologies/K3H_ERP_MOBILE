@@ -100,15 +100,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
       },
       (response) {
         goRouter.pop();
-        final newResponse = response['data'][0] as HolidayMappingModel;
 
-        var list = [newResponse, ...state.holidayMappingList];
-        emit(
-          state.copyWith(
-            holidayMappingList: list,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
-          ),
-        );
         showSuccessMessage(
           context,
           subTitle: 'Holiday Mapping Added Successfully',
@@ -206,7 +198,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
 
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
-    var result = await holidayMappingMasterRepository.getMappedHolidayList(
+    var result = await holidayMappingMasterRepository.exportHolidayMappings(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
       queryParams: {"ExportType": exportType, "HolidayName": state.searchText},
@@ -220,8 +212,8 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
         exportExcelOrPdfMobile(
           success["data"],
           exportType.toLowerCase() == "pdf"
-              ? "asset_mapping_${DateTime.now()}.pdf"
-              : "asset_mapping_${DateTime.now()}.xlsx",
+              ? "holidays_mapping_${DateTime.now()}.pdf"
+              : "holidays_mapping_${DateTime.now()}.xlsx",
         );
       },
     );

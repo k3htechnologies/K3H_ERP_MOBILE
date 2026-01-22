@@ -24,7 +24,7 @@ class ProjectMasterState extends BaseState {
   final String searchText;
   final bool isAllSelected;
   final String filterProjectLocation;
-  final String filterCTCNumber;
+  final String filterCTSNumber;
 
   const ProjectMasterState({
     required this.projectList,
@@ -44,7 +44,7 @@ class ProjectMasterState extends BaseState {
     required this.pageSize,
     required this.searchText,
     required this.filterProjectLocation,
-    required this.filterCTCNumber,
+    required this.filterCTSNumber,
 
     required this.currentSortColumn,
     required this.currentSortDirection,
@@ -68,7 +68,7 @@ class ProjectMasterState extends BaseState {
     currentPageBank: 1,
     pageSize: 10,
     searchText: "",
-    filterCTCNumber: '',
+    filterCTSNumber: '',
     filterProjectLocation: '',
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
@@ -123,7 +123,7 @@ class ProjectMasterState extends BaseState {
       pageSize: pageSize ?? this.pageSize,
       searchText: searchText ?? this.searchText,
       isLoading: isLoading ?? this.isLoading,
-      filterCTCNumber: filterCTSNumber ?? this.filterCTCNumber,
+      filterCTSNumber: filterCTSNumber ?? this.filterCTSNumber,
       filterProjectLocation:
           filterProjectLocation ?? this.filterProjectLocation,
 
@@ -155,7 +155,7 @@ class ProjectMasterState extends BaseState {
 
     currentSortColumn,
     currentSortDirection,
-    filterCTCNumber,
+    filterCTSNumber,
     filterProjectLocation,
   ];
 }

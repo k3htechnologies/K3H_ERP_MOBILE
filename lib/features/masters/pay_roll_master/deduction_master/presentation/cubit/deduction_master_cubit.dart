@@ -73,7 +73,7 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
     );
   }
 
-  Future addAssetMapping({
+  Future addDeductionMapping({
     required BuildContext context,
     required String name,
     required String type,
@@ -105,15 +105,6 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
       },
       (response) {
         goRouter.pop();
-        final newResponse = response['data'][0] as DeductionMasterModel;
-
-        var list = [newResponse, ...state.deductionList];
-        emit(
-          state.copyWith(
-            deductionList: list,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
-          ),
-        );
         showSuccessMessage(context, subTitle: 'Deduction Added Successfully');
       },
     );
@@ -224,8 +215,8 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
         exportExcelOrPdfMobile(
           success["data"],
           exportType.toLowerCase() == "pdf"
-              ? "asset_mapping_${DateTime.now()}.pdf"
-              : "asset_mapping_${DateTime.now()}.xlsx",
+              ? "deduction_${DateTime.now()}.pdf"
+              : "deduction_${DateTime.now()}.xlsx",
         );
       },
     );

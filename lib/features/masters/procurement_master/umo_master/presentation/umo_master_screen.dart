@@ -39,7 +39,7 @@ class _UOMMasterScreenState extends State<UOMMasterScreen> {
         Authorization.routeAuthorizationMap[AppRoutes.uomMaster]!;
     _initializeTextEditingController();
     _onScroll();
-    _uomMasterCubit.getUOMMasterList(context, 1, 15);
+    _uomMasterCubit.getUOMMasterList(context, 1);
   }
 
   @override
@@ -69,7 +69,6 @@ class _UOMMasterScreenState extends State<UOMMasterScreen> {
           _uomMasterCubit.getUOMMasterList(
             context,
             _uomMasterCubit.state.currentPage + 1,
-            15,
           );
         });
       }
@@ -104,7 +103,10 @@ class _UOMMasterScreenState extends State<UOMMasterScreen> {
               children: [
                 // Header Row
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColor.white,
                     border: Border(
@@ -118,10 +120,7 @@ class _UOMMasterScreenState extends State<UOMMasterScreen> {
                     children: [
                       Expanded(
                         flex: 2,
-                        child: Text(
-                          'UOM Name',
-                          style: AppTextStyle.ts14SB(),
-                        ),
+                        child: Text('UOM Name', style: AppTextStyle.ts14SB()),
                       ),
                       Expanded(
                         child: Text(
@@ -143,9 +142,9 @@ class _UOMMasterScreenState extends State<UOMMasterScreen> {
                       if (index == state.uomList.length) {
                         return state.uomList.length < state.totalNumberOfRecord
                             ? const Padding(
-                                padding: EdgeInsets.all(16),
-                                child: Center(child: CircularProgressIndicator()),
-                              )
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
                             : const SizedBox.shrink();
                       }
                       var uom = state.uomList[index];
@@ -167,10 +166,7 @@ class _UOMMasterScreenState extends State<UOMMasterScreen> {
                           children: [
                             Expanded(
                               flex: 2,
-                              child: Text(
-                                uom.uom,
-                                style: AppTextStyle.ts14R(),
-                              ),
+                              child: Text(uom.uom, style: AppTextStyle.ts14R()),
                             ),
                             Expanded(
                               child: Text(
@@ -193,4 +189,3 @@ class _UOMMasterScreenState extends State<UOMMasterScreen> {
     );
   }
 }
-

@@ -115,8 +115,14 @@ class _HolidayMappingMasterScreenState
           _holidayMappingMasterCubit.searchHolidayMapping(value, context);
         },
         textController: _searchC,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addHolidayMappingMaster);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addHolidayMappingMaster);
+          if (context.mounted) {
+            _holidayMappingMasterCubit.getHolidayMappingList(
+              context: context,
+              pageNumber: 1,
+            );
+          }
         },
         onExportCallback: (value) {
           _holidayMappingMasterCubit.exportExcelPdf(context, value);
@@ -156,23 +162,37 @@ class _HolidayMappingMasterScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Flexible(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 0,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: AppColor.primary),
+                          child: GestureDetector(
+                            onTap: () async {
+                              await goRouter.pushNamed(
+                                AppRoutes.viewHolidayMappingMaster,
+                                queryParameters: {
+                                  "holidayMapping": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(holidayMapping.toJson()),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 0,
+                                vertical: 4,
                               ),
-                            ),
-                            child: Text(
-                              holidayMapping.holidayName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: AppColor.primary),
+                                ),
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              child: Text(
+                                holidayMapping.holidayName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ),
                         ),
@@ -191,13 +211,6 @@ class _HolidayMappingMasterScreenState
                                     'index': index.toString(),
                                   },
                                 );
-                                if (context.mounted) {
-                                  _holidayMappingMasterCubit
-                                      .getHolidayMappingList(
-                                        context: context,
-                                        pageNumber: state.currentPage,
-                                      );
-                                }
                               },
                             ),
                             horizontalSpacing(),

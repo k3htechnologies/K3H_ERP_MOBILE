@@ -116,8 +116,11 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
           _branchMasterCubit.searchBranch(value, context);
         },
         textController: _searchC,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addBranchMaster);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addBranchMaster);
+          if (context.mounted) {
+            _branchMasterCubit.getBranchList(context: context, pageNumber: 1);
+          }
         },
         onExportCallback: (value) {
           _branchMasterCubit.exportExcelPdf(context, value);

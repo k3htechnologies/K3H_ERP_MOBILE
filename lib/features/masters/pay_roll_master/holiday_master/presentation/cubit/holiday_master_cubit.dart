@@ -211,4 +211,27 @@ class HolidayMasterCubit extends Cubit<HolidayMasterState> {
       },
     );
   }
+
+  Future exportExcelPdf(BuildContext context, String exportType) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await holidayMasterRepository.exportHolidayList(
+      pageNumber: 1,
+      pageSize: state.totalNumberOfRecord,
+      queryParams: {"ExportType": exportType, "HolidayName": state.searchText},
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (success) {
+        exportExcelOrPdfMobile(
+          success["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "holidays_${DateTime.now()}.pdf"
+              : "holidays_${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
 }

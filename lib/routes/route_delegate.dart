@@ -26,6 +26,11 @@ import 'package:k3h_erp_app/features/inventory/presentation/pages/unit_specifica
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/presentation/pages/branch_association_master_view_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/deduction_master/presentation/pages/deduction_master_view_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/earning_master/presentation/pages/earning_master_view_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_mapping_master/presentation/pages/holiday_mapping_master_view_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/presentation/pages/holiday_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/pages/asset_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/pages/asset_mapping_master_view_screen.dart';
@@ -812,7 +817,7 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
-              create: (_) => serviceLocator<BranchAssociationMasterCubit>(),
+              create: (_) => BranchAssociationMasterCubit(),
               child: child,
             );
           },
@@ -850,6 +855,31 @@ final GoRouter goRouter = GoRouter(
                 return AddBranchAssociationMasterScreen(
                   branchAssociation: branchAssociation,
                   index: index,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewBranchAssociation,
+              path: AppRoutes.viewBranchAssociation,
+              builder: (context, state) {
+                final queryParameterBranchAssociationMaster =
+                    state.uri.queryParameters['branchAssociation'];
+
+                final BranchAssociationModel? branchAssociation =
+                    queryParameterBranchAssociationMaster != null
+                        ? BranchAssociationModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(
+                                queryParameterBranchAssociationMaster,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                return BranchAssociationMasterViewScreen(
+                  branchAssociation: branchAssociation!,
                 );
               },
             ),
@@ -900,6 +930,31 @@ final GoRouter goRouter = GoRouter(
                 );
               },
             ),
+            GoRoute(
+              name: AppRoutes.viewDeductionMaster,
+              path: AppRoutes.viewDeductionMaster,
+              builder: (context, state) {
+                final queryParameterDeductionMaster =
+                    state.uri.queryParameters['deduction'];
+
+                final DeductionMasterModel? deduction =
+                    queryParameterDeductionMaster != null
+                        ? DeductionMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(
+                                queryParameterDeductionMaster,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                return DeductionMasterViewScreen(
+                  deductionMasterModel: deduction!,
+                );
+              },
+            ),
           ],
         ),
         // EARNING MASTER
@@ -943,6 +998,26 @@ final GoRouter goRouter = GoRouter(
                   earningMasterModel: earning,
                   index: index,
                 );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewEarningMaster,
+              path: AppRoutes.viewEarningMaster,
+              builder: (context, state) {
+                final queryParameterEarningMaster =
+                    state.uri.queryParameters['earning'];
+
+                final EarningMasterModel? earning =
+                    queryParameterEarningMaster != null
+                        ? EarningMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterEarningMaster),
+                            ),
+                          ),
+                        )
+                        : null;
+                return EarningMasterViewScreen(earningMasterModel: earning!);
               },
             ),
           ],
@@ -990,6 +1065,27 @@ final GoRouter goRouter = GoRouter(
                 );
               },
             ),
+            GoRoute(
+              name: AppRoutes.viewHolidayMaster,
+              path: AppRoutes.viewHolidayMaster,
+              builder: (context, state) {
+                final queryParameterHolidayMaster =
+                    state.uri.queryParameters['holiday'];
+
+                final HolidayMasterModel? holiday =
+                    queryParameterHolidayMaster != null
+                        ? HolidayMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterHolidayMaster),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                return HolidayMasterViewScreen(holidayMaster: holiday!);
+              },
+            ),
           ],
         ),
         // HOLIDAY MAPPING MASTER
@@ -1034,6 +1130,31 @@ final GoRouter goRouter = GoRouter(
                 return AddHolidayMappingMasterScreen(
                   holidayMapping: holidayMapping,
                   index: index,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewHolidayMappingMaster,
+              path: AppRoutes.viewHolidayMappingMaster,
+              builder: (context, state) {
+                final queryParameterHolidayMappingMaster =
+                    state.uri.queryParameters['holidayMapping'];
+
+                final HolidayMappingModel? holidayMapping =
+                    queryParameterHolidayMappingMaster != null
+                        ? HolidayMappingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(
+                                queryParameterHolidayMappingMaster,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                return HolidayMappingMasterViewScreen(
+                  holidayMapping: holidayMapping!,
                 );
               },
             ),

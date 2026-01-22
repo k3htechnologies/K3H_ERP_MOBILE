@@ -50,7 +50,6 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     await getAssetsList(context: context, pageNumber: 1);
   }
 
-
   // <---- GET ASSET LIST ---->
   Future getAssetsList({
     required BuildContext context,
@@ -136,15 +135,6 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
       },
       (response) {
         goRouter.pop();
-
-        final newAsset = response['data'] as AssetMasterModel;
-        emit(
-          state.copyWith(
-            assetList: [newAsset, ...state.assetList],
-            totalNumberOfRecord: state.totalNumberOfRecord + 1,
-          ),
-        );
-
         showSuccessMessage(context, subTitle: 'Asset Added Successfully');
       },
     );
