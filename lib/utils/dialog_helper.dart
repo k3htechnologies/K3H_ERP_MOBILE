@@ -260,15 +260,14 @@ class DialogHelper {
 
   // FILTER BOTTOM SHEET
   static Future showCustomFilterBottomSheet(
-      BuildContext context, {
-        required String title,
-        required Widget contentWidget,
-        required VoidCallback onClear,
-        required VoidCallback onApply,
-        bool isApplyEnabled = true,
-        ValueNotifier<bool>? applyEnabledNotifier,
-      }) async {
-
+    BuildContext context, {
+    required String title,
+    required Widget contentWidget,
+    required VoidCallback onClear,
+    required VoidCallback onApply,
+    bool isApplyEnabled = true,
+    ValueNotifier<bool>? applyEnabledNotifier,
+  }) async {
     final ScrollController scrollController = ScrollController();
 
     return await showModalBottomSheet(
@@ -277,123 +276,176 @@ class DialogHelper {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (BuildContext context) => SizedBox(
-        height: getActualHeight(context) * 0.60,
-        width: getActualWidth(context),
-        child: SafeArea(
-          child: Column(
-            children: [
-
-              /// DRAG HANDLE
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                height: 5,
-                width: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: AppColor.lightBlue,
-                ),
-              ),
-
-              /// TITLE
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.only(bottom: 12, left: 16),
-                child: Text(title, style: AppTextStyle.ts16SB()),
-              ),
-
-              Divider(color: AppColor.grey, thickness: .3),
-
-              // CONTENT WITH SCROLLBAR
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: RawScrollbar(
-                    controller: scrollController,
-                    thumbVisibility: true,
-                    thickness: 6,
-                    radius: const Radius.circular(10),
-                    thumbColor: AppColor.mediumBlue.withValues(alpha: .8),
-                    trackColor: AppColor.lightGrey,
-                    trackVisibility: true,
-                    minThumbLength: 10,
-                    child: SingleChildScrollView(
-                      controller: scrollController,
-                      child: contentWidget,
+      builder:
+          (BuildContext context) => SizedBox(
+            height: getActualHeight(context) * 0.60,
+            width: getActualWidth(context),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  /// DRAG HANDLE
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    height: 5,
+                    width: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppColor.lightBlue,
                     ),
                   ),
-                ),
-              ),
 
-              // FIXED BOTTOM BUTTONS
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColor.black.withValues(alpha: .3),
-                      blurRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
+                  /// TITLE
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.only(bottom: 12, left: 16),
+                    child: Text(title, style: AppTextStyle.ts16SB()),
+                  ),
 
-                    // CLEAR
-                    Expanded(
-                      child: SizedBox(
-                        height: 40,
-                        child: CustomButton.clearOutline(
-                          onPressed: () {
-                            goRouter.pop();
-                            onClear();
-                          },
+                  Divider(color: AppColor.grey, thickness: .3),
+
+                  // CONTENT WITH SCROLLBAR
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: RawScrollbar(
+                        controller: scrollController,
+                        thumbVisibility: true,
+                        thickness: 6,
+                        radius: const Radius.circular(10),
+                        thumbColor: AppColor.mediumBlue.withValues(alpha: .8),
+                        trackColor: AppColor.lightGrey,
+                        trackVisibility: true,
+                        minThumbLength: 10,
+                        child: SingleChildScrollView(
+                          controller: scrollController,
+                          child: contentWidget,
                         ),
                       ),
                     ),
+                  ),
 
-                    horizontalSpacing(width: 12),
-
-                    // APPLY
-                    Expanded(
-                      child: SizedBox(
-                        height: 40,
-                        child: applyEnabledNotifier == null
-                            ? CustomButton(
-                          text: "Apply",
-                          isDisable: !isApplyEnabled,
-                          onPressed: isApplyEnabled
-                              ? () {
-                            goRouter.pop();
-                            onApply();
-                          }
-                              : null,
-                        )
-                            : ValueListenableBuilder<bool>(
-                          valueListenable: applyEnabledNotifier,
-                          builder: (context, enabled, _) {
-                            return CustomButton(
-                              text: "Apply",
-                              isDisable: !enabled,
-                              onPressed: enabled
-                                  ? () {
+                  // FIXED BOTTOM BUTTONS
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColor.black.withValues(alpha: .3),
+                          blurRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        // CLEAR
+                        Expanded(
+                          child: SizedBox(
+                            height: 40,
+                            child: CustomButton.clearOutline(
+                              onPressed: () {
                                 goRouter.pop();
-                                onApply();
-                              }
-                                  : null,
-                            );
-                          },
+                                onClear();
+                              },
+                            ),
+                          ),
                         ),
-                      ),
+
+                        horizontalSpacing(width: 12),
+
+                        // APPLY
+                        Expanded(
+                          child: SizedBox(
+                            height: 40,
+                            child:
+                                applyEnabledNotifier == null
+                                    ? CustomButton(
+                                      text: "Apply",
+                                      isDisable: !isApplyEnabled,
+                                      onPressed:
+                                          isApplyEnabled
+                                              ? () {
+                                                goRouter.pop();
+                                                onApply();
+                                              }
+                                              : null,
+                                    )
+                                    : ValueListenableBuilder<bool>(
+                                      valueListenable: applyEnabledNotifier,
+                                      builder: (context, enabled, _) {
+                                        return CustomButton(
+                                          text: "Apply",
+                                          isDisable: !enabled,
+                                          onPressed:
+                                              enabled
+                                                  ? () {
+                                                    goRouter.pop();
+                                                    onApply();
+                                                  }
+                                                  : null,
+                                        );
+                                      },
+                                    ),
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+    );
+  }
+
+  // CUSTOM DIALOG
+  static Future showCustomDialogue(
+    BuildContext context, {
+    required Widget childContent,
+        String? title,
+    Widget? bottomSection, // optional
+    bool barrierDismissible = true,
+  }) {
+    return showDialog(
+      context: context,
+      barrierDismissible: barrierDismissible,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                Row(
+                  children: [
+                    if(title!=null)
+                    Text(title,style: AppTextStyle.ts14M(),),
+                    Spacer(),
+                    IconButton(onPressed: (){
+                      goRouter.pop();
+                    }, icon: Icon(Icons.close,size: 18,))
                   ],
                 ),
-              ),
-            ],
+
+                // CONTENT
+                childContent,
+
+                // OPTIONAL BOTTOM SECTION
+                if (bottomSection != null) ...[
+                  const SizedBox(height: 16),
+                  bottomSection,
+                ],
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

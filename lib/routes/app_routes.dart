@@ -170,6 +170,11 @@ class AppRoutes {
   static String updateBookingModificationRequest =
       "/updateBookingModificationRequest";
 
+
+  // OUTDOOR
+  static String outdoor = "/outdoor";
+  static String viewOutdoor = "/viewOutdoor";
+
   // PROJECT DOCUMENTS
   // --DOCUMENT
   static String category = "/category";

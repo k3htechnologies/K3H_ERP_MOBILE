@@ -37,6 +37,7 @@ import 'feature_dependencies/masters/sub_material_master.dependencies.dart';
 import 'feature_dependencies/masters/terms_and_condition.dependencies.dart';
 import 'feature_dependencies/masters/uom_master.dependencies.dart';
 import 'feature_dependencies/parking/parking.dependencies.dart';
+import 'feature_dependencies/payroll/outdoor/outdoor.dependencies.dart';
 import 'feature_dependencies/project_document/document/document.dependencies.dart';
 import 'feature_dependencies/project_document/document_category/document_category.dependencies.dart';
 import 'feature_dependencies/project_management/approved_bank/approved_bank.dependencies.dart';
@@ -142,4 +143,6 @@ void initDependencies() {
   registerApprovalCategoryDependencies(serviceLocator);
   //APPROVAL DOCUMENT DEPENDENCIES
   registerApprovalDocumentDependencies(serviceLocator);
+  // OUTDOOR DEPENDENCIES
+  registerOutdoorDependencies(serviceLocator);
 }

@@ -113,6 +113,10 @@ import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/presentation/cubit/parking_cubit.dart';
 import 'package:k3h_erp_app/features/parking/presentation/pages/edit_parking_screen.dart';
 import 'package:k3h_erp_app/features/parking/presentation/pages/parking_screen.dart';
+import 'package:k3h_erp_app/features/payroll/outdoor/data/model/outdoor.model.dart';
+import 'package:k3h_erp_app/features/payroll/outdoor/presentation/cubit/outdoor_cubit.dart';
+import 'package:k3h_erp_app/features/payroll/outdoor/presentation/presentation/outdoor_screen.dart';
+import 'package:k3h_erp_app/features/payroll/outdoor/presentation/presentation/outdoor_view_screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
@@ -812,7 +816,7 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
-              create: (_) => serviceLocator<BranchAssociationMasterCubit>(),
+              create: (_) => BranchAssociationMasterCubit(),
               child: child,
             );
           },
@@ -1552,7 +1556,7 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider.value(
-              value: serviceLocator<MaterialMasterCubit>(),
+              value: MaterialMasterCubit(),
               child: child,
             );
           },
@@ -1596,7 +1600,7 @@ final GoRouter goRouter = GoRouter(
           path: AppRoutes.uomMaster,
           builder: (context, state) {
             return BlocProvider.value(
-              value: serviceLocator<UOMMasterCubit>(),
+              value: UOMMasterCubit(),
               child: UOMMasterScreen(),
             );
           },
@@ -2784,7 +2788,6 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
-
             //Approval Document
             ShellRoute(
               builder: (context, state, child) {
@@ -2869,6 +2872,43 @@ final GoRouter goRouter = GoRouter(
                       documentModel: document!,
                       index: index,
                     );
+                  },
+                ),
+              ],
+            ),
+            // OUTDOOR
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => OutdoorCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.outdoor,
+                  path: AppRoutes.outdoor,
+                  builder: (context, state) {
+                    return OutdoorScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewOutdoor,
+                  path: AppRoutes.viewOutdoor,
+                  builder: (context, state) {
+                    final queryParameterOutdoor =
+                        state.uri.queryParameters['outdoor'];
+                    final OutdoorModel? outdoor =
+                        queryParameterOutdoor != null
+                            ? OutdoorModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterOutdoor),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return OutdoorViewScreen(outdoorModel: outdoor!);
                   },
                 ),
               ],

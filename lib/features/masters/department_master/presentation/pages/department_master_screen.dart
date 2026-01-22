@@ -56,6 +56,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
   void dispose() {
     super.dispose();
     _searchC.dispose();
+    scrollController.dispose();
   }
 
   void _initializeTextEditingController() {
