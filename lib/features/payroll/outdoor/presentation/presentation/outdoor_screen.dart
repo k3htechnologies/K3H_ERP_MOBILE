@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/payroll/outdoor/data/model/outdoor.model.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/cubit/outdoor_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -13,7 +14,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -38,7 +39,7 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC, _conclusionC;
+  late TextEditingController _conclusionC;
 
   @override
   void initState() {
@@ -55,14 +56,12 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
   @override
   void dispose() {
     super.dispose();
-    _searchC.dispose();
     _conclusionC.dispose();
     scrollController.dispose();
   }
 
   // INITIALIZE TEXT CONTROLLERS
   void _initializeTextEditingController() {
-    _searchC = TextEditingController();
     _conclusionC = TextEditingController();
   }
 
@@ -90,17 +89,18 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: CustomAppBarWithBackButton(
         screenTitle: "Outdoor",
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
           _outdoorCubit.exportExcelPdf(context, value);
         },
-        onAddCallback: () {},
-        onSearchSubmit: (value) {
-          _outdoorCubit.searchOutdoor(context, value);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addOutdoor);
+          if (context.mounted) {
+            _outdoorCubit.getOutdoorList(context, 1);
+          }
         },
-        textController: _searchC,
       ),
       body: BlocBuilder<OutdoorCubit, OutdoorState>(
         builder: (context, state) {
@@ -163,7 +163,23 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
                         ),
                         horizontalSpacing(),
                         Row(
-                          children: [CustomIconButton.edit(onPressed: () {})],
+                          children: [
+                            CustomIconButton.edit(
+                              onPressed: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.addOutdoor,
+                                  queryParameters: {
+                                    "outdoor": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(outdoor),
+                                      ),
+                                    ),
+                                    'index': index.toString(),
+                                  },
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -172,7 +188,7 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
                       style: AppTextStyle.ts14M(),
                     ),
                     verticalSpacing(),
-                    _statusButton(outdoor.punchIn, outdoor.punchOut),
+                    _statusButton(outdoor, index),
                   ],
                 ),
               );
@@ -184,12 +200,12 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
   }
 
   // HELPER WIDGET
-  Widget _statusButton(DateTime? punchInTime, DateTime? punchOutTime) {
+  Widget _statusButton(OutdoorModel outdoor, int index) {
     String status;
 
-    if (punchInTime == null) {
+    if (outdoor.punchIn == null) {
       status = "punchin";
-    } else if (punchOutTime == null) {
+    } else if (outdoor.punchOut == null) {
       status = "punchout";
     } else {
       status = "conclusion";
@@ -207,7 +223,13 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
         bgColor = AppColor.lightGreen;
         textColor = AppColor.darkGreen;
         onTap = () {
-          // Punch In logic
+          _outdoorCubit.addOutdoorAttendance(
+            context: context,
+            outdoorId: outdoor.outdoorId,
+            punchTime: DateTime.now().toIso8601String(),
+            address: "Maheshmati .... SaamRajya....",
+            index: index,
+          );
         };
         break;
 
@@ -216,7 +238,13 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
         bgColor = AppColor.lightBlue;
         textColor = AppColor.primary;
         onTap = () {
-          // Punch Out logic
+          _outdoorCubit.addOutdoorAttendance(
+            context: context,
+            outdoorId: outdoor.outdoorId,
+            punchTime: DateTime.now().toIso8601String(),
+            address: "Maheshmati .... SaamRajya....",
+            index: index,
+          );
         };
         break;
 
@@ -225,6 +253,9 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
         bgColor = AppColor.purple20;
         textColor = AppColor.purple;
         onTap = () {
+          // Set conclusion text right before opening the dialog
+          _conclusionC.text = outdoor.conclusion;
+          
           DialogHelper.showCustomDialogue(
             context,
             title: "Add Conclusion",
@@ -251,14 +282,19 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
                   width: 120,
                   child: CustomButton(
                     text: "Clear",
-                    onPressed: () {},
+                    onPressed: () {
+                      _conclusionC.clear();
+                    },
                     backgroundColor: AppColor.grey,
                   ),
                 ),
                 Spacer(),
                 SizedBox(
                   width: 120,
-                  child: CustomButton(text: "Save", onPressed: () {}),
+                  child: CustomButton(text: "Save", onPressed: () {
+                    goRouter.pop();
+                    _outdoorCubit.addUpdateConclusion(context: context, outdoorId: outdoor.outdoorId, conclusion: _conclusionC.text, index: index);
+                  }),
                 ),
               ],
             ),

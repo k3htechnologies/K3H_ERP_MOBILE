@@ -115,6 +115,7 @@ import 'package:k3h_erp_app/features/parking/presentation/pages/edit_parking_scr
 import 'package:k3h_erp_app/features/parking/presentation/pages/parking_screen.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/data/model/outdoor.model.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/cubit/outdoor_cubit.dart';
+import 'package:k3h_erp_app/features/payroll/outdoor/presentation/presentation/add_outdoor_screen.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/presentation/outdoor_screen.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/presentation/outdoor_view_screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
@@ -2909,6 +2910,35 @@ final GoRouter goRouter = GoRouter(
                             )
                             : null;
                     return OutdoorViewScreen(outdoorModel: outdoor!);
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addOutdoor,
+                  path: AppRoutes.addOutdoor,
+                  builder: (context, state) {
+                    final queryParameterOutdoor =
+                        state.uri.queryParameters['outdoor'];
+
+                    final OutdoorModel? outdoor =
+                        queryParameterOutdoor != null
+                            ? OutdoorModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterOutdoor),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddOutdoorScreen(
+                      outdoorModel: outdoor,
+                      index: index,
+                    );
                   },
                 ),
               ],

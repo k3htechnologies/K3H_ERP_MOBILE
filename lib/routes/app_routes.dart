@@ -173,6 +173,7 @@ class AppRoutes {
 
   // OUTDOOR
   static String outdoor = "/outdoor";
+  static String addOutdoor = "/addOutdoor";
   static String viewOutdoor = "/viewOutdoor";
 
   // PROJECT DOCUMENTS

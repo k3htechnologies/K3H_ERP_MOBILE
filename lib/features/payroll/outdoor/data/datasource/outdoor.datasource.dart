@@ -12,12 +12,16 @@ abstract interface class OutdoorDatasource {
   Future<Map<String, dynamic>> apicallAddOutdoorAttendance({
     required Map<String, dynamic> body,
   });
-  //
-  // Future<Map<String, dynamic>> apicallDeleteDepartmentMaster({
-  //   required int departmentMasterId,
-  //   required String uniqueKey,
-  // });
-  //
+
+  Future<Map<String, dynamic>> apicallAddUpdateConclusion({
+    required Map<String, dynamic> body,
+  });
+
+  Future<Map<String, dynamic>> apicallAddUpdateOutdoor({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+
   Future<Map<String, dynamic>> apicallPullOutdoorForExport({
     required int pageNumber,
     required int pageSize,
@@ -76,18 +80,25 @@ class OutdoorDatasourceDataSourceImpl implements OutdoorDatasource {
     required Map<String, dynamic> body,
   }) async {
     try {
-      String addUpdateDepartmentUrl =
-          "Outdoor/AddOutdoorAttendance";
+      String addOutdoorAttendanceUrl = "Outdoor/AddOutdoorAttendance";
 
       var networkResponse = await baseClient.postRequestWithAuthentication(
-        addUpdateDepartmentUrl,
+        addOutdoorAttendanceUrl,
         body,
       );
       return {
-        'data': List<OutdoorModel>.from(
-          networkResponse["data"].map((e) => OutdoorModel.fromJson(e)),
-        ),
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'data':
+            networkResponse["data"] != null &&
+                    networkResponse["data"] is List &&
+                    (networkResponse["data"] as List).isNotEmpty
+                ? List<OutdoorModel>.from(
+                  (networkResponse["data"] as List).map(
+                    (e) => OutdoorModel.fromJson(e as Map<String, dynamic>),
+                  ),
+                )
+                : <OutdoorModel>[],
+        'message': networkResponse["message"] ?? "",
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
       };
     } catch (error) {
       if (error is TokenExpiredException) {
@@ -96,41 +107,76 @@ class OutdoorDatasourceDataSourceImpl implements OutdoorDatasource {
       rethrow;
     }
   }
-  //
-  // @override
-  // Future<Map<String, dynamic>> apicallDeleteDepartmentMaster({
-  //   required int departmentMasterId,
-  //   required String uniqueKey,
-  // }) async {
-  //   String deleteDepartmentUrl({
-  //     required int departmentMasterId,
-  //     required String uniqueKey,
-  //   }) {
-  //     return "DepartmentMaster/DeleteDepartmentMaster?DepartmentMasterId=$departmentMasterId&Uniquekey=$uniqueKey";
-  //   }
-  //
-  //   try {
-  //     var networkResponse = await baseClient.deleteRequestWithAuthentication(
-  //       deleteDepartmentUrl(
-  //         departmentMasterId: departmentMasterId,
-  //         uniqueKey: uniqueKey,
-  //       ),
-  //     );
-  //     return {
-  //       'data': networkResponse["data"],
-  //       'totalNumberOfRecord': networkResponse['TotalNumberOfRecord'],
-  //     };
-  //   } catch (error) {
-  //     if (error is TokenExpiredException) {
-  //       return apicallDeleteDepartmentMaster(
-  //         departmentMasterId: departmentMasterId,
-  //         uniqueKey: uniqueKey,
-  //       );
-  //     }
-  //     rethrow;
-  //   }
-  // }
-  //
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateConclusion({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      String addOutdoorAttendanceUrl = "Outdoor/AddUpdateConclusion";
+
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addOutdoorAttendanceUrl,
+        body,
+      );
+      return {
+        'data':
+            networkResponse["data"] != null &&
+                    networkResponse["data"] is List &&
+                    (networkResponse["data"] as List).isNotEmpty
+                ? List<OutdoorModel>.from(
+                  (networkResponse["data"] as List).map(
+                    (e) => OutdoorModel.fromJson(e as Map<String, dynamic>),
+                  ),
+                )
+                : <OutdoorModel>[],
+        'message': networkResponse["message"] ?? "",
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAddUpdateConclusion(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateOutdoor({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      String addUpdateOutdoorUrl = "Outdoor/AddUpdateOutdoor";
+
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            addUpdateOutdoorUrl,
+            fileList,
+            body,
+          );
+      return {
+        'data':
+            networkResponse["data"] != null &&
+                    networkResponse["data"] is List &&
+                    (networkResponse["data"] as List).isNotEmpty
+                ? List<OutdoorModel>.from(
+                  (networkResponse["data"] as List).map(
+                    (e) => OutdoorModel.fromJson(e as Map<String, dynamic>),
+                  ),
+                )
+                : <OutdoorModel>[],
+        'message': networkResponse["message"] ?? "",
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAddUpdateOutdoor(body: body, fileList: fileList);
+      }
+      rethrow;
+    }
+  }
+
   @override
   Future<Map<String, dynamic>> apicallPullOutdoorForExport({
     required int pageNumber,

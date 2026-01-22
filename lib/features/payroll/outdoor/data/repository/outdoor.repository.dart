@@ -13,11 +13,15 @@ abstract interface class OutdoorRepository {
   Future<Either<Failure, Map<String, dynamic>>> addOutdoorAttendance({
     required Map<String, dynamic> body,
   });
-  //
-  // Future<Either<Failure, Map<String, dynamic>>> deleteDepartment({
-  //   required int departmentMasterId,
-  //   required String uniqueKey,
-  // });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateConclusion({
+    required Map<String, dynamic> body,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateOutdoor({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
 
   Future<Either<Failure, Map<String, dynamic>>> exportOutdoor({
     required int pageNumber,
@@ -62,23 +66,36 @@ class OutdoorRepositoryImpl implements OutdoorRepository {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
   }
-  //
-  // @override
-  // Future<Either<Failure, Map<String, dynamic>>> deleteDepartment({
-  //   required int departmentMasterId,
-  //   required String uniqueKey,
-  // }) async {
-  //   try {
-  //     var result = await departmentMasterDatasource
-  //         .apicallDeleteDepartmentMaster(
-  //       departmentMasterId: departmentMasterId,
-  //       uniqueKey: uniqueKey,
-  //     );
-  //     return right(result);
-  //   } catch (error) {
-  //     return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-  //   }
-  // }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateConclusion({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await outdoorDatasource.apicallAddUpdateConclusion(
+        body: body,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateOutdoor({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      var result = await outdoorDatasource.apicallAddUpdateOutdoor(
+        body: body,
+        fileList: fileList,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> exportOutdoor({
