@@ -171,12 +171,40 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                          child: Text(
-                            material.materialName,
-                            style: AppTextStyle.ts16M(),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                        Flexible(
+                          child: GestureDetector(
+                            onTap: () {
+                              goRouter.pushNamed(
+                                AppRoutes.viewMaterialMaster,
+                                queryParameters: {
+                                  'material': Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(material.toJson()),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 0,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: AppColor.primary),
+                                ),
+                              ),
+                              child: Text(
+                                material.materialName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ),
                         ),
                         Row(

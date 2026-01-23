@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class DocumentsViewCompanyScreen extends StatelessWidget {
@@ -98,45 +99,53 @@ class DocumentsViewCompanyScreen extends StatelessWidget {
 
   // BUILD COMMON CONTAINER
   Widget _buildContainer({required String title, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColor.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColor.black.withValues(alpha: 0.05),
-                    blurRadius: 2,
-                    spreadRadius: 0,
-                    offset: Offset(0, 2),
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColor.white,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColor.black.withValues(alpha: 0.05),
+                  blurRadius: 2,
+                  spreadRadius: 0,
+                  offset: Offset(0, 2),
+                ),
+                BoxShadow(
+                  color: AppColor.black.withValues(alpha: 0.0),
+                  blurRadius: 0,
+                  spreadRadius: 0,
+                  offset: Offset(0, 2),
+                ),
+                BoxShadow(
+                  color: AppColor.black.withValues(alpha: 0.0),
+                  blurRadius: 0,
+                  spreadRadius: 0,
+                  offset: Offset(0, 0),
+                ),
+              ],
+              border: Border(bottom: BorderSide(color: AppColor.lightBlue)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(title, style: AppTextStyle.ts16M(color: AppColor.black)),
+                CustomIconButton(
+                  backgroundColor: AppColor.lightBlue,
+                  icon: Icon(
+                    Icons.remove_red_eye_outlined,
+                    size: 16,
+                    color: AppColor.primary,
                   ),
-                  BoxShadow(
-                    color: AppColor.black.withValues(alpha: 0.0),
-                    blurRadius: 0,
-                    spreadRadius: 0,
-                    offset: Offset(0, 2),
-                  ),
-                  BoxShadow(
-                    color: AppColor.black.withValues(alpha: 0.0),
-                    blurRadius: 0,
-                    spreadRadius: 0,
-                    offset: Offset(0, 0),
-                  ),
-                ],
-                border: Border(bottom: BorderSide(color: AppColor.lightBlue)),
-              ),
-              child: Text(
-                title,
-                style: AppTextStyle.ts16M(color: AppColor.black),
-              ),
+                  onPressed: onTap,
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

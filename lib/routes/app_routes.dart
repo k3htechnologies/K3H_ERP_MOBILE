@@ -40,11 +40,13 @@ class AppRoutes {
   // PROCUREMENT MASTER
   static String materialMaster = "/materialMaster";
   static String addMaterialMaster = "/addMaterialMaster";
+  static String viewMaterialMaster = "/viewMaterialMaster";
   static String uomMaster = "/uomMaster";
   static String activityMaster = "/activityMaster";
   static String contractMaster = "/contractMaster";
   static String subMaterialMaster = "/subMaterialMaster";
   static String addSubMaterialMaster = "/addSubMaterialMaster";
+  static String viewSubMaterialMaster = "/viewSubMaterialMaster";
 
   // PROCUREMENT
   static String materialRequisition = "/materialRequisition";
@@ -174,7 +176,6 @@ class AppRoutes {
       "/viewBookingModificationRequest";
   static String updateBookingModificationRequest =
       "/updateBookingModificationRequest";
-
 
   // OUTDOOR
   static String outdoor = "/outdoor";

@@ -168,12 +168,40 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                          child: Text(
-                            subMaterial.subMaterialName,
-                            style: AppTextStyle.ts16M(),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                        Flexible(
+                          child: GestureDetector(
+                            onTap: () async {
+                              await goRouter.pushNamed(
+                                AppRoutes.viewSubMaterialMaster,
+                                queryParameters: {
+                                  "subMaterial": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(subMaterial.toJson()),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 0,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(color: AppColor.primary),
+                                ),
+                              ),
+                              child: Text(
+                                subMaterial.subMaterialName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ),
                         ),
                         Row(
