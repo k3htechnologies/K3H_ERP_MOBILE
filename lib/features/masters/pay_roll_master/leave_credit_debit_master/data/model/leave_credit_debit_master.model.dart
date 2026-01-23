@@ -1,7 +1,7 @@
 import 'package:k3h_erp_app/utils/common_function.dart';
 
 class LeaveCreditDebitMasterModel {
-  int leaveCreditDebitId;
+  int leaveCreditConfigurationId;
   String uniquekey;
   String leavePeriodMode;
   DateTime financialYearStartDate;
@@ -19,7 +19,7 @@ class LeaveCreditDebitMasterModel {
   DateTime? modifiedDate;
 
   LeaveCreditDebitMasterModel({
-    required this.leaveCreditDebitId,
+    required this.leaveCreditConfigurationId,
     required this.uniquekey,
     required this.leavePeriodMode,
     required this.financialYearStartDate,
@@ -39,7 +39,10 @@ class LeaveCreditDebitMasterModel {
 
   factory LeaveCreditDebitMasterModel.fromJson(Map<String, dynamic> json) =>
       LeaveCreditDebitMasterModel(
-        leaveCreditDebitId: parseValue<int>(json, "LeaveCreditDebitId"),
+        leaveCreditConfigurationId: parseValue<int>(
+          json,
+          "LeaveCreditConfigurationId",
+        ),
         uniquekey: parseValue<String>(json, "Uniquekey"),
         leavePeriodMode: parseValue<String>(json, "LeavePeriodMode"),
         financialYearStartDate: parseValue<DateTime>(
@@ -69,7 +72,7 @@ class LeaveCreditDebitMasterModel {
       );
 
   Map<String, dynamic> toJson() => {
-    "LeaveCreditDebitId": leaveCreditDebitId,
+    "LeaveCreditConfigurationId": leaveCreditConfigurationId,
     "Uniquekey": uniquekey,
     "LeavePeriodMode": leavePeriodMode,
     "FinancialYearStartDate": financialYearStartDate.toIso8601String(),
@@ -95,14 +98,14 @@ class LeaveBalanceType {
   int leaveTypeId;
   String leaveTypeName;
   int leaveCredit;
-  int leaveCreditDebitId;
+  int leaveCreditConfigurationId;
 
   LeaveBalanceType({
     required this.leaveTypeBalanceId,
     required this.leaveTypeId,
     required this.leaveTypeName,
     required this.leaveCredit,
-    required this.leaveCreditDebitId,
+    required this.leaveCreditConfigurationId,
   });
 
   factory LeaveBalanceType.fromJson(Map<String, dynamic> json) =>
@@ -111,7 +114,7 @@ class LeaveBalanceType {
         leaveTypeId: json["LeaveTypeId"],
         leaveTypeName: json["LeaveTypeName"],
         leaveCredit: json["LeaveCredit"],
-        leaveCreditDebitId: json["LeaveCreditDebitId"],
+        leaveCreditConfigurationId: json["LeaveCreditConfigurationId"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -119,6 +122,6 @@ class LeaveBalanceType {
     "LeaveTypeId": leaveTypeId,
     "LeaveTypeName": leaveTypeName,
     "LeaveCredit": leaveCredit,
-    "LeaveCreditDebitId": leaveCreditDebitId,
+    "LeaveCreditConfigurationId": leaveCreditConfigurationId,
   };
 }

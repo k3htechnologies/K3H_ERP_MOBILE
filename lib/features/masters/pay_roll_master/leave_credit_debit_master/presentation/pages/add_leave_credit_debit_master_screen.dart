@@ -1,18 +1,23 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/data/model/leave_credit_debit_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/cubit/leave_credit_debit_master_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
-import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddLeaveCreditDebitMasterScreen extends StatefulWidget {
@@ -40,9 +45,6 @@ class _AddLeaveCreditDebitMasterScreenState
   //EDIT MODE
   bool get _isEditMode => widget.leaveCreditDebitMasterModel != null;
 
-  // TEXT EDITING CONTROLLER
-  late TextEditingController _leaveCreditC;
-
   // STATIC LEAVE PERIOD LIST
   List<Map<String, dynamic>> leavePeriodList = [
     {"zAttributesId": -1, "DisplayName": "Select Leave Period"},
@@ -50,29 +52,23 @@ class _AddLeaveCreditDebitMasterScreenState
     {"zAttributesId": 2, "DisplayName": "Monthly"},
   ];
 
-  // STATIC LEAVE TYPE LIST
-  List<Map<String, dynamic>> leaveTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select Leave Type"},
-    {"zAttributesId": 1, "DisplayName": "Maternity - Maternity Leave"},
-    {"zAttributesId": 2, "DisplayName": "CL - Casual Leave"},
-    {"zAttributesId": 3, "DisplayName": "Birthday - Birthday Leave"},
-    {"zAttributesId": 4, "DisplayName": "Adoption - Adoption Leave"},
-  ];
-
   // DROPDOWN VARIABLE
   Map<String, dynamic>? selectedLeavePeriod;
-  Map<String, dynamic>? selectedLeaveType;
 
   // DATE VARIABLES
-  DateTime? startDate;
-  DateTime? endDate;
+  final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier(null);
+  final ValueNotifier<DateTime?> _endDateNotifier = ValueNotifier(null);
 
-  // DEPARTMENT VARIABLE (using ValueNotifier instead of setState)
+  // DEPARTMENT VARIABLE
   final ValueNotifier<List<Map<String, dynamic>>> _selectedDepartmentNotifier =
       ValueNotifier([]);
 
-  // DEPARTMENT VARIABLE (using ValueNotifier instead of setState)
+  // DEPARTMENT VARIABLE
   final ValueNotifier<List<Map<String, dynamic>>> _selectedDesignationNotifier =
+      ValueNotifier([]);
+
+  // LOCAL LEAVE BALANCE TYPE LIST
+  final ValueNotifier<List<LeaveBalanceType>> _leaveBalanceTypeListNotifier =
       ValueNotifier([]);
 
   @override
@@ -80,19 +76,53 @@ class _AddLeaveCreditDebitMasterScreenState
     super.initState();
     _leaveCreditDebitMasterCubit = context.read<LeaveCreditDebitMasterCubit>();
     selectedLeavePeriod = leavePeriodList.first;
-    selectedLeaveType = leaveTypeList.first;
-    _initializeTextEditingControllers();
+
+    // Initialize with existing data if in edit mode
+    if (_isEditMode && widget.leaveCreditDebitMasterModel != null) {
+      final model = widget.leaveCreditDebitMasterModel!;
+      
+      // Set leave period
+      selectedLeavePeriod = leavePeriodList.firstWhere(
+        (element) => element['DisplayName'] == model.leavePeriodMode,
+        orElse: () => leavePeriodList.first,
+      );
+      
+      // Set dates
+      _startDateNotifier.value = model.financialYearStartDate;
+      _endDateNotifier.value = model.financialYearEndDate;
+      
+      // Set department
+      _selectedDepartmentNotifier.value = [
+        {
+          "zAttributesId": model.departmentMasterId,
+          "DisplayName": model.departmentName,
+        }
+      ];
+      
+      // Set designation (can be multiple, comma-separated)
+      final designationIds = model.designationId.split(',');
+      final designationNames = model.designationName.split(',');
+      _selectedDesignationNotifier.value = List.generate(
+        designationIds.length,
+        (index) => {
+          "zAttributesId": int.tryParse(designationIds[index].trim()) ?? 0,
+          "DisplayName": designationNames.length > index 
+              ? designationNames[index].trim() 
+              : "",
+        },
+      );
+      
+      // Set leave balance types
+      _leaveBalanceTypeListNotifier.value = List.from(model.leaveBalanceType);
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    _leaveCreditC.dispose();
-  }
-
-  // INITIALIZE TEXT EDITING CONTROLLERS
-  void _initializeTextEditingControllers() {
-    _leaveCreditC = TextEditingController();
+    _startDateNotifier.dispose();
+    _endDateNotifier.dispose();
+    _leaveBalanceTypeListNotifier.dispose();
   }
 
   // FETCH DEPARTMENT
@@ -226,61 +256,51 @@ class _AddLeaveCreditDebitMasterScreenState
     };
   }
 
-  // BOTTOM SHEET FOR ADDING LEAVE BALANCE TYPE
-  Future<void> _showCorpusBottomSheet() async {
-    DialogHelper.showCustomBottomSheet(
-      context,
-      "Leave Balance Type",
-      Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          children: [
-            CustomDropDownWidget(
-              dataList: leaveTypeList,
-              onSelected: (value) {
-                selectedLeaveType = value;
-              },
-              initialValue: selectedLeaveType,
-              title: "Leave Type",
-              isRequired: true,
-              validator: (value) {
-                if (value == null || value["zAttributesId"] == -1) {
-                  return 'Leave Type is required';
-                }
-                return null;
-              },
-            ),
-            CustomTextField(
-              textController: _leaveCreditC,
-              isRequired: true,
-              title: "Leave Credit",
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return "Leave Credit is required";
-                }
-                return null;
-              },
-            ),
-            CustomButton(
-              leading: Icon(Icons.add, size: 18, color: AppColor.white),
-                text: "Add", onPressed: () {}),
-          ],
-        ),
-      ),
+  // NAVIGATE TO ADD LEAVE BALANCE TYPE SCREEN
+  Future<void> _navigateToAddLeaveBalanceType() async {
+    final existingLeaveBalanceTypesJson = jsonEncode(
+      _leaveBalanceTypeListNotifier.value.map((item) => item.toJson()).toList(),
     );
+    final encryptedData = EncryptionManager.encryptData(
+      existingLeaveBalanceTypesJson,
+    );
+
+    final result = await goRouter.pushNamed<LeaveBalanceType>(
+      AppRoutes.addLeaveBalanceType,
+      queryParameters: {
+        'existingLeaveBalanceTypes': Uri.encodeComponent(encryptedData),
+      },
+    );
+
+    if (result != null) {
+      _leaveBalanceTypeListNotifier.value = [
+        ..._leaveBalanceTypeListNotifier.value,
+        result,
+      ];
+    }
+  }
+
+  // DELETE LEAVE BALANCE TYPE
+  void _deleteLeaveBalanceType(int index) {
+    final updatedList = List<LeaveBalanceType>.from(
+      _leaveBalanceTypeListNotifier.value,
+    );
+    updatedList.removeAt(index);
+    _leaveBalanceTypeListNotifier.value = updatedList;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Leave Credit Debit Management",
+        screenTitle: "Leave Credit Configuration",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         child: Form(
           key: _formKey,
+          autovalidateMode: AutovalidateMode.disabled,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -315,23 +335,71 @@ class _AddLeaveCreditDebitMasterScreenState
                     Row(
                       children: [
                         Expanded(
-                          child: CustomDatePicker(
-                            title: "Start Date",
-                            isRequired: true,
-                            initialDate: startDate,
-                            setValue: (value) {
-                              startDate = value;
+                          child: ValueListenableBuilder<DateTime?>(
+                            valueListenable: _startDateNotifier,
+                            builder: (context, startDate, child) {
+                              return CustomDatePicker(
+                                title: "Start Date",
+                                isRequired: true,
+                                initialDate: startDate,
+                                setValue: (value) {
+                                  _startDateNotifier.value = value;
+                                },
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'Start Date is required';
+                                  }
+                                  return null;
+                                },
+                              );
                             },
                           ),
                         ),
                         horizontalSpacing(),
                         Expanded(
-                          child: CustomDatePicker(
-                            title: "End Date",
-                            isRequired: true,
-                            initialDate: endDate,
-                            setValue: (value) {
-                              endDate = value;
+                          child: ValueListenableBuilder<DateTime?>(
+                            valueListenable: _endDateNotifier,
+                            builder: (context, endDate, child) {
+                              return ValueListenableBuilder<DateTime?>(
+                                valueListenable: _startDateNotifier,
+                                builder: (context, startDate, child) {
+                                  return CustomDatePicker(
+                                    title: "End Date",
+                                    isRequired: true,
+                                    initialDate: endDate,
+                                    setValue: (value) {
+                                      _endDateNotifier.value = value;
+                                    },
+                                    validator: (value) {
+                                      if (value == null) {
+                                        return 'End Date is required';
+                                      }
+                                      if (startDate != null) {
+                                        // Compare dates by day (ignoring time)
+                                        final startDateOnly = DateTime(
+                                          startDate.year,
+                                          startDate.month,
+                                          startDate.day,
+                                        );
+                                        final endDateOnly = DateTime(
+                                          value.year,
+                                          value.month,
+                                          value.day,
+                                        );
+                                        if (endDateOnly.isBefore(
+                                              startDateOnly,
+                                            ) ||
+                                            endDateOnly.isAtSameMomentAs(
+                                              startDateOnly,
+                                            )) {
+                                          return 'End Date must be after Start Date';
+                                        }
+                                      }
+                                      return null;
+                                    },
+                                  );
+                                },
+                              );
                             },
                           ),
                         ),
@@ -362,19 +430,12 @@ class _AddLeaveCreditDebitMasterScreenState
                       valueListenable: _selectedDesignationNotifier,
                       builder: (context, selectedDes, child) {
                         return CustomMultipleSelectPopup(
-                          title: "Department",
-                          isRequired: true,
-                          isMultiSelect: false,
+                          title: "Designation",
+                          isMultiSelect: true,
                           initialValue: selectedDes,
                           dataFetchCallBack: _fetchDesignation,
                           onSelected: (value) {
                             _selectedDesignationNotifier.value = value;
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Designation is required';
-                            }
-                            return null;
                           },
                         );
                       },
@@ -387,6 +448,7 @@ class _AddLeaveCreditDebitMasterScreenState
                 padding: EdgeInsets.all(10),
                 margin: EdgeInsets.only(bottom: 10),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
@@ -400,16 +462,142 @@ class _AddLeaveCreditDebitMasterScreenState
                           ),
                           text: "Add",
                           onPressed: () {
-                            _showCorpusBottomSheet();
+                            _navigateToAddLeaveBalanceType();
                           },
                         ),
                       ],
                     ),
                     verticalSpacing(),
+                    ValueListenableBuilder<List<LeaveBalanceType>>(
+                      valueListenable: _leaveBalanceTypeListNotifier,
+                      builder: (context, leaveBalanceTypeList, child) {
+                        if (leaveBalanceTypeList.isEmpty) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20.0),
+                            child: Center(
+                              child: Text(
+                                "No leave balance types added yet",
+                                style: AppTextStyle.ts14R(color: AppColor.grey),
+                              ),
+                            ),
+                          );
+                        }
+                        return Column(
+                          children:
+                              leaveBalanceTypeList.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final leaveBalanceType = entry.value;
+                                return Container(
+                                  margin: EdgeInsets.only(bottom: 10),
+                                  decoration: commonCardDecoration(),
+                                  padding: EdgeInsets.all(12),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              leaveBalanceType.leaveTypeName,
+                                              style: AppTextStyle.ts14M(),
+                                            ),
+                                            verticalSpacing(height: 5),
+                                            Text(
+                                              "Leave Credit: ${leaveBalanceType.leaveCredit}",
+                                              style: AppTextStyle.ts12R(
+                                                color: AppColor.grey,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      CustomIconButton.delete(
+                                        onPressed: () {
+                                          _deleteLeaveBalanceType(index);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 40,
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: CustomButton(
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              size: 18,
+              color: AppColor.white,
+            ),
+            text: _isEditMode ? "Update" : "Add",
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                if (_leaveBalanceTypeListNotifier.value.isEmpty) {
+                  DialogHelper.showErrorMessage(
+                    context: context,
+                    title: "Error",
+                    message: "Please add at least one leave balance type.",
+                  );
+                  return;
+                }
+                final leaveBalanceTypeList =
+                    _leaveBalanceTypeListNotifier.value.map((item) {
+                  return {
+                    "LeaveTypeBalanceId": item.leaveTypeBalanceId,
+                    "LeaveCreditConfigurationId": item.leaveCreditConfigurationId,
+                    "LeaveTypeId": item.leaveTypeId,
+                    "LeaveCredit": item.leaveCredit,
+                  };
+                }).toList();
+
+                final departmentMasterId =
+                    _selectedDepartmentNotifier.value.isNotEmpty
+                        ? _selectedDepartmentNotifier.value[0]["zAttributesId"]
+                        : 0;
+
+                final designationIds = _selectedDesignationNotifier.value
+                    .map((ele) => ele['zAttributesId'].toString())
+                    .join(",");
+
+                if (_isEditMode && widget.leaveCreditDebitMasterModel != null) {
+                  final model = widget.leaveCreditDebitMasterModel!;
+                  _leaveCreditDebitMasterCubit.updateLeaveCreditDebitMaster(
+                    context: context,
+                    leaveCreditConfigurationId: model.leaveCreditConfigurationId,
+                    uniquekey: model.uniquekey,
+                    leavePeriodMode: selectedLeavePeriod!["DisplayName"],
+                    financialYearStartDate: _startDateNotifier.value!,
+                    financialYearEndDate: _endDateNotifier.value!,
+                    departmentMasterId: departmentMasterId,
+                    designationIds: designationIds,
+                    leaveBalanceTypeList: leaveBalanceTypeList,
+                    index: widget.index,
+                  );
+                } else {
+                  _leaveCreditDebitMasterCubit.addLeaveCreditDebitMaster(
+                    context: context,
+                    leavePeriodMode: selectedLeavePeriod!["DisplayName"],
+                    financialYearStartDate: _startDateNotifier.value!,
+                    financialYearEndDate: _endDateNotifier.value!,
+                    departmentMasterId: departmentMasterId,
+                    designationIds: designationIds,
+                    leaveBalanceTypeList: leaveBalanceTypeList,
+                  );
+                }
+              }
+            },
           ),
         ),
       ),

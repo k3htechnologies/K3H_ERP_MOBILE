@@ -136,7 +136,6 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
     required int departmentMasterId,
     required String uniqueKey,
     required int pageNumber,
-    required int pageSize,
     int? index,
   }) async {
     DialogHelper.showProcessingOverlay(context);

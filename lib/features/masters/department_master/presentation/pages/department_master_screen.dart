@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
@@ -12,7 +11,6 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
@@ -102,7 +100,6 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
         departmentMasterId: obj.departmentMasterId,
         uniqueKey: obj.uniquekey,
         pageNumber: currentPage,
-        pageSize: 10,
         index: index,
       );
     }
@@ -269,7 +266,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                         horizontalSpacing(),
                         Row(
                           children: [
-                            CustomIconButton(
+                            CustomIconButton.edit(
                               onPressed: () async {
                                 await goRouter.pushNamed(
                                   AppRoutes.addDepartment,
@@ -283,15 +280,9 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                                   },
                                 );
                               },
-                              icon: Icon(
-                                Icons.edit,
-                                size: 16,
-                                color: AppColor.grey,
-                              ),
-                              backgroundColor: AppColor.grey10,
                             ),
                             horizontalSpacing(),
-                            CustomIconButton(
+                            CustomIconButton.delete(
                               onPressed: () {
                                 _showPopupToDeleteDepartmentMaster(
                                   context,
@@ -300,15 +291,6 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                                   index,
                                 );
                               },
-                              icon: SvgPicture.asset(
-                                AppAssets.deleteIcon2,
-                                height: 16,
-                                colorFilter: ColorFilter.mode(
-                                  AppColor.error,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                              backgroundColor: AppColor.lightRed,
                             ),
                           ],
                         ),

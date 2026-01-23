@@ -60,7 +60,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
   // PARKING TYPE LIST
   late ValueNotifier<List<Map<String, dynamic>>> _parkingTypeList;
 
-  final List<Map<String, dynamic>> _parkingSubTypeList = [
+  final List<Map<String, dynamic>> _parkingSizeTypeList = [
     {'zAttributesId': -1, 'DisplayName': 'Select'},
     {'zAttributesId': 1, 'DisplayName': 'Big'},
     {'zAttributesId': 2, 'DisplayName': 'Small'},
@@ -77,7 +77,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
   // DROPDOWN VARIABLES
   late ValueNotifier<Map<String, dynamic>?> selectedCategory;
   late ValueNotifier<Map<String, dynamic>?> selectedType;
-  late ValueNotifier<Map<String, dynamic>?> selectedSubType;
+  late ValueNotifier<Map<String, dynamic>?> selectedSizeType;
   late ValueNotifier<Map<String, dynamic>?> selectedStatus;
 
   // SELECTED FLAT FILTER
@@ -92,7 +92,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
     _initializeTextEditingControllers();
     _parkingCubit = context.read<ParkingCubit>();
     project = getProject();
-    _parkingTypeList = ValueNotifier(_parkingSubTypeList);
+    _parkingTypeList = ValueNotifier(_parkingSizeTypeList);
     _initializeDropdownVariables();
     _prefillParking(widget.parking);
   }
@@ -101,7 +101,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
   void _initializeDropdownVariables() {
     selectedCategory = ValueNotifier<Map<String, dynamic>?>(null);
     selectedType = ValueNotifier<Map<String, dynamic>?>(null);
-    selectedSubType = ValueNotifier<Map<String, dynamic>?>(null);
+    selectedSizeType = ValueNotifier<Map<String, dynamic>?>(null);
     selectedStatus = ValueNotifier<Map<String, dynamic>?>(null);
   }
 
@@ -111,7 +111,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
     _disposeTextEditingControllers();
     selectedCategory.dispose();
     selectedType.dispose();
-    selectedSubType.dispose();
+    selectedSizeType.dispose();
     selectedStatus.dispose();
     _parkingTypeList.dispose();
     isEvChargingAvailable.dispose();
@@ -147,9 +147,9 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       orElse: () => _parkingTypeList.value.first,
     );
 
-    selectedSubType.value = _parkingSubTypeList.firstWhere(
+    selectedSizeType.value = _parkingSizeTypeList.firstWhere(
       (element) => element['DisplayName'] == parking.parkingSubType,
-      orElse: () => _parkingSubTypeList.first,
+      orElse: () => _parkingSizeTypeList.first,
     );
 
     selectedStatus.value = _parkingStatusList.firstWhere(
@@ -276,7 +276,9 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                   valueListenable: selectedCategory,
                   builder: (context, categoryValue, child) {
                     return CustomDropDownWidget(
-                      key: ValueKey('category_${categoryValue?['zAttributesId']}'),
+                      key: ValueKey(
+                        'category_${categoryValue?['zAttributesId']}',
+                      ),
                       title: 'Parking Category',
                       isRequired: true,
                       initialValue: categoryValue,
@@ -289,7 +291,9 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       },
                       onSelected: (value) {
                         selectedCategory.value = value;
-                        _updateParkingTypeListForCategory(selectedCategory.value!);
+                        _updateParkingTypeListForCategory(
+                          selectedCategory.value!,
+                        );
                       },
                     );
                   },
@@ -301,7 +305,9 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       valueListenable: selectedType,
                       builder: (context, typeValue, child) {
                         return CustomDropDownWidget(
-                          key: ValueKey('type_${typeValue?['zAttributesId']}_${list.length}'),
+                          key: ValueKey(
+                            'type_${typeValue?['zAttributesId']}_${list.length}',
+                          ),
                           title: 'Parking Type',
                           isRequired: true,
                           initialValue: typeValue,
@@ -321,14 +327,16 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                   },
                 ),
                 ValueListenableBuilder<Map<String, dynamic>?>(
-                  valueListenable: selectedSubType,
+                  valueListenable: selectedSizeType,
                   builder: (context, subTypeValue, child) {
                     return CustomDropDownWidget(
-                      key: ValueKey('subtype_${subTypeValue?['zAttributesId']}'),
-                      title: 'Parking Sub Type',
+                      key: ValueKey(
+                        'subtype_${subTypeValue?['zAttributesId']}',
+                      ),
+                      title: 'Parking Size Type',
                       isRequired: true,
                       initialValue: subTypeValue,
-                      dataList: _parkingSubTypeList,
+                      dataList: _parkingSizeTypeList,
                       validator: (value) {
                         if (value == null || value['zAttributesId'] == -1) {
                           return 'Parking Sub Type is required';
@@ -336,7 +344,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                         return null;
                       },
                       onSelected: (value) {
-                        selectedSubType.value = value;
+                        selectedSizeType.value = value;
                       },
                     );
                   },
@@ -440,7 +448,8 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
     }
 
     // Validate dropdowns with better error messages
-    if (selectedCategory.value == null || selectedCategory.value!['zAttributesId'] == -1) {
+    if (selectedCategory.value == null ||
+        selectedCategory.value!['zAttributesId'] == -1) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please select Parking Category'),
@@ -450,7 +459,8 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       return;
     }
 
-    if (selectedType.value == null || selectedType.value!['zAttributesId'] == -1) {
+    if (selectedType.value == null ||
+        selectedType.value!['zAttributesId'] == -1) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please select Parking Type'),
@@ -460,7 +470,8 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       return;
     }
 
-    if (selectedSubType.value == null || selectedSubType.value!['zAttributesId'] == -1) {
+    if (selectedSizeType.value == null ||
+        selectedSizeType.value!['zAttributesId'] == -1) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please select Parking Sub Type'),
@@ -470,7 +481,8 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       return;
     }
 
-    if (selectedStatus.value == null || selectedStatus.value!['zAttributesId'] == -1) {
+    if (selectedStatus.value == null ||
+        selectedStatus.value!['zAttributesId'] == -1) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please select Parking Status'),
@@ -488,7 +500,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       parkingNumber: _parkingNumberC.text.trim(),
       parkingCategory: selectedCategory.value!['DisplayName'] as String,
       parkingType: selectedType.value!['DisplayName'] as String,
-      parkingSubType: selectedSubType.value!['DisplayName'] as String,
+      parkingSubType: selectedSizeType.value!['DisplayName'] as String,
       parkingDimensions: _parkingDimensionsC.text.trim(),
       isEVChargingAvailable: isEvChargingAvailable.value,
       parkingStatus: selectedStatus.value!['DisplayName'] as String,

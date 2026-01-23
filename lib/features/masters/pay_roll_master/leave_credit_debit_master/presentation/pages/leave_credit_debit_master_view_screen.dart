@@ -1,0 +1,285 @@
+import 'package:flutter/material.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/data/model/leave_credit_debit_master.model.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+class LeaveCreditDebitMasterViewScreen extends StatefulWidget {
+  final LeaveCreditDebitMasterModel leaveCreditDebitMaster;
+  const LeaveCreditDebitMasterViewScreen({
+    super.key,
+    required this.leaveCreditDebitMaster,
+  });
+
+  @override
+  State<LeaveCreditDebitMasterViewScreen> createState() =>
+      _LeaveCreditDebitMasterViewScreenState();
+}
+
+class _LeaveCreditDebitMasterViewScreenState
+    extends State<LeaveCreditDebitMasterViewScreen>
+    with SingleTickerProviderStateMixin {
+  // TAB CONTROLLER
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: "Leave Credit Configuration",
+        authorization: AuthorizationModel(),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: IntrinsicWidth(
+                child: Container(
+                  height: 35,
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: AppColor.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: TabBar(
+                    controller: _tabController,
+                    isScrollable: true,
+                    tabAlignment: TabAlignment.start,
+                    labelColor: AppColor.primary,
+                    unselectedLabelColor: AppColor.grey,
+                    indicator: BoxDecoration(
+                      color: AppColor.lightBlue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    dividerColor: Colors.transparent,
+                    labelStyle: AppTextStyle.ts14M(),
+                    unselectedLabelStyle: AppTextStyle.ts14M(),
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.zero,
+                    tabs: const [
+                      Tab(text: 'Overview'),
+                      Tab(text: 'Leave Balance Types'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildOverviewTab(),
+                  _buildLeaveBalanceTypesTab(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // OVERVIEW TAB
+  Widget _buildOverviewTab() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          verticalSpacing(),
+          // LEAVE CREDIT CONFIGURATION DETAILS
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Leave Credit Configuration Details",
+                  style: AppTextStyle.ts16SB(),
+                ),
+                verticalSpacing(height: 15),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Leave Period Mode",
+                      value: widget.leaveCreditDebitMaster.leavePeriodMode,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Department",
+                      value: widget.leaveCreditDebitMaster.departmentName,
+                    ),
+                  ],
+                ),
+                verticalSpacing(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Financial Year Start Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        widget.leaveCreditDebitMaster.financialYearStartDate,
+                      ),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Financial Year End Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        widget.leaveCreditDebitMaster.financialYearEndDate,
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Designation",
+                            style: AppTextStyle.ts14M(color: AppColor.grey),
+                          ),
+                          verticalSpacing(height: 4),
+                          Text(
+                            widget.leaveCreditDebitMaster.designationName.isEmpty
+                                ? "-"
+                                : widget.leaveCreditDebitMaster.designationName,
+                            style: AppTextStyle.ts14M(color: AppColor.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // ACTION DETAILS
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Action Details", style: AppTextStyle.ts16SB()),
+                verticalSpacing(height: 15),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Created By",
+                      value: widget.leaveCreditDebitMaster.createdBy,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Created Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        widget.leaveCreditDebitMaster.createdDate,
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Modified By",
+                      value: widget.leaveCreditDebitMaster.modifiedBy.isEmpty
+                          ? "-"
+                          : widget.leaveCreditDebitMaster.modifiedBy,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Modified Date",
+                      value: widget.leaveCreditDebitMaster.modifiedDate != null
+                          ? formatDateTimeAsDDMMMYYYY(
+                              widget.leaveCreditDebitMaster.modifiedDate!,
+                            )
+                          : "-",
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // LEAVE BALANCE TYPES TAB
+  Widget _buildLeaveBalanceTypesTab() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          verticalSpacing(),
+          if (widget.leaveCreditDebitMaster.leaveBalanceType.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(40.0),
+                child: Text(
+                  "No leave balance types found",
+                  style: AppTextStyle.ts14R(color: AppColor.grey),
+                ),
+              ),
+            )
+          else
+            ...widget.leaveCreditDebitMaster.leaveBalanceType.map(
+              (balanceType) {
+                return Container(
+                  margin: EdgeInsets.only(bottom: 10),
+                  decoration: commonCardDecoration(),
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Leave Type",
+                            value: balanceType.leaveTypeName,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Leave Credit",
+                            value: "${balanceType.leaveCredit} days",
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+}

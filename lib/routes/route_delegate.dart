@@ -34,7 +34,9 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/pres
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/data/model/leave_credit_debit_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/cubit/leave_credit_debit_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/pages/add_leave_credit_debit_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/pages/add_leave_balance_type_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/pages/leave_credit_debit_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/pages/leave_credit_debit_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/pages/asset_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/pages/asset_mapping_master_view_screen.dart';
@@ -1564,26 +1566,54 @@ final GoRouter goRouter = GoRouter(
                 );
               },
             ),
-            // GoRoute(
-            //   path: AppRoutes.viewWeekOffMaster,
-            //   name: AppRoutes.viewWeekOffMaster,
-            //   builder: (context, state) {
-            //     final queryParameterWeekOff =
-            //     state.uri.queryParameters['weekOff'];
-            //
-            //     final WeekOffMasterModel? weekOffMaster =
-            //     queryParameterWeekOff != null
-            //         ? WeekOffMasterModel.fromJson(
-            //       jsonDecode(
-            //         EncryptionManager.decryptData(
-            //           Uri.decodeComponent(queryParameterWeekOff),
-            //         ),
-            //       ),
-            //     )
-            //         : null;
-            //     return ViewWeekOffMasterScreen(weekOffMaster: weekOffMaster!);
-            //   },
-            // ),
+            GoRoute(
+              path: AppRoutes.addLeaveBalanceType,
+              name: AppRoutes.addLeaveBalanceType,
+              builder: (context, state) {
+                final queryParameterLeaveBalanceTypes =
+                    state.uri.queryParameters['existingLeaveBalanceTypes'];
+
+                List<LeaveBalanceType> existingLeaveBalanceTypes = [];
+                if (queryParameterLeaveBalanceTypes != null) {
+                  final decryptedData = EncryptionManager.decryptData(
+                    Uri.decodeComponent(queryParameterLeaveBalanceTypes),
+                  );
+                  final List<dynamic> jsonList = jsonDecode(decryptedData);
+                  existingLeaveBalanceTypes =
+                      jsonList
+                          .map((json) => LeaveBalanceType.fromJson(json))
+                          .toList();
+                }
+
+                return AddLeaveBalanceTypeScreen(
+                  existingLeaveBalanceTypes: existingLeaveBalanceTypes,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.viewLeaveCreditDebitMaster,
+              name: AppRoutes.viewLeaveCreditDebitMaster,
+              builder: (context, state) {
+                final queryParameterLeaveCreditDebit =
+                    state.uri.queryParameters['leaveCreditDebit'];
+
+                final LeaveCreditDebitMasterModel? leaveCreditDebitMaster =
+                    queryParameterLeaveCreditDebit != null
+                        ? LeaveCreditDebitMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(
+                                queryParameterLeaveCreditDebit,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+                return LeaveCreditDebitMasterViewScreen(
+                  leaveCreditDebitMaster: leaveCreditDebitMaster!,
+                );
+              },
+            ),
           ],
         ),
 
