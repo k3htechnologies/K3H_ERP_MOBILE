@@ -96,10 +96,12 @@ import 'package:k3h_erp_app/features/masters/procurement_master/material_master/
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/cubit/material_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/pages/add_material_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/pages/material_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/pages/material_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/data/model/sub_material_master.model.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/presentation/cubit/sub_material_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/presentation/pages/add_sub_material_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/presentation/pages/sub_material_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/presentation/pages/sub_material_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/umo_master/presentation/cubit/umo_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/umo_master/presentation/umo_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
@@ -1778,8 +1780,8 @@ final GoRouter goRouter = GoRouter(
         // MATERIAL MASTER
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider.value(
-              value: MaterialMasterCubit(),
+            return BlocProvider(
+              create: (_) => MaterialMasterCubit(),
               child: child,
             );
           },
@@ -1816,6 +1818,25 @@ final GoRouter goRouter = GoRouter(
                 );
               },
             ),
+            GoRoute(
+              name: AppRoutes.viewMaterialMaster,
+              path: AppRoutes.viewMaterialMaster,
+              builder: (context, state) {
+                final queryParameterMaterial =
+                    state.uri.queryParameters['material'];
+                final MaterialMasterModel? material =
+                    queryParameterMaterial != null
+                        ? MaterialMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeQueryComponent(queryParameterMaterial),
+                            ),
+                          ),
+                        )
+                        : null;
+                return MaterialMasterViewScreen(material: material!);
+              },
+            ),
           ],
         ),
         GoRoute(
@@ -1830,8 +1851,8 @@ final GoRouter goRouter = GoRouter(
         ),
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider.value(
-              value: serviceLocator<SubMaterialMasterCubit>(),
+            return BlocProvider(
+              create: (_) => SubMaterialMasterCubit(),
               child: child,
             );
           },
@@ -1867,6 +1888,27 @@ final GoRouter goRouter = GoRouter(
                   subMaterial: subMaterial,
                   index: index,
                 );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewSubMaterialMaster,
+              path: AppRoutes.viewSubMaterialMaster,
+              builder: (context, state) {
+                final queryParameterSubMaterial =
+                    state.uri.queryParameters['subMaterial'];
+                final SubMaterialMasterModel? subMaterial =
+                    queryParameterSubMaterial != null
+                        ? SubMaterialMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeQueryComponent(
+                                queryParameterSubMaterial,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+                return SubMaterialMasterViewScreen(subMaterial: subMaterial!);
               },
             ),
           ],

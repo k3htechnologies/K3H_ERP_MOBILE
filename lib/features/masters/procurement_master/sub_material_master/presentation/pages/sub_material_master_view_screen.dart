@@ -15,7 +15,7 @@ class SubMaterialMasterViewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Holiday Master",
+        screenTitle: "Sub Material Master",
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(
