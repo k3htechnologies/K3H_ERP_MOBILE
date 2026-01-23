@@ -73,23 +73,24 @@ class SearchWidget extends StatelessWidget {
 
           // FILTER ICON
           if (isFilterOn) ...[
-            Container(
-              height: 28,
-              width: 1,
-              margin: const EdgeInsets.symmetric(horizontal: 6.0),
-              color: isDarkMode ? AppColor.grey : AppColor.grey30,
-            ),
 
             GestureDetector(
               onTap: onFilterTap,
-              child: SvgPicture.asset(
-                AppAssets.filterIcon,
-                colorFilter: const ColorFilter.mode(
-                  AppColor.grey,
-                  BlendMode.srcIn,
+              child: Container(
+                padding: EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppColor.lightBlue,
+                  borderRadius: BorderRadius.circular(3),
                 ),
-                width: 16,
-                height: 16,
+                child: SvgPicture.asset(
+                  AppAssets.filterIcon,
+                  colorFilter: const ColorFilter.mode(
+                    AppColor.primary,
+                    BlendMode.srcIn,
+                  ),
+                  width: 14,
+                  height: 14,
+                ),
               ),
             ),
           ],
