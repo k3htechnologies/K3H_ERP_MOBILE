@@ -170,8 +170,8 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
                       children: [
                         Flexible(
                           child: GestureDetector(
-                            onTap: () async {
-                              await goRouter.pushNamed(
+                            onTap: () {
+                              goRouter.pushNamed(
                                 AppRoutes.viewSubMaterialMaster,
                                 queryParameters: {
                                   "subMaterial": Uri.encodeQueryComponent(

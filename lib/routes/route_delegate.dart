@@ -1679,8 +1679,8 @@ final GoRouter goRouter = GoRouter(
         // MATERIAL MASTER
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider.value(
-              value: MaterialMasterCubit(),
+            return BlocProvider(
+              create: (_) => MaterialMasterCubit(),
               child: child,
             );
           },
@@ -1750,8 +1750,8 @@ final GoRouter goRouter = GoRouter(
         ),
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider.value(
-              value: serviceLocator<SubMaterialMasterCubit>(),
+            return BlocProvider(
+              create: (_) => SubMaterialMasterCubit(),
               child: child,
             );
           },
