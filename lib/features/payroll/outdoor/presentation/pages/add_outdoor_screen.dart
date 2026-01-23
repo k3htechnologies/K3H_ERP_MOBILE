@@ -42,11 +42,11 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
   // TEXT EDITING CONTROLLER
   late TextEditingController _purposeC, _companyNameC, _companyAddressC;
 
-  // DEPARTMENT VARIABLE (using ValueNotifier instead of setState)
+  // DEPARTMENT VARIABLE
   final ValueNotifier<List<Map<String, dynamic>>> _selectedDepartmentNotifier =
       ValueNotifier([]);
 
-  // EMPLOYEE VARIABLE (using ValueNotifier instead of setState)
+  // EMPLOYEE VARIABLE
   final ValueNotifier<List<Map<String, dynamic>>> _selectedEmployeeNotifier =
       ValueNotifier([]);
 
@@ -153,7 +153,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
     String? value,
   }) async {
     final totalCount = _outdoorCubit.state.departmentTotalCount;
-    final pageSize = 12;
+    final pageSize = 15;
 
     // SEARCH MODE
     if (value != null && value.isNotEmpty) {
@@ -213,7 +213,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
     String? value,
   }) async {
     final totalCount = _outdoorCubit.state.employeeTotalCount;
-    final pageSize = 12;
+    final pageSize = 15;
 
     // SEARCH MODE
     if (value != null && value.isNotEmpty) {

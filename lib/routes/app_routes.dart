@@ -139,6 +139,8 @@ class AppRoutes {
   static String weekOffMappingMaster = "/weekOffMappingMaster";
   static String viewWeekOffMappingMaster = "/viewWeekOffMappingMaster";
   static String addWeekOffMappingMaster = "/addWeekOffMappingMaster";
+  static String leaveCreditDebitMaster = "/leaveCreditDebit";
+  static String addLeaveCreditDebitMaster = "/addLeaveCreditDebitMaster";
 
   // STOCK MANAGEMENT
   static String stockManagement = "/stock";

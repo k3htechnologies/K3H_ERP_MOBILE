@@ -59,7 +59,7 @@ class LeaveTypeMasterCubit extends Cubit<LeaveTypeMasterState> {
     DialogHelper.showProcessingOverlay(context);
     var result = await leaveTypeMasterRepository.deleteLeaveType(
       leaveTypeId: leaveTypeModel.leaveTypeMasterId,
-      uniqueKey: leaveTypeModel.uniqueKey,
+      uniqueKey: leaveTypeModel.uniquekey,
     );
     goRouter.pop();
     result.fold(

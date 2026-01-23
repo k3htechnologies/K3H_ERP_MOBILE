@@ -84,7 +84,7 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
         index: widget.index,
         context: context,
         leaveTypeId: widget.leaveTypeModel!.leaveTypeMasterId,
-        uniqueKey: widget.leaveTypeModel!.uniqueKey,
+        uniqueKey: widget.leaveTypeModel!.uniquekey,
         leaveType: _leaveTypeC.text.trim(),
         leaveTypeCode: _leaveTypeCodeC.text.trim(),
         isCarryForward: isCarryForward.value,

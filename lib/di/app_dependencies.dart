@@ -32,11 +32,13 @@ import 'feature_dependencies/masters/designation_master.dependencies.dart';
 import 'feature_dependencies/masters/earning_master.dependencies.dart';
 import 'feature_dependencies/masters/employee_master.dependencies.dart';
 import 'feature_dependencies/masters/holiday_master.dependencies.dart';
+import 'feature_dependencies/masters/leave_credit_debit_master.dependencies.dart';
 import 'feature_dependencies/masters/material_master.dependencies.dart';
 import 'feature_dependencies/masters/sub_material_master.dependencies.dart';
 import 'feature_dependencies/masters/terms_and_condition.dependencies.dart';
 import 'feature_dependencies/masters/uom_master.dependencies.dart';
 import 'feature_dependencies/parking/parking.dependencies.dart';
+import 'feature_dependencies/payroll/leave/leave.dependencies.dart';
 import 'feature_dependencies/payroll/outdoor/outdoor.dependencies.dart';
 import 'feature_dependencies/project_document/document/document.dependencies.dart';
 import 'feature_dependencies/project_document/document_category/document_category.dependencies.dart';
@@ -117,6 +119,8 @@ void initDependencies() {
   registerWeekOffMasterDependencies(serviceLocator);
   //WEEK OFF MAPPING MASTER DEPENDENCIES
   registerWeekOffMappingMasterDependencies(serviceLocator);
+  // LEAVE CREDIT DEBIT MASTER DEPENDENCIES
+  registerLeaveCreditDebitMasterDependencies(serviceLocator);
   // TENANT DEPENDENCIES
   registerTenantMasterDependencies(serviceLocator);
   // PROPOSED PLAN DEPENDENCIES
@@ -145,4 +149,6 @@ void initDependencies() {
   registerApprovalDocumentDependencies(serviceLocator);
   // OUTDOOR DEPENDENCIES
   registerOutdoorDependencies(serviceLocator);
+  // LEAVE DEPENDENCIES
+  registerLeaveDependencies(serviceLocator);
 }

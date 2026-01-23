@@ -31,6 +31,10 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/deduction_master/pr
 import 'package:k3h_erp_app/features/masters/pay_roll_master/earning_master/presentation/pages/earning_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_mapping_master/presentation/pages/holiday_mapping_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/presentation/pages/holiday_master_view_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/data/model/leave_credit_debit_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/cubit/leave_credit_debit_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/pages/add_leave_credit_debit_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/pages/leave_credit_debit_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/pages/asset_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/pages/asset_mapping_master_view_screen.dart';
@@ -120,9 +124,9 @@ import 'package:k3h_erp_app/features/parking/presentation/pages/edit_parking_scr
 import 'package:k3h_erp_app/features/parking/presentation/pages/parking_screen.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/data/model/outdoor.model.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/cubit/outdoor_cubit.dart';
-import 'package:k3h_erp_app/features/payroll/outdoor/presentation/presentation/add_outdoor_screen.dart';
-import 'package:k3h_erp_app/features/payroll/outdoor/presentation/presentation/outdoor_screen.dart';
-import 'package:k3h_erp_app/features/payroll/outdoor/presentation/presentation/outdoor_view_screen.dart';
+import 'package:k3h_erp_app/features/payroll/outdoor/presentation/pages/add_outdoor_screen.dart';
+import 'package:k3h_erp_app/features/payroll/outdoor/presentation/pages/outdoor_screen.dart';
+import 'package:k3h_erp_app/features/payroll/outdoor/presentation/pages/outdoor_view_screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
@@ -1513,6 +1517,73 @@ final GoRouter goRouter = GoRouter(
                 );
               },
             ),
+          ],
+        ),
+
+        // LEAVE CREDIT DEBIT MASTER
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => LeaveCreditDebitMasterCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              path: AppRoutes.leaveCreditDebitMaster,
+              name: AppRoutes.leaveCreditDebitMaster,
+              builder: (context, state) {
+                return const LeaveCreditDebitMasterScreen();
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addLeaveCreditDebitMaster,
+              name: AppRoutes.addLeaveCreditDebitMaster,
+              builder: (context, state) {
+                final queryParameterLeaveCreditDebit =
+                    state.uri.queryParameters['leaveCreditDebit'];
+
+                final LeaveCreditDebitMasterModel? leaveCreditDebit =
+                    queryParameterLeaveCreditDebit != null
+                        ? LeaveCreditDebitMasterModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(
+                                queryParameterLeaveCreditDebit,
+                              ),
+                            ),
+                          ),
+                        )
+                        : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddLeaveCreditDebitMasterScreen(
+                  leaveCreditDebitMasterModel: leaveCreditDebit,
+                  index: index,
+                );
+              },
+            ),
+            // GoRoute(
+            //   path: AppRoutes.viewWeekOffMaster,
+            //   name: AppRoutes.viewWeekOffMaster,
+            //   builder: (context, state) {
+            //     final queryParameterWeekOff =
+            //     state.uri.queryParameters['weekOff'];
+            //
+            //     final WeekOffMasterModel? weekOffMaster =
+            //     queryParameterWeekOff != null
+            //         ? WeekOffMasterModel.fromJson(
+            //       jsonDecode(
+            //         EncryptionManager.decryptData(
+            //           Uri.decodeComponent(queryParameterWeekOff),
+            //         ),
+            //       ),
+            //     )
+            //         : null;
+            //     return ViewWeekOffMasterScreen(weekOffMaster: weekOffMaster!);
+            //   },
+            // ),
           ],
         ),
 
