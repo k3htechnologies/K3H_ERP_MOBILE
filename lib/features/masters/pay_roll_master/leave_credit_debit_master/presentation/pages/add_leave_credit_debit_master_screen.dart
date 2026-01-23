@@ -80,25 +80,25 @@ class _AddLeaveCreditDebitMasterScreenState
     // Initialize with existing data if in edit mode
     if (_isEditMode && widget.leaveCreditDebitMasterModel != null) {
       final model = widget.leaveCreditDebitMasterModel!;
-      
+
       // Set leave period
       selectedLeavePeriod = leavePeriodList.firstWhere(
         (element) => element['DisplayName'] == model.leavePeriodMode,
         orElse: () => leavePeriodList.first,
       );
-      
+
       // Set dates
       _startDateNotifier.value = model.financialYearStartDate;
       _endDateNotifier.value = model.financialYearEndDate;
-      
+
       // Set department
       _selectedDepartmentNotifier.value = [
         {
           "zAttributesId": model.departmentMasterId,
           "DisplayName": model.departmentName,
-        }
+        },
       ];
-      
+
       // Set designation (can be multiple, comma-separated)
       final designationIds = model.designationId.split(',');
       final designationNames = model.designationName.split(',');
@@ -106,12 +106,13 @@ class _AddLeaveCreditDebitMasterScreenState
         designationIds.length,
         (index) => {
           "zAttributesId": int.tryParse(designationIds[index].trim()) ?? 0,
-          "DisplayName": designationNames.length > index 
-              ? designationNames[index].trim() 
-              : "",
+          "DisplayName":
+              designationNames.length > index
+                  ? designationNames[index].trim()
+                  : "",
         },
       );
-      
+
       // Set leave balance types
       _leaveBalanceTypeListNotifier.value = List.from(model.leaveBalanceType);
     }
@@ -163,7 +164,6 @@ class _AddLeaveCreditDebitMasterScreenState
     final currentLoadedCount =
         _leaveCreditDebitMasterCubit.state.departmentList.length;
 
-    // Always call API if list is empty or if we need more data
     if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
       await _leaveCreditDebitMasterCubit.getDepartmentList(
         context,
@@ -229,7 +229,6 @@ class _AddLeaveCreditDebitMasterScreenState
     final currentLoadedCount =
         _leaveCreditDebitMasterCubit.state.designationList.length;
 
-    // Always call API if list is empty or if we need more data
     if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
       await _leaveCreditDebitMasterCubit.getDesignationList(
         context,
@@ -554,13 +553,14 @@ class _AddLeaveCreditDebitMasterScreenState
                 }
                 final leaveBalanceTypeList =
                     _leaveBalanceTypeListNotifier.value.map((item) {
-                  return {
-                    "LeaveTypeBalanceId": item.leaveTypeBalanceId,
-                    "LeaveCreditConfigurationId": item.leaveCreditConfigurationId,
-                    "LeaveTypeId": item.leaveTypeId,
-                    "LeaveCredit": item.leaveCredit,
-                  };
-                }).toList();
+                      return {
+                        "LeaveTypeBalanceId": item.leaveTypeBalanceId,
+                        "LeaveCreditConfigurationId":
+                            item.leaveCreditConfigurationId,
+                        "LeaveTypeId": item.leaveTypeId,
+                        "LeaveCredit": item.leaveCredit,
+                      };
+                    }).toList();
 
                 final departmentMasterId =
                     _selectedDepartmentNotifier.value.isNotEmpty
@@ -575,7 +575,8 @@ class _AddLeaveCreditDebitMasterScreenState
                   final model = widget.leaveCreditDebitMasterModel!;
                   _leaveCreditDebitMasterCubit.updateLeaveCreditDebitMaster(
                     context: context,
-                    leaveCreditConfigurationId: model.leaveCreditConfigurationId,
+                    leaveCreditConfigurationId:
+                        model.leaveCreditConfigurationId,
                     uniquekey: model.uniquekey,
                     leavePeriodMode: selectedLeavePeriod!["DisplayName"],
                     financialYearStartDate: _startDateNotifier.value!,

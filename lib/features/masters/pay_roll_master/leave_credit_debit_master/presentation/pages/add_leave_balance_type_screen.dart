@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
@@ -88,9 +89,6 @@ class _AddLeaveBalanceTypeScreenState extends State<AddLeaveBalanceTypeScreen> {
 
     final currentLoadedCount =
         _leaveCreditDebitMasterCubit.state.leaveTypeList.length;
-
-    // Always call API if list is empty (we avoid using leaveTotalCount
-    // because it may be null from the backend in some cases)
     if (currentLoadedCount == 0) {
       await _leaveCreditDebitMasterCubit.getLeaveTypeList(
         context,
@@ -197,6 +195,7 @@ class _AddLeaveBalanceTypeScreenState extends State<AddLeaveBalanceTypeScreen> {
                       textController: _leaveCreditC,
                       isRequired: true,
                       title: "Leave Credit",
+                      inputFormatterList: InputValidator.digit(10),
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
