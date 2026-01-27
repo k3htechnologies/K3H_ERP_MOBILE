@@ -21,6 +21,8 @@ class OutdoorViewScreen extends StatefulWidget {
 
 class _OutdoorViewScreenState extends State<OutdoorViewScreen>
     with SingleTickerProviderStateMixin {
+
+  // TAB CONTROLLER
   late TabController _tabController;
 
   // CUBIT

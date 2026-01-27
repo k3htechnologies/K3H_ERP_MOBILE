@@ -232,7 +232,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
           _reraDocumentCubit.getCategoryList(context, 1, projectId);
         },
         extraHeight: 20,
-        secondaryWidget: CustomButton(
+        secondaryBuilder:(_) =>  CustomButton(
           text: "Add",
           onPressed: () {
             _showPopUpToAddUpdateRERADocument();

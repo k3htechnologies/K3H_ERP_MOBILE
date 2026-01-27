@@ -1,4 +1,4 @@
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/model/leave_type_master.model.dart';
+import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -54,8 +54,8 @@ class LeaveDatasourceDataSourceImpl implements LeaveDatasource {
         ),
       );
       return {
-        'data': List<LeaveTypeModel>.from(
-          networkResponse["data"].map((e) => LeaveTypeModel.fromJson(e)),
+        'data': List<LeaveModel>.from(
+          networkResponse["data"].map((e) => LeaveModel.fromJson(e)),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
@@ -86,8 +86,8 @@ class LeaveDatasourceDataSourceImpl implements LeaveDatasource {
             body,
           );
       return {
-        'data': List<LeaveTypeModel>.from(
-          networkResponse["data"].map((e) => LeaveTypeModel.fromJson(e)),
+        'data': List<LeaveModel>.from(
+          networkResponse["data"].map((e) => LeaveModel.fromJson(e)),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };

@@ -181,10 +181,15 @@ class AppRoutes {
   static String updateBookingModificationRequest =
       "/updateBookingModificationRequest";
 
+  // PAYROLL
   // OUTDOOR
   static String outdoor = "/outdoor";
   static String addOutdoor = "/addOutdoor";
   static String viewOutdoor = "/viewOutdoor";
+  // LEAVE
+  static String leave = "/leave";
+  static String applyLeave = "/applyLeave";
+  static String viewLeave = "/viewLeave";
 
   // PROJECT DOCUMENTS
   // --DOCUMENT

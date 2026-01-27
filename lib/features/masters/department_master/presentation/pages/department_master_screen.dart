@@ -207,7 +207,6 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
         },
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addDepartment);
-          // Refresh list when returning from add screen
           if (context.mounted) {
             _departmentMasterCubit.getDepartmentList(context, 1);
           }

@@ -25,7 +25,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final AuthorizationModel authorization;
   final String? searchHintText;
   final Widget? widgets;
-  final Widget? secondaryWidget;
+  final WidgetBuilder? secondaryBuilder;
   final bool? showNotification;
   final Function(String)? onSearchSubmit;
   final TextEditingController? textController;
@@ -45,7 +45,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
     required this.authorization,
     this.searchHintText,
     this.widgets,
-    this.secondaryWidget,
+    this.secondaryBuilder,
     this.showNotification = true,
     this.onSearchSubmit,
     this.textController,
@@ -340,16 +340,16 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                         onFilterTap: widget.onFilterTap,
                       ),
                     ),
-
-                  if (widget.secondaryWidget == null)
-                    Row(
+                   Row(
                       spacing: 10,
                       children: [
-                        if (widget.authorization.isAction &&
-                            widget.onAddCallback != null)
-                          CustomIconButton(
+                        if(widget.secondaryBuilder != null)
+                            widget.secondaryBuilder!(context),
+                        if (widget.authorization.isAction && widget.onAddCallback != null)
+
+                            CustomIconButton(
                             onPressed: () => widget.onAddCallback!(),
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.add,
                               size: 16,
                               color: AppColor.darkGreen,
@@ -399,7 +399,6 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                         //FOR NEW WIDGET WHICH IS NEXT TO SEARCH BAR
                       ],
                     ),
-                  if (widget.secondaryWidget != null) widget.secondaryWidget!,
                 ],
               ),
             ],

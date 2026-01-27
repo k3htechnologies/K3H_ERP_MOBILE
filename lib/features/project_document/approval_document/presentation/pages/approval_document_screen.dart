@@ -234,7 +234,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
           }
         },
         extraHeight: 20,
-        secondaryWidget: CustomButton(
+        secondaryBuilder:(_) =>  CustomButton(
           text: "Add",
           onPressed: () {
             _showPopUpToAddUpdateApprovalDocument();

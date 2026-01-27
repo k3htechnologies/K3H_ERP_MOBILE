@@ -126,6 +126,10 @@ import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/presentation/cubit/parking_cubit.dart';
 import 'package:k3h_erp_app/features/parking/presentation/pages/edit_parking_screen.dart';
 import 'package:k3h_erp_app/features/parking/presentation/pages/parking_screen.dart';
+import 'package:k3h_erp_app/features/payroll/leave/presentation/cubit/leave_cubit.dart';
+import 'package:k3h_erp_app/features/payroll/leave/presentation/pages/apply_leave_screen.dart';
+import 'package:k3h_erp_app/features/payroll/leave/presentation/pages/leave_screen.dart';
+import 'package:k3h_erp_app/features/payroll/leave/presentation/pages/leave_view_screen.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/data/model/outdoor.model.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/cubit/outdoor_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/pages/add_outdoor_screen.dart';
@@ -3201,6 +3205,69 @@ final GoRouter goRouter = GoRouter(
                         0;
                     return AddOutdoorScreen(
                       outdoorModel: outdoor,
+                      index: index,
+                    );
+                  },
+                ),
+              ],
+            ),
+            // LEAVE
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(create: (_) => LeaveCubit(), child: child);
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.leave,
+                  path: AppRoutes.leave,
+                  builder: (context, state) {
+                    return LeaveScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewLeave,
+                  path: AppRoutes.viewLeave,
+                  builder: (context, state) {
+                    final queryParameterLeave =
+                        state.uri.queryParameters['leave'];
+                    final LeaveTypeModel? leave =
+                        queryParameterLeave != null
+                            ? LeaveTypeModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterLeave),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return LeaveViewScreen(leaveTypeModel: leave!);
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.applyLeave,
+                  path: AppRoutes.applyLeave,
+                  builder: (context, state) {
+                    final queryParameterLeave =
+                        state.uri.queryParameters['leave'];
+
+                    final LeaveTypeModel? leave =
+                        queryParameterLeave != null
+                            ? LeaveTypeModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterLeave),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return ApplyLeaveScreen(
+                      leaveTypeModel: leave,
                       index: index,
                     );
                   },

@@ -233,7 +233,7 @@ class _DocumentScreenState extends State<DocumentScreen>
           }
         },
         extraHeight: 20,
-        secondaryWidget: CustomButton(
+        secondaryBuilder:(_) =>  CustomButton(
           text: "Add",
           onPressed: () {
             _showPopUpToAddUpdateDocument();
