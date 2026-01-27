@@ -15,7 +15,7 @@ abstract interface class LeaveDatasource {
   });
 
   Future<Map<String, dynamic>> apicallDeleteLeave({
-    required int leaveTypeMasterId,
+    required int leaveId,
     required String uniqueKey,
   });
 
@@ -101,20 +101,20 @@ class LeaveDatasourceDataSourceImpl implements LeaveDatasource {
 
   @override
   Future<Map<String, dynamic>> apicallDeleteLeave({
-    required int leaveTypeMasterId,
+    required int leaveId,
     required String uniqueKey,
   }) async {
     String deleteLeaveUrl({
-      required int leaveTypeMasterId,
+      required int leaveId,
       required String uniqueKey,
     }) {
-      return "Leave/DeleteLeave?LeaveId=$leaveTypeMasterId&Uniquekey=$uniqueKey";
+      return "Leave/DeleteLeave?LeaveId=$leaveId&Uniquekey=$uniqueKey";
     }
 
     try {
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
         deleteLeaveUrl(
-          leaveTypeMasterId: leaveTypeMasterId,
+          leaveId: leaveId,
           uniqueKey: uniqueKey,
         ),
       );
@@ -125,7 +125,7 @@ class LeaveDatasourceDataSourceImpl implements LeaveDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         return apicallDeleteLeave(
-          leaveTypeMasterId: leaveTypeMasterId,
+          leaveId: leaveId,
           uniqueKey: uniqueKey,
         );
       }

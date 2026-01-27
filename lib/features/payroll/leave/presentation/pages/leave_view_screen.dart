@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/model/leave_type_master.model.dart';
+import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
 import 'package:k3h_erp_app/features/payroll/leave/presentation/cubit/leave_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -10,8 +10,8 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class LeaveViewScreen extends StatefulWidget {
-  final LeaveTypeModel leaveTypeModel;
-  const LeaveViewScreen({super.key, required this.leaveTypeModel});
+  final LeaveModel leaveModel;
+  const LeaveViewScreen({super.key, required this.leaveModel});
 
   @override
   State<LeaveViewScreen> createState() => _LeaveViewScreenState();
@@ -41,7 +41,7 @@ class _LeaveViewScreenState extends State<LeaveViewScreen>
 
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
-      _leaveCubit.onTabChanged(_tabController.index, context);
+      _leaveCubit.onTabChangedViewScreen(_tabController.index, context);
     }
   }
 
@@ -116,25 +116,41 @@ class _LeaveViewScreenState extends State<LeaveViewScreen>
                 Text("Leave Details", style: AppTextStyle.ts16SB()),
                 Row(
                   children: [
-                    buildColumnTitleValue(title: "Leave Type", value: "hahaha"),
-                    buildColumnTitleValue(title: "Leave Code", value: "hahaha"),
+                    buildColumnTitleValue(
+                      title: "Leave Type",
+                      value: widget.leaveModel.leaveType,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Leave Code",
+                      value: widget.leaveModel.leaveTypeCode,
+                    ),
                   ],
                 ),
                 Row(
                   children: [
-                    buildColumnTitleValue(title: "Start Date", value: "hahaha"),
-                    buildColumnTitleValue(title: "End Date", value: "hahaha"),
+                    buildColumnTitleValue(
+                      title: "Start Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        widget.leaveModel.startDate,
+                      ),
+                    ),
+                    buildColumnTitleValue(
+                      title: "End Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        widget.leaveModel.endDate,
+                      ),
+                    ),
                   ],
                 ),
                 Row(
                   children: [
                     buildColumnTitleValue(
                       title: "Start Date Duration",
-                      value: "hahaha",
+                      value: widget.leaveModel.startDateLeaveDuration,
                     ),
                     buildColumnTitleValue(
                       title: "End Date Duration",
-                      value: "hahaha",
+                      value: widget.leaveModel.endDateLeaveDuration,
                     ),
                   ],
                 ),
@@ -142,13 +158,22 @@ class _LeaveViewScreenState extends State<LeaveViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "No. Of Days",
-                      value: "hahaha",
+                      value: widget.leaveModel.noOfDays.toString(),
                     ),
                     Expanded(child: SizedBox()),
                   ],
                 ),
-                Text("Remark", style: AppTextStyle.ts14M(color: AppColor.grey)),
-                Row(children: [Flexible(child: Text("haha"))]),
+                Text("Reason", style: AppTextStyle.ts14M(color: AppColor.grey)),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        widget.leaveModel.reason,
+                        style: AppTextStyle.ts14M(),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -175,10 +200,15 @@ class _LeaveViewScreenState extends State<LeaveViewScreen>
                 ),
                 Row(
                   children: [
-                    buildColumnTitleValue(title: "Created By", value: "hahaha"),
+                    buildColumnTitleValue(
+                      title: "Created By",
+                      value: widget.leaveModel.createdBy,
+                    ),
                     buildColumnTitleValue(
                       title: "Created Date",
-                      value: "hahaha",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        widget.leaveModel.createdDate,
+                      ),
                     ),
                   ],
                 ),
@@ -197,19 +227,34 @@ class _LeaveViewScreenState extends State<LeaveViewScreen>
         decoration: commonCardDecoration(),
         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         padding: EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Text("Leave Document", style: AppTextStyle.ts16M()),
-            Spacer(),
-            Container(
-              padding: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: AppColor.lightBlue,
-                borderRadius: BorderRadius.circular(4),
+        child: GestureDetector(
+          onTap: () {
+            if (widget.leaveModel.leaveDocumentUrl.isNotEmpty) {
+              showFilePreviewDialog(
+                context,
+                widget.leaveModel.leaveDocumentUrl.split(","),
+              );
+            } else {
+              showErrorMessage(context, "Image Error", "No Document Found");
+            }
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Leave Document", style: AppTextStyle.ts16M()),
+              Container(
+                padding: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color:
+                      widget.leaveModel.leaveDocumentUrl.isNotEmpty
+                          ? AppColor.lightBlue
+                          : AppColor.grey,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Icon(Icons.remove_red_eye, size: 16),
               ),
-              child: Icon(Icons.remove_red_eye, size: 16),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

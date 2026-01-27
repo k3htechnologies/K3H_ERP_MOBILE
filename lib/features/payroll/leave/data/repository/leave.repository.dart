@@ -16,7 +16,7 @@ abstract interface class LeaveRepository {
   });
 
   Future<Either<Failure, Map<String, dynamic>>> deleteLeave({
-    required int leaveTypeMasterId,
+    required int leaveId,
     required String uniqueKey,
   });
 
@@ -68,12 +68,12 @@ class LeaveRepositoryImpl implements LeaveRepository {
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> deleteLeave({
-    required int leaveTypeMasterId,
+    required int leaveId,
     required String uniqueKey,
   }) async {
     try {
       var result = await leaveDatasource.apicallDeleteLeave(
-        leaveTypeMasterId: leaveTypeMasterId,
+        leaveId: leaveId,
         uniqueKey: uniqueKey,
       );
       return right(result);

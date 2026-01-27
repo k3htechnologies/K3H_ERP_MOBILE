@@ -10,6 +10,10 @@ class LeaveState extends BaseState {
   final String currentSortColumn;
   final String currentSortDirection;
   final int currentTabIndex;
+  final int currentTabIndexViewScreen;
+  final String? filterLeaveType;
+  final DateTime? filterStartDate;
+  final DateTime? filterEndDate;
 
   const LeaveState({
     super.isLoading,
@@ -22,6 +26,10 @@ class LeaveState extends BaseState {
     required this.currentSortColumn,
     required this.currentSortDirection,
     required this.currentTabIndex,
+    required this.currentTabIndexViewScreen,
+    this.filterLeaveType,
+    this.filterStartDate,
+    this.filterEndDate,
   });
 
   factory LeaveState.initial() => LeaveState(
@@ -35,6 +43,10 @@ class LeaveState extends BaseState {
     currentSortDirection: "DESC",
     isLoading: true,
     currentTabIndex: 0,
+    currentTabIndexViewScreen: 0,
+    filterLeaveType: null,
+    filterStartDate: null,
+    filterEndDate: null,
   );
 
   LeaveState copyWith({
@@ -48,6 +60,11 @@ class LeaveState extends BaseState {
     String? currentSortColumn,
     String? currentSortDirection,
     int? currentTabIndex,
+    int? currentTabIndexViewScreen,
+    String? filterLeaveType,
+    DateTime? filterStartDate,
+    DateTime? filterEndDate,
+    bool clearFilters = false,
   }) {
     return LeaveState(
       isLoading: isLoading ?? this.isLoading,
@@ -60,6 +77,10 @@ class LeaveState extends BaseState {
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
+      currentTabIndexViewScreen: currentTabIndexViewScreen ?? this.currentTabIndexViewScreen,
+      filterLeaveType: clearFilters ? null : (filterLeaveType ?? this.filterLeaveType),
+      filterStartDate: clearFilters ? null : (filterStartDate ?? this.filterStartDate),
+      filterEndDate: clearFilters ? null : (filterEndDate ?? this.filterEndDate),
     );
   }
 
@@ -75,5 +96,9 @@ class LeaveState extends BaseState {
     currentSortColumn,
     currentSortDirection,
     currentTabIndex,
+    currentTabIndexViewScreen,
+    filterLeaveType,
+    filterStartDate,
+    filterEndDate,
   ];
 }

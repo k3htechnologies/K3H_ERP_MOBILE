@@ -126,6 +126,7 @@ import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/presentation/cubit/parking_cubit.dart';
 import 'package:k3h_erp_app/features/parking/presentation/pages/edit_parking_screen.dart';
 import 'package:k3h_erp_app/features/parking/presentation/pages/parking_screen.dart';
+import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
 import 'package:k3h_erp_app/features/payroll/leave/presentation/cubit/leave_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/leave/presentation/pages/apply_leave_screen.dart';
 import 'package:k3h_erp_app/features/payroll/leave/presentation/pages/leave_screen.dart';
@@ -3230,9 +3231,9 @@ final GoRouter goRouter = GoRouter(
                   builder: (context, state) {
                     final queryParameterLeave =
                         state.uri.queryParameters['leave'];
-                    final LeaveTypeModel? leave =
+                    final LeaveModel? leave =
                         queryParameterLeave != null
-                            ? LeaveTypeModel.fromJson(
+                            ? LeaveModel.fromJson(
                               jsonDecode(
                                 EncryptionManager.decryptData(
                                   Uri.decodeComponent(queryParameterLeave),
@@ -3240,7 +3241,7 @@ final GoRouter goRouter = GoRouter(
                               ),
                             )
                             : null;
-                    return LeaveViewScreen(leaveTypeModel: leave!);
+                    return LeaveViewScreen(leaveModel: leave!);
                   },
                 ),
                 GoRoute(
@@ -3250,9 +3251,9 @@ final GoRouter goRouter = GoRouter(
                     final queryParameterLeave =
                         state.uri.queryParameters['leave'];
 
-                    final LeaveTypeModel? leave =
+                    final LeaveModel? leave =
                         queryParameterLeave != null
-                            ? LeaveTypeModel.fromJson(
+                            ? LeaveModel.fromJson(
                               jsonDecode(
                                 EncryptionManager.decryptData(
                                   Uri.decodeComponent(queryParameterLeave),
@@ -3267,7 +3268,7 @@ final GoRouter goRouter = GoRouter(
                         ) ??
                         0;
                     return ApplyLeaveScreen(
-                      leaveTypeModel: leave,
+                      leaveModel: leave,
                       index: index,
                     );
                   },

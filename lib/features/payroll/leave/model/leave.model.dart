@@ -10,9 +10,10 @@ class LeaveModel {
   DateTime endDate;
   String startDateLeaveDuration;
   String endDateLeaveDuration;
-  int noOfDays;
+  double noOfDays;
   String reason;
   String leaveDocumentUrl;
+  String leaveStatus;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -33,6 +34,7 @@ class LeaveModel {
     required this.noOfDays,
     required this.reason,
     required this.leaveDocumentUrl,
+    required this.leaveStatus,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -51,9 +53,10 @@ class LeaveModel {
     endDate: parseValue<DateTime>(json, "EndDate"),
     startDateLeaveDuration: parseValue<String>(json, "StartDateLeaveDuration"),
     endDateLeaveDuration: parseValue<String>(json, "EndDateLeaveDuration"),
-    noOfDays: parseValue<int>(json, "NoOfDays"),
+    noOfDays: parseValue<double>(json, "NoOfDays"),
     reason: parseValue<String>(json, "Reason"),
     leaveDocumentUrl: parseValue<String>(json, "LeaveDocumentURL"),
+    leaveStatus: parseValue<String>(json, "LeaveStatus"),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -78,6 +81,7 @@ class LeaveModel {
     "NoOfDays": noOfDays,
     "Reason": reason,
     "LeaveDocumentURL": leaveDocumentUrl,
+    "LeaveStatus": leaveStatus,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

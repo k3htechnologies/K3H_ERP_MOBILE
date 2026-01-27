@@ -1,8 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/model/leave_type_master.model.dart';
+import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
 import 'package:k3h_erp_app/features/payroll/leave/presentation/cubit/leave_cubit.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -16,9 +17,9 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ApplyLeaveScreen extends StatefulWidget {
-  final LeaveTypeModel? leaveTypeModel;
+  final LeaveModel? leaveModel;
   final int? index;
-  const ApplyLeaveScreen({super.key, this.leaveTypeModel, this.index = 0});
+  const ApplyLeaveScreen({super.key, this.leaveModel, this.index = 0});
 
   @override
   State<ApplyLeaveScreen> createState() => _ApplyLeaveScreenState();
@@ -30,6 +31,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
 
   // FORK KEY
   final _formKey = GlobalKey<FormState>();
+
+  //EDIT MODE
+  bool get _isEditMode => widget.leaveModel != null;
 
   // DEPARTMENT VARIABLE
   final ValueNotifier<List<Map<String, dynamic>>> _selectedLeaveTypeNotifier =
@@ -65,8 +69,46 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
     super.initState();
     _leaveCubit = context.read<LeaveCubit>();
     _initializeTextController();
-    selectedStartDuration = durationList.first;
-    selectedEndDuration = durationList.first;
+    if (_isEditMode && widget.leaveModel != null) {
+      _populateFormFields(widget.leaveModel!);
+      _leaveCubit.getLeaveTypeList(context, 1, 15);
+    } else {
+      selectedStartDuration = durationList.first;
+      selectedEndDuration = durationList.first;
+    }
+  }
+
+  Map<String, dynamic> _durationFromModel(String? value) {
+    if (value == null || value.isEmpty) return durationList.first;
+    final v = value.trim().toLowerCase();
+    if (v == '1' || v == 'half-day') return durationList[1];
+    if (v == '2' || v == 'full-day') return durationList[2];
+    return durationList.first;
+  }
+
+  void _populateFormFields(LeaveModel m) {
+    _selectedLeaveTypeNotifier.value = [
+      {
+        "zAttributesId": m.leaveTypeMasterId.toString(),
+        "DisplayName": m.leaveType,
+      },
+    ];
+    _startDateNotifier.value = m.startDate;
+    _endDateNotifier.value = m.endDate;
+    _totalDaysC.text = m.noOfDays.toString();
+    _reasonC.text = m.reason;
+    selectedStartDuration = _durationFromModel(m.startDateLeaveDuration);
+    selectedEndDuration = _durationFromModel(m.endDateLeaveDuration);
+    final urls = m.leaveDocumentUrl.trim().isEmpty
+        ? <String>[]
+        : m.leaveDocumentUrl
+            .split(",")
+            .map((e) => e.trim())
+            .where((s) => s.isNotEmpty)
+            .toList();
+    leaveDocument.fileNameList = urls;
+    leaveDocument.fileBytesList =
+        List.generate(urls.length, (_) => Uint8List(0));
   }
 
   @override
@@ -152,7 +194,6 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
 
     if (startDate == null || endDate == null) {
       _totalDaysC.clear();
-      _formKey.currentState?.validate();
       return;
     }
 
@@ -161,14 +202,11 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
 
     if (end.isBefore(start)) {
       _totalDaysC.clear();
-      _formKey.currentState?.validate();
       return;
     }
 
     final totalDays = end.difference(start).inDays + 1;
     _totalDaysC.text = totalDays.toString();
-
-    _formKey.currentState?.validate();
   }
 
   @override
@@ -183,7 +221,10 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Apply Leave", style: AppTextStyle.ts16M()),
+            Text(
+              _isEditMode ? "Update Leave" : "Apply Leave",
+              style: AppTextStyle.ts16SB(),
+            ),
             verticalSpacing(),
             Form(
               key: _formKey,
@@ -257,8 +298,8 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                                       if (value == null) {
                                         return 'End Date is required';
                                       }
+
                                       if (startDate != null) {
-                                        // Compare dates by day (ignoring time)
                                         final startDateOnly = DateTime(
                                           startDate.year,
                                           startDate.month,
@@ -269,13 +310,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                                           value.month,
                                           value.day,
                                         );
-                                        if (endDateOnly.isBefore(
-                                              startDateOnly,
-                                            ) ||
-                                            endDateOnly.isAtSameMomentAs(
-                                              startDateOnly,
-                                            )) {
-                                          return 'End Date must be after Start Date';
+
+                                        if (endDateOnly.isBefore(startDateOnly)) {
+                                          return 'End Date cannot be before Start Date';
                                         }
                                       }
                                       return null;
@@ -313,6 +350,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                       title: "Start Day Duration",
                       isRequired: true,
                       dataList: durationList,
+                      initialValue: selectedStartDuration,
                       onSelected: (value) {
                         selectedStartDuration = value;
                       },
@@ -327,6 +365,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                       title: "End Day Duration",
                       isRequired: true,
                       dataList: durationList,
+                      initialValue: selectedEndDuration,
                       onSelected: (value) {
                         selectedEndDuration = value;
                       },
@@ -379,9 +418,46 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text: "Apply Leave",
+            text: _isEditMode ? "Update Leave" : "Apply Leave",
             onPressed: () {
-              if (_formKey.currentState!.validate()) {}
+              if (!_formKey.currentState!.validate()) return;
+              final leaveTypeMasterId = _selectedLeaveTypeNotifier
+                  .value[0]["zAttributesId"]
+                  .toString();
+              final startDate = _startDateNotifier.value!;
+              final endDate = _endDateNotifier.value!;
+              final startDateLeaveDuration =
+                  selectedStartDuration!["zAttributesId"].toString();
+              final endDateLeaveDuration =
+                  selectedEndDuration!["zAttributesId"].toString();
+              final reason = _reasonC.text;
+
+              if (_isEditMode && widget.leaveModel != null) {
+                _leaveCubit.updateLeave(
+                  index: widget.index ?? 0,
+                  context: context,
+                  leaveId: widget.leaveModel!.leaveId.toString(),
+                  uniquekey: widget.leaveModel!.uniquekey,
+                  leaveTypeMasterId: leaveTypeMasterId,
+                  startDate: startDate.toIso8601String(),
+                  endDate: endDate.toIso8601String(),
+                  startDateLeaveDuration: startDateLeaveDuration,
+                  endDateLeaveDuration: endDateLeaveDuration,
+                  reason: reason,
+                  leaveDocument: leaveDocument,
+                );
+              } else {
+                _leaveCubit.applyLeave(
+                  context: context,
+                  leaveTypeMasterId: leaveTypeMasterId,
+                  startDate: startDate.toIso8601String(),
+                  endDate: endDate.toIso8601String(),
+                  startDateLeaveDuration: startDateLeaveDuration,
+                  endDateLeaveDuration: endDateLeaveDuration,
+                  reason: reason,
+                  leaveDocument: leaveDocument,
+                );
+              }
             },
           ),
         ),
