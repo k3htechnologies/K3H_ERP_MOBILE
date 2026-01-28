@@ -192,6 +192,7 @@ class AppRoutes {
   static String viewLeave = "/viewLeave";
   // COMP OFF
   static String compOff = "/compOff";
+  static String addCompOff = "/addCompOff";
   static String viewCompOff = "/viewCompOff";
 
   // PROJECT DOCUMENTS

@@ -148,7 +148,7 @@ class _LeaveScreenState extends State<LeaveScreen>
     });
   }
 
-  // FETCH DESIGNATION
+  // FETCH LEAVE TYPE
   Future<Map<String, dynamic>> _fetchLeaveType(
     int pageNumber, {
     String? value,

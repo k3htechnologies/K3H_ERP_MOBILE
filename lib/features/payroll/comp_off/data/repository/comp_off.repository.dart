@@ -9,6 +9,27 @@ abstract interface class CompOffRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> getCompOffDatesList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateCompOff({
+    required Map<String, dynamic> body,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> deleteCompOff({
+    required int compOffId,
+    required String uniqueKey,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> exportCompOff({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class CompOffRepositoryImpl implements CompOffRepository {
@@ -24,6 +45,70 @@ class CompOffRepositoryImpl implements CompOffRepository {
   }) async {
     try {
       var result = await compOffDatasource.apicallPullCompOff(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getCompOffDatesList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await compOffDatasource.apicallPullCompOffDates(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateCompOff({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await compOffDatasource.apicallAddUpdateCompOff(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteCompOff({
+    required int compOffId,
+    required String uniqueKey,
+  }) async {
+    try {
+      var result = await compOffDatasource.apicallDeleteCompOff(
+        compOffId: compOffId,
+        uniqueKey: uniqueKey,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> exportCompOff({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await compOffDatasource.apicallPullCompOffExport(
         pageNumber: pageNumber,
         pageSize: pageSize,
         queryParams: queryParams,

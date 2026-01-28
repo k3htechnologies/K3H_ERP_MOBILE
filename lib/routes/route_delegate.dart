@@ -128,6 +128,7 @@ import 'package:k3h_erp_app/features/parking/presentation/pages/edit_parking_scr
 import 'package:k3h_erp_app/features/parking/presentation/pages/parking_screen.dart';
 import 'package:k3h_erp_app/features/payroll/comp_off/data/model/comp_off.model.dart';
 import 'package:k3h_erp_app/features/payroll/comp_off/presentation/cubit/comp_off_cubit.dart';
+import 'package:k3h_erp_app/features/payroll/comp_off/presentation/pages/add_comp_off_screen.dart';
 import 'package:k3h_erp_app/features/payroll/comp_off/presentation/pages/comp_off_screen.dart';
 import 'package:k3h_erp_app/features/payroll/comp_off/presentation/pages/comp_off_view_screen.dart';
 import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
@@ -3311,35 +3312,31 @@ final GoRouter goRouter = GoRouter(
                     return CompOffViewScreen(compOffModel: compOff!);
                   },
                 ),
-                // GoRoute(
-                //   name: AppRoutes.applyLeave,
-                //   path: AppRoutes.applyLeave,
-                //   builder: (context, state) {
-                //     final queryParameterLeave =
-                //     state.uri.queryParameters['leave'];
-                //
-                //     final LeaveModel? leave =
-                //     queryParameterLeave != null
-                //         ? LeaveModel.fromJson(
-                //       jsonDecode(
-                //         EncryptionManager.decryptData(
-                //           Uri.decodeComponent(queryParameterLeave),
-                //         ),
-                //       ),
-                //     )
-                //         : null;
-                //
-                //     final index =
-                //         int.tryParse(
-                //           state.uri.queryParameters['index'] ?? '',
-                //         ) ??
-                //             0;
-                //     return ApplyLeaveScreen(
-                //       leaveModel: leave,
-                //       index: index,
-                //     );
-                //   },
-                // ),
+                GoRoute(
+                  name: AppRoutes.addCompOff,
+                  path: AppRoutes.addCompOff,
+                  builder: (context, state) {
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                            0;
+                    final queryParameterCompOff =
+                        state.uri.queryParameters['compOff'];
+                    final compOff =
+                        queryParameterCompOff != null && queryParameterCompOff.isNotEmpty
+                            ? CompOffModel.fromJson(
+                                jsonDecode(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeComponent(queryParameterCompOff),
+                                  ),
+                                ),
+                              )
+                            : null;
+
+                    return AddCompOffScreen(compOffModel: compOff, index: index);
+                  },
+                ),
               ],
             ),
           ],

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/payroll/comp_off/data/model/comp_off.model.dart';
 import 'package:k3h_erp_app/features/payroll/comp_off/presentation/cubit/comp_off_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/leave/presentation/pages/leave_screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -12,9 +13,11 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CompOffScreen extends StatefulWidget {
@@ -35,6 +38,10 @@ class _CompOffScreenState extends State<CompOffScreen> {
   late ScrollController scrollController;
   Timer? _debounce;
 
+  // FILTER
+  final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier<DateTime?>(null);
+  final ValueNotifier<DateTime?> _endDateNotifier = ValueNotifier<DateTime?>(null);
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +56,8 @@ class _CompOffScreenState extends State<CompOffScreen> {
   void dispose() {
     super.dispose();
     scrollController.dispose();
+    _startDateNotifier.dispose();
+    _endDateNotifier.dispose();
   }
 
   // <---- PAGINATION ---->
@@ -72,29 +81,198 @@ class _CompOffScreenState extends State<CompOffScreen> {
     });
   }
 
+  // <---- DELETE COMP OFF ---->
+  Future<void> _showPopupToDeleteDepartmentMaster(
+    BuildContext context,
+    CompOffModel obj,
+    int currentPage,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a comp off?',
+      'Deleting this comp off will permanently remove its contents.',
+    );
+    if (result && context.mounted) {
+      _compOffCubit.deleteCompOff(
+        context: context,
+        compOffId: obj.compOffId,
+        uniqueKey: obj.uniquekey,
+        pageNumber: currentPage,
+        index: index,
+      );
+    }
+  }
+
+  void _prefillFilterFromState() {
+    final s = _compOffCubit.state;
+    _startDateNotifier.value = s.filterStartDate;
+    _endDateNotifier.value = s.filterEndDate;
+  }
+
+  // COMP OFF FILTER
+  Future<void> _showBottomSheetToFilterCompOff(BuildContext context) async {
+    _prefillFilterFromState();
+    final state = _compOffCubit.state;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(
+          state.filterStartDate != null ||
+          state.filterEndDate != null,
+    );
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Comp-Off",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              verticalSpacing(),
+              Row(
+                children: [
+                  Expanded(
+                    child: ValueListenableBuilder<DateTime?>(
+                      valueListenable: _startDateNotifier,
+                      builder: (context, startDate, child) {
+                        return CustomDatePicker(
+                          title: "Start Date",
+                          initialDate: startDate,
+                          setValue: (value) {
+                            _startDateNotifier.value = value;
+                            applyEnabled.value = true;
+                          },
+                          validator: (value) => null,
+                        );
+                      },
+                    ),
+                  ),
+                  horizontalSpacing(),
+                  Expanded(
+                    child: ValueListenableBuilder<DateTime?>(
+                      valueListenable: _endDateNotifier,
+                      builder: (context, endDate, child) {
+                        return ValueListenableBuilder<DateTime?>(
+                          valueListenable: _startDateNotifier,
+                          builder: (context, startDate, child) {
+                            return CustomDatePicker(
+                              title: "End Date",
+                              isRequired: false,
+                              initialDate: endDate,
+                              setValue: (value) {
+                                _endDateNotifier.value = value;
+                                applyEnabled.value = true;
+                              },
+                              validator: (value) {
+                                if (value == null) return null;
+                                if (startDate != null) {
+                                  final startDateOnly = DateTime(
+                                    startDate.year,
+                                    startDate.month,
+                                    startDate.day,
+                                  );
+                                  final endDateOnly = DateTime(
+                                    value.year,
+                                    value.month,
+                                    value.day,
+                                  );
+                                  if (endDateOnly.isBefore(startDateOnly)) {
+                                    return 'End Date cannot be before Start Date';
+                                  }
+                                }
+                                return null;
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+      onClear: () {
+        _startDateNotifier.value = null;
+        _endDateNotifier.value = null;
+        _compOffCubit.clearFilterOnCompOff(context);
+      },
+      onApply: () {
+
+        final startDate = _startDateNotifier.value;
+        final endDate = _endDateNotifier.value;
+        if (startDate != null && endDate != null) {
+          final startOnly = DateTime(
+            startDate.year,
+            startDate.month,
+            startDate.day,
+          );
+          final endOnly = DateTime(endDate.year, endDate.month, endDate.day);
+          if (endOnly.isBefore(startOnly)) {
+            showErrorMessage(
+              context,
+              "Invalid dates",
+              "End Date cannot be before Start Date",
+            );
+            return;
+          }
+        }
+        _compOffCubit.applyFilterOnCompOff(
+          context: context,
+          startDate: startDate,
+          endDate: endDate,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: 'Comp Off',
         authorization: _routeAuthorizationModel,
-        onExportCallback: (value) {},
-        onAddCallback: () {},
-        onFilterTap: () {},
+        onExportCallback: (value) {
+          _compOffCubit.exportExcelPdf(context, value);
+        },
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addCompOff);
+          if (context.mounted) {
+            await _compOffCubit.getCompOffList(context, 1);
+          }
+        },
+        onFilterTap: () {
+          _showBottomSheetToFilterCompOff(context);
+        },
       ),
       body: BlocBuilder<CompOffCubit, CompOffState>(
         builder: (context, state) {
-          if ((state.isLoading ?? true) && state.compOffList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.compOffList.isEmpty) {
-            return Center(child: noDataWidget());
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: _compOffCubit.state.compOffList.length + 1,
-            itemBuilder: (context, index) {
+          return Column(
+            children: [
+              Expanded(
+                child: _buildBody(state),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBody(CompOffState state) {
+    if ((state.isLoading ?? true) && state.compOffList.isEmpty) {
+      return Center(child: loader());
+    }
+    if (state.compOffList.isEmpty) {
+      return Center(child: noDataWidget());
+    }
+    return ListView.builder(
+      controller: scrollController,
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      itemCount: _compOffCubit.state.compOffList.length + 1,
+      itemBuilder: (context, index) {
               if (index == state.compOffList.length) {
                 return state.compOffList.length < state.totalNumberOfRecord
                     ? Padding(
@@ -114,32 +292,36 @@ class _CompOffScreenState extends State<CompOffScreen> {
                     Expanded(
                       child: Column(
                         children: [
-                          buildRowTitleValue(
-                            title: "Comp-Off Date",
-                            value: formatDateTimeAsDDMMMYYYY(
-                              compOff.compOffDate,
-                            ),
-                            customValueWidget: GestureDetector(
-                              onTap: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.viewCompOff,
-                                  queryParameters: {
-                                    "compOff": Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(compOff),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  goRouter.pushNamed(
+                                    AppRoutes.viewCompOff,
+                                    queryParameters: {
+                                      "compOff": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(compOff),
+                                        ),
                                       ),
-                                    ),
-                                  },
-                                );
-                              },
-                              child: Text(
-                                formatDateTimeAsDDMMMYYYY(compOff.compOffDate),
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
+                                    },
+                                  );
+                                },
+                                child: Text(
+                                  formatDateTimeAsDDMMMYYYY(
+                                    compOff.compOffDate,
+                                  ),
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ),
                                 ),
                               ),
-                            ),
+                              horizontalSpacing(width: 20),
+                              _statusWidget("Pending"),
+                            ],
                           ),
+                          verticalSpacing(),
                           buildRowTitleValue(
                             title: "Working Date",
                             value: formatDateTimeAsDDMMMYYYY(
@@ -154,15 +336,41 @@ class _CompOffScreenState extends State<CompOffScreen> {
                       ),
                     ),
                     horizontalSpacing(),
-                    _statusWidget("Pending"),
+                    Row(
+                      spacing: 10,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomIconButton.edit(
+                          onPressed: () {
+                            goRouter.pushNamed(
+                              AppRoutes.addCompOff,
+                              queryParameters: {
+                                "compOff": Uri.encodeComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(compOff),
+                                  ),
+                                ),
+                              },
+                            );
+                          },
+                        ),
+                        CustomIconButton.delete(
+                          onPressed: () {
+                            _showPopupToDeleteDepartmentMaster(
+                              context,
+                              compOff,
+                              state.currentPage,
+                              index,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               );
             },
-          );
-        },
-      ),
-    );
+      );
   }
 
   // STATUS WIDGET
@@ -170,7 +378,6 @@ class _CompOffScreenState extends State<CompOffScreen> {
     final statusConfig = _getStatusConfig(status);
 
     return Container(
-      margin: EdgeInsets.only(top: 10),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: statusConfig.backgroundColor,

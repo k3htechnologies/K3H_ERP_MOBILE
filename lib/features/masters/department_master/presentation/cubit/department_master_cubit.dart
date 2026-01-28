@@ -86,7 +86,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
     );
   }
 
-  // <---- UPDATE DEPARMTENT ---->
+  // <---- UPDATE DEPARTMENT ---->
   Future updateDepartmentMaster({
     required BuildContext context,
     required int departmentMasterId,

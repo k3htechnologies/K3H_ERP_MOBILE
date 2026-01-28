@@ -54,8 +54,9 @@ class _CustomAppBarWithBackButtonState
   // PROJECT SWITCH FUNCTIONALITY
   final ProjectMasterRepository _projectMasterRepository =
       serviceLocator<ProjectMasterRepository>();
-  final ValueNotifier<List<ProjectModel>> _projectListNotifier =
-      ValueNotifier([]);
+  final ValueNotifier<List<ProjectModel>> _projectListNotifier = ValueNotifier(
+    [],
+  );
   final ValueNotifier<bool> _showOverlayNotifier = ValueNotifier(false);
   ProjectModel? _selectedProject;
   OverlayEntry? _overlayEntry;
@@ -87,25 +88,26 @@ class _CustomAppBarWithBackButtonState
     if (_overlayEntry != null || !mounted) return;
 
     _overlayEntry = OverlayEntry(
-      builder: (context) => SafeArea(
-        child: Material(
-          color: Colors.transparent,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: ProjectSelectorOverlay(
-                  projects: _projectListNotifier.value,
-                  selectedProjectId: _selectedProject?.projectId,
-                  onSelect: _onProjectSelected,
-                  onClose: () {
-                    _showOverlayNotifier.value = false;
-                  },
-                ),
+      builder:
+          (context) => SafeArea(
+            child: Material(
+              color: Colors.transparent,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: ProjectSelectorOverlay(
+                      projects: _projectListNotifier.value,
+                      selectedProjectId: _selectedProject?.projectId,
+                      onSelect: _onProjectSelected,
+                      onClose: () {
+                        _showOverlayNotifier.value = false;
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
     );
 
     Overlay.of(context).insert(_overlayEntry!);
@@ -119,18 +121,25 @@ class _CustomAppBarWithBackButtonState
   Future<void> _loadProjects() async {
     try {
       // First check if project list exists in storage
-      final projectListString = LocalStorageManager().getString(StorageKey.projectList);
-      
+      final projectListString = LocalStorageManager().getString(
+        StorageKey.projectList,
+      );
+
       if (projectListString != null && projectListString.isNotEmpty) {
         // Load from storage
         final List<dynamic> projectJsonList = jsonDecode(projectListString);
-        final List<ProjectModel> projects = projectJsonList
-            .map((json) => ProjectModel.fromJson(json as Map<String, dynamic>))
-            .toList();
+        final List<ProjectModel> projects =
+            projectJsonList
+                .map(
+                  (json) => ProjectModel.fromJson(json as Map<String, dynamic>),
+                )
+                .toList();
         _projectListNotifier.value = projects;
 
         // Load selected project
-        final storedJson = LocalStorageManager().getString(StorageKey.selectedProject);
+        final storedJson = LocalStorageManager().getString(
+          StorageKey.selectedProject,
+        );
         if (storedJson != null && storedJson.isNotEmpty) {
           final storedProject = ProjectModel.fromJson(jsonDecode(storedJson));
           if (projects.any((p) => p.projectId == storedProject.projectId)) {
@@ -148,9 +157,7 @@ class _CustomAppBarWithBackButtonState
       final result = await _projectMasterRepository.getProjectList(
         pageNumber: 1,
         pageSize: 100,
-        queryParams: {
-          'EmployeeId': user.employeeId.toString(),
-        },
+        queryParams: {'EmployeeId': user.employeeId.toString()},
       );
 
       result.fold(
@@ -169,8 +176,9 @@ class _CustomAppBarWithBackButtonState
           );
 
           // Load selected project
-          final storedJson =
-              LocalStorageManager().getString(StorageKey.selectedProject);
+          final storedJson = LocalStorageManager().getString(
+            StorageKey.selectedProject,
+          );
           if (storedJson != null && storedJson.isNotEmpty) {
             final storedProject = ProjectModel.fromJson(jsonDecode(storedJson));
             if (projects.any((p) => p.projectId == storedProject.projectId)) {
@@ -190,8 +198,11 @@ class _CustomAppBarWithBackButtonState
       StorageKey.selectedProject,
       jsonEncode(project.toJson()),
     );
-    showSuccessMessage(context, subTitle: "Project Selected ${project.projectName}");
-    
+    showSuccessMessage(
+      context,
+      subTitle: "Project Selected ${project.projectName}",
+    );
+
     // Call the callback if provided
     if (widget.onProjectChangeCallback != null) {
       widget.onProjectChangeCallback!(project);
@@ -233,98 +244,91 @@ class _CustomAppBarWithBackButtonState
         style: AppTextStyle.ts16SB(color: AppColor.black),
       ),
       actions: [
-        if(widget.onProjectChangeCallback!=null)
-        ValueListenableBuilder<List<ProjectModel>>(
-          valueListenable: _projectListNotifier,
-          builder: (context, projects, _) {
-            if (projects.isEmpty) return const SizedBox.shrink();
-            return CustomIconButton(
-              onPressed: () {
-                _showOverlayNotifier.value = true;
-              },
-              icon: const Icon(
-                Icons.apartment_outlined,
-                size: 16,
-                color: AppColor.primary,
-              ),
-              backgroundColor: AppColor.lightBlue,
-            );
-          },
-        ),
+        if (widget.onProjectChangeCallback != null)
+          ValueListenableBuilder<List<ProjectModel>>(
+            valueListenable: _projectListNotifier,
+            builder: (context, projects, _) {
+              if (projects.isEmpty) return const SizedBox.shrink();
+              return CustomIconButton(
+                onPressed: () {
+                  _showOverlayNotifier.value = true;
+                },
+                icon: const Icon(
+                  Icons.apartment_outlined,
+                  size: 16,
+                  color: AppColor.primary,
+                ),
+                backgroundColor: AppColor.lightBlue,
+              );
+            },
+          ),
 
-        if (widget.onFilterTap != null)
-          ...[
-            horizontalSpacing(),
-            CustomIconButton(
-              onPressed: () {
-                widget.onAddCallback!();
-              },
-              backgroundColor: AppColor.lightBlue,
-              icon: SvgPicture.asset(AppAssets.filterIcon,height: 16,),
-            ),
-          ],
+        if (widget.onFilterTap != null) ...[
+          horizontalSpacing(),
+          CustomIconButton(
+            onPressed: () {
+              widget.onFilterTap!();
+            },
+            backgroundColor: AppColor.lightBlue,
+            icon: SvgPicture.asset(AppAssets.filterIcon, height: 16),
+          ),
+        ],
 
         if (widget.authorization.isAction) ...[
-          if (widget.onAddCallback != null)
-            ...[
-              horizontalSpacing(),
-              _buildAction(
-                icon: Icons.add,
-                onTap: () {
-                  widget.onAddCallback!();
-                },
-                backgroundColor: AppColor.lightGreen,
-                iconColor: AppColor.darkGreen,
-              ),
-            ],
-          if (widget.onExportCallback != null)
-           ...[
-             _buildAction(
-               icon: Icons.file_download,
-               onTap: () {
-                 final box = context.findRenderObject() as RenderBox;
-                 final position = box.localToGlobal(Offset.zero);
-                 CustomOverlayMenu.show(
-                   width: 180,
-                   context: context,
-                   position: Offset(position.dx + 10, position.dy + (115)),
-                   items: [
-                     AddImportExportOverlayMenuItem(
-                       icon: Icons.file_download_outlined,
-                       label: 'Export Excel',
-                       value: 'EXCEL',
-                       onTap: widget.onExportCallback!,
-                       iconColor: AppColor.primary,
-                     ),
-                     AddImportExportOverlayMenuItem(
-                       icon: Icons.file_download_outlined,
-                       label: 'Export PDF',
-                       value: 'PDF',
-                       onTap: widget.onExportCallback!,
-                       iconColor: AppColor.primary,
-                     ),
-                   ],
-                 );
-               },
-               backgroundColor: AppColor.lightBlue,
-               iconColor: AppColor.primary,
-             ),
-           ]
-        ],
-        if (widget.showNotification)
-          ...[
-            CustomIconButton(
-              onPressed: () {
-                goRouter.pushNamed(AppRoutes.notificationScreenMobile);
+          if (widget.onAddCallback != null) ...[
+            horizontalSpacing(),
+            _buildAction(
+              icon: Icons.add,
+              onTap: () {
+                widget.onAddCallback!();
               },
-              icon: SvgPicture.asset(
-                AppAssets.notificationIcon,
-                height: 16,
-              ),
-              backgroundColor: AppColor.lightBlue,
+              backgroundColor: AppColor.lightGreen,
+              iconColor: AppColor.darkGreen,
             ),
           ],
-        horizontalSpacing(width: 16)
+          if (widget.onExportCallback != null) ...[
+            _buildAction(
+              icon: Icons.file_download,
+              onTap: () {
+                final box = context.findRenderObject() as RenderBox;
+                final position = box.localToGlobal(Offset.zero);
+                CustomOverlayMenu.show(
+                  width: 180,
+                  context: context,
+                  position: Offset(position.dx + 10, position.dy + (115)),
+                  items: [
+                    AddImportExportOverlayMenuItem(
+                      icon: Icons.file_download_outlined,
+                      label: 'Export Excel',
+                      value: 'EXCEL',
+                      onTap: widget.onExportCallback!,
+                      iconColor: AppColor.primary,
+                    ),
+                    AddImportExportOverlayMenuItem(
+                      icon: Icons.file_download_outlined,
+                      label: 'Export PDF',
+                      value: 'PDF',
+                      onTap: widget.onExportCallback!,
+                      iconColor: AppColor.primary,
+                    ),
+                  ],
+                );
+              },
+              backgroundColor: AppColor.lightBlue,
+              iconColor: AppColor.primary,
+            ),
+          ],
+        ],
+        if (widget.showNotification) ...[
+          CustomIconButton(
+            onPressed: () {
+              goRouter.pushNamed(AppRoutes.notificationScreenMobile);
+            },
+            icon: SvgPicture.asset(AppAssets.notificationIcon, height: 16),
+            backgroundColor: AppColor.lightBlue,
+          ),
+        ],
+        horizontalSpacing(width: 16),
       ],
     );
   }
