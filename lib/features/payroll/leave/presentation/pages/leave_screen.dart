@@ -598,38 +598,31 @@ class _LeaveScreenState extends State<LeaveScreen>
   }
 
   // HELPER METHOD TO GET STATUS CONFIG
-  _StatusConfig _getStatusConfig(String status) {
+  StatusConfig _getStatusConfig(String status) {
     switch (status.toLowerCase()) {
       case "pending":
-        return _StatusConfig(
+        return StatusConfig(
           label: "Pending",
           textColor: AppColor.white,
           backgroundColor: AppColor.darkBlue,
         );
 
       case "approved":
-        return _StatusConfig(
+        return StatusConfig(
           label: "Approved",
           textColor: AppColor.white,
           backgroundColor: AppColor.green,
         );
 
-      case "upcoming":
-        return _StatusConfig(
-          label: "Upcoming",
-          textColor: AppColor.white,
-          backgroundColor: AppColor.warning,
-        );
-
       case "rejected":
-        return _StatusConfig(
+        return StatusConfig(
           label: "Rejected",
           textColor: AppColor.white,
           backgroundColor: AppColor.error,
         );
 
       default:
-        return _StatusConfig(
+        return StatusConfig(
           label: status,
           textColor: AppColor.grey,
           backgroundColor: AppColor.grey.withValues(alpha: 0.1),
@@ -639,12 +632,12 @@ class _LeaveScreenState extends State<LeaveScreen>
 }
 
 // HELPER CLASS TO STORE STATUS CONFIG
-class _StatusConfig {
+class StatusConfig {
   final String label;
   final Color textColor;
   final Color backgroundColor;
 
-  const _StatusConfig({
+  const StatusConfig({
     required this.label,
     required this.textColor,
     required this.backgroundColor,

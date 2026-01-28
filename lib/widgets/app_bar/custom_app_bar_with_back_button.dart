@@ -28,6 +28,7 @@ class CustomAppBarWithBackButton extends StatefulWidget
   final Function? onAddCallback;
   final Function(String)? onExportCallback;
   final Function(ProjectModel)? onProjectChangeCallback;
+  final VoidCallback? onFilterTap;
 
   const CustomAppBarWithBackButton({
     super.key,
@@ -37,6 +38,7 @@ class CustomAppBarWithBackButton extends StatefulWidget
     this.onAddCallback,
     this.onExportCallback,
     this.onProjectChangeCallback,
+    this.onFilterTap,
   });
 
   @override
@@ -249,6 +251,19 @@ class _CustomAppBarWithBackButtonState
             );
           },
         ),
+
+        if (widget.onFilterTap != null)
+          ...[
+            horizontalSpacing(),
+            CustomIconButton(
+              onPressed: () {
+                widget.onAddCallback!();
+              },
+              backgroundColor: AppColor.lightBlue,
+              icon: SvgPicture.asset(AppAssets.filterIcon,height: 16,),
+            ),
+          ],
+
         if (widget.authorization.isAction) ...[
           if (widget.onAddCallback != null)
             ...[
@@ -264,7 +279,6 @@ class _CustomAppBarWithBackButtonState
             ],
           if (widget.onExportCallback != null)
            ...[
-             horizontalSpacing(),
              _buildAction(
                icon: Icons.file_download,
                onTap: () {

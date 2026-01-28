@@ -190,6 +190,9 @@ class AppRoutes {
   static String leave = "/leave";
   static String applyLeave = "/applyLeave";
   static String viewLeave = "/viewLeave";
+  // COMP OFF
+  static String compOff = "/compOff";
+  static String viewCompOff = "/viewCompOff";
 
   // PROJECT DOCUMENTS
   // --DOCUMENT

@@ -1,0 +1,236 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/payroll/comp_off/data/model/comp_off.model.dart';
+import 'package:k3h_erp_app/features/payroll/comp_off/presentation/cubit/comp_off_cubit.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+class CompOffViewScreen extends StatefulWidget {
+  final CompOffModel compOffModel;
+  const CompOffViewScreen({super.key, required this.compOffModel});
+
+  @override
+  State<CompOffViewScreen> createState() => _CompOffViewScreenState();
+}
+
+class _CompOffViewScreenState extends State<CompOffViewScreen>
+    with SingleTickerProviderStateMixin {
+  // TAB CONTROLLER
+  late TabController _tabController;
+
+  // CUBIT
+  late CompOffCubit _compOffCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _compOffCubit = context.read<CompOffCubit>();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_handleTabChange);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _handleTabChange() {
+    if (!_tabController.indexIsChanging) {
+      _compOffCubit.onTabChanged(_tabController.index, context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: "Comp Off",
+        authorization: AuthorizationModel(),
+      ),
+      body: Padding(
+        padding: EdgeInsets.symmetric(vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                formatDateTimeAsDDMMMYYYY(widget.compOffModel.compOffDate),
+                style: AppTextStyle.ts16SB(color: AppColor.primary),
+              ),
+            ),
+            verticalSpacing(height: 15),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: IntrinsicWidth(
+                child: Container(
+                  height: 35,
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: AppColor.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: TabBar(
+                    controller: _tabController,
+                    isScrollable: true,
+                    tabAlignment: TabAlignment.start,
+                    labelColor: AppColor.primary,
+                    unselectedLabelColor: AppColor.grey,
+                    indicator: BoxDecoration(
+                      color: AppColor.lightBlue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    dividerColor: Colors.transparent,
+                    labelStyle: AppTextStyle.ts14M(),
+                    unselectedLabelStyle: AppTextStyle.ts14M(),
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.zero,
+                    tabs: const [Tab(text: 'Overview'), Tab(text: 'Document')],
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [_buildOverView(), _buildDocument()],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // OVERVIEW
+  Widget _buildOverView() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(vertical: 10,horizontal: 16),
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 10,
+              children: [
+                Text("Details",style: AppTextStyle.ts16SB(),),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Comp-Off Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        widget.compOffModel.compOffDate,
+                      ),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Worked Date Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        widget.compOffModel.workingDate,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildColumnTitleValue(title: "Reason", value: widget.compOffModel.reason)
+                  ],
+                )
+              ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 10,
+              children: [
+                Text("Action Details",style: AppTextStyle.ts16SB(),),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Approved By",
+                      value: "Hahahaha"
+                    ),
+                    buildColumnTitleValue(
+                        title: "Approved Date",
+                        value: "Hahahaha"
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Created By",
+                      value: widget.compOffModel.createdBy,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Created Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        widget.compOffModel.createdDate,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  // DOCUMENT
+  Widget _buildDocument() {
+    return SingleChildScrollView(
+      child: Container(
+        decoration: commonCardDecoration(),
+        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: EdgeInsets.all(16),
+        // child: GestureDetector(
+        //   onTap: () {
+        //     if (widget.compOffModel.documentUrl.isNotEmpty) {
+        //       showFilePreviewDialog(
+        //         context,
+        //         widget.compOffModel.documentUrl.split(","),
+        //       );
+        //     } else {
+        //       showErrorMessage(context, "Image Error", "No Document Found");
+        //     }
+        //   },
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //     children: [
+        //       Text("Leave Document", style: AppTextStyle.ts16M()),
+        //       Container(
+        //         padding: EdgeInsets.all(5),
+        //         decoration: BoxDecoration(
+        //           color:
+        //           widget.compOffModel.documentUrl.isNotEmpty
+        //               ? AppColor.lightBlue
+        //               : AppColor.grey,
+        //           borderRadius: BorderRadius.circular(4),
+        //         ),
+        //         child: Icon(Icons.remove_red_eye, size: 16),
+        //       ),
+        //     ],
+        //   ),
+        // ),
+      ),
+    );
+  }
+}

@@ -38,6 +38,7 @@ import 'feature_dependencies/masters/sub_material_master.dependencies.dart';
 import 'feature_dependencies/masters/terms_and_condition.dependencies.dart';
 import 'feature_dependencies/masters/uom_master.dependencies.dart';
 import 'feature_dependencies/parking/parking.dependencies.dart';
+import 'feature_dependencies/payroll/comp_off/comp_off.dependencies.dart';
 import 'feature_dependencies/payroll/leave/leave.dependencies.dart';
 import 'feature_dependencies/payroll/outdoor/outdoor.dependencies.dart';
 import 'feature_dependencies/project_document/document/document.dependencies.dart';
@@ -151,4 +152,6 @@ void initDependencies() {
   registerOutdoorDependencies(serviceLocator);
   // LEAVE DEPENDENCIES
   registerLeaveDependencies(serviceLocator);
+  // COMP OFF DEPENDENCIES
+  registerCompOffDependencies(serviceLocator);
 }

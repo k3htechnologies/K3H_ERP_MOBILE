@@ -126,6 +126,10 @@ import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/presentation/cubit/parking_cubit.dart';
 import 'package:k3h_erp_app/features/parking/presentation/pages/edit_parking_screen.dart';
 import 'package:k3h_erp_app/features/parking/presentation/pages/parking_screen.dart';
+import 'package:k3h_erp_app/features/payroll/comp_off/data/model/comp_off.model.dart';
+import 'package:k3h_erp_app/features/payroll/comp_off/presentation/cubit/comp_off_cubit.dart';
+import 'package:k3h_erp_app/features/payroll/comp_off/presentation/pages/comp_off_screen.dart';
+import 'package:k3h_erp_app/features/payroll/comp_off/presentation/pages/comp_off_view_screen.dart';
 import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
 import 'package:k3h_erp_app/features/payroll/leave/presentation/cubit/leave_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/leave/presentation/pages/apply_leave_screen.dart';
@@ -3267,12 +3271,75 @@ final GoRouter goRouter = GoRouter(
                           state.uri.queryParameters['index'] ?? '',
                         ) ??
                         0;
-                    return ApplyLeaveScreen(
-                      leaveModel: leave,
-                      index: index,
-                    );
+                    return ApplyLeaveScreen(leaveModel: leave, index: index);
                   },
                 ),
+              ],
+            ),
+            // COMP OFF
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => CompOffCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.compOff,
+                  path: AppRoutes.compOff,
+                  builder: (context, state) {
+                    return CompOffScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewCompOff,
+                  path: AppRoutes.viewCompOff,
+                  builder: (context, state) {
+                    final queryParameterCompOff =
+                        state.uri.queryParameters['compOff'];
+                    final CompOffModel? compOff =
+                        queryParameterCompOff != null
+                            ? CompOffModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterCompOff),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return CompOffViewScreen(compOffModel: compOff!);
+                  },
+                ),
+                // GoRoute(
+                //   name: AppRoutes.applyLeave,
+                //   path: AppRoutes.applyLeave,
+                //   builder: (context, state) {
+                //     final queryParameterLeave =
+                //     state.uri.queryParameters['leave'];
+                //
+                //     final LeaveModel? leave =
+                //     queryParameterLeave != null
+                //         ? LeaveModel.fromJson(
+                //       jsonDecode(
+                //         EncryptionManager.decryptData(
+                //           Uri.decodeComponent(queryParameterLeave),
+                //         ),
+                //       ),
+                //     )
+                //         : null;
+                //
+                //     final index =
+                //         int.tryParse(
+                //           state.uri.queryParameters['index'] ?? '',
+                //         ) ??
+                //             0;
+                //     return ApplyLeaveScreen(
+                //       leaveModel: leave,
+                //       index: index,
+                //     );
+                //   },
+                // ),
               ],
             ),
           ],
