@@ -245,23 +245,26 @@ class _CustomAppBarWithBackButtonState
       ),
       actions: [
         if (widget.onProjectChangeCallback != null)
-          ValueListenableBuilder<List<ProjectModel>>(
-            valueListenable: _projectListNotifier,
-            builder: (context, projects, _) {
-              if (projects.isEmpty) return const SizedBox.shrink();
-              return CustomIconButton(
-                onPressed: () {
-                  _showOverlayNotifier.value = true;
-                },
-                icon: const Icon(
-                  Icons.apartment_outlined,
-                  size: 16,
-                  color: AppColor.primary,
-                ),
-                backgroundColor: AppColor.lightBlue,
-              );
-            },
-          ),
+         ...[
+           ValueListenableBuilder<List<ProjectModel>>(
+             valueListenable: _projectListNotifier,
+             builder: (context, projects, _) {
+               if (projects.isEmpty) return const SizedBox.shrink();
+               return CustomIconButton(
+                 onPressed: () {
+                   _showOverlayNotifier.value = true;
+                 },
+                 icon: const Icon(
+                   Icons.apartment_outlined,
+                   size: 16,
+                   color: AppColor.primary,
+                 ),
+                 backgroundColor: AppColor.lightBlue,
+               );
+             },
+           ),
+           horizontalSpacing()
+         ],
 
         if (widget.onFilterTap != null) ...[
           horizontalSpacing(),

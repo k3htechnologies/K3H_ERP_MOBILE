@@ -5,6 +5,7 @@ class AppColor {
   static const Color primary = Color(0xFF135BEC);
 
   // BASIC
+  static const Color orange = Color(0xFFB35226); // LIGHT BLUE
   static const Color lightBlue = Color(0xFFDBEAFE); // LIGHT BLUE
   static const Color mediumBlue = Color(0xFF3B82F6); // FORM BACKGROUND
   static const Color formBackground = Color(0xFFF4F7F9); // FORM BACKGROUND

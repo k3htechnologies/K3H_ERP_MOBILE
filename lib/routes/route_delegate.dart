@@ -126,6 +126,8 @@ import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/presentation/cubit/parking_cubit.dart';
 import 'package:k3h_erp_app/features/parking/presentation/pages/edit_parking_screen.dart';
 import 'package:k3h_erp_app/features/parking/presentation/pages/parking_screen.dart';
+import 'package:k3h_erp_app/features/payroll/attendance/presentation/cubit/attendance_cubit.dart';
+import 'package:k3h_erp_app/features/payroll/attendance/presentation/pages/attendance_screen.dart';
 import 'package:k3h_erp_app/features/payroll/comp_off/data/model/comp_off.model.dart';
 import 'package:k3h_erp_app/features/payroll/comp_off/presentation/cubit/comp_off_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/comp_off/presentation/pages/add_comp_off_screen.dart';
@@ -3320,24 +3322,39 @@ final GoRouter goRouter = GoRouter(
                         int.tryParse(
                           state.uri.queryParameters['index'] ?? '',
                         ) ??
-                            0;
+                        0;
                     final queryParameterCompOff =
                         state.uri.queryParameters['compOff'];
                     final compOff =
-                        queryParameterCompOff != null && queryParameterCompOff.isNotEmpty
+                        queryParameterCompOff != null &&
+                                queryParameterCompOff.isNotEmpty
                             ? CompOffModel.fromJson(
-                                jsonDecode(
-                                  EncryptionManager.decryptData(
-                                    Uri.decodeComponent(queryParameterCompOff),
-                                  ),
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterCompOff),
                                 ),
-                              )
+                              ),
+                            )
                             : null;
 
-                    return AddCompOffScreen(compOffModel: compOff, index: index);
+                    return AddCompOffScreen(
+                      compOffModel: compOff,
+                      index: index,
+                    );
                   },
                 ),
               ],
+            ),
+            // ATTENDANCE
+            GoRoute(
+              name: AppRoutes.attendance,
+              path: AppRoutes.attendance,
+              builder: (context, state) {
+                return BlocProvider(
+                  create: (context) => AttendanceCubit(),
+                  child: AttendanceScreen(),
+                );
+              },
             ),
           ],
         ),
