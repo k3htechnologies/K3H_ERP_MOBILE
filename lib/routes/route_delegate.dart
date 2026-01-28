@@ -140,6 +140,8 @@ import 'package:k3h_erp_app/features/payroll/outdoor/presentation/cubit/outdoor_
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/pages/add_outdoor_screen.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/pages/outdoor_screen.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/pages/outdoor_view_screen.dart';
+import 'package:k3h_erp_app/features/payroll/resignation/presentation/cubit/resignation_cubit.dart';
+import 'package:k3h_erp_app/features/payroll/resignation/presentation/pages/resignation_screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
@@ -3340,6 +3342,24 @@ final GoRouter goRouter = GoRouter(
                 //     );
                 //   },
                 // ),
+              ],
+            ),
+            // RESIGNATION
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => ResignationCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.resignation,
+                  path: AppRoutes.resignation,
+                  builder: (context, state) {
+                    return ResignationScreen();
+                  },
+                ),
               ],
             ),
           ],
