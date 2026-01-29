@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/masters/shift_master.depende
 import 'package:k3h_erp_app/di/feature_dependencies/masters/week_off_mapping_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/week_off_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/notification/notification.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/payroll/resignation/resignation.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/profile/profile.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/approval_category/approval_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/approval_document/approval_document.dependencies.dart';
@@ -157,4 +158,6 @@ void initDependencies() {
   registerCompOffDependencies(serviceLocator);
   // ATTENDANCE DEPENDENCIES
   registerAttendanceDependencies(serviceLocator);
+  // RESIGNATION DEPENDENCIES
+  registerResignationDependencies(serviceLocator);
 }

@@ -296,7 +296,12 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                 Row(
                   children: [
                     Text(widget.title!, style: AppTextStyle.ts14R()),
-                    widget.isRequired == true ? Text("*",style: AppTextStyle.ts14R(color: AppColor.error)) : SizedBox(),
+                    widget.isRequired == true
+                        ? Text(
+                          "*",
+                          style: AppTextStyle.ts14R(color: AppColor.error),
+                        )
+                        : SizedBox(),
                   ],
                 ),
               FormField<List<Uint8List>>(
