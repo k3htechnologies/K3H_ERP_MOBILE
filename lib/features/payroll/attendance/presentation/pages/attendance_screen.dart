@@ -9,6 +9,8 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/custom_time_picker.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AttendanceScreen extends StatefulWidget {
@@ -98,8 +100,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
   }
 
   void _goToPreviousWeek() {
-    _selectedDate.value =
-        _selectedDate.value.subtract(const Duration(days: 7));
+    _selectedDate.value = _selectedDate.value.subtract(const Duration(days: 7));
     _expandedWeekIndex.value = -1;
     _loadWeeklyData();
   }
@@ -347,12 +348,17 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 15.0),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 15.0,
+                                  ),
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(dayLabel, style: AppTextStyle.ts14M()),
+                                      Text(
+                                        dayLabel,
+                                        style: AppTextStyle.ts14M(),
+                                      ),
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 10,
@@ -360,7 +366,9 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                         ),
                                         decoration: BoxDecoration(
                                           color: statusConfig.backgroundColor,
-                                          borderRadius: BorderRadius.circular(6),
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
                                           border: Border.all(
                                             color: statusConfig.borderColor,
                                           ),
@@ -452,18 +460,16 @@ class _AttendanceScreenState extends State<AttendanceScreen>
     DateTime selectedDate,
     DateTime visibleMonth,
   ) {
-    final firstDayOfMonth = DateTime(
-      visibleMonth.year,
-      visibleMonth.month,
-      1,
-    );
+    print("Selected Date: $selectedDate");
+    final firstDayOfMonth = DateTime(visibleMonth.year, visibleMonth.month, 1);
     final daysInMonth =
         DateTime(visibleMonth.year, visibleMonth.month + 1, 0).day;
     final startWeekday = firstDayOfMonth.weekday % 7; // Sunday -> 0
     final totalGridItems = startWeekday + daysInMonth;
     final rows = (totalGridItems / 7).ceil();
     final paddedItemCount = rows * 7;
-
+    String? punchInTime;
+    String? punchOutTime;
     // Helper to get attendance by day-of-month index (backend is expected
     // to return records in order from start to end date).
     AttendanceModel? attendanceForDay(DateTime date) {
@@ -479,7 +485,6 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                 selectedDate.year == visibleMonth.year
             ? attendanceForDay(selectedDate)
             : null;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
@@ -581,20 +586,69 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                     attendance != null &&
                     attendance.attendanceStatus.toLowerCase() ==
                         "checkout missing";
-
                 final bool isAbsent =
                     attendance != null &&
-                    attendance.attendanceStatus.toLowerCase() ==
-                        "absent";
+                    attendance.attendanceStatus.toLowerCase() == "absent";
 
                 return GestureDetector(
                   onTap: () {
-                    if (isCheckoutMissing || isAbsent) {
+                    if (isCheckoutMissing ||
+                        isAbsent && selectedAttendance != null) {
                       _selectedDate.value = currentDate!;
                       DialogHelper.showCustomBottomSheet(
                         context,
-                        "Checkout Missing",
-                        Container(height: 500, color: Colors.white),
+                        "Regularize",
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 10,
+                          ),
+                          child: Column(
+                            children: [
+                              CustomTextField(
+                                title: "Date",
+                                readOnly: true,
+                                textController: TextEditingController(
+                                  text: formatDateTimeAsDDMMMYYYY(
+                                    attendance.attendanceDate,
+                                  ),
+                                ),
+                              ),
+
+                              CustomTimePicker(
+                                title: 'Punch In Time',
+                                initialTime:
+                                    (selectedAttendance != null &&
+                                            selectedAttendance.punchIn != null)
+                                        ? TimeOfDay(
+                                          hour:
+                                              selectedAttendance.punchIn!.hour,
+                                          minute:
+                                              selectedAttendance
+                                                  .punchIn!
+                                                  .minute,
+                                        )
+                                        : null,
+                                setValue: (value) {
+                                  punchInTime = formatTimeOfDayHHmm(value);
+                                },
+                              ),
+                              CustomTimePicker(
+                                title: 'Punch Out Time',
+                                initialTime:
+                                    attendance.punchOut != null
+                                        ? TimeOfDay(
+                                          hour: attendance.punchOut!.hour,
+                                          minute: attendance.punchOut!.minute,
+                                        )
+                                        : null,
+                                setValue: (value) {
+                                  punchOutTime = formatTimeOfDayHHmm(value);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                       );
                     } else {
                       _selectedDate.value = currentDate!;
@@ -759,6 +813,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                       "Punch In Address",
                       selectedAttendance.punchInAddress,
                     ),
+
                   _buildDetailRow(
                     "Punch Out",
                     selectedAttendance.punchOut != null

@@ -97,6 +97,9 @@ class _ResignationScreenState extends State<ResignationScreen> {
         authorization: _routeAuthorizationModel,
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addresignation);
+          if (context.mounted) {
+            _resignationCubit.getResignationList(context, 1);
+          }
         },
       ),
       body: BlocBuilder<ResignationCubit, ResignationState>(
