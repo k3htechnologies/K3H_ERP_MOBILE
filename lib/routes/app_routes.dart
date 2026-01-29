@@ -195,6 +195,7 @@ class AppRoutes {
   static String viewCompOff = "/viewCompOff";
   // RESIGNATION
   static String resignation = "/resignation";
+  static String addresignation = "/addresignation";
 
   // PROJECT DOCUMENTS
   // --DOCUMENT

@@ -9,13 +9,8 @@ abstract interface class ResignationDatasource {
   });
 
   Future<Map<String, dynamic>> apicallAddUpdateResignation({
-    required Map<String, dynamic> body,
-  });
-
-  Future<Map<String, dynamic>> apicallPullResignationForExport({
-    required int pageNumber,
-    required int pageSize,
-    Map<String, dynamic>? queryParams,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   });
 
   Future<Map<String, dynamic>> apicallDeleteResignation({
@@ -65,51 +60,19 @@ class ResignationDatasourceImpl implements ResignationDatasource {
 
   @override
   Future<Map<String, dynamic>> apicallAddUpdateResignation({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   }) async {
     try {
       @override
-      String addResignationUrl = 'Resignation/AddUpdateResignation';
-      var networkResponse = await baseClient.postRequestWithAuthentication(
-        addResignationUrl,
-        body,
-      );
-      return {
-        'data': List<ResignationModel>.from(
-          networkResponse["data"].map((e) => ResignationModel.fromJson(e)),
-        ),
-        'totalNumberOfRecord': networkResponse["totalNumberOfRecord"],
-      };
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> apicallPullResignationForExport({
-    required int pageNumber,
-    required int pageSize,
-    Map<String, dynamic>? queryParams,
-  }) async {
-    String pullResignationForExportUrl({
-      required int pageSize,
-      required int pageNumber,
-      Map<String, dynamic>? queryParams,
-    }) {
-      String url =
-          "Resignation/PullResignationForExport?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
-      return url;
-    }
-
-    try {
-      var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullResignationForExportUrl(
-          pageSize: pageSize,
-          pageNumber: pageNumber,
-          queryParams: queryParams,
-        ),
-      );
+      String addResignationUrl =
+          'EmployeeResignation/AddUpdateEmployeeResignation';
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            addResignationUrl,
+            fileList,
+            body,
+          );
       return {
         'data': List<ResignationModel>.from(
           networkResponse["data"].map((e) => ResignationModel.fromJson(e)),
@@ -128,7 +91,7 @@ class ResignationDatasourceImpl implements ResignationDatasource {
   }) async {
     try {
       String deleteResignationUrl =
-          "Resignation/DeleteResignation?LeaveId=$resignationId&UniqueKey=$uniqueKey";
+          "EmployeeResignation/DeleteEmployeeResignation?EmployeeResignationId=$resignationId&UniqueKey=$uniqueKey";
 
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
         deleteResignationUrl,

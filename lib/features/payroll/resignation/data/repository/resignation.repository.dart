@@ -10,13 +10,8 @@ abstract interface class ResignationRepository {
   });
 
   Future<Either<Failure, Map<String, dynamic>>> addUpdateResignation({
-    required Map<String, dynamic> body,
-  });
-
-  Future<Either<Failure, Map<String, dynamic>>> exportResignation({
-    required int pageNumber,
-    required int pageSize,
-    Map<String, dynamic>? queryParams,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> deleteResignation({
@@ -50,29 +45,13 @@ class ResignationRepositoryImpl implements ResignationRepository {
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> addUpdateResignation({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   }) async {
     try {
       var result = await resignationDatasource.apicallAddUpdateResignation(
         body: body,
-      );
-      return right(result);
-    } catch (error) {
-      return left(Failure(message: error.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Map<String, dynamic>>> exportResignation({
-    required int pageNumber,
-    required int pageSize,
-    Map<String, dynamic>? queryParams,
-  }) async {
-    try {
-      var result = await resignationDatasource.apicallPullResignationForExport(
-        pageNumber: pageNumber,
-        pageSize: pageSize,
-        queryParams: queryParams,
+        fileList: fileList,
       );
       return right(result);
     } catch (error) {

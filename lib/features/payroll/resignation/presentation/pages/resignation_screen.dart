@@ -1,15 +1,19 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/data/model/resignation.model.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/cubit/resignation_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/cubit/resignation_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -63,13 +67,38 @@ class _ResignationScreenState extends State<ResignationScreen> {
     });
   }
 
+  // <---- DELETE RESIGNATION ---->
+  Future<void> _showPopupToDeleteResignation(
+    BuildContext context,
+    ResignationModel obj,
+    int currentPage,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a resignation?',
+      'Deleting this resignation will permanently remove its contents.',
+    );
+    if (result && context.mounted) {
+      _resignationCubit.deleteResignation(
+        context: context,
+        resignationId: obj.employeeResignationId,
+        uniqueKey: obj.uniqueKey,
+        pageNumber: currentPage,
+        index: index,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: 'Resignation',
         authorization: _routeAuthorizationModel,
-        onAddCallback: () {},
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addresignation);
+        },
       ),
       body: BlocBuilder<ResignationCubit, ResignationState>(
         builder: (context, state) {
@@ -92,7 +121,7 @@ class _ResignationScreenState extends State<ResignationScreen> {
                     )
                     : const SizedBox.shrink();
               }
-              final resignationModel = state.resignationList[index];
+              final resignation = state.resignationList[index];
 
               return Container(
                 margin: EdgeInsets.only(bottom: 10),
@@ -109,20 +138,43 @@ class _ResignationScreenState extends State<ResignationScreen> {
                           child: GestureDetector(
                             onTap: () {},
                             child: Text(
-                              resignationModel.employeeName,
+                              resignation.employeeName,
                               style: AppTextStyle.ts16M(),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),
-                        _statusButton(resignationModel, index),
+                        _statusButton(resignation, index),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            CustomIconButton.edit(onPressed: () async {}),
+                            CustomIconButton.edit(
+                              onPressed: () async {
+                                await goRouter.pushNamed(
+                                  AppRoutes.addresignation,
+                                  queryParameters: {
+                                    "resignation": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(resignation),
+                                      ),
+                                    ),
+                                    'index': index.toString(),
+                                  },
+                                );
+                              },
+                            ),
                             const SizedBox(width: 8),
-                            CustomIconButton.delete(onPressed: () {}),
+                            CustomIconButton.delete(
+                              onPressed: () {
+                                _showPopupToDeleteResignation(
+                                  context,
+                                  resignation,
+                                  state.currentPage,
+                                  index,
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ],
@@ -132,26 +184,26 @@ class _ResignationScreenState extends State<ResignationScreen> {
                     buildRowTitleValue(
                       title: "Resignation Date",
                       value: formatDateTimeAsDDMMMYYYY(
-                        resignationModel.resignationDate,
+                        resignation.resignationDate,
                       ),
                     ),
                     buildRowTitleValue(
                       title: "Expected Relieving Date",
                       value: formatDateTimeAsDDMMMYYYY(
-                        resignationModel.resignationDate,
+                        resignation.resignationDate,
                       ),
                     ),
                     buildRowTitleValue(
                       title: "Offer In Hand",
-                      value: resignationModel.isAnyOfferInHand ? "Yes" : "No",
+                      value: resignation.isAnyOfferInHand ? "Yes" : "No",
                     ),
                     buildRowTitleValue(
                       title: "Offer Amount",
-                      value: resignationModel.offerAmount.toString(),
+                      value: resignation.offerAmount.toString(),
                     ),
                     buildRowTitleValue(
                       title: "Reason Of Leaving",
-                      value: resignationModel.reasonOfLeaving,
+                      value: resignation.reasonOfLeaving,
                     ),
                   ],
                 ),

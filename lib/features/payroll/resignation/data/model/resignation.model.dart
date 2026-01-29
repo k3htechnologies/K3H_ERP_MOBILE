@@ -42,7 +42,7 @@ class ResignationModel {
   factory ResignationModel.fromJson(Map<String, dynamic> json) =>
       ResignationModel(
         employeeResignationId: parseValue<int>(json, "EmployeeResignationId"),
-        uniqueKey: parseValue<String>(json, "Uniquekey"),
+        uniqueKey: parseValue<String>(json, "UniqueKey"),
 
         employeeId: parseValue<int>(json, "EmployeeId"),
 
@@ -71,7 +71,7 @@ class ResignationModel {
   Map<String, dynamic> toJson() {
     return {
       "EmployeeResignationId": employeeResignationId,
-      "Uniquekey": uniqueKey,
+      "UniqueKey": uniqueKey,
       "EmployeeId": employeeId,
       "EmployeeName": employeeName,
       "ResignationDate": resignationDate.toIso8601String(),
