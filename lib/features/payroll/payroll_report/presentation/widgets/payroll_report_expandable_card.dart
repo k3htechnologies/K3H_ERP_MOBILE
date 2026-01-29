@@ -47,7 +47,7 @@ class _PayrollReportExpandableCardState
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
       decoration: commonCardDecoration().copyWith(
-        color: _isExpanded ? AppColor.lightBlue : AppColor.white,
+        color: AppColor.white,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

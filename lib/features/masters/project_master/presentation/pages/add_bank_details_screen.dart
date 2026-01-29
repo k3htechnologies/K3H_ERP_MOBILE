@@ -172,114 +172,118 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Form(
             key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomTextField(
-                  title: "Beneficiary Account Holder Name",
-                  textController: _beneficiaryAccountHolderNameC,
-                  hint: "Enter Account Holder Name",
-                  isRequired: true,
-                  inputFormatterList: InputValidator.textOnly(100),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Account Holder Name is required";
-                    }
-                    return null;
-                  },
-                ),
-                verticalSpacing(),
-                CustomPaginationDropDownWidget(
-                  title: "Bank Name",
-                  isRequired: true,
-                  initialValue: selectedBank,
-                  dataFetchCallBack: (int pageNumber, {String? value}) async {
-                    return await _projectMasterCubit.getBankList(
-                      pageNumber,
-                      value: value,
-                    );
-                  },
-                  onSelected: (value) {
-                    setState(() {
-                      selectedBank = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value['zAttributesId'] == -1) {
-                      return 'Bank Name is required';
-                    }
-                    return null;
-                  },
-                ),
-                verticalSpacing(),
-                CustomDropDownWidget(
-                  title: "Account Type",
-                  isRequired: true,
-                  initialValue: selectedAccountType,
-                  dataList: accountTypeList,
-                  onSelected: (value) {
-                    setState(() {
-                      selectedAccountType = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value['zAttributesId'] == -1) {
-                      return 'Account Type is required';
-                    }
-                    return null;
-                  },
-                ),
-                verticalSpacing(),
-                CustomTextField(
-                  title: "Account Number",
-                  textController: _accountNumberC,
-                  hint: "Enter Account Number",
-                  isRequired: true,
-                  keyboardType: TextInputType.number,
-                  inputFormatterList: InputValidator.digit(20),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Account Number is required";
-                    }
-                    return null;
-                  },
-                ),
-                verticalSpacing(),
-                CustomTextField(
-                  title: "Branch Name",
-                  textController: _branchC,
-                  hint: "Enter Branch Name",
-                  isRequired: true,
-                  inputFormatterList: InputValidator.textOnly(100),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Branch is required";
-                    }
-                    return null;
-                  },
-                ),
-                verticalSpacing(),
-                CustomTextField(
-                  title: "IFSC Code",
-                  textController: _ifscCodeC,
-                  hint: "Enter IFSC Code",
-                  isRequired: true,
-                  inputFormatterList: [
-                    LengthLimitingTextInputFormatter(11),
-                    UpperCaseTextFormatter(),
-                  ],
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "IFSC Code is required";
-                    }
-                    if (value.trim().length != 11) {
-                      return "IFSC Code must be 11 characters";
-                    }
-                    return null;
-                  },
-                ),
-                verticalSpacing(height: 30),
-              ],
+            child: Container(
+              padding: EdgeInsets.all(16),
+              decoration: commonCardDecoration(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomTextField(
+                    title: "Beneficiary Account Holder Name",
+                    textController: _beneficiaryAccountHolderNameC,
+                    hint: "Enter Account Holder Name",
+                    isRequired: true,
+                    inputFormatterList: InputValidator.textOnly(100),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Account Holder Name is required";
+                      }
+                      return null;
+                    },
+                  ),
+                  verticalSpacing(),
+                  CustomPaginationDropDownWidget(
+                    title: "Bank Name",
+                    isRequired: true,
+                    initialValue: selectedBank,
+                    dataFetchCallBack: (int pageNumber, {String? value}) async {
+                      return await _projectMasterCubit.getBankList(
+                        pageNumber,
+                        value: value,
+                      );
+                    },
+                    onSelected: (value) {
+                      setState(() {
+                        selectedBank = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value['zAttributesId'] == -1) {
+                        return 'Bank Name is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  verticalSpacing(),
+                  CustomDropDownWidget(
+                    title: "Account Type",
+                    isRequired: true,
+                    initialValue: selectedAccountType,
+                    dataList: accountTypeList,
+                    onSelected: (value) {
+                      setState(() {
+                        selectedAccountType = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value['zAttributesId'] == -1) {
+                        return 'Account Type is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  verticalSpacing(),
+                  CustomTextField(
+                    title: "Account Number",
+                    textController: _accountNumberC,
+                    hint: "Enter Account Number",
+                    isRequired: true,
+                    keyboardType: TextInputType.number,
+                    inputFormatterList: InputValidator.digit(20),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Account Number is required";
+                      }
+                      return null;
+                    },
+                  ),
+                  verticalSpacing(),
+                  CustomTextField(
+                    title: "Branch Name",
+                    textController: _branchC,
+                    hint: "Enter Branch Name",
+                    isRequired: true,
+                    inputFormatterList: InputValidator.textOnly(100),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Branch is required";
+                      }
+                      return null;
+                    },
+                  ),
+                  verticalSpacing(),
+                  CustomTextField(
+                    title: "IFSC Code",
+                    textController: _ifscCodeC,
+                    hint: "Enter IFSC Code",
+                    isRequired: true,
+                    inputFormatterList: [
+                      LengthLimitingTextInputFormatter(11),
+                      UpperCaseTextFormatter(),
+                    ],
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "IFSC Code is required";
+                      }
+                      if (value.trim().length != 11) {
+                        return "IFSC Code must be 11 characters";
+                      }
+                      return null;
+                    },
+                  ),
+                  verticalSpacing(height: 30),
+                ],
+              ),
             ),
           ),
         ),

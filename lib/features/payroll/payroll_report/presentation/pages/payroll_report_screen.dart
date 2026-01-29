@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/cubit/payroll_report_cubit.dart';
-import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/widgets/payroll_report_expandable_card.dart';
+import 'package:k3h_erp_app/features/payroll/resignation/data/model/resignation.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -35,9 +35,21 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   // SELECTED DATE
   late ValueNotifier<DateTime> _selectedDateNotifier;
 
+  // ATTENDANCE PAGINATION
+  late ScrollController _attendanceScrollController;
+  Timer? _attendanceDebounce;
+
+  // LEAVE PAGINATION
+  late ScrollController _leaveScrollController;
+  Timer? _leaveDebounce;
+
   // OUTDOOR PAGINATION
   late ScrollController _outdoorScrollController;
   Timer? _outdoorDebounce;
+
+  // RESIGNATION PAGINATION
+  late ScrollController _resignationScrollController;
+  Timer? _resignationDebounce;
 
   @override
   void initState() {
@@ -47,8 +59,14 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     _selectedDateNotifier = ValueNotifier(DateTime.now());
     _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(_handleTabChange);
+    _attendanceScrollController = ScrollController();
+    _leaveScrollController = ScrollController();
     _outdoorScrollController = ScrollController();
+    _resignationScrollController = ScrollController();
+    _setupAttendancePagination();
+    _setupLeavePagination();
     _setupOutdoorPagination();
+    _setupResignationPagination();
     _selectedDateNotifier.addListener(_onSelectedDateChanged);
     _loadDataForTab(_tabController.index);
   }
@@ -59,8 +77,14 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     _tabController.dispose();
     _searchC.dispose();
     _selectedDateNotifier.dispose();
+    _attendanceDebounce?.cancel();
+    _leaveDebounce?.cancel();
     _outdoorDebounce?.cancel();
+    _resignationDebounce?.cancel();
+    _attendanceScrollController.dispose();
+    _leaveScrollController.dispose();
     _outdoorScrollController.dispose();
+    _resignationScrollController.dispose();
     super.dispose();
   }
 
@@ -88,13 +112,41 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   // WHEN SELECTED DATE CHANGES, REFETCH CURRENT TAB DATA
   void _onSelectedDateChanged() {
     final date = _selectedDateNotifier.value;
-    if (_tabController.index == 4) {
-      _payrollReportCubit.getOutdoorList(
-        context,
-        1,
-        startDate: date,
-        endDate: date,
-      );
+    switch (_tabController.index) {
+      case 0:
+        _payrollReportCubit.getAttendanceList(
+          context,
+          1,
+          startDate: date,
+          endDate: date,
+        );
+        break;
+      case 3:
+        _payrollReportCubit.getLeaveList(
+          context: context,
+          pageNumber: 1,
+          startDate: date,
+          endDate: date,
+        );
+        break;
+      case 4:
+        _payrollReportCubit.getOutdoorList(
+          context,
+          1,
+          startDate: date,
+          endDate: date,
+        );
+        break;
+      case 5:
+        _payrollReportCubit.getResignationList(
+          context,
+          1,
+          startDate: date,
+          endDate: date,
+        );
+        break;
+      default:
+        break;
     }
   }
 
@@ -102,10 +154,27 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   void _loadDataForTab(int index) {
     final date = _selectedDateNotifier.value;
     switch (index) {
-      // 0 - Attendance
-      // 1 - Regularize
-      // 2 - Comp-Off
-      // 3 - Leave
+      case 0: // Attendance
+        if (_payrollReportCubit.state.attendanceList.isEmpty) {
+          _payrollReportCubit.getAttendanceList(
+            context,
+            1,
+            startDate: date,
+            endDate: date,
+          );
+        }
+        break;
+      // 1 - Regularize, 2 - Comp-Off
+      case 3: // Leave
+        if (_payrollReportCubit.state.leaveList.isEmpty) {
+          _payrollReportCubit.getLeaveList(
+            context: context,
+            pageNumber: 1,
+            startDate: date,
+            endDate: date,
+          );
+        }
+        break;
       case 4: // Outdoor
         if (_payrollReportCubit.state.outdoorList.isEmpty) {
           _payrollReportCubit.getOutdoorList(
@@ -116,10 +185,63 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           );
         }
         break;
-      // 5 - Resignation
+      case 5: // Resignation
+        if (_payrollReportCubit.state.resignationList.isEmpty) {
+          _payrollReportCubit.getResignationList(
+            context,
+            1,
+            startDate: date,
+            endDate: date,
+          );
+        }
+        break;
       default:
         break;
     }
+  }
+
+  // <---- ATTENDANCE PAGINATION ---->
+  void _setupAttendancePagination() {
+    _attendanceScrollController.addListener(() {
+      final state = _payrollReportCubit.state;
+      if (_attendanceScrollController.position.pixels >=
+              _attendanceScrollController.position.maxScrollExtent - 100 &&
+          !(state.isLoading ?? false) &&
+          state.attendanceList.length < state.totalNumberOfRecordAttendance) {
+        if (_attendanceDebounce?.isActive ?? false) _attendanceDebounce?.cancel();
+        final date = _selectedDateNotifier.value;
+        _attendanceDebounce = Timer(const Duration(milliseconds: 300), () {
+          _payrollReportCubit.getAttendanceList(
+            context,
+            state.currentPageAttendance + 1,
+            startDate: date,
+            endDate: date,
+          );
+        });
+      }
+    });
+  }
+
+  // <---- LEAVE PAGINATION ---->
+  void _setupLeavePagination() {
+    _leaveScrollController.addListener(() {
+      final state = _payrollReportCubit.state;
+      if (_leaveScrollController.position.pixels >=
+              _leaveScrollController.position.maxScrollExtent - 100 &&
+          !(state.isLoading ?? false) &&
+          state.leaveList.length < state.totalNumberOfRecordLeave) {
+        if (_leaveDebounce?.isActive ?? false) _leaveDebounce?.cancel();
+        final date = _selectedDateNotifier.value;
+        _leaveDebounce = Timer(const Duration(milliseconds: 300), () {
+          _payrollReportCubit.getLeaveList(
+            context: context,
+            pageNumber: state.currentPageLeave + 1,
+            startDate: date,
+            endDate: date,
+          );
+        });
+      }
+    });
   }
 
   // <---- OUTDOOR PAGINATION ---->
@@ -145,7 +267,27 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     });
   }
 
-
+  // <---- RESIGNATION PAGINATION ---->
+  void _setupResignationPagination() {
+    _resignationScrollController.addListener(() {
+      final state = _payrollReportCubit.state;
+      if (_resignationScrollController.position.pixels >=
+              _resignationScrollController.position.maxScrollExtent - 100 &&
+          !(state.isLoading ?? false) &&
+          state.resignationList.length < state.totalNumberOfRecordResignation) {
+        if (_resignationDebounce?.isActive ?? false) _resignationDebounce?.cancel();
+        final date = _selectedDateNotifier.value;
+        _resignationDebounce = Timer(const Duration(milliseconds: 300), () {
+          _payrollReportCubit.getResignationList(
+            context,
+            state.currentPageResignation + 1,
+            startDate: date,
+            endDate: date,
+          );
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -264,9 +406,79 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
   // BUILD ATTENDANCE SECTION
   Widget buildAttendanceSection() {
-    return Container(
-      color: AppColor.lightBlue,
-      child: Center(child: Text("Attendance Section")),
+    return BlocBuilder<PayrollReportCubit, PayrollReportState>(
+      builder: (context, state) {
+        final isLoading = state.isLoading ?? true;
+
+        if (isLoading && state.attendanceList.isEmpty) {
+          return Center(child: loader());
+        }
+
+        if (state.attendanceList.isEmpty) {
+          return Center(child: noDataWidget());
+        }
+
+        return ListView.builder(
+          controller: _attendanceScrollController,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          itemCount: state.attendanceList.length + 1,
+          itemBuilder: (context, index) {
+            if (index == state.attendanceList.length) {
+              return state.attendanceList.length <
+                      state.totalNumberOfRecordAttendance
+                  ? const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  : const SizedBox.shrink();
+            }
+
+            final attendance = state.attendanceList[index];
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(12),
+              decoration: commonCardDecoration(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    attendance.fullName,
+                    style: AppTextStyle.ts16M(),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  verticalSpacing(height: 10),
+                  buildRowTitleValue(
+                    title: "Attendance Date",
+                    value: formatDateTimeAsDDMMMYYYY(attendance.attendanceDate),
+                  ),
+                  buildRowTitleValue(
+                    title: "Punch In",
+                    value: attendance.punchIn != null
+                        ? DateFormat('hh:mm a').format(attendance.punchIn!)
+                        : "-",
+                  ),
+                  buildRowTitleValue(
+                    title: "Punch Out",
+                    value: attendance.punchOut != null
+                        ? DateFormat('hh:mm a').format(attendance.punchOut!)
+                        : "-",
+                  ),
+                  buildRowTitleValue(
+                    title: "Working Hours",
+                    value: attendance.workingHours,
+                  ),
+                  buildRowTitleValue(
+                    title: "Attendance Status",
+                    value: attendance.attendanceStatus,
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -286,8 +498,78 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
   // BUILD LEAVE SECTION
   Widget buildLeaveSection() {
-    return Container(
-      child: Center(child: Text("Leave Section")),
+    return BlocBuilder<PayrollReportCubit, PayrollReportState>(
+      builder: (context, state) {
+        final isLoading = state.isLoading ?? true;
+
+        if (isLoading && state.leaveList.isEmpty) {
+          return Center(child: loader());
+        }
+
+        if (state.leaveList.isEmpty) {
+          return Center(child: noDataWidget());
+        }
+
+        return ListView.builder(
+          controller: _leaveScrollController,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          itemCount: state.leaveList.length + 1,
+          itemBuilder: (context, index) {
+            if (index == state.leaveList.length) {
+              return state.leaveList.length < state.totalNumberOfRecordLeave
+                  ? const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  : const SizedBox.shrink();
+            }
+
+            final leave = state.leaveList[index];
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(12),
+              decoration: commonCardDecoration(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    leave.createdBy,
+                    style: AppTextStyle.ts16M(),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  verticalSpacing(height: 10),
+                  buildRowTitleValue(
+                    title: "Leave Type",
+                    value: leave.leaveType,
+                  ),
+                  buildRowTitleValue(
+                    title: "Start Date",
+                    value: formatDateTimeAsDDMMMYYYY(leave.startDate),
+                  ),
+                  buildRowTitleValue(
+                    title: "End Date",
+                    value: formatDateTimeAsDDMMMYYYY(leave.endDate),
+                  ),
+                  buildRowTitleValue(
+                    title: "No Of Days",
+                    value: leave.noOfDays.toString(),
+                  ),
+                  buildRowTitleValue(
+                    title: "Reason",
+                    value: leave.reason,
+                  ),
+                  buildRowTitleValue(
+                    title: "Leave Status",
+                    value: leave.leaveStatus,
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -322,12 +604,20 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
             final outdoor = state.outdoorList[index];
 
-            return PayrollReportExpandableCard(
-              title: outdoor.createdBy,
-              subtitle: outdoor.departmentName,
-              expandedContent: Column(
+            return Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(12),
+              decoration: commonCardDecoration(),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text(
+                    outdoor.createdBy,
+                    style: AppTextStyle.ts16M(),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  verticalSpacing(height: 10),
                   buildRowTitleValue(
                     title: "Date",
                     value: formatDateTimeAsDDMMMYYYY(outdoor.outDoorDate),
@@ -352,12 +642,11 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                     title: "Purpose",
                     value: outdoor.purpose,
                   ),
-                  if (outdoor.conclusion.isNotEmpty) ...[
+                  if (outdoor.conclusion.isNotEmpty)
                     buildRowTitleValue(
                       title: "Conclusion",
                       value: outdoor.conclusion,
                     ),
-                  ],
                 ],
               ),
             );
@@ -369,10 +658,117 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
 
   // BUILD RESIGNATION SECTION
   Widget buildResignationSection() {
-    return Container(
-      child: Center(child: Text("Resignation Section")),
+    return BlocBuilder<PayrollReportCubit, PayrollReportState>(
+      builder: (context, state) {
+        final isLoading = state.isLoading ?? true;
+
+        if (isLoading && state.resignationList.isEmpty) {
+          return Center(child: loader());
+        }
+
+        if (state.resignationList.isEmpty) {
+          return Center(child: noDataWidget());
+        }
+
+        return ListView.builder(
+          controller: _resignationScrollController,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          itemCount: state.resignationList.length + 1,
+          itemBuilder: (context, index) {
+            if (index == state.resignationList.length) {
+              return state.resignationList.length <
+                      state.totalNumberOfRecordResignation
+                  ? const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  : const SizedBox.shrink();
+            }
+
+            final resignation = state.resignationList[index];
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(12),
+              decoration: commonCardDecoration(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          resignation.employeeName,
+                          style: AppTextStyle.ts16M(),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      _statusButton(resignation, index),
+                    ],
+                  ),
+                  verticalSpacing(height: 10),
+                  buildRowTitleValue(
+                    title: "Resignation Date",
+                    value: formatDateTimeAsDDMMMYYYY(resignation.resignationDate),
+                  ),
+                  buildRowTitleValue(
+                    title: "Expected Relieving Date",
+                    value: formatDateTimeAsDDMMMYYYY(
+                      resignation.expectedRelievingDate,
+                    ),
+                  ),
+                  buildRowTitleValue(
+                    title: "Reason Of Leaving",
+                    value: resignation.reasonOfLeaving,
+                  ),
+                  buildRowTitleValue(
+                    title: "Offer In Hand",
+                    value: resignation.isAnyOfferInHand ? "Yes" : "No",
+                  ),
+                  buildRowTitleValue(
+                    title: "Offer Amount",
+                    value: resignation.offerAmount.toString(),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
+  // HELPER WIDGET FOR STATE
+  Widget _statusButton(ResignationModel resignation, int index) {
+    String status;
+    status = '';
 
+    late String buttonText;
+    late Color bgColor;
+    late Color textColor;
+
+    VoidCallback? onTap;
+
+    switch (status) {
+      default:
+        buttonText = "Pending";
+        bgColor = AppColor.darkBlue;
+        textColor = AppColor.white;
+        onTap = () {};
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+        child: Text(buttonText, style: AppTextStyle.ts14M(color: textColor)),
+      ),
+    );
+  }
 }

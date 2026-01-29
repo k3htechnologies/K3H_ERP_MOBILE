@@ -3,9 +3,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/repository/attendance.repository.dart';
+import 'package:k3h_erp_app/features/payroll/leave/data/repository/leave.repository.dart';
+import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/data/model/outdoor.model.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/data/repository/outdoor.repository.dart';
+import 'package:k3h_erp_app/features/payroll/resignation/data/model/resignation.model.dart';
+import 'package:k3h_erp_app/features/payroll/resignation/data/repository/resignation.repository.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 
 part 'payroll_report_state.dart';
@@ -15,13 +20,60 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
 
   // REPOSITORIES
   final AttendanceRepository _attendanceRepository =
-  serviceLocator<AttendanceRepository>();
+      serviceLocator<AttendanceRepository>();
 
   final OutdoorRepository _outdoorRepository =
-  serviceLocator<OutdoorRepository>();
+      serviceLocator<OutdoorRepository>();
+
+  final LeaveRepository _leaveRepository = serviceLocator<LeaveRepository>();
+
+  final ResignationRepository _resignationRepository =
+      serviceLocator<ResignationRepository>();
 
   void onTabChanged(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndex: index));
+  }
+
+  // <---- GET ATTENDANCE LIST ---->
+  Future getAttendanceList(
+    BuildContext context,
+    int pageNumber, {
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    final queryParams = {
+      'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
+      'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
+    };
+    var result = await _attendanceRepository.getAttendanceList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<AttendanceModel> newData = List<AttendanceModel>.from(
+          response['data'] ?? [],
+        );
+
+        final List<AttendanceModel> updatedList =
+            pageNumber == 1 ? newData : [...state.attendanceList, ...newData];
+        emit(
+          state.copyWith(
+            attendanceList: updatedList,
+            isLoading: false,
+            totalNumberOfRecordAttendance: response["totalNumberOfRecord"],
+            currentPageAttendance: pageNumber,
+          ),
+        );
+      },
+    );
   }
 
   // <---- GET OUTDOOR LIST ---->
@@ -43,17 +95,17 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     );
 
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
-          (response) {
+      (response) {
         final List<OutdoorModel> newData = List<OutdoorModel>.from(
           response['data'] ?? [],
         );
 
         final List<OutdoorModel> updatedList =
-        pageNumber == 1 ? newData : [...state.outdoorList, ...newData];
+            pageNumber == 1 ? newData : [...state.outdoorList, ...newData];
         emit(
           state.copyWith(
             outdoorList: updatedList,
@@ -66,4 +118,88 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     );
   }
 
+  // <---- GET LEAVE LIST ---->
+  Future getLeaveList({
+    required BuildContext context,
+    required int pageNumber,
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    final queryParams = {
+      'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
+      'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
+    };
+
+    var result = await _leaveRepository.getLeaveList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<LeaveModel> newData = List<LeaveModel>.from(
+          response['data'] ?? [],
+        );
+
+        final List<LeaveModel> updatedList =
+            pageNumber == 1 ? newData : [...state.leaveList, ...newData];
+        emit(
+          state.copyWith(
+            leaveList: updatedList,
+            isLoading: false,
+            totalNumberOfRecordLeave: response["totalNumberOfRecord"],
+            currentPageLeave: pageNumber,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET RESIGNATION LIST ---->
+  Future getResignationList(
+    BuildContext context,
+    int pageNumber, {
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    final queryParams = {
+      'ResignationDateFrom': DateFormat('yyyy-MM-dd').format(startDate),
+      'ResignationDateTo': DateFormat('yyyy-MM-dd').format(endDate),
+    };
+    var result = await _resignationRepository.getResignationList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<ResignationModel> newData = List<ResignationModel>.from(
+          response['data'] ?? [],
+        );
+
+        final List<ResignationModel> updatedList =
+            pageNumber == 1 ? newData : [...state.resignationList, ...newData];
+        emit(
+          state.copyWith(
+            resignationList: updatedList,
+            isLoading: false,
+            totalNumberOfRecordResignation: response["totalNumberOfRecord"],
+            currentPageResignation: pageNumber,
+          ),
+        );
+      },
+    );
+  }
 }

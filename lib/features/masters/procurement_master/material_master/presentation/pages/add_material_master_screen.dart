@@ -121,6 +121,7 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
                     CustomTextField(
                       title: 'Material Name',
                       isRequired: true,
+                      hint: "Enter Material Name",
                       textController: _materialNameC,
                       inputFormatterList: [
                         LengthLimitingTextInputFormatter(100),
@@ -136,6 +137,7 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
                     CustomTextField(
                       title: 'Material Code',
                       isRequired: true,
+                      hint: "Enter Material Code",
                       textController: _materialCodeC,
                       inputFormatterList: [
                         UpperCaseTextFormatter(),
@@ -159,7 +161,7 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
       bottomNavigationBar: SafeArea(
         child: Container(
           color: AppColor.white,
-          height: 80,
+          height: 70,
           padding: const EdgeInsets.all(16),
           child: CustomButton(
             leading:

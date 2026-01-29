@@ -171,7 +171,7 @@ class OutdoorCubit extends Cubit<OutdoorState> {
 
           showSuccessMessage(
             context,
-            subTitle: 'Outdoor Attendance Updated Successfully!!!',
+            subTitle: 'Conclusion Added/Updated Successfully!!!',
           );
         }
       },

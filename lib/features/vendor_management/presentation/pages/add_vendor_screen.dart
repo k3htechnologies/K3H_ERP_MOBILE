@@ -388,7 +388,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
             SliverToBoxAdapter(child: SizedBox(height: 12)),
             ..._buildMaterialAndContractSectionSlivers(),
             SliverToBoxAdapter(child: SizedBox(height: 20)),
-            SliverToBoxAdapter(child: SizedBox(height: 50)), // padding bottom
+            SliverToBoxAdapter(child: SizedBox(height: 50)),
           ],
         ),
       ),
@@ -397,6 +397,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
+            leading: Icon(widget.vendor!=null?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
             text: widget.vendor == null ? 'Add Vendor' : 'Update Vendor',
             onPressed: _handleSubmit,
             backgroundColor: AppColor.primary,
@@ -422,7 +423,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(title, style: AppTextStyle.ts16R(color: AppColor.black)),
+      child: Text(title, style: AppTextStyle.ts16M(color: AppColor.black)),
     );
   }
 

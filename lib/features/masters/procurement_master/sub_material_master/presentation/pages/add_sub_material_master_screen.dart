@@ -218,6 +218,7 @@ class _AddSubMaterialMasterScreenState
                     CustomTextField(
                       title: 'Sub Material Name',
                       isRequired: true,
+                      hint: "Enter Sub Material Name",
                       textController: _subMaterialNameC,
                       inputFormatterList: [
                         LengthLimitingTextInputFormatter(100),
@@ -277,7 +278,7 @@ class _AddSubMaterialMasterScreenState
       bottomNavigationBar: SafeArea(
         child: Container(
           color: AppColor.white,
-          height: 80,
+          height: 70,
           padding: const EdgeInsets.all(16),
           child: CustomButton(
             leading:

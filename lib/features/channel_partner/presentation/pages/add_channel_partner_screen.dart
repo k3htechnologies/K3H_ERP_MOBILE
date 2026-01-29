@@ -10,8 +10,10 @@ import 'package:k3h_erp_app/features/masters/company_master/data/repository/comp
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
@@ -277,280 +279,300 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         child: Form(
           key: _formKey,
-          child: Column(
-            children: [
-              Text(
-                _isEditMode ? "Update Channel Partner" : "Add Channel Partner",
-                style: AppTextStyle.ts16SB(),
-              ),
-              verticalSpacing(height: 15),
-              CustomTextField(
-                title: 'Name',
-                isRequired: true,
-                hint: "Enter Name",
-                textController: _nameC,
-                inputFormatterList: InputValidator.textOnly(50),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Name is required";
-                  }
-                  return null;
-                },
-              ),
-              CustomTextField(
-                title: 'Email Id',
-                textController: _emailC,
-                isRequired: true,
-                hint: "Enter Email Id",
-                inputFormatterList: InputValidator.emailInputFormatters(),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value == "") {
-                    return "Email id is required";
-                  }
-                  if (!InputValidator.isValidEmail(value)) {
-                    return "Invalid email id";
-                  }
-                  return null;
-                },
-              ),
-              CustomTextField(
-                title: 'Mobile Number',
-                isRequired: true,
-                hint: "Enter Mobile Number",
-                textController: _mobileNumberC,
-                validator: (value) {
-                  if (value == null || value == "") {
-                    return "Mobile number is required";
-                  }
-                  if (!InputValidator.isValidMobileNumber(value)) {
-                    return "Invalid mobile number";
-                  }
-                  return null;
-                },
-                inputFormatterList: InputValidator.digit(10),
-                prefixWidget: IntrinsicHeight(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-
-                    children: [
-                      SizedBox(width: 10),
-                      Text("+91"),
-                      VerticalDivider(
-                        color: AppColor.black,
-                        thickness: 0.5,
-                        width: 15,
-                        indent: 5,
-                        endIndent: 5,
-                      ),
-                    ],
-                  ),
+          child: Container(
+            padding: EdgeInsets.all(16),
+            decoration: commonCardDecoration(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _isEditMode
+                      ? "Update Channel Partner"
+                      : "Add Channel Partner",
+                  style: AppTextStyle.ts16SB(),
                 ),
-              ),
-              CustomTextField(
-                title: 'Alternate Mobile Number',
-                hint: "Enter Alternate Mobile Number",
-                textController: _alternateMobileNumberC,
-                inputFormatterList: InputValidator.digit(10),
-                prefixWidget: IntrinsicHeight(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-
-                    children: [
-                      SizedBox(width: 10),
-                      Text("+91"),
-                      VerticalDivider(
-                        color: AppColor.black,
-                        thickness: 0.5,
-                        width: 15,
-                        indent: 5,
-                        endIndent: 5,
-                      ),
-                    ],
-                  ),
+                verticalSpacing(height: 15),
+                CustomTextField(
+                  title: 'Name',
+                  isRequired: true,
+                  hint: "Enter Name",
+                  textController: _nameC,
+                  inputFormatterList: InputValidator.textOnly(50),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Name is required";
+                    }
+                    return null;
+                  },
                 ),
-              ),
-              CustomDropDownWidget(
-                title: 'Company Type',
-                initialValue: selectedCompanyType.value,
-                dataList: companyTypeList,
-                onSelected: (value) {
-                  _companyNameC.clear();
-                  selectedCompanyType.value = value;
-                },
-              ),
-              ValueListenableBuilder(
-                valueListenable: selectedCompanyType,
-                builder: (context, value, child) {
-                  if (value['zAttributesId'] == 1) {
-                    return CustomTextField(
-                      title: 'Company Name',
-                      isRequired: true,
-                      hint: "Enter Company Name",
-                      textController: _companyNameC,
-                      inputFormatterList: [
-                        LengthLimitingTextInputFormatter(50),
+                CustomTextField(
+                  title: 'Email Id',
+                  textController: _emailC,
+                  isRequired: true,
+                  hint: "Enter Email Id",
+                  inputFormatterList: InputValidator.emailInputFormatters(),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value == "") {
+                      return "Email id is required";
+                    }
+                    if (!InputValidator.isValidEmail(value)) {
+                      return "Invalid email id";
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  title: 'Mobile Number',
+                  isRequired: true,
+                  hint: "Enter Mobile Number",
+                  textController: _mobileNumberC,
+                  validator: (value) {
+                    if (value == null || value == "") {
+                      return "Mobile number is required";
+                    }
+                    if (!InputValidator.isValidMobileNumber(value)) {
+                      return "Invalid mobile number";
+                    }
+                    return null;
+                  },
+                  inputFormatterList: InputValidator.digit(10),
+                  prefixWidget: IntrinsicHeight(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+
+                      children: [
+                        SizedBox(width: 10),
+                        Text("+91"),
+                        VerticalDivider(
+                          color: AppColor.black,
+                          thickness: 0.5,
+                          width: 15,
+                          indent: 5,
+                          endIndent: 5,
+                        ),
                       ],
-                      validator: (value) {
-                        if (value!.trim().isEmpty) {
-                          return "Company Name is required";
-                        }
-                        return null;
-                      },
-                    );
-                  }
-                  if (value['zAttributesId'] == 2) {
-                    return CustomMultipleSelectPopup(
-                      title: "Company",
-                      isRequired: true,
-                      isMultiSelect: false,
-                      initialValue: selectedCompany,
-                      dataFetchCallBack: _fetchCompanyList,
-                      onSelected: (selectedValue) {
-                        setState(() {
-                          selectedCompany = selectedValue;
-                          if (selectedValue.isNotEmpty) {
-                            _companyNameC.text =
-                                selectedValue.first['DisplayName'] ?? '';
+                    ),
+                  ),
+                ),
+                CustomTextField(
+                  title: 'Alternate Mobile Number',
+                  hint: "Enter Alternate Mobile Number",
+                  textController: _alternateMobileNumberC,
+                  inputFormatterList: InputValidator.digit(10),
+                  prefixWidget: IntrinsicHeight(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+
+                      children: [
+                        SizedBox(width: 10),
+                        Text("+91"),
+                        VerticalDivider(
+                          color: AppColor.black,
+                          thickness: 0.5,
+                          width: 15,
+                          indent: 5,
+                          endIndent: 5,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                CustomDropDownWidget(
+                  title: 'Company Type',
+                  initialValue: selectedCompanyType.value,
+                  dataList: companyTypeList,
+                  onSelected: (value) {
+                    _companyNameC.clear();
+                    selectedCompanyType.value = value;
+                  },
+                ),
+                ValueListenableBuilder(
+                  valueListenable: selectedCompanyType,
+                  builder: (context, value, child) {
+                    if (value['zAttributesId'] == 1) {
+                      return CustomTextField(
+                        title: 'Company Name',
+                        isRequired: true,
+                        hint: "Enter Company Name",
+                        textController: _companyNameC,
+                        inputFormatterList: [
+                          LengthLimitingTextInputFormatter(50),
+                        ],
+                        validator: (value) {
+                          if (value!.trim().isEmpty) {
+                            return "Company Name is required";
                           }
-                        });
-                      },
-                      validator: (selectedValue) {
-                        if (selectedValue == null || selectedValue.isEmpty) {
-                          return "Company is required";
-                        }
-                        return null;
-                      },
-                    );
-                  }
-                  return SizedBox();
-                },
-              ),
-              CustomTextField(
-                title: 'PAN Number',
-                isRequired: true,
-                hint: "Enter PAN Number",
-                textController: _panNumberC,
-                inputFormatterList: InputValidator.panInputFormatters(),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "PAN Number is required";
-                  }
-                  if (value.trim().isNotEmpty &&
-                      !InputValidator.isValidPAN(value)) {
-                    return "Invalid PAN Number";
-                  }
-                  return null;
-                },
-              ),
-              CustomMultiFilePicker(
-                title: "Upload Pan Number",
-                initialFileList: selectedPANForPopUpFile.fileNameList,
-                onFilePickedCallback: (bytesList, fileNameList) {
-                  selectedPANForPopUpFile.fileNameList = fileNameList;
-                  selectedPANForPopUpFile.fileBytesList = bytesList;
-                },
-                onFileDeleteCallback: (
-                  fileBytesList,
-                  fileNameList,
-                  deletedFile,
-                ) {
-                  selectedPANForPopUpFile.fileNameList = fileNameList;
-                  selectedPANForPopUpFile.fileBytesList = fileBytesList;
-                  selectedPANForPopUpFile.deletedFileList = deletedFile;
-                },
-              ),
-              CustomTextField(
-                title: 'Aadhaar Card Number',
-                isRequired: true,
-                hint: "Enter Aadhaar Card Number",
-                textController: _aadhaarNumberC,
-                inputFormatterList: InputValidator.aadharNumberInputFormatter(),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Aadhaar Number is required";
-                  }
-                  if (!InputValidator.isValidAadharNumber(value)) {
-                    return "Invalid Aadhaar Number";
-                  }
-                  return null;
-                },
-              ),
-              CustomMultiFilePicker(
-                title: "Upload Aadhaar Card",
-                initialFileList: selectedAadhaarForPopUpFile.fileNameList,
-                onFilePickedCallback: (bytesList, fileNameList) {
-                  selectedAadhaarForPopUpFile.fileNameList = fileNameList;
-                  selectedAadhaarForPopUpFile.fileBytesList = bytesList;
-                },
-                onFileDeleteCallback: (
-                  fileBytesList,
-                  fileNameList,
-                  deletedFile,
-                ) {
-                  selectedAadhaarForPopUpFile.fileNameList = fileNameList;
-                  selectedAadhaarForPopUpFile.fileBytesList = fileBytesList;
-                  selectedAadhaarForPopUpFile.deletedFileList = deletedFile;
-                },
-              ),
-              CustomTextField(
-                title: 'RERA Number',
-                textController: _reraNumberC,
-                inputFormatterList: InputValidator.reraInputFormatters(),
-              ),
-              CustomTextField(
-                title: 'GST Number',
-                textController: _gstNumberC,
-                inputFormatterList: InputValidator.gstInputFormatters(),
-              ),
-              CustomDropDownWidget(
-                title: "Speciality",
-                isRequired: true,
-                dataList: specialityList,
-                initialValue: selectedSpeciality,
-                onSelected: (value) {
-                  selectedSpeciality = value;
-                },
-                validator: (value) {
-                  if (value == null || value["zAttributesId"] == -1) {
-                    return "Speciality is required";
-                  }
-                  return null;
-                },
-              ),
-              // Project (Multi Select)
-              CustomMultipleSelectPopup(
-                title: "Project",
-                isRequired: true,
-                isMultiSelect: true,
-                initialValue: selectedProject,
-                dataFetchCallBack: _fetchProjectList,
-                onSelected: (value) {
-                  setState(() {
-                    selectedProject = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Project is required";
-                  }
-                  return null;
-                },
-              ),
-              verticalSpacing(),
-              CustomTextField(
-                textController: _officeAddressC,
-                title: 'Office Address',
-                isRequired: true,
-                hint: "Enter Office Address",
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Office Address is required";
-                  }
-                  return null;
-                },
-              ),
-            ],
+                          return null;
+                        },
+                      );
+                    }
+                    if (value['zAttributesId'] == 2) {
+                      return CustomMultipleSelectPopup(
+                        title: "Company",
+                        isRequired: true,
+                        isMultiSelect: false,
+                        initialValue: selectedCompany,
+                        dataFetchCallBack: _fetchCompanyList,
+                        onSelected: (selectedValue) {
+                          setState(() {
+                            selectedCompany = selectedValue;
+                            if (selectedValue.isNotEmpty) {
+                              _companyNameC.text =
+                                  selectedValue.first['DisplayName'] ?? '';
+                            }
+                          });
+                        },
+                        validator: (selectedValue) {
+                          if (selectedValue == null || selectedValue.isEmpty) {
+                            return "Company is required";
+                          }
+                          return null;
+                        },
+                      );
+                    }
+                    return SizedBox();
+                  },
+                ),
+                CustomTextField(
+                  title: 'PAN Number',
+                  isRequired: true,
+                  hint: "Enter PAN Number",
+                  textController: _panNumberC,
+                  inputFormatterList: InputValidator.panInputFormatters(),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "PAN Number is required";
+                    }
+                    if (value.trim().isNotEmpty &&
+                        !InputValidator.isValidPAN(value)) {
+                      return "Invalid PAN Number";
+                    }
+                    return null;
+                  },
+                ),
+                CustomMultiFilePicker(
+                  title: "Upload Pan Number",
+                  initialFileList: selectedPANForPopUpFile.fileNameList,
+                  onFilePickedCallback: (bytesList, fileNameList) {
+                    selectedPANForPopUpFile.fileNameList = fileNameList;
+                    selectedPANForPopUpFile.fileBytesList = bytesList;
+                  },
+                  onFileDeleteCallback: (
+                    fileBytesList,
+                    fileNameList,
+                    deletedFile,
+                  ) {
+                    selectedPANForPopUpFile.fileNameList = fileNameList;
+                    selectedPANForPopUpFile.fileBytesList = fileBytesList;
+                    selectedPANForPopUpFile.deletedFileList = deletedFile;
+                  },
+                ),
+                CustomTextField(
+                  title: 'Aadhaar Card Number',
+                  isRequired: true,
+                  hint: "Enter Aadhaar Card Number",
+                  textController: _aadhaarNumberC,
+                  inputFormatterList:
+                      InputValidator.aadharNumberInputFormatter(),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Aadhaar Number is required";
+                    }
+                    if (!InputValidator.isValidAadharNumber(value)) {
+                      return "Invalid Aadhaar Number";
+                    }
+                    return null;
+                  },
+                ),
+                CustomMultiFilePicker(
+                  title: "Upload Aadhaar Card",
+                  initialFileList: selectedAadhaarForPopUpFile.fileNameList,
+                  onFilePickedCallback: (bytesList, fileNameList) {
+                    selectedAadhaarForPopUpFile.fileNameList = fileNameList;
+                    selectedAadhaarForPopUpFile.fileBytesList = bytesList;
+                  },
+                  onFileDeleteCallback: (
+                    fileBytesList,
+                    fileNameList,
+                    deletedFile,
+                  ) {
+                    selectedAadhaarForPopUpFile.fileNameList = fileNameList;
+                    selectedAadhaarForPopUpFile.fileBytesList = fileBytesList;
+                    selectedAadhaarForPopUpFile.deletedFileList = deletedFile;
+                  },
+                ),
+                CustomTextField(
+                  title: 'RERA Number',
+                  textController: _reraNumberC,
+                  inputFormatterList: InputValidator.reraInputFormatters(),
+                ),
+                CustomTextField(
+                  title: 'GST Number',
+                  textController: _gstNumberC,
+                  inputFormatterList: InputValidator.gstInputFormatters(),
+                ),
+                CustomDropDownWidget(
+                  title: "Speciality",
+                  isRequired: true,
+                  dataList: specialityList,
+                  initialValue: selectedSpeciality,
+                  onSelected: (value) {
+                    selectedSpeciality = value;
+                  },
+                  validator: (value) {
+                    if (value == null || value["zAttributesId"] == -1) {
+                      return "Speciality is required";
+                    }
+                    return null;
+                  },
+                ),
+                // Project (Multi Select)
+                CustomMultipleSelectPopup(
+                  title: "Project",
+                  isRequired: true,
+                  isMultiSelect: true,
+                  initialValue: selectedProject,
+                  dataFetchCallBack: _fetchProjectList,
+                  onSelected: (value) {
+                    setState(() {
+                      selectedProject = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Project is required";
+                    }
+                    return null;
+                  },
+                ),
+                verticalSpacing(),
+                CustomTextField(
+                  textController: _officeAddressC,
+                  title: 'Office Address',
+                  isRequired: true,
+                  hint: "Enter Office Address",
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Office Address is required";
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 35,
+          color: AppColor.white,
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: CustomButton(
+            leading: Icon(_isEditMode?Icons.edit:Icons.add,size: 18,color: AppColor.white,),
+            text: _isEditMode ? "Update" : "Add",
+            onPressed: () {},
           ),
         ),
       ),
