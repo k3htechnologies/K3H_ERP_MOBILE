@@ -199,6 +199,9 @@ class AppRoutes {
   // RESIGNATION
   static String resignation = "/resignation";
   static String addresignation = "/addresignation";
+  // PAYROLL REPORT
+  static String payrollReport = "/payrollReport";
+
 
   // PROJECT DOCUMENTS
   // --DOCUMENT

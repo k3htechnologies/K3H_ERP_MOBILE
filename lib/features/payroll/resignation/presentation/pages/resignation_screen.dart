@@ -37,7 +37,6 @@ class _ResignationScreenState extends State<ResignationScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _resignationCubit = context.read<ResignationCubit>();
     _routeAuthorizationModel =
@@ -140,12 +139,13 @@ class _ResignationScreenState extends State<ResignationScreen> {
                             child: Text(
                               resignation.employeeName,
                               style: AppTextStyle.ts16M(),
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),
                         _statusButton(resignation, index),
+                        horizontalSpacing(),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
