@@ -1,12 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/data/model/resignation.model.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/cubit/resignation_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
@@ -51,12 +56,14 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
 
   //EDIT MODE
   bool get _isEditMode => widget.resignationModel != null;
+  late UserModel userModel;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _initializeTextEditingControllers();
     _resignationCubit = context.read<ResignationCubit>();
+    getCurrentUser();
     if (_isEditMode) {
       _prefillDataForEdit(widget.resignationModel!);
     }
@@ -104,7 +111,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
       } else {
         _resignationCubit.addResignation(
           context: context,
-          employeeId: "", // Pass the appropriate employee ID here
+          employeeId: userModel.employeeId.toString(),
           resignationDate: resignationDate!.toIso8601String().split('T').first,
           expectedRelievingDate:
               isEarlyRealise.value && relievingDate != null
@@ -117,6 +124,13 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
         );
       }
     }
+  }
+
+  Future getCurrentUser() async {
+    var userJson = jsonDecode(
+      LocalStorageManager().getString(StorageKey.currentUser) ?? "",
+    );
+    userModel = UserModel.fromJson(userJson);
   }
 
   @override
