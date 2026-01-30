@@ -37,7 +37,6 @@ class _ResignationScreenState extends State<ResignationScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _resignationCubit = context.read<ResignationCubit>();
     _routeAuthorizationModel =

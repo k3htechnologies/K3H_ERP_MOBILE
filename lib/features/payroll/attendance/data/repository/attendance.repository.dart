@@ -10,7 +10,7 @@ abstract interface class AttendanceRepository {
     Map<String, dynamic>? queryParams,
   });
   Future<Either<Failure, Map<String, dynamic>>>
-  AddUpdateAttendanceRegularization({
+  addUpdateAttendanceRegularization({
     required Map<String, dynamic> queryParams,
   });
 }
@@ -40,7 +40,7 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
 
   @override
   Future<Either<Failure, Map<String, dynamic>>>
-  AddUpdateAttendanceRegularization({
+  addUpdateAttendanceRegularization({
     required Map<String, dynamic> queryParams,
   }) async {
     try {
