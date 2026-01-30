@@ -462,7 +462,6 @@ class _AttendanceScreenState extends State<AttendanceScreen>
     DateTime selectedDate,
     DateTime visibleMonth,
   ) {
-    print("Selected Date: $selectedDate");
     final firstDayOfMonth = DateTime(visibleMonth.year, visibleMonth.month, 1);
     final daysInMonth =
         DateTime(visibleMonth.year, visibleMonth.month + 1, 0).day;
@@ -473,7 +472,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
     String? punchInTime;
     String? punchOutTime;
     final TextEditingController reasonC = TextEditingController();
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
     DateTime? regularizeDate;
 
     // Helper to get attendance by day-of-month index (backend is expected
@@ -495,8 +494,8 @@ class _AttendanceScreenState extends State<AttendanceScreen>
     }
 
     void submitAttendanceRegularize() {
-      if (!_formKey.currentState!.validate()) return;
-      _attendanceCubit.AddAttendanceRegularization(
+      if (!formKey.currentState!.validate()) return;
+      _attendanceCubit.addAttendanceRegularization(
         context: context,
         attendanceDate: regularizeDate!.toIso8601String(),
         punchIn:
@@ -660,7 +659,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                               Expanded(
                                 child: SingleChildScrollView(
                                   child: Form(
-                                    key: _formKey,
+                                    key: formKey,
                                     child: Column(
                                       children: [
                                         CustomTextField(

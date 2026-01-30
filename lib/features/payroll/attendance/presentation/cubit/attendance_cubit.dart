@@ -55,7 +55,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     emit(state.copyWith(currentTabIndex: index));
   }
 
-  Future<void> AddAttendanceRegularization({
+  Future<void> addAttendanceRegularization({
     required BuildContext context,
     required String attendanceDate,
     required String punchIn,
@@ -71,10 +71,8 @@ class AttendanceCubit extends Cubit<AttendanceState> {
       "PunchOut": punchOut,
       "Reason": reason,
     };
-    var addResult =
-        await _attendanceRepository.AddUpdateAttendanceRegularization(
-          queryParams: requestBody,
-        );
+    var addResult = await _attendanceRepository
+        .addUpdateAttendanceRegularization(queryParams: requestBody);
     goRouter.pop();
     addResult.fold(
       (failure) {

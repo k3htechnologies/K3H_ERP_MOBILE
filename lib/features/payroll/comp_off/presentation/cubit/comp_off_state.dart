@@ -63,15 +63,13 @@ class CompOffState extends BaseState {
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
-      workedDate: clearWorkedDate 
-          ? null 
-          : (workedDate != null ? workedDate : this.workedDate),
-      compOffDate: clearCompOffDate 
-          ? null 
-          : (compOffDate != null ? compOffDate : this.compOffDate),
+      workedDate: clearWorkedDate ? null : (workedDate ?? this.workedDate),
+      compOffDate: clearCompOffDate ? null : (compOffDate ?? this.compOffDate),
       reason: reason ?? this.reason,
-      filterStartDate: clearFilters ? null : (filterStartDate ?? this.filterStartDate),
-      filterEndDate: clearFilters ? null : (filterEndDate ?? this.filterEndDate),
+      filterStartDate:
+          clearFilters ? null : (filterStartDate ?? this.filterStartDate),
+      filterEndDate:
+          clearFilters ? null : (filterEndDate ?? this.filterEndDate),
     );
   }
 
