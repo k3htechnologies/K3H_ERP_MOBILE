@@ -123,7 +123,7 @@ class _ProjectListMobileScreenState extends State<ProjectListScreen> {
         widget.projectList.length + 4, // +4 for empty space at the end
         itemBuilder: (context, index) {
           if (index >= widget.projectList.length) {
-            return SizedBox(height: 100); // Empty space at the end
+            return SizedBox(height: 10); // Empty space at the end
           }
           var project = widget.projectList[index];
           return Padding(

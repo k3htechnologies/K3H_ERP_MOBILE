@@ -198,6 +198,7 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
               return GestureDetector(
                 onTap: () {
                   if(_selectedBuildingNotifier.value.isNotEmpty){
+                    FocusManager.instance.primaryFocus?.unfocus();
                     goRouter.pushNamed(
                       AppRoutes.proposedOfferSecondaryScreen,
                       queryParameters: {

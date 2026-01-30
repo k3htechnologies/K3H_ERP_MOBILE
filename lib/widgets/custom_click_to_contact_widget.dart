@@ -46,7 +46,7 @@ class CustomClickToContactText extends StatelessWidget {
     return InkWell(
       onTap: launchContact,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(

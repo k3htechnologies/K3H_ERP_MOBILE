@@ -507,13 +507,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           ),
           verticalSpacing(height: 12),
           CustomTextField(
-            title: 'Office Email Id',
-            hint: "Enter Office Email Id",
-            textController: _officeEmailIdC,
-            keyboardType: TextInputType.emailAddress,
-          ),
-          verticalSpacing(height: 12),
-          CustomTextField(
             title: 'Email Id',
             hint: "Enter Email Id",
             isRequired: true,
@@ -528,6 +521,13 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               }
               return null;
             },
+          ),
+          verticalSpacing(height: 12),
+          CustomTextField(
+            title: 'Office Email Id',
+            hint: "Enter Office Email Id",
+            textController: _officeEmailIdC,
+            keyboardType: TextInputType.emailAddress,
           ),
           verticalSpacing(height: 12),
           CustomTextField(
@@ -572,7 +572,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           ),
           verticalSpacing(height: 12),
           CustomDropDownWidget(
-            title: 'Employment Type',
+            title: 'Employee Type',
             isRequired: true,
             initialValue: selectedEmploymentType,
             dataList: employmentTypeList,
@@ -660,21 +660,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           ),
           verticalSpacing(height: 12),
           CustomPaginationDropDownWidget(
-            title: 'Branch',
-            isRequired: true,
-            initialValue: selectedBranch,
-            dataFetchCallBack: _employeeMasterCubit.getBranch,
-            onSelected: (value) => selectedBranch = value,
-            dataList: [],
-            validator: (value) {
-              if (value == null || value["zAttributesId"] == -1) {
-                return 'Branch is required';
-              }
-              return null;
-            },
-          ),
-          verticalSpacing(height: 12),
-          CustomPaginationDropDownWidget(
             title: "Department",
             isRequired: true,
             dataList: [],
@@ -684,6 +669,21 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             validator: (value) {
               if (value == null || value["zAttributesId"] == -1) {
                 return 'Department is required';
+              }
+              return null;
+            },
+          ),
+          verticalSpacing(height: 12),
+          CustomPaginationDropDownWidget(
+            title: 'Branch',
+            isRequired: true,
+            initialValue: selectedBranch,
+            dataFetchCallBack: _employeeMasterCubit.getBranch,
+            onSelected: (value) => selectedBranch = value,
+            dataList: [],
+            validator: (value) {
+              if (value == null || value["zAttributesId"] == -1) {
+                return 'Branch is required';
               }
               return null;
             },

@@ -301,6 +301,7 @@ class _CompanyMasterViewMobileScreenState
               ),
             ],
           ),
+          verticalSpacing(),
           Row(
             children: [
               buildColumnTitleValue(

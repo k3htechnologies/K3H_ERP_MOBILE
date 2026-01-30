@@ -523,55 +523,73 @@ class _CorpusDetailsState extends State<CorpusDetails> {
                       style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
                     verticalSpacing(),
-                    CustomTextField(
-                      title: "Residential Corpus Amount (₹)",
-                      isRequired: true,
-                      hint: "Enter Residential Corpus Amount (₹)",
-                      textController: _residentialAmountController,
-                      keyboardType: TextInputType.number,
-                      readOnly: _corpusListNotifier.value.any(
-                        (item) => item.type.toLowerCase() == 'residential',
-                      ),
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(10),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Residential amount is required";
-                        }
-                        if (double.parse(value) < 0) {
-                          return "Amount should be positive";
-                        }
-                        return null;
-                      },
-                      onChangeFunction: (value) {
-                        _handleResidentialAmountChange(
-                          double.tryParse(value) ?? 0,
+                    ValueListenableBuilder<
+                        List<ProposedOfferCorpusDetailsWithPaymentStageData>>(
+                      valueListenable: _corpusListNotifier,
+                      builder: (context, corpusList, _) {
+                        final isResidentialReadOnly = corpusList.any(
+                          (item) =>
+                              (item.type).toLowerCase().trim() == 'residential',
                         );
-                      },
-                    ),
-                    CustomTextField(
-                      title: "Commercial Corpus Amount (₹)",
-                      isRequired: true,
-                      hint: "Enter Commercial Corpus Amount (₹)",
-                      textController: _commercialAmountController,
-                      keyboardType: TextInputType.number,
-                      readOnly: _corpusListNotifier.value.any(
-                        (item) => item.type.toLowerCase() == 'commercial',
-                      ),
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(10),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Commercial amount is required";
-                        }
-                        if (double.parse(value) < 0) {
-                          return "Amount should be positive";
-                        }
-                        return null;
-                      },
-                      onChangeFunction: (value) {
-                        _handleCommercialAmountChange(
-                          double.tryParse(value) ?? 0,
+                        final isCommercialReadOnly = corpusList.any(
+                          (item) =>
+                              (item.type).toLowerCase().trim() == 'commercial',
+                        );
+                        return Column(
+                          children: [
+                            CustomTextField(
+                              title: "Residential Corpus Amount (₹)",
+                              isRequired: true,
+                              hint: "Enter Residential Corpus Amount (₹)",
+                              textController: _residentialAmountController,
+                              keyboardType: TextInputType.number,
+                              readOnly: isResidentialReadOnly,
+                              inputFormatterList:
+                                  inputFormatterListForDecimalValuesFixedToTwo(
+                                10,
+                              ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "Residential amount is required";
+                                }
+                                if (double.parse(value) < 0) {
+                                  return "Amount should be positive";
+                                }
+                                return null;
+                              },
+                              onChangeFunction: (value) {
+                                _handleResidentialAmountChange(
+                                  double.tryParse(value) ?? 0,
+                                );
+                              },
+                            ),
+                            CustomTextField(
+                              title: "Commercial Corpus Amount (₹)",
+                              isRequired: true,
+                              hint: "Enter Commercial Corpus Amount (₹)",
+                              textController: _commercialAmountController,
+                              keyboardType: TextInputType.number,
+                              readOnly: isCommercialReadOnly,
+                              inputFormatterList:
+                                  inputFormatterListForDecimalValuesFixedToTwo(
+                                10,
+                              ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "Commercial amount is required";
+                                }
+                                if (double.parse(value) < 0) {
+                                  return "Amount should be positive";
+                                }
+                                return null;
+                              },
+                              onChangeFunction: (value) {
+                                _handleCommercialAmountChange(
+                                  double.tryParse(value) ?? 0,
+                                );
+                              },
+                            ),
+                          ],
                         );
                       },
                     ),

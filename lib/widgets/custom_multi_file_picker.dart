@@ -356,8 +356,8 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Flexible(
-                                child: MouseRegion(
-                                  onEnter: (_) {
+                                child: GestureDetector(
+                                  onTap: () {
                                     if (fileNamesList.isNotEmpty) {
                                       _showFilePathOverlay(
                                         portalContext,

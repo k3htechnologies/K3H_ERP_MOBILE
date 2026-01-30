@@ -234,6 +234,9 @@ class _CustomAppBarWithBackButtonState
       leading: GestureDetector(
         onTap: () {
           if (goRouter.canPop()) {
+            // Unfocus any focused text field before pop to avoid
+            // "system context menu can only be shown for an active text input connection"
+            FocusManager.instance.primaryFocus?.unfocus();
             goRouter.pop();
           }
         },

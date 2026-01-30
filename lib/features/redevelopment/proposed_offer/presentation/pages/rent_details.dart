@@ -664,11 +664,11 @@ class _RentDetailsState extends State<RentDetails> {
                             ),
                             _buildRentInfoRow(
                               "Pay Brokerage",
-                              rent.isPayBrokerage ? "Yes" : "No",
+                              rent.isPayBrokerage==true ? "Yes" : "No",
                             ),
                             _buildRentInfoRow(
                               "Additional Rent",
-                              rent.isAdditionalRent.toString(),
+                              rent.isAdditionalRent==true?"Yes":"No",
                             ),
                             _buildRentInfoRow(
                               "Last Modified By",
