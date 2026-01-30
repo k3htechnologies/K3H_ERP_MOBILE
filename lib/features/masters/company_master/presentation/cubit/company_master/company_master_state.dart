@@ -8,7 +8,10 @@ class CompanyMasterState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
-  final String filterByCompanyType;
+  final String filterByFirmType;
+  final String filterByContactPerson;
+  final String filterByMobileNumber;
+  final String filterByCityName;
 
   const CompanyMasterState({
     super.isLoading,
@@ -20,7 +23,10 @@ class CompanyMasterState extends BaseState {
     required this.searchText,
     required this.currentSortColumn,
     required this.currentSortDirection,
-    required this.filterByCompanyType,
+    required this.filterByFirmType,
+    required this.filterByContactPerson,
+    required this.filterByMobileNumber,
+    required this.filterByCityName,
   });
 
   factory CompanyMasterState.initial() => CompanyMasterState(
@@ -31,7 +37,10 @@ class CompanyMasterState extends BaseState {
     searchText: "",
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
-    filterByCompanyType: "",
+    filterByFirmType: "",
+    filterByContactPerson: "",
+    filterByMobileNumber: "",
+    filterByCityName: "",
     isLoading: true,
   );
 
@@ -46,7 +55,10 @@ class CompanyMasterState extends BaseState {
     String? searchText,
     String? currentSortColumn,
     String? currentSortDirection,
-    String? filterByCompanyType,
+    String? filterByFirmType,
+    String? filterByContactPerson,
+    String? filterByMobileNumber,
+    String? filterByCityName,
   }) {
     return CompanyMasterState(
       isLoading: isLoading ?? this.isLoading,
@@ -58,7 +70,10 @@ class CompanyMasterState extends BaseState {
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
-      filterByCompanyType: filterByCompanyType ?? this.filterByCompanyType,
+      filterByFirmType: filterByFirmType ?? this.filterByFirmType,
+      filterByContactPerson: filterByContactPerson ?? this.filterByContactPerson,
+      filterByMobileNumber: filterByMobileNumber ?? this.filterByMobileNumber,
+      filterByCityName: filterByCityName ?? this.filterByCityName,
     );
   }
 
@@ -73,6 +88,9 @@ class CompanyMasterState extends BaseState {
     searchText,
     currentSortColumn,
     currentSortDirection,
-    filterByCompanyType,
+    filterByFirmType,
+    filterByContactPerson,
+    filterByMobileNumber,
+    filterByCityName,
   ];
 }

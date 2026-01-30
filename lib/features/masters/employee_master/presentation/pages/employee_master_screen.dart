@@ -206,6 +206,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
           return Form(
             key: filterFormKey,
             child: SingleChildScrollView(
+              padding: EdgeInsets.only(right: 15),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

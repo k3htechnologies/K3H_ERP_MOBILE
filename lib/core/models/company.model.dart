@@ -5,7 +5,7 @@ class CompanyModel {
   int companyId;
   String uniquekey;
   String companyName;
-  String companyType;
+  String firmsType;
   String contactPerson;
   String mobileNumber;
   String landLineNumber;
@@ -15,7 +15,7 @@ class CompanyModel {
   String cinURL;
   String panNumber;
   String panCardURL;
-  String reraNumber;
+  String tanNumber;
   String emailId;
   int countryMasterId;
   String countryName;
@@ -41,7 +41,7 @@ class CompanyModel {
     required this.companyId,
     required this.uniquekey,
     required this.companyName,
-    required this.companyType,
+    required this.firmsType,
     required this.contactPerson,
     required this.mobileNumber,
     required this.landLineNumber,
@@ -51,7 +51,7 @@ class CompanyModel {
     required this.cinURL,
     required this.panNumber,
     required this.panCardURL,
-    required this.reraNumber,
+    required this.tanNumber,
     required this.emailId,
     required this.countryMasterId,
     required this.countryName,
@@ -77,7 +77,7 @@ class CompanyModel {
       companyId: parseValue<int>(json, "CompanyId"),
       uniquekey: parseValue<String>(json, "Uniquekey"),
       companyName: parseValue<String>(json, "CompanyName"),
-      companyType: parseValue<String>(json, "CompanyType"),
+      firmsType: parseValue<String>(json, "FirmsType"),
       contactPerson: parseValue<String>(json, "ContactPerson"),
       mobileNumber: parseValue<String>(json, "MobileNumber"),
       landLineNumber: parseValue<String>(json, "LandLineNumber"),
@@ -87,7 +87,7 @@ class CompanyModel {
       cinURL: parseValue<String>(json, "CINURL"),
       panNumber: parseValue<String>(json, "PANNumber"),
       panCardURL: parseValue<String>(json, "PanCardURL"),
-      reraNumber: parseValue<String>(json, "RERANumber"),
+      tanNumber: parseValue<String>(json, "TANNumber"),
       emailId: parseValue<String>(json, "EmailId"),
       countryMasterId: parseValue<int>(json, "CountryMasterId"),
       countryName: parseValue<String>(json, "CountryName"),
@@ -128,7 +128,7 @@ class CompanyModel {
     "CompanyId": companyId,
     "Uniquekey": uniquekey,
     "CompanyName": companyName,
-    "CompanyType": companyType,
+    "FirmsType": firmsType,
     "ContactPerson": contactPerson,
     "MobileNumber": mobileNumber,
     "LandLineNumber": landLineNumber,
@@ -138,7 +138,7 @@ class CompanyModel {
     "CINURL": cinURL,
     "PANNumber": panNumber,
     "PanCardURL": panCardURL,
-    "RERANumber": reraNumber,
+    "TANNumber": tanNumber,
     "EmailId": emailId,
     "CountryMasterId": countryMasterId,
     "CountryName": countryName,

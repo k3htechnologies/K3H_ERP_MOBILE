@@ -44,7 +44,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       _gstNumberC,
       _panNumberC,
       _cinNumberC,
-      _reraNumberC,
+      _tanNumberC,
       _addressC,
       // COMPANY PARTNER TEXT CONTROLLER
       _companyPartnerFirstNameC,
@@ -57,7 +57,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       _companyPartnerAadharNumberC;
 
   // COMPANY TYPE LIST
-  List<Map<String, dynamic>> companyTypeList = [
+  List<Map<String, dynamic>> firmTypeList = [
     {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "LLP"},
     {"zAttributesId": 2, "DisplayName": "Private Limited Company"},
@@ -86,7 +86,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
   int cityMasterId = -1;
 
   // DROPDOWN VARIABLES
-  late Map<String, dynamic> selectedCompanyType;
+  late Map<String, dynamic> selectedFirmType;
   late Map<String, dynamic> selectedGender;
 
   // DATE PICKER FOR DOB
@@ -155,7 +155,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
   void _initializeTextEditingControllers(CompanyModel? company) {
     // BASIC COMPANY DETAILS
     _companyNameC = TextEditingController(text: company?.companyName);
-    selectedCompanyType = companyTypeList[0];
+    selectedFirmType = firmTypeList[0];
     _contactPersonC = TextEditingController(text: company?.contactPerson);
     _mobileNumberC = TextEditingController(text: company?.mobileNumber);
     _emailIdC = TextEditingController(text: company?.emailId);
@@ -164,7 +164,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     _gstNumberC = TextEditingController(text: company?.gstNumber);
     _cinNumberC = TextEditingController(text: company?.cinNumber);
     _panNumberC = TextEditingController(text: company?.panNumber);
-    _reraNumberC = TextEditingController(text: company?.reraNumber);
+    _tanNumberC = TextEditingController(text: company?.tanNumber);
     _addressC = TextEditingController(text: "");
     // COMPANY PARTNER DETAILS
     _companyPartnerFirstNameC = TextEditingController();
@@ -189,7 +189,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     _gstNumberC.dispose();
     _cinNumberC.dispose();
     _panNumberC.dispose();
-    _reraNumberC.dispose();
+    _tanNumberC.dispose();
     _addressC.dispose();
     // COMPANY PARTNER DETAILS
     _companyPartnerFirstNameC.dispose();
@@ -212,9 +212,9 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     _companyMasterAddCubit.resetCompanyPartner(
       companyPartner: company?.companyPartnerData,
     );
-    selectedCompanyType = companyTypeList.firstWhere(
-      (element) => element['DisplayName'] == widget.company?.companyType,
-      orElse: () => companyTypeList.first,
+    selectedFirmType = firmTypeList.firstWhere(
+      (element) => element['DisplayName'] == widget.company?.firmsType,
+      orElse: () => firmTypeList.first,
     );
     // FILES
     gstCertificateFile.fileNameList =
@@ -339,6 +339,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                 _buildGovernmentIdentifiersSection(),
               ),
             ),
+            SliverToBoxAdapter(child: SizedBox(height: 12)),
             SliverToBoxAdapter(
               child: _buildSectionContainer(_buildAddressSection()),
             ),
@@ -433,21 +434,27 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
               return null;
             },
           ),
-          CustomDropDownWidget(
-            title: "Company Type",
-            initialValue: selectedCompanyType,
-            dataList: companyTypeList,
-            isRequired: true,
-            onSelected: (value) {
-              selectedCompanyType = value;
-            },
-            validator: (value) {
-              if (value == null || value['zAttributesId'] == -1) {
-                return 'Company Type is required';
-              }
-              return null;
-            },
-          ),
+          StatefulBuilder(builder: (_,innerState){
+            return CustomDropDownWidget(
+              title: "Firm Type",
+              initialValue: selectedFirmType,
+              dataList: firmTypeList,
+              isRequired: true,
+              onSelected: (value) {
+                innerState(() {
+                  selectedFirmType = value;
+
+                });
+              },
+              validator: (_) {
+                // Validate against selectedFirmType (source of truth used on submit)
+                if (selectedFirmType['zAttributesId'] == -1) {
+                  return 'Company Type is required';
+                }
+                return null;
+              },
+            );
+          }),
           CustomTextField(
             title: 'Contact Person',
             textController: _contactPersonC,
@@ -532,22 +539,11 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             textController: _gstNumberC,
             title: "GST Number",
             hint: "Enter GST Number",
-            isRequired: true,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'GST number is required';
-              }
-              if (!InputValidator.isValidGST(value)) {
-                return 'Enter a valid GST number';
-              }
-              return null;
-            },
           ),
           CustomMultiFilePicker(
             maxFiles: 3,
             initialFileList: gstCertificateFile.fileNameList,
             title: "Upload GST Certificate",
-            isRequired: true,
             onFilePickedCallback: (fileByteList, fileNameList) {
               gstCertificateFile.fileBytesList = fileByteList;
               gstCertificateFile.fileNameList = fileNameList;
@@ -557,42 +553,19 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
               gstCertificateFile.fileNameList = fileNameList;
               gstCertificateFile.deletedFileList = deletedUrl;
             },
-            validator: (file) {
-              if (file == null || file.isEmpty) {
-                return "GST Certificate required";
-              }
-              return null;
-            },
           ),
           CustomTextField(
             title: "PAN Number",
             hint: "Enter PAN Number",
             textController: _panNumberC,
             inputFormatterList: InputValidator.panInputFormatters(),
-            isRequired: true,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return "PAN Number is required";
-              }
-              if (!InputValidator.isValidPAN(value)) {
-                return "Invalid PAN number";
-              }
-              return null;
-            },
           ),
           CustomMultiFilePicker(
             title: 'Upload PAN Card',
-            isRequired: true,
             initialFileList: selectedPANCardFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
               selectedPANCardFile.fileNameList = fileNameList;
               selectedPANCardFile.fileBytesList = bytesList;
-            },
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return "PAN Card is required";
-              }
-              return null;
             },
             onFileDeleteCallback: (fileBytesList, fileNameList, deletedFile) {
               selectedPANCardFile.fileNameList = fileNameList;
@@ -603,32 +576,15 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           CustomTextField(
             title: "CIN Number",
             hint: "Enter CIN Number",
-            isRequired: true,
             textController: _cinNumberC,
             inputFormatterList: InputValidator.cinInputFormatters(),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return "CIN Number is required";
-              }
-              if (!InputValidator.isValidCIN(value)) {
-                return "Invalid CIN number";
-              }
-              return null;
-            },
           ),
           CustomMultiFilePicker(
             title: 'Upload CIN Card',
-            isRequired: true,
             initialFileList: cinPhotoFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
               cinPhotoFile.fileNameList = fileNameList;
               cinPhotoFile.fileBytesList = bytesList;
-            },
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return "CIN Certificate is required";
-              }
-              return null;
             },
             onFileDeleteCallback: (fileBytesList, fileNameList, deletedFile) {
               cinPhotoFile.fileNameList = fileNameList;
@@ -637,20 +593,10 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             },
           ),
           CustomTextField(
-            title: 'RERA Number',
-            hint: "Enter RERA Number",
-            isRequired: true,
-            textController: _reraNumberC,
+            title: 'TAN Number',
+            hint: "Enter TAN Number",
+            textController: _tanNumberC,
             inputFormatterList: InputValidator.reraInputFormatters(),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return "RERA Number is required";
-              }
-              if (!InputValidator.isValidRERA(value)) {
-                return "Invalid RERA number";
-              }
-              return null;
-            },
           ),
         ],
       ),
@@ -803,7 +749,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       _companyMasterAddCubit.addCompanyMaster(
         context: context,
         companyName: _companyNameC.text.trim(),
-        companyType: selectedCompanyType["DisplayName"],
+        firmsType: selectedFirmType["DisplayName"],
         contactPerson: _contactPersonC.text.trim(),
         mobileNumber: _mobileNumberC.text,
         emailId: _emailIdC.text.trim(),
@@ -813,7 +759,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
         cinNumber: _cinNumberC.text,
         cinFile: cinPhotoFile,
         panNumber: _panNumberC.text,
-        reraNumber: _reraNumberC.text,
+        tanNumber: _tanNumberC.text,
         panCardFile: selectedPANCardFile,
         companyLetterheadHeaderFile: selectedCompanyLetterHeadHeaderFile,
         companyLetterheadFooterFile: selectedCompanyLetterHeadFooterFile,
@@ -832,7 +778,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
         companyId: widget.company!.companyId,
         uniquekey: widget.company!.uniquekey,
         companyName: _companyNameC.text.trim(),
-        companyType: selectedCompanyType["DisplayName"],
+        firmsType: selectedFirmType["DisplayName"],
         contactPerson: _contactPersonC.text.trim(),
         mobileNumber: _mobileNumberC.text,
         emailId: _emailIdC.text.trim(),
@@ -843,7 +789,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
         cinFile: cinPhotoFile,
         panNumber: _panNumberC.text,
         panCardFile: selectedPANCardFile,
-        reraNumber: _reraNumberC.text,
+        tanNumber: _tanNumberC.text,
         companyLetterheadHeaderFile: selectedCompanyLetterHeadHeaderFile,
         companyLetterheadFooterFile: selectedCompanyLetterHeadFooterFile,
         countryId: 1,

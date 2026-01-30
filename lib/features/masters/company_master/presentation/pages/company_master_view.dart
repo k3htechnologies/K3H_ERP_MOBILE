@@ -97,8 +97,8 @@ class _CompanyMasterViewMobileScreenState
                 value: widget.company!.companyName,
               ),
               buildColumnTitleValue(
-                title: "Company Type",
-                value: widget.company!.companyType,
+                title: "Firms Type",
+                value: widget.company!.firmsType,
               ),
             ],
           ),
@@ -193,11 +193,11 @@ class _CompanyMasterViewMobileScreenState
                         : widget.company!.cinNumber,
               ),
               buildColumnTitleValue(
-                title: "RERA Number",
+                title: "TAN Number",
                 value:
-                    widget.company!.reraNumber.isEmpty
+                    widget.company!.tanNumber.isEmpty
                         ? "-"
-                        : widget.company!.reraNumber,
+                        : widget.company!.tanNumber,
               ),
             ],
           ),

@@ -650,13 +650,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                           ),
                           verticalSpacing(),
                           CustomClickToContactText(
-                            value:
-                                widget
-                                        .project
-                                        .siteContactMobileNumber
-                                        .isNotEmpty
-                                    ? widget.project.siteContactMobileNumber
-                                    : "-",
+                            value: widget.project.siteContactMobileNumber,
                           ),
                         ],
                       ),
@@ -746,6 +740,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         ),
                         verticalSpacing(),
                         Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildColumTitleVale(
                               title: "Employee Code",
@@ -759,6 +755,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         ),
                         verticalSpacing(),
                         Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildColumTitleVale(
                               title: "Designation",
@@ -772,10 +770,24 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         ),
                         verticalSpacing(),
                         Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildColumTitleVale(
-                              title: "E-mail ID",
-                              value: employee.emailId,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "E-mail ID",
+                                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                                  ),
+                                  verticalSpacing(),
+                                  CustomClickToContactText(
+                                    value: employee.emailId,
+                                    type: ContactType.email,
+                                  ),
+                                ],
+                              ),
                             ),
                             Expanded(
                               child: Column(
@@ -798,6 +810,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         ),
                         verticalSpacing(),
                         Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildColumTitleVale(
                               title: "Joining Date",
@@ -1010,8 +1024,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _buildColumTitleVale(
-                                  title: "Company Type",
-                                  value: company.companyType,
+                                  title: "Firms Type",
+                                  value: company.firmsType,
                                 ),
                                 _buildColumTitleVale(
                                   title: "Contact Person",
@@ -1035,7 +1049,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                         ),
                                       ),
                                       verticalSpacing(),
-                                      CustomClickToContactText(value: company.mobileNumber),
+                                      CustomClickToContactText(
+                                        value: company.mobileNumber,
+                                      ),
                                     ],
                                   ),
                                 ),

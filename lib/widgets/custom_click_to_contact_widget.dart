@@ -56,14 +56,17 @@ class CustomClickToContactText extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Flexible(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: AppColor.mediumBlue)),
-              ),
-              child: Text(
-                value,
-                style: textStyle ?? const TextStyle(color: AppColor.mediumBlue),
-              ),
+            child: Text(
+              value,
+              style:
+                  textStyle ??
+                  const TextStyle(
+                    color: AppColor.mediumBlue,
+                    decoration: TextDecoration.underline,
+                    decorationColor: AppColor.mediumBlue,
+                    decorationThickness: .8,
+                    height: 1.3
+                  ),
             ),
           ),
         ],

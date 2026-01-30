@@ -21,6 +21,9 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
   Future applyCompanyFilterAndSort({
     required BuildContext context,
     String? companyType,
+    String? contactPerson,
+    String? mobileNumber,
+    String? cityName,
     String? sortColumn,
     String? sortDirection,
     bool? isClear,
@@ -28,7 +31,10 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     if (isClear ?? false) {
       emit(
         state.copyWith(
-          filterByCompanyType: "",
+          filterByFirmType: "",
+          filterByContactPerson: "",
+          filterByMobileNumber: "",
+          filterByCityName: "",
           currentSortColumn: "Created Date",
           currentSortDirection: "DESC",
           currentPage: 1,
@@ -37,7 +43,10 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     } else {
       emit(
         state.copyWith(
-          filterByCompanyType: companyType ?? state.filterByCompanyType,
+          filterByFirmType: companyType ?? state.filterByFirmType,
+          filterByContactPerson: contactPerson ?? state.filterByContactPerson,
+          filterByMobileNumber: mobileNumber ?? state.filterByMobileNumber,
+          filterByCityName: cityName ?? state.filterByCityName,
           currentSortColumn: sortColumn ?? state.currentSortColumn,
           currentSortDirection: sortDirection ?? state.currentSortDirection,
           currentPage: 1,
@@ -60,7 +69,10 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     );
     Map<String, dynamic> queryParams = {
       "CompanyName": state.searchText,
-      "CompanyType": state.filterByCompanyType,
+      "FirmsType": state.filterByFirmType,
+      "ContactPerson": state.filterByContactPerson,
+      "MobileNumber": state.filterByMobileNumber,
+      "CityName": state.filterByCityName,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 

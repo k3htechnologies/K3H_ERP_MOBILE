@@ -39,7 +39,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC, _filterCompanyTypeC;
+  late TextEditingController _searchC, _filterFirmsTypeC,_filterContactPersonC,_filterMobileNumberC,_filterCityNameC;
 
   @override
   void initState() {
@@ -58,7 +58,10 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
   void initialiseControllers() {
     _searchC = TextEditingController();
     scrollController = ScrollController();
-    _filterCompanyTypeC = TextEditingController();
+    _filterFirmsTypeC = TextEditingController();
+    _filterContactPersonC = TextEditingController();
+    _filterMobileNumberC = TextEditingController();
+    _filterCityNameC = TextEditingController();
   }
 
   // PAGINATION
@@ -108,14 +111,21 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
   ) async {
     final state = _companyMasterCubit.state;
 
-    _filterCompanyTypeC.text = state.filterByCompanyType;
+    _filterFirmsTypeC.text = state.filterByFirmType;
+    _filterContactPersonC.text = state.filterByContactPerson;
+    _filterMobileNumberC.text = state.filterByMobileNumber;
+    _filterCityNameC.text = state.filterByCityName;
+
 
     String? selectedDirection =
         state.currentSortColumn == "Company Name"
             ? state.currentSortDirection
             : null;
 
-    final String initialCompanyType = _filterCompanyTypeC.text;
+    final String initialFirmsType = _filterFirmsTypeC.text;
+    final String initialContactPerson = _filterContactPersonC.text;
+    final String initialMobileNumber = _filterMobileNumberC.text;
+    final String initialCityName = _filterCityNameC.text;
     final String? initialDirection = selectedDirection;
 
     bool manualClose = false;
@@ -125,7 +135,10 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
-            (_filterCompanyTypeC.text.trim() != initialCompanyType) ||
+            (_filterFirmsTypeC.text.trim() != initialFirmsType) ||
+            (_filterContactPersonC.text.trim() != initialContactPerson) ||
+            (_filterMobileNumberC.text.trim() != initialMobileNumber) ||
+            (_filterCityNameC.text.trim() != initialCityName) ||
             (selectedDirection != initialDirection);
         applyEnabled.value = manualClose;
       });
@@ -144,10 +157,11 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
           }
 
           return SingleChildScrollView(
+            padding: EdgeInsets.only(right: 15),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Sort By Company Type", style: AppTextStyle.ts14M()),
+                Text("Sort By Company Name", style: AppTextStyle.ts14M()),
                 verticalSpacing(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -193,9 +207,30 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                 ),
                 verticalSpacing(height: 20),
                 CustomTextField(
-                  title: "Company Type",
-                  hint: "Enter Company Type",
-                  textController: _filterCompanyTypeC,
+                  title: "Firms Type",
+                  hint: "Enter Firms Type",
+                  textController: _filterFirmsTypeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(),
+                CustomTextField(
+                  title: "Contact Person",
+                  hint: "Enter Contact Person",
+                  textController: _filterContactPersonC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(),
+                CustomTextField(
+                  title: "Mobile Number",
+                  hint: "Enter Mobile Number",
+                  textController: _filterMobileNumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(),
+                CustomTextField(
+                  title: "City Name",
+                  hint: "Enter City Name",
+                  textController: _filterCityNameC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
               ],
@@ -204,7 +239,10 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
         },
       ),
       onClear: () {
-        _filterCompanyTypeC.clear();
+        _filterFirmsTypeC.clear();
+        _filterContactPersonC.clear();
+        _filterMobileNumberC.clear();
+        _filterCityNameC.clear();
         _companyMasterCubit.applyCompanyFilterAndSort(
           context: context,
           isClear: true,
@@ -214,7 +252,10 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
         applied = true;
         _companyMasterCubit.applyCompanyFilterAndSort(
           context: context,
-          companyType: _filterCompanyTypeC.text.trim(),
+          companyType: _filterFirmsTypeC.text.trim(),
+          contactPerson: _filterContactPersonC.text.trim(),
+          mobileNumber: _filterMobileNumberC.text.trim(),
+          cityName: _filterCityNameC.text.trim(),
           sortColumn: selectedDirection != null ? "Company Name" : null,
           sortDirection: selectedDirection,
         );
@@ -225,14 +266,22 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
 
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
-      _filterCompanyTypeC.clear();
+      _filterFirmsTypeC.clear();
+      _filterContactPersonC.clear();
+      _filterMobileNumberC.clear();
+      _filterCityNameC.clear();
     }
   }
 
   @override
   void dispose() {
     _searchC.dispose();
-    _filterCompanyTypeC.dispose();
+    _filterFirmsTypeC.dispose();
+    _filterContactPersonC.dispose();
+    _filterMobileNumberC.dispose();
+    _filterCityNameC.dispose();
+    scrollController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -377,7 +426,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                     ),
                     buildRowTitleValue(
                       title: "Company Type",
-                      value: company.companyType,
+                      value: company.firmsType,
                     ),
                     buildRowTitleValue(
                       title: "Contact Person",

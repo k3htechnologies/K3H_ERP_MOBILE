@@ -57,6 +57,34 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     emit(state.copyWith(employeeByProject: [], companyByProject: []));
   }
 
+  // <--- SORT VENDOR ---->
+  Future sortProject({
+    required BuildContext context,
+    String? ctsNumber,
+    String? projectLocation,
+    bool? isClear,
+  }) async {
+    if (isClear ?? false) {
+      emit(
+        state.copyWith(
+          filterCTSNumber: "",
+          filterProjectLocation: "",
+          currentPage: 1,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          filterCTSNumber: ctsNumber ?? state.filterCTSNumber,
+          filterProjectLocation: projectLocation ?? state.filterProjectLocation,
+          currentPage: 1,
+        ),
+      );
+    }
+
+    await getProjectList(context: context, pageNumber: 1);
+  }
+
   // <---- PULL PROJECTS ---->
   Future getProjectList({
     required BuildContext context,
@@ -988,35 +1016,6 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       );
       getProjectWithCompany(context: context, projectId: projectId);
     }
-  }
-
-  // <--- SORT VENDOR ---->
-
-  Future sortProject({
-    required BuildContext context,
-    String? ctsNumber,
-    String? projectLocation,
-    bool? isClear,
-  }) async {
-    if (isClear ?? false) {
-      emit(
-        state.copyWith(
-          filterCTSNumber: "",
-          filterProjectLocation: "",
-          currentPage: 1,
-        ),
-      );
-    } else {
-      emit(
-        state.copyWith(
-          filterCTSNumber: ctsNumber ?? state.filterCTSNumber,
-          filterProjectLocation: projectLocation ?? state.filterProjectLocation,
-          currentPage: 1,
-        ),
-      );
-    }
-
-    await getProjectList(context: context, pageNumber: 1);
   }
 
   /*// <---- PULL MODULE WORK FLOW LIST ---->
