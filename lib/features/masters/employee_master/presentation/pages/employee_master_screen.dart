@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -316,7 +318,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                         },
                         activeColor: AppColor.primary,
                       ),
-                      Text("Any", style: AppTextStyle.ts12R()),
+                      Text("Both", style: AppTextStyle.ts12R()),
                       horizontalSpacing(width: 16),
                       Radio<String>(
                         value: "1",
@@ -361,7 +363,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                         },
                         activeColor: AppColor.primary,
                       ),
-                      Text("Any", style: AppTextStyle.ts12R()),
+                      Text("Both", style: AppTextStyle.ts12R()),
                       horizontalSpacing(width: 16),
                       Radio<String>(
                         value: "1",
