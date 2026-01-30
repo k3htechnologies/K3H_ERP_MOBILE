@@ -4,7 +4,9 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/repository/attendance.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'attendance_state.dart';
 
@@ -51,5 +53,43 @@ class AttendanceCubit extends Cubit<AttendanceState> {
   // TAB CHANGE METHOD
   void onTabChanged(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndex: index));
+  }
+
+  Future<void> AddAttendanceRegularization({
+    required BuildContext context,
+    required String attendanceDate,
+    required String punchIn,
+    required String punchOut,
+    required String reason,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    Map<String, String> requestBody = {
+      "AttendanceRegularizationId": 0.toString(),
+      "AttendanceDate": attendanceDate,
+      "PunchIn": punchIn,
+      "PunchOut": punchOut,
+      "Reason": reason,
+    };
+    var addResult =
+        await _attendanceRepository.AddUpdateAttendanceRegularization(
+          queryParams: requestBody,
+        );
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error Message", failure.message);
+        goRouter.pop();
+      },
+      (response) {
+        goRouter.pop();
+
+        showSuccessMessage(
+          context,
+          subTitle: "Attendance Regularize successfully",
+        );
+      },
+    );
   }
 }

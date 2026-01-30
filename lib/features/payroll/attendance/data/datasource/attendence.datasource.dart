@@ -8,6 +8,9 @@ abstract interface class AttendanceDataSource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apicallAddUpdateAttendanceRegularize({
+    required Map<String, dynamic> queryParams,
+  });
 }
 
 class AttendanceDataSourceImpl implements AttendanceDataSource {
@@ -52,6 +55,30 @@ class AttendanceDataSourceImpl implements AttendanceDataSource {
           queryParams: queryParams,
         );
       }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateAttendanceRegularize({
+    required Map<String, dynamic> queryParams,
+  }) async {
+    try {
+      @override
+      String addAttendanceRegularizeUrl =
+          'AttendanceRegularization/AddUpdateAttendanceRegularization';
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addAttendanceRegularizeUrl,
+        queryParams,
+      );
+      return {
+        'data': List<AttendanceModel>.from(
+          networkResponse["data"].map((e) => AttendanceModel.fromJson(e)),
+        ),
+        // 'warningMessage': networkResponse['warningMessage'],
+        'totalNumberOfRecord': networkResponse["totalNumberOfRecord"],
+      };
+    } catch (e) {
       rethrow;
     }
   }

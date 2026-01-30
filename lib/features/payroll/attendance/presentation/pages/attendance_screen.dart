@@ -4,11 +4,13 @@ import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/presentation/cubit/attendance_cubit.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_time_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -470,6 +472,10 @@ class _AttendanceScreenState extends State<AttendanceScreen>
     final paddedItemCount = rows * 7;
     String? punchInTime;
     String? punchOutTime;
+    final TextEditingController reasonC = TextEditingController();
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    DateTime? regularizeDate;
+
     // Helper to get attendance by day-of-month index (backend is expected
     // to return records in order from start to end date).
     AttendanceModel? attendanceForDay(DateTime date) {
@@ -478,6 +484,32 @@ class _AttendanceScreenState extends State<AttendanceScreen>
         return null;
       }
       return state.attendanceList[dayIndex];
+    }
+
+    DateTime combineDateAndTime(DateTime date, String time) {
+      final parts = time.split(":");
+      final hour = int.parse(parts[0]);
+      final minute = int.parse(parts[1]);
+
+      return DateTime(date.year, date.month, date.day, hour, minute);
+    }
+
+    void submitAttendanceRegularize() {
+      if (!_formKey.currentState!.validate()) return;
+      _attendanceCubit.AddAttendanceRegularization(
+        context: context,
+        attendanceDate: regularizeDate!.toIso8601String(),
+        punchIn:
+            //  punchInTime!,
+            combineDateAndTime(regularizeDate!, punchInTime!).toIso8601String(),
+        punchOut:
+            // punchOutTime!,
+            combineDateAndTime(
+              regularizeDate!,
+              punchOutTime!,
+            ).toIso8601String(),
+        reason: reasonC.text.trim(),
+      );
     }
 
     final AttendanceModel? selectedAttendance =
@@ -594,6 +626,25 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                   onTap: () {
                     if (isCheckoutMissing ||
                         isAbsent && selectedAttendance != null) {
+                      regularizeDate = attendance.attendanceDate;
+                      punchInTime =
+                          attendance.punchIn != null
+                              ? formatTimeOfDayHHmm(
+                                TimeOfDay(
+                                  hour: attendance.punchIn!.hour,
+                                  minute: attendance.punchIn!.minute,
+                                ),
+                              )
+                              : null;
+                      punchOutTime =
+                          attendance.punchOut != null
+                              ? formatTimeOfDayHHmm(
+                                TimeOfDay(
+                                  hour: attendance.punchOut!.hour,
+                                  minute: attendance.punchOut!.minute,
+                                ),
+                              )
+                              : null;
                       _selectedDate.value = currentDate!;
                       DialogHelper.showCustomBottomSheet(
                         context,
@@ -601,50 +652,124 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16.0,
-                            vertical: 10,
+                            vertical: 5,
                           ),
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              CustomTextField(
-                                title: "Date",
-                                readOnly: true,
-                                textController: TextEditingController(
-                                  text: formatDateTimeAsDDMMMYYYY(
-                                    attendance.attendanceDate,
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  child: Form(
+                                    key: _formKey,
+                                    child: Column(
+                                      children: [
+                                        CustomTextField(
+                                          title: "Date",
+                                          readOnly: true,
+                                          textController: TextEditingController(
+                                            text: formatDateTimeAsDDMMMYYYY(
+                                              attendance.attendanceDate,
+                                            ),
+                                          ),
+                                        ),
+
+                                        CustomTimePicker(
+                                          title: 'Punch In Time',
+                                          readOnly: attendance.punchIn != null,
+                                          initialTime:
+                                              attendance.punchIn != null
+                                                  ? TimeOfDay(
+                                                    hour:
+                                                        attendance
+                                                            .punchIn!
+                                                            .hour,
+                                                    minute:
+                                                        attendance
+                                                            .punchIn!
+                                                            .minute,
+                                                  )
+                                                  : null,
+                                          setValue: (value) {
+                                            punchInTime = formatTimeOfDayHHmm(
+                                              value,
+                                            );
+                                          },
+                                          validator: (value) {
+                                            if (value == null) {
+                                              return "Punch In Time Required";
+                                            }
+                                            return null;
+                                          },
+                                        ),
+
+                                        CustomTimePicker(
+                                          title: 'Punch Out Time',
+                                          readOnly: attendance.punchOut != null,
+                                          initialTime:
+                                              attendance.punchOut != null
+                                                  ? TimeOfDay(
+                                                    hour:
+                                                        attendance
+                                                            .punchOut!
+                                                            .hour,
+                                                    minute:
+                                                        attendance
+                                                            .punchOut!
+                                                            .minute,
+                                                  )
+                                                  : null,
+                                          setValue: (value) {
+                                            punchOutTime = formatTimeOfDayHHmm(
+                                              value,
+                                            );
+                                          },
+                                          validator: (value) {
+                                            if (value == null) {
+                                              return "Punch Out Time Required";
+                                            }
+                                            return null;
+                                          },
+                                        ),
+
+                                        CustomTextField(
+                                          title: "Reason",
+                                          minLines: 3,
+                                          maxLines: 3,
+                                          textController: reasonC,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return "Reason Required";
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
 
-                              CustomTimePicker(
-                                title: 'Punch In Time',
-                                initialTime:
-                                    (selectedAttendance != null &&
-                                            selectedAttendance.punchIn != null)
-                                        ? TimeOfDay(
-                                          hour:
-                                              selectedAttendance.punchIn!.hour,
-                                          minute:
-                                              selectedAttendance
-                                                  .punchIn!
-                                                  .minute,
-                                        )
-                                        : null,
-                                setValue: (value) {
-                                  punchInTime = formatTimeOfDayHHmm(value);
-                                },
-                              ),
-                              CustomTimePicker(
-                                title: 'Punch Out Time',
-                                initialTime:
-                                    attendance.punchOut != null
-                                        ? TimeOfDay(
-                                          hour: attendance.punchOut!.hour,
-                                          minute: attendance.punchOut!.minute,
-                                        )
-                                        : null,
-                                setValue: (value) {
-                                  punchOutTime = formatTimeOfDayHHmm(value);
-                                },
+                              const SizedBox(height: 10),
+
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: CustomButton(
+                                      backgroundColor: AppColor.grey30,
+                                      textColor: AppColor.black,
+                                      text: "Clear",
+                                      onPressed: () => goRouter.pop(),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: CustomButton(
+                                      text: "Apply",
+                                      onPressed: submitAttendanceRegularize,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
