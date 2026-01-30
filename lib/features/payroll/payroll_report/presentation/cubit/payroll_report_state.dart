@@ -13,6 +13,12 @@ class PayrollReportState extends BaseState {
   final List<ResignationModel> resignationList;
   final int currentPageResignation;
   final int totalNumberOfRecordResignation;
+  final List<CompOffModel> compOffList;
+  final int currentPageCompOff;
+  final int totalNumberOfRecordCompOff;
+  final List<AttendanceRegularizationModel> regularizationList;
+  final int currentPageRegurization;
+  final int totalNumberOfRecordRegurization;
   final int currentTabIndex;
 
   const PayrollReportState({
@@ -29,6 +35,12 @@ class PayrollReportState extends BaseState {
     required this.resignationList,
     required this.currentPageResignation,
     required this.totalNumberOfRecordResignation,
+    required this.compOffList,
+    required this.currentPageCompOff,
+    required this.totalNumberOfRecordCompOff,
+    required this.regularizationList,
+    required this.currentPageRegurization,
+    required this.totalNumberOfRecordRegurization,
     required this.currentTabIndex,
   });
 
@@ -46,6 +58,12 @@ class PayrollReportState extends BaseState {
     resignationList: [],
     currentPageResignation: 1,
     totalNumberOfRecordResignation: 0,
+    compOffList: [],
+    currentPageCompOff: 1,
+    totalNumberOfRecordCompOff: 0,
+    regularizationList: [],
+    currentPageRegurization: 0,
+    totalNumberOfRecordRegurization: 0,
     currentTabIndex: 0,
   );
 
@@ -63,13 +81,19 @@ class PayrollReportState extends BaseState {
     List<ResignationModel>? resignationList,
     int? currentPageResignation,
     int? totalNumberOfRecordResignation,
-
+    List<CompOffModel>? compOffList,
+    int? currentPageCompOff,
+    int? totalNumberOfRecordCompOff,
+    List<AttendanceRegularizationModel>? regularizationList,
+    int? currentPageRegurization,
+    int? totalNumberOfRecordRegurization,
     int? currentTabIndex,
   }) {
     return PayrollReportState(
       isLoading: isLoading ?? this.isLoading,
       attendanceList: attendanceList ?? this.attendanceList,
-      currentPageAttendance: currentPageAttendance ?? this.currentPageAttendance,
+      currentPageAttendance:
+          currentPageAttendance ?? this.currentPageAttendance,
       totalNumberOfRecordAttendance:
           totalNumberOfRecordAttendance ?? this.totalNumberOfRecordAttendance,
       outdoorList: outdoorList ?? this.outdoorList,
@@ -85,6 +109,16 @@ class PayrollReportState extends BaseState {
           currentPageResignation ?? this.currentPageResignation,
       totalNumberOfRecordResignation:
           totalNumberOfRecordResignation ?? this.totalNumberOfRecordResignation,
+      compOffList: compOffList ?? this.compOffList,
+      currentPageCompOff: currentPageCompOff ?? this.currentPageCompOff,
+      totalNumberOfRecordCompOff:
+          totalNumberOfRecordCompOff ?? this.totalNumberOfRecordCompOff,
+      regularizationList: regularizationList ?? this.regularizationList,
+      currentPageRegurization:
+          currentPageResignation ?? this.currentPageRegurization,
+      totalNumberOfRecordRegurization:
+          totalNumberOfRecordRegurization ??
+          this.totalNumberOfRecordRegurization,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
     );
   }
@@ -104,6 +138,12 @@ class PayrollReportState extends BaseState {
     resignationList,
     currentPageResignation,
     totalNumberOfRecordResignation,
+    compOffList,
+    currentPageCompOff,
+    totalNumberOfRecordCompOff,
+    regularizationList,
+    currentPageRegurization,
+    totalNumberOfRecordRegurization,
     currentTabIndex,
   ];
 }

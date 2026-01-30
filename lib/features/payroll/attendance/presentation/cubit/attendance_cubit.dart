@@ -18,7 +18,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
       serviceLocator<AttendanceRepository>();
 
   // <---- GET ATTENDANCE LIST ---->
-  Future getDepartmentList(
+  Future getAttendanceList(
     BuildContext context,
     int pageNumber,
     DateTime startDate,

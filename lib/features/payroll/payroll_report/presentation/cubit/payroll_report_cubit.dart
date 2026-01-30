@@ -4,7 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
+import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance_regularization.model.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/repository/attendance.repository.dart';
+import 'package:k3h_erp_app/features/payroll/comp_off/data/model/comp_off.model.dart';
+import 'package:k3h_erp_app/features/payroll/comp_off/data/repository/comp_off.repository.dart';
 import 'package:k3h_erp_app/features/payroll/leave/data/repository/leave.repository.dart';
 import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/data/model/outdoor.model.dart';
@@ -29,7 +32,8 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
 
   final ResignationRepository _resignationRepository =
       serviceLocator<ResignationRepository>();
-
+  final CompOffRepository _compOffRepository =
+      serviceLocator<CompOffRepository>();
   void onTabChanged(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndex: index));
   }
@@ -197,6 +201,92 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
             isLoading: false,
             totalNumberOfRecordResignation: response["totalNumberOfRecord"],
             currentPageResignation: pageNumber,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET ATTENDANCE REGULARIZATION LIST ---->
+  Future getAttendanceRegularizationList(
+    BuildContext context,
+    int pageNumber, {
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    Map<String, dynamic> queryParams = {
+      "StartDate": startDate.toIso8601String(),
+      "EndDate": endDate.toIso8601String(),
+    };
+    var result = await _attendanceRepository.getAttendanceRegularizationList(
+      pageNumber: pageNumber,
+      pageSize: 50,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<AttendanceRegularizationModel> newData =
+            List<AttendanceRegularizationModel>.from(response['data'] ?? []);
+
+        final List<AttendanceRegularizationModel> updatedList =
+            pageNumber == 1
+                ? newData
+                : [...state.regularizationList, ...newData];
+        emit(
+          state.copyWith(
+            regularizationList: updatedList,
+            isLoading: false,
+            totalNumberOfRecordRegurization: response["totalNumberOfRecord"],
+            currentPageRegurization: pageNumber,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET COMP OFF LIST ---->
+  Future getCompOffList(
+    BuildContext context,
+    int pageNumber, {
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    final queryParams = {
+      'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
+      'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
+    };
+
+    var result = await _compOffRepository.getCompOffList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      queryParams: queryParams.isNotEmpty ? queryParams : null,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<CompOffModel> newData = List<CompOffModel>.from(
+          response['data'] ?? [],
+        );
+
+        final List<CompOffModel> updatedList =
+            pageNumber == 1 ? newData : [...state.compOffList, ...newData];
+        emit(
+          state.copyWith(
+            compOffList: updatedList,
+            isLoading: false,
+            totalNumberOfRecordCompOff: response["totalNumberOfRecord"],
+            currentPageCompOff: pageNumber,
           ),
         );
       },
