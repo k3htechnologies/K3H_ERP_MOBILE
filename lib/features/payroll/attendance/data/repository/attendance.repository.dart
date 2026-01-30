@@ -9,6 +9,10 @@ abstract interface class AttendanceRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>>
+  AddUpdateAttendanceRegularization({
+    required Map<String, dynamic> queryParams,
+  });
 }
 
 class AttendanceRepositoryImpl implements AttendanceRepository {
@@ -28,6 +32,21 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
         pageSize: pageSize,
         queryParams: queryParams,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  AddUpdateAttendanceRegularization({
+    required Map<String, dynamic> queryParams,
+  }) async {
+    try {
+      final result = await attendanceDataSource
+          .apicallAddUpdateAttendanceRegularize(queryParams: queryParams);
+
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
