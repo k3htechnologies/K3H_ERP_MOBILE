@@ -79,6 +79,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
       resignationDate = resignation.resignationDate;
       relievingDate = resignation.expectedRelievingDate;
       reasonC.text = resignation.reasonOfLeaving;
+      // ignore: unnecessary_null_comparison
       isEarlyRealise.value = resignation.expectedRelievingDate != null;
       isOfferInHand.value = resignation.isAnyOfferInHand;
       offerAmountC.text = resignation.offerAmount.toString();
