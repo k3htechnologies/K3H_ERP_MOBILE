@@ -8,7 +8,12 @@ abstract interface class AttendanceDataSource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
-  Future<Map<String, dynamic>> apicallAddUpdateAttendanceRegularize({
+  Future<Map<String, dynamic>> apicallPullAttendanceRegulariation({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Map<String, dynamic>> apicallAddUpdateAttendanceRegularization({
     required Map<String, dynamic> queryParams,
   });
 }
@@ -60,7 +65,50 @@ class AttendanceDataSourceImpl implements AttendanceDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> apicallAddUpdateAttendanceRegularize({
+  Future<Map<String, dynamic>> apicallPullAttendanceRegulariation({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullAttendanceRegularizeUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "AttendanceRegularization/PullAttendanceRegularization?PageSize=$pageSize&PageNumber=$pageNumber";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullAttendanceRegularizeUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': List<AttendanceModel>.from(
+          networkResponse["data"].map((e) => AttendanceModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullAttendance(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateAttendanceRegularization({
     required Map<String, dynamic> queryParams,
   }) async {
     try {

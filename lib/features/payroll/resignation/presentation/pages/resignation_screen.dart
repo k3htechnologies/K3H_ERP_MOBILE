@@ -221,7 +221,7 @@ class _ResignationScreenState extends State<ResignationScreen> {
   // HELPER WIDGET
   Widget _statusButton(ResignationModel resignation, int index) {
     String status;
-    status = '';
+    status = 'Pending';
 
     late String buttonText;
     late Color bgColor;
@@ -229,7 +229,19 @@ class _ResignationScreenState extends State<ResignationScreen> {
 
     VoidCallback? onTap;
 
-    switch (status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        buttonText = "Pending";
+        bgColor = AppColor.darkBlue;
+        textColor = AppColor.white;
+        onTap = () {};
+        break;
+      case 'approved':
+        buttonText = "Approved";
+        bgColor = AppColor.darkGreen10;
+        textColor = AppColor.white;
+        onTap = () {};
+        break;
       default:
         buttonText = "Pending";
         bgColor = AppColor.darkBlue;

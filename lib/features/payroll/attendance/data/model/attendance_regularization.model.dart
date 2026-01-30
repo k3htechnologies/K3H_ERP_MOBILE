@@ -3,8 +3,8 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 class AttendanceRegularizationModel {
   final int attendanceRegularizationId;
   final DateTime attendanceDate;
-  final DateTime punchIn;
-  final DateTime punchOut;
+  final DateTime? punchIn;
+  final DateTime? punchOut;
   final String reason;
 
   AttendanceRegularizationModel({
@@ -34,8 +34,8 @@ class AttendanceRegularizationModel {
     return {
       'AttendanceRegularizationId': attendanceRegularizationId,
       'AttendanceDate': attendanceDate.toIso8601String(),
-      'PunchIn': punchIn.toIso8601String(),
-      'PunchOut': punchOut.toIso8601String(),
+      'PunchIn': punchIn?.toIso8601String(),
+      'PunchOut': punchOut?.toIso8601String(),
       'Reason': reason,
     };
   }

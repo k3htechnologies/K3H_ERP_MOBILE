@@ -10,6 +10,12 @@ abstract interface class AttendanceRepository {
     Map<String, dynamic>? queryParams,
   });
   Future<Either<Failure, Map<String, dynamic>>>
+  getAttendanceRegularizationList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Either<Failure, Map<String, dynamic>>>
   addUpdateAttendanceRegularization({
     required Map<String, dynamic> queryParams,
   });
@@ -40,12 +46,32 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
 
   @override
   Future<Either<Failure, Map<String, dynamic>>>
+  getAttendanceRegularizationList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await attendanceDataSource
+          .apicallPullAttendanceRegulariation(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
   addUpdateAttendanceRegularization({
     required Map<String, dynamic> queryParams,
   }) async {
     try {
       final result = await attendanceDataSource
-          .apicallAddUpdateAttendanceRegularize(queryParams: queryParams);
+          .apicallAddUpdateAttendanceRegularization(queryParams: queryParams);
 
       return right(result);
     } catch (error) {

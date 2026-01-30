@@ -81,7 +81,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
       Duration(days: _selectedDate.value.weekday - 1),
     );
     final DateTime weekEnd = weekStart.add(const Duration(days: 6));
-    _attendanceCubit.getDepartmentList(context, 1, weekStart, weekEnd);
+    _attendanceCubit.getAttendanceList(context, 1, weekStart, weekEnd);
   }
 
   // LOAD MONTHLY DATA (first..last day of visible month)
@@ -98,7 +98,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
       23,
       59,
     );
-    _attendanceCubit.getDepartmentList(context, 1, start, end);
+    _attendanceCubit.getAttendanceList(context, 1, start, end);
   }
 
   void _goToPreviousWeek() {
