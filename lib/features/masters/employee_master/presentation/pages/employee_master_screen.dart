@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -40,6 +41,9 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC,
+      _filterReportPersonName,
+      _filterCompanyName,
+      _filterEmployeeCode,
       _filterDepartmentC,
       _filterDesignationC,
       _filterMobileNumber,
@@ -60,6 +64,9 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
   void dispose() {
     super.dispose();
     _searchC.dispose();
+    _filterReportPersonName.dispose();
+    _filterCompanyName.dispose();
+    _filterEmployeeCode.dispose();
     _filterDepartmentC.dispose();
     _filterDesignationC.dispose();
     _filterMobileNumber.dispose();
@@ -74,6 +81,9 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
 
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterReportPersonName = TextEditingController();
+    _filterCompanyName = TextEditingController();
+    _filterEmployeeCode = TextEditingController();
     _filterDepartmentC = TextEditingController();
     _filterDesignationC = TextEditingController();
     _filterMobileNumber = TextEditingController();
@@ -107,7 +117,10 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
   ) async {
     final state = _employeeMasterCubit.state;
 
+    _filterReportPersonName.text = state.filterReportPersonName;
+    _filterCompanyName.text = state.filterCompanyName;
     _filterDepartmentC.text = state.filterDepartmentName;
+    _filterEmployeeCode.text = state.filterEmployeeCode;
     _filterDesignationC.text = state.filterDesignationName;
     _filterMobileNumber.text = state.filterMobileNumber;
     _filterBranchName.text = state.filterBranchName;
@@ -117,25 +130,62 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
             ? state.currentSortDirection
             : null;
 
+    final String initialReportPersonName = _filterReportPersonName.text;
+    final String initialCompName = _filterCompanyName.text;
+    final String initialEmpCode = _filterEmployeeCode.text;
     final String initialDept = _filterDepartmentC.text;
     final String initialDesig = _filterDesignationC.text;
     final String initialMobileNumber = _filterMobileNumber.text;
     final String initialBranchName = _filterBranchName.text;
     final String? initialDirection = selectedDirection;
 
+    DateTime? filterDOBFromDate = state.filterDOBFrom;
+    DateTime? filterDOBToDate = state.filterDOBTo;
+    final DateTime? initialDOBFrom = state.filterDOBFrom;
+    final DateTime? initialDOBTo = state.filterDOBTo;
+
+    String selectedProbation = state.filterIsProbation;
+    String selectedIdCardIssued = state.filterIdCardIssue;
+    final String initialProbation = state.filterIsProbation;
+    final String initialIdCardIssued = state.filterIdCardIssue;
+
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
+    final filterFormKey = GlobalKey<FormState>();
 
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_filterReportPersonName.text.trim() != initialReportPersonName) ||
+            (_filterCompanyName.text.trim() != initialCompName) ||
+            (_filterEmployeeCode.text.trim() != initialEmpCode) ||
             (_filterDepartmentC.text.trim() != initialDept) ||
             (_filterDesignationC.text.trim() != initialDesig) ||
             (_filterMobileNumber.text.trim() != initialMobileNumber) ||
             (_filterBranchName.text.trim() != initialBranchName) ||
-            (selectedDirection != initialDirection);
-        applyEnabled.value = manualClose;
+            (selectedDirection != initialDirection) ||
+            (selectedProbation != initialProbation) ||
+            (selectedIdCardIssued != initialIdCardIssued) ||
+            (filterDOBFromDate != initialDOBFrom) ||
+            (filterDOBToDate != initialDOBTo);
+        // Disable Apply when only one of From/To is set (both or neither required)
+        final bool onlyOneSet =
+            (filterDOBFromDate != null && filterDOBToDate == null) ||
+            (filterDOBToDate != null && filterDOBFromDate == null);
+        // Disable Apply when From > To (invalid range)
+        final bool invalidRange =
+            filterDOBFromDate != null &&
+            filterDOBToDate != null &&
+            filterDOBFromDate!.isAfter(
+              DateTime(
+                filterDOBToDate!.year,
+                filterDOBToDate!.month,
+                filterDOBToDate!.day,
+              ),
+            );
+        final bool dobInvalid = onlyOneSet || invalidRange;
+        applyEnabled.value = manualClose && !dobInvalid;
       });
     }
 
@@ -151,110 +201,323 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
             updateApplyState(innerState);
           }
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Sort By Employee Name", style: AppTextStyle.ts14M()),
-                verticalSpacing(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () => selectDirection("ASC"),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 6,
-                          horizontal: 12,
+          return Form(
+            key: filterFormKey,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Sort By Employee Name", style: AppTextStyle.ts14M()),
+                  verticalSpacing(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onTap: () => selectDirection("ASC"),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color:
+                                selectedDirection == "ASC"
+                                    ? AppColor.lightBlue
+                                    : Colors.transparent,
+                            border: Border.all(color: AppColor.grey, width: .5),
+                          ),
+                          child: Text("A-Z", style: AppTextStyle.ts12R()),
                         ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color:
-                              selectedDirection == "ASC"
-                                  ? AppColor.lightBlue
-                                  : Colors.transparent,
-                          border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      horizontalSpacing(),
+                      GestureDetector(
+                        onTap: () => selectDirection("DESC"),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color:
+                                selectedDirection == "DESC"
+                                    ? AppColor.lightBlue
+                                    : Colors.transparent,
+                            border: Border.all(color: AppColor.grey, width: .5),
+                          ),
+                          child: Text("Z-A", style: AppTextStyle.ts12R()),
                         ),
-                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ],
+                  ),
+                  verticalSpacing(height: 20),
+                  CustomTextField(
+                    title: "Employee Code",
+                    hint: "Enter Employee Code",
+                    textController: _filterEmployeeCode,
+                    onChangeFunction: (_) => updateApplyState(innerState),
+                  ),
+                  verticalSpacing(height: 5),
+                  CustomTextField(
+                    title: "Company Name",
+                    hint: "Enter Company Name",
+                    textController: _filterCompanyName,
+                    onChangeFunction: (_) => updateApplyState(innerState),
+                  ),
+                  verticalSpacing(height: 5),
+                  CustomTextField(
+                    title: "Reporting Person Name",
+                    hint: "Enter Reporting Person Name",
+                    textController: _filterReportPersonName,
+                    onChangeFunction: (_) => updateApplyState(innerState),
+                  ),
+                  verticalSpacing(height: 5),
+                  CustomTextField(
+                    title: "Branch Name",
+                    hint: "Enter Branch Name",
+                    textController: _filterBranchName,
+                    onChangeFunction: (_) => updateApplyState(innerState),
+                  ),
+                  verticalSpacing(height: 5),
+                  CustomTextField(
+                    title: "Department",
+                    hint: "Enter Department",
+                    textController: _filterDepartmentC,
+                    onChangeFunction: (_) => updateApplyState(innerState),
+                  ),
+                  verticalSpacing(height: 5),
+                  CustomTextField(
+                    title: "Designation",
+                    hint: "Enter Designation",
+                    textController: _filterDesignationC,
+                    onChangeFunction: (_) => updateApplyState(innerState),
+                  ),
+                  verticalSpacing(height: 5),
+                  CustomTextField(
+                    title: "Mobile Number",
+                    hint: "Enter Mobile Number",
+                    textController: _filterMobileNumber,
+                    onChangeFunction: (_) => updateApplyState(innerState),
+                  ),
+                  verticalSpacing(height: 5),
+                  Text("Employee On Probation?", style: AppTextStyle.ts14M()),
+                  verticalSpacing(height: 6),
+                  Row(
+                    children: [
+                      Radio<String>(
+                        value: "",
+                        groupValue: selectedProbation,
+                        onChanged: (value) {
+                          innerState(() {
+                            selectedProbation = value ?? "";
+                            updateApplyState(innerState);
+                          });
+                        },
+                        activeColor: AppColor.primary,
+                      ),
+                      Text("Any", style: AppTextStyle.ts12R()),
+                      horizontalSpacing(width: 16),
+                      Radio<String>(
+                        value: "1",
+                        groupValue: selectedProbation,
+                        onChanged: (value) {
+                          innerState(() {
+                            selectedProbation = value ?? "";
+                            updateApplyState(innerState);
+                          });
+                        },
+                        activeColor: AppColor.primary,
+                      ),
+                      Text("Yes", style: AppTextStyle.ts12R()),
+                      horizontalSpacing(width: 16),
+                      Radio<String>(
+                        value: "0",
+                        groupValue: selectedProbation,
+                        onChanged: (value) {
+                          innerState(() {
+                            selectedProbation = value ?? "";
+                            updateApplyState(innerState);
+                          });
+                        },
+                        activeColor: AppColor.primary,
+                      ),
+                      Text("No", style: AppTextStyle.ts12R()),
+                    ],
+                  ),
+                  verticalSpacing(height: 5),
+                  Text("Id Card Issued?", style: AppTextStyle.ts14M()),
+                  verticalSpacing(height: 6),
+                  Row(
+                    children: [
+                      Radio<String>(
+                        value: "",
+                        groupValue: selectedIdCardIssued,
+                        onChanged: (value) {
+                          innerState(() {
+                            selectedIdCardIssued = value ?? "";
+                            updateApplyState(innerState);
+                          });
+                        },
+                        activeColor: AppColor.primary,
+                      ),
+                      Text("Any", style: AppTextStyle.ts12R()),
+                      horizontalSpacing(width: 16),
+                      Radio<String>(
+                        value: "1",
+                        groupValue: selectedIdCardIssued,
+                        onChanged: (value) {
+                          innerState(() {
+                            selectedIdCardIssued = value ?? "";
+                            updateApplyState(innerState);
+                          });
+                        },
+                        activeColor: AppColor.primary,
+                      ),
+                      Text("Yes", style: AppTextStyle.ts12R()),
+                      horizontalSpacing(width: 16),
+                      Radio<String>(
+                        value: "0",
+                        groupValue: selectedIdCardIssued,
+                        onChanged: (value) {
+                          innerState(() {
+                            selectedIdCardIssued = value ?? "";
+                            updateApplyState(innerState);
+                          });
+                        },
+                        activeColor: AppColor.primary,
+                      ),
+                      Text("No", style: AppTextStyle.ts12R()),
+                    ],
+                  ),
+                  verticalSpacing(height: 12),
+                  CustomDatePicker(
+                    title: "Date of Birth (From)",
+                    initialDate: filterDOBFromDate,
+                    setValue: (value) {
+                      innerState(() {
+                        filterDOBFromDate = value;
+                        updateApplyState(innerState);
+                      });
+                    },
+                  ),
+                  if (filterDOBFromDate != null && filterDOBToDate == null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4),
+                      child: Text(
+                        'Please select To date also',
+                        style: AppTextStyle.ts12R().copyWith(
+                          color: AppColor.error,
+                          fontSize: 11,
+                        ),
                       ),
                     ),
-                    horizontalSpacing(),
-                    GestureDetector(
-                      onTap: () => selectDirection("DESC"),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 6,
-                          horizontal: 12,
+                  if (filterDOBToDate != null && filterDOBFromDate == null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4),
+                      child: Text(
+                        'Please select From date also',
+                        style: AppTextStyle.ts12R().copyWith(
+                          color: AppColor.error,
+                          fontSize: 11,
                         ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color:
-                              selectedDirection == "DESC"
-                                  ? AppColor.lightBlue
-                                  : Colors.transparent,
-                          border: Border.all(color: AppColor.grey, width: .5),
-                        ),
-                        child: Text("Z-A", style: AppTextStyle.ts12R()),
                       ),
                     ),
-                  ],
-                ),
-                verticalSpacing(height: 20),
-                CustomTextField(
-                  title: "Branch Name",
-                  hint: "Enter Branch Name",
-                  textController: _filterBranchName,
-                  onChangeFunction: (_) => updateApplyState(innerState),
-                ),
-                verticalSpacing(height: 5),
-                CustomTextField(
-                  title: "Department",
-                  hint: "Enter Department",
-                  textController: _filterDepartmentC,
-                  onChangeFunction: (_) => updateApplyState(innerState),
-                ),
-                verticalSpacing(height: 5),
-                CustomTextField(
-                  title: "Designation",
-                  hint: "Enter Designation",
-                  textController: _filterDesignationC,
-                  onChangeFunction: (_) => updateApplyState(innerState),
-                ),
-                verticalSpacing(height: 5),
-                CustomTextField(
-                  title: "Mobile Number",
-                  hint: "Enter Mobile Number",
-                  textController: _filterMobileNumber,
-                  onChangeFunction: (_) => updateApplyState(innerState),
-                ),
-                verticalSpacing(),
-              ],
+                  if (filterDOBFromDate != null &&
+                      filterDOBToDate != null &&
+                      filterDOBFromDate!.isAfter(
+                        DateTime(
+                          filterDOBToDate!.year,
+                          filterDOBToDate!.month,
+                          filterDOBToDate!.day,
+                        ),
+                      ))
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4),
+                      child: Text(
+                        'Invalid Date range',
+                        style: AppTextStyle.ts12R().copyWith(
+                          color: AppColor.error,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  verticalSpacing(height: 12),
+                  CustomDatePicker(
+                    title: "Date of Birth (To)",
+                    initialDate: filterDOBToDate,
+                    setValue: (value) {
+                      innerState(() {
+                        filterDOBToDate = value;
+                        updateApplyState(innerState);
+                      });
+                    },
+                    validator: (value) {
+                      if (filterDOBFromDate != null && value == null) {
+                        return 'Date of Birth (To) is required when Date of Birth (From) is entered';
+                      }
+                      if (filterDOBFromDate != null &&
+                          value != null &&
+                          filterDOBFromDate!.isAfter(
+                            DateTime(value.year, value.month, value.day),
+                          )) {
+                        return 'Invalid Date range';
+                      }
+                      return null;
+                    },
+                  ),
+                  verticalSpacing(),
+                ],
+              ),
             ),
           );
         },
       ),
       onClear: () {
+        _filterReportPersonName.clear();
+        _filterCompanyName.clear();
+        _filterEmployeeCode.clear();
+        _filterDepartmentC.clear();
+        _filterDesignationC.clear();
+        _filterMobileNumber.clear();
+        _filterBranchName.clear();
         _employeeMasterCubit.applyFilterAndSort(
           context: context,
+          employeeCode: "",
+          companyName: "",
+          reportingPersonName: "",
           departmentName: "",
           designationName: "",
           mobileNumber: "",
           branchName: "",
+          filterDOBFrom: null,
+          filterDOBTo: null,
+          filterIsProbation: "",
+          filterIdCardIssue: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
         );
       },
       onApply: () {
-        applied = true;
-        _employeeMasterCubit.applyFilterAndSort(
-          context: context,
-          departmentName: _filterDepartmentC.text,
-          designationName: _filterDesignationC.text,
-          mobileNumber: _filterMobileNumber.text,
-          branchName: _filterBranchName.text,
-          sortColumn: selectedDirection != null ? "Full Name" : null,
-          sortDirection: selectedDirection,
-        );
+        if (filterFormKey.currentState?.validate() ?? false) {
+          applied = true;
+          _employeeMasterCubit.applyFilterAndSort(
+            context: context,
+            employeeCode: _filterEmployeeCode.text,
+            companyName: _filterCompanyName.text,
+            reportingPersonName: _filterReportPersonName.text,
+            departmentName: _filterDepartmentC.text,
+            designationName: _filterDesignationC.text,
+            mobileNumber: _filterMobileNumber.text,
+            branchName: _filterBranchName.text,
+            filterDOBFrom: filterDOBFromDate,
+            filterDOBTo: filterDOBToDate,
+            filterIsProbation: selectedProbation,
+            filterIdCardIssue: selectedIdCardIssued,
+            sortColumn: selectedDirection != null ? "Full Name" : null,
+            sortDirection: selectedDirection,
+          );
+        }
       },
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
@@ -262,6 +525,9 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
 
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
+      _filterReportPersonName.clear();
+      _filterCompanyName.clear();
+      _filterEmployeeCode.clear();
       _filterDepartmentC.clear();
       _filterDesignationC.clear();
       _filterMobileNumber.clear();
@@ -296,7 +562,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
       body: SafeArea(
         child: BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
           builder: (context, state) {
-            if (state.isLoading! && state.employeeMasterList.isEmpty) {
+            if ((state.isLoading ?? true) && state.employeeMasterList.isEmpty) {
               return Center(child: loader());
             }
             if (state.employeeMasterList.isEmpty) {

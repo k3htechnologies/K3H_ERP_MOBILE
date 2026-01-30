@@ -21,6 +21,7 @@ class UserModel {
   DateTime? dateOfBirth;
   DateTime? joiningDate;
   DateTime? probationDate;
+  DateTime? idCardIssuedDate;
   DateTime? resignationDate;
   bool isGeoFenceLocation;
   String emailId;
@@ -85,6 +86,7 @@ class UserModel {
     required this.dateOfBirth,
     required this.joiningDate,
     required this.probationDate,
+    required this.idCardIssuedDate,
     required this.resignationDate,
     required this.isGeoFenceLocation,
     required this.emailId,
@@ -158,6 +160,12 @@ class UserModel {
         json["ProbationDate"] == null
             ? null
             : parseValue<DateTime>(json, "ProbationDate"),
+    idCardIssuedDate:
+        json["IdCardIssuedDate"] != null
+            ? parseValue<DateTime>(json, "IdCardIssuedDate")
+            : (json["IdCardIssueDate"] != null
+                ? parseValue<DateTime>(json, "IdCardIssueDate")
+                : null),
     resignationDate:
         json["ResignationDate"] == null
             ? null
@@ -245,6 +253,7 @@ class UserModel {
     "DateOfBirth": dateOfBirth?.toIso8601String(),
     "JoiningDate": joiningDate?.toIso8601String(),
     "ProbationDate": probationDate?.toIso8601String(),
+    "IdCardIssuedDate": idCardIssuedDate?.toIso8601String(),
     "ResignationDate": resignationDate?.toIso8601String(),
     "IsGeoFenceLocation": isGeoFenceLocation,
     "EmailId": emailId,

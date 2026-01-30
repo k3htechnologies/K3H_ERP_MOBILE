@@ -128,6 +128,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
 
   // EMPLOYEE INFO SHEET
   DateTime? joiningDate;
+  DateTime? idCardIssueDateDate;
 
   Future<void> _prefillDetailsToAddUpdateEmployeeMaster(
     UserModel employee,
@@ -212,6 +213,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     // Dates
     dateOfBirth = employee.dateOfBirth;
     joiningDate = employee.joiningDate;
+    idCardIssueDateDate = employee.idCardIssuedDate;
   }
 
   @override
@@ -222,6 +224,10 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     _initializeDropdowns();
     if (widget.employee != null) {
       _prefillDetailsToAddUpdateEmployeeMaster(widget.employee!);
+      // Trigger rebuild so date/dropdown prefills are reflected in the UI
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
     }
   }
 
@@ -315,6 +321,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         selectedBranchId: selectedBranch!["zAttributesId"],
         dateOfBirth: dateOfBirth!,
         joiningDate: joiningDate!,
+        idCardIssueDate: idCardIssueDateDate,
         officeEmailId: _officeEmailIdC.text.trim(),
         personalEmailId: _personalEmailC.text.trim(),
         personalMobileNumber: _personalMobileNumberC.text,
@@ -350,6 +357,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         selectedBranchId: selectedBranch!["zAttributesId"],
         dateOfBirth: dateOfBirth!,
         joiningDate: joiningDate!,
+        idCardIssueDate: idCardIssueDateDate,
         officeEmailId: _officeEmailIdC.text.trim(),
         personalEmailId: _personalEmailC.text.trim(),
         personalMobileNumber: _personalMobileNumberC.text,
@@ -566,6 +574,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           verticalSpacing(height: 12),
           CustomTextField(
             title: 'Office Mobile Number',
+            hint: "Enter Office Mobile Number",
             textController: _officeMobileNumberC,
             keyboardType: TextInputType.phone,
             inputFormatterList: InputValidator.digit(10),
@@ -715,6 +724,12 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               }
               return null;
             },
+          ),
+          verticalSpacing(height: 12),
+          CustomDatePicker(
+            title: 'Id Card Issued Date',
+            initialDate: idCardIssueDateDate,
+            setValue: (value) => idCardIssueDateDate = value,
           ),
           verticalSpacing(height: 12),
           CustomPaginationDropDownWidget(
@@ -910,10 +925,14 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
-          height: 80,
+          height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text: !_isEditMode ? 'Save Employee' : 'Update Employee',
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              color: AppColor.white,size: 18,
+            ),
+            text: !_isEditMode ? 'Add Employee' : 'Update Employee',
             onPressed: _handleSubmit,
             backgroundColor: AppColor.primary,
           ),

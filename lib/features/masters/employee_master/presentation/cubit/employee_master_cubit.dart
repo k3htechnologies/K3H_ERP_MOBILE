@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/branch.model.dart';
 import 'package:k3h_erp_app/core/models/city.model.dart';
@@ -42,20 +43,35 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
 
   Future applyFilterAndSort({
     required BuildContext context,
+    required String employeeCode,
+    required String companyName,
+    required String reportingPersonName,
     required String departmentName,
     required String designationName,
     required String mobileNumber,
     required String branchName,
+    DateTime? filterDOBFrom,
+    DateTime? filterDOBTo,
+    String? filterIsProbation,
+    String? filterIdCardIssue,
     String? sortColumn,
     String? sortDirection,
   }) async {
-
     emit(
       state.copyWith(
+        filterEmployeeCode: employeeCode,
+        filterCompanyName: companyName,
+        filterReportPersonName: reportingPersonName,
         filterDepartmentName: departmentName,
         filterDesignationName: designationName,
         filterMobileNumber: mobileNumber,
         filterBranchName: branchName,
+        filterDOBFrom: filterDOBFrom,
+        filterDOBTo: filterDOBTo,
+        filterIsProbation: filterIsProbation ?? state.filterIsProbation,
+        filterIdCardIssue: filterIdCardIssue ?? state.filterIdCardIssue,
+        clearFilterDOBFrom: filterDOBFrom == null,
+        clearFilterDOBTo: filterDOBTo == null,
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
         employeeMasterList: [],
@@ -70,17 +86,37 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   Future getEmployeeMasterList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
 
+    final queryParams = <String, dynamic>{
+      "EmployeeName": state.searchText,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+      "ReportPersonName": state.filterReportPersonName,
+      "CompanyName": state.filterCompanyName,
+      "EmployeeCode": state.filterEmployeeCode,
+      "DepartmentName": state.filterDepartmentName,
+      "DesignationName": state.filterDesignationName,
+      "MobileNumber": state.filterMobileNumber,
+      "BranchName": state.filterBranchName,
+    };
+    if (state.filterDOBFrom != null) {
+      queryParams["FromDateOfBirth"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.filterDOBFrom!);
+    }
+    if (state.filterDOBTo != null) {
+      queryParams["ToDateOfBirth"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.filterDOBTo!);
+    }
+    if (state.filterIsProbation.isNotEmpty) {
+      queryParams["IsEmployeeOnProbation"] = state.filterIsProbation;
+    }
+    if (state.filterIdCardIssue.isNotEmpty) {
+      queryParams["IsIdCardIssued"] = state.filterIdCardIssue;
+    }
     final result = await employeeMasterRepository.getEmployeeMasterList(
       pageNumber: pageNumber,
       pageSize: 10,
-      queryParams: {
-        "EmployeeName": state.searchText,
-        "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
-        "DepartmentName": state.filterDepartmentName,
-        "DesignationName": state.filterDesignationName,
-        "MobileNumber": state.filterMobileNumber,
-        "BranchName": state.filterBranchName,
-      },
+      queryParams: queryParams,
     );
 
     result.fold(
@@ -89,15 +125,19 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        List<UserModel> newList =
+        final List<UserModel> newData = List<UserModel>.from(
+          response['data'] ?? [],
+        );
+
+        final List<UserModel> updatedList =
             pageNumber == 1
-                ? List<UserModel>.from(response['data'])
-                : [...state.employeeMasterList, ...response['data']];
+                ? newData
+                : [...state.employeeMasterList, ...newData];
 
         emit(
           state.copyWith(
             isLoading: false,
-            employeeMasterList: newList,
+            employeeMasterList: updatedList,
             currentPage: pageNumber,
             totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
@@ -272,6 +312,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     required int selectedBranchId,
     required DateTime dateOfBirth,
     required DateTime joiningDate,
+    DateTime? idCardIssueDate,
     required int selectedCompanyNameId,
     required int selectedDepartmentId,
     required int selectedDesignationId,
@@ -328,13 +369,14 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
       "EmergencyMobileNumber": emergencyMobileNumber,
       "EmergencyContactPersonRelationship": emergencyContactPersonRelationship,
     };
+    requestBody["IdCardIssueDate"] = idCardIssueDate?.toIso8601String();
     var addResult = await employeeMasterRepository.addUpdateEmployeeMaster(
       requestBody: requestBody,
     );
     goRouter.pop();
     addResult.fold(
       (failure) async {
-        emit(state.copyWith(errorMessage: failure.message));
+        emit(state.copyWith(isLoading: false));
         await showErrorMessage(context, 'Error Message', failure.message);
         return;
       },
@@ -360,6 +402,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     required int selectedBranchId,
     required DateTime dateOfBirth,
     required DateTime joiningDate,
+    DateTime? idCardIssueDate,
     required int selectedCompanyNameId,
     required int selectedDepartmentId,
     required int selectedDesignationId,
@@ -418,13 +461,14 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
       "EmergencyMobileNumber": emergencyMobileNumber,
       "EmergencyContactPersonRelationship": emergencyContactPersonRelationship,
     };
+    requestBody["IdCardIssueDate"] = idCardIssueDate?.toIso8601String();
     var updateResult = await employeeMasterRepository.addUpdateEmployeeMaster(
       requestBody: requestBody,
     );
     goRouter.pop();
     updateResult.fold(
       (failure) {
-        emit(state.copyWith(errorMessage: failure.message));
+        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error Message', failure.message);
         return;
       },
@@ -481,7 +525,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     goRouter.pop();
     updateResult.fold(
       (failure) {
-        emit(state.copyWith(errorMessage: failure.message));
+        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error Message', failure.message);
         return;
       },

@@ -405,8 +405,8 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                     ),
                     CustomTextField(
                       textController: _totalUnitsAreaUtilizedC,
-                      title: "Units Area Utilized (Sq Ft)",
-                      hint: 'Enter Units Area Utilized',
+                      title: "UUtilized Units Area (SqFt)",
+                      hint: 'Enter Utilized Units Area',
                       keyboardType: TextInputType.number,
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(7),
@@ -433,6 +433,33 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                     ),
                   ],
                 ),
+              ),
+              verticalSpacing(),
+              Container(
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "FSI / TDR Information",
+                        style: AppTextStyle.ts14M(color: AppColor.grey),
+                      ),
+                      verticalSpacing(),
+                      CustomTextField(
+                        textController: _propertyAgeYearsC,
+                        title: 'Property Age (Years)',
+                        hint: 'Enter Property Age',
+                        inputFormatterList: InputValidator.decimal(5),
+                      ),
+                      CustomTextField(
+                        textController: _fsiTdrUtilizationC,
+                        title: 'FSI / TDR Utilization (SqFt)',
+                        hint: 'Enter FSI / TDR Utilization',
+                        inputFormatterList: InputValidator.decimal(10),
+                      ),
+                    ],
+                  ) ,
               ),
               verticalSpacing(),
               Container(

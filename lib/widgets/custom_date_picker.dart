@@ -56,7 +56,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
   _showDatePicker(BuildContext context, FormFieldState<DateTime> state) {
     showDatePicker(
       context: context,
-      initialDate: date,
+      initialDate: date ?? DateTime.now(),
       firstDate: widget.startDate ?? DateTime(1900),
       lastDate: widget.endDate ?? DateTime(3000),
       initialEntryMode: DatePickerEntryMode.calendarOnly,

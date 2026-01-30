@@ -16,10 +16,17 @@ class EmployeeMasterState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
+  final String filterReportPersonName;
+  final String filterCompanyName;
   final String filterBranchName;
+  final String filterEmployeeCode;
   final String filterDepartmentName;
   final String filterDesignationName;
   final String filterMobileNumber;
+  final DateTime? filterDOBFrom;
+  final DateTime? filterDOBTo;
+  final String filterIsProbation;
+  final String filterIdCardIssue;
   final ProjectModel? selectedProject;
   final List<ProjectModel> projectList;
   final bool isLoadingProjects;
@@ -43,10 +50,17 @@ class EmployeeMasterState extends BaseState {
     required this.searchText,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    required this.filterReportPersonName,
+    required this.filterCompanyName,
     required this.filterBranchName,
+    required this.filterEmployeeCode,
     required this.filterDepartmentName,
     required this.filterDesignationName,
     required this.filterMobileNumber,
+    required this.filterDOBFrom,
+    required this.filterDOBTo,
+    required this.filterIsProbation,
+    required this.filterIdCardIssue,
     this.selectedProject,
     required this.projectList,
     required this.isLoadingProjects,
@@ -69,10 +83,17 @@ class EmployeeMasterState extends BaseState {
     searchText: "",
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
+    filterReportPersonName: "",
+    filterCompanyName: "",
+    filterEmployeeCode: "",
     filterBranchName: "",
     filterDepartmentName: "",
     filterDesignationName: "",
     filterMobileNumber: "",
+    filterDOBFrom: null,
+    filterDOBTo: null,
+    filterIsProbation: "",
+    filterIdCardIssue: "",
     isLoading: true,
     selectedProject: null,
     projectList: [],
@@ -83,7 +104,6 @@ class EmployeeMasterState extends BaseState {
   EmployeeMasterState copyWith({
     bool? isLoading,
     StateType? stateType,
-    String? errorMessage,
     List<UserModel>? employeeMasterList,
     List<EmployeeDocumentModel>? employeeDocumentList,
     List<AssetMappingModel>? assetMappingList,
@@ -100,10 +120,19 @@ class EmployeeMasterState extends BaseState {
     String? searchText,
     String? currentSortColumn,
     String? currentSortDirection,
+    String? filterReportPersonName,
+    String? filterCompanyName,
     String? filterBranchName,
+    String? filterEmployeeCode,
     String? filterDepartmentName,
     String? filterDesignationName,
     String? filterMobileNumber,
+    DateTime? filterDOBFrom,
+    DateTime? filterDOBTo,
+    String? filterIsProbation,
+    String? filterIdCardIssue,
+    bool clearFilterDOBFrom = false,
+    bool clearFilterDOBTo = false,
     ProjectModel? selectedProject,
     List<ProjectModel>? projectList,
     bool? isLoadingProjects,
@@ -127,11 +156,20 @@ class EmployeeMasterState extends BaseState {
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      filterReportPersonName:
+          filterReportPersonName ?? this.filterReportPersonName,
+      filterCompanyName: filterCompanyName ?? this.filterCompanyName,
+      filterEmployeeCode: filterEmployeeCode ?? this.filterEmployeeCode,
       filterBranchName: filterBranchName ?? this.filterBranchName,
       filterDepartmentName: filterDepartmentName ?? this.filterDepartmentName,
       filterDesignationName:
           filterDesignationName ?? this.filterDesignationName,
       filterMobileNumber: filterMobileNumber ?? this.filterMobileNumber,
+      filterDOBFrom:
+          clearFilterDOBFrom ? null : (filterDOBFrom ?? this.filterDOBFrom),
+      filterDOBTo: clearFilterDOBTo ? null : (filterDOBTo ?? this.filterDOBTo),
+      filterIsProbation: filterIsProbation ?? this.filterIsProbation,
+      filterIdCardIssue: filterIdCardIssue ?? this.filterIdCardIssue,
       selectedProject: selectedProject ?? this.selectedProject,
       projectList: projectList ?? this.projectList,
       isLoadingProjects: isLoadingProjects ?? this.isLoadingProjects,
@@ -141,6 +179,8 @@ class EmployeeMasterState extends BaseState {
 
   @override
   List<Object?> get props => [
+    isLoading,
+    stateType,
     employeeMasterList,
     employeeDocumentList,
     assetMappingList,
@@ -156,10 +196,17 @@ class EmployeeMasterState extends BaseState {
     searchText,
     currentSortColumn,
     currentSortDirection,
+    filterReportPersonName,
+    filterCompanyName,
+    filterEmployeeCode,
     filterBranchName,
     filterDepartmentName,
     filterDesignationName,
     filterMobileNumber,
+    filterDOBFrom,
+    filterDOBTo,
+    filterIsProbation,
+    filterIdCardIssue,
     selectedProject,
     projectList,
     isLoadingProjects,

@@ -124,9 +124,13 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     _freeAreaOfferedPercentageC = TextEditingController();
     _extraAreaPurchasedSqFtC = TextEditingController();
     _totalAreaSqFtC = TextEditingController();
-    selectedFlatFacing = ValueNotifier<Map<String, dynamic>?>(flatFacingList.first);
+    selectedFlatFacing = ValueNotifier<Map<String, dynamic>?>(
+      flatFacingList.first,
+    );
     selectedFlatType = ValueNotifier(flatTypeList.first);
-    selectedFlatConfiguration = ValueNotifier<Map<String, dynamic>?>(commercialFlatList.first);
+    selectedFlatConfiguration = ValueNotifier<Map<String, dynamic>?>(
+      commercialFlatList.first,
+    );
   }
 
   // PREFILL TENANT DETAILS
@@ -135,13 +139,17 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
 
     _unitNumberC.text = tenant.flatNumber;
     _flatCarpetAreaC.text = tenant.flatCarpetAreaSqFt.toString();
-    _freeAreaOfferedPercentageC.text = tenant.freeAreaOfferedPercentage==0?"":
-        tenant.freeAreaOfferedPercentage.toString();
+    _freeAreaOfferedPercentageC.text =
+        tenant.freeAreaOfferedPercentage == 0
+            ? ""
+            : tenant.freeAreaOfferedPercentage.toString();
     _extraAreaPurchasedSqFtC.text = tenant.extraAreaPurchasedSqFt.toString();
     _totalAreaSqFtC.text = tenant.totalAreaSqFt.toString();
 
     selectedFlatFacing.value = flatFacingList.firstWhere(
-      (e) => e['DisplayName'].toString().toLowerCase() == tenant.facing.toLowerCase(),
+      (e) =>
+          e['DisplayName'].toString().toLowerCase() ==
+          tenant.facing.toLowerCase(),
       orElse: () => flatFacingList.first,
     );
 
@@ -149,11 +157,13 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
       (e) => e['DisplayName'] == tenant.flatType,
       orElse: () => flatTypeList.first,
     );
-    
+
     final isResidential = tenant.flatType.toLowerCase() == 'residential';
     final configList = isResidential ? residentialFlatList : commercialFlatList;
     final configMatch = configList.firstWhere(
-      (e) => e['DisplayName'].toString().toLowerCase() == tenant.flatConfiguration.toLowerCase(),
+      (e) =>
+          e['DisplayName'].toString().toLowerCase() ==
+          tenant.flatConfiguration.toLowerCase(),
       orElse: () => configList.first,
     );
     selectedFlatType.value = flatTypeMatch;
@@ -417,7 +427,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                     ),
                     verticalSpacing(),
                     CustomTextField(
-                      title: 'Unit Number',
+                      title: 'Unit / Annexure / Survey Number',
                       hint: "Enter Unit Number",
                       isRequired: true,
                       textController: _unitNumberC,
@@ -444,14 +454,17 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                       valueListenable: selectedFlatType,
                       builder: (context, flatTypeValue, child) {
                         return CustomDropDownWidget(
-                          key: ValueKey('flatType_${flatTypeValue['zAttributesId']}'),
+                          key: ValueKey(
+                            'flatType_${flatTypeValue['zAttributesId']}',
+                          ),
                           title: 'Unit Type',
                           dataList: flatTypeList,
                           isRequired: true,
                           initialValue: flatTypeValue,
                           onSelected: (value) {
                             // Only clear configuration if flat type actually changed
-                            if (selectedFlatType.value['zAttributesId'] != value['zAttributesId']) {
+                            if (selectedFlatType.value['zAttributesId'] !=
+                                value['zAttributesId']) {
                               selectedFlatConfiguration.value = null;
                             }
                             selectedFlatType.value = value;
@@ -473,13 +486,16 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                             valueListenable: selectedFlatConfiguration,
                             builder: (context, configValue, child) {
                               return CustomDropDownWidget(
-                                key: ValueKey('residential_config_${value['zAttributesId']}_${configValue?['zAttributesId'] ?? 'null'}'),
+                                key: ValueKey(
+                                  'residential_config_${value['zAttributesId']}_${configValue?['zAttributesId'] ?? 'null'}',
+                                ),
                                 title: 'Flat Configuration',
                                 isRequired: true,
                                 dataList: residentialFlatList,
                                 initialValue: configValue,
                                 onSelected: (selectedValue) {
-                                  selectedFlatConfiguration.value = selectedValue;
+                                  selectedFlatConfiguration.value =
+                                      selectedValue;
                                 },
                                 validator: (val) {
                                   if (val == null ||
@@ -497,13 +513,16 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                             valueListenable: selectedFlatConfiguration,
                             builder: (context, configValue, child) {
                               return CustomDropDownWidget(
-                                key: ValueKey('commercial_config_${value['zAttributesId']}_${configValue?['zAttributesId'] ?? 'null'}'),
+                                key: ValueKey(
+                                  'commercial_config_${value['zAttributesId']}_${configValue?['zAttributesId'] ?? 'null'}',
+                                ),
                                 title: 'Flat Configuration',
                                 isRequired: true,
                                 dataList: commercialFlatList,
                                 initialValue: configValue,
                                 onSelected: (selectedValue) {
-                                  selectedFlatConfiguration.value = selectedValue;
+                                  selectedFlatConfiguration.value =
+                                      selectedValue;
                                 },
                                 validator: (val) {
                                   if (val == null ||
@@ -523,7 +542,9 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                       valueListenable: selectedFlatFacing,
                       builder: (context, facingValue, child) {
                         return CustomDropDownWidget(
-                          key: ValueKey('facing_${facingValue?['zAttributesId'] ?? 'null'}'),
+                          key: ValueKey(
+                            'facing_${facingValue?['zAttributesId'] ?? 'null'}',
+                          ),
                           title: 'Facing',
                           isRequired: true,
                           dataList: flatFacingList,
@@ -540,6 +561,21 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                         );
                       },
                     ),
+                  ],
+                ),
+              ),
+              verticalSpacing(),
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Offer',
+                      style: AppTextStyle.ts14M(color: AppColor.grey),
+                    ),
+                    verticalSpacing(),
                     CustomTextField(
                       title: 'Free Area Offered Percentage',
                       hint: "Enter Free Area Offered Percentage",
@@ -558,12 +594,6 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                       },
                     ),
                     CustomTextField(
-                      title: 'Extra Area Purchased SqFt ',
-                      hint: "Enter Extra Area Purchased SqFt",
-                      inputFormatterList: InputValidator.digit(10),
-                      textController: _extraAreaPurchasedSqFtC,
-                    ),
-                    CustomTextField(
                       title: 'Total Area SqFt ',
                       hint: "Enter Total Area SqFt",
                       inputFormatterList: InputValidator.digit(10),
@@ -572,16 +602,38 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                   ],
                 ),
               ),
+              verticalSpacing(),
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Extra Area Purchased',
+                      style: AppTextStyle.ts14M(color: AppColor.grey),
+                    ),
+                    verticalSpacing(),
+                    CustomTextField(
+                      title: 'Extra Area Purchased SqFt ',
+                      hint: "Enter Extra Area Purchased SqFt",
+                      inputFormatterList: InputValidator.digit(10),
+                      textController: _extraAreaPurchasedSqFtC,
+                    ),
+                  ],
+                )
+              )
             ],
           ),
         ),
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
-          height: 77,
+          height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text: _isEditMode ? 'Update' : 'Save',
+            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
+            text: _isEditMode ? 'Update' : 'Add',
             onPressed: _handleSubmit,
             backgroundColor: AppColor.primary,
           ),
