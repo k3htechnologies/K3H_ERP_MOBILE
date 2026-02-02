@@ -182,6 +182,7 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
             ),
             Expanded(
               child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
                 controller: _tabController,
                 children: [
                   _buildOverviewTab(),

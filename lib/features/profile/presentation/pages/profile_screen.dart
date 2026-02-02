@@ -1067,6 +1067,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
                 Expanded(
                   child: TabBarView(
+                    physics: NeverScrollableScrollPhysics(),
                     controller: _tabController,
                     children: [
                       _buildOverviewTab(state.user!),

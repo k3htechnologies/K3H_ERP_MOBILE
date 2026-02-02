@@ -87,11 +87,9 @@ class _LeaveCreditDebitMasterViewScreenState
             ),
             Expanded(
               child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
                 controller: _tabController,
-                children: [
-                  _buildOverviewTab(),
-                  _buildLeaveBalanceTypesTab(),
-                ],
+                children: [_buildOverviewTab(), _buildLeaveBalanceTypesTab()],
               ),
             ),
           ],
@@ -166,7 +164,10 @@ class _LeaveCreditDebitMasterViewScreenState
                           ),
                           verticalSpacing(height: 4),
                           Text(
-                            widget.leaveCreditDebitMaster.designationName.isEmpty
+                            widget
+                                    .leaveCreditDebitMaster
+                                    .designationName
+                                    .isEmpty
                                 ? "-"
                                 : widget.leaveCreditDebitMaster.designationName,
                             style: AppTextStyle.ts14M(color: AppColor.black),
@@ -210,17 +211,19 @@ class _LeaveCreditDebitMasterViewScreenState
                   children: [
                     buildColumnTitleValue(
                       title: "Modified By",
-                      value: widget.leaveCreditDebitMaster.modifiedBy.isEmpty
-                          ? "-"
-                          : widget.leaveCreditDebitMaster.modifiedBy,
+                      value:
+                          widget.leaveCreditDebitMaster.modifiedBy.isEmpty
+                              ? "-"
+                              : widget.leaveCreditDebitMaster.modifiedBy,
                     ),
                     buildColumnTitleValue(
                       title: "Modified Date",
-                      value: widget.leaveCreditDebitMaster.modifiedDate != null
-                          ? formatDateTimeAsDDMMMYYYY(
-                              widget.leaveCreditDebitMaster.modifiedDate!,
-                            )
-                          : "-",
+                      value:
+                          widget.leaveCreditDebitMaster.modifiedDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                widget.leaveCreditDebitMaster.modifiedDate!,
+                              )
+                              : "-",
                     ),
                   ],
                 ),
@@ -251,33 +254,33 @@ class _LeaveCreditDebitMasterViewScreenState
               ),
             )
           else
-            ...widget.leaveCreditDebitMaster.leaveBalanceType.map(
-              (balanceType) {
-                return Container(
-                  margin: EdgeInsets.only(bottom: 10),
-                  decoration: commonCardDecoration(),
-                  padding: EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Leave Type",
-                            value: balanceType.leaveTypeName,
-                          ),
-                          buildColumnTitleValue(
-                            title: "Leave Credit",
-                            value: "${balanceType.leaveCredit} days",
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+            ...widget.leaveCreditDebitMaster.leaveBalanceType.map((
+              balanceType,
+            ) {
+              return Container(
+                margin: EdgeInsets.only(bottom: 10),
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Leave Type",
+                          value: balanceType.leaveTypeName,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Leave Credit",
+                          value: "${balanceType.leaveCredit} days",
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }),
         ],
       ),
     );

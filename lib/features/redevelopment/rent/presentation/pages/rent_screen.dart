@@ -217,27 +217,28 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
 
   // FETCH BUILDINGS
   Future<Map<String, dynamic>> _fetchBuildings(
-      int pageNumber, {
-        String? value,
-      }) async {
+    int pageNumber, {
+    String? value,
+  }) async {
+    final buildingList =
+        _rentCubit.state.buildingList
+            .where((b) => b.projectId == _project.projectId)
+            .toList();
 
-    final buildingList = _rentCubit.state.buildingList
-        .where((b) => b.projectId == _project.projectId)
-        .toList();
-
-    final totalCount =
-        _rentCubit.state.buildingTotalCount;
+    final totalCount = _rentCubit.state.buildingTotalCount;
 
     final pageSize = 12;
 
     // 🔍 SEARCH MODE
     if (value != null && value.isNotEmpty) {
-
-      final filteredBuildings = buildingList.where((building) =>
-          building.buildingName
-              .toLowerCase()
-              .contains(value.toLowerCase())
-      ).toList();
+      final filteredBuildings =
+          buildingList
+              .where(
+                (building) => building.buildingName.toLowerCase().contains(
+                  value.toLowerCase(),
+                ),
+              )
+              .toList();
 
       final Map<int, Map<String, dynamic>> uniqueFiltered = {};
 
@@ -257,7 +258,6 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
     final currentLoadedCount = buildingList.length;
 
     if (currentLoadedCount < totalCount) {
-
       await _rentCubit.getBuildingList(
         context,
         pageNumber,
@@ -266,9 +266,10 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
       );
     }
 
-    final updatedList = _rentCubit.state.buildingList
-        .where((b) => b.projectId == _project.projectId)
-        .toList();
+    final updatedList =
+        _rentCubit.state.buildingList
+            .where((b) => b.projectId == _project.projectId)
+            .toList();
 
     final Map<int, Map<String, dynamic>> uniqueBuildings = {};
 
@@ -282,7 +283,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
     return {
       "itemList": uniqueBuildings.values.toList(),
       "totalNumberOfRecord":
-      totalCount > 0 ? totalCount : uniqueBuildings.length,
+          totalCount > 0 ? totalCount : uniqueBuildings.length,
     };
   }
 
@@ -484,6 +485,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
               // TAB CONTENT
               Expanded(
                 child: TabBarView(
+                  physics: NeverScrollableScrollPhysics(),
                   controller: _tabController,
                   children: [
                     _buildRentListWidget(), // Additional Rent

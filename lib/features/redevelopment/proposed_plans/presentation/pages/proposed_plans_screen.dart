@@ -410,6 +410,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
               ),
               Expanded(
                 child: TabBarView(
+                  physics: NeverScrollableScrollPhysics(),
                   controller: _tabController,
                   children: [
                     _detailsSectionTabView(),

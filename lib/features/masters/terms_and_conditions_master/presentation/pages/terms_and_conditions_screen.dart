@@ -228,10 +228,8 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
           );
           if (context.mounted) {
             if (_termsAndConditionsCubit.state.currentTabIndex == 0) {
-              _termsAndConditionsCubit.getMaterialRequisitionTermsAndConditionList(
-                context,
-                1,
-              );
+              _termsAndConditionsCubit
+                  .getMaterialRequisitionTermsAndConditionList(context, 1);
             } else {
               _termsAndConditionsCubit.getBookingTermsAndConditionList(
                 context,
@@ -306,6 +304,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
             ),
             Expanded(
               child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
                 controller: _tabController,
                 children: [
                   // MATERIAL REQUISITION TAB
