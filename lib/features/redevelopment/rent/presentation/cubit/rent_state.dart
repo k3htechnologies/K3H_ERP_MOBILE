@@ -1,7 +1,10 @@
 part of 'rent_cubit.dart';
 
 class RentState extends BaseState {
+  final List<PaymentLedgerModel>? paymentLedgerList;
   final List<RedevelopmentBuildingModel> buildingList;
+  final int bankTotalCount;
+  final List<BankListMasterModel> bankList;
   final int buildingTotalCount;
   final List<RentDetailsModel> rentDetails;
   final List<RentModel> rentList;
@@ -14,6 +17,9 @@ class RentState extends BaseState {
 
   const RentState({
     super.isLoading,
+    required this.paymentLedgerList,
+    required this.bankList,
+    required this.bankTotalCount,
     required this.buildingList,
     required this.buildingTotalCount,
     required this.rentDetails,
@@ -28,6 +34,9 @@ class RentState extends BaseState {
 
   factory RentState.initial() => RentState(
     isLoading: true,
+    paymentLedgerList: [],
+    bankList: [],
+    bankTotalCount:0,
     buildingList: [],
     buildingTotalCount: 0,
     rentDetails: [],
@@ -42,6 +51,9 @@ class RentState extends BaseState {
 
   RentState copyWith({
     bool? isLoading,
+    List<PaymentLedgerModel>? paymentLedgerList,
+    List<BankListMasterModel>? bankList,
+    int? bankTotalCount,
     List<RedevelopmentBuildingModel>? buildingList,
     int? buildingTotalCount,
     List<RentDetailsModel>? rentDetails,
@@ -55,6 +67,9 @@ class RentState extends BaseState {
   }) {
     return RentState(
       isLoading: isLoading ?? this.isLoading,
+      paymentLedgerList: paymentLedgerList ?? this.paymentLedgerList,
+      bankList: bankList ?? this.bankList,
+      bankTotalCount: bankTotalCount ?? this.bankTotalCount,
       buildingList: buildingList ?? this.buildingList,
       buildingTotalCount: buildingTotalCount ?? this.buildingTotalCount,
       rentDetails: rentDetails ?? this.rentDetails,
@@ -71,6 +86,9 @@ class RentState extends BaseState {
   @override
   List<Object?> get props => [
     isLoading,
+    paymentLedgerList,
+    bankList,
+    bankTotalCount,
     buildingList,
     buildingTotalCount,
     rentDetails,

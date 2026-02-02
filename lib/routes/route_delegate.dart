@@ -234,8 +234,13 @@ import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/p
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_secondary_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/pages/proposed_plans_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/rent_details.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/rent/data/model/payment_ledger.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/rent/data/model/rent.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/presentation/cubit/rent_cubit.dart';
+import 'package:k3h_erp_app/features/redevelopment/rent/presentation/pages/add_payment_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/presentation/pages/rent_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/rent/presentation/pages/view_payment_summary_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_tenant_screen.dart';
@@ -280,6 +285,38 @@ String? authenticateAndAuthorizeRoute(GoRouterState state) {
     return AppRoutes.notAuthorized;
   }
   return null;
+}
+
+double? _readDouble(dynamic extraVal, String? queryVal) {
+  if (extraVal != null && extraVal is num) return extraVal.toDouble();
+  if (queryVal != null && queryVal.isNotEmpty) return double.tryParse(queryVal);
+  return null;
+}
+
+RentModel? _rentModelFromQuery(String? encoded) {
+  if (encoded == null || encoded.isEmpty) return null;
+  try {
+    final json = jsonDecode(
+      EncryptionManager.decryptData(Uri.decodeQueryComponent(encoded)),
+    ) as Map<String, dynamic>;
+    return RentModel.fromJson(json);
+  } catch (_) {
+    return null;
+  }
+}
+
+List<RentDetailsModel> _rentDetailsFromQuery(String? encoded) {
+  if (encoded == null || encoded.isEmpty) return [];
+  try {
+    final list = jsonDecode(
+      EncryptionManager.decryptData(Uri.decodeQueryComponent(encoded)),
+    ) as List<dynamic>;
+    return list
+        .map((e) => RentDetailsModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  } catch (_) {
+    return [];
+  }
 }
 
 final GoRouter goRouter = GoRouter(
@@ -2109,15 +2146,81 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-        GoRoute(
-          name: AppRoutes.rent,
-          path: AppRoutes.rent,
-          builder: (context, state) {
-            return BlocProvider(
-              create: (context) => RentCubit(),
-              child: RentScreen(),
-            );
+        // RENT
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(create: (_) => RentCubit(), child: child);
           },
+          routes: [
+            GoRoute(
+              name: AppRoutes.rent,
+              path: AppRoutes.rent,
+              builder: (context, state) {
+                return RentScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addPayment,
+              path: AppRoutes.addPayment,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                final query = state.uri.queryParameters;
+                // Prefer extra (can be null with ShellRoute + pushNamed), fallback to query params (encrypted JSON)
+                final buildingId = extra['buildingId'] as int? ??
+                    int.tryParse(query['buildingId'] ?? '') ??
+                    0;
+                List<RentDetailsModel> rentDetails =
+                    (extra['rentDetails'] as List<RentDetailsModel>?) ?? [];
+                if (rentDetails.isEmpty) {
+                  rentDetails = _rentDetailsFromQuery(query['rentDetails']);
+                }
+                RentModel? rentModel = extra['rentModel'] as RentModel?;
+                rentModel ??= _rentModelFromQuery(query['rentModel']);
+                final totalAmount = _readDouble(extra['totalAmount'], query['totalAmount']) ?? 0.0;
+                final paidAmount = _readDouble(extra['paidAmount'], query['paidAmount']) ?? 0.0;
+                final paymentLedger = extra['paymentLedger'] as PaymentLedgerModel?;
+                final paymentLedgerIndex = extra['paymentLedgerIndex'] as int?;
+                final isEditMode = paymentLedger != null;
+                if (rentModel == null) {
+                  return const Scaffold(
+                    body: Center(child: Text('Missing payment context')),
+                  );
+                }
+                if (!isEditMode && rentDetails.isEmpty) {
+                  return const Scaffold(
+                    body: Center(child: Text('Missing payment context')),
+                  );
+                }
+                return AddPaymentScreen(
+                  buildingId: buildingId,
+                  rentDetails: rentDetails,
+                  rentModel: rentModel,
+                  totalAmount: totalAmount,
+                  paidAmount: paidAmount,
+                  paymentLedger: paymentLedger,
+                  paymentLedgerIndex: paymentLedgerIndex,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewSummary,
+              path: AppRoutes.viewSummary,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                RentModel? rentModel = extra['rentModel'] as RentModel?;
+                rentModel ??= _rentModelFromQuery(state.uri.queryParameters['rentModel']);
+                if (rentModel == null) {
+                  return Scaffold(
+                    appBar: AppBar(title: const Text('Payment Summary')),
+                    body: const Center(
+                      child: Text('Missing payment context'),
+                    ),
+                  );
+                }
+                return ViewPaymentSummaryScreen(rentModel: rentModel);
+              },
+            ),
+          ],
         ),
         // PROPOSED PLANS
         ShellRoute(

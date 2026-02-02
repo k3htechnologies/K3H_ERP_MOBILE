@@ -1,17 +1,22 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/data/model/rent.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/presentation/cubit/rent_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -217,27 +222,28 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
 
   // FETCH BUILDINGS
   Future<Map<String, dynamic>> _fetchBuildings(
-      int pageNumber, {
-        String? value,
-      }) async {
+    int pageNumber, {
+    String? value,
+  }) async {
+    final buildingList =
+        _rentCubit.state.buildingList
+            .where((b) => b.projectId == _project.projectId)
+            .toList();
 
-    final buildingList = _rentCubit.state.buildingList
-        .where((b) => b.projectId == _project.projectId)
-        .toList();
-
-    final totalCount =
-        _rentCubit.state.buildingTotalCount;
+    final totalCount = _rentCubit.state.buildingTotalCount;
 
     final pageSize = 12;
 
     // 🔍 SEARCH MODE
     if (value != null && value.isNotEmpty) {
-
-      final filteredBuildings = buildingList.where((building) =>
-          building.buildingName
-              .toLowerCase()
-              .contains(value.toLowerCase())
-      ).toList();
+      final filteredBuildings =
+          buildingList
+              .where(
+                (building) => building.buildingName.toLowerCase().contains(
+                  value.toLowerCase(),
+                ),
+              )
+              .toList();
 
       final Map<int, Map<String, dynamic>> uniqueFiltered = {};
 
@@ -257,7 +263,6 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
     final currentLoadedCount = buildingList.length;
 
     if (currentLoadedCount < totalCount) {
-
       await _rentCubit.getBuildingList(
         context,
         pageNumber,
@@ -266,9 +271,10 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
       );
     }
 
-    final updatedList = _rentCubit.state.buildingList
-        .where((b) => b.projectId == _project.projectId)
-        .toList();
+    final updatedList =
+        _rentCubit.state.buildingList
+            .where((b) => b.projectId == _project.projectId)
+            .toList();
 
     final Map<int, Map<String, dynamic>> uniqueBuildings = {};
 
@@ -282,7 +288,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
     return {
       "itemList": uniqueBuildings.values.toList(),
       "totalNumberOfRecord":
-      totalCount > 0 ? totalCount : uniqueBuildings.length,
+          totalCount > 0 ? totalCount : uniqueBuildings.length,
     };
   }
 
@@ -501,7 +507,130 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
     );
   }
 
-  // BUILD RENT LIST WIDGET
+  // HELPER FUNCTIONS
+  Widget _amountColumn({
+    required String title,
+    required num amount,
+    required Color color,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: AppTextStyle.ts12M(color: AppColor.grey)),
+        const SizedBox(height: 2),
+        Text(
+          '₹ ${amount.toStringAsFixed(2)}',
+          style: AppTextStyle.ts14SB(color: color),
+        ),
+      ],
+    );
+  }
+
+  // BUILD COMMON RENT TAB CARD
+  Widget _buildRentTABExpansionTileCard({
+    required String tabName,
+    required String flatNumber,
+    required num totalAmount,
+    required num paidAmount,
+    required Widget expandedContent,
+    VoidCallback? onAddPayment,
+    VoidCallback? onViewPayment,
+  }) {
+    final ValueNotifier<bool> isExpanded = ValueNotifier(false);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: commonCardDecoration(),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ValueListenableBuilder<bool>(
+          valueListenable: isExpanded,
+          builder: (context, expanded, _) {
+            return ExpansionTile(
+              key: PageStorageKey(flatNumber),
+              initiallyExpanded: expanded,
+              onExpansionChanged: (value) => isExpanded.value = value,
+              // HIDE DEFAULT ARROW
+              trailing: const SizedBox.shrink(),
+
+              tilePadding: const EdgeInsets.fromLTRB(16, 12, 0, 8),
+              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+
+              // CUSTOM HEADER
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(flatNumber, style: AppTextStyle.ts16M()),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          isExpanded.value = !expanded;
+                        },
+                        child: AnimatedRotation(
+                          turns: expanded ? 0.5 : 0.0,
+                          duration: const Duration(milliseconds: 200),
+                          child: const Icon(
+                            Icons.keyboard_arrow_down,
+                            size: 26,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // TOTAL & PAID
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _amountColumn(
+                        title: 'Total',
+                        amount: totalAmount,
+                        color: AppColor.slightDarkBlue,
+                      ),
+                      _amountColumn(
+                        title: 'Paid',
+                        amount: paidAmount,
+                        color: Colors.green,
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // Action Buttons
+                  Row(
+                    children: [
+                      if (totalAmount != paidAmount) ...[
+                        CustomButton(
+                          onPressed: onAddPayment,
+                          text: "Add Payment",
+                        ),
+                        horizontalSpacing(),
+                      ],
+
+                      CustomButton(
+                        onPressed: onViewPayment,
+                        text: "View Summary",
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              children: [expandedContent],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // BUILD COMMON RENT LIST WIDGET
   Widget _buildRentListWidget() {
     return BlocBuilder<RentCubit, RentState>(
       bloc: _rentCubit,
@@ -548,7 +677,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
             // BUILD CARD BASED ON TAB NAME
             switch (tabName) {
               case 'Rent':
-                return _buildRentCard(tenantRecords, state);
+                return _buildRentCard(tenantRecords, state, tabName);
               case 'Corpus':
                 return _buildCorpusCard(tenantRecords);
               case 'Brokerage':
@@ -658,9 +787,14 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
     );
   }
 
-  // BUILD RENT CARD
-  Widget _buildRentCard(List<RentModel> tenantRecords, RentState state) {
+  // BUILD RENT LIST WIDGET
+  Widget _buildRentCard(
+    List<RentModel> tenantRecords,
+    RentState state,
+    String tabName,
+  ) {
     final first = tenantRecords.first;
+
     final dateRange =
         tenantRecords
             .map((e) => DateTime.parse(e.date.toString()))
@@ -668,9 +802,19 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
             .toList()
           ..sort((a, b) => a.compareTo(b));
 
-    final totalAmount = tenantRecords.fold<num>(0, (sum, r) => sum + r.amount);
+    final totalRecord = state.rentList.firstWhereOrNull((e) {
+      try {
+        final date = DateTime.parse(e.date.toString());
+        return date.year == 1997 &&
+            date.month == 1 &&
+            date.day == 1 &&
+            e.tenantId == first.tenantId;
+      } catch (_) {
+        return false;
+      }
+    });
+    final totalAmount = totalRecord?.amount ?? 0.0;
 
-    // Find paid amount (date year == 1997, month == 1, day == 2)
     final paidRecord = state.rentList.firstWhereOrNull((e) {
       try {
         final date = DateTime.parse(e.date.toString());
@@ -684,8 +828,58 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
     });
     final paidAmount = paidRecord?.amount ?? 0.0;
 
-    return _buildExpansionTileCard(
+    return _buildRentTABExpansionTileCard(
+      tabName: tabName,
       flatNumber: first.flatNumber,
+      totalAmount: totalAmount,
+      paidAmount: paidAmount,
+      onAddPayment: () {
+        final rentModelEnc = Uri.encodeQueryComponent(
+          EncryptionManager.encryptData(jsonEncode(first.toJson())),
+        );
+        final rentDetailsEnc = Uri.encodeQueryComponent(
+          EncryptionManager.encryptData(
+            jsonEncode(state.rentDetails.map((e) => e.toJson()).toList()),
+          ),
+        );
+        goRouter.pushNamed(
+          AppRoutes.addPayment,
+          queryParameters: <String, String>{
+            'totalAmount': totalAmount.toString(),
+            'paidAmount': paidAmount.toString(),
+            'buildingId': first.buildingId.toString(),
+            'rentModel': rentModelEnc,
+            'rentDetails': rentDetailsEnc,
+          },
+          extra: <String, dynamic>{
+            'buildingId': first.buildingId,
+            'rentDetails': state.rentDetails,
+            'rentModel': first,
+            'totalAmount': totalAmount.toDouble(),
+            'paidAmount': paidAmount.toDouble(),
+          },
+        );
+      },
+      onViewPayment: () async {
+        final rentModelEnc = Uri.encodeQueryComponent(
+          EncryptionManager.encryptData(jsonEncode(first.toJson())),
+        );
+        await goRouter.pushNamed(
+          AppRoutes.viewSummary,
+          queryParameters: <String, String>{'rentModel': rentModelEnc},
+          extra: {'rentModel': first},
+        );
+        if (mounted) {
+          await _rentCubit.pullChargesDetails(
+            context: context,
+            pageNumber: state.currentPage,
+            projectId: first.projectId,
+            buildingId: first.buildingId,
+            chargeName: tabName,
+            tenure: first.tenure,
+          );
+        }
+      },
       expandedContent: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -702,85 +896,42 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
             '${first.proposedOfferAmount} ${first.unit}',
           ),
           Divider(color: AppColor.grey, thickness: 0.5),
-          // Date-wise amounts
-          ...dateRange.map((date) {
-            final match = tenantRecords.firstWhereOrNull((r) {
-              final rDate = DateTime.parse(r.date.toString());
-              return rDate.year == date.year &&
-                  rDate.month == date.month &&
-                  rDate.day == date.day;
-            });
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    DateFormat('dd MMM yyyy').format(date),
-                    style: AppTextStyle.ts14M(),
+
+          // DATE WISE AMOUNT ( EXCLUDE 1997-01-01 AND 1997-01-02 )
+          ...dateRange
+              .where(
+                (date) =>
+                    !(date.year == 1997 &&
+                        date.month == 1 &&
+                        (date.day == 1 || date.day == 2)),
+              )
+              .map((date) {
+                final match = tenantRecords.firstWhereOrNull((r) {
+                  final rDate = DateTime.parse(r.date.toString());
+                  return rDate.year == date.year &&
+                      rDate.month == date.month &&
+                      rDate.day == date.day;
+                });
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        DateFormat('dd MMM yyyy').format(date),
+                        style: AppTextStyle.ts14M(),
+                      ),
+                      Text(
+                        match?.amount != null && match?.amount != 0
+                            ? '₹ ${match!.amount.toStringAsFixed(2)}'
+                            : '-',
+                        style: AppTextStyle.ts14B(),
+                      ),
+                    ],
                   ),
-                  Text(
-                    match?.amount != null && match?.amount != 0
-                        ? '₹ ${match!.amount.toStringAsFixed(2)}'
-                        : '-',
-                    style: AppTextStyle.ts14B(),
-                  ),
-                ],
-              ),
-            );
-          }),
-          Divider(color: AppColor.grey, thickness: 0.5),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Total', style: AppTextStyle.ts16M()),
-              Text(
-                '₹ ${totalAmount.toStringAsFixed(2)}',
-                style: AppTextStyle.ts16SB(color: AppColor.slightDarkBlue),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Paid', style: AppTextStyle.ts16M()),
-              Text(
-                '₹ ${paidAmount.toStringAsFixed(2)}',
-                style: AppTextStyle.ts16SB(color: Colors.green),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Action buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  // TODO: Implement Add payment tracking dialog
-                  // showPaymentTrackingDialog(first);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.green,
-                  foregroundColor: AppColor.white,
-                ),
-                child: const Text('Add'),
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  // TODO: Implement View payment ledger navigation
-                  // _navigateToPaymentLedger(first);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: AppColor.white,
-                ),
-                child: const Text('View'),
-              ),
-            ],
-          ),
+                );
+              }),
         ],
       ),
     );

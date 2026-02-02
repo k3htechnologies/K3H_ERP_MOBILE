@@ -160,6 +160,8 @@ class AppRoutes {
   static String proposedOfferSecondaryScreen = "/proposedOfferSecondaryScreen";
   static String proposedPlans = "/proposedPlan";
   static String rent = "/rent";
+  static String addPayment = "/addPayment";
+  static String viewSummary = "/viewSummary";
   static String tenant = "/tenant";
   static String addTenant = "/addTenant";
   static String viewTenant = "/viewTenant";
@@ -172,7 +174,6 @@ class AppRoutes {
   static String crmBooking = "/crmBooking";
   static String crmBrokerage = "/brokerage";
   static String brokerageInvoice = "/brokerageInvoice";
-  static String viewPayment = "/viewPayment";
   static String viewFlatAlterationRequest = "/viewFlatAlterationRequest";
   static String viewParkingModificationRequest =
       "/viewParkingModificationRequest";

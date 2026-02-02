@@ -11,6 +11,30 @@ abstract interface class RentRepository {
     required int buildingId,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdatePayTrackRent({
+    required Map<String, String> requestBody,
+    required List<Map<String, dynamic>> fileList,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> getPayTrackRentLedgerList({
+    required int pageNumber,
+    required int pageSize,
+    required int tenantId,
+    required int tenantApplicantId,
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> deletePayTrackRent({
+    required int payTrackRentId,
+    required String uniqueKey,
+    required int projectId,
+    required int tenantId,
+    required int tenantApplicantId,
+    required int buildingId,
+  });
 }
 
 class RentRepositoryImpl implements RentRepository {
@@ -33,6 +57,72 @@ class RentRepositoryImpl implements RentRepository {
         projectId: projectId,
         buildingId: buildingId,
         queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdatePayTrackRent({
+    required Map<String, String> requestBody,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      var result = await rentDatasource.apicallAddUpdatePayTrackRent(
+        requestBody: requestBody,
+        fileList: fileList,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getPayTrackRentLedgerList({
+    required int pageNumber,
+    required int pageSize,
+    required int tenantId,
+    required int tenantApplicantId,
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await rentDatasource.apicallPullPayTrackRentLedger(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        tenantId: tenantId,
+        tenantApplicantId: tenantApplicantId,
+        projectId: projectId,
+        buildingId: buildingId,
+        queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deletePayTrackRent({
+    required int payTrackRentId,
+    required String uniqueKey,
+    required int projectId,
+    required int tenantId,
+    required int tenantApplicantId,
+    required int buildingId,
+  }) async {
+    try {
+      var result = await rentDatasource.apicallDeletePayTrackRent(
+        payTrackRentId: payTrackRentId,
+        uniqueKey: uniqueKey,
+        projectId: projectId,
+        tenantId: tenantId,
+        tenantApplicantId: tenantApplicantId,
+        buildingId: buildingId,
       );
       return right(result);
     } catch (error) {
