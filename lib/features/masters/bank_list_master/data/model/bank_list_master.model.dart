@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:k3h_erp_app/utils/common_function.dart';
+
 BankListMasterModel bankListMasterModelFromJson(String str) => BankListMasterModel.fromJson(json.decode(str));
 
 String bankListMasterModelToJson(BankListMasterModel data) => json.encode(data.toJson());
@@ -18,8 +20,8 @@ class BankListMasterModel {
   });
 
   factory BankListMasterModel.fromJson(Map<String, dynamic> json) => BankListMasterModel(
-    bankListMasterId: json["BankListMasterId"],
-    bankNameWithCode: json["BankNameWithCode"],
+    bankListMasterId: parseValue<int>(json,"BankListMasterId"),
+    bankNameWithCode: parseValue<String>(json,"BankNameWithCode"),
   );
 
   Map<String, dynamic> toJson() => {

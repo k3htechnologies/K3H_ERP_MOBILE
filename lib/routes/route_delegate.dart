@@ -220,6 +220,7 @@ import 'package:k3h_erp_app/features/project_document/rera_document_category/pre
 import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/pages/view_document_category_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_file/approved_bank_file_cubit.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder/approved_bank_folder_cubit.dart';
+import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/add_bank_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_file_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_folder_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
@@ -296,9 +297,11 @@ double? _readDouble(dynamic extraVal, String? queryVal) {
 RentModel? _rentModelFromQuery(String? encoded) {
   if (encoded == null || encoded.isEmpty) return null;
   try {
-    final json = jsonDecode(
-      EncryptionManager.decryptData(Uri.decodeQueryComponent(encoded)),
-    ) as Map<String, dynamic>;
+    final json =
+        jsonDecode(
+              EncryptionManager.decryptData(Uri.decodeQueryComponent(encoded)),
+            )
+            as Map<String, dynamic>;
     return RentModel.fromJson(json);
   } catch (_) {
     return null;
@@ -308,9 +311,11 @@ RentModel? _rentModelFromQuery(String? encoded) {
 List<RentDetailsModel> _rentDetailsFromQuery(String? encoded) {
   if (encoded == null || encoded.isEmpty) return [];
   try {
-    final list = jsonDecode(
-      EncryptionManager.decryptData(Uri.decodeQueryComponent(encoded)),
-    ) as List<dynamic>;
+    final list =
+        jsonDecode(
+              EncryptionManager.decryptData(Uri.decodeQueryComponent(encoded)),
+            )
+            as List<dynamic>;
     return list
         .map((e) => RentDetailsModel.fromJson(e as Map<String, dynamic>))
         .toList();
@@ -2166,7 +2171,8 @@ final GoRouter goRouter = GoRouter(
                 final extra = state.extra as Map<String, dynamic>? ?? {};
                 final query = state.uri.queryParameters;
                 // Prefer extra (can be null with ShellRoute + pushNamed), fallback to query params (encrypted JSON)
-                final buildingId = extra['buildingId'] as int? ??
+                final buildingId =
+                    extra['buildingId'] as int? ??
                     int.tryParse(query['buildingId'] ?? '') ??
                     0;
                 List<RentDetailsModel> rentDetails =
@@ -2176,9 +2182,14 @@ final GoRouter goRouter = GoRouter(
                 }
                 RentModel? rentModel = extra['rentModel'] as RentModel?;
                 rentModel ??= _rentModelFromQuery(query['rentModel']);
-                final totalAmount = _readDouble(extra['totalAmount'], query['totalAmount']) ?? 0.0;
-                final paidAmount = _readDouble(extra['paidAmount'], query['paidAmount']) ?? 0.0;
-                final paymentLedger = extra['paymentLedger'] as PaymentLedgerModel?;
+                final totalAmount =
+                    _readDouble(extra['totalAmount'], query['totalAmount']) ??
+                    0.0;
+                final paidAmount =
+                    _readDouble(extra['paidAmount'], query['paidAmount']) ??
+                    0.0;
+                final paymentLedger =
+                    extra['paymentLedger'] as PaymentLedgerModel?;
                 final paymentLedgerIndex = extra['paymentLedgerIndex'] as int?;
                 final isEditMode = paymentLedger != null;
                 if (rentModel == null) {
@@ -2208,13 +2219,13 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>? ?? {};
                 RentModel? rentModel = extra['rentModel'] as RentModel?;
-                rentModel ??= _rentModelFromQuery(state.uri.queryParameters['rentModel']);
+                rentModel ??= _rentModelFromQuery(
+                  state.uri.queryParameters['rentModel'],
+                );
                 if (rentModel == null) {
                   return Scaffold(
                     appBar: AppBar(title: const Text('Payment Summary')),
-                    body: const Center(
-                      child: Text('Missing payment context'),
-                    ),
+                    body: const Center(child: Text('Missing payment context')),
                   );
                 }
                 return ViewPaymentSummaryScreen(rentModel: rentModel);
@@ -2425,18 +2436,36 @@ final GoRouter goRouter = GoRouter(
           ],
         ),
         // PROJECT MANAGEMENT APPROVED BANK
-        GoRoute(
-          path: AppRoutes.approvedBank,
-          name: AppRoutes.approvedBank,
-          builder: (context, state) {
-            return BlocProvider(
-              create: (context) => ApprovedBankFolderCubit(),
-              child: ApprovedBankFolderMobileScreen(),
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider<ApprovedBankFolderCubit>(
+                  create: (_) => ApprovedBankFolderCubit(),
+                ),
+                BlocProvider<ApprovedBankFileCubit>(
+                  create: (_) => ApprovedBankFileCubit(),
+                ),
+              ],
+              child: child,
             );
           },
           routes: [
             GoRoute(
-              parentNavigatorKey: navigatorKey,
+              path: AppRoutes.approvedBank,
+              name: AppRoutes.approvedBank,
+              builder: (context, state) {
+                return ApprovedBankFolderScreen();
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.addBankScreen,
+              name: AppRoutes.addBankScreen,
+              builder: (context, state) {
+                return AddBankScreen();
+              },
+            ),
+            GoRoute(
               name: AppRoutes.approvedBankFile,
               path: AppRoutes.approvedBankFile,
               builder: (context, state) {
@@ -2451,11 +2480,8 @@ final GoRouter goRouter = GoRouter(
                     Uri.decodeQueryComponent(queryParameter),
                   ),
                 );
-                return BlocProvider(
-                  create: (context) => ApprovedBankFileCubit(),
-                  child: ApprovedBankFieScreen(
-                    approvedBankFolderId: decodedJsonApprovedBankFolderId,
-                  ),
+                return ApprovedBankFieScreen(
+                  approvedBankFolderId: decodedJsonApprovedBankFolderId,
                 );
               },
             ),

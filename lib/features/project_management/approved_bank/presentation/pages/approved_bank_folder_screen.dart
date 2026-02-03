@@ -16,18 +16,16 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 
-class ApprovedBankFolderMobileScreen extends StatefulWidget {
-  const ApprovedBankFolderMobileScreen({super.key});
+class ApprovedBankFolderScreen extends StatefulWidget {
+  const ApprovedBankFolderScreen({super.key});
 
   @override
-  State<ApprovedBankFolderMobileScreen> createState() =>
-      _ApprovedBankFolderMobileScreenState();
+  State<ApprovedBankFolderScreen> createState() =>
+      _ApprovedBankFolderScreenState();
 }
 
-class _ApprovedBankFolderMobileScreenState
-    extends State<ApprovedBankFolderMobileScreen> {
+class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
   // CUBIT
   late ApprovedBankFolderCubit _approvedBankCubit;
 
@@ -36,20 +34,6 @@ class _ApprovedBankFolderMobileScreenState
 
   // PROJECT
   late ProjectModel _project;
-
-  Future<Map<String, dynamic>?> _showBankSelectionPopup() async {
-    final result = await CustomMultipleSelectPopup.showBottomSheet(
-      context: context,
-      title: 'Select Bank',
-      dataFetchCallBack: _approvedBankCubit.getBankList,
-      isMultiSelect: false,
-    );
-
-    if (result != null && result.isNotEmpty) {
-      return result.first;
-    }
-    return null;
-  }
 
   @override
   void initState() {
@@ -100,14 +84,7 @@ class _ApprovedBankFolderMobileScreenState
         },
         textController: _searchC,
         onAddCallback: () async {
-          final selectedBank = await _showBankSelectionPopup();
-          if (selectedBank != null && context.mounted) {
-            _approvedBankCubit.addApproveBankFolder(
-              context: context,
-              projectId: _project.projectId,
-              bankListMasterId: selectedBank["zAttributesId"].toString(),
-            );
-          }
+          await goRouter.pushNamed(AppRoutes.addBankScreen);
         },
       ),
       body: BlocBuilder<ApprovedBankFolderCubit, ApprovedBankFolderState>(

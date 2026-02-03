@@ -240,6 +240,7 @@ class AppRoutes {
   //PROJECT MANAGEMENT
   static String approvedBank = "/approvedBank";
   static String approvedBankFile = "/approvedBankFile";
+  static String addBankScreen = "/addBankScreen";
 
   // SALES TARGET
   static String salesTarget = "/target";
