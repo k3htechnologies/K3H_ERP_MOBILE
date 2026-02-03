@@ -99,6 +99,16 @@ class _ApprovedBankFolderMobileScreenState
           _approvedBankCubit.searchFolder(context, value, _project.projectId);
         },
         textController: _searchC,
+        onAddCallback: () async {
+          final selectedBank = await _showBankSelectionPopup();
+          if (selectedBank != null && context.mounted) {
+            _approvedBankCubit.addApproveBankFolder(
+              context: context,
+              projectId: _project.projectId,
+              bankListMasterId: selectedBank["zAttributesId"].toString(),
+            );
+          }
+        },
       ),
       body: BlocBuilder<ApprovedBankFolderCubit, ApprovedBankFolderState>(
         buildWhen:
@@ -222,24 +232,6 @@ class _ApprovedBankFolderMobileScreenState
             },
           );
         },
-      ),
-      floatingActionButton: Padding(
-        padding: EdgeInsets.only(right: 40, bottom: 40),
-        child: FloatingActionButton(
-          onPressed: () async {
-            final selectedBank = await _showBankSelectionPopup();
-            if (selectedBank != null && context.mounted) {
-              _approvedBankCubit.addApproveBankFolder(
-                context: context,
-                projectId: _project.projectId,
-                bankListMasterId: selectedBank["zAttributesId"].toString(),
-              );
-            }
-          },
-          backgroundColor: AppColor.green,
-          shape: const CircleBorder(),
-          child: Icon(Icons.add, color: AppColor.white),
-        ),
       ),
     );
   }
