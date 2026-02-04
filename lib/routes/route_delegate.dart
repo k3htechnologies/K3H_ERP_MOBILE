@@ -2396,23 +2396,31 @@ final GoRouter goRouter = GoRouter(
           },
         ),
         // MARKETING CONTENT DOCUMENT
-        GoRoute(
-          path: AppRoutes.content,
-          name: AppRoutes.content,
-          builder: (context, state) {
-            return BlocProvider(
-              create: (_) => ContentFolderCubit(),
-              child: ContentFolderScreen(),
-            );
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider<ContentFolderCubit>(
+                  create: (_) => ContentFolderCubit(),
+                ),
+                BlocProvider<ContentDocumentCubit>(
+                  create: (_) => ContentDocumentCubit(),
+                ),
+              ],
+                child: child);
           },
           routes: [
             GoRoute(
-              parentNavigatorKey: navigatorKey,
+              path: AppRoutes.content,
+              name: AppRoutes.content,
+              builder: (context, state) => ContentFolderScreen(),
+            ),
+            GoRoute(
               name: AppRoutes.contentDocument,
               path: AppRoutes.contentDocument,
               builder: (context, state) {
                 final queryParameterMarketingContentFolderId =
-                    state.uri.queryParameters['marketingContentFolderId'];
+                state.uri.queryParameters['marketingContentFolderId'];
 
                 if (queryParameterMarketingContentFolderId != null) {
                   final decodedJson = jsonDecode(

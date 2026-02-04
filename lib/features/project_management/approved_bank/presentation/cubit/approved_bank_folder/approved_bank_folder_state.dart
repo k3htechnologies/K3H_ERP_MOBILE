@@ -6,6 +6,7 @@ class ApprovedBankFolderState extends BaseState {
   final int currentPageBank;
   final List<ApprovedBankFolderModel> approvedBankFolderList;
   final String searchTextFolder;
+  final String searchTextBank;
 
   const ApprovedBankFolderState({
     super.isLoading,
@@ -14,6 +15,7 @@ class ApprovedBankFolderState extends BaseState {
     required this.currentPageBank,
     required this.approvedBankFolderList,
     required this.searchTextFolder,
+    required this.searchTextBank,
   });
 
   factory ApprovedBankFolderState.initial() => ApprovedBankFolderState(
@@ -23,6 +25,7 @@ class ApprovedBankFolderState extends BaseState {
     approvedBankFolderList: [],
     isLoading: true,
     searchTextFolder: "",
+    searchTextBank: "",
   );
 
   ApprovedBankFolderState copyWith({
@@ -32,6 +35,7 @@ class ApprovedBankFolderState extends BaseState {
     int? currentPageBank,
     List<ApprovedBankFolderModel>? approvedBankFolderList,
     String? searchTextFolder,
+    String? searchTextBank,
   }) {
     return ApprovedBankFolderState(
       isLoading: isLoading ?? this.isLoading,
@@ -40,6 +44,7 @@ class ApprovedBankFolderState extends BaseState {
       currentPageBank: currentPageBank ?? this.currentPageBank,
       approvedBankFolderList: approvedBankFolderList ?? this.approvedBankFolderList,
       searchTextFolder: searchTextFolder ?? this.searchTextFolder,
+      searchTextBank: searchTextBank ?? this.searchTextBank,
     );
   }
 
@@ -51,5 +56,6 @@ class ApprovedBankFolderState extends BaseState {
     currentPageBank,
     approvedBankFolderList,
     searchTextFolder,
+    searchTextBank,
   ];
 }

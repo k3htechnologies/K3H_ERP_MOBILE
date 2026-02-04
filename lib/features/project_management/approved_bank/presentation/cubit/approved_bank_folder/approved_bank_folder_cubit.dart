@@ -28,7 +28,7 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
     int pageSize,
     int projectId,
   ) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true, approvedBankFolderList: []));
     Map<String, dynamic> queryParams = {"BankName": state.searchTextFolder};
     var result = await _approvedBankRepository.getApprovedBankFolderList(
       pageSize: pageSize,
@@ -59,24 +59,22 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
     var result = await _employeeMasterRepository.getBankList(
       pageNumber: pageNumber,
       pageSize: 20,
-      query: {'BankName': "" ?? ''},
+      query: {'BankName': state.searchTextBank},
     );
 
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
-          (response) {
-            final List<BankListMasterModel> newData =
+      (response) {
+        final List<BankListMasterModel> newData =
             (response['data'] as List)
                 .map((e) => BankListMasterModel.fromJson(e))
                 .toList();
 
-            final List<BankListMasterModel> updatedList =
-            pageNumber == 1
-                ? newData
-                : [...state.bankList, ...newData];
+        final List<BankListMasterModel> updatedList =
+            pageNumber == 1 ? newData : [...state.bankList, ...newData];
         emit(
           state.copyWith(
             bankList: updatedList,
@@ -93,6 +91,13 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
   Future searchFolder(BuildContext context, String value, int projectId) async {
     emit(state.copyWith(searchTextFolder: value, approvedBankFolderList: []));
     await getApprovedBankFolderList(context, 1, 1000, projectId);
+  }
+
+  Future searchBank(BuildContext context, String value, int projectId) async {
+    emit(
+      state.copyWith(searchTextBank: value, bankList: [], currentPageBank: 1),
+    );
+    await getBankList(context, 1);
   }
 
   // <---- ADD APPROVED BANK FOLDER ---->
@@ -117,12 +122,7 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
         return;
       },
       (response) {
-        var list = [
-          response['data'][0] as ApprovedBankFolderModel,
-          ...state.approvedBankFolderList,
-        ];
-
-        emit(state.copyWith(approvedBankFolderList: list));
+        goRouter.pop();
         showSuccessMessage(context);
       },
     );

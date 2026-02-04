@@ -14,10 +14,9 @@ double verticalSpacingMeasure({double height = 10.0}) => height;
 double horizontalSpacingMeasure({double width = 20.0}) => width;
 
 Widget noDataWidget() => Container(
-  width: double.infinity,
-  height: double.infinity,
   decoration: const BoxDecoration(color: Colors.transparent),
   child: Column(
+    mainAxisSize: MainAxisSize.min,
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       Image.asset(AppAssets.noDataImage, width: 150.0, height: 150.0),
@@ -29,8 +28,6 @@ Widget noDataWidget() => Container(
 
 Widget loader() {
   return Container(
-    width: double.infinity,
-    height: double.infinity,
     decoration: const BoxDecoration(color: Colors.transparent),
     child: Stack(
       children: [

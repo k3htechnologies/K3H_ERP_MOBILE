@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -11,13 +10,13 @@ import 'package:k3h_erp_app/features/project_management/approved_bank/data/model
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_file/approved_bank_file_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_floating_action_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -271,8 +270,14 @@ class _ApprovedBankFieScreenState extends State<ApprovedBankFieScreen> {
     return Scaffold(
       backgroundColor: AppColor.greyBackground,
       appBar: CustomAppBarWithBackButton(
-        screenTitle: 'Approved Bank File',
-        authorization: AuthorizationModel(),
+        screenTitle: 'Approved Bank',
+        authorization: AuthorizationModel(isAction: true),
+        onAddCallback: () async {
+          await _showDialogToAddUpdateApprovedBankFile(
+            context,
+            _approvedBankFileCubit.state,
+          );
+        },
       ),
       body: BlocBuilder<ApprovedBankFileCubit, ApprovedBankFileState>(
         builder: (context, state) {
@@ -300,88 +305,104 @@ class _ApprovedBankFieScreenState extends State<ApprovedBankFieScreen> {
               var files = state.approvedBankFileList[index];
               return Container(
                 margin: EdgeInsets.only(bottom: 10),
-                decoration: BoxDecoration(
-                  color: AppColor.white,
-                  border: Border.all(
-                    color: AppColor.grey.withValues(alpha: 0.3),
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                decoration: commonCardDecoration(),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
                       padding: EdgeInsets.only(top: 16, left: 16, right: 16),
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "Title :",
-                            style: AppTextStyle.ts12R(color: AppColor.grey),
-                          ),
-                          Text(
-                            files.approvedBankFileName,
-                            style: AppTextStyle.ts14R(),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  files.approvedBankFileName,
+                                  style: AppTextStyle.ts14R(color: AppColor.primary),
+                                ),
+                              ),
+                              horizontalSpacing(),
+                              CustomIconButton(
+                                onPressed: () {
+                                  if (files.approvedBankFileUrl.isEmpty) {
+                                    showErrorMessage(
+                                      context,
+                                      "Image Error",
+                                      "No Image Found",
+                                    );
+                                  }
+                                  showFilePreviewDialog(
+                                    context,
+                                    files.approvedBankFileUrl.split(","),
+                                  );
+                                },
+                                icon: Icon(
+                                  Icons.remove_red_eye_outlined,
+                                  size: 16,
+                                  color: AppColor.primary,
+                                ),
+                                backgroundColor: AppColor.lightBlue,
+                              ),
+                            ],
                           ),
                           verticalSpacing(),
-                          Text(
-                            "Modified By/Date :",
-                            style: AppTextStyle.ts12R(color: AppColor.grey),
-                          ),
-                          Text(
-                            "${files.modifiedBy.isNotEmpty ? files.modifiedBy : "-"} / ${files.modifiedDate != null ? formatDateTimeAsDDMMMYYYY(files.modifiedDate!) : '-'}",
-                            style: AppTextStyle.ts14R(),
-                          ),
-                        ],
-                      ),
-                    ),
-                    verticalSpacing(),
-                    Container(
-                      clipBehavior: Clip.hardEdge,
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColor.grey.withValues(alpha: 0.05),
-                        border: Border(
-                          top: BorderSide(
-                            color: AppColor.grey.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(12),
-                          bottomRight: Radius.circular(12),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              _showDialogToAddUpdateApprovedBankFile(
-                                context,
-                                state,
-                                approvedBankFileModel: files,
-                                index: index,
-                              );
-                            },
-                            child: SvgPicture.asset(
-                              AppAssets.editIcon,
-                              height: 24,
-                            ),
-                          ),
-                          horizontalSpacing(width: 20),
-                          GestureDetector(
-                            onTap: () {
-                              _showPopupToDeleteApprovedBankFile(
-                                context,
-                                files,
-                                state.currentPage,
-                                index,
-                              );
-                            },
-                            child: SvgPicture.asset(
-                              AppAssets.deleteIcon,
-                              height: 24,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    buildRowTitleValue(
+                                      title: "Modified By",
+                                      value:
+                                          files.modifiedBy.isEmpty
+                                              ? files.createdBy
+                                              : files.modifiedBy,
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Modified Date",
+                                      value:
+                                          files.modifiedDate == null
+                                              ? formatDateTimeAsDDMMMYYYY(
+                                                files.createdDate,
+                                              )
+                                              : formatDateTimeAsDDMMMYYYY(
+                                                files.modifiedDate,
+                                              ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                spacing: 10,
+                                children: [
+                                  CustomIconButton.edit(
+                                    onPressed: () {
+                                      _showDialogToAddUpdateApprovedBankFile(
+                                        context,
+                                        state,
+                                        approvedBankFileModel: files,
+                                        index: index,
+                                      );
+                                    },
+                                  ),
+                                  CustomIconButton.delete(
+                                    onPressed: () {
+                                      _showPopupToDeleteApprovedBankFile(
+                                        context,
+                                        files,
+                                        state.currentPage,
+                                        index,
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -390,14 +411,6 @@ class _ApprovedBankFieScreenState extends State<ApprovedBankFieScreen> {
                 ),
               );
             },
-          );
-        },
-      ),
-      floatingActionButton: CommonFloatingActionButton(
-        onPressed: () async {
-          await _showDialogToAddUpdateApprovedBankFile(
-            context,
-            _approvedBankFileCubit.state,
           );
         },
       ),

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -10,14 +9,14 @@ import 'package:k3h_erp_app/features/marketing/content/data/model/content_docume
 import 'package:k3h_erp_app/features/marketing/content/presentation/cubit/content_document/content_document_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_floating_action_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -73,6 +72,14 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _marketingTitleC.dispose();
+    _marketingRemarkC.dispose();
+    _searchC.dispose();
+  }
+
   void _initializeTextControllers() {
     _marketingTitleC = TextEditingController();
     _marketingRemarkC = TextEditingController();
@@ -83,12 +90,12 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
+      if (!scrollController.hasClients) return;
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
-          !_contentDocumentCubit.state.isLoading! &&
+          (_contentDocumentCubit.state.isLoading != true) &&
           _contentDocumentCubit.state.marketingContentDocumentList.length <
               _contentDocumentCubit.state.totalNumberOfRecord) {
-        // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
           _contentDocumentCubit.getContentDocumentList(
@@ -106,6 +113,9 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
   void prefillContentDocument(ContentDocumentModel contentDocumentModel) {
     _marketingTitleC.text = contentDocumentModel.title;
     _marketingRemarkC.text = contentDocumentModel.remark;
+    // Reset attachment so we don't carry stale fileBytesList/deletedFileList from previous use
+    marketingContentAttachment.fileBytesList = [];
+    marketingContentAttachment.deletedFileList = "";
     marketingContentAttachment.fileNameList =
         contentDocumentModel.marketingContentURL
             .split(",")
@@ -131,6 +141,8 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
   }) async {
     if (contentDocumentModel != null) {
       prefillContentDocument(contentDocumentModel);
+    } else {
+      _clearDialogueToAddUpdateContentDocument();
     }
     await DialogHelper.showCustomBottomSheet(
       context,
@@ -138,60 +150,72 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Form(
-              key: _contentDocumentAddUpdateKey,
-              child: Column(
-                children: [
-                  CustomTextField(
-                    textController: _marketingTitleC,
-                    title: 'Title',
-                    isRequired: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Title is required";
-                      }
-                      return null;
-                    },
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Form(
+                  key: _contentDocumentAddUpdateKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CustomTextField(
+                        textController: _marketingTitleC,
+                        title: 'Title',
+                        isRequired: true,
+                        hint: "Enter title",
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Title is required";
+                          }
+                          return null;
+                        },
+                      ),
+                      CustomTextField(
+                        textController: _marketingRemarkC,
+                        title: 'Remark',
+                        minLines: 2,
+                        maxLines: 2,
+                        isRequired: true,
+                        hint: "Enter remark",
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Remark is required";
+                          }
+                          return null;
+                        },
+                      ),
+                      CustomMultiFilePicker(
+                        initialFileList:
+                            marketingContentAttachment.fileNameList,
+                        title: "Attachment",
+                        isRequired: true,
+                        onFilePickedCallback: (bytes, fileName) {
+                          marketingContentAttachment.fileBytesList = bytes;
+                          marketingContentAttachment.fileNameList = fileName;
+                        },
+                        onFileDeleteCallback: (bytes, fileName, deletedFiles) {
+                          marketingContentAttachment.fileBytesList = bytes;
+                          marketingContentAttachment.fileNameList = fileName;
+                          marketingContentAttachment.deletedFileList =
+                              deletedFiles;
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Attachment is required";
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
                   ),
-                  CustomTextField(
-                    textController: _marketingRemarkC,
-                    title: 'Remark',
-                    isRequired: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Remark is required";
-                      }
-                      return null;
-                    },
-                  ),
-                  CustomMultiFilePicker(
-                    initialFileList: marketingContentAttachment.fileNameList,
-                    title: "Attachment",
-                    isRequired: true,
-                    onFilePickedCallback: (bytes, fileName) {
-                      marketingContentAttachment.fileBytesList = bytes;
-                      marketingContentAttachment.fileNameList = fileName;
-                    },
-                    onFileDeleteCallback: (bytes, fileName, deletedFiles) {
-                      marketingContentAttachment.fileBytesList = bytes;
-                      marketingContentAttachment.fileNameList = fileName;
-                      marketingContentAttachment.deletedFileList = deletedFiles;
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Attachment is required";
-                      }
-                      return null;
-                    },
-                  ),
-                ],
+                ),
               ),
             ),
-
-            Spacer(),
-            CustomButton.save(
+            CustomButton(
+              text: "Save",
               onPressed: () {
                 if (_contentDocumentAddUpdateKey.currentState!.validate()) {
                   if (contentDocumentModel == null) {
@@ -226,7 +250,6 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
         ),
       ),
     );
-
     _clearDialogueToAddUpdateContentDocument();
   }
 
@@ -262,183 +285,203 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
       backgroundColor: AppColor.greyBackground,
       appBar: CustomAppBarWithBackButton(
         screenTitle: 'Content Document',
-        authorization: AuthorizationModel(),
-      ),
-      body: BlocBuilder<ContentDocumentCubit, ContentDocumentState>(
-        builder: (context, state) {
-          return Column(
-            children: [
-              verticalSpacing(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: SearchWidget(
-                  isFilterOn: false,
-                  onSubmit: (value) {
-                    _contentDocumentCubit.searchContentDocument(
-                      context,
-                      value,
-                      _project.projectId,
-                      widget.marketingContentFolderId,
-                    );
-                  },
-                  textController: _searchC,
-                ),
-              ),
-              ((state.isLoading ?? true) &&
-                      state.marketingContentDocumentList.isEmpty)
-                  ? Expanded(child: Center(child: loader()))
-                  : state.marketingContentDocumentList.isEmpty
-                  ? Expanded(child: Center(child: noDataWidget()))
-                  : Expanded(
-                    child: ListView.builder(
-                      controller: scrollController,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 20,
-                      ),
-                      itemCount:
-                          _contentDocumentCubit
-                              .state
-                              .marketingContentDocumentList
-                              .length +
-                          1,
-                      itemBuilder: (context, index) {
-                        if (index ==
-                            state.marketingContentDocumentList.length) {
-                          return state.marketingContentDocumentList.length <
-                                  state.totalNumberOfRecord
-                              ? Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              )
-                              : const SizedBox.shrink();
-                        }
-                        var files = state.marketingContentDocumentList[index];
-                        return Container(
-                          margin: EdgeInsets.only(bottom: 10),
-                          decoration: BoxDecoration(
-                            color: AppColor.white,
-                            border: Border.all(
-                              color: AppColor.grey.withValues(alpha: 0.3),
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  top: 16,
-                                  left: 16,
-                                  right: 16,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Title :",
-                                      style: AppTextStyle.ts12R(
-                                        color: AppColor.grey,
-                                      ),
-                                    ),
-                                    Text(
-                                      files.title,
-                                      style: AppTextStyle.ts14R(),
-                                    ),
-                                    verticalSpacing(),
-                                    Text(
-                                      "Remark :",
-                                      style: AppTextStyle.ts12R(
-                                        color: AppColor.grey,
-                                      ),
-                                    ),
-                                    Text(
-                                      files.remark,
-                                      style: AppTextStyle.ts14R(),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    verticalSpacing(),
-                                    Text(
-                                      "Modified By/Date :",
-                                      style: AppTextStyle.ts12R(
-                                        color: AppColor.grey,
-                                      ),
-                                    ),
-                                    Text(
-                                      "${files.modifiedBy.isNotEmpty ? files.modifiedBy : "-"} / ${files.modifiedDate != null ? formatDateTimeAsDDMMMYYYY(files.modifiedDate!) : '-'}",
-                                      style: AppTextStyle.ts14R(),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              verticalSpacing(),
-                              Container(
-                                clipBehavior: Clip.hardEdge,
-                                padding: EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: AppColor.grey.withValues(alpha: 0.05),
-                                  border: Border(
-                                    top: BorderSide(
-                                      color: AppColor.grey.withValues(
-                                        alpha: 0.3,
-                                      ),
-                                    ),
-                                  ),
-                                  borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(12),
-                                    bottomRight: Radius.circular(12),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        _showPopUpToAddUpdateContentDocument(
-                                          contentDocumentModel: files,
-                                          index: index,
-                                        );
-                                      },
-                                      child: SvgPicture.asset(
-                                        AppAssets.editIcon,
-                                        height: 24,
-                                      ),
-                                    ),
-                                    horizontalSpacing(width: 20),
-                                    GestureDetector(
-                                      onTap: () {
-                                        _showPopupToDeleteDocument(
-                                          context,
-                                          files,
-                                          state.currentPage,
-                                          index,
-                                        );
-                                      },
-                                      child: SvgPicture.asset(
-                                        AppAssets.deleteIcon,
-                                        height: 24,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-            ],
-          );
-        },
-      ),
-      floatingActionButton: CommonFloatingActionButton(
-        onPressed: () async {
+        authorization: AuthorizationModel(isAction: true),
+        onAddCallback: () async {
           await _showPopUpToAddUpdateContentDocument();
         },
+      ),
+      body: Column(
+        children: [
+          verticalSpacing(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: SearchWidget(
+              isFilterOn: false,
+              onSubmit: (value) {
+                _contentDocumentCubit.searchContentDocument(
+                  context,
+                  value,
+                  _project.projectId,
+                  widget.marketingContentFolderId,
+                );
+              },
+              textController: _searchC,
+            ),
+          ),
+          Expanded(
+            child: BlocBuilder<ContentDocumentCubit, ContentDocumentState>(
+              builder: (context, state) {
+                final loading = state.isLoading ?? true;
+                final list = state.marketingContentDocumentList;
+                final empty = list.isEmpty;
+                // Always use one ListView to avoid parentDataDirty when swapping Center vs ListView inside Expanded
+                final itemCount =
+                    (loading && empty) || empty ? 1 : list.length + 1;
+                final hasListData = itemCount > 1;
+                return ListView.builder(
+                  controller: hasListData ? scrollController : null,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 20,
+                  ),
+                  itemCount: itemCount,
+                  itemBuilder: (context, index) {
+                    final viewportHeight = MediaQuery.sizeOf(context).height;
+                    final boundedHeight =
+                        viewportHeight > 200 ? viewportHeight - 200 : 300.0;
+                    if (loading && empty) {
+                      return SizedBox(
+                        height: boundedHeight,
+                        child: Center(child: loader()),
+                      );
+                    }
+                    if (empty) {
+                      return SizedBox(
+                        height: boundedHeight,
+                        child: Center(child: noDataWidget()),
+                      );
+                    }
+                    if (index == list.length) {
+                      return list.length < state.totalNumberOfRecord
+                          ? Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                          : const SizedBox.shrink();
+                    }
+                    var files = list[index];
+                    return Container(
+                      margin: EdgeInsets.only(bottom: 10),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(
+                              top: 16,
+                              left: 16,
+                              right: 16,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        files.title,
+                                        style: AppTextStyle.ts14R(
+                                          color: AppColor.primary,
+                                        ),
+                                      ),
+                                    ),
+                                    horizontalSpacing(),
+                                    CustomIconButton(
+                                      onPressed: () {
+                                        if (files.marketingContentURL.isEmpty) {
+                                          showErrorMessage(
+                                            context,
+                                            "Image Error",
+                                            "No Image Found",
+                                          );
+                                        }
+                                        showFilePreviewDialog(
+                                          context,
+                                          files.marketingContentURL.split(","),
+                                        );
+                                      },
+                                      icon: Icon(
+                                        Icons.remove_red_eye_outlined,
+                                        size: 16,
+                                        color: AppColor.primary,
+                                      ),
+                                      backgroundColor: AppColor.lightBlue,
+                                    ),
+                                  ],
+                                ),
+                                verticalSpacing(),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: buildRowTitleValue(
+                                        title: "Remark",
+                                        value:
+                                            files.remark.isEmpty
+                                                ? ""
+                                                : files.remark,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                verticalSpacing(),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          buildRowTitleValue(
+                                            title: "Modified By",
+                                            value:
+                                                files.modifiedBy.isEmpty
+                                                    ? files.createdBy
+                                                    : files.modifiedBy,
+                                          ),
+                                          buildRowTitleValue(
+                                            title: "Modified Date",
+                                            value:
+                                                files.modifiedDate == null
+                                                    ? formatDateTimeAsDDMMMYYYY(
+                                                      files.createdDate,
+                                                    )
+                                                    : formatDateTimeAsDDMMMYYYY(
+                                                      files.modifiedDate!,
+                                                    ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      spacing: 10,
+                                      children: [
+                                        CustomIconButton.edit(
+                                          onPressed: () {
+                                            _showPopUpToAddUpdateContentDocument(
+                                              contentDocumentModel: files,
+                                              index: index,
+                                            );
+                                          },
+                                        ),
+                                        CustomIconButton.delete(
+                                          onPressed: () {
+                                            _showPopupToDeleteDocument(
+                                              context,
+                                              files,
+                                              state.currentPage,
+                                              index,
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

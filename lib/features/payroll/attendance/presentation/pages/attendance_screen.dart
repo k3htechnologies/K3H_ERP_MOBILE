@@ -298,9 +298,11 @@ class _AttendanceScreenState extends State<AttendanceScreen>
           Expanded(
             child: ListView.builder(
               // One card per record; we align them to the *last* N days
-              // in the visible week. So if the API returns only 27–31
-              // for a 26–31 range, cards appear only from 27–31.
-              itemCount: state.attendanceList.length,
+              // in the visible week. Cap at days.length to avoid indexing past the week.
+              itemCount:
+                  state.attendanceList.length > days.length
+                      ? days.length
+                      : state.attendanceList.length,
               itemBuilder: (context, index) {
                 final totalDays = days.length;
                 final totalRecords = state.attendanceList.length;

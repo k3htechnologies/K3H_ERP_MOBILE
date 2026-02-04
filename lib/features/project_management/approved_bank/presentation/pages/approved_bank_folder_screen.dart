@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -12,9 +13,11 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ApprovedBankFolderScreen extends StatefulWidget {
@@ -57,8 +60,8 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a Folder?',
-      'Deleting this folder will permanently remove its contents.',
+      'You are about to delete a Bank?',
+      'Deleting this bank will permanently remove its contents.',
     );
     if (result && context.mounted) {
       _approvedBankCubit.deleteApprovedBankFolder(
@@ -85,130 +88,129 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
         textController: _searchC,
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addBankScreen);
+          if (context.mounted) {
+            _approvedBankCubit.getApprovedBankFolderList(
+              context,
+              1,
+              1000,
+              _project.projectId,
+            );
+          }
         },
       ),
-      body: BlocBuilder<ApprovedBankFolderCubit, ApprovedBankFolderState>(
-        buildWhen:
-            (previous, current) =>
-                previous.approvedBankFolderList !=
-                    current.approvedBankFolderList ||
-                previous.isLoading != current.isLoading,
-        builder: (context, state) {
-          if (state.isLoading == true) {
-            return loader();
-          }
-          if (state.approvedBankFolderList.isEmpty) {
-            return noDataWidget();
-          }
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              const double cardWidth = 140.0;
-              const double spacing = 16.0;
-
-              final columns =
-                  (constraints.maxWidth / (cardWidth + spacing)).floor();
-
-              return GridView.builder(
-                shrinkWrap: true,
-                primary: false,
-                padding: const EdgeInsets.all(16),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: columns,
-                  crossAxisSpacing: spacing,
-                  mainAxisSpacing: spacing,
-                  childAspectRatio: 140 / 80,
-                ),
-                itemCount: state.approvedBankFolderList.length,
-                itemBuilder:
-                    (context, index) => GestureDetector(
-                      onTap: () async {
-                        final result = await goRouter.pushNamed(
-                          AppRoutes.approvedBankFile,
-                          queryParameters: {
-                            "approvedBankFolderId": Uri.encodeQueryComponent(
-                              EncryptionManager.encryptData(
-                                jsonEncode(
-                                  state
-                                      .approvedBankFolderList[index]
-                                      .approvedBankFolderId,
+      body: SafeArea(
+        child: BlocBuilder<ApprovedBankFolderCubit, ApprovedBankFolderState>(
+          buildWhen:
+              (previous, current) =>
+                  previous.approvedBankFolderList !=
+                      current.approvedBankFolderList ||
+                  previous.isLoading != current.isLoading,
+          builder: (context, state) {
+            if (state.isLoading == true) {
+              return loader();
+            }
+            if (state.approvedBankFolderList.isEmpty) {
+              return noDataWidget();
+            }
+            return ListView.builder(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              shrinkWrap: true,
+              itemCount: _approvedBankCubit.state.approvedBankFolderList.length,
+              itemBuilder: (_, index) {
+                var folder =
+                    _approvedBankCubit.state.approvedBankFolderList[index];
+                return Container(
+                  padding: EdgeInsets.all(16),
+                  margin: EdgeInsets.only(bottom: 10),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    children: [
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () async {
+                                final result = await goRouter.pushNamed(
+                                  AppRoutes.approvedBankFile,
+                                  queryParameters: {
+                                    "approvedBankFolderId": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(
+                                          state
+                                              .approvedBankFolderList[index]
+                                              .approvedBankFolderId,
+                                        ),
+                                      ),
+                                    ),
+                                  },
+                                );
+                                if (result == true && context.mounted) {
+                                  _approvedBankCubit.getApprovedBankFolderList(
+                                    context,
+                                    1,
+                                    1000,
+                                    _project.projectId,
+                                  );
+                                }
+                              },
+                              child: Text(
+                                folder.bankName,
+                                style: AppTextStyle.ts14M().copyWith(
+                                  color: AppColor.primary,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
                                 ),
                               ),
-                            ),
-                          },
-                        );
-
-                        // If files were added/deleted, refresh the folder list
-                        if (result == true && context.mounted) {
-                          _approvedBankCubit.getApprovedBankFolderList(
-                            context,
-                            1,
-                            1000,
-                            _project.projectId,
-                          );
-                        }
-                      },
-                      onLongPress: () {
-                        _showPopupToDeleteApprovedBankFile(
-                          context,
-                          state.approvedBankFolderList[index],
-                          1,
-                        );
-                      },
-                      child: Stack(
-                        children: [
-                          Container(
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: AppColor.white,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 10,
-                            ),
-                            child: Column(
-                              children: [
-                                Image.asset(AppAssets.folderImage, height: 60),
-                                Text(
-                                  state.approvedBankFolderList[index].bankName,
-                                  maxLines: 1,
-                                  style: AppTextStyle.ts14R().copyWith(
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
                             ),
                           ),
-                          Positioned(
-                            right: 2,
-                            top: 2,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: AppColor.primary,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                vertical: 5,
-                                horizontal: 8,
-                              ),
-                              child: Text(
-                                state
-                                    .approvedBankFolderList[index]
-                                    .numberOfApprovedBankFile
-                                    .toString(),
-                                style: AppTextStyle.ts12R(
-                                  color: AppColor.white,
-                                ),
-                              ),
-                            ),
+                          CustomIconButton.delete(
+                            onPressed: () {
+                              _showPopupToDeleteApprovedBankFile(
+                                context,
+                                state.approvedBankFolderList[index],
+                                1,
+                              );
+                            },
                           ),
                         ],
                       ),
-                    ),
-              );
-            },
-          );
-        },
+                      verticalSpacing(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                         Row(
+                           mainAxisSize: MainAxisSize.min,
+                           children: [
+                             Text("Document Count : ",style: AppTextStyle.ts14R(color: AppColor.grey),),
+                             Text(folder.numberOfApprovedBankFile.toString(),style: AppTextStyle.ts14M(),),
+                           ],
+                         ),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12,vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColor.primary.withValues(alpha: .2),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              spacing: 5,
+                              children: [
+                                SvgPicture.asset(AppAssets.downloadIcon,height: 16,colorFilter: ColorFilter.mode( AppColor.primary, BlendMode.srcIn),),
+                                Text("Download",style: AppTextStyle.ts14R(color: AppColor.primary),),
+                              ],
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

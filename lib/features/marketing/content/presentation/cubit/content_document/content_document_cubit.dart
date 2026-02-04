@@ -15,22 +15,21 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
   ContentDocumentCubit() : super(ContentDocumentState.initial());
 
   final ContentRepository _contentRepository =
-  serviceLocator<ContentRepository>();
+      serviceLocator<ContentRepository>();
 
   // <---- RESET STATE ---->
   void resetState() {
     emit(ContentDocumentState.initial());
   }
-  
 
   // <---- GET MARKETING CONTENT LIST ---->
   Future getContentDocumentList(
-      BuildContext context,
-      int pageNumber,
-      int pageSize,
-      int projectId,
-      int marketingContentFolderId,
-      ) async {
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int projectId,
+    int marketingContentFolderId,
+  ) async {
     emit(state.copyWith(isLoading: true));
 
     var result = await _contentRepository.getMarketingContentList(
@@ -44,23 +43,25 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
       },
     );
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
-          (response) {
-        List<ContentDocumentModel> updatedList = List.from(
-          state.marketingContentDocumentList,
-        );
-        updatedList = response['data'] as List<ContentDocumentModel>;
+      (response) {
+        final List<ContentDocumentModel> newData =
+            response['data'] as List<ContentDocumentModel>;
+        final List<ContentDocumentModel> updatedList =
+            pageNumber == 1
+                ? newData
+                : [...state.marketingContentDocumentList, ...newData];
         emit(
           state.copyWith(
             isLoading: false,
             marketingContentDocumentList: updatedList,
             totalNumberOfRecord:
-            response['totalNumberOfRecord'] == 0 && state.currentPage != 1
-                ? state.totalNumberOfRecord - 1
-                : response['totalNumberOfRecord'],
+                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
+                    ? state.totalNumberOfRecord - 1
+                    : response['totalNumberOfRecord'],
             currentPage: pageNumber,
             selectedFolderCount: 0,
           ),
@@ -71,13 +72,13 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
 
   // <---- ADD MARKETING CONTENT --->
   Future<bool> addMarketingContent(
-      BuildContext context, {
-        required int projectId,
-        required int marketingContentFolderId,
-        required String title,
-        required String remark,
-        required MultiFilePickerModel marketingContentDocument,
-      }) async {
+    BuildContext context, {
+    required int projectId,
+    required int marketingContentFolderId,
+    required String title,
+    required String remark,
+    required MultiFilePickerModel marketingContentDocument,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
 
     Map<String, String> requestBody = {
@@ -107,11 +108,11 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
     );
     goRouter.pop();
     return addResult.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, 'Error', failure.message);
         return false;
       },
-          (response) {
+      (response) {
         var list = [
           response['data'][0] as ContentDocumentModel,
           ...state.marketingContentDocumentList,
@@ -121,9 +122,9 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
           state.copyWith(
             marketingContentDocumentList: list,
             totalNumberOfRecord:
-            state.totalNumberOfRecord == -1
-                ? 1
-                : state.totalNumberOfRecord + 1,
+                state.totalNumberOfRecord == -1
+                    ? 1
+                    : state.totalNumberOfRecord + 1,
           ),
         );
         goRouter.pop();
@@ -138,16 +139,16 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
 
   // <---- UPDATE MARKETING CONTENT --->
   Future<void> updateMarketingContent(
-      BuildContext context, {
-        required int projectId,
-        required int marketingContentFolderId,
-        required int marketingContentId,
-        required String uniqueKey,
-        required String title,
-        required String remark,
-        required MultiFilePickerModel marketingContentDocument,
-        required int index,
-      }) async {
+    BuildContext context, {
+    required int projectId,
+    required int marketingContentFolderId,
+    required int marketingContentId,
+    required String uniqueKey,
+    required String title,
+    required String remark,
+    required MultiFilePickerModel marketingContentDocument,
+    required int index,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
 
     Map<String, String> requestBody = {
@@ -179,21 +180,17 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
     );
     goRouter.pop();
     updateResult.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, 'Error', failure.message);
       },
-          (response) {
+      (response) {
         goRouter.pop();
 
         List<ContentDocumentModel> list = List.from(
           state.marketingContentDocumentList,
         );
         list[index] = (response['data'][0] as ContentDocumentModel);
-        emit(
-          state.copyWith(
-            marketingContentDocumentList: list,
-          ),
-        );
+        emit(state.copyWith(marketingContentDocumentList: list));
         showSuccessMessage(context);
       },
     );
@@ -219,11 +216,11 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
     );
     goRouter.pop();
     return deleteResult.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, 'Error', failure.message);
         return false;
       },
-          (response) {
+      (response) {
         showSuccessMessage(context);
         if (index != null) {
           final updatedList = List<ContentDocumentModel>.from(
@@ -234,9 +231,9 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
             state.copyWith(
               marketingContentDocumentList: updatedList,
               totalNumberOfRecord:
-              state.totalNumberOfRecord > 0
-                  ? state.totalNumberOfRecord - 1
-                  : 0,
+                  state.totalNumberOfRecord > 0
+                      ? state.totalNumberOfRecord - 1
+                      : 0,
             ),
           );
         } else {
@@ -255,11 +252,11 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
 
   // <---- SEARCH LITIGATION ---->
   Future searchContentDocument(
-      BuildContext context,
-      String value,
-      int projectId,
-      int marketingContentFolderId,
-      ) async {
+    BuildContext context,
+    String value,
+    int projectId,
+    int marketingContentFolderId,
+  ) async {
     emit(state.copyWith(searchText: value, marketingContentDocumentList: []));
     await getContentDocumentList(
       context,
@@ -272,12 +269,12 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
 
   // <---- SORT CONTENT DOCUMENT ---->
   Future sortContentDocument(
-      BuildContext context,
-      String value,
-      String direction,
-      int projectId,
-      int marketingContentFolderId,
-      ) async {
+    BuildContext context,
+    String value,
+    String direction,
+    int projectId,
+    int marketingContentFolderId,
+  ) async {
     emit(
       state.copyWith(
         currentSortColumn: value,

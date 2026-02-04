@@ -33,32 +33,96 @@ class ContentDocumentModel {
     this.modifiedDate,
   });
 
-  factory ContentDocumentModel.fromJson(Map<String, dynamic> json) =>
-      ContentDocumentModel(
-        marketingContentId: parseValue<int>(json, "MarketingContentId"),
-        uniquekey: parseValue<String>(json, "Uniquekey"),
-        projectId: parseValue<int>(json, "ProjectId"),
-        marketingContentFolderId: parseValue<int>(
-          json,
-          "MarketingContentFolderId",
-        ),
-        marketingContentFolderName: parseValue<String>(
-          json,
-          "MarketingContentFolderName",
-        ),
-        title: parseValue<String>(json, "Title"),
-        remark: parseValue<String>(json, "Remark"),
-        marketingContentURL: parseValue<String>(json, "MarketingContentURL"),
-        createdById: parseValue<int>(json, "CreatedById"),
-        createdBy: parseValue<String>(json, "CreatedBy"),
-        createdDate: parseValue<DateTime>(json, "CreatedDate"),
-        modifiedById: parseValue<int>(json, "ModifiedById"),
-        modifiedBy: parseValue<String>(json, "ModifiedBy"),
-        modifiedDate:
-            json["ModifiedDate"] == null
-                ? null
-                : parseValue<DateTime>(json, "ModifiedDate"),
-      );
+  static DateTime _parseDateTime(dynamic value) {
+    if (value == null) return DateTime(1970);
+    if (value is DateTime) return value;
+    if (value is String) {
+      final parsed = DateTime.tryParse(value);
+      return parsed ?? DateTime(1970);
+    }
+    if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+    return DateTime(1970);
+  }
 
-  Map<String, dynamic> toJson() => {};
+  factory ContentDocumentModel.fromJson(dynamic json) {
+    if (json == null || json is! Map<String, dynamic>) {
+      return ContentDocumentModel(
+        marketingContentId: 0,
+        uniquekey: "",
+        projectId: 0,
+        marketingContentFolderId: 0,
+        marketingContentFolderName: "",
+        title: "",
+        remark: "",
+        marketingContentURL: "",
+        createdById: 0,
+        createdBy: "",
+        createdDate: DateTime(1970),
+        modifiedById: 0,
+        modifiedBy: "",
+        modifiedDate: null,
+      );
+    }
+    final map = json;
+    if (map.isEmpty) {
+      return ContentDocumentModel(
+        marketingContentId: 0,
+        uniquekey: "",
+        projectId: 0,
+        marketingContentFolderId: 0,
+        marketingContentFolderName: "",
+        title: "",
+        remark: "",
+        marketingContentURL: "",
+        createdById: 0,
+        createdBy: "",
+        createdDate: DateTime(1970),
+        modifiedById: 0,
+        modifiedBy: "",
+        modifiedDate: null,
+      );
+    }
+    return ContentDocumentModel(
+      marketingContentId: parseValue<int>(map, "MarketingContentId"),
+      uniquekey: parseValue<String>(map, "Uniquekey"),
+      projectId: parseValue<int>(map, "ProjectId"),
+      marketingContentFolderId: parseValue<int>(
+        map,
+        "MarketingContentFolderId",
+      ),
+      marketingContentFolderName: parseValue<String>(
+        map,
+        "MarketingContentFolderName",
+      ),
+      title: parseValue<String>(map, "Title"),
+      remark: parseValue<String>(map, "Remark"),
+      marketingContentURL: parseValue<String>(map, "MarketingContentURL"),
+      createdById: parseValue<int>(map, "CreatedById"),
+      createdBy: parseValue<String>(map, "CreatedBy"),
+      createdDate: _parseDateTime(map["CreatedDate"]),
+      modifiedById: parseValue<int>(map, "ModifiedById"),
+      modifiedBy: parseValue<String>(map, "ModifiedBy"),
+      modifiedDate:
+          map["ModifiedDate"] == null
+              ? null
+              : _parseDateTime(map["ModifiedDate"]),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "MarketingContentId": marketingContentId,
+    "Uniquekey": uniquekey,
+    "ProjectId": projectId,
+    "MarketingContentFolderId": marketingContentFolderId,
+    "MarketingContentFolderName": marketingContentFolderName,
+    "Title": title,
+    "Remark": remark,
+    "MarketingContentURL": marketingContentURL,
+    "CreatedById": createdById,
+    "CreatedBy": createdBy,
+    "CreatedDate": createdDate.toIso8601String(),
+    "ModifiedById": modifiedById,
+    "ModifiedBy": modifiedBy,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
+  };
 }

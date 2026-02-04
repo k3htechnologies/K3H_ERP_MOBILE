@@ -216,43 +216,45 @@ class DialogHelper {
       context: context,
       isScrollControlled: true,
       builder:
-          (BuildContext context) => Container(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            width: getActualWidth(context),
-            height: getActualHeight(context) * 0.50,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20.0),
-                topRight: Radius.circular(20.0),
+          (BuildContext context) => SafeArea(
+            child: Container(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  alignment: Alignment.center,
-                  margin: EdgeInsets.symmetric(vertical: 6),
-                  height: 5,
-                  width: 60,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: AppColor.grey,
-                  ),
+              width: getActualWidth(context),
+              height: getActualHeight(context) * 0.50,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20.0),
+                  topRight: Radius.circular(20.0),
                 ),
-                Container(
-                  margin: const EdgeInsets.only(top: 10),
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Align(
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
                     alignment: Alignment.center,
-                    child: Text(title, style: AppTextStyle.ts16SB()),
+                    margin: EdgeInsets.symmetric(vertical: 6),
+                    height: 5,
+                    width: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppColor.grey,
+                    ),
                   ),
-                ),
-                Divider(color: AppColor.grey, thickness: .3),
-                Expanded(child: contentWidget),
-                verticalSpacing(height: 10.0),
-              ],
+                  Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(title, style: AppTextStyle.ts16SB()),
+                    ),
+                  ),
+                  Divider(color: AppColor.grey, thickness: .3),
+                  Expanded(child: contentWidget),
+                  verticalSpacing(height: 10.0),
+                ],
+              ),
             ),
           ),
     );
