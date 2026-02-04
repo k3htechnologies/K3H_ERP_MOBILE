@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/litigation/litigation.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/marketing/content/content.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/holiday_mapping_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/leave_encashment_master.dependencies.dart';
@@ -163,4 +164,6 @@ void initDependencies() {
   registerResignationDependencies(serviceLocator);
   // PAYROLL REPORT DEPENDENCIES
   registerPayrollReportDependencies(serviceLocator);
+  // LITIGATION DEPENDENCIES
+  registerLitigationDependencies(serviceLocator);
 }

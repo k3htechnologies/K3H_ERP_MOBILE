@@ -215,20 +215,8 @@ class _ViewApprovalDocumentScreenState
             children: [
               buildColumnTitleValue(
                 title: "Status",
-                customValueWidget: Container(
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
-                  decoration: BoxDecoration(
-                    color: getBgColorByStatus(document.approvalDocumentStatus),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    document.approvalDocumentStatus,
-                    style: AppTextStyle.ts12M(
-                      color: getTxtColorByStatus(
-                        document.approvalDocumentStatus,
-                      ),
-                    ),
-                  ),
+                customValueWidget: statusWidget(
+                  document.approvalDocumentStatus,
                 ),
                 value: document.approvalDocumentStatus,
               ),
@@ -324,59 +312,53 @@ class _ViewApprovalDocumentScreenState
     );
   }
 
-  //COLOR GETTER FOR STATUS BACKGROUND COLOR AS PER STATUS
-  static Color getBgColorByStatus(String status) {
-    switch (status.toLowerCase()) {
+  // Helper Widget
+  Widget statusWidget(String status) {
+    final s = status.toLowerCase();
+
+    switch (s) {
       case 'applied':
-        return AppColor.lightBlue2;
+        return _statusChip(status, AppColor.lightBlue2, AppColor.primary);
+
       case 'doc missing':
-        return AppColor.warning20;
+        return _statusChip(status, AppColor.warning20, AppColor.warning);
 
       case 'in process':
-        return AppColor.lightYellow;
+        return _statusChip(status, AppColor.lightYellow, AppColor.brown);
+
       case 'issued':
-        return AppColor.darkBackground.withValues(alpha: 0.29);
+        return _statusChip(
+          status,
+          AppColor.darkBackground.withValues(alpha: 0.29),
+          AppColor.darkBackground,
+        );
 
       case 'not applied':
-        return AppColor.grey2;
       case 'not applicable':
-        return AppColor.grey2;
-      case "paid":
-        return AppColor.green20;
-      case "payment due":
-        return AppColor.purple20;
-      case "rejected":
-        return AppColor.lightRed;
+        return _statusChip(status, AppColor.grey2, AppColor.black);
+
+      case 'paid':
+        return _statusChip(status, AppColor.green20, AppColor.darkGreen10);
+
+      case 'payment due':
+        return _statusChip(status, AppColor.purple20, AppColor.purple);
+
+      case 'rejected':
+        return _statusChip(status, AppColor.lightRed, AppColor.red);
+
       default:
-        return Colors.white;
+        return _statusChip(status, Colors.white, Colors.black);
     }
   }
 
-  //COLOR GETTER FOR STATUS TEXT COLOR AS PER STATUS
-  static Color getTxtColorByStatus(String status) {
-    switch (status.toLowerCase()) {
-      case 'applied':
-        return AppColor.primary;
-      case 'doc missing':
-        return AppColor.warning;
-
-      case 'in process':
-        return AppColor.brown;
-      case 'issued':
-        return AppColor.darkBackground;
-
-      case 'not applied':
-        return AppColor.black;
-      case 'not applicable':
-        return AppColor.black;
-      case "paid":
-        return AppColor.darkGreen10;
-      case "payment due":
-        return AppColor.purple;
-      case "rejected":
-        return AppColor.red;
-      default:
-        return Colors.black;
-    }
+  Widget _statusChip(String text, Color bg, Color txt) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(text, style: AppTextStyle.ts12M(color: txt)),
+    );
   }
 }

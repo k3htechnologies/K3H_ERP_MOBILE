@@ -21,7 +21,6 @@ class OutdoorViewScreen extends StatefulWidget {
 
 class _OutdoorViewScreenState extends State<OutdoorViewScreen>
     with SingleTickerProviderStateMixin {
-
   // TAB CONTROLLER
   late TabController _tabController;
 
@@ -115,6 +114,7 @@ class _OutdoorViewScreenState extends State<OutdoorViewScreen>
             ),
             Expanded(
               child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
                 controller: _tabController,
                 children: [_buildOverView(), _buildDocument()],
               ),

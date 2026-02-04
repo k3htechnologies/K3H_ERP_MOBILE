@@ -106,6 +106,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
             ),
             Expanded(
               child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
                 controller: _tabController,
                 children: [_buildOverviewTab(), _buildDocumentTab()],
               ),

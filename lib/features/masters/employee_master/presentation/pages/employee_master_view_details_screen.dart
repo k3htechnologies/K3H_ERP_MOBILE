@@ -108,6 +108,7 @@ class _EmployeeMasterViewDetailsScreenState
                 ),
                 Expanded(
                   child: TabBarView(
+                    physics: NeverScrollableScrollPhysics(),
                     controller: _tabController,
                     children: [
                       _buildOverviewTab(widget.employee),

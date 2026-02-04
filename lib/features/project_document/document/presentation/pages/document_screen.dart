@@ -233,14 +233,15 @@ class _DocumentScreenState extends State<DocumentScreen>
           }
         },
         extraHeight: 20,
-        secondaryBuilder:(_) =>  CustomButton(
-          text: "Add",
-          onPressed: () {
-            _showPopUpToAddUpdateDocument();
-          },
-          backgroundColor: AppColor.primary,
-          leading: Icon(Icons.add, size: 16, color: AppColor.white),
-        ),
+        secondaryBuilder:
+            (_) => CustomButton(
+              text: "Add",
+              onPressed: () {
+                _showPopUpToAddUpdateDocument();
+              },
+              backgroundColor: AppColor.primary,
+              leading: Icon(Icons.add, size: 16, color: AppColor.white),
+            ),
       ),
       body: SafeArea(
         child: BlocListener<DocumentCubit, DocumentState>(
@@ -279,6 +280,7 @@ class _DocumentScreenState extends State<DocumentScreen>
                   verticalSpacing(),
                   Expanded(
                     child: TabBarView(
+                      physics: NeverScrollableScrollPhysics(),
                       controller: _categoryTabController,
                       children:
                           state.documentCategoryModelList.map((category) {

@@ -233,6 +233,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
             ),
             Expanded(
               child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
                 controller: _tabController,
                 children: [
                   _overviewSection(),
@@ -779,7 +780,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                 children: [
                                   Text(
                                     "E-mail ID",
-                                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.grey,
+                                    ),
                                   ),
                                   verticalSpacing(),
                                   CustomClickToContactText(

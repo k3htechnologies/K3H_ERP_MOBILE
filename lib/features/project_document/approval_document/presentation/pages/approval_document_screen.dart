@@ -234,14 +234,15 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
           }
         },
         extraHeight: 20,
-        secondaryBuilder:(_) =>  CustomButton(
-          text: "Add",
-          onPressed: () {
-            _showPopUpToAddUpdateApprovalDocument();
-          },
-          backgroundColor: AppColor.primary,
-          leading: Icon(Icons.add, size: 16, color: AppColor.white),
-        ),
+        secondaryBuilder:
+            (_) => CustomButton(
+              text: "Add",
+              onPressed: () {
+                _showPopUpToAddUpdateApprovalDocument();
+              },
+              backgroundColor: AppColor.primary,
+              leading: Icon(Icons.add, size: 16, color: AppColor.white),
+            ),
       ),
       body: SafeArea(
         child: BlocListener<ApprovalDocumentCubit, ApprovalDocumentState>(
@@ -280,6 +281,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                   verticalSpacing(),
                   Expanded(
                     child: TabBarView(
+                      physics: NeverScrollableScrollPhysics(),
                       controller: _categoryTabController,
                       children:
                           state.documentCategoryModelList.map((category) {
@@ -503,5 +505,4 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
       },
     );
   }
-
 }

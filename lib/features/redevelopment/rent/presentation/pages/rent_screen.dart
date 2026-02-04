@@ -490,6 +490,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
               // TAB CONTENT
               Expanded(
                 child: TabBarView(
+                  physics: NeverScrollableScrollPhysics(),
                   controller: _tabController,
                   children: [
                     _buildRentListWidget(), // Additional Rent

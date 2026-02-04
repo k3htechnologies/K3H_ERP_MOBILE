@@ -102,6 +102,7 @@ class _CompOffViewScreenState extends State<CompOffViewScreen>
             ),
             Expanded(
               child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
                 controller: _tabController,
                 children: [_buildOverView(), _buildDocument()],
               ),
@@ -115,7 +116,7 @@ class _CompOffViewScreenState extends State<CompOffViewScreen>
   // OVERVIEW
   Widget _buildOverView() {
     return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(vertical: 10,horizontal: 16),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       child: Column(
         children: [
           Container(
@@ -126,7 +127,7 @@ class _CompOffViewScreenState extends State<CompOffViewScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 10,
               children: [
-                Text("Details",style: AppTextStyle.ts16SB(),),
+                Text("Details", style: AppTextStyle.ts16SB()),
                 Row(
                   children: [
                     buildColumnTitleValue(
@@ -145,9 +146,12 @@ class _CompOffViewScreenState extends State<CompOffViewScreen>
                 ),
                 Row(
                   children: [
-                    buildColumnTitleValue(title: "Reason", value: widget.compOffModel.reason)
+                    buildColumnTitleValue(
+                      title: "Reason",
+                      value: widget.compOffModel.reason,
+                    ),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -159,16 +163,16 @@ class _CompOffViewScreenState extends State<CompOffViewScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 10,
               children: [
-                Text("Action Details",style: AppTextStyle.ts16SB(),),
+                Text("Action Details", style: AppTextStyle.ts16SB()),
                 Row(
                   children: [
                     buildColumnTitleValue(
                       title: "Approved By",
-                      value: "Hahahaha"
+                      value: "Hahahaha",
                     ),
                     buildColumnTitleValue(
-                        title: "Approved Date",
-                        value: "Hahahaha"
+                      title: "Approved Date",
+                      value: "Hahahaha",
                     ),
                   ],
                 ),
@@ -188,7 +192,7 @@ class _CompOffViewScreenState extends State<CompOffViewScreen>
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
