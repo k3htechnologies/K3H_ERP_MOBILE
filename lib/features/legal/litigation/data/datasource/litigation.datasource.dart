@@ -1,6 +1,6 @@
-import 'package:k3h_erp_app/features/litigation/data/model/litigation.model.dart';
-import 'package:k3h_erp_app/features/litigation/data/model/litigation_document.model.dart';
-import 'package:k3h_erp_app/features/litigation/data/model/litigation_hearing.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_document.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -10,6 +10,10 @@ abstract interface class LitigationDatasource {
     required int pageSize,
     required int projectId,
     Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> apiCallAddUpdateLitigation({
+    required Map<String, dynamic> body,
   });
 
   Future<Map<String, dynamic>> apicallDeleteLitigation({
@@ -26,6 +30,17 @@ abstract interface class LitigationDatasource {
     Map<String, dynamic>? queryParams,
   });
 
+  Future<Map<String, dynamic>> apiCallAddUpdateLitigationHearing({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+
+  Future<Map<String, dynamic>> apicallDeleteLitigationHearing({
+    required int litigationId,
+    required String uniqueKey,
+    required int projectId,
+    required int litigationHearingId,
+  });
   Future<Map<String, dynamic>> apicallPullLitigationClosure({
     required int pageNumber,
     required int pageSize,
@@ -41,14 +56,12 @@ abstract interface class LitigationDatasource {
     Map<String, dynamic>? queryParams,
   });
 
-  Future<Map<String, dynamic>> apiCallAddUpdateLitigation({
-    required Map<String, dynamic> body,
-  });
-
   Future<Map<String, dynamic>> apicallPullDocument({
     required int pageNumber,
     required int pageSize,
     required int projectId,
+    required int litigationId,
+
     Map<String, dynamic>? queryParams,
   });
 }
@@ -102,7 +115,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     required String uniqueKey,
     required int projectId,
   }) async {
-    String deleteChannelPartnerUrl({
+    String deleteLitigationUrl({
       required int litigationId,
       required String uniqueKey,
       required int projectId,
@@ -112,7 +125,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
 
     try {
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
-        deleteChannelPartnerUrl(
+        deleteLitigationUrl(
           litigationId: litigationId,
           uniqueKey: uniqueKey,
           projectId: projectId,
@@ -302,11 +315,82 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     }
   }
 
+  // ADD / UPDATE LITIGATION HEARING
+  @override
+  Future<Map<String, dynamic>> apiCallAddUpdateLitigationHearing({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    String addUpdateLitigationUrl = "Litigation/AddUpdateLitigationHearing";
+
+    try {
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            addUpdateLitigationUrl,
+            fileList,
+            body,
+          );
+      return {
+        'data': networkResponse['data'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'message': networkResponse['message'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallAddUpdateLitigation(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeleteLitigationHearing({
+    required int litigationId,
+    required String uniqueKey,
+    required int projectId,
+    required int litigationHearingId,
+  }) async {
+    String deleteLitigationHearingUrl({
+      required int litigationId,
+      required String uniqueKey,
+      required int projectId,
+      required int litigationHearingId,
+    }) {
+      return "Litigation/DeleteLitigationHearing?LitigationId=$litigationId&Uniquekey=$uniqueKey&ProjectId=$projectId&LitigationHearingId=$litigationHearingId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteLitigationHearingUrl(
+          litigationId: litigationId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
+          litigationHearingId: litigationHearingId,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallDeleteLitigationHearing(
+          litigationId: litigationId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
+          litigationHearingId: litigationHearingId,
+        );
+      }
+      rethrow;
+    }
+  }
+
   @override
   Future<Map<String, dynamic>> apicallPullDocument({
     required int pageNumber,
     required int pageSize,
     required int projectId,
+    required int litigationId,
     Map<String, dynamic>? queryParams,
   }) async {
     String pullDocumentUrl({
@@ -314,7 +398,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "LitigationDocument/PullLitigationDocument?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+          "LitigationDocument/PullLitigationDocument?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&LitigationId=$litigationId";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
@@ -339,6 +423,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
           pageSize: pageSize,
           projectId: projectId,
           queryParams: queryParams,
+          litigationId: litigationId,
         );
       }
       rethrow;

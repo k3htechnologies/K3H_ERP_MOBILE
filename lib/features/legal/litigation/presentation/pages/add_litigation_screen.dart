@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/litigation/data/model/litigation.model.dart';
-import 'package:k3h_erp_app/features/litigation/presentation/cubit/litigation_cubit.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -141,7 +141,6 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
       _litigationCubit.updateLitigation(
         context: context,
         index: widget.index,
-        litigationId: widget.litigationModel!.litigationId,
         body: payload,
       );
     } else {

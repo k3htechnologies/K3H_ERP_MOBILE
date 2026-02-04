@@ -1,7 +1,7 @@
 import 'package:k3h_erp_app/core/base_state.dart';
-import 'package:k3h_erp_app/features/litigation/data/model/litigation.model.dart';
-import 'package:k3h_erp_app/features/litigation/data/model/litigation_hearing.model.dart';
-import 'package:k3h_erp_app/features/litigation/data/model/litigation_document.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_document.model.dart';
 
 class LitigationState extends BaseState {
   // ---- Litigation ----

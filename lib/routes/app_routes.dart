@@ -233,6 +233,7 @@ class AppRoutes {
   static String litigation = "/litigation";
   static String addLitigation = "/addLitigation";
   static String viewLitigation = "/viewLitigation";
+  static String addLitigationHearing = "/addLitigationHearing";
 
   // MARKETING
   static String content = "/content";

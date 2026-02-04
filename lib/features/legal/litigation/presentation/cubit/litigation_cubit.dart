@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/litigation/data/model/litigation.model.dart';
-import 'package:k3h_erp_app/features/litigation/data/model/litigation_document.model.dart';
-import 'package:k3h_erp_app/features/litigation/data/model/litigation_hearing.model.dart';
-import 'package:k3h_erp_app/features/litigation/data/repository/litigation.repository.dart';
-import 'package:k3h_erp_app/features/litigation/presentation/cubit/litigation_state.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_document.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/repository/litigation.repository.dart';
+import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_state.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -20,10 +21,9 @@ class LitigationCubit extends Cubit<LitigationState> {
   Future<void> getLitigationList({
     required BuildContext context,
     required int pageNumber,
-    Map<String, dynamic>? queryParams,
   }) async {
     emit(state.copyWith(isLoading: true));
-
+    var queryParams = {"Title": state.searchText};
     final result = await _litigationRepository.pullLitigation(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -118,7 +118,6 @@ class LitigationCubit extends Cubit<LitigationState> {
   Future updateLitigation({
     required BuildContext context,
     required int index,
-    required int litigationId,
     required Map<String, dynamic> body,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -157,7 +156,7 @@ class LitigationCubit extends Cubit<LitigationState> {
 
   /// Change tab index
   void changeTab(int index) {
-    emit(state.copyWith(currentTabIndex: index));
+    emit(state.copyWith(currentTabIndex: index, isLoading: true));
   }
 
   // EXPORT LITIGATION
@@ -166,7 +165,11 @@ class LitigationCubit extends Cubit<LitigationState> {
     var result = await _litigationRepository.getLitigationForExport(
       pageNumber: 1,
       pageSize: state.litigationTotalRecords,
-      queryParams: {"ExportType": exportType, "Title": state.searchText.trim()},
+      queryParams: {
+        "ExportType": exportType,
+        "Title": state.searchText.trim(),
+        "ProjectId": getProject().projectId,
+      },
     );
     goRouter.pop();
     result.fold(
@@ -226,6 +229,148 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
+  Future addLitigationHearing({
+    required BuildContext context,
+    required Map<String, String> body,
+    required MultiFilePickerModel hearingDocument,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < hearingDocument.fileNameList.length; i++) {
+      if (hearingDocument.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "HearingAttachementURL",
+        "value": hearingDocument.fileBytesList[i],
+        "fileName": hearingDocument.fileNameList[i],
+      });
+    }
+    final result = await _litigationRepository.addUpdateLitigationHearing(
+      body: body,
+      fileList: fileList,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        goRouter.pop();
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Litigation Hearing Added Successfully',
+        );
+      },
+    );
+  }
+
+  Future updateLitigationHearing({
+    required BuildContext context,
+    required int index,
+    required Map<String, String> body,
+    required MultiFilePickerModel hearingDocument,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < hearingDocument.fileNameList.length; i++) {
+      if (hearingDocument.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "HearingAttachementURL",
+        "value": hearingDocument.fileBytesList[i],
+        "fileName": hearingDocument.fileNameList[i],
+      });
+    }
+    final result = await _litigationRepository.addUpdateLitigationHearing(
+      body: body,
+      fileList: fileList,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        goRouter.pop();
+
+        final updatedLitigationHearing = LitigationHearingModel.fromJson(
+          response['data'][0] as Map<String, dynamic>,
+        );
+
+        if (state.litigationList.isNotEmpty &&
+            index < state.litigationList.length) {
+          final updatedList = List<LitigationHearingModel>.from(
+            state.litigationHearingList,
+          );
+
+          updatedList[index] = updatedLitigationHearing;
+
+          emit(
+            state.copyWith(
+              isLoading: false,
+              litigationHearingList: updatedList,
+            ),
+          );
+        }
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Litigation Hearing Updated Successfully',
+        );
+      },
+    );
+  }
+
+  // DELETE LITIGATION HEARING
+  Future deleteLitigationHearing(
+    int index,
+    LitigationHearingModel litigationHearingModel,
+    int litigationId,
+    BuildContext context,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _litigationRepository.deleteLitigationHearing(
+      litigationId: litigationId,
+      uniqueKey: litigationHearingModel.uniquekey,
+      projectId: getProject().projectId,
+      litigationHearingId: litigationHearingModel.litigationHearingId,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+        return;
+      },
+      (success) {
+        final updatedList = List<LitigationHearingModel>.from(
+          state.litigationHearingList,
+        );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            litigationHearingList: updatedList,
+            isLoading: false,
+            hearingTotalRecords:
+                state.hearingTotalRecords > 0
+                    ? state.hearingTotalRecords - 1
+                    : 0,
+          ),
+        );
+        showSuccessMessage(
+          context,
+          subTitle: "Litigation Deleted Successfully",
+        );
+      },
+    );
+  }
+
   Future<void> getLitigationDocumentList({
     required BuildContext context,
     required int pageNumber,
@@ -279,6 +424,29 @@ class LitigationCubit extends Cubit<LitigationState> {
       ),
     );
     getLitigationList(context: context, pageNumber: 1);
+  }
+
+  void clearHearingData() {
+    emit(
+      state.copyWith(
+        litigationHearingList: [],
+        hearingCurrentPage: 1, // Reset pagination too
+      ),
+    );
+  }
+
+  void clearDocumentData() {
+    emit(
+      state.copyWith(
+        litigationDocumentList: [],
+        documentCurrentPage: 1, // Reset pagination too
+      ),
+    );
+  }
+
+  void resetLitigationData() {
+    clearHearingData();
+    clearDocumentData();
   }
 
   /*

@@ -23,11 +23,13 @@ import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubi
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_inventory_specification_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_unit_specification_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/unit_specification_view_screen.dart';
-import 'package:k3h_erp_app/features/litigation/data/model/litigation.model.dart';
-import 'package:k3h_erp_app/features/litigation/presentation/cubit/litigation_cubit.dart';
-import 'package:k3h_erp_app/features/litigation/presentation/pages/add_litigation_screen.dart';
-import 'package:k3h_erp_app/features/litigation/presentation/pages/litigation_screen.dart';
-import 'package:k3h_erp_app/features/litigation/presentation/pages/litigation_view_screen.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_cubit.dart';
+import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/add_litigation_hearing_screen.dart';
+import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/add_litigation_screen.dart';
+import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/litigation_screen.dart';
+import 'package:k3h_erp_app/features/legal/litigation/presentation/pages/litigation_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
@@ -2421,7 +2423,8 @@ final GoRouter goRouter = GoRouter(
                   create: (_) => ContentDocumentCubit(),
                 ),
               ],
-                child: child);
+              child: child,
+            );
           },
           routes: [
             GoRoute(
@@ -2434,7 +2437,7 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.contentDocument,
               builder: (context, state) {
                 final queryParameterMarketingContentFolderId =
-                state.uri.queryParameters['marketingContentFolderId'];
+                    state.uri.queryParameters['marketingContentFolderId'];
 
                 if (queryParameterMarketingContentFolderId != null) {
                   final decodedJson = jsonDecode(
@@ -2602,7 +2605,6 @@ final GoRouter goRouter = GoRouter(
             return BlocProvider(create: (_) => InventoryCubit(), child: child);
           },
           routes: [
-
             GoRoute(
               name: AppRoutes.inventory,
               path: AppRoutes.inventory,
@@ -3371,6 +3373,39 @@ final GoRouter goRouter = GoRouter(
                         0;
                     return AddLitigationScreen(
                       litigationModel: litigation,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addLitigationHearing,
+                  path: AppRoutes.addLitigationHearing,
+                  builder: (context, state) {
+                    final queryParameterLitigationHearing =
+                        state.uri.queryParameters['litigationHearing'];
+
+                    final LitigationHearingModel? litigationHearing =
+                        queryParameterLitigationHearing != null
+                            ? LitigationHearingModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterLitigationHearing,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    final litigationId =
+                        state.uri.queryParameters['litigationId'] ?? '';
+                    return AddLitigationHearingScreen(
+                      litigationHearingModel: litigationHearing,
+                      litigationId: litigationId,
                       index: index,
                     );
                   },

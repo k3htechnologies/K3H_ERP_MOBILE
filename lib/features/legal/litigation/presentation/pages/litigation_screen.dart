@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/litigation/data/model/litigation.model.dart';
-import 'package:k3h_erp_app/features/litigation/presentation/cubit/litigation_cubit.dart';
-import 'package:k3h_erp_app/features/litigation/presentation/cubit/litigation_state.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_cubit.dart';
+import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -144,12 +145,12 @@ class _LitigationScreenState extends State<LitigationScreen> {
                 child: Column(
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Flexible(
+                        Expanded(
                           child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
+                            onTap: () async {
+                              await goRouter.pushNamed(
                                 AppRoutes.viewLitigation,
                                 queryParameters: {
                                   "litigation": Uri.encodeQueryComponent(
@@ -159,33 +160,60 @@ class _LitigationScreenState extends State<LitigationScreen> {
                                   ),
                                 },
                               );
+                              _litigationCubit.resetLitigationData();
                             },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: IntrinsicWidth(
+                                child: Container(
+                                  padding: const EdgeInsets.only(bottom: 4),
+                                  decoration: const BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: AppColor.primary,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    litigation.title,
+                                    style: AppTextStyle.ts16M(
+                                      color: AppColor.primary,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                              child: Text(
-                                litigation.title,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
                         ),
+                        const SizedBox(width: 8),
 
-                        if (litigation.isDelete)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CustomButton(
+                              backgroundColor: AppColor.lightBlue,
+                              leading: const Icon(Icons.add, size: 18),
+                              textColor: AppColor.primary,
+                              text: 'Add Hearing',
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 6,
+                                horizontal: 8,
+                              ),
+                              onPressed: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.addLitigationHearing,
+                                  queryParameters: {
+                                    'litigationId':
+                                        litigation.litigationId.toString(),
+                                  },
+                                );
+                              },
+                            ),
+
+                            if (litigation.isDelete) ...[
+                              const SizedBox(width: 8),
                               CustomIconButton.edit(
                                 onPressed: () async {
                                   await goRouter.pushNamed(
@@ -201,7 +229,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
                                   );
                                 },
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 6),
                               CustomIconButton.delete(
                                 onPressed: () {
                                   _showPopupToDeleteLitigation(
@@ -212,7 +240,8 @@ class _LitigationScreenState extends State<LitigationScreen> {
                                 },
                               ),
                             ],
-                          ),
+                          ],
+                        ),
                       ],
                     ),
                     verticalSpacing(height: 10),

@@ -285,3 +285,21 @@ TimeOfDay? parseTimeOfDayFromHHmm(String? value) {
     return null;
   }
 }
+
+String dateFormatterDDMMYYYYDAY(
+  DateTime date, {
+  bool isDayNotRequired = false,
+}) {
+  try {
+    if (isDayNotRequired) {
+      return DateFormat('dd MMMM yyyy').format(date);
+    }
+    return DateFormat('dd MMMM yyyy, EEEE').format(date);
+  } catch (_) {
+    return '';
+  }
+}
+
+String dateFormatterHhMmAm(DateTime dateTime) {
+  return DateFormat('hh:mma').format(dateTime).toLowerCase();
+}

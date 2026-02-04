@@ -67,9 +67,7 @@ class CustomTextField extends StatelessWidget {
                       if (isRequired == true)
                         TextSpan(
                           text: " *",
-                          style: AppTextStyle.ts14R(
-                            color: AppColor.error,
-                          ),
+                          style: AppTextStyle.ts14R(color: AppColor.error),
                         ),
                     ],
                   ),
@@ -78,7 +76,7 @@ class CustomTextField extends StatelessWidget {
               ),
 
             Padding(
-              padding: EdgeInsets.only(bottom:  2.0),
+              padding: EdgeInsets.only(bottom: 2.0),
               child: TextFormField(
                 controller: textController,
                 keyboardType: keyboardType,
@@ -92,9 +90,10 @@ class CustomTextField extends StatelessWidget {
                 maxLines: maxLines,
                 cursorColor: AppColor.primary,
                 focusNode: focusNode,
-                style: readOnly
-                    ? AppTextStyle.ts14R().copyWith(color: AppColor.grey)
-                    : AppTextStyle.ts14R(),
+                style:
+                    readOnly
+                        ? AppTextStyle.ts14R().copyWith(color: AppColor.grey)
+                        : AppTextStyle.ts14R(),
                 onChanged: (value) {
                   formFieldState.didChange(value); // IMPORTANT
                   onChangeFunction?.call(value);
@@ -105,7 +104,9 @@ class CustomTextField extends StatelessWidget {
                   isDense: true,
                   counterText: '',
                   hintText: hint ?? "",
-                  hintStyle: AppTextStyle.ts14R().copyWith(color: AppColor.grey),
+                  hintStyle: AppTextStyle.ts14R().copyWith(
+                    color: AppColor.grey,
+                  ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 10.0,
                     vertical: 14.0,
@@ -141,14 +142,15 @@ class CustomTextField extends StatelessWidget {
             ),
 
             // 🔥 SHOW ERROR TEXT (WITHOUT REMOVING ANYTHING ELSE)
-            hasError?
-              Padding(
-                padding: const EdgeInsets.only(top: 2, left: 12),
-                child: Text(
-                  formFieldState.errorText ?? "",
-                  style: AppTextStyle.ts12R(color: AppColor.error),
-                ),
-              ) : const SizedBox(height: 18),
+            hasError
+                ? Padding(
+                  padding: const EdgeInsets.only(top: 2, left: 12),
+                  child: Text(
+                    formFieldState.errorText ?? "",
+                    style: AppTextStyle.ts12R(color: AppColor.error),
+                  ),
+                )
+                : const SizedBox(height: 18),
           ],
         );
       },

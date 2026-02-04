@@ -11,6 +11,7 @@ class CustomButton extends StatelessWidget {
   final double borderRadius;
   final EdgeInsets padding;
   final Widget? leading;
+  final Widget? trailing;
   final double elevation;
   final bool isDisable;
   final VoidCallback? onPressed;
@@ -27,13 +28,14 @@ class CustomButton extends StatelessWidget {
     this.borderRadius = 6,
     this.padding = const EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
     this.leading,
+    this.trailing,
     this.elevation = 5.0,
     this.isDisable = false,
     required this.onPressed,
     this.borderColor,
     this.titleTextStyle,
     this.boxShadow,
-    this.gradient,   // <-- new
+    this.gradient, // <-- new
   });
 
   @override
@@ -41,7 +43,8 @@ class CustomButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: isDisable ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: gradient != null ? Colors.transparent : backgroundColor,
+        backgroundColor:
+            gradient != null ? Colors.transparent : backgroundColor,
         shadowColor: Colors.transparent,
         padding: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
@@ -54,7 +57,12 @@ class CustomButton extends StatelessWidget {
           gradient: gradient,
 
           // FOR NORMAL BUTTONS (NOT GRADIENT)
-          color: (gradient == null && borderColor == null) ? !isDisable?backgroundColor:AppColor.grey : null,
+          color:
+              (gradient == null && borderColor == null)
+                  ? !isDisable
+                      ? backgroundColor
+                      : AppColor.grey
+                  : null,
 
           // FOR OUTLINE BUTTONS
           border: borderColor != null ? Border.all(color: borderColor!) : null,
@@ -67,20 +75,20 @@ class CustomButton extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (leading != null) ...[
-                leading!,
-                horizontalSpacing(width: 6),
-              ],
+              if (leading != null) ...[leading!, horizontalSpacing(width: 6)],
               Flexible(
                 child: Text(
                   text,
-                  style: titleTextStyle ??
+                  style:
+                      titleTextStyle ??
                       AppTextStyle.ts12SB(
-                          color: isDisable ? AppColor.white : textColor),
+                        color: isDisable ? AppColor.white : textColor,
+                      ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
               ),
+              if (trailing != null) ...[horizontalSpacing(width: 6), trailing!],
             ],
           ),
         ),
@@ -91,103 +99,102 @@ class CustomButton extends StatelessWidget {
   // === Named Constructors ===
 
   CustomButton.save({Key? key, required VoidCallback onPressed})
-      : this(
-    key: key,
-    onPressed: onPressed,
-    text: 'Save',
-    leading: Icon(Icons.bookmark_added, color: AppColor.white),
-    backgroundColor: AppColor.green.withValues(alpha: 0.8),
-    boxShadow: [
-      BoxShadow(
-        color: AppColor.darkGreen,
-        offset: Offset(0, 4),
-        blurRadius: 4,
-        spreadRadius: 0,
-        inset: true,
-      ),
-    ],
-  );
+    : this(
+        key: key,
+        onPressed: onPressed,
+        text: 'Save',
+        leading: Icon(Icons.bookmark_added, color: AppColor.white),
+        backgroundColor: AppColor.green.withValues(alpha: 0.8),
+        boxShadow: [
+          BoxShadow(
+            color: AppColor.darkGreen,
+            offset: Offset(0, 4),
+            blurRadius: 4,
+            spreadRadius: 0,
+            inset: true,
+          ),
+        ],
+      );
 
   CustomButton.add({Key? key, required VoidCallback onPressed})
-      : this(
-    key: key,
-    onPressed: onPressed,
-    text: 'Add',
-    leading: Icon(Icons.add, color: AppColor.white),
-    gradient: LinearGradient(
-      colors: [AppColor.green, AppColor.darkGreen],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-  );
+    : this(
+        key: key,
+        onPressed: onPressed,
+        text: 'Add',
+        leading: Icon(Icons.add, color: AppColor.white),
+        gradient: LinearGradient(
+          colors: [AppColor.green, AppColor.darkGreen],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      );
 
   CustomButton.view({Key? key, required VoidCallback onPressed})
-      : this(
-    key: key,
-    onPressed: onPressed,
-    text: 'View',
-    backgroundColor: AppColor.info,
-    textColor: AppColor.white,
-    boxShadow: [
-      BoxShadow(
-        color: AppColor.black10.withValues(alpha: 0.02),
-        offset: Offset(0, 4),
-        blurRadius: 4,
-        spreadRadius: 0,
-        inset: true,
-      ),
-    ],
-  );
+    : this(
+        key: key,
+        onPressed: onPressed,
+        text: 'View',
+        backgroundColor: AppColor.info,
+        textColor: AppColor.white,
+        boxShadow: [
+          BoxShadow(
+            color: AppColor.black10.withValues(alpha: 0.02),
+            offset: Offset(0, 4),
+            blurRadius: 4,
+            spreadRadius: 0,
+            inset: true,
+          ),
+        ],
+      );
 
   CustomButton.smallView({Key? key, required VoidCallback onPressed})
-      : this(
-    key: key,
-    onPressed: onPressed,
-    text: 'View',
-    backgroundColor: AppColor.info,
-    textColor: AppColor.white,
-    borderRadius: 10.0,
-    titleTextStyle: AppTextStyle.ts14M(color: AppColor.white),
-    elevation: 3.0,
-    padding: EdgeInsets.symmetric(horizontal: 10.0),
-    boxShadow: [
-      BoxShadow(
-        color: AppColor.black10.withValues(alpha: 0.02),
-        offset: Offset(0, 4),
-        blurRadius: 4,
-        spreadRadius: 0,
-        inset: true,
-      ),
-    ],
-  );
+    : this(
+        key: key,
+        onPressed: onPressed,
+        text: 'View',
+        backgroundColor: AppColor.info,
+        textColor: AppColor.white,
+        borderRadius: 10.0,
+        titleTextStyle: AppTextStyle.ts14M(color: AppColor.white),
+        elevation: 3.0,
+        padding: EdgeInsets.symmetric(horizontal: 10.0),
+        boxShadow: [
+          BoxShadow(
+            color: AppColor.black10.withValues(alpha: 0.02),
+            offset: Offset(0, 4),
+            blurRadius: 4,
+            spreadRadius: 0,
+            inset: true,
+          ),
+        ],
+      );
 
   // ---------------- OUTLINE BUTTONS ----------------
 
-// CANCEL (OUTLINE)
+  // CANCEL (OUTLINE)
   CustomButton.cancelOutline({Key? key, required VoidCallback onPressed})
-      : this(
-    key: key,
-    onPressed: onPressed,
-    text: 'Cancel',
-    backgroundColor: Colors.transparent,
-    padding: EdgeInsets.symmetric(horizontal: 12,vertical: 8),
-    textColor: AppColor.grey,
-    borderColor: AppColor.grey,
-    elevation: 0,
-    boxShadow: [],
-  );
+    : this(
+        key: key,
+        onPressed: onPressed,
+        text: 'Cancel',
+        backgroundColor: Colors.transparent,
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        textColor: AppColor.grey,
+        borderColor: AppColor.grey,
+        elevation: 0,
+        boxShadow: [],
+      );
 
-// RESET (OUTLINE)
+  // RESET (OUTLINE)
   CustomButton.clearOutline({Key? key, required VoidCallback onPressed})
-      : this(
-    key: key,
-    onPressed: onPressed,
-    text: 'Clear',
-    backgroundColor: Colors.transparent,
-    textColor: AppColor.primary,
-    borderColor: AppColor.primary,
-    elevation: 0,
-    boxShadow: [],
-  );
-
+    : this(
+        key: key,
+        onPressed: onPressed,
+        text: 'Clear',
+        backgroundColor: Colors.transparent,
+        textColor: AppColor.primary,
+        borderColor: AppColor.primary,
+        elevation: 0,
+        boxShadow: [],
+      );
 }

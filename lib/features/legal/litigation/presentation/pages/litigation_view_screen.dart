@@ -5,15 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/litigation/data/model/litigation.model.dart';
-import 'package:k3h_erp_app/features/litigation/presentation/cubit/litigation_cubit.dart';
-import 'package:k3h_erp_app/features/litigation/presentation/cubit/litigation_state.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_cubit.dart';
+import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -62,11 +65,8 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
       _litigationCubit.changeTab(_tabController.index);
 
       switch (_tabController.index) {
-        case 0:
-          // _litigationCubit.getLitigationList(context: context, pageNumber: 1);
-          break;
-
         case 1:
+          _litigationCubit.clearHearingData();
           _litigationCubit.getLitigationHearingList(
             context: context,
             pageNumber: 1,
@@ -75,12 +75,12 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
           break;
 
         case 2:
+          _litigationCubit.clearDocumentData();
           _litigationCubit.getLitigationDocumentList(
             context: context,
             pageNumber: 1,
             litigationId: widget.litigationModel.litigationId,
           );
-          // Document API later
           break;
       }
     }
@@ -362,75 +362,196 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
         }
 
         if (state.litigationHearingList.isEmpty) {
-          return noDataWidget();
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Hearing History', style: AppTextStyle.ts16SB()),
+                    CustomButton(
+                      backgroundColor: AppColor.lightBlue,
+                      leading: Icon(Icons.add),
+                      textColor: AppColor.primary,
+                      text: 'Add Hearing',
+                      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                      onPressed: () async {
+                        await goRouter.pushNamed(
+                          AppRoutes.addLitigationHearing,
+                          queryParameters: {
+                            'litigationId':
+                                widget.litigationModel.litigationId.toString(),
+                          },
+                        );
+
+                        if (context.mounted) {
+                          _litigationCubit.getLitigationHearingList(
+                            context: context,
+                            pageNumber: 1,
+                            litigationId: widget.litigationModel.litigationId,
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                Expanded(child: Center(child: noDataWidget())),
+              ],
+            ),
+          );
         }
 
-        return ListView.builder(
+        return Padding(
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          controller: _hearingScrollController,
-          itemCount: state.litigationHearingList.length + 1,
-          itemBuilder: (context, index) {
-            if (index == state.litigationHearingList.length) {
-              return state.litigationHearingList.length <
-                      state.hearingTotalRecords
-                  ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                  : const SizedBox.shrink();
-            }
-
-            final hearing = state.litigationHearingList[index];
-
-            return Container(
-              padding: EdgeInsets.all(16),
-              margin: EdgeInsets.only(bottom: 10),
-              decoration: commonCardDecoration(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            formatDateTimeAsDDMMMYYYY(hearing.hearingDate),
-                            style: AppTextStyle.ts16M(),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          CustomIconButton.edit(
-                            onPressed: () async {
-                              await goRouter.pushNamed(
-                                AppRoutes.addLitigation,
-                                queryParameters: {
-                                  "litigation": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(hearing.toJson()),
-                                    ),
-                                  ),
-                                  'index': index.toString(),
-                                },
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 8),
-                          CustomIconButton.delete(onPressed: () {}),
-                        ],
-                      ),
-                    ],
+                  Text('Hearing History', style: AppTextStyle.ts16SB()),
+                  CustomButton(
+                    backgroundColor: AppColor.lightBlue,
+                    leading: Icon(Icons.add),
+                    textColor: AppColor.primary,
+                    text: 'Add Hearing',
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                    onPressed: () async {
+                      await goRouter.pushNamed(
+                        AppRoutes.addLitigationHearing,
+                        queryParameters: {
+                          'litigationId':
+                              widget.litigationModel.litigationId.toString(),
+                        },
+                      );
+                      if (context.mounted) {
+                        _litigationCubit.getLitigationHearingList(
+                          context: context,
+                          pageNumber: 1,
+                          litigationId: widget.litigationModel.litigationId,
+                        );
+                      }
+                    },
                   ),
-                  Text(hearing.remark),
                 ],
               ),
-            );
-          },
+              verticalSpacing(height: 15),
+              Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  controller: _hearingScrollController,
+                  itemCount: state.litigationHearingList.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == state.litigationHearingList.length) {
+                      return state.litigationHearingList.length <
+                              state.hearingTotalRecords
+                          ? const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                          : const SizedBox.shrink();
+                    }
+
+                    final hearing = state.litigationHearingList[index];
+
+                    return Container(
+                      padding: EdgeInsets.all(16),
+                      margin: EdgeInsets.only(bottom: 10),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                dateFormatterDDMMYYYYDAY(
+                                  hearing.modifiedDate ?? hearing.createdDate,
+                                ),
+                                style: AppTextStyle.ts14M(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+
+                              //Only Lastest Hearing can be Update and Delete but make sure Api return data by date and Time
+                              if (index == 0)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    CustomIconButton.edit(
+                                      onPressed: () async {
+                                        await goRouter.pushNamed(
+                                          AppRoutes.addLitigationHearing,
+                                          queryParameters: {
+                                            "litigationHearing":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(
+                                                      hearing.toJson(),
+                                                    ),
+                                                  ),
+                                                ),
+                                            'index': index.toString(),
+                                            'litigationId':
+                                                widget
+                                                    .litigationModel
+                                                    .litigationId
+                                                    .toString(),
+                                          },
+                                        );
+                                      },
+                                    ),
+                                    horizontalSpacing(width: 8),
+                                    CustomIconButton.delete(
+                                      onPressed: () {
+                                        _showPopupToDeleteHearing(
+                                          context,
+                                          hearing,
+                                          index,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                          verticalSpacing(),
+
+                          Text(
+                            hearing.remark,
+                            style: AppTextStyle.ts14R(color: AppColor.grey),
+                          ),
+                          verticalSpacing(),
+                          SizedBox(
+                            width: 120,
+                            child: CustomButton(
+                              trailing: Icon(Icons.remove_red_eye_outlined),
+                              text: "Document",
+                              titleTextStyle: AppTextStyle.ts14M(
+                                color: AppColor.primary,
+                              ),
+
+                              backgroundColor: AppColor.white,
+                              borderColor: AppColor.primary,
+                              onPressed: () {
+                                if (hearing.hearingAttachementUrl.isNotEmpty) {
+                                  showFilePreviewDialog(
+                                    context,
+                                    hearing.hearingAttachementUrl.split(","),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -449,7 +570,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
         }
 
         return ListView.builder(
-          controller: _hearingScrollController,
+          controller: _documentScrollController,
           itemCount: state.litigationDocumentList.length + 1,
           itemBuilder: (context, index) {
             if (index == state.litigationDocumentList.length) {
@@ -511,5 +632,28 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
         ),
       ),
     );
+  }
+
+  // DELETE DOCUMENT FROM CATEGORY
+  Future<void> _showPopupToDeleteHearing(
+    BuildContext context,
+    LitigationHearingModel obj,
+    // int page,
+    int index,
+  ) async {
+    final shouldDelete = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a hearing?',
+      'Deleting this hearing will permanently remove its contents.',
+    );
+
+    if (shouldDelete && context.mounted) {
+      _litigationCubit.deleteLitigationHearing(
+        index,
+        obj,
+        widget.litigationModel.litigationId,
+        context,
+      );
+    }
   }
 }

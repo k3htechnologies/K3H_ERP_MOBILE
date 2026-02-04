@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
-import 'package:k3h_erp_app/features/litigation/data/datasource/litigation.datasource.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/datasource/litigation.datasource.dart';
 
 abstract interface class LitigationRepository {
   Future<Either<Failure, Map<String, dynamic>>> pullLitigation({
@@ -9,6 +9,10 @@ abstract interface class LitigationRepository {
     required int pageSize,
     required int projectId,
     Map<String, dynamic>? queryParams,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigation({
+    required Map<String, dynamic> body,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> deleteLitigation({
@@ -25,6 +29,17 @@ abstract interface class LitigationRepository {
     Map<String, dynamic>? queryParams,
   });
 
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigationHearing({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> deleteLitigationHearing({
+    required int litigationId,
+    required String uniqueKey,
+    required int projectId,
+    required int litigationHearingId,
+  });
+
   Future<Either<Failure, Map<String, dynamic>>> pullLitigationClosure({
     required int pageNumber,
     required int pageSize,
@@ -38,10 +53,6 @@ abstract interface class LitigationRepository {
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
-  });
-
-  Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigation({
-    required Map<String, dynamic> body,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> pullLitigationDocument({
@@ -71,6 +82,21 @@ class LitigationRepositoryImpl extends LitigationRepository {
         pageSize: pageSize,
         projectId: projectId,
         queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  // ADD / UPDATE LITIGATION
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigation({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final result = await litigationDatasource.apiCallAddUpdateLitigation(
+        body: body,
       );
       return right(result);
     } catch (error) {
@@ -119,6 +145,41 @@ class LitigationRepositoryImpl extends LitigationRepository {
     }
   }
 
+  // ADD / UPDATE LITIGATION HEARING
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigationHearing({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      final result = await litigationDatasource
+          .apiCallAddUpdateLitigationHearing(body: body, fileList: fileList);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteLitigationHearing({
+    required int litigationId,
+    required String uniqueKey,
+    required int projectId,
+    required int litigationHearingId,
+  }) async {
+    try {
+      var result = await litigationDatasource.apicallDeleteLitigationHearing(
+        litigationId: litigationId,
+        uniqueKey: uniqueKey,
+        projectId: projectId,
+        litigationHearingId: litigationHearingId,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
   // ✅ PULL LITIGATION CLOSURE
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullLitigationClosure({
@@ -157,22 +218,8 @@ class LitigationRepositoryImpl extends LitigationRepository {
         pageNumber: pageNumber,
         pageSize: pageSize,
         projectId: projectId,
+        litigationId: litigationId,
         queryParams: queryParams,
-      );
-      return right(result);
-    } catch (error) {
-      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-    }
-  }
-
-  // ADD / UPDATE LITIGATION
-  @override
-  Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigation({
-    required Map<String, dynamic> body,
-  }) async {
-    try {
-      final result = await litigationDatasource.apiCallAddUpdateLitigation(
-        body: body,
       );
       return right(result);
     } catch (error) {
