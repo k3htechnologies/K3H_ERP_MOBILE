@@ -118,6 +118,7 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
                     CustomTextField(
                       title: 'Department Name',
                       isRequired: true,
+                      hint: "Enter Department Name",
                       textController: _departmentNameC,
                       inputFormatterList: [
                         LengthLimitingTextInputFormatter(50),
@@ -132,6 +133,7 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
                     CustomTextField(
                       title: 'Department Code',
                       isRequired: true,
+                      hint: "Enter Department Code",
                       textController: _departmentCodeC,
                       inputFormatterList: [
                         UpperCaseTextFormatter(),

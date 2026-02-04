@@ -210,6 +210,7 @@ class _InventoryScreenState extends State<InventoryScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
+        isMenuButton: true,
         screenTitle: "Project Inventory",
         authorization: _routAuthorizationModel,
         onExportCallback: (value) {

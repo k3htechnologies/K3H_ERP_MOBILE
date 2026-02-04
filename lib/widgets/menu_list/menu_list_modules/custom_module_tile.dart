@@ -43,7 +43,7 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
   // Helper method to build the icon widget
   Widget _buildIcon(String iconPath) {
     final fullPath = _getIconPath(iconPath);
-    
+
     // Check if it's an SVG file
     if (iconPath.toLowerCase().endsWith('.svg')) {
       return SvgPicture.asset(
@@ -51,11 +51,9 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
         height: 20,
         width: 20,
         fit: BoxFit.contain,
-        placeholderBuilder: (context) => Container(
-          height: 20,
-          width: 20,
-          color: Colors.grey[300],
-        ),
+        placeholderBuilder:
+            (context) =>
+                Container(height: 20, width: 20, color: Colors.grey[300]),
       );
     } else {
       // PNG or other image formats
@@ -64,12 +62,17 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
         height: 20,
         width: 20,
         fit: BoxFit.contain,
-        errorBuilder: (context, error, stackTrace) => Container(
-          height: 20,
-          width: 20,
-          color: Colors.grey[300],
-          child: Icon(Icons.image_not_supported, size: 16, color: Colors.grey[600]),
-        ),
+        errorBuilder:
+            (context, error, stackTrace) => Container(
+              height: 20,
+              width: 20,
+              color: Colors.grey[300],
+              child: Icon(
+                Icons.image_not_supported,
+                size: 16,
+                color: Colors.grey[600],
+              ),
+            ),
       );
     }
   }
@@ -88,6 +91,7 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
         children: [
           hasItems
               ? ExpansionTile(
+                key: ValueKey('module-${widget.title}-${widget.isExpanded}'),
                 collapsedIconColor: AppColor.black,
                 iconColor: AppColor.black,
                 minTileHeight: 60,
@@ -98,24 +102,27 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
                 shape: const Border(),
                 collapsedShape: const Border(),
 
-                title: Row(
-                  children: [
-                    _buildIcon(widget.imagePath),
-                    horizontalSpacing(),
-                    Expanded(
-                      child: Text(
-                        widget.title,
-                        style: AppTextStyle.ts16SB(
-                          color:
-                              widget.isActive
-                                  ? AppColor.slightDarkBlue
-                                  : AppColor.black,
+                title: InkWell(
+                  onTap: widget.onTapCallback,
+                  child: Row(
+                    children: [
+                      _buildIcon(widget.imagePath),
+                      horizontalSpacing(),
+                      Expanded(
+                        child: Text(
+                          widget.title,
+                          style: AppTextStyle.ts16SB(
+                            color:
+                                widget.isActive
+                                    ? AppColor.slightDarkBlue
+                                    : AppColor.black,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 children: widget.items!,
               )
@@ -144,7 +151,6 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
                 onTap: widget.onTapCallback,
               ),
 
-          // ✅ YOUR divider (single, clean, controlled)
           if (!widget.isLast)
             Padding(
               padding: const EdgeInsets.only(left: 15),

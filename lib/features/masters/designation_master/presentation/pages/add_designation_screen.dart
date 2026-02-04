@@ -124,6 +124,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                     CustomTextField(
                       title: "Designation",
                       isRequired: true,
+                      hint: "Enter Designation",
                       inputFormatterList: [
                         LengthLimitingTextInputFormatter(50),
                       ],
@@ -138,6 +139,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                     CustomTextField(
                       title: "Notice Period (in days)",
                       isRequired: true,
+                      hint: "Enter Notice Period",
                       textController: _noticePeriodC,
                       keyboardType: TextInputType.number,
                       inputFormatterList: InputValidator.digit(3),

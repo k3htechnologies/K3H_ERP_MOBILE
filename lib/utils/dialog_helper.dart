@@ -285,18 +285,18 @@ class DialogHelper {
             child: SafeArea(
               child: Column(
                 children: [
-                  /// DRAG HANDLE
+                  // DRAG HANDLE
                   Container(
                     margin: const EdgeInsets.symmetric(vertical: 8),
                     height: 5,
                     width: 60,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: AppColor.lightBlue,
+                      color: AppColor.grey,
                     ),
                   ),
 
-                  /// TITLE
+                  // TITLE
                   Container(
                     alignment: Alignment.centerLeft,
                     padding: const EdgeInsets.only(bottom: 12, left: 16),

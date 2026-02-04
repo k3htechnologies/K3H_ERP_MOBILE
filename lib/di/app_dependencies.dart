@@ -53,6 +53,7 @@ import 'feature_dependencies/redevelopment/proposed_offer/proposed_offer.depende
 import 'feature_dependencies/redevelopment/proposed_plans/proposed_plans.dependencies.dart';
 import 'feature_dependencies/redevelopment/rent/rent.dependencies.dart';
 import 'feature_dependencies/redevelopment/tenant/tenant.dependencies.dart';
+import 'feature_dependencies/sales/call_tracker/call_tracker.dependencies.dart';
 import 'feature_dependencies/vendor_management/vendor_management.dependencies.dart';
 
 final GetIt serviceLocator = GetIt.instance;
@@ -166,4 +167,6 @@ void initDependencies() {
   registerPayrollReportDependencies(serviceLocator);
   // LITIGATION DEPENDENCIES
   registerLitigationDependencies(serviceLocator);
+  // CALL TRACKER DEPENDENCIES
+  registerCallTrackerDependencies(serviceLocator);
 }

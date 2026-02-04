@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/presentation/cubit/main_screen_cubit.dart';
 import 'package:k3h_erp_app/features/menu/presentation/widgets/menu_drawer_content.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/bottom_navigation/bottom_navigation_bar_widget.dart';
 
 final GlobalKey<ScaffoldState> mobileScreenGlobalScaffoldKey =
@@ -36,14 +38,14 @@ class _MainScreenState extends State<MainScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+               Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 child: Text(
                   'Menu',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                  style: AppTextStyle.ts16SB(),
                 ),
               ),
-              const Divider(height: 1),
+              Divider(height: 1,color: AppColor.grey50,),
               Expanded(child: MenuDrawerContent()),
             ],
           ),

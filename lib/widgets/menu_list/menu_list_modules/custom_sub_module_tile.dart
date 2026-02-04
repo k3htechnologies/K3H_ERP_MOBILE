@@ -37,6 +37,14 @@ class _CustomSubModuleTileState extends State<CustomSubModuleTile> {
   }
 
   @override
+  void didUpdateWidget(CustomSubModuleTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isExpanded != _isExpanded) {
+      _isExpanded = widget.isExpanded;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final hasItems = widget.items != null && widget.items!.isNotEmpty;
     const double tileHeight = 48.0;
@@ -75,6 +83,9 @@ class _CustomSubModuleTileState extends State<CustomSubModuleTile> {
               child:
                   hasItems
                       ? ExpansionTile(
+                        key: ValueKey(
+                          'sub-${widget.title}-${widget.isExpanded}',
+                        ),
                         minTileHeight: tileHeight,
                         initiallyExpanded: widget.isExpanded,
                         onExpansionChanged:
@@ -98,9 +109,7 @@ class _CustomSubModuleTileState extends State<CustomSubModuleTile> {
                                 overflow: TextOverflow.ellipsis,
                                 style: AppTextStyle.ts14R(
                                   color:
-                                      widget.isActive
-                                          ? AppColor.primary
-                                          : null,
+                                      widget.isActive ? AppColor.primary : null,
                                 ),
                               ),
                             ),
@@ -130,9 +139,7 @@ class _CustomSubModuleTileState extends State<CustomSubModuleTile> {
                                 overflow: TextOverflow.ellipsis,
                                 style: AppTextStyle.ts14R(
                                   color:
-                                      widget.isActive
-                                          ? AppColor.primary
-                                          : null,
+                                      widget.isActive ? AppColor.primary : null,
                                 ),
                               ),
                             ),

@@ -385,11 +385,13 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       CustomTextField(
                         title: 'PIN Code',
                         textController: _pinCodeC,
+                        hint: "Enter PIN Code",
                         inputFormatterList: InputValidator.digit(10),
                       ),
                       CustomTextField(
                         title: 'Business Category',
                         textController: _businessCategoryC,
+                        hint: "Enter Business Category",
                         inputFormatterList: [
                           LengthLimitingTextInputFormatter(100),
                         ],
@@ -412,6 +414,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       CustomTextField(
                         title: 'Google Location',
                         textController: _googleLocationC,
+                        hint: "Enter Google Location",
                         inputFormatterList: [
                           LengthLimitingTextInputFormatter(100),
                         ],
@@ -434,6 +437,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       CustomTextField(
                         title: 'Project Scope',
                         textController: _projectScopeC,
+                        hint: "Enter Project Scope",
                         inputFormatterList: [
                           LengthLimitingTextInputFormatter(100),
                         ],
@@ -441,6 +445,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       CustomTextField(
                         title: 'Project Scheme',
                         textController: _projectSchemeC,
+                        hint: "Enter Project Scheme",
                         inputFormatterList: [
                           LengthLimitingTextInputFormatter(100),
                         ],
@@ -448,6 +453,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       CustomTextField(
                         title: 'Project Sub Scheme',
                         textController: _projectSubSchemeC,
+                        hint: "Enter Project Sub Scheme",
                         inputFormatterList: [
                           LengthLimitingTextInputFormatter(100),
                         ],
@@ -469,6 +475,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       verticalSpacing(),
                       CustomTextField(
                         title: 'RERA Number',
+                        hint: "Enter RERA Number",
                         textController: _reraNumberC,
                         inputFormatterList:
                             InputValidator.reraInputFormatters(),
@@ -512,16 +519,19 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       verticalSpacing(),
                       CustomTextField(
                         title: 'Project Estimate Cost',
+                        hint: "Enter Project Estimate Cost",
                         textController: _projectEstimateCostC,
                         inputFormatterList: InputValidator.decimal(2),
                       ),
                       CustomTextField(
                         title: 'On Going Budget Cost',
+                        hint: "Enter On Going Budget Cost",
                         textController: _onGoingBudgetCostC,
                         inputFormatterList: InputValidator.decimal(2),
                       ),
                       CustomTextField(
                         title: 'Project Area in Sqft',
+                        hint: "Enter Project Area in Sqft",
                         textController: _projectAreaSqftC,
                         inputFormatterList: InputValidator.decimal(2),
                       ),
@@ -578,11 +588,13 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       verticalSpacing(),
                       CustomTextField(
                         title: 'Site Contact Name',
+                        hint: "Enter Site Contact Name",
                         textController: _siteContactNameC,
                         inputFormatterList: InputValidator.textOnly(100),
                       ),
                       CustomTextField(
                         title: 'Site Contact Mobile Number',
+                        hint: "Enter Site Contact Mobile Number",
                         textController: _siteContactMobileNumberC,
                         inputFormatterList: InputValidator.digit(10),
                       ),

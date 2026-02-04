@@ -197,7 +197,7 @@ class AppRoutes {
   static String addCompOff = "/addCompOff";
   static String viewCompOff = "/viewCompOff";
   // ATTENDANCE
-  static String attendance = "/attendance";
+  static String attendance = "/attendanceCalendar";
   // RESIGNATION
   static String resignation = "/resignation";
   static String addresignation = "/addresignation";

@@ -110,7 +110,7 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
               return loader();
             }
             if (state.approvedBankFolderList.isEmpty) {
-              return noDataWidget();
+              return Center(child: noDataWidget());
             }
             return ListView.builder(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),

@@ -253,6 +253,8 @@ import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/ten
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_tenant_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_view_screen.dart';
+import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_tracker_cubit.dart';
+import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
@@ -3564,6 +3566,24 @@ final GoRouter goRouter = GoRouter(
                       compOffModel: compOff,
                       index: index,
                     );
+                  },
+                ),
+              ],
+            ),
+            // CALL TRACKER
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => CallTrackerCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.callTracker,
+                  path: AppRoutes.callTracker,
+                  builder: (context, state) {
+                    return CallTrackerScreen();
                   },
                 ),
               ],

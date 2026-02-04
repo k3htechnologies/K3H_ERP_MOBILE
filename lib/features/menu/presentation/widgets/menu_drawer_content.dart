@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/menu_list/menu_list_modules/custom_module_tile.dart';
 import 'package:k3h_erp_app/widgets/menu_list/menu_list_modules/custom_sub_module_tile.dart';
@@ -33,31 +35,23 @@ List<ModuleModel> getMenuList() {
   );
   removeHiddenSubSubModules(menuList);
 
-  for (final module in menuList) {
-    final moduleName = module.moduleName.toLowerCase();
-
-    if (moduleName == "redevelopment") {
-      final exists = module.subModuleData.any(
-        (e) => e.subModuleName == "Re-Development Dashboard",
-      );
-
-      if (!exists) {
-        module.subModuleData.insert(0, _redevelopmentDashboardSubModule());
-      }
-    }
+  // Add static \"Dashboard\" module (not stored in backend menu) if missing.
+  final hasDashboard = menuList.any(
+    (m) => m.moduleName.trim().toLowerCase() == 'dashboard',
+  );
+  if (!hasDashboard) {
+    menuList.insert(
+      0,
+      ModuleModel(
+        modulesMasterId: 0,
+        moduleName: 'Dashboard',
+        icon: AppAssets.crmModule,
+        subModuleData: const [],
+      ),
+    );
   }
 
   return menuList;
-}
-
-SubModuleModel _redevelopmentDashboardSubModule() {
-  return SubModuleModel(
-    subModuleName: "Re-Development Dashboard",
-    path: AppRoutes.redevelopmentDashboard,
-    icon: "",
-    subSubModuleData: [],
-    subModulesMasterId: 0,
-  );
 }
 
 UserModel? getUser() {
@@ -68,8 +62,6 @@ UserModel? getUser() {
   return UserModel.fromJson(jsonDecode(userString));
 }
 
-/// Reusable menu list content for Drawer or full Menu screen.
-/// [onNavigate] is called before navigation (e.g. to close the drawer).
 class MenuDrawerContent extends StatefulWidget {
   final VoidCallback? onNavigate;
 
@@ -80,42 +72,105 @@ class MenuDrawerContent extends StatefulWidget {
 }
 
 class _MenuDrawerContentState extends State<MenuDrawerContent> {
+  String _currentPathForBuild = '';
+
+  late final ScrollController _scrollController;
+
+  static double _cachedScrollOffset = 0.0;
+
+  bool _navigationInProgress = false;
+
   @override
   void initState() {
     super.initState();
+    final storedOffset = LocalStorageManager().getString(
+      StorageKey.menuDrawerScrollOffset,
+    );
+    final initialOffset =
+        _cachedScrollOffset > 0
+            ? _cachedScrollOffset
+            : (double.tryParse(storedOffset ?? '') ?? 0.0);
+    _scrollController = ScrollController(initialScrollOffset: initialOffset);
+    _scrollController.addListener(() {
+      _cachedScrollOffset = _scrollController.offset;
+    });
     goRouter.routerDelegate.addListener(_onRouteChanged);
   }
 
   @override
   void dispose() {
     goRouter.routerDelegate.removeListener(_onRouteChanged);
+    // Persist last known offset (helps if widget gets recreated).
+    LocalStorageManager().setString(
+      StorageKey.menuDrawerScrollOffset,
+      _scrollController.hasClients
+          ? _scrollController.offset.toStringAsFixed(1)
+          : '0.0',
+    );
+    _scrollController.dispose();
     super.dispose();
   }
 
   void _onRouteChanged() {
     if (mounted) {
-      final config = goRouter.routerDelegate.currentConfiguration;
-      if (config.isNotEmpty) {
-        final currentPath = config.uri.path;
-        if (currentPath != '/menu') {
-          LocalStorageManager().setString(
-            StorageKey.lastActiveRoute,
-            currentPath,
-          );
-        }
-      }
+      _navigationInProgress = false;
+      _saveCurrentPathToStorage();
       setState(() {});
     }
   }
 
-  void _onItemTap() {
-    widget.onNavigate?.call();
-    // Close drawer if we're inside one (e.g. main screen side drawer)
+  // Persist current route so when drawer opens we know what to highlight/expand.
+  void _saveCurrentPathToStorage() {
     try {
-      Scaffold.maybeOf(context)?.closeDrawer();
+      final config = goRouter.routerDelegate.currentConfiguration;
+      if (config.isNotEmpty) {
+        final path = config.uri.path;
+        if (path.isNotEmpty && path != '/menu') {
+          LocalStorageManager().setString(StorageKey.lastActiveRoute, path);
+        }
+      }
     } catch (_) {}
-    CustomOverlayMenu.close();
-    SortOverlayMenu.close();
+  }
+
+  Future<void> _onItemTap({String? navigateToPath}) async {
+    if (_navigationInProgress) return;
+    _navigationInProgress = true;
+    // Persist current scroll position so reopening drawer feels seamless.
+    final offset =
+        _scrollController.hasClients ? _scrollController.offset : 0.0;
+    _cachedScrollOffset = offset;
+    try {
+      await LocalStorageManager().setString(
+        StorageKey.menuDrawerScrollOffset,
+        offset.toStringAsFixed(1),
+      );
+      if (navigateToPath != null && navigateToPath.isNotEmpty) {
+        await LocalStorageManager().setString(
+          StorageKey.lastActiveRoute,
+          navigateToPath.startsWith('/') ? navigateToPath : '/$navigateToPath',
+        );
+      }
+      widget.onNavigate?.call();
+      try {
+        if (mounted) {
+          Scaffold.maybeOf(context)?.closeDrawer();
+        }
+      } catch (_) {}
+      CustomOverlayMenu.close();
+      SortOverlayMenu.close();
+
+      // Navigate once (avoid stacking pages + duplicated keys).
+      if (navigateToPath != null && navigateToPath.isNotEmpty) {
+        final location =
+            navigateToPath.startsWith('/')
+                ? navigateToPath
+                : '/$navigateToPath';
+        goRouter.go(location);
+      }
+    } catch (_) {
+      // If anything fails pre-navigation, allow retry.
+      _navigationInProgress = false;
+    }
   }
 
   @override
@@ -127,7 +182,17 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
       return const Center(child: Text("No user found"));
     }
 
+    // Always use latest path when building (router or stored when drawer opens)
+    _currentPathForBuild = _getCurrentPath(context);
+    if (_currentPathForBuild.isNotEmpty) {
+      LocalStorageManager().setString(
+        StorageKey.lastActiveRoute,
+        _currentPathForBuild,
+      );
+    }
+
     return SingleChildScrollView(
+      controller: _scrollController,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -141,21 +206,56 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
 
   Widget _buildModuleTile(BuildContext context, ModuleModel menu) {
     if (menu.subModuleData.isEmpty) {
+      final isDashboard = menu.moduleName.trim().toLowerCase() == 'dashboard';
+      final isDashboardActive = _isRouteActive(
+        _currentPathForBuild,
+        AppRoutes.dashboardScreen,
+      );
+
       return CustomModuleTile(
+        key: ValueKey('module-${menu.moduleName}'),
         title: menu.moduleName,
         imagePath: menu.icon,
         isExpanded: false,
+        isActive: isDashboardActive,
+        onTapCallback:
+            isDashboard
+                ? () async {
+                  await _onItemTap(navigateToPath: AppRoutes.dashboardScreen);
+                }
+                : null,
       );
     }
+
+    final isRedevelopment =
+        menu.moduleName.trim().toLowerCase() == 'redevelopment';
 
     bool isCurrentModuleActive = menu.subModuleData.any(
       (sub) => _isActiveModule(sub),
     );
-    return CustomModuleTile(
+    if (isRedevelopment) {
+      isCurrentModuleActive =
+          isCurrentModuleActive ||
+          _isRouteActive(
+            _currentPathForBuild,
+            AppRoutes.redevelopmentDashboard,
+          );
+    }
+
+    final tile = CustomModuleTile(
+      key: ValueKey('module-${menu.moduleName}-$isCurrentModuleActive'),
       title: menu.moduleName,
       imagePath: menu.icon,
       isActive: isCurrentModuleActive,
       isExpanded: isCurrentModuleActive,
+      onTapCallback:
+          isRedevelopment
+              ? () async {
+                await _onItemTap(
+                  navigateToPath: AppRoutes.redevelopmentDashboard,
+                );
+              }
+              : null,
       items:
           menu.subModuleData
               .mapIndexed(
@@ -166,35 +266,27 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
               )
               .toList(),
     );
+    return tile;
   }
 
-  String _getCurrentPath() {
+  String _getCurrentPath(BuildContext context) {
+    try {
+      final state = GoRouterState.of(context);
+      if (state.uri.path.isNotEmpty && state.uri.path != '/menu') {
+        return state.uri.path;
+      }
+    } catch (_) {}
+
     try {
       final config = goRouter.routerDelegate.currentConfiguration;
       if (config.isNotEmpty) {
-        final uri = config.uri;
-        String currentPath = uri.path;
-
-        if (currentPath == '/menu') {
-          final lastRoute = LocalStorageManager().getString(
-            StorageKey.lastActiveRoute,
-          );
-          if (lastRoute != null && lastRoute.isNotEmpty) {
-            return lastRoute;
-          }
-        } else {
-          LocalStorageManager().setString(
-            StorageKey.lastActiveRoute,
-            currentPath,
-          );
-        }
-
-        return currentPath;
+        final path = config.uri.path;
+        if (path.isNotEmpty && path != '/menu') return path;
       }
-    } catch (e) {
-      // Error getting current path
-    }
-    return '';
+    } catch (_) {}
+
+    final stored = LocalStorageManager().getString(StorageKey.lastActiveRoute);
+    return stored ?? '';
   }
 
   Widget _buildSubModuleTile(
@@ -202,16 +294,16 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
     SubModuleModel sub, {
     bool isLast = false,
   }) {
-    final currentPath = _getCurrentPath();
+    final currentPath = _currentPathForBuild;
     final isActive = _isRouteActive(currentPath, sub.path);
 
     if (sub.subSubModuleData.isEmpty) {
       return CustomSubModuleTile(
+        key: ValueKey('sub-${sub.subModulesMasterId}-$isActive'),
         title: sub.subModuleName,
         imagePath: sub.icon,
-        onTapCallback: () {
-          _onItemTap();
-          goRouter.pushNamed(sub.path);
+        onTapCallback: () async {
+          await _onItemTap(navigateToPath: sub.path);
         },
         isExpanded: false,
         isLast: isLast,
@@ -223,6 +315,7 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
       (subSub) => _isRouteActive(currentPath, subSub.path),
     );
     return CustomSubModuleTile(
+      key: ValueKey('sub-${sub.subModulesMasterId}-$isCurrentSubmoduleActive'),
       title: sub.subModuleName,
       imagePath: sub.icon,
       isActive: isCurrentSubmoduleActive,
@@ -245,15 +338,14 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
     SubSubModuleModel subSub, {
     bool isLast = false,
   }) {
-    final currentPath = _getCurrentPath();
+    final currentPath = _currentPathForBuild;
     final isActive = _isRouteActive(currentPath, subSub.path);
 
     return CustomSubSubModuleTile(
       title: subSub.subSubModuleName,
       iconData: subSub.icon,
-      onTapFunction: () {
-        _onItemTap();
-        goRouter.pushNamed(subSub.path);
+      onTapFunction: () async {
+        await _onItemTap(navigateToPath: subSub.path);
       },
       isLast: isLast,
       isActive: isActive,
@@ -261,7 +353,7 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
   }
 
   bool _isActiveModule(SubModuleModel sub) {
-    final currentPath = _getCurrentPath();
+    final currentPath = _currentPathForBuild;
     return _isRouteActive(currentPath, sub.path) ||
         sub.subSubModuleData.any(
           (subSub) => _isRouteActive(currentPath, subSub.path),
@@ -269,6 +361,10 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
   }
 
   bool _isRouteActive(String currentPath, String routePath) {
-    return currentPath == routePath;
+    final normalizedCurrent =
+        currentPath.startsWith('/') ? currentPath : '/$currentPath';
+    final normalizedRoute =
+        routePath.startsWith('/') ? routePath : '/$routePath';
+    return normalizedCurrent == normalizedRoute;
   }
 }

@@ -176,7 +176,7 @@ class _ContentFolderScreenState extends State<ContentFolderScreen> {
               return loader();
             }
             if (state.marketingContentFolderList.isEmpty) {
-              return noDataWidget();
+              return Center(child: noDataWidget());
             }
             return ListView.builder(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),

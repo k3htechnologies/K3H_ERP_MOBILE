@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
@@ -247,11 +246,6 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
   @override
   Widget build(BuildContext context) {
     isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final currentPath = GoRouterState.of(context).uri.toString();
-
-    final rootScreens = [AppRoutes.dashboardScreen, AppRoutes.profile];
-    final isRootScreen = rootScreens.contains(currentPath);
-    final showMenuIcon = isRootScreen;
 
     return AppBar(
       automaticallyImplyLeading: false,
@@ -264,18 +258,10 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
         children: [
           InkWell(
             onTap: () {
-              if (showMenuIcon) {
-                mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
-              } else {
-                if (goRouter.canPop()) {
-                  goRouter.pop();
-                } else {
-                  mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
-                }
-              }
+              mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
             },
             child: Icon(
-              showMenuIcon ? Icons.menu : Icons.arrow_back,
+              Icons.menu,
               color: isDarkMode ? AppColor.white : AppColor.black,
             ),
           ),

@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
+import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -25,6 +26,7 @@ class CustomAppBarWithBackButton extends StatefulWidget
   final String screenTitle;
   final AuthorizationModel authorization;
   final bool showNotification;
+  final bool isMenuButton;
   final Function? onAddCallback;
   final Function(String)? onExportCallback;
   final Function(ProjectModel)? onProjectChangeCallback;
@@ -35,6 +37,7 @@ class CustomAppBarWithBackButton extends StatefulWidget
     required this.screenTitle,
     required this.authorization,
     this.showNotification = true,
+    this.isMenuButton = false,
     this.onAddCallback,
     this.onExportCallback,
     this.onProjectChangeCallback,
@@ -233,41 +236,58 @@ class _CustomAppBarWithBackButtonState
       centerTitle: false,
       leading: GestureDetector(
         onTap: () {
-          if (goRouter.canPop()) {
-            // Unfocus any focused text field before pop to avoid
-            // "system context menu can only be shown for an active text input connection"
-            FocusManager.instance.primaryFocus?.unfocus();
-            goRouter.pop();
+          if (widget.isMenuButton) {
+            mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
+          } else {
+            if (goRouter.canPop()) {
+              FocusManager.instance.primaryFocus?.unfocus();
+              goRouter.pop();
+            }
           }
         },
-        child: Icon(Icons.arrow_back),
+        child:
+            widget.isMenuButton
+                ? Icon(Icons.menu)
+                : Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.fromLTRB(10, 6, 6, 6),
+                  margin: EdgeInsets.fromLTRB(16, 12, 10, 12),
+                  decoration: BoxDecoration(
+                    color: AppColor.primary.withValues(alpha: .2),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    size: 14,
+                    color: AppColor.black,
+                  ),
+                ),
       ),
       title: Text(
         widget.screenTitle,
         style: AppTextStyle.ts16SB(color: AppColor.black),
       ),
       actions: [
-        if (widget.onProjectChangeCallback != null)
-         ...[
-           ValueListenableBuilder<List<ProjectModel>>(
-             valueListenable: _projectListNotifier,
-             builder: (context, projects, _) {
-               if (projects.isEmpty) return const SizedBox.shrink();
-               return CustomIconButton(
-                 onPressed: () {
-                   _showOverlayNotifier.value = true;
-                 },
-                 icon: const Icon(
-                   Icons.apartment_outlined,
-                   size: 16,
-                   color: AppColor.primary,
-                 ),
-                 backgroundColor: AppColor.lightBlue,
-               );
-             },
-           ),
-           horizontalSpacing()
-         ],
+        if (widget.onProjectChangeCallback != null) ...[
+          ValueListenableBuilder<List<ProjectModel>>(
+            valueListenable: _projectListNotifier,
+            builder: (context, projects, _) {
+              if (projects.isEmpty) return const SizedBox.shrink();
+              return CustomIconButton(
+                onPressed: () {
+                  _showOverlayNotifier.value = true;
+                },
+                icon: const Icon(
+                  Icons.apartment_outlined,
+                  size: 16,
+                  color: AppColor.primary,
+                ),
+                backgroundColor: AppColor.lightBlue,
+              );
+            },
+          ),
+          horizontalSpacing(),
+        ],
 
         if (widget.onFilterTap != null) ...[
           horizontalSpacing(),
