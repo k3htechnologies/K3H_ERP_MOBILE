@@ -7,7 +7,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 
 Widget buildBottomNavigationBar(BuildContext context) {
   final currentPath = GoRouterState.of(context).uri.toString();
-  
+
   return Container(
     decoration: BoxDecoration(
       color: AppColor.white,
@@ -32,13 +32,6 @@ Widget buildBottomNavigationBar(BuildContext context) {
               label: 'Home',
               route: AppRoutes.dashboardScreen,
               isActive: currentPath == AppRoutes.dashboardScreen,
-            ),
-            _buildNavItem(
-              context: context,
-              icon: Icons.menu,
-              label: 'Menu',
-              route: AppRoutes.menu,
-              isActive: currentPath == AppRoutes.menu,
             ),
             _buildNavItem(
               context: context,
@@ -81,9 +74,7 @@ Widget _buildNavItem({
                 child: Text(
                   label,
                   style: AppTextStyle.ts12R(
-                    color: isActive
-                        ? AppColor.primary
-                        : AppColor.grey,
+                    color: isActive ? AppColor.primary : AppColor.grey,
                   ),
                 ),
               ),
@@ -91,30 +82,30 @@ Widget _buildNavItem({
 
             // Icon (lift when selected)
             Transform.translate(
-              offset: isActive
-                  ? const Offset(0, -12) // 👈 lift ALL items
-                  : Offset.zero,
+              offset:
+                  isActive
+                      ? const Offset(0, -12) // 👈 lift ALL items
+                      : Offset.zero,
               child: Container(
                 padding: const EdgeInsets.all(10),
-                decoration: isActive
-                    ? BoxDecoration(
-                  color: AppColor.primary,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColor.primary.withValues(alpha: 0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                )
-                    : null,
+                decoration:
+                    isActive
+                        ? BoxDecoration(
+                          color: AppColor.primary,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColor.primary.withValues(alpha: 0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        )
+                        : null,
                 child: Icon(
                   icon,
                   size: 24,
-                  color: isActive
-                      ? AppColor.white
-                      : AppColor.grey,
+                  color: isActive ? AppColor.white : AppColor.grey,
                 ),
               ),
             ),
@@ -124,5 +115,3 @@ Widget _buildNavItem({
     ),
   );
 }
-
-

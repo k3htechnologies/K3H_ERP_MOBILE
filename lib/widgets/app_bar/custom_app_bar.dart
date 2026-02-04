@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
+import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
@@ -155,18 +156,25 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
   Future<void> _loadProjects() async {
     try {
       // First check if project list exists in storage
-      final projectListString = LocalStorageManager().getString(StorageKey.projectList);
-      
+      final projectListString = LocalStorageManager().getString(
+        StorageKey.projectList,
+      );
+
       if (projectListString != null && projectListString.isNotEmpty) {
         // Load from storage
         final List<dynamic> projectJsonList = jsonDecode(projectListString);
-        final List<ProjectModel> projects = projectJsonList
-            .map((json) => ProjectModel.fromJson(json as Map<String, dynamic>))
-            .toList();
+        final List<ProjectModel> projects =
+            projectJsonList
+                .map(
+                  (json) => ProjectModel.fromJson(json as Map<String, dynamic>),
+                )
+                .toList();
         _projectListNotifier.value = projects;
 
         // Load selected project
-        final storedJson = LocalStorageManager().getString(StorageKey.selectedProject);
+        final storedJson = LocalStorageManager().getString(
+          StorageKey.selectedProject,
+        );
         if (storedJson != null && storedJson.isNotEmpty) {
           final storedProject = ProjectModel.fromJson(jsonDecode(storedJson));
           if (projects.any((p) => p.projectId == storedProject.projectId)) {
@@ -241,11 +249,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
     isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final currentPath = GoRouterState.of(context).uri.toString();
 
-    final rootScreens = [
-      AppRoutes.dashboardScreen,
-      AppRoutes.menu,
-      AppRoutes.profile,
-    ];
+    final rootScreens = [AppRoutes.dashboardScreen, AppRoutes.profile];
     final isRootScreen = rootScreens.contains(currentPath);
     final showMenuIcon = isRootScreen;
 
@@ -261,14 +265,12 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
           InkWell(
             onTap: () {
               if (showMenuIcon) {
-                if (currentPath != AppRoutes.menu) {
-                  goRouter.pushNamed(AppRoutes.menu);
-                }
+                mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
               } else {
                 if (goRouter.canPop()) {
                   goRouter.pop();
                 } else {
-                  goRouter.goNamed(AppRoutes.menu);
+                  mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
                 }
               }
             },
@@ -340,65 +342,64 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                         onFilterTap: widget.onFilterTap,
                       ),
                     ),
-                   Row(
-                      spacing: 10,
-                      children: [
-                        if(widget.secondaryBuilder != null)
-                            widget.secondaryBuilder!(context),
-                        if (widget.authorization.isAction && widget.onAddCallback != null)
-
-                            CustomIconButton(
-                            onPressed: () => widget.onAddCallback!(),
-                            icon: const Icon(
-                              Icons.add,
-                              size: 16,
-                              color: AppColor.darkGreen,
-                            ),
-                            backgroundColor: AppColor.lightGreen,
+                  Row(
+                    spacing: 10,
+                    children: [
+                      if (widget.secondaryBuilder != null)
+                        widget.secondaryBuilder!(context),
+                      if (widget.authorization.isAction &&
+                          widget.onAddCallback != null)
+                        CustomIconButton(
+                          onPressed: () => widget.onAddCallback!(),
+                          icon: const Icon(
+                            Icons.add,
+                            size: 16,
+                            color: AppColor.darkGreen,
                           ),
+                          backgroundColor: AppColor.lightGreen,
+                        ),
 
-                        if (widget.authorization.isAction &&
-                            widget.onExportCallback != null)
-                          CustomIconButton(
-                            onPressed: () {
-                              final box =
-                                  context.findRenderObject() as RenderBox;
-                              final position = box.localToGlobal(Offset.zero);
-                              CustomOverlayMenu.show(
-                                width: 180,
-                                context: context,
-                                position: Offset(
-                                  position.dx + 10,
-                                  position.dy + (145 + widget.extraHeight),
+                      if (widget.authorization.isAction &&
+                          widget.onExportCallback != null)
+                        CustomIconButton(
+                          onPressed: () {
+                            final box = context.findRenderObject() as RenderBox;
+                            final position = box.localToGlobal(Offset.zero);
+                            CustomOverlayMenu.show(
+                              width: 180,
+                              context: context,
+                              position: Offset(
+                                position.dx + 10,
+                                position.dy + (145 + widget.extraHeight),
+                              ),
+                              items: [
+                                AddImportExportOverlayMenuItem(
+                                  icon: Icons.file_download_outlined,
+                                  label: 'Export Excel',
+                                  value: 'EXCEL',
+                                  onTap: widget.onExportCallback!,
+                                  iconColor: AppColor.primary,
                                 ),
-                                items: [
-                                  AddImportExportOverlayMenuItem(
-                                    icon: Icons.file_download_outlined,
-                                    label: 'Export Excel',
-                                    value: 'EXCEL',
-                                    onTap: widget.onExportCallback!,
-                                    iconColor: AppColor.primary,
-                                  ),
-                                  AddImportExportOverlayMenuItem(
-                                    icon: Icons.file_download_outlined,
-                                    label: 'Export PDF',
-                                    value: 'PDF',
-                                    onTap: widget.onExportCallback!,
-                                    iconColor: AppColor.primary,
-                                  ),
-                                ],
-                              );
-                            },
-                            icon: Icon(
-                              Icons.file_download,
-                              size: 16,
-                              color: AppColor.primary,
-                            ),
-                            backgroundColor: AppColor.lightBlue,
+                                AddImportExportOverlayMenuItem(
+                                  icon: Icons.file_download_outlined,
+                                  label: 'Export PDF',
+                                  value: 'PDF',
+                                  onTap: widget.onExportCallback!,
+                                  iconColor: AppColor.primary,
+                                ),
+                              ],
+                            );
+                          },
+                          icon: Icon(
+                            Icons.file_download,
+                            size: 16,
+                            color: AppColor.primary,
                           ),
-                        //FOR NEW WIDGET WHICH IS NEXT TO SEARCH BAR
-                      ],
-                    ),
+                          backgroundColor: AppColor.lightBlue,
+                        ),
+                      //FOR NEW WIDGET WHICH IS NEXT TO SEARCH BAR
+                    ],
+                  ),
                 ],
               ),
             ],

@@ -10,6 +10,8 @@ class RedevelopmentDashboardScreen extends StatefulWidget {
 class _RedevelopmentDashboardScreenState extends State<RedevelopmentDashboardScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      body: Center(child: Text("Jay Shree Ram!!!"),),
+    );
   }
 }

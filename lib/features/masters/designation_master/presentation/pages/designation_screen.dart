@@ -400,6 +400,28 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                             ),
                           ],
                         ),
+                        Spacer(),
+                        Row(
+                          children: [
+                            Text(
+                              "Prohibition  Period: ",
+                              style: AppTextStyle.ts12R(color: AppColor.grey),
+                            ),
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 6),
+                              decoration: BoxDecoration(
+                                color: AppColor.purple.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                designation.probationPeriod.toString(),
+                                style: AppTextStyle.ts14R(
+                                  color: AppColor.purple,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ],

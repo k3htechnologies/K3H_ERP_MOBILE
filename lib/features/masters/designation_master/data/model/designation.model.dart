@@ -5,6 +5,7 @@ class DesignationMasterModel {
   String uniquekey;
   String designationName;
   int noticePeriod;
+  int probationPeriod;
   int numberOfEmployee;
   int createdById;
   String createdBy;
@@ -19,6 +20,7 @@ class DesignationMasterModel {
     required this.uniquekey,
     required this.designationName,
     required this.noticePeriod,
+    required this.probationPeriod,
     required this.numberOfEmployee,
     required this.createdById,
     required this.createdBy,
@@ -35,6 +37,7 @@ class DesignationMasterModel {
         uniquekey: parseValue<String>(json, "Uniquekey"),
         designationName: parseValue<String>(json, "DesignationName"),
         noticePeriod: parseValue<int>(json, "NoticePeriod"),
+        probationPeriod: parseValue<int>(json, "ProbationPeriod"),
         numberOfEmployee: parseValue<int>(json, "NumberOfEmployee"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
@@ -53,6 +56,7 @@ class DesignationMasterModel {
     "Uniquekey": uniquekey,
     "DesignationName": designationName,
     "NoticePeriod": noticePeriod,
+    "ProbationPeriod": probationPeriod,
     "NumberOfEmployee": numberOfEmployee,
     "CreatedById": createdById,
     "CreatedBy": createdBy,

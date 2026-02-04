@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/widget/project_selector_overlay.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
@@ -18,10 +19,9 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-
   // PROJECT MASTER REPOSITORY
   final ProjectMasterRepository _projectMasterRepository =
-  serviceLocator<ProjectMasterRepository>();
+      serviceLocator<ProjectMasterRepository>();
 
   final ValueNotifier<List<ProjectModel>> _projectListNotifier = ValueNotifier(
     [],
@@ -47,7 +47,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     await _fetchProjects(1);
     final projects = _projectListNotifier.value;
     ProjectModel? storedProject;
-    final storedJson = LocalStorageManager().getString(StorageKey.selectedProject);
+    final storedJson = LocalStorageManager().getString(
+      StorageKey.selectedProject,
+    );
     if (storedJson != null && storedJson.isNotEmpty) {
       storedProject = ProjectModel.fromJson(jsonDecode(storedJson));
     }
@@ -65,9 +67,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // FETCH PROJECTS
   Future<Map<String, dynamic>> _fetchProjects(
-      int pageNumber, {
-        String? value,
-      }) async {
+    int pageNumber, {
+    String? value,
+  }) async {
     final userJson = jsonDecode(
       LocalStorageManager().getString(StorageKey.currentUser) ?? '',
     );
@@ -83,12 +85,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
 
     return result.fold(
-          (failure) {
+      (failure) {
         return {"itemList": <Map<String, dynamic>>[], "totalNumberOfRecord": 0};
       },
-          (response) {
+      (response) {
         final List<ProjectModel> projects =
-        (response['data'] as List<ProjectModel>);
+            (response['data'] as List<ProjectModel>);
         if (pageNumber == 1) {
           _projectListNotifier.value = projects;
         } else {
@@ -98,14 +100,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ];
         }
         final List<Map<String, dynamic>> itemList =
-        projects
-            .map(
-              (project) => {
-            'zAttributesId': project.projectId,
-            'DisplayName': project.projectName,
-          },
-        )
-            .toList();
+            projects
+                .map(
+                  (project) => {
+                    'zAttributesId': project.projectId,
+                    'DisplayName': project.projectName,
+                  },
+                )
+                .toList();
         return {
           "itemList": itemList,
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
@@ -119,7 +121,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: Text("Dashboard"),
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
+          },
+        ),
+        title: const Text("Dashboard"),
         actions: [
           ValueListenableBuilder<List<ProjectModel>>(
             valueListenable: _projectListNotifier,
@@ -163,6 +171,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       StorageKey.selectedProject,
       jsonEncode(project.toJson()),
     );
-    showSuccessMessage(context,subTitle: "Project Selected ${project.projectName}");
+    showSuccessMessage(
+      context,
+      subTitle: "Project Selected ${project.projectName}",
+    );
   }
 }
