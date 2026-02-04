@@ -84,6 +84,9 @@ dependencies:
   flutter_launcher_icons: ^0.14.4
   # DIO LOGGER
   pretty_dio_logger: ^1.4.0
+  # ANDROID CALL LOG (Android only)
+  call_log: ^6.0.1
+  permission_handler: ^11.3.1
 
 # DEV DEPENDENCIES
 dev_dependencies:
