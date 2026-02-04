@@ -54,6 +54,45 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
+  // DELETE LITIGATION
+  Future deleteLitigation(
+    int index,
+    LitigationModel litigationModel,
+    BuildContext context,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _litigationRepository.deleteLitigation(
+      litigationId: litigationModel.litigationId,
+      uniqueKey: litigationModel.uniquekey,
+      projectId: litigationModel.projectId,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+        return;
+      },
+      (success) {
+        final updatedList = List<LitigationModel>.from(state.litigationList);
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            litigationList: updatedList,
+            isLoading: false,
+            litigationTotalRecords:
+                state.litigationTotalRecords > 0
+                    ? state.litigationTotalRecords - 1
+                    : 0,
+          ),
+        );
+        showSuccessMessage(
+          context,
+          subTitle: "Litigation Deleted Successfully",
+        );
+      },
+    );
+  }
+
   Future addLitigation({
     required BuildContext context,
     required Map<String, dynamic> body,
@@ -83,25 +122,6 @@ class LitigationCubit extends Cubit<LitigationState> {
     required Map<String, dynamic> body,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
-    // final body = {
-    //   "LitigationId": litigationId,
-    //   "Uniquekey": uniqueKey,
-    //   "ProjectId": projectId,
-    //   "Title": title,
-    //   "CaseNumber": caseNumber,
-    //   "CaseType": caseType,
-    //   "DateOfFilling": dateOfFilling,
-    //   "CourtName": courtName,
-    //   "CourtLocation": courtLocation,
-    //   "CourtType": courtType,
-    //   "Plantiff": plantiff,
-    //   "Defendant": defendant,
-    //   "AssignedRepresentative": assignedRepresentative,
-    //   "OpposingRepresentative": opposingRepresentative,
-    //   "Remark": remark,
-    //   "CaseBrief": caseBrief,
-    // };
 
     final result = await _litigationRepository.addUpdateLitigation(body: body);
 
@@ -246,6 +266,19 @@ class LitigationCubit extends Cubit<LitigationState> {
         );
       },
     );
+  }
+
+  // SEARCH BASED ON LITIGATION TITLE
+  void searchLitigation(String value, BuildContext context) {
+    emit(
+      state.copyWith(
+        litigationList: [],
+        isLoading: true,
+        searchText: value,
+        litigationCurrentPage: 1,
+      ),
+    );
+    getLitigationList(context: context, pageNumber: 1);
   }
 
   /*

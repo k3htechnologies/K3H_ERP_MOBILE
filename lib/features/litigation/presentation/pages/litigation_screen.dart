@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/litigation/data/model/litigation.model.dart';
 import 'package:k3h_erp_app/features/litigation/presentation/cubit/litigation_cubit.dart';
 import 'package:k3h_erp_app/features/litigation/presentation/cubit/litigation_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -12,6 +13,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -74,14 +76,32 @@ class _LitigationScreenState extends State<LitigationScreen> {
     });
   }
 
+  Future<void> _showPopupToDeleteLitigation(
+    BuildContext context,
+    LitigationModel obj,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a Litigation?',
+      'Deleting this Litigation will permanently remove its contents.',
+    );
+    if (result && context.mounted) {
+      _litigationCubit.deleteLitigation(index, obj, context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
         screenTitle: "Litigation Master",
         authorization: _routeAuthorizationModel,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addLitigation);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addLitigation);
+          if (context.mounted) {
+            _litigationCubit.getLitigationList(context: context, pageNumber: 1);
+          }
         },
         textController: _searchC,
         onExportCallback: (value) {
@@ -91,7 +111,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
           _litigationCubit.getLitigationList(context: context, pageNumber: 1);
         },
         onSearchSubmit: (value) {
-          // _litigationCubit.searchShift(value, context);
+          _litigationCubit.searchLitigation(value, context);
         },
       ),
       body: BlocBuilder<LitigationCubit, LitigationState>(
@@ -162,7 +182,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
                           ),
                         ),
 
-                        if (!litigation.isDelete)
+                        if (litigation.isDelete)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -182,7 +202,15 @@ class _LitigationScreenState extends State<LitigationScreen> {
                                 },
                               ),
                               const SizedBox(width: 8),
-                              CustomIconButton.delete(onPressed: () {}),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteLitigation(
+                                    context,
+                                    litigation,
+                                    index,
+                                  );
+                                },
+                              ),
                             ],
                           ),
                       ],
@@ -195,6 +223,13 @@ class _LitigationScreenState extends State<LitigationScreen> {
                     buildRowTitleValue(
                       title: "Status",
                       value: litigation.status,
+                      valueTextStyle: AppTextStyle.ts14B(
+                        color:
+                            (litigation.status.toLowerCase() == 'open' ||
+                                    litigation.status.toLowerCase() == 'reopen')
+                                ? AppColor.green
+                                : AppColor.red,
+                      ),
                     ),
                     buildRowTitleValue(
                       title: "Case Type",
@@ -207,7 +242,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
                     buildRowTitleValue(
                       title: "Date Off Filling",
                       value: formatDateTimeAsDDMMMYYYY(
-                        litigation.dateOfFilling!,
+                        litigation.dateOfFilling,
                       ),
                     ),
                     buildRowTitleValue(

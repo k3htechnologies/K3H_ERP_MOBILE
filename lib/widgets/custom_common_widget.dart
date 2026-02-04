@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 Widget buildRowTitleValue({
   required String title,
   required String value,
+  TextStyle? valueTextStyle,
   Widget? customValueWidget,
 }) {
   return Padding(
@@ -37,7 +38,7 @@ Widget buildRowTitleValue({
                 value.isNotEmpty ? value : "-",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppTextStyle.ts14R(),
+                style: valueTextStyle ?? AppTextStyle.ts14R(),
               ),
         ),
       ],
@@ -50,6 +51,7 @@ Widget buildRowTitleValue({
 Widget buildColumnTitleValue({
   required String title,
   required String value,
+  TextStyle? valueTextStyle,
   Widget? customValueWidget,
 }) {
   return Expanded(
@@ -61,7 +63,8 @@ Widget buildColumnTitleValue({
         customValueWidget ??
             Text(
               value.isEmpty ? "-" : value,
-              style: AppTextStyle.ts14M(color: AppColor.black),
+              style:
+                  valueTextStyle ?? AppTextStyle.ts14M(color: AppColor.black),
             ),
       ],
     ),

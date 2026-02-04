@@ -11,6 +11,13 @@ abstract interface class LitigationDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Map<String, dynamic>> apicallDeleteLitigation({
+    required int litigationId,
+    required String uniqueKey,
+    required int projectId,
+  });
+
   Future<Map<String, dynamic>> apicallPullLitigationHearing({
     required int pageNumber,
     required int pageSize,
@@ -18,6 +25,7 @@ abstract interface class LitigationDatasource {
     required int litigationId,
     Map<String, dynamic>? queryParams,
   });
+
   Future<Map<String, dynamic>> apicallPullLitigationClosure({
     required int pageNumber,
     required int pageSize,
@@ -36,6 +44,7 @@ abstract interface class LitigationDatasource {
   Future<Map<String, dynamic>> apiCallAddUpdateLitigation({
     required Map<String, dynamic> body,
   });
+
   Future<Map<String, dynamic>> apicallPullDocument({
     required int pageNumber,
     required int pageSize,
@@ -81,6 +90,44 @@ class LitigationDatasourceImpl extends LitigationDatasource {
           queryParams: queryParams,
           pageNumber: pageNumber,
           pageSize: pageSize,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeleteLitigation({
+    required int litigationId,
+    required String uniqueKey,
+    required int projectId,
+  }) async {
+    String deleteChannelPartnerUrl({
+      required int litigationId,
+      required String uniqueKey,
+      required int projectId,
+    }) {
+      return "Litigation/DeleteLitigation?LitigationId=$litigationId&Uniquekey=$uniqueKey&ProjectId=$projectId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteChannelPartnerUrl(
+          litigationId: litigationId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallDeleteLitigation(
+          litigationId: litigationId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
         );
       }
       rethrow;

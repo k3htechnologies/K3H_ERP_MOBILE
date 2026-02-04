@@ -186,6 +186,14 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                       buildColumnTitleValue(
                         title: "Case Status",
                         value: litigation.status,
+                        valueTextStyle: AppTextStyle.ts14B(
+                          color:
+                              (litigation.status.toLowerCase() == 'open' ||
+                                      litigation.status.toLowerCase() ==
+                                          'reopen')
+                                  ? AppColor.green
+                                  : AppColor.red,
+                        ),
                       ),
                     ],
                   ),
@@ -220,18 +228,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: commonCardDecoration(),
-              child: Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text("Case Brief", style: AppTextStyle.ts16SB()),
-                  Text(litigation.caseBrief),
                 ],
               ),
             ),
@@ -469,7 +465,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
             final hearing = state.litigationDocumentList[index];
 
             return ListTile(
-              title: Text(hearing.documentName ?? "Hearing"),
+              title: Text(hearing.documentName),
               subtitle: Text(hearing.documentUrl.toString()),
             );
           },

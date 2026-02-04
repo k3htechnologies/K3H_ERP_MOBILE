@@ -59,7 +59,6 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
   late UserModel userModel;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _initializeTextEditingControllers();
     _resignationCubit = context.read<ResignationCubit>();

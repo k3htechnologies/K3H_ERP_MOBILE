@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -9,6 +8,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -31,7 +31,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
-  // TEXT CONTROLLERS
+  // CONTROLLERS
   late TextEditingController _caseTitleC,
       _caseNumberC,
       _caseBriefC,
@@ -46,6 +46,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
   DateTime? dateOfFilling;
 
   late Map<String, dynamic> selectedCaseType;
+  late Map<String, dynamic> selectedCourtType;
 
   final List<Map<String, dynamic>> caseTypeList = [
     {"zAttributesId": -1, "DisplayName": "Select Case Type"},
@@ -53,12 +54,23 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
     {"zAttributesId": 2, "DisplayName": "Civil"},
   ];
 
+  final List<Map<String, dynamic>> courtTypeList = [
+    {"zAttributesId": -1, "DisplayName": "Select Court Type"},
+    {"zAttributesId": 1, "DisplayName": "Civil Court"},
+    {"zAttributesId": 2, "DisplayName": "District Court"},
+    {"zAttributesId": 3, "DisplayName": "High Court"},
+    {"zAttributesId": 4, "DisplayName": "Session Court"},
+    {"zAttributesId": 4, "DisplayName": "Supreme Court"},
+  ];
+
   @override
   void initState() {
     super.initState();
     _litigationCubit = context.read<LitigationCubit>();
     _initControllers();
+
     selectedCaseType = caseTypeList.first;
+    selectedCourtType = courtTypeList.first;
 
     if (_isEditMode) {
       _populateForm(widget.litigationModel!);
@@ -96,32 +108,33 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
       (e) => e['DisplayName'] == model.caseType,
       orElse: () => caseTypeList.first,
     );
+
+    selectedCourtType = courtTypeList.firstWhere(
+      (e) => e['DisplayName'] == model.courtType,
+      orElse: () => courtTypeList.first,
+    );
   }
 
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
 
-    if (dateOfFilling == null) {
-      showErrorMessage(context, "Error", "Please select Date of Filing");
-      return;
-    }
-
     final payload = {
       if (_isEditMode) "Uniquekey": widget.litigationModel!.uniquekey,
       "LitigationId": _isEditMode ? widget.litigationModel!.litigationId : 0,
-      "projectId": getProject().projectId,
-      "title": _caseTitleC.text.trim(),
-      "caseNumber": _caseNumberC.text.trim(),
-      "caseType": selectedCaseType['DisplayName'],
-      "dateOfFilling": dateOfFilling!.toIso8601String(),
-      "courtName": _courtNameC.text.trim(),
-      "courtLocation": _courtLocationC.text.trim(),
-      "plantiff": _plantiffC.text.trim(),
-      "defendant": _defendantC.text.trim(),
-      "assignedRepresentative": _assignedRepC.text.trim(),
-      "opposingRepresentative": _opposingRepC.text.trim(),
-      "remark": _remarkC.text.trim(),
-      "caseBrief": _caseBriefC.text.trim(),
+      "ProjectId": getProject().projectId,
+      "Title": _caseTitleC.text.trim(),
+      "CaseNumber": _caseNumberC.text.trim(),
+      "CaseType": selectedCaseType['DisplayName'],
+      "CourtType": selectedCourtType['DisplayName'],
+      "DateOfFilling": dateOfFilling!.toIso8601String(),
+      "CourtName": _courtNameC.text.trim(),
+      "CourtLocation": _courtLocationC.text.trim(),
+      "Plantiff": _plantiffC.text.trim(),
+      "Defendant": _defendantC.text.trim(),
+      "AssignedRepresentative": _assignedRepC.text.trim(),
+      "OpposingRepresentative": _opposingRepC.text.trim(),
+      "Remark": _remarkC.text.trim(),
+      "CaseBrief": _caseBriefC.text.trim(),
     };
 
     if (_isEditMode) {
@@ -166,7 +179,14 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             children: [
               _caseDetailsCard(),
               verticalSpacing(height: 16),
+              _partyDetailsCard(),
+              verticalSpacing(height: 16),
               _caseBriefCard(),
+              verticalSpacing(height: 24),
+              CustomButton(
+                text: _isEditMode ? "Update" : "Submit",
+                onPressed: _submitForm,
+              ),
             ],
           ),
         ),
@@ -183,26 +203,140 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
         children: [
           Text("Case Details", style: AppTextStyle.ts14M(color: AppColor.grey)),
           verticalSpacing(),
+
           CustomTextField(
             title: "Case Title",
             hint: "Enter Case Title",
             textController: _caseTitleC,
+            isRequired: true,
+            validator: (v) => v!.isEmpty ? "Case Title is required" : null,
           ),
+
           CustomTextField(
             title: "Case Number",
             hint: "Enter Case Number",
+            isRequired: true,
             textController: _caseNumberC,
+            validator: (v) => v!.isEmpty ? "Case Number is required" : null,
           ),
+
           CustomDropDownWidget(
             title: "Case Type",
             initialValue: selectedCaseType,
+            isRequired: true,
             dataList: caseTypeList,
             onSelected: (v) => selectedCaseType = v,
+            validator: (value) {
+              if (value == null || value["zAttributesId"] == -1) {
+                return "Please select Case Type";
+              }
+              return null;
+            },
           ),
+
+          CustomDropDownWidget(
+            title: "Court Type",
+            initialValue: selectedCourtType,
+            dataList: courtTypeList,
+            isRequired: true,
+            onSelected: (v) => selectedCourtType = v,
+            validator: (value) {
+              if (value == null || value["zAttributesId"] == -1) {
+                return "Please select Court Type";
+              }
+              return null;
+            },
+          ),
+
+          CustomTextField(
+            title: "Court Name",
+            isRequired: true,
+            hint: "Enter Court Name",
+            textController: _courtNameC,
+            validator: (v) => v!.isEmpty ? "Court Name is required" : null,
+          ),
+
+          CustomTextField(
+            title: "Court Location",
+            isRequired: true,
+            hint: "Enter Court Location",
+            textController: _courtLocationC,
+            validator: (v) => v!.isEmpty ? "Court Location is required" : null,
+          ),
+
           CustomDatePicker(
             title: "Date Of Filing",
             initialDate: dateOfFilling,
+            isRequired: true,
             setValue: (v) => dateOfFilling = v,
+            validator: (value) {
+              if (value == null) {
+                return 'Date Of Filing is required';
+              }
+              return null;
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _partyDetailsCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Party Details",
+            style: AppTextStyle.ts14M(color: AppColor.grey),
+          ),
+          verticalSpacing(),
+
+          CustomTextField(
+            title: "Plantiff",
+            isRequired: true,
+            hint: "Enter Plantiff Name",
+            textController: _plantiffC,
+            validator: (v) => v!.isEmpty ? "Plantiff is required" : null,
+          ),
+
+          CustomTextField(
+            title: "Defendant",
+            isRequired: true,
+            hint: "Enter Defendant Name",
+            textController: _defendantC,
+            validator: (v) => v!.isEmpty ? "Defendant is required" : null,
+          ),
+
+          CustomTextField(
+            isRequired: true,
+            title: "Assigned Representative",
+            hint: "Enter Assigned Representative",
+            textController: _assignedRepC,
+            validator:
+                (v) =>
+                    v!.isEmpty ? "Assigned Representative is required" : null,
+          ),
+
+          CustomTextField(
+            isRequired: true,
+            title: "Opposing Representative",
+            hint: "Enter Opposing Representative",
+            textController: _opposingRepC,
+            validator:
+                (v) =>
+                    v!.isEmpty ? "Opposing Representative is required" : null,
+          ),
+
+          CustomTextField(
+            title: "Remark",
+            isRequired: true,
+            hint: "Enter Remark",
+            textController: _remarkC,
+            maxLines: 3,
+            validator: (v) => v!.isEmpty ? "Remark is required" : null,
           ),
         ],
       ),
@@ -218,12 +352,15 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
         children: [
           Text("Case Brief", style: AppTextStyle.ts14M(color: AppColor.grey)),
           verticalSpacing(),
+
           CustomTextField(
             title: "Add Case Brief",
             hint: "Enter Case Brief",
+            isRequired: true,
             textController: _caseBriefC,
             maxLines: 5,
             minLines: 5,
+            validator: (v) => v!.isEmpty ? "Case Brief is required" : null,
           ),
         ],
       ),

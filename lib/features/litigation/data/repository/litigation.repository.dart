@@ -11,6 +11,12 @@ abstract interface class LitigationRepository {
     Map<String, dynamic>? queryParams,
   });
 
+  Future<Either<Failure, Map<String, dynamic>>> deleteLitigation({
+    required int litigationId,
+    required String uniqueKey,
+    required int projectId,
+  });
+
   Future<Either<Failure, Map<String, dynamic>>> pullLitigationHearing({
     required int pageNumber,
     required int pageSize,
@@ -65,6 +71,24 @@ class LitigationRepositoryImpl extends LitigationRepository {
         pageSize: pageSize,
         projectId: projectId,
         queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteLitigation({
+    required int litigationId,
+    required String uniqueKey,
+    required int projectId,
+  }) async {
+    try {
+      var result = await litigationDatasource.apicallDeleteLitigation(
+        litigationId: litigationId,
+        uniqueKey: uniqueKey,
+        projectId: projectId,
       );
       return right(result);
     } catch (error) {
