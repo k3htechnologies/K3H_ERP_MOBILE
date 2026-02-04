@@ -230,6 +230,7 @@ import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/a
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_view_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/edit_building_details_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/dashboard/pages/redevelopment_dashboard_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_secondary_screen.dart';
@@ -1973,6 +1974,12 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
+        // REDEVELOPMENT DASHBOARD
+        GoRoute(
+          name: AppRoutes.redevelopmentDashboard,
+          path: AppRoutes.redevelopmentDashboard,
+          builder: (context, state) => const RedevelopmentDashboardScreen(),
+        ),
         // BUILDING
         GoRoute(
           name: AppRoutes.building,
@@ -2588,6 +2595,7 @@ final GoRouter goRouter = GoRouter(
             return BlocProvider(create: (_) => InventoryCubit(), child: child);
           },
           routes: [
+
             GoRoute(
               name: AppRoutes.inventory,
               path: AppRoutes.inventory,

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
@@ -32,8 +33,36 @@ List<ModuleModel> _getMenuList() {
     jsonDecode(menuString).map((menu) => ModuleModel.fromJson(menu)),
   );
   removeHiddenSubSubModules(menuList);
+
+  for (final module in menuList) {
+    final moduleName = module.moduleName.toLowerCase();
+
+    //  Redevelopment Dashboard
+    if (moduleName == "redevelopment") {
+      final exists = module.subModuleData.any(
+        (e) => e.subModuleName == "Re-Development Dashboard",
+      );
+
+      if (!exists) {
+        module.subModuleData.insert(0, _redevelopmentDashboardSubModule());
+      }
+    }
+  }
+
   return menuList;
 }
+
+// REDEVELOPMENT DASHBOARD
+SubModuleModel _redevelopmentDashboardSubModule() {
+  return SubModuleModel(
+    subModuleName: "Re-Development Dashboard",
+    path: AppRoutes.redevelopmentDashboard,
+    icon: "",
+    subSubModuleData: [],
+    subModulesMasterId: 0,
+  );
+}
+
 
 UserModel? _getUser() {
   String? userString = LocalStorageManager().getString(StorageKey.currentUser);
@@ -77,7 +106,10 @@ class _MenuScreenState extends State<MenuScreen> {
         final currentPath = config.uri.path;
         // Save the current route if it's not the menu route
         if (currentPath != '/menu') {
-          LocalStorageManager().setString(StorageKey.lastActiveRoute, currentPath);
+          LocalStorageManager().setString(
+            StorageKey.lastActiveRoute,
+            currentPath,
+          );
         }
       }
       setState(() {});
@@ -147,19 +179,24 @@ class _MenuScreenState extends State<MenuScreen> {
       if (config.isNotEmpty) {
         final uri = config.uri;
         String currentPath = uri.path;
-        
+
         // If we're on the menu screen (/menu), try to get the last active route
         // from storage (this is set when navigating away from menu)
         if (currentPath == '/menu') {
-          final lastRoute = LocalStorageManager().getString(StorageKey.lastActiveRoute);
+          final lastRoute = LocalStorageManager().getString(
+            StorageKey.lastActiveRoute,
+          );
           if (lastRoute != null && lastRoute.isNotEmpty) {
             return lastRoute;
           }
         } else {
           // Save the current route as the last active route (when not on menu)
-          LocalStorageManager().setString(StorageKey.lastActiveRoute, currentPath);
+          LocalStorageManager().setString(
+            StorageKey.lastActiveRoute,
+            currentPath,
+          );
         }
-        
+
         return currentPath;
       }
     } catch (e) {
@@ -175,7 +212,7 @@ class _MenuScreenState extends State<MenuScreen> {
   }) {
     final currentPath = _getCurrentPath();
     final isActive = _isRouteActive(currentPath, sub.path);
-    
+
     if (sub.subSubModuleData.isEmpty) {
       return CustomSubModuleTile(
         title: sub.subModuleName,
@@ -218,7 +255,7 @@ class _MenuScreenState extends State<MenuScreen> {
   }) {
     final currentPath = _getCurrentPath();
     final isActive = _isRouteActive(currentPath, subSub.path);
-    
+
     return CustomSubSubModuleTile(
       title: subSub.subSubModuleName,
       iconData: subSub.icon,
@@ -244,4 +281,3 @@ class _MenuScreenState extends State<MenuScreen> {
     return currentPath == routePath;
   }
 }
-

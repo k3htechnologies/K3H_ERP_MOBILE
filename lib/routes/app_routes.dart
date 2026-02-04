@@ -151,6 +151,7 @@ class AppRoutes {
   static String stockManagementHistory = "/stockHistory";
 
   // REDEVELOPMENT
+  static String redevelopmentDashboard = "/redevelopmentDashboard";
   static String building = "/building";
   static String addBuilding = "/addBuilding";
   static String editBuildingDetails = "/editBuildingDetails";
