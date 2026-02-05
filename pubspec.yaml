@@ -84,6 +84,12 @@ dependencies:
   flutter_launcher_icons: ^0.14.4
   # DIO LOGGER
   pretty_dio_logger: ^1.4.0
+  # ANDROID CALL STATE (telephony state only – no call log access)
+  call_state_listener: ^1.0.0
+  # Runtime permission for READ_PHONE_STATE (required to detect call start/end)
+  permission_handler: ^11.3.1
+  # BACKGROUND SCHEDULING (Android WorkManager)
+  workmanager: ^0.9.0+3
 
 # DEV DEPENDENCIES
 dev_dependencies:

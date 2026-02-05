@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:k3h_erp_app/core/services/app_call_tracker_service.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 enum ContactType { phone, email }
@@ -20,14 +25,34 @@ class CustomClickToContactText extends StatelessWidget {
     this.iconSize = 15,
   });
 
-  Future<void> launchContact() async {
+  Future<void> launchContact(BuildContext context) async {
     late final Uri uri;
 
     if (type == ContactType.phone) {
-      // tel: scheme
       uri = Uri(scheme: 'tel', path: value);
+      // Request READ_PHONE_STATE so we can detect call start/end (required on Android 6+)
+      if (Platform.isAndroid) {
+        final status = await Permission.phone.request();
+        if (status.isGranted) {
+          try {
+            serviceLocator<AppCallTrackerService>().setPendingCall(value);
+          } catch (_) {}
+        } else if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Phone permission is needed to show this call on Dashboard.',
+              ),
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+      } else {
+        try {
+          serviceLocator<AppCallTrackerService>().setPendingCall(value);
+        } catch (_) {}
+      }
     } else {
-      // mailto: scheme
       uri = Uri(scheme: 'mailto', path: value);
     }
 
@@ -44,7 +69,7 @@ class CustomClickToContactText extends StatelessWidget {
       return Text("-");
     }
     return InkWell(
-      onTap: launchContact,
+      onTap: () => launchContact(context),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
@@ -65,7 +90,7 @@ class CustomClickToContactText extends StatelessWidget {
                     decoration: TextDecoration.underline,
                     decorationColor: AppColor.mediumBlue,
                     decorationThickness: .8,
-                    height: 1.3
+                    height: 1.3,
                   ),
             ),
           ),

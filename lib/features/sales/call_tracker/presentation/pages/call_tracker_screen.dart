@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/sales/call_tracker/data/model/call_log.model.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_tracker_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -134,6 +135,13 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
         onSearchSubmit: (value) {
           if (_callTrackerCubit.state.currentTabIndex == 0) {
             _callTrackerCubit.searchCallingData(
+              context,
+              value,
+              _project.projectId,
+            );
+          }
+          if (_callTrackerCubit.state.currentTabIndex == 1) {
+            _callTrackerCubit.searchCallingLog(
               context,
               value,
               _project.projectId,
@@ -304,15 +312,178 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                   : const SizedBox.shrink();
             }
             final callLog = state.callLogList[index];
-            return Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(12),
-              decoration: commonCardDecoration(),
-              child: Text("hahahaaha"),
-            );
+            return  CallLogExpandableCard(callLog: callLog);
           },
         );
       },
+    );
+  }
+
+}
+
+
+class CallLogExpandableCard extends StatefulWidget {
+  final dynamic callLog;
+
+  const CallLogExpandableCard({super.key, required this.callLog});
+
+  @override
+  State<CallLogExpandableCard> createState() => _CallLogExpandableCardState();
+}
+
+class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
+  bool isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final callLog = widget.callLog;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: commonCardDecoration(),
+      child: Column(
+        children: [
+          _header(callLog),
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 250),
+            crossFadeState:
+            isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            firstChild: const SizedBox(),
+            secondChild: _expandedContent(callLog),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // HEADER
+  Widget _header(CallLogModel callLog) {
+    return InkWell(
+      onTap: () => setState(() => isExpanded = !isExpanded),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              callLog.receiverName,
+              style: AppTextStyle.ts14SB(),
+            ),
+          ),
+          _statusChip("Outgoing"),
+          const SizedBox(width: 6),
+          AnimatedRotation(
+            turns: isExpanded ? 0.5 : 0,
+            duration: const Duration(milliseconds: 300),
+            child: const Icon(Icons.keyboard_arrow_down),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // EXPANDED CONTENT
+  Widget _expandedContent(CallLogModel callLog) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Column(
+        spacing: 10,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(title: "Sales Executive Name", value: callLog.callerName),
+              buildColumnTitleValue(title: "Customer’s Phone No.", value: callLog.mobileNumber)
+            ],
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(title: "Call Date", value: formatDateTimeAsDDMMMYYYY(callLog.callDate)),
+              buildColumnTitleValue(title: "Duration", value: callLog.duration)
+            ],
+          ), Row(
+            children: [
+              buildColumnTitleValue(title: "Call Rescheduled Date", value: callLog.rescheduleDate!=null?formatDateTimeAsDDMMMYYYY(callLog.rescheduleDate!):"-"),
+            ],
+          ), Row(
+            children: [
+              buildColumnTitleValue(title: "Remark", value: callLog.remark)
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ROW
+  Widget _row(String title, String value, {IconData? trailingIcon}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppTextStyle.ts12R()),
+                const SizedBox(height: 4),
+                Text(value, style: AppTextStyle.ts14M()),
+              ],
+            ),
+          ),
+          if (trailingIcon != null)
+            Icon(trailingIcon, size: 18, color: AppColor.grey),
+        ],
+      ),
+    );
+  }
+
+  // STATUS CHIP
+  Widget _statusChip(String? type) {
+    late Color bg;
+    late Color text;
+    late IconData icon;
+    late String label;
+
+    switch (type) {
+      case "Outgoing":
+        bg = Colors.green.shade50;
+        text = Colors.green;
+        icon = Icons.call_made;
+        label = "Outgoing";
+        break;
+      case "Incoming":
+        bg = Colors.blue.shade50;
+        text = Colors.blue;
+        icon = Icons.call_received;
+        label = "Incoming";
+        break;
+      default:
+        bg = Colors.red.shade50;
+        text = Colors.red;
+        icon = Icons.call_missed;
+        label = "Missed";
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 14, color: text),
+          const SizedBox(width: 4),
+          Text(label, style: AppTextStyle.ts12SB(color: text)),
+        ],
+      ),
     );
   }
 }

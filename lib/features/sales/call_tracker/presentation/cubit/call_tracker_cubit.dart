@@ -31,6 +31,15 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     await getCallingDataList(context, 1, projectId);
   }
 
+  Future<void> searchCallingLog(
+    BuildContext context,
+    String searchText,
+    int projectId,
+  ) async {
+    emit(state.copyWith(searchText: searchText, callLogList: []));
+    await getCallLogList(context, 1, projectId);
+  }
+
   // <---- GET CALLING DATA LIST ---->
   Future getCallingDataList(
     BuildContext context,
@@ -77,11 +86,13 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
     int pageNumber,
     int projectId,
   ) async {
+    var queryParams = {"Name": state.searchText};
     emit(state.copyWith(isLoading: true));
     var result = await _callTrackerRepository.getCallLog(
       pageNumber: pageNumber,
       pageSize: 10,
       projectId: projectId,
+      queryParams: queryParams,
     );
 
     result.fold(
