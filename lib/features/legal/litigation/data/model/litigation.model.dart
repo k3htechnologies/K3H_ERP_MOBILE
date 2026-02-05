@@ -1,3 +1,4 @@
+import 'package:k3h_erp_app/features/legal/litigation/data/model/closure.model.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 
 class LitigationModel {
@@ -19,7 +20,7 @@ class LitigationModel {
   String opposingRepresentative;
   String remark;
   String caseBrief;
-  List<LitigationClosureDatum> litigationClosureData;
+  List<LitigationClosureModel> litigationClosureData;
   bool isDelete;
   int createdById;
   String createdBy;
@@ -85,9 +86,9 @@ class LitigationModel {
     litigationClosureData:
         json["LitigationClosureData"] == null
             ? []
-            : List<LitigationClosureDatum>.from(
+            : List<LitigationClosureModel>.from(
               json["LitigationClosureData"].map(
-                (x) => LitigationClosureDatum.fromJson(x),
+                (x) => LitigationClosureModel.fromJson(x),
               ),
             ),
     isDelete: parseValue<bool>(json, "IsDelete"),
@@ -138,72 +139,5 @@ class LitigationModel {
     "ModifiedDate": modifiedDate?.toIso8601String(),
     "HearingDate": hearingDate?.toIso8601String(),
     "ClosureDate": closureDate.toIso8601String(),
-  };
-}
-
-class LitigationClosureDatum {
-  int litigationClosureId;
-  String uniquekey;
-  DateTime closureDate;
-  String closureAttachementUrl;
-  String remark;
-  String conclusion;
-  int createdById;
-  String createdBy;
-  DateTime createdDate;
-  int modifiedById;
-  String modifiedBy;
-  DateTime? modifiedDate;
-
-  LitigationClosureDatum({
-    required this.litigationClosureId,
-    required this.uniquekey,
-    required this.closureDate,
-    required this.closureAttachementUrl,
-    required this.remark,
-    required this.conclusion,
-    required this.createdById,
-    required this.createdBy,
-    required this.createdDate,
-    required this.modifiedById,
-    required this.modifiedBy,
-    required this.modifiedDate,
-  });
-
-  factory LitigationClosureDatum.fromJson(Map<String, dynamic> json) =>
-      LitigationClosureDatum(
-        litigationClosureId: parseValue<int>(json, "LitigationClosureId"),
-        uniquekey: parseValue<String>(json, "Uniquekey"),
-        closureDate: parseValue<DateTime>(json, "ClosureDate"),
-        closureAttachementUrl: parseValue<String>(
-          json,
-          "ClosureAttachementUrl",
-        ),
-        remark: parseValue<String>(json, "Remark"),
-        conclusion: parseValue<String>(json, "Conclusion"),
-        createdById: parseValue<int>(json, "CreatedById"),
-        createdBy: parseValue<String>(json, "CreatedBy"),
-        createdDate: parseValue<DateTime>(json, "CreatedDate"),
-        modifiedById: parseValue<int>(json, "ModifiedById"),
-        modifiedBy: parseValue<String>(json, "ModifiedBy"),
-        modifiedDate:
-            json["ModifiedDate"] == null
-                ? null
-                : parseValue<DateTime>(json, "ModifiedDate"),
-      );
-
-  Map<String, dynamic> toJson() => {
-    "LitigationClosureId": litigationClosureId,
-    "Uniquekey": uniquekey,
-    "ClosureDate": closureDate.toIso8601String(),
-    "ClosureAttachementUrl": closureAttachementUrl,
-    "Remark": remark,
-    "Conclusion": conclusion,
-    "CreatedById": createdById,
-    "CreatedBy": createdBy,
-    "CreatedDate": createdDate.toIso8601String(),
-    "ModifiedById": modifiedById,
-    "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate?.toIso8601String(),
   };
 }

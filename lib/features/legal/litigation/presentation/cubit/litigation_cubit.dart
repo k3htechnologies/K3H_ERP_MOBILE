@@ -413,6 +413,146 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
+  Future addLitigationDocument({
+    required BuildContext context,
+    required Map<String, String> body,
+    required MultiFilePickerModel litigationDocument,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < litigationDocument.fileNameList.length; i++) {
+      if (litigationDocument.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "DocumentURL",
+        "value": litigationDocument.fileBytesList[i],
+        "fileName": litigationDocument.fileNameList[i],
+      });
+    }
+    final result = await _litigationRepository.addUpdateLitigationDocument(
+      body: body,
+      fileList: fileList,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        goRouter.pop();
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Litigation Document Added Successfully',
+        );
+      },
+    );
+  }
+
+  Future updateLitigationDocument({
+    required BuildContext context,
+    required int index,
+    required Map<String, String> body,
+    required MultiFilePickerModel litigationDocument,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < litigationDocument.fileNameList.length; i++) {
+      if (litigationDocument.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "DocumentURL",
+        "value": litigationDocument.fileBytesList[i],
+        "fileName": litigationDocument.fileNameList[i],
+      });
+    }
+    final result = await _litigationRepository.addUpdateLitigationDocument(
+      body: body,
+      fileList: fileList,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        goRouter.pop();
+
+        final updatedLitigationDocument = LitigationDocumentModel.fromJson(
+          response['data'][0] as Map<String, dynamic>,
+        );
+
+        if (state.litigationDocumentList.isNotEmpty &&
+            index < state.litigationDocumentList.length) {
+          final updatedList = List<LitigationDocumentModel>.from(
+            state.litigationDocumentList,
+          );
+
+          updatedList[index] = updatedLitigationDocument;
+
+          emit(
+            state.copyWith(
+              isLoading: false,
+              litigationDocumentList: updatedList,
+            ),
+          );
+        }
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Litigation Document Updated Successfully',
+        );
+      },
+    );
+  }
+
+  Future deleteLitigationDocument(
+    int index,
+    LitigationDocumentModel litigationDocModel,
+    BuildContext context,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _litigationRepository.deleteLitigationDocument(
+      litigationId: litigationDocModel.litigationId,
+      uniqueKey: litigationDocModel.uniquekey,
+      projectId: litigationDocModel.projectId,
+      litigationDocumentId: litigationDocModel.litigationDocumentId,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+        return;
+      },
+      (success) {
+        final updatedList = List<LitigationDocumentModel>.from(
+          state.litigationDocumentList,
+        );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            litigationDocumentList: updatedList,
+            isLoading: false,
+            documentTotalRecords:
+                state.documentTotalRecords > 0
+                    ? state.documentTotalRecords - 1
+                    : 0,
+          ),
+        );
+        showSuccessMessage(
+          context,
+          subTitle: "Litigation Document Deleted Successfully",
+        );
+      },
+    );
+  }
+
   // SEARCH BASED ON LITIGATION TITLE
   void searchLitigation(String value, BuildContext context) {
     emit(
@@ -449,7 +589,6 @@ class LitigationCubit extends Cubit<LitigationState> {
     clearDocumentData();
   }
 
-  /*
   Future<void> getLitigationClosureList({
     required BuildContext context,
     required int pageNumber,
@@ -482,13 +621,12 @@ class LitigationCubit extends Cubit<LitigationState> {
         emit(
           state.copyWith(
             isLoading: false,
-            currentPage: pageNumber,
+            // currentPage: pageNumber,
             litigationList: updatedList,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
+            // totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
         );
       },
     );
   }
-*/
 }

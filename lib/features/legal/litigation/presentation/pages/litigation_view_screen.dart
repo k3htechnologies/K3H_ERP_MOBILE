@@ -4,21 +4,27 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_document.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_cubit.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_state.dart';
+import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class LitigationViewScreen extends StatefulWidget {
@@ -39,27 +45,32 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   late ScrollController _hearingScrollController;
   late ScrollController _documentScrollController;
 
+  late TextEditingController _documentNameC;
+  // FILE PICKER VARIABLES
+  MultiFilePickerModel litigationDocument = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
   Timer? _debounce;
 
+  final _formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
 
     _litigationCubit = context.read<LitigationCubit>();
-
+    _documentNameC = TextEditingController();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_onTabChanged);
 
-    _hearingScrollController =
-        ScrollController()..addListener(_onHearingScroll);
-
-    _documentScrollController =
-        ScrollController()..addListener(_onDocumentScroll);
+    _onScroll();
 
     _litigationCubit.getLitigationList(context: context, pageNumber: 1);
   }
 
-  // 🔹 TAB CHANGE HANDLER
+  // TAB CHANGE HANDLER
   void _onTabChanged() {
     if (!_tabController.indexIsChanging) {
       _litigationCubit.changeTab(_tabController.index);
@@ -86,7 +97,15 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
   }
 
-  // 🔹 HEARING PAGINATION
+  void _onScroll() {
+    _hearingScrollController =
+        ScrollController()..addListener(_onHearingScroll);
+
+    _documentScrollController =
+        ScrollController()..addListener(_onDocumentScroll);
+  }
+
+  // HEARING PAGINATION
   void _onHearingScroll() {
     if (_hearingScrollController.position.pixels >=
             _hearingScrollController.position.maxScrollExtent - 100 &&
@@ -104,9 +123,22 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
   }
 
-  // 🔹 DOCUMENT PAGINATION (placeholder)
+  // DOCUMENT PAGINATION
   void _onDocumentScroll() {
-    // Add document pagination later
+    if (_documentScrollController.position.pixels >=
+            _documentScrollController.position.maxScrollExtent - 100 &&
+        !_litigationCubit.state.isLoading! &&
+        _litigationCubit.state.litigationDocumentList.length <
+            _litigationCubit.state.documentTotalRecords) {
+      _debounce?.cancel();
+      _debounce = Timer(const Duration(milliseconds: 300), () {
+        _litigationCubit.getLitigationDocumentList(
+          context: context,
+          pageNumber: _litigationCubit.state.documentCurrentPage + 1,
+          litigationId: widget.litigationModel.litigationId,
+        );
+      });
+    }
   }
 
   @override
@@ -358,7 +390,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     return BlocBuilder<LitigationCubit, LitigationState>(
       builder: (context, state) {
         if (state.isLoading! && state.litigationHearingList.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: loader());
         }
 
         if (state.litigationHearingList.isEmpty) {
@@ -446,9 +478,9 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                     if (index == state.litigationHearingList.length) {
                       return state.litigationHearingList.length <
                               state.hearingTotalRecords
-                          ? const Padding(
+                          ? Padding(
                             padding: EdgeInsets.all(16),
-                            child: Center(child: CircularProgressIndicator()),
+                            child: Center(child: loader()),
                           )
                           : const SizedBox.shrink();
                     }
@@ -562,36 +594,152 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     return BlocBuilder<LitigationCubit, LitigationState>(
       builder: (context, state) {
         if (state.isLoading! && state.litigationDocumentList.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: loader());
         }
 
         if (state.litigationDocumentList.isEmpty) {
           return noDataWidget();
         }
 
-        return ListView.builder(
-          controller: _documentScrollController,
-          itemCount: state.litigationDocumentList.length + 1,
-          itemBuilder: (context, index) {
-            if (index == state.litigationDocumentList.length) {
-              return state.litigationDocumentList.length <
-                      state.documentTotalRecords
-                  ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                  : const SizedBox.shrink();
-            }
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Uploaded Documents", style: AppTextStyle.ts16SB()),
 
-            final hearing = state.litigationDocumentList[index];
+                  CustomIconButton(
+                    onPressed: () async {
+                      await _showPopUpToAddUpdateDocument();
+                      if (context.mounted) {
+                        _litigationCubit.getLitigationDocumentList(
+                          context: context,
+                          pageNumber: 1,
+                          litigationId: widget.litigationModel.litigationId,
+                        );
+                      }
+                    },
+                    backgroundColor: AppColor.primary,
+                    icon: Icon(Icons.add, color: AppColor.white, size: 16),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: ListView.builder(
+                  controller: _documentScrollController,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  itemCount: state.litigationDocumentList.length + 1,
+                  itemBuilder: (context, index) {
+                    // pagination loader
+                    if (index == state.litigationDocumentList.length) {
+                      return state.litigationDocumentList.length <
+                              state.documentTotalRecords
+                          ? Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Center(child: loader()),
+                          )
+                          : const SizedBox.shrink();
+                    }
 
-            return ListTile(
-              title: Text(hearing.documentName),
-              subtitle: Text(hearing.documentUrl.toString()),
-            );
-          },
+                    final document = state.litigationDocumentList[index];
+
+                    return _buildContainer(
+                      litigationDocModel: document,
+                      index: index,
+                      onViewTab: () {
+                        if (document.documentUrl.isNotEmpty) {
+                          showFilePreviewDialog(
+                            context,
+                            document.documentUrl.split(","),
+                          );
+                        }
+                      },
+                      onDeleteTab: () {
+                        _showPopupToDeleteDocument(context, document, index);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         );
       },
+    );
+  }
+
+  // BUILD COMMON CONTAINER
+  Widget _buildContainer({
+    required LitigationDocumentModel litigationDocModel,
+    required int index,
+    required VoidCallback onViewTab,
+    required VoidCallback onDeleteTab,
+  }) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColor.white,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColor.black.withValues(alpha: 0.05),
+                  blurRadius: 2,
+                  spreadRadius: 0,
+                  offset: Offset(0, 2),
+                ),
+                BoxShadow(
+                  color: AppColor.black.withValues(alpha: 0.0),
+                  blurRadius: 0,
+                  spreadRadius: 0,
+                  offset: Offset(0, 2),
+                ),
+                BoxShadow(
+                  color: AppColor.black.withValues(alpha: 0.0),
+                  blurRadius: 0,
+                  spreadRadius: 0,
+                  offset: Offset(0, 0),
+                ),
+              ],
+              border: Border(bottom: BorderSide(color: AppColor.lightBlue)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Text(
+                    litigationDocModel.documentName,
+                    style: AppTextStyle.ts16M(color: AppColor.black),
+                  ),
+                ),
+                CustomIconButton(
+                  backgroundColor: AppColor.lightBlue,
+                  icon: Icon(
+                    Icons.remove_red_eye_outlined,
+                    size: 16,
+                    color: AppColor.primary,
+                  ),
+                  onPressed: onViewTab,
+                ),
+                horizontalSpacing(),
+                CustomIconButton.edit(
+                  onPressed: () async {
+                    _showPopUpToAddUpdateDocument(
+                      documentModel: litigationDocModel,
+                      index: index,
+                    );
+                  },
+                ),
+                horizontalSpacing(),
+                CustomIconButton.delete(onPressed: onDeleteTab),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -634,7 +782,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     );
   }
 
-  // DELETE DOCUMENT FROM CATEGORY
+  // DELETE HEARING
   Future<void> _showPopupToDeleteHearing(
     BuildContext context,
     LitigationHearingModel obj,
@@ -655,5 +803,144 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
         context,
       );
     }
+  }
+
+  Future<void> _showPopupToDeleteDocument(
+    BuildContext context,
+    LitigationDocumentModel obj,
+    // int page,
+    int index,
+  ) async {
+    final shouldDelete = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a litigation document?',
+      'Deleting this litigation document will permanently remove its contents.',
+    );
+
+    if (shouldDelete && context.mounted) {
+      _litigationCubit.deleteLitigationDocument(index, obj, context);
+    }
+  }
+
+  void _prefillDocumentDetails(LitigationDocumentModel documentModel) {
+    _documentNameC.text = documentModel.documentName;
+    litigationDocument.fileBytesList = [];
+    litigationDocument.deletedFileList = "";
+    litigationDocument.fileNameList =
+        documentModel.documentUrl
+            .split(",")
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
+  }
+
+  Future<void> _showPopUpToAddUpdateDocument({
+    LitigationDocumentModel? documentModel,
+    int? index,
+  }) async {
+    if (documentModel != null) {
+      _prefillDocumentDetails(documentModel);
+    }
+    await DialogHelper.showCustomBottomSheet(
+      context,
+      documentModel != null ? 'Update Document' : 'Add Document',
+      Form(
+        key: _formKey,
+        child: Padding(
+          padding: EdgeInsets.all(16),
+
+          child: Column(
+            children: [
+              CustomTextField(
+                title: "Document Name",
+                hint: "Enter Document Name",
+                textController: _documentNameC,
+                isRequired: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Document Name is required";
+                  }
+                  return null;
+                },
+              ),
+              // Spacer(),
+              CustomMultiFilePicker(
+                title: "Files",
+                initialFileList: litigationDocument.fileNameList,
+                onFilePickedCallback: (bytesList, fileNameList) {
+                  litigationDocument.fileNameList = fileNameList;
+                  litigationDocument.fileBytesList = bytesList;
+                },
+                isRequired: true,
+                onFileDeleteCallback: (fileBytesList, fileNameList, deleted) {
+                  litigationDocument.fileBytesList = fileBytesList;
+                  litigationDocument.fileNameList = fileNameList;
+                  litigationDocument.deletedFileList = deleted;
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Litigation Hearing Document is required";
+                  }
+                  return null;
+                },
+              ),
+              Spacer(),
+              Container(
+                height: 70,
+                padding: EdgeInsets.all(16),
+                child: CustomButton(
+                  text:
+                      documentModel != null
+                          ? "Update Document"
+                          : "Add Document",
+                  onPressed: () {
+                    _submitForm(documentModel: documentModel, index: index);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    _clearDialogueToAddUpdateDocument();
+  }
+
+  void _submitForm({LitigationDocumentModel? documentModel, int? index}) {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    var body = {
+      "LitigationDocumentId":
+          documentModel == null
+              ? 0.toString()
+              : documentModel.litigationDocumentId.toString(),
+      if (documentModel != null) "Uniquekey": documentModel.uniquekey,
+      "ProjectId": getProject().projectId.toString(),
+      "LitigationId": widget.litigationModel.litigationId.toString(),
+      "DocumentName": _documentNameC.text.trim(),
+    };
+    if (documentModel != null) {
+      //Update
+      _litigationCubit.updateLitigationDocument(
+        context: context,
+        index: index!,
+        body: body,
+        litigationDocument: litigationDocument,
+      );
+    } else {
+      _litigationCubit.addLitigationDocument(
+        context: context,
+        body: body,
+        litigationDocument: litigationDocument,
+      );
+    }
+  }
+
+  void _clearDialogueToAddUpdateDocument() {
+    _documentNameC.clear();
+    litigationDocument.fileBytesList.clear();
+    litigationDocument.fileNameList.clear();
+    litigationDocument.deletedFileList = "";
   }
 }

@@ -41,6 +41,7 @@ abstract interface class LitigationDatasource {
     required int projectId,
     required int litigationHearingId,
   });
+
   Future<Map<String, dynamic>> apicallPullLitigationClosure({
     required int pageNumber,
     required int pageSize,
@@ -63,6 +64,18 @@ abstract interface class LitigationDatasource {
     required int litigationId,
 
     Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> apiCallAddUpdateLitigationDocument({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+
+  Future<Map<String, dynamic>> apicallDeleteLitigationDocument({
+    required int litigationId,
+    required int litigationDocumentId,
+    required String uniqueKey,
+    required int projectId,
   });
 }
 
@@ -394,7 +407,10 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     Map<String, dynamic>? queryParams,
   }) async {
     String pullDocumentUrl({
+      required int pageNumber,
+      required int pageSize,
       required int projectId,
+      required int litigationId,
       Map<String, dynamic>? queryParams,
     }) {
       String url =
@@ -405,7 +421,13 @@ class LitigationDatasourceImpl extends LitigationDatasource {
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullDocumentUrl(projectId: projectId, queryParams: queryParams),
+        pullDocumentUrl(
+          projectId: projectId,
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          litigationId: litigationId,
+          queryParams: queryParams,
+        ),
       );
 
       return {
@@ -424,6 +446,77 @@ class LitigationDatasourceImpl extends LitigationDatasource {
           projectId: projectId,
           queryParams: queryParams,
           litigationId: litigationId,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  // ADD / UPDATE LITIGATION DOCUMENT
+  @override
+  Future<Map<String, dynamic>> apiCallAddUpdateLitigationDocument({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    String addUpdateLitigationUrl =
+        "LitigationDocument/AddUpdateLitigationDocument";
+
+    try {
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            addUpdateLitigationUrl,
+            fileList,
+            body,
+          );
+      return {
+        'data': networkResponse['data'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'message': networkResponse['message'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallAddUpdateLitigationDocument(body: body, fileList: fileList);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeleteLitigationDocument({
+    required int litigationId,
+    required int litigationDocumentId,
+    required String uniqueKey,
+    required int projectId,
+  }) async {
+    String deleteLitigationDocumentUrl({
+      required int litigationId,
+      required String uniqueKey,
+      required int litigationDocumentId,
+      required int projectId,
+    }) {
+      return "LitigationDocument/DeleteLitigationDocument?LitigationDocumentId=$litigationId&Uniquekey=$uniqueKey&ProjectId=$projectId&LitigationId=$litigationId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteLitigationDocumentUrl(
+          litigationId: litigationId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
+          litigationDocumentId: litigationDocumentId,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallDeleteLitigationDocument(
+          litigationId: litigationId,
+          litigationDocumentId: litigationDocumentId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
         );
       }
       rethrow;

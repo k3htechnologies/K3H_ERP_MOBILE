@@ -62,6 +62,18 @@ abstract interface class LitigationRepository {
     required int litigationId,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigationDocument({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> deleteLitigationDocument({
+    required int litigationId,
+    required String uniqueKey,
+    required int projectId,
+    required int litigationDocumentId,
+  });
 }
 
 class LitigationRepositoryImpl extends LitigationRepository {
@@ -238,6 +250,40 @@ class LitigationRepositoryImpl extends LitigationRepository {
         pageNumber: pageNumber,
         pageSize: pageSize,
         queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigationDocument({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      final result = await litigationDatasource
+          .apiCallAddUpdateLitigationDocument(body: body, fileList: fileList);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteLitigationDocument({
+    required int litigationId,
+    required String uniqueKey,
+    required int projectId,
+    required int litigationDocumentId,
+  }) async {
+    try {
+      var result = await litigationDatasource.apicallDeleteLitigationHearing(
+        litigationId: litigationId,
+        uniqueKey: uniqueKey,
+        projectId: projectId,
+        litigationHearingId: litigationDocumentId,
       );
       return right(result);
     } catch (error) {

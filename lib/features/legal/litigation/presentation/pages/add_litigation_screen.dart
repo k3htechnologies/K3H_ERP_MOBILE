@@ -25,10 +25,13 @@ class AddLitigationScreen extends StatefulWidget {
 }
 
 class _AddLitigationScreenState extends State<AddLitigationScreen> {
+  // CUBIT
   late LitigationCubit _litigationCubit;
 
+  // EDIT MODE
   bool get _isEditMode => widget.litigationModel != null;
 
+  // FORM VALIDATION
   final _formKey = GlobalKey<FormState>();
 
   // CONTROLLERS
@@ -43,8 +46,10 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
       _opposingRepC,
       _remarkC;
 
+  // DATE VARIABLE
   DateTime? dateOfFilling;
 
+  // DROPDOWN VARIABLE
   late Map<String, dynamic> selectedCaseType;
   late Map<String, dynamic> selectedCourtType;
 
