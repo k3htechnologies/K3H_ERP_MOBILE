@@ -84,6 +84,10 @@ dependencies:
   flutter_launcher_icons: ^0.14.4
   # DIO LOGGER
   pretty_dio_logger: ^1.4.0
+  # GEO LOCATOR
+  geolocator: ^14.0.2
+  # GEO CODING
+  geocoding: ^4.0.0
 
 # DEV DEPENDENCIES
 dev_dependencies:

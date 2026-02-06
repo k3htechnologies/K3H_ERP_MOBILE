@@ -11,7 +11,6 @@ class AppAssets {
   static const String salesImage = "$pngPath/sales.png";
   static const String noDataImage = "$pngPath/noData.png";
   static const String successLogo = "$pngPath/success.png";
-  static const String folderImage = "$pngPath/folderImage.png";
 
   //------------------------------------------
   // only used in mobile, desktop ui changed
@@ -75,6 +74,12 @@ class AppAssets {
   static const String addDocumentIcon = "$svgPath/addDocumentIcon.svg";
   static const String createRequestIcon = "$svgPath/createRequestIcon.svg";
   static const String approvedPersonIcon = "$svgPath/approvedPersonIcon.svg";
+  static const String projectIcon = "$svgPath/projectIcon.svg";
+  static const String dashboardNotificationIcon =
+      "$svgPath/dashboardNotificationIcon.svg";
+  static const String applyLeaveIcon = "$svgPath/applyLeaveIcon.svg";
+  static const String raiseTaskIcon = "$svgPath/raiseTaskIcon.svg";
+  static const String applyAdvanceIcon = "$svgPath/applyAdvanceIcon.svg";
 
   // COMMON
   static const String backIcon = "$svgPath/backButtonIcon.svg";
@@ -177,10 +182,13 @@ class AppAssets {
       "$sideDrawerIconsPath/activitySubSubmodule.svg";
 
   // REDEVELOPMENT
-  static const String buildingSubmodule = "$sideDrawerIconsPath/buildingSubmodule.svg";
-  static const String tenantSubmodule = "$sideDrawerIconsPath/tenantSubmodule.svg";
+  static const String buildingSubmodule =
+      "$sideDrawerIconsPath/buildingSubmodule.svg";
+  static const String tenantSubmodule =
+      "$sideDrawerIconsPath/tenantSubmodule.svg";
   static const String rentSubmodule = "$sideDrawerIconsPath/rentSubmodule.svg";
-  static const String proposedOfferSubmodule = "$sideDrawerIconsPath/proposedOfferSubmodule.svg";
+  static const String proposedOfferSubmodule =
+      "$sideDrawerIconsPath/proposedOfferSubmodule.svg";
 
   // -- SALES
   static const String otherCharges =
