@@ -303,3 +303,50 @@ String dateFormatterDDMMYYYYDAY(
 String dateFormatterHhMmAm(DateTime dateTime) {
   return DateFormat('hh:mma').format(dateTime).toLowerCase();
 }
+
+String dateFormatterDDMMYYYYDAY(
+  DateTime date, {
+  bool isDayNotRequired = false,
+}) {
+  try {
+    if (isDayNotRequired) {
+      return DateFormat('dd MMMM yyyy').format(date);
+    }
+    return DateFormat('dd MMMM yyyy, EEEE').format(date);
+  } catch (_) {
+    return '';
+  }
+}
+
+String formatDateToDayMonth(DateTime dt) {
+  Map<int, String> weekMap = {
+    1: "Mon",
+    2: "Tue",
+    3: "Wed",
+    4: "Thu",
+    5: "Fri",
+    6: "Sat",
+    7: "Sun",
+  };
+  Map<int, String> monthMap = {
+    1: "Jan",
+    2: "Feb",
+    3: "Mar",
+    4: "Apr",
+    5: "May",
+    6: "Jun",
+    7: "Jul",
+    8: "Aug",
+    9: "Sep",
+    10: "Oct",
+    11: "Nov",
+    12: "Dec",
+  };
+  String ans = "";
+  ans += weekMap[dt.weekday]!;
+  ans += ", ";
+  ans += dt.day.toString().padLeft(2, "0");
+  ans += " ";
+  ans += monthMap[dt.month]!;
+  return ans;
+}

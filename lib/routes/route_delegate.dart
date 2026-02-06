@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
+import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_inventory_specification_screen.dart';
@@ -425,7 +426,10 @@ final GoRouter goRouter = GoRouter(
           path: AppRoutes.dashboardScreen,
           name: AppRoutes.dashboardScreen,
           builder: (context, state) {
-            return const DashboardScreen();
+            return BlocProvider(
+              create: (_) => DashboardCubit(),
+              child: DashboardScreen(),
+            );
           },
         ),
         // COMPANY MASTER
