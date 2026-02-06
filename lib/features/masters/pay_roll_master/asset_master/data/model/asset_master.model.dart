@@ -14,6 +14,7 @@ class AssetMasterModel {
   double assetCost;
   String supplierName;
   String status;
+  String assetInvoiceURL;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -35,6 +36,7 @@ class AssetMasterModel {
     required this.assetCost,
     required this.supplierName,
     required this.status,
+    required this.assetInvoiceURL,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -61,6 +63,7 @@ class AssetMasterModel {
         assetCost: parseValue<double>(json, 'AssetCost'),
         supplierName: parseValue<String>(json, 'SupplierName'),
         status: parseValue<String>(json, 'Status'),
+        assetInvoiceURL: parseValue<String>(json, 'AssetInvoiceURL'),
         createdById: parseValue(json, 'CreatedById'),
         createdBy: parseValue<String>(json, 'CreatedBy'),
         createdDate: parseValue<DateTime>(json, 'CreatedDate'),
@@ -83,6 +86,7 @@ class AssetMasterModel {
     "AssetCost": assetCost,
     "SupplierName": supplierName,
     "Status": status,
+    "AssetInvoiceURL": assetInvoiceURL,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

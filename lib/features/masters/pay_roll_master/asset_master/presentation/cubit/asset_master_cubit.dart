@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/data/model/asset_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/data/repository/asset_master.repository.dart';
@@ -107,11 +108,12 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     required DateTime assetPurchaseDate,
     required String assetCost,
     DateTime? warrantyDate,
+    required MultiFilePickerModel assetInvoiceFile,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
     final body = {
-      "AssetMasterId": 0,
+      "AssetMasterId": "0",
       "AssetCode": assetCode,
       "AssetName": assetName,
       "AssetType": assetType,
@@ -125,7 +127,23 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
         "WarrantyExpiryDate": warrantyDate.toIso8601String(),
     };
 
-    final result = await assetMasterRepository.addUpdateAsset(body: body);
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < assetInvoiceFile.fileNameList.length; i++) {
+      if (assetInvoiceFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "AssetInvoiceURL",
+        "value": assetInvoiceFile.fileBytesList[i],
+        "fileName": assetInvoiceFile.fileNameList[i],
+      });
+    }
+
+    final result = await assetMasterRepository.addUpdateAsset(
+      body: body,
+      fileList: fileList,
+    );
 
     goRouter.pop();
 
@@ -156,11 +174,12 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     required DateTime assetPurchaseDate,
     required String assetCost,
     DateTime? warrantyDate,
+    required MultiFilePickerModel assetInvoiceFile,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
     final body = {
-      "AssetMasterId": assetMasterId,
+      "AssetMasterId": assetMasterId.toString(),
       "UniqueKey": uniqueKey,
       "AssetCode": assetCode,
       "AssetName": assetName,
@@ -170,12 +189,29 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
       "SerialNumber": serialNumber,
       "PurchaseDate": assetPurchaseDate.toIso8601String(),
       "AssetCost": assetCost,
+      "RemoveAssetInvoiceURL": assetInvoiceFile.deletedFileList,
       "SupplierName": supplierName,
       if (warrantyDate != null)
         "WarrantyExpiryDate": warrantyDate.toIso8601String(),
     };
 
-    final result = await assetMasterRepository.addUpdateAsset(body: body);
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < assetInvoiceFile.fileNameList.length; i++) {
+      if (assetInvoiceFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "AssetInvoiceURL",
+        "value": assetInvoiceFile.fileBytesList[i],
+        "fileName": assetInvoiceFile.fileNameList[i],
+      });
+    }
+
+    final result = await assetMasterRepository.addUpdateAsset(
+      body: body,
+      fileList: fileList,
+    );
 
     goRouter.pop();
 

@@ -10,7 +10,8 @@ abstract class AssetMasterDataSource {
   });
 
   Future<Map<String, dynamic>> apiCallAddUpdateAsset({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   });
 
   Future<Map<String, dynamic>> apiCallDeleteAsset({
@@ -72,14 +73,16 @@ class AssetMasterDataSourceImpl extends AssetMasterDataSource {
 
   @override
   Future<Map<String, dynamic>> apiCallAddUpdateAsset({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   }) async {
     String addUpdateAssetUrl = "AssetMaster/AddUpdateAssetMaster";
 
     try {
-      var networkResponse = await baseClient.postRequestWithAuthentication(
+      var networkResponse = await baseClient.multipartRequestWithAuthenticationBytes(
         addUpdateAssetUrl,
-        body,
+        fileList,
+        body
       );
 
       return {
@@ -88,7 +91,7 @@ class AssetMasterDataSourceImpl extends AssetMasterDataSource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apiCallAddUpdateAsset(body: body);
+        apiCallAddUpdateAsset(body: body,fileList: fileList);
       }
       rethrow;
     }

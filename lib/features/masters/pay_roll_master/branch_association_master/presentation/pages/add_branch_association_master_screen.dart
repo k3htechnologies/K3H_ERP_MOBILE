@@ -8,10 +8,12 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/presentation/cubit/branch_association_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/data/model/branch_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/data/repository/branch_master.repository.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 
 class AddBranchAssociationMasterScreen extends StatefulWidget {
@@ -43,9 +45,10 @@ class _AddBranchAssociationMasterScreenState
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
-  // DROPDOWN SELECTIONS
-  List<Map<String, dynamic>> _selectedEmployee = [];
-  List<Map<String, dynamic>> _selectedBranch = [];
+  // DROPDOWN SELECTIONS (ValueNotifier – no setState)
+  late final ValueNotifier<List<Map<String, dynamic>>>
+  _selectedEmployeeNotifier;
+  late final ValueNotifier<List<Map<String, dynamic>>> _selectedBranchNotifier;
 
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
@@ -58,24 +61,63 @@ class _AddBranchAssociationMasterScreenState
     _branchAssociationMasterCubit =
         context.read<BranchAssociationMasterCubit>();
     _routeAuthorizationModel = AuthorizationModel();
+    _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
+    _selectedBranchNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     if (_isEditMode && widget.branchAssociation != null) {
       _populateFormFields(widget.branchAssociation!);
     }
   }
 
+  @override
+  void dispose() {
+    _selectedEmployeeNotifier.dispose();
+    _selectedBranchNotifier.dispose();
+    super.dispose();
+  }
+
   void _populateFormFields(BranchAssociationModel branchAssociation) {
-    _selectedEmployee = [
+    _selectedEmployeeNotifier.value = [
       {
         'zAttributesId': branchAssociation.employeeId,
         'DisplayName': branchAssociation.employeeName,
       },
     ];
-    _selectedBranch = [
+    _selectedBranchNotifier.value = [
       {
         'zAttributesId': int.parse(branchAssociation.branchMasterId),
         'DisplayName': branchAssociation.branchName,
       },
     ];
+    // Fetch full employee details so the employee card shows department, designation, branch, etc.
+    _fetchEmployeeDetailsForEdit(branchAssociation.employeeId);
+  }
+
+  /// In edit mode, load full employee by id from Employee API and update selected employee.
+  Future<void> _fetchEmployeeDetailsForEdit(int employeeId) async {
+    final result = await _employeeMasterRepository.getEmployeeMasterList(
+      pageNumber: 1,
+      pageSize: 1,
+      queryParams: {'EmployeeId': employeeId},
+    );
+    result.fold((_) {}, (response) {
+      final employees = response['data'] as List<UserModel>? ?? [];
+      if (employees.isEmpty) return;
+      final employee = employees.first;
+      if (!mounted) return;
+      _selectedEmployeeNotifier.value = [
+        {
+          'zAttributesId': employee.employeeId,
+          'DisplayName': employee.fullName,
+          'employeeCode': employee.employeeCode,
+          'department': employee.department,
+          'designation': employee.designation,
+          'branch': employee.branch,
+          'reportingPerson': employee.reportPersonName,
+          'email': employee.emailId,
+          'personalNumber': employee.personalMobileNumber,
+        },
+      ];
+    });
   }
 
   Future<Map<String, dynamic>> _fetchEmployees(
@@ -103,6 +145,13 @@ class _AddBranchAssociationMasterScreenState
                 return {
                   "zAttributesId": employee.employeeId,
                   "DisplayName": employee.fullName,
+                  "employeeCode": employee.employeeCode,
+                  "department": employee.department,
+                  "designation": employee.designation,
+                  "branch": employee.branch,
+                  "reportingPerson": employee.reportPersonName,
+                  "email": employee.emailId,
+                  "personalNumber": employee.personalMobileNumber,
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
@@ -115,22 +164,36 @@ class _AddBranchAssociationMasterScreenState
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    final selectedEmployee = _selectedEmployeeNotifier.value;
+    final selectedBranch = _selectedBranchNotifier.value;
+    if (selectedEmployee.isEmpty) {
+      showErrorMessage(context, 'Error', 'Please select an employee');
+      return;
+    }
+    if (selectedBranch.isEmpty) {
+      showErrorMessage(context, 'Error', 'Please select a branch');
+      return;
+    }
+    final employeeId = selectedEmployee.first['zAttributesId'] as int;
+    final branchMasterId =
+        selectedBranch.first['zAttributesId'] is int
+            ? selectedBranch.first['zAttributesId'] as int
+            : int.parse(selectedBranch.first['zAttributesId'].toString());
+
     if (_isEditMode && widget.branchAssociation != null) {
       _branchAssociationMasterCubit.updateBranchAssociation(
         index: widget.index,
         context: context,
         branchAssociationsId: widget.branchAssociation!.branchAssociationsId,
-        employeeId: _selectedEmployee.first['zAttributesId'],
-        branchMasterId: int.parse(
-          _selectedBranch.first['zAttributesId'].toString(),
-        ),
+        employeeId: employeeId,
+        branchMasterId: branchMasterId,
         uniqueKey: widget.branchAssociation!.uniquekey,
       );
     } else {
       _branchAssociationMasterCubit.addBranchAssociation(
         context: context,
-        employeeId: _selectedEmployee.first['zAttributesId'],
-        branchMasterId: _selectedBranch.first['zAttributesId'],
+        employeeId: employeeId,
+        branchMasterId: branchMasterId,
       );
     }
   }
@@ -176,7 +239,7 @@ class _AddBranchAssociationMasterScreenState
         authorization: _routeAuthorizationModel,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         child: Form(
           key: _formKey,
           child: Column(
@@ -189,43 +252,24 @@ class _AddBranchAssociationMasterScreenState
                     : "Add Branch Association",
                 style: AppTextStyle.ts16SB(),
               ),
-              StatefulBuilder(
-                builder: (context, innerState) {
-                  return Container(
-                    padding: EdgeInsets.all(16),
-                    decoration: commonCardDecoration(),
-                    child: Column(
-                      spacing: 10,
-                      children: [
-                        CustomMultipleSelectPopup(
-                          title: 'Employee',
-                          isRequired: true,
-                          isMultiSelect: false,
-                          initialValue: _selectedEmployee,
-                          dataList: [],
-                          onSelected: (value) {
-                            innerState(() {
-                              _selectedEmployee = value;
-                            });
-                          },
-                          dataFetchCallBack: _fetchEmployees,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Employee is required";
-                            }
-                            return null;
-                          },
-                        ),
-                        CustomMultipleSelectPopup(
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  spacing: 10,
+                  children: [
+                    // BRANCH SELECT
+                    ValueListenableBuilder<List<Map<String, dynamic>>>(
+                      valueListenable: _selectedBranchNotifier,
+                      builder: (context, selectedBranch, _) {
+                        return CustomMultipleSelectPopup(
                           title: 'Branch',
                           isRequired: true,
                           isMultiSelect: false,
-                          initialValue: _selectedBranch,
-                          dataList: [],
+                          initialValue: selectedBranch,
+                          dataList: const [],
                           onSelected: (value) {
-                            innerState(() {
-                              _selectedBranch = value;
-                            });
+                            _selectedBranchNotifier.value = value;
                           },
                           dataFetchCallBack: _fetchBranch,
                           validator: (value) {
@@ -234,11 +278,115 @@ class _AddBranchAssociationMasterScreenState
                             }
                             return null;
                           },
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  );
-                },
+                    // EMPLOYEE SELECT + CARD
+                    ValueListenableBuilder<List<Map<String, dynamic>>>(
+                      valueListenable: _selectedEmployeeNotifier,
+                      builder: (context, selectedEmployee, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomMultipleSelectPopup(
+                              title: 'Employee',
+                              isRequired: true,
+                              isMultiSelect: false,
+                              initialValue: selectedEmployee,
+                              dataList: const [],
+                              onSelected: (value) {
+                                _selectedEmployeeNotifier.value = value;
+                              },
+                              dataFetchCallBack: _fetchEmployees,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Employee is required";
+                                }
+                                return null;
+                              },
+                            ),
+                            if (selectedEmployee.isNotEmpty) ...[
+                              Container(
+                                margin: const EdgeInsets.only(
+                                  top: 16,
+                                  bottom: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: AppColor.lightBlue),
+                                ),
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  spacing: 10,
+                                  children: [
+                                    Row(
+                                      spacing: 10,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Department",
+                                          value:
+                                          selectedEmployee
+                                              .first["department"] ??
+                                              '',
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Designation",
+                                          value:
+                                          selectedEmployee
+                                              .first["designation"] ??
+                                              '',
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      spacing: 10,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Branch",
+                                          value:
+                                          selectedEmployee.first["branch"] ??
+                                              '',
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Reporting Person",
+                                          value:
+                                          selectedEmployee
+                                              .first["reportingPerson"] ??
+                                              '',
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      spacing: 10,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Email Id",
+                                          value:
+                                          selectedEmployee.first["email"] ??
+                                              '',
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Personal Mobile Number",
+                                          value:
+                                          selectedEmployee
+                                              .first["personalNumber"] ??
+                                              '',
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

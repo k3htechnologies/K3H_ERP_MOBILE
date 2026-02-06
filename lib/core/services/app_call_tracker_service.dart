@@ -60,37 +60,51 @@ class AppCallTrackerService {
   StreamSubscription<String>? _subscription;
 
   void _startListening() {
-    _subscription = CallStateListener.callStateStream.listen((String state) {
-      switch (state) {
-        case 'OFFHOOK':
-          if (_pendingCallNumber != null) {
-            _currentCallNumber = _pendingCallNumber;
-            _pendingCallNumber = null;
-            _callStartTime = DateTime.now();
-          }
-          break;
-        case 'IDLE':
-          if (_callStartTime != null && _currentCallNumber != null) {
-            final endedAt = DateTime.now();
-            final durationSeconds =
-                endedAt.difference(_callStartTime!).inSeconds;
-            _saveLog(
-              AppInitiatedCallEntry(
-                phoneNumber: _currentCallNumber!,
-                startedAt: _callStartTime!,
-                endedAt: endedAt,
-                durationSeconds: durationSeconds,
-              ),
-            );
-            _currentCallNumber = null;
-            _callStartTime = null;
-            logsUpdated.value++;
-          }
-          break;
-        default:
-          break;
+    try {
+      _subscription = CallStateListener.callStateStream
+          .handleError((error, stackTrace) {
+            // Swallow platform errors from the native listen call so the app
+            // does not crash if the plugin fails (e.g. missing permission).
+            if (kDebugMode) {
+              debugPrint('CallStateListener error: $error');
+            }
+          })
+          .listen((String state) {
+            switch (state) {
+              case 'OFFHOOK':
+                if (_pendingCallNumber != null) {
+                  _currentCallNumber = _pendingCallNumber;
+                  _pendingCallNumber = null;
+                  _callStartTime = DateTime.now();
+                }
+                break;
+              case 'IDLE':
+                if (_callStartTime != null && _currentCallNumber != null) {
+                  final endedAt = DateTime.now();
+                  final durationSeconds =
+                      endedAt.difference(_callStartTime!).inSeconds;
+                  _saveLog(
+                    AppInitiatedCallEntry(
+                      phoneNumber: _currentCallNumber!,
+                      startedAt: _callStartTime!,
+                      endedAt: endedAt,
+                      durationSeconds: durationSeconds,
+                    ),
+                  );
+                  _currentCallNumber = null;
+                  _callStartTime = null;
+                  logsUpdated.value++;
+                }
+                break;
+              default:
+                break;
+            }
+          });
+    } catch (e, st) {
+      if (kDebugMode) {
+        debugPrint('Failed to start CallStateListener: $e\n$st');
       }
-    });
+    }
   }
 
   /// Call this when the user taps to call from the app (e.g. CustomClickToContact).

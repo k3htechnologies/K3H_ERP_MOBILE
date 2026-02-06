@@ -12,10 +12,10 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
-import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 
 class AddAssetMappingMasterScreen extends StatefulWidget {
@@ -51,25 +51,30 @@ class _AddAssetMappingMasterScreenState
   late TextEditingController _conditionOnReturnC;
   late TextEditingController _remarksC;
 
-  // DATE PICKERS
-  DateTime? _assignedDate;
-  DateTime? _returnDate;
-
-  // DROPDOWN SELECTIONS
-  List<Map<String, dynamic>> _selectedEmployee = [];
-  List<Map<String, dynamic>> _selectedAsset = [];
+  late final ValueNotifier<DateTime?> _assignedDateNotifier;
+  late final ValueNotifier<DateTime?> _returnDateNotifier;
+  late final ValueNotifier<List<Map<String, dynamic>>>
+  _selectedEmployeeNotifier;
+  late final ValueNotifier<List<Map<String, dynamic>>> _selectedAssetNotifier;
+  late final ValueNotifier<bool> _isInactiveNotifier;
 
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
 
   bool get _isEditMode => widget.assetMapping != null;
-  bool _isInactive = false;
   @override
   void initState() {
     super.initState();
     _assetMappingMasterCubit = context.read<AssetMappingMasterCubit>();
     _routeAuthorizationModel = AuthorizationModel();
     _initializeTextEditingControllers();
+
+    _assignedDateNotifier = ValueNotifier<DateTime?>(null);
+    _returnDateNotifier = ValueNotifier<DateTime?>(null);
+    _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
+    _selectedAssetNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
+    _isInactiveNotifier = ValueNotifier<bool>(false);
+
     if (_isEditMode && widget.assetMapping != null) {
       _populateFormFields(widget.assetMapping!);
     }
@@ -77,6 +82,11 @@ class _AddAssetMappingMasterScreenState
 
   @override
   void dispose() {
+    _assignedDateNotifier.dispose();
+    _returnDateNotifier.dispose();
+    _selectedEmployeeNotifier.dispose();
+    _selectedAssetNotifier.dispose();
+    _isInactiveNotifier.dispose();
     _disposeTextEditingControllers();
     super.dispose();
   }
@@ -94,23 +104,60 @@ class _AddAssetMappingMasterScreenState
   }
 
   void _populateFormFields(AssetMappingModel assetMapping) {
-    _selectedEmployee = [
+    // Set employee with available data; full details fetched below in edit mode
+    _selectedEmployeeNotifier.value = [
       {
         'zAttributesId': assetMapping.employeeId,
         'DisplayName': assetMapping.employeeName,
       },
     ];
-    _selectedAsset = [
+    _selectedAssetNotifier.value = [
       {
         'zAttributesId': assetMapping.assetMasterId,
         'DisplayName': assetMapping.assetName,
+        'assetCode': assetMapping.assetCode,
+        'assetType': assetMapping.assetType,
+        'assetBrand': assetMapping.assetBrand,
+        'serialNumber': assetMapping.serialNumber,
       },
     ];
-    _assignedDate = assetMapping.assignedDate;
-    _returnDate = assetMapping.returnDate;
+    _assignedDateNotifier.value = assetMapping.assignedDate;
+    _returnDateNotifier.value = assetMapping.returnDate;
     _conditionOnIssueC.text = assetMapping.conditionOnIssue;
     _conditionOnReturnC.text = assetMapping.conditionOnReturn;
     _remarksC.text = assetMapping.remarks;
+
+    // Fetch full employee data so the employee card shows department, designation, branch, etc.
+    _fetchEmployeeDetailsForEdit(assetMapping.employeeId);
+  }
+
+  /// In edit mode, load full employee by id and update selected employee so the card has all fields.
+  Future<void> _fetchEmployeeDetailsForEdit(int employeeId) async {
+    final result = await _employeeMasterRepository.getEmployeeMasterList(
+      pageNumber: 1,
+      pageSize: 1,
+      queryParams: {'EmployeeId': employeeId},
+    );
+    result.fold((_) {}, (response) {
+      // Repository already returns List<UserModel> in response['data']
+      final employees = response['data'] as List<UserModel>? ?? [];
+      if (employees.isEmpty) return;
+      final employee = employees.first;
+      if (!mounted) return;
+      _selectedEmployeeNotifier.value = [
+        {
+          'zAttributesId': employee.employeeId,
+          'DisplayName': employee.fullName,
+          'employeeCode': employee.employeeCode,
+          'department': employee.department,
+          'designation': employee.designation,
+          'branch': employee.branch,
+          'reportingPerson': employee.reportPersonName,
+          'email': employee.emailId,
+          'personalNumber': employee.personalMobileNumber,
+        },
+      ];
+    });
   }
 
   Future<Map<String, dynamic>> _fetchEmployees(
@@ -138,6 +185,12 @@ class _AddAssetMappingMasterScreenState
                 return {
                   "zAttributesId": employee.employeeId,
                   "DisplayName": employee.fullName,
+                  "department": employee.department,
+                  "designation": employee.designation,
+                  "branch": employee.branch,
+                  "reportingPerson": employee.reportPersonName,
+                  "email": employee.emailId,
+                  "personalNumber": employee.personalMobileNumber,
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
@@ -170,7 +223,11 @@ class _AddAssetMappingMasterScreenState
               assets.map((asset) {
                 return {
                   "zAttributesId": asset.assetMasterId,
-                  "DisplayName": "${asset.assetName} (${asset.assetCode})",
+                  "DisplayName": asset.assetName,
+                  "assetCode": asset.assetCode,
+                  "assetType": asset.assetType,
+                  "assetBrand": asset.assetBrand,
+                  "serialNumber": asset.serialNumber,
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
@@ -184,22 +241,28 @@ class _AddAssetMappingMasterScreenState
       return;
     }
 
-    if (_selectedEmployee.isEmpty) {
+    final selectedEmployee = _selectedEmployeeNotifier.value;
+    final selectedAsset = _selectedAssetNotifier.value;
+    final assignedDate = _assignedDateNotifier.value;
+    final returnDate = _returnDateNotifier.value;
+    final isInactive = _isInactiveNotifier.value;
+
+    if (selectedEmployee.isEmpty) {
       showErrorMessage(context, 'Error', 'Please select an employee');
       return;
     }
 
-    if (_selectedAsset.isEmpty) {
+    if (selectedAsset.isEmpty) {
       showErrorMessage(context, 'Error', 'Please select an asset');
       return;
     }
 
-    if (_assignedDate == null) {
+    if (assignedDate == null) {
       showErrorMessage(context, 'Error', 'Assigned Date is required');
       return;
     }
 
-    if (_isInactive && _returnDate == null) {
+    if (isInactive && returnDate == null) {
       showErrorMessage(context, 'Error', 'Return Date is required');
       return;
     }
@@ -210,10 +273,10 @@ class _AddAssetMappingMasterScreenState
         context: context,
         assetMasterMappingId: widget.assetMapping!.assetMasterMappingId,
         uniqueKey: widget.assetMapping!.uniquekey,
-        employeeId: _selectedEmployee.first['zAttributesId'] as int,
-        assetMasterId: _selectedAsset.first['zAttributesId'] as int,
-        assignedDate: _assignedDate!,
-        returnDate: _returnDate,
+        employeeId: selectedEmployee.first['zAttributesId'] as int,
+        assetMasterId: selectedAsset.first['zAttributesId'] as int,
+        assignedDate: assignedDate,
+        returnDate: returnDate,
         conditionOnIssue: _conditionOnIssueC.text.trim(),
         conditionOnReturn: _conditionOnReturnC.text.trim(),
         remarks: _remarksC.text.trim(),
@@ -221,9 +284,9 @@ class _AddAssetMappingMasterScreenState
     } else {
       _assetMappingMasterCubit.addAssetMapping(
         context: context,
-        employeeId: _selectedEmployee.first['zAttributesId'] as int,
-        assetMasterId: _selectedAsset.first['zAttributesId'] as int,
-        assignedDate: _assignedDate!,
+        employeeId: selectedEmployee.first['zAttributesId'] as int,
+        assetMasterId: selectedAsset.first['zAttributesId'] as int,
+        assignedDate: assignedDate,
         conditionOnIssue: _conditionOnIssueC.text.trim(),
         remarks: _remarksC.text.trim(),
       );
@@ -238,67 +301,225 @@ class _AddAssetMappingMasterScreenState
         screenTitle: _isEditMode ? "Update Asset Mapping" : "Add Asset Mapping",
         authorization: _routeAuthorizationModel,
       ),
-      body: StatefulBuilder(
-        builder: (context, setStateBuilder) {
-          return Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-              child: Container(
-                decoration: commonCardDecoration(),
-                padding: const EdgeInsets.all(16),
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          child: Container(
+            decoration: commonCardDecoration(),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // EMPLOYEE SELECT + CARD
+                ValueListenableBuilder<List<Map<String, dynamic>>>(
+                  valueListenable: _selectedEmployeeNotifier,
+                  builder: (context, selectedEmployee, _) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomMultipleSelectPopup(
+                          title: 'Employee',
+                          isRequired: true,
+                          isMultiSelect: false,
+                          initialValue: selectedEmployee,
+                          dataList: const [],
+                          onSelected: (value) {
+                            _selectedEmployeeNotifier.value = value;
+                          },
+                          dataFetchCallBack: _fetchEmployees,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Employee is required";
+                            }
+                            return null;
+                          },
+                        ),
+                        if (selectedEmployee.isNotEmpty) ...[
+                          Container(
+                            margin: const EdgeInsets.only( bottom: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: AppColor.lightBlue),
+                            ),
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              spacing: 10,
+                              children: [
+                                Row(
+                                  spacing: 10,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildColumnTitleValue(
+                                      title: "Department",
+                                      value:
+                                          selectedEmployee
+                                              .first["department"] ??
+                                          '',
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "Designation",
+                                      value:
+                                      selectedEmployee
+                                          .first["designation"] ??
+                                          '',
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  spacing: 10,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildColumnTitleValue(
+                                      title: "Branch",
+                                      value:
+                                      selectedEmployee.first["branch"] ??
+                                          '',
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "Reporting Person",
+                                      value:
+                                          selectedEmployee
+                                              .first["reportingPerson"] ??
+                                          '',
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  spacing: 10,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildColumnTitleValue(
+                                      title: "Email Id",
+                                      value:
+                                      selectedEmployee.first["email"] ??
+                                          '',
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "Personal Mobile Number",
+                                      value:
+                                      selectedEmployee
+                                          .first["personalNumber"] ??
+                                          '',
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    );
+                  },
+                ),
+                // ASSET SELECT
+                ValueListenableBuilder<List<Map<String, dynamic>>>(
+                  valueListenable: _selectedAssetNotifier,
+                  builder: (context, selectedAsset, _) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomMultipleSelectPopup(
+                          title: 'Asset',
+                          isRequired: true,
+                          isMultiSelect: false,
+                          initialValue: selectedAsset,
+                          dataList: const [],
+                          onSelected: (value) {
+                            _selectedAssetNotifier.value = value;
+                          },
+                          dataFetchCallBack: _fetchAssets,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Asset is required";
+                            }
+                            return null;
+                          },
+                        ),
+                        if (selectedAsset.isNotEmpty) ...[
+                          Container(
+                            margin: EdgeInsets.only(bottom: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: AppColor.lightBlue),
+                            ),
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              spacing: 10,
+                              children: [
+                                Row(
+                                  spacing: 10,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildColumnTitleValue(
+                                      title: "Asset Code",
+                                      value:
+                                          selectedAsset.first["assetCode"] ??
+                                          '',
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "Asset Name",
+                                      value:
+                                          selectedAsset.first["DisplayName"] ??
+                                          '',
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  spacing: 10,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildColumnTitleValue(
+                                      title: "Asset Type",
+                                      value:
+                                          selectedAsset.first["assetType"] ??
+                                          '',
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "Asset Model",
+                                      value:
+                                          selectedAsset.first["asselModel"] ??
+                                          '',
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  spacing: 10,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildColumnTitleValue(
+                                      title: "Asset Brand",
+                                      value:
+                                          selectedAsset.first["assetBrand"] ??
+                                          '',
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "Serial Number",
+                                      value:
+                                          selectedAsset.first["serialNumber"] ??
+                                          '',
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    );
+                  },
+                ),
 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CustomMultipleSelectPopup(
-                      title: 'Employee',
-                      isRequired: true,
-                      isMultiSelect: false,
-                      initialValue: _selectedEmployee,
-                      dataList: [],
-                      onSelected: (value) {
-                        setStateBuilder(() {
-                          _selectedEmployee = value;
-                        });
-                      },
-                      dataFetchCallBack: _fetchEmployees,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Employee is required";
-                        }
-                        return null;
-                      },
-                    ),
-                    verticalSpacing(height: 16),
-                    CustomMultipleSelectPopup(
-                      title: 'Asset',
-                      isRequired: true,
-                      isMultiSelect: false,
-                      initialValue: _selectedAsset,
-                      dataList: [],
-                      onSelected: (value) {
-                        setStateBuilder(() {
-                          _selectedAsset = value;
-                        });
-                      },
-                      dataFetchCallBack: _fetchAssets,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Asset is required";
-                        }
-                        return null;
-                      },
-                    ),
-                    verticalSpacing(height: 16),
-                    CustomDatePicker(
+                // ASSIGNED DATE
+                ValueListenableBuilder<DateTime?>(
+                  valueListenable: _assignedDateNotifier,
+                  builder: (context, assignedDate, _) {
+                    return CustomDatePicker(
                       title: 'Assigned Date',
-                      initialDate: _assignedDate,
+                      initialDate: assignedDate,
                       isRequired: true,
                       setValue: (date) {
-                        setStateBuilder(() {
-                          _assignedDate = date;
-                        });
+                        _assignedDateNotifier.value = date;
                       },
                       validator: (value) {
                         if (value == null) {
@@ -306,58 +527,73 @@ class _AddAssetMappingMasterScreenState
                         }
                         return null;
                       },
-                    ),
-                    verticalSpacing(height: 16),
-                    CustomTextField(
-                      title: 'Condition on Issue',
-                      textController: _conditionOnIssueC,
-                      hint: "Enter Condition on Issue",
-                      inputFormatterList: InputValidator.textOnly(200),
-                      isRequired: true,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Condition on Issue is required";
-                        }
-                        return null;
-                      },
-                    ),
-                    verticalSpacing(height: 16),
-                    CustomTextField(
-                      title: 'Remarks',
-                      textController: _remarksC,
-                      hint: "Enter Remarks",
-                      inputFormatterList: InputValidator.textOnly(500),
-                      minLines: 3,
-                      maxLines: 3,
-                    ),
-                    Visibility(
-                      visible: _isEditMode,
-                      child: Column(
+                    );
+                  },
+                ),
+
+                // CONDITION ON ISSUE
+                CustomTextField(
+                  title: 'Condition on Issue',
+                  textController: _conditionOnIssueC,
+                  hint: "Enter Condition on Issue",
+                  inputFormatterList: InputValidator.textOnly(200),
+                  isRequired: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Condition on Issue is required";
+                    }
+                    return null;
+                  },
+                ),
+
+                // REMARKS
+                CustomTextField(
+                  title: 'Remarks',
+                  textController: _remarksC,
+                  hint: "Enter Remarks",
+                  inputFormatterList: InputValidator.textOnly(500),
+                  minLines: 3,
+                  maxLines: 3,
+                ),
+
+                // RETURN SECTION (EDIT MODE ONLY)
+                if (_isEditMode)
+                  ValueListenableBuilder<bool>(
+                    valueListenable: _isInactiveNotifier,
+                    builder: (context, isInactive, _) {
+                      return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          verticalSpacing(height: 16),
-                          CustomDatePicker(
-                            title: 'Return Date',
-                            initialDate: _returnDate,
-                            startDate: _assignedDate,
-                            setValue: (date) {
-                              setStateBuilder(() {
-                                _returnDate = date;
-                              });
-                            },
-                            validator: (value) {
-                              if (value == null && _isInactive) {
-                                return "Return Date is required";
-                              }
-                              if (_assignedDate != null &&
-                                  _isInactive &&
-                                  value!.isBefore(_assignedDate!)) {
-                                return "Return Date must be after Assigned Date";
-                              }
-                              return null;
+                          ValueListenableBuilder<DateTime?>(
+                            valueListenable: _returnDateNotifier,
+                            builder: (context, returnDate, __) {
+                              return ValueListenableBuilder<DateTime?>(
+                                valueListenable: _assignedDateNotifier,
+                                builder: (context, assignedDate, ___) {
+                                  return CustomDatePicker(
+                                    title: 'Return Date',
+                                    initialDate: returnDate,
+                                    startDate: assignedDate,
+                                    setValue: (date) {
+                                      _returnDateNotifier.value = date;
+                                    },
+                                    validator: (value) {
+                                      if (value == null && isInactive) {
+                                        return "Return Date is required";
+                                      }
+                                      if (assignedDate != null &&
+                                          isInactive &&
+                                          value != null &&
+                                          value.isBefore(assignedDate)) {
+                                        return "Return Date must be after Assigned Date";
+                                      }
+                                      return null;
+                                    },
+                                  );
+                                },
+                              );
                             },
                           ),
-                          verticalSpacing(height: 16),
                           CustomTextField(
                             title: 'Condition on Return',
                             textController: _conditionOnReturnC,
@@ -365,21 +601,20 @@ class _AddAssetMappingMasterScreenState
                             inputFormatterList: InputValidator.textOnly(200),
                             validator: (value) {
                               if ((value == null || value.trim().isEmpty) &&
-                                  _isInactive) {
+                                  isInactive) {
                                 return "Condition on Return is required";
                               }
                               return null;
                             },
                           ),
                         ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                      );
+                    },
+                  ),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
@@ -391,6 +626,7 @@ class _AddAssetMappingMasterScreenState
             children: [
               Expanded(
                 child: CustomButton(
+                  leading: Icon(_isEditMode?Icons.edit:Icons.add,size: 18,color: AppColor.white,),
                   text: _isEditMode ? "Update" : "Add",
                   onPressed: _submitForm,
                 ),
@@ -401,7 +637,7 @@ class _AddAssetMappingMasterScreenState
                     backgroundColor: AppColor.red,
                     text: "Inactive",
                     onPressed: () {
-                      _isInactive = true;
+                      _isInactiveNotifier.value = true;
                       _submitForm();
                     },
                   ),

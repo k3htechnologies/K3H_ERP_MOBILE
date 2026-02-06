@@ -41,6 +41,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   Map<String, dynamic>? selectedDistrict;
   Map<String, dynamic>? selectedCity;
   Map<String, dynamic>? selectedProjectStatus;
+  Map<String, dynamic>? selectedProjectScheme;
+  Map<String, dynamic>? selectedProjectSubScheme;
 
   // DATE PICKER VARIABLE
   DateTime? reraCompletionDate;
@@ -55,7 +57,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       _projectScopeC,
       _ctsNumberC,
       _businessCategoryC,
-      _projectSchemeC,
       _projectSubSchemeC,
       _pinCodeC,
       _projectEstimateCostC,
@@ -77,8 +78,56 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   );
 
   // STATIC LISTS
-  List<Map<String, dynamic>> projectStatusList = [
+  List<Map<String, dynamic>> projectSchemeList = [
     {"zAttributesId": -1, "DisplayName": "Select Project Status"},
+    {"zAttributesId": 1, "DisplayName": "BMC"},
+    {"zAttributesId": 2, "DisplayName": "MHADA"},
+    {"zAttributesId": 3, "DisplayName": "SRA"},
+  ];
+
+  // STATIC LISTS
+  List<Map<String, dynamic>> projectSubSchemeList = [
+    {"zAttributesId": -1, "DisplayName": "Select Project Status"},
+    {"zAttributesId": 1, "DisplayName": "33 (20) B"},
+    {"zAttributesId": 2, "DisplayName": "33 (19)"},
+    {"zAttributesId": 3, "DisplayName": "33 (7) B"},
+    {"zAttributesId": 4, "DisplayName": "33 (7) A"},
+    {"zAttributesId": 5, "DisplayName": "33 (9)"},
+    {"zAttributesId": 6, "DisplayName": "33 (12) B"},
+  ];
+
+  // STATIC LISTS
+  List<Map<String, dynamic>> projectSubSchemeList1 = [
+    {"zAttributesId": -1, "DisplayName": "Select Project Status"},
+    {"zAttributesId": 1, "DisplayName": "33 (5)"},
+  ];
+
+  // STATIC LISTS
+  List<Map<String, dynamic>> projectSubSchemeList2 = [
+    {"zAttributesId": -1, "DisplayName": "Select Project Status"},
+    {"zAttributesId": 1, "DisplayName": "33 (10)"},
+    {"zAttributesId": 2, "DisplayName": "33 (11)"},
+  ];
+
+  List<Map<String, dynamic>> get _currentSubSchemeList {
+    if (selectedProjectScheme == null) return projectSubSchemeList;
+    final id = selectedProjectScheme!["zAttributesId"] as int?;
+    if (id == null || id == -1) return projectSubSchemeList;
+    switch (id) {
+      case 1:
+        return projectSubSchemeList; // BMC
+      case 2:
+        return projectSubSchemeList1; // MHADA
+      case 3:
+        return projectSubSchemeList2; // SRA
+      default:
+        return projectSubSchemeList;
+    }
+  }
+
+  // STATIC LISTS
+  List<Map<String, dynamic>> projectStatusList = [
+    {"zAttributesId": -1, "DisplayName": "Select Project Scheme"},
     {"zAttributesId": 1, "DisplayName": "On-Going"},
     {"zAttributesId": 2, "DisplayName": "Completed"},
     {"zAttributesId": 3, "DisplayName": "On-Hold"},
@@ -91,6 +140,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     super.initState();
     _projectMasterCubit = context.read<ProjectMasterCubit>();
     selectedProjectStatus = projectStatusList.first;
+    selectedProjectScheme = projectSchemeList.first;
+    selectedProjectSubScheme =
+        _currentSubSchemeList.isNotEmpty ? _currentSubSchemeList.first : null;
     _initializeTextEditingController();
     if (widget.project != null) {
       _prefillDialogueToAddUpdateProjectMaster(widget.project!);
@@ -105,7 +157,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectScopeC.dispose();
     _ctsNumberC.dispose();
     _businessCategoryC.dispose();
-    _projectSchemeC.dispose();
     _projectSubSchemeC.dispose();
     _pinCodeC.dispose();
     _projectEstimateCostC.dispose();
@@ -124,7 +175,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectScopeC = TextEditingController();
     _ctsNumberC = TextEditingController();
     _businessCategoryC = TextEditingController();
-    _projectSchemeC = TextEditingController();
     _projectSubSchemeC = TextEditingController();
     _pinCodeC = TextEditingController();
     _projectEstimateCostC = TextEditingController();
@@ -143,8 +193,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _ctsNumberC.text = widget.project!.ctsNumber;
     _businessCategoryC.text = widget.project!.bussinessCategory;
     _projectScopeC.text = widget.project!.projectScope;
-    _projectSchemeC.text = widget.project!.projectScheme;
-    _projectSubSchemeC.text = widget.project!.projectSubScheme;
+    // Project sub scheme is set via selectedProjectSubScheme below when scheme is set
     _pinCodeC.text = widget.project!.zipCode;
     _googleLocationC.text = widget.project!.googleLocation;
     _projectEstimateCostC.text = widget.project!.projectEstimateCost.toString();
@@ -169,6 +218,22 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       );
     } else {
       selectedProjectStatus = projectStatusList.first;
+    }
+
+    if (widget.project!.projectScheme.isNotEmpty) {
+      selectedProjectScheme = projectSchemeList.firstWhere(
+        (item) => item["DisplayName"] == widget.project!.projectScheme,
+        orElse: () => projectSchemeList.first,
+      );
+      final subList = _currentSubSchemeList;
+      selectedProjectSubScheme = subList.firstWhere(
+        (item) => item["DisplayName"] == widget.project!.projectSubScheme,
+        orElse: () => subList.first,
+      );
+    } else {
+      selectedProjectScheme = projectSchemeList.first;
+      selectedProjectSubScheme =
+          _currentSubSchemeList.isNotEmpty ? _currentSubSchemeList.first : null;
     }
 
     // Prefill project photo
@@ -229,13 +294,21 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                 _projectEstimateCostC.text.trim().isNotEmpty
                     ? _projectEstimateCostC.text
                     : "0.0",
-            projectScheme: _projectSchemeC.text,
+            projectScheme:
+                selectedProjectScheme != null &&
+                        selectedProjectScheme!["zAttributesId"] != -1
+                    ? selectedProjectScheme!["DisplayName"].toString()
+                    : "",
             projectScope: _projectScopeC.text,
             projectStatus:
                 selectedProjectStatus!["zAttributesId"] == -1
                     ? ""
                     : selectedProjectStatus!["DisplayName"].toString(),
-            projectSubScheme: _projectSubSchemeC.text,
+            projectSubScheme:
+                selectedProjectSubScheme != null &&
+                        selectedProjectSubScheme!["zAttributesId"] != -1
+                    ? selectedProjectSubScheme!["DisplayName"].toString()
+                    : "",
             reraNumber: _reraNumberC.text,
             reraCertificateDate: reraCertificateDate?.toIso8601String() ?? "",
             reraComplitionDate: reraCompletionDate?.toIso8601String() ?? "",
@@ -270,13 +343,21 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                 _projectEstimateCostC.text.trim().isNotEmpty
                     ? _projectEstimateCostC.text
                     : "0.0",
-            projectScheme: _projectSchemeC.text,
+            projectScheme:
+                selectedProjectScheme != null &&
+                        selectedProjectScheme!["zAttributesId"] != -1
+                    ? selectedProjectScheme!["DisplayName"].toString()
+                    : "",
             projectScope: _projectScopeC.text,
             projectStatus:
                 selectedProjectStatus!["zAttributesId"] == -1
                     ? ""
                     : selectedProjectStatus!["DisplayName"].toString(),
-            projectSubScheme: _projectSubSchemeC.text,
+            projectSubScheme:
+                selectedProjectSubScheme != null &&
+                        selectedProjectSubScheme!["zAttributesId"] != -1
+                    ? selectedProjectSubScheme!["DisplayName"].toString()
+                    : "",
             reraNumber: _reraNumberC.text,
             reraCertificateDate: reraCertificateDate?.toIso8601String() ?? "",
             reraComplitionDate: reraCompletionDate?.toIso8601String() ?? "",
@@ -442,21 +523,29 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                           LengthLimitingTextInputFormatter(100),
                         ],
                       ),
-                      CustomTextField(
+                      CustomDropDownWidget(
                         title: 'Project Scheme',
-                        textController: _projectSchemeC,
-                        hint: "Enter Project Scheme",
-                        inputFormatterList: [
-                          LengthLimitingTextInputFormatter(100),
-                        ],
+                        initialValue: selectedProjectScheme,
+                        dataList: projectSchemeList,
+                        onSelected: (value) {
+                          setState(() {
+                            selectedProjectScheme = value;
+                            selectedProjectSubScheme =
+                                _currentSubSchemeList.isNotEmpty
+                                    ? _currentSubSchemeList.first
+                                    : null;
+                          });
+                        },
                       ),
-                      CustomTextField(
+                      CustomDropDownWidget(
                         title: 'Project Sub Scheme',
-                        textController: _projectSubSchemeC,
-                        hint: "Enter Project Sub Scheme",
-                        inputFormatterList: [
-                          LengthLimitingTextInputFormatter(100),
-                        ],
+                        initialValue: selectedProjectSubScheme,
+                        dataList: _currentSubSchemeList,
+                        onSelected: (value) {
+                          setState(() {
+                            selectedProjectSubScheme = value;
+                          });
+                        },
                       ),
                     ],
                   ),
@@ -651,7 +740,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                 widget.project != null
                     ? Icon(Icons.edit, size: 18, color: AppColor.white)
                     : Icon(Icons.add, size: 18, color: AppColor.white),
-            text: widget.project != null ? 'Update' : 'Add',
+            text: widget.project != null ? 'Update Project' : 'Add Project',
             backgroundColor: AppColor.primary,
             onPressed: () {
               _addUpdateProject(widget.project);

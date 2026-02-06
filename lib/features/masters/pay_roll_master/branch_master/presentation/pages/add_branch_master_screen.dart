@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/features/masters/designation_master/presentation/pag
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/data/model/branch_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/presentation/cubit/branch_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_bank_details_screen.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart'
@@ -200,6 +201,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
+            leading: Icon(_isEditMode?Icons.edit:Icons.add,size: 18,color: AppColor.white,),
             text: _isEditMode ? "Update Branch Master" : "Add Branch Master",
             onPressed: _submitForm,
           ),

@@ -405,7 +405,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                     ),
                     CustomTextField(
                       textController: _totalUnitsAreaUtilizedC,
-                      title: "UUtilized Units Area (SqFt)",
+                      title: "Utilized Units Area (SqFt)",
                       hint: 'Enter Utilized Units Area',
                       keyboardType: TextInputType.number,
                       inputFormatterList:
@@ -496,6 +496,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                             if (_isGarden)
                               CustomTextField(
                                 textController: _totalGardenAreaC,
+                                isRequired: true,
                                 title: 'Garden Area (Sq Ft)',
                                 keyboardType: TextInputType.number,
                                 inputFormatterList:
@@ -538,6 +539,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                             verticalSpacing(),
                             if (_isReligiousStructure)
                               CustomTextField(
+                                isRequired: true,
                                 textController: _totalReligiousStructureAreaC,
                                 title: 'Religious Structure Area (Sq Ft)',
                                 keyboardType: TextInputType.number,
@@ -578,6 +580,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                             verticalSpacing(),
                             if (_isLitigation)
                               CustomTextField(
+                                isRequired: true,
                                 textController: _litigationRemarksC,
                                 title: 'Litigation Remarks',
                                 inputFormatterList: InputValidator.textDigit(

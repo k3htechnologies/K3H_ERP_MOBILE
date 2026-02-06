@@ -11,7 +11,8 @@ abstract interface class AssetMasterRepository {
   });
 
   Future<Either<Failure, Map<String, dynamic>>> addUpdateAsset({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> deleteAsset({
@@ -51,11 +52,13 @@ class AssetMasterRepositoryImpl extends AssetMasterRepository {
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> addUpdateAsset({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   }) async {
     try {
       var result = await assetMasterDatasource.apiCallAddUpdateAsset(
         body: body,
+        fileList: fileList
       );
       return right(result);
     } catch (error) {

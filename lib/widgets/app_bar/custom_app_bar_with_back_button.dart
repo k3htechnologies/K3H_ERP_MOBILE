@@ -273,17 +273,11 @@ class _CustomAppBarWithBackButtonState
             valueListenable: _projectListNotifier,
             builder: (context, projects, _) {
               if (projects.isEmpty) return const SizedBox.shrink();
-              return CustomIconButton(
-                onPressed: () {
-                  _showOverlayNotifier.value = true;
-                },
-                icon: const Icon(
-                  Icons.apartment_outlined,
-                  size: 16,
-                  color: AppColor.primary,
-                ),
-                backgroundColor: AppColor.lightBlue,
-              );
+              return GestureDetector(
+                  onTap: () {
+                    _showOverlayNotifier.value = true;
+                  },
+                  child: SvgPicture.asset(AppAssets.projectIcon, height: 28));
             },
           ),
           horizontalSpacing(),

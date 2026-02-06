@@ -235,7 +235,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBar(
-        screenTitle: "Asset Master",
+        screenTitle: "Asset",
         authorization: _routeAuthorizationModel,
         onSearchSubmit: (value) {
           _assetMasterCubit.searchAsset(value, context);
@@ -248,7 +248,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
           }
         },
         onExportCallback: (value) {
-          if(_assetMasterCubit.state.totalNumberOfRecord==0){
+          if (_assetMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
@@ -328,39 +328,45 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                         ),
                         Row(
                           children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addAssetMaster,
-                                  queryParameters: {
-                                    "asset": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(asset.toJson()),
+                            if (asset.status.toLowerCase() != "booked") ...[
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addAssetMaster,
+                                    queryParameters: {
+                                      "asset": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(asset.toJson()),
+                                        ),
                                       ),
-                                    ),
-                                    'index': index.toString(),
-                                  },
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteAssetMaster(
-                                  context,
-                                  asset,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              horizontalSpacing(width: 8),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteAssetMaster(
+                                    context,
+                                    asset,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
                           ],
                         ),
                       ],
                     ),
                     verticalSpacing(height: 8),
                     buildRowTitleValue(
-                      title: "Asset Type",
+                      title: "Code",
+                      value: asset.assetCode,
+                    ),
+                    buildRowTitleValue(
+                      title: "Type",
                       value: asset.assetType,
                     ),
                     buildRowTitleValue(title: "Brand", value: asset.assetBrand),
@@ -369,27 +375,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                       title: "Serial Number",
                       value: asset.serialNumber,
                     ),
-                    buildRowTitleValue(
-                      title: "Purchase Date",
-                      value: formatDateTimeAsDDMMMYYYY(asset.purchaseDate),
-                    ),
-                    buildRowTitleValue(
-                      title: "Asset Cost",
-                      value: "₹${asset.assetCost.toStringAsFixed(2)}",
-                    ),
-                    if (asset.supplierName.isNotEmpty)
-                      buildRowTitleValue(
-                        title: "Supplier",
-                        value: asset.supplierName,
-                      ),
-                    if (asset.warrantyExpiryDate != null)
-                      buildRowTitleValue(
-                        title: "Warranty Expiry",
-                        value: formatDateTimeAsDDMMMYYYY(
-                          asset.warrantyExpiryDate!,
-                        ),
-                      ),
-                    _buildStatusWidget(asset.status),
+                   buildRowTitleValue(title: "Status", value: asset.status,customValueWidget:  _buildStatusWidget(asset.status)),
                   ],
                 ),
               );
@@ -407,11 +393,11 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     Color textColor;
 
     switch (status.toLowerCase()) {
-      case 'booked':
+      case 'available':
         bgColor = AppColor.lightGreen;
         textColor = AppColor.darkGreen;
         break;
-      case 'available':
+      case 'booked':
         bgColor = AppColor.lightRed;
         textColor = AppColor.error;
         break;
