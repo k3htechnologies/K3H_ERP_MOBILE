@@ -12,7 +12,6 @@ import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_docu
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_cubit.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_state.dart';
-import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';

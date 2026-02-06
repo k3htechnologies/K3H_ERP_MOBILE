@@ -90,6 +90,10 @@ dependencies:
   permission_handler: ^11.3.1
   # BACKGROUND SCHEDULING (Android WorkManager)
   workmanager: ^0.9.0+3
+  # GEO LOCATOR
+  geolocator: ^14.0.2
+  # GEO CODING
+  geocoding: ^4.0.0
 
 # DEV DEPENDENCIES
 dev_dependencies:
