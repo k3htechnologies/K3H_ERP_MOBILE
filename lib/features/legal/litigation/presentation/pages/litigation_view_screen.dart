@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/closure.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_document.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
@@ -23,6 +24,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -56,17 +58,35 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   Timer? _debounce;
 
   final _formKey = GlobalKey<FormState>();
+
+  ValueNotifier<LitigationClosureModel?> closureNotifier = ValueNotifier(null);
+  DateTime? closureDate;
+  late TextEditingController _remarkC;
+  late TextEditingController _conclusionC;
+
+  MultiFilePickerModel closureFiles = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
   @override
   void initState() {
     super.initState();
 
     _litigationCubit = context.read<LitigationCubit>();
     _documentNameC = TextEditingController();
+    _remarkC = TextEditingController();
+    _conclusionC = TextEditingController();
+
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_onTabChanged);
 
     _onScroll();
-
+    if (widget.litigationModel.litigationClosureData.isNotEmpty) {
+      closureNotifier.value =
+          widget.litigationModel.litigationClosureData.first;
+    }
     _litigationCubit.getLitigationList(context: context, pageNumber: 1);
   }
 
@@ -143,9 +163,13 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
   @override
   void dispose() {
+    closureNotifier.dispose();
     _tabController.dispose();
     _hearingScrollController.dispose();
     _documentScrollController.dispose();
+    _remarkC.dispose();
+    _conclusionC.dispose();
+
     _debounce?.cancel();
     super.dispose();
   }
@@ -181,6 +205,8 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
   // ===================== OVERVIEW TAB =====================
   Widget _buildOverviewTab(LitigationModel litigation) {
+    final status = widget.litigationModel.status.toLowerCase();
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       child: SingleChildScrollView(
@@ -334,6 +360,15 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 ],
               ),
             ),
+            ValueListenableBuilder<LitigationClosureModel?>(
+              valueListenable: closureNotifier,
+              builder: (context, closure, _) {
+                if (closure == null) {
+                  return SizedBox.shrink();
+                }
+                return _buildClosureCard(closure);
+              },
+            ),
 
             Container(
               padding: EdgeInsets.all(16),
@@ -379,8 +414,68 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 ],
               ),
             ),
+
+            CustomButton(
+              text: status == 'closed' ? "Reopen" : "Close",
+              onPressed: () async {
+                if (status == 'open') {
+                  // OPEN → show closure form
+                  _showClosurePopup();
+                } else if (status == 'closed') {
+                  // CLOSED → confirm + call reopen API
+                  _showPopupToReopenLitigation(context);
+                } else if (status == 'reopen') {
+                  await _prefillClosureDate(closure: closureNotifier.value);
+                  // REOPEN → directly close again (no form)
+                  _submitClosure();
+                }
+              },
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildClosureCard(LitigationClosureModel closure) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: commonCardDecoration(),
+      child: Column(
+        spacing: 10,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Closure Details", style: AppTextStyle.ts16SB()),
+              CustomIconButton.edit(
+                onPressed: () {
+                  _showClosurePopup(closure: closure);
+                },
+              ),
+            ],
+          ),
+
+          Row(
+            children: [
+              buildColumnTitleValue(
+                title: "Closure Date",
+                value: formatDateTimeAsDDMMMYYYY(closure.closureDate),
+              ),
+              buildColumnTitleValue(title: "Remark", value: closure.remark),
+            ],
+          ),
+
+          Row(
+            children: [
+              buildColumnTitleValue(
+                title: "Conclusion",
+                value: closure.conclusion,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -942,5 +1037,190 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     litigationDocument.fileBytesList.clear();
     litigationDocument.fileNameList.clear();
     litigationDocument.deletedFileList = "";
+  }
+
+  Future<void> _prefillClosureDate({LitigationClosureModel? closure}) async {
+    if (closure != null) {
+      closureDate = closure.closureDate;
+      _remarkC.text = closure.remark;
+      _conclusionC.text = closure.conclusion;
+
+      closureFiles.fileBytesList = [];
+      closureFiles.deletedFileList = "";
+      closureFiles.fileNameList =
+          closure.closureAttachementUrl
+              .split(",")
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList();
+    }
+  }
+
+  Future<void> _showClosurePopup({LitigationClosureModel? closure}) async {
+    _prefillClosureDate();
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Form(
+            key: _formKey,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                width: 400,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text("Add Closure", style: AppTextStyle.ts16SB()),
+                    verticalSpacing(height: 16),
+
+                    /// Closure Date
+                    CustomDatePicker(
+                      title: "Closure Date",
+                      isRequired: true,
+                      initialDate: closureDate,
+                      startDate: DateTime.now(),
+                      setValue: (value) => closureDate = value,
+                      validator: (value) {
+                        if (value == null) return "Closure Date is required";
+
+                        return null;
+                      },
+                    ),
+                    verticalSpacing(),
+
+                    /// Conclusion
+                    CustomTextField(
+                      title: "Conclusion",
+                      hint: "Enter conclusion",
+                      textController: _conclusionC,
+                      isRequired: true,
+                      maxLines: 2,
+                      validator:
+                          (v) =>
+                              v == null || v.trim().isEmpty
+                                  ? "Conclusion required"
+                                  : null,
+                    ),
+
+                    verticalSpacing(),
+
+                    /// Remark
+                    CustomTextField(
+                      title: "Remark",
+                      hint: "Enter remark",
+                      textController: _remarkC,
+                      maxLines: 2,
+                    ),
+
+                    verticalSpacing(),
+
+                    /// Attachments
+                    CustomMultiFilePicker(
+                      title: "Attachments",
+                      initialFileList: closureFiles.fileNameList,
+                      onFilePickedCallback: (bytes, names) {
+                        closureFiles.fileBytesList = bytes;
+                        closureFiles.fileNameList = names;
+                      },
+                      onFileDeleteCallback: (bytes, names, deleted) {
+                        closureFiles.fileBytesList = bytes;
+                        closureFiles.fileNameList = names;
+                        closureFiles.deletedFileList = deleted;
+                      },
+                    ),
+
+                    verticalSpacing(height: 20),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomButton(
+                            text: "Cancel",
+                            backgroundColor: AppColor.grey,
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ),
+                        horizontalSpacing(),
+                        Expanded(
+                          child: CustomButton(
+                            text: "Save",
+                            onPressed: _submitClosure,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    _clearClosureForm();
+  }
+
+  void _submitClosure() {
+    print("Closure Date : ${closureDate?.toIso8601String()}");
+    if (widget.litigationModel.status.toLowerCase() == 'open' &&
+        !_formKey.currentState!.validate()) {
+      return;
+    }
+
+    var body = {
+      "LitigationClosureId":
+          (closureNotifier.value != null)
+              ? closureNotifier.value!.litigationClosureId.toString()
+              : "0".toString(),
+      if ((closureNotifier.value != null))
+        "Uniquekey": closureNotifier.value!.uniquekey,
+      "ProjectId": getProject().projectId.toString(),
+      "LitigationId": widget.litigationModel.litigationId.toString(),
+      "ClosureDate": closureDate!.toIso8601String(),
+      "Remark": _remarkC.text.trim(),
+      "Conclusion": _conclusionC.text.trim(),
+    };
+
+    _litigationCubit.addLitigationClosure(
+      context: context,
+      body: body,
+      litigationClosureDocuments: closureFiles,
+    );
+  }
+
+  void _clearClosureForm() {
+    _remarkC.clear();
+    _conclusionC.clear();
+
+    closureFiles.fileBytesList.clear();
+    closureFiles.fileNameList.clear();
+    closureFiles.deletedFileList = "";
+  }
+
+  Future<void> _showPopupToReopenLitigation(BuildContext context) async {
+    final shouldDelete = await DialogHelper.showConfirmationDialog(
+      context: context,
+      title: 'Are you sure you want to reopen this litigation?',
+      message:
+          'Reopening will move this case back to active status and allow further updates.',
+      confirmText: "Reopen",
+    );
+
+    if (shouldDelete && context.mounted) {
+      _litigationCubit.updateLitigationReopen(
+        context: context,
+        litigationId: widget.litigationModel.litigationId,
+        projectId: getProject().projectId,
+        uniqueKey: widget.litigationModel.uniquekey,
+      );
+    }
   }
 }

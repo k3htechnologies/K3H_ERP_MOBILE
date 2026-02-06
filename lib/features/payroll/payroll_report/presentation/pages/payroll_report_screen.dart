@@ -395,6 +395,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Report",
         authorization: AuthorizationModel(),
+        isMenuButton: true,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

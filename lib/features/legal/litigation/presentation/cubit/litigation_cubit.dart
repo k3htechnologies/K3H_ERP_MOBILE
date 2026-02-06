@@ -629,4 +629,131 @@ class LitigationCubit extends Cubit<LitigationState> {
       },
     );
   }
+
+  Future addLitigationClosure({
+    required BuildContext context,
+    required Map<String, String> body,
+    required MultiFilePickerModel litigationClosureDocuments,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < litigationClosureDocuments.fileNameList.length; i++) {
+      if (litigationClosureDocuments.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "ClosureAttachementURL",
+        "value": litigationClosureDocuments.fileBytesList[i],
+        "fileName": litigationClosureDocuments.fileNameList[i],
+      });
+    }
+    final result = await _litigationRepository.addUpdateLitigationClosure(
+      body: body,
+      fileList: fileList,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        goRouter.pop();
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Litigation Closure Added Successfully',
+        );
+      },
+    );
+  }
+
+  Future updateLitigationClosure({
+    required BuildContext context,
+    required int index,
+    required Map<String, String> body,
+    required MultiFilePickerModel litigationClosureDocuments,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < litigationClosureDocuments.fileNameList.length; i++) {
+      if (litigationClosureDocuments.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "ClosureAttachementURL",
+        "value": litigationClosureDocuments.fileBytesList[i],
+        "fileName": litigationClosureDocuments.fileNameList[i],
+      });
+    }
+    final result = await _litigationRepository.addUpdateLitigationClosure(
+      body: body,
+      fileList: fileList,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        goRouter.pop();
+
+        final updatedLitigationDocument = LitigationDocumentModel.fromJson(
+          response['data'][0] as Map<String, dynamic>,
+        );
+
+        if (state.litigationDocumentList.isNotEmpty &&
+            index < state.litigationDocumentList.length) {
+          final updatedList = List<LitigationDocumentModel>.from(
+            state.litigationDocumentList,
+          );
+
+          updatedList[index] = updatedLitigationDocument;
+
+          emit(
+            state.copyWith(
+              isLoading: false,
+              litigationDocumentList: updatedList,
+            ),
+          );
+        }
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Litigation Document Updated Successfully',
+        );
+      },
+    );
+  }
+
+  Future updateLitigationReopen({
+    required BuildContext context,
+    required int litigationId,
+    required String uniqueKey,
+    required int projectId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var body = {
+      "LitigationId": litigationId,
+      "Uniquekey": uniqueKey,
+      "ProjectId": projectId,
+    };
+    var result = await _litigationRepository.updateLitigationReopen(body: body);
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+        return;
+      },
+      (success) {
+        final updatedList = List<LitigationModel>.from(state.litigationList);
+
+        emit(state.copyWith(litigationList: updatedList, isLoading: false));
+        showSuccessMessage(context, subTitle: "Litigation Reopen Successfully");
+      },
+    );
+  }
 }

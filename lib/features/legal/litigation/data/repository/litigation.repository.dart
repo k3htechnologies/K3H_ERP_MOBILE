@@ -33,6 +33,7 @@ abstract interface class LitigationRepository {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
+
   Future<Either<Failure, Map<String, dynamic>>> deleteLitigationHearing({
     required int litigationId,
     required String uniqueKey,
@@ -48,7 +49,13 @@ abstract interface class LitigationRepository {
 
     Map<String, dynamic>? queryParams,
   });
-
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigationClosure({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> updateLitigationReopen({
+    required Map<String, dynamic> body,
+  });
   Future<Either<Failure, Map<String, dynamic>>> getLitigationForExport({
     required int pageNumber,
     required int pageSize,
@@ -216,6 +223,21 @@ class LitigationRepositoryImpl extends LitigationRepository {
     }
   }
 
+  // ADD / UPDATE LITIGATION HEARING
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigationClosure({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      final result = await litigationDatasource
+          .apiCallAddUpdateLitigationClosure(body: body, fileList: fileList);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullLitigationDocument({
     required int pageNumber,
@@ -284,6 +306,20 @@ class LitigationRepositoryImpl extends LitigationRepository {
         uniqueKey: uniqueKey,
         projectId: projectId,
         litigationHearingId: litigationDocumentId,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> updateLitigationReopen({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await litigationDatasource.apicallUpdateLitigationReopen(
+        body: body,
       );
       return right(result);
     } catch (error) {

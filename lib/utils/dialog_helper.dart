@@ -206,6 +206,87 @@ class DialogHelper {
     );
   }
 
+  static Future<bool> showConfirmationDialog({
+    required BuildContext context,
+    required String title,
+    required String message,
+    String confirmText = "Confirm",
+    String cancelText = "Cancel",
+    Color confirmColor = AppColor.primary,
+    IconData icon = CupertinoIcons.question_circle,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 40,
+          ),
+          backgroundColor: Colors.transparent,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border.all(color: confirmColor, width: 0.5),
+                color: AppColor.white,
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, color: confirmColor, size: 32),
+                  verticalSpacing(height: 15),
+
+                  Text(
+                    title,
+                    style: AppTextStyle.ts20R(color: confirmColor),
+                    textAlign: TextAlign.center,
+                  ),
+                  verticalSpacing(height: 8),
+
+                  Text(
+                    message,
+                    style: AppTextStyle.ts16R(color: AppColor.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                  verticalSpacing(height: 24),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomButton.cancelOutline(
+                          onPressed: () => Navigator.pop(context, false),
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      Expanded(
+                        child: CustomButton(
+                          text: confirmText,
+                          backgroundColor: confirmColor,
+                          textColor: AppColor.white,
+                          onPressed: () => Navigator.pop(context, true),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 9,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    return result ?? false;
+  }
+
   // BOTTOM SHEET
   static Future showCustomBottomSheet(
     BuildContext context,
@@ -404,7 +485,7 @@ class DialogHelper {
   static Future showCustomDialogue(
     BuildContext context, {
     required Widget childContent,
-        String? title,
+    String? title,
     Widget? bottomSection, // optional
     bool barrierDismissible = true,
   }) {
@@ -423,15 +504,16 @@ class DialogHelper {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Row(
                   children: [
-                    if(title!=null)
-                    Text(title,style: AppTextStyle.ts14M(),),
+                    if (title != null) Text(title, style: AppTextStyle.ts14M()),
                     Spacer(),
-                    IconButton(onPressed: (){
-                      goRouter.pop();
-                    }, icon: Icon(Icons.close,size: 18,))
+                    IconButton(
+                      onPressed: () {
+                        goRouter.pop();
+                      },
+                      icon: Icon(Icons.close, size: 18),
+                    ),
                   ],
                 ),
 
