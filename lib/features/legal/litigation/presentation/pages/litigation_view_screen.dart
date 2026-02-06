@@ -12,7 +12,6 @@ import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_docu
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_cubit.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_state.dart';
-import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -59,7 +58,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
   final _formKey = GlobalKey<FormState>();
 
-  ValueNotifier<LitigationClosureModel?> closureNotifier = ValueNotifier(null);
   DateTime? closureDate;
   late TextEditingController _remarkC;
   late TextEditingController _conclusionC;
@@ -83,10 +81,10 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _tabController.addListener(_onTabChanged);
 
     _onScroll();
-    if (widget.litigationModel.litigationClosureData.isNotEmpty) {
-      closureNotifier.value =
-          widget.litigationModel.litigationClosureData.first;
-    }
+    _litigationCubit.setInitialClosures(
+      widget.litigationModel.litigationClosureData,
+    );
+
     _litigationCubit.getLitigationList(context: context, pageNumber: 1);
   }
 
@@ -163,7 +161,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
   @override
   void dispose() {
-    closureNotifier.dispose();
     _tabController.dispose();
     _hearingScrollController.dispose();
     _documentScrollController.dispose();
@@ -191,7 +188,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 physics: NeverScrollableScrollPhysics(),
                 controller: _tabController,
                 children: [
-                  _buildOverviewTab(widget.litigationModel),
+                  _buildOverviewTab(),
                   _buildHearingTab(),
                   _buildDocumentTab(),
                 ],
@@ -204,243 +201,288 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   }
 
   // ===================== OVERVIEW TAB =====================
-  Widget _buildOverviewTab(LitigationModel litigation) {
-    final status = widget.litigationModel.status.toLowerCase();
+  Widget _buildOverviewTab() {
+    return BlocBuilder<LitigationCubit, LitigationState>(
+      builder: (context, state) {
+        final litigation = state.litigationList.firstWhere(
+          (e) => e.litigationId == widget.litigationModel.litigationId,
+          orElse: () => widget.litigationModel,
+        );
 
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-      child: SingleChildScrollView(
-        child: Column(
-          spacing: 10,
-          children: [
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: commonCardDecoration(),
-              child: Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Case Details", style: AppTextStyle.ts16SB()),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Case Title",
-                        value: litigation.title,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Case Number",
-                        value: litigation.caseNumber,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Case Type",
-                        value: litigation.caseType,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Case Status",
-                        value: litigation.status,
-                        valueTextStyle: AppTextStyle.ts14B(
-                          color:
-                              (litigation.status.toLowerCase() == 'open' ||
-                                      litigation.status.toLowerCase() ==
-                                          'reopen')
-                                  ? AppColor.green
-                                  : AppColor.red,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Project",
-                        value: litigation.projectName,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Date Of Filling",
-                        value: formatDateTimeAsDDMMMYYYY(
-                          litigation.dateOfFilling,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Case Brief",
-                        value: litigation.caseBrief,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Remark",
-                        value: litigation.remark,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+        final status = litigation.status.toLowerCase();
 
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: commonCardDecoration(),
-              child: Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Court Details", style: AppTextStyle.ts16SB()),
-                  Row(
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          child: SingleChildScrollView(
+            child: Column(
+              spacing: 10,
+              children: [
+                /// ================= CASE DETAILS =================
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumnTitleValue(
-                        title: "Court Title",
-                        value: litigation.courtType,
+                      Text("Case Details", style: AppTextStyle.ts16SB()),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Case Title",
+                            value: litigation.title,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Case Number",
+                            value: litigation.caseNumber,
+                          ),
+                        ],
                       ),
-                      buildColumnTitleValue(
-                        title: "Court Name",
-                        value: litigation.courtName,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Case Type",
+                            value: litigation.caseType,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Case Status",
+                            value: litigation.status,
+                            valueTextStyle: AppTextStyle.ts14B(
+                              color:
+                                  (litigation.status.toLowerCase() == 'open' ||
+                                          litigation.status.toLowerCase() ==
+                                              'reopen')
+                                      ? AppColor.green
+                                      : AppColor.red,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Project",
+                            value: litigation.projectName,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Date Of Filling",
+                            value: formatDateTimeAsDDMMMYYYY(
+                              litigation.dateOfFilling,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Case Brief",
+                            value: litigation.caseBrief,
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Remark",
+                            value: litigation.remark,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Court Location",
-                        value: litigation.courtLocation,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: commonCardDecoration(),
-              child: Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Parties Details", style: AppTextStyle.ts16SB()),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Plaintiff",
-                        value: litigation.plantiff,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Assigned Representative",
-                        value: litigation.assignedRepresentative,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Defendant",
-                        value: litigation.defendant,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Opposite Representative",
-                        value: litigation.opposingRepresentative,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            ValueListenableBuilder<LitigationClosureModel?>(
-              valueListenable: closureNotifier,
-              builder: (context, closure, _) {
-                if (closure == null) {
-                  return SizedBox.shrink();
-                }
-                return _buildClosureCard(closure);
-              },
-            ),
+                ),
 
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: commonCardDecoration(),
-              child: Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Action Details", style: AppTextStyle.ts16SB()),
-                  Row(
+                /// ================= COURT DETAILS =================
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumnTitleValue(
-                        title: "Created By",
-                        value: litigation.createdBy,
+                      Text("Court Details", style: AppTextStyle.ts16SB()),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Court Title",
+                            value: litigation.courtType,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Court Name",
+                            value: litigation.courtName,
+                          ),
+                        ],
                       ),
-                      buildColumnTitleValue(
-                        title: "Created Date",
-                        value: formatDateTimeAsDDMMMYYYY(
-                          litigation.createdDate,
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Court Location",
+                            value: litigation.courtLocation,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Modified By",
-                        value: litigation.modifiedBy,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Modified Date",
-                        value:
-                            litigation.modifiedDate != null
-                                ? formatDateTimeAsDDMMMYYYY(
-                                  litigation.modifiedDate!,
-                                )
-                                : '-',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+                ),
 
-            CustomButton(
-              text: status == 'closed' ? "Reopen" : "Close",
-              onPressed: () async {
-                if (status == 'open') {
-                  // OPEN → show closure form
-                  _showClosurePopup();
-                } else if (status == 'closed') {
-                  // CLOSED → confirm + call reopen API
-                  _showPopupToReopenLitigation(context);
-                } else if (status == 'reopen') {
-                  await _prefillClosureDate(closure: closureNotifier.value);
-                  // REOPEN → directly close again (no form)
-                  _submitClosure();
-                }
-              },
+                /// ================= PARTIES DETAILS =================
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Parties Details", style: AppTextStyle.ts16SB()),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Plaintiff",
+                            value: litigation.plantiff,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Assigned Representative",
+                            value: litigation.assignedRepresentative,
+                          ),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Defendant",
+                            value: litigation.defendant,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Opposite Representative",
+                            value: litigation.opposingRepresentative,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                /// ================= CLOSURE LIST =================
+                _buildClosureCardList(),
+
+                /// ================= ACTION DETAILS =================
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Action Details", style: AppTextStyle.ts16SB()),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Created By",
+                            value: litigation.createdBy,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Created Date",
+                            value: formatDateTimeAsDDMMMYYYY(
+                              litigation.createdDate,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Modified By",
+                            value: litigation.modifiedBy,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Modified Date",
+                            value:
+                                litigation.modifiedDate != null
+                                    ? formatDateTimeAsDDMMMYYYY(
+                                      litigation.modifiedDate!,
+                                    )
+                                    : '-',
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                /// ================= CLOSE / REOPEN BUTTON =================
+                CustomButton(
+                  text: status == 'closed' ? "Reopen" : "Close",
+                  onPressed: () async {
+                    if (status == 'open') {
+                      _showClosurePopup();
+                    } else if (status == 'closed') {
+                      _showPopupToReopenLitigation(context);
+                    } else if (status == 'reopen') {
+                      _showClosurePopup();
+                    }
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildClosureCard(LitigationClosureModel closure) {
+  // BUILD CLOSURE CARD LIST
+  Widget _buildClosureCardList() {
+    return BlocBuilder<LitigationCubit, LitigationState>(
+      builder: (context, state) {
+        // get the current litigation from state
+        final litigation = state.litigationList.firstWhere(
+          (e) => e.litigationId == widget.litigationModel.litigationId,
+          orElse: () => widget.litigationModel,
+        );
+        final closureList = litigation.litigationClosureData;
+
+        if (closureList.isEmpty) return Center(child: noDataWidget());
+
+        return Container(
+          padding: EdgeInsets.all(16),
+          decoration: commonCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Closure Details", style: AppTextStyle.ts16SB()),
+              SizedBox(height: 10),
+
+              ...closureList.asMap().entries.map((entry) {
+                final index = entry.key;
+                final closure = entry.value;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _buildClosureCard(closure, index),
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildClosureCard(LitigationClosureModel closure, int index) {
     return Container(
       padding: EdgeInsets.all(16),
-      decoration: commonCardDecoration(),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColor.primary, width: .3),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Column(
         spacing: 10,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -448,10 +490,23 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Closure Details", style: AppTextStyle.ts16SB()),
+              RichText(
+                text: TextSpan(
+                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                  text: "Closure Date : ",
+                  children: [
+                    TextSpan(
+                      style: AppTextStyle.ts14M(color: AppColor.black),
+                      text: formatDateTimeAsDDMMMYYYY(closure.closureDate),
+                    ),
+                  ],
+                ),
+              ),
+
               CustomIconButton.edit(
                 onPressed: () {
-                  _showClosurePopup(closure: closure);
+                  _prefillClosureDate(closure: closure);
+                  _showClosurePopup(closure: closure, index: index);
                 },
               ),
             ],
@@ -459,10 +514,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
           Row(
             children: [
-              buildColumnTitleValue(
-                title: "Closure Date",
-                value: formatDateTimeAsDDMMMYYYY(closure.closureDate),
-              ),
               buildColumnTitleValue(title: "Remark", value: closure.remark),
             ],
           ),
@@ -474,6 +525,39 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 value: closure.conclusion,
               ),
             ],
+          ),
+          SizedBox(
+            width: 120,
+            child: CustomButton(
+              trailing: Icon(
+                Icons.remove_red_eye_outlined,
+                color:
+                    closure.closureAttachementUrl.isNotEmpty
+                        ? AppColor.primary
+                        : AppColor.grey,
+              ),
+              text: "Document",
+              titleTextStyle: AppTextStyle.ts14M(
+                color:
+                    closure.closureAttachementUrl.isNotEmpty
+                        ? AppColor.primary
+                        : AppColor.grey,
+              ),
+
+              backgroundColor: AppColor.white,
+              borderColor:
+                  closure.closureAttachementUrl.isNotEmpty
+                      ? AppColor.primary
+                      : AppColor.grey,
+              onPressed: () {
+                if (closure.closureAttachementUrl.isNotEmpty) {
+                  showFilePreviewDialog(
+                    context,
+                    closure.closureAttachementUrl.split(","),
+                  );
+                }
+              },
+            ),
           ),
         ],
       ),
@@ -688,12 +772,45 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   Widget _buildDocumentTab() {
     return BlocBuilder<LitigationCubit, LitigationState>(
       builder: (context, state) {
+        // Find the current litigation from state using its ID
+        final litigation = state.litigationList.firstWhere(
+          (e) => e.litigationId == widget.litigationModel.litigationId,
+          orElse: () => widget.litigationModel,
+        );
+
         if (state.isLoading! && state.litigationDocumentList.isEmpty) {
           return Center(child: loader());
         }
 
         if (state.litigationDocumentList.isEmpty) {
-          return noDataWidget();
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Uploaded Documents", style: AppTextStyle.ts16SB()),
+                    CustomIconButton(
+                      onPressed: () async {
+                        await _showPopUpToAddUpdateDocument();
+                        if (context.mounted) {
+                          _litigationCubit.getLitigationDocumentList(
+                            context: context,
+                            pageNumber: 1,
+                            litigationId: widget.litigationModel.litigationId,
+                          );
+                        }
+                      },
+                      backgroundColor: AppColor.primary,
+                      icon: Icon(Icons.add, color: AppColor.white, size: 16),
+                    ),
+                  ],
+                ),
+                Expanded(child: Center(child: noDataWidget())),
+              ],
+            ),
+          );
         }
 
         return Padding(
@@ -704,7 +821,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text("Uploaded Documents", style: AppTextStyle.ts16SB()),
-
                   CustomIconButton(
                     onPressed: () async {
                       await _showPopUpToAddUpdateDocument();
@@ -727,7 +843,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   itemCount: state.litigationDocumentList.length + 1,
                   itemBuilder: (context, index) {
-                    // pagination loader
+                    // Pagination loader
                     if (index == state.litigationDocumentList.length) {
                       return state.litigationDocumentList.length <
                               state.documentTotalRecords
@@ -743,6 +859,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                     return _buildContainer(
                       litigationDocModel: document,
                       index: index,
+                      status: litigation.status,
                       onViewTab: () {
                         if (document.documentUrl.isNotEmpty) {
                           showFilePreviewDialog(
@@ -769,6 +886,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   Widget _buildContainer({
     required LitigationDocumentModel litigationDocModel,
     required int index,
+    required String status,
     required VoidCallback onViewTab,
     required VoidCallback onDeleteTab,
   }) {
@@ -819,17 +937,23 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                   ),
                   onPressed: onViewTab,
                 ),
-                horizontalSpacing(),
-                CustomIconButton.edit(
-                  onPressed: () async {
-                    _showPopUpToAddUpdateDocument(
-                      documentModel: litigationDocModel,
-                      index: index,
-                    );
-                  },
-                ),
-                horizontalSpacing(),
-                CustomIconButton.delete(onPressed: onDeleteTab),
+                // Edit/Delete buttons only if litigation is not closed
+                if (status.toLowerCase() != 'closed')
+                  Row(
+                    children: [
+                      horizontalSpacing(),
+                      CustomIconButton.edit(
+                        onPressed: () async {
+                          _showPopUpToAddUpdateDocument(
+                            documentModel: litigationDocModel,
+                            index: index,
+                          );
+                        },
+                      ),
+                      horizontalSpacing(),
+                      CustomIconButton.delete(onPressed: onDeleteTab),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -1034,6 +1158,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
   void _clearDialogueToAddUpdateDocument() {
     _documentNameC.clear();
+    closureDate = null;
     litigationDocument.fileBytesList.clear();
     litigationDocument.fileNameList.clear();
     litigationDocument.deletedFileList = "";
@@ -1056,8 +1181,10 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
   }
 
-  Future<void> _showClosurePopup({LitigationClosureModel? closure}) async {
-    _prefillClosureDate();
+  Future<void> _showClosurePopup({
+    LitigationClosureModel? closure,
+    int? index,
+  }) async {
     await showDialog(
       context: context,
       barrierDismissible: false,
@@ -1070,88 +1197,102 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
             key: _formKey,
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: 400,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.8,
+                  maxWidth: 400,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text("Add Closure", style: AppTextStyle.ts16SB()),
+                    // Title
+                    Text(
+                      closure != null ? "Update Closure" : "Add Closure",
+                      style: AppTextStyle.ts16SB(),
+                    ),
                     verticalSpacing(height: 16),
 
-                    /// Closure Date
-                    CustomDatePicker(
-                      title: "Closure Date",
-                      isRequired: true,
-                      initialDate: closureDate,
-                      startDate: DateTime.now(),
-                      setValue: (value) => closureDate = value,
-                      validator: (value) {
-                        if (value == null) return "Closure Date is required";
+                    // Scrollable Form Fields
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            /// Closure Date
+                            CustomDatePicker(
+                              title: "Closure Date",
+                              isRequired: true,
+                              initialDate: closureDate,
+                              startDate: DateTime.now(),
+                              setValue: (value) => closureDate = value,
+                              validator: (value) {
+                                if (value == null)
+                                  return "Closure Date is required";
+                                return null;
+                              },
+                            ),
+                            verticalSpacing(),
 
-                        return null;
-                      },
-                    ),
-                    verticalSpacing(),
+                            /// Conclusion
+                            CustomTextField(
+                              title: "Conclusion",
+                              hint: "Enter conclusion",
+                              textController: _conclusionC,
+                              isRequired: true,
+                              maxLines: 2,
+                              validator:
+                                  (v) =>
+                                      v == null || v.trim().isEmpty
+                                          ? "Conclusion required"
+                                          : null,
+                            ),
+                            verticalSpacing(),
 
-                    /// Conclusion
-                    CustomTextField(
-                      title: "Conclusion",
-                      hint: "Enter conclusion",
-                      textController: _conclusionC,
-                      isRequired: true,
-                      maxLines: 2,
-                      validator:
-                          (v) =>
-                              v == null || v.trim().isEmpty
-                                  ? "Conclusion required"
-                                  : null,
-                    ),
+                            /// Remark
+                            CustomTextField(
+                              title: "Remark",
+                              hint: "Enter remark",
+                              textController: _remarkC,
+                              maxLines: 2,
+                            ),
+                            verticalSpacing(),
 
-                    verticalSpacing(),
-
-                    /// Remark
-                    CustomTextField(
-                      title: "Remark",
-                      hint: "Enter remark",
-                      textController: _remarkC,
-                      maxLines: 2,
-                    ),
-
-                    verticalSpacing(),
-
-                    /// Attachments
-                    CustomMultiFilePicker(
-                      title: "Attachments",
-                      initialFileList: closureFiles.fileNameList,
-                      onFilePickedCallback: (bytes, names) {
-                        closureFiles.fileBytesList = bytes;
-                        closureFiles.fileNameList = names;
-                      },
-                      onFileDeleteCallback: (bytes, names, deleted) {
-                        closureFiles.fileBytesList = bytes;
-                        closureFiles.fileNameList = names;
-                        closureFiles.deletedFileList = deleted;
-                      },
+                            /// Attachments
+                            CustomMultiFilePicker(
+                              title: "Attachments",
+                              initialFileList: closureFiles.fileNameList,
+                              onFilePickedCallback: (bytes, names) {
+                                closureFiles.fileBytesList = bytes;
+                                closureFiles.fileNameList = names;
+                              },
+                              onFileDeleteCallback: (bytes, names, deleted) {
+                                closureFiles.fileBytesList = bytes;
+                                closureFiles.fileNameList = names;
+                                closureFiles.deletedFileList = deleted;
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
 
                     verticalSpacing(height: 20),
 
+                    // Fixed Buttons
                     Row(
                       children: [
                         Expanded(
                           child: CustomButton(
                             text: "Cancel",
                             backgroundColor: AppColor.grey,
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
+                            onPressed: () => Navigator.pop(context),
                           ),
                         ),
                         horizontalSpacing(),
                         Expanded(
                           child: CustomButton(
-                            text: "Save",
-                            onPressed: _submitClosure,
+                            text: closure != null ? "Update" : "Add",
+                            onPressed: () => _submitClosure(index: index),
                           ),
                         ),
                       ],
@@ -1168,20 +1309,19 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _clearClosureForm();
   }
 
-  void _submitClosure() {
-    print("Closure Date : ${closureDate?.toIso8601String()}");
-    if (widget.litigationModel.status.toLowerCase() == 'open' &&
-        !_formKey.currentState!.validate()) {
-      return;
-    }
+  void _submitClosure({int? index}) {
+    final state = context.read<LitigationCubit>().state;
+
+    if (!_formKey.currentState!.validate()) return;
+
+    final isEdit = index != null;
 
     var body = {
       "LitigationClosureId":
-          (closureNotifier.value != null)
-              ? closureNotifier.value!.litigationClosureId.toString()
-              : "0".toString(),
-      if ((closureNotifier.value != null))
-        "Uniquekey": closureNotifier.value!.uniquekey,
+          isEdit
+              ? state.closureList[index].litigationClosureId.toString()
+              : "0",
+      if (isEdit) "Uniquekey": state.closureList[index].uniquekey,
       "ProjectId": getProject().projectId.toString(),
       "LitigationId": widget.litigationModel.litigationId.toString(),
       "ClosureDate": closureDate!.toIso8601String(),
@@ -1189,11 +1329,20 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
       "Conclusion": _conclusionC.text.trim(),
     };
 
-    _litigationCubit.addLitigationClosure(
-      context: context,
-      body: body,
-      litigationClosureDocuments: closureFiles,
-    );
+    if (isEdit) {
+      _litigationCubit.updateLitigationClosure(
+        context: context,
+        closureIndex: index,
+        body: body,
+        litigationClosureDocuments: closureFiles,
+      );
+    } else {
+      _litigationCubit.addLitigationClosure(
+        context: context,
+        body: body,
+        litigationClosureDocuments: closureFiles,
+      );
+    }
   }
 
   void _clearClosureForm() {

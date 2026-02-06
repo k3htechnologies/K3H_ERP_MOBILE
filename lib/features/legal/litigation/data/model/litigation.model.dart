@@ -140,4 +140,41 @@ class LitigationModel {
     "HearingDate": hearingDate?.toIso8601String(),
     "ClosureDate": closureDate.toIso8601String(),
   };
+  LitigationModel copyWith({
+    String? status,
+    List<LitigationClosureModel>? litigationClosureData,
+    DateTime? closureDate,
+  }) {
+    return LitigationModel(
+      litigationId: litigationId,
+      uniquekey: uniquekey,
+      projectId: projectId,
+      projectName: projectName,
+      title: title,
+      caseNumber: caseNumber,
+      caseType: caseType,
+      dateOfFilling: dateOfFilling,
+      courtName: courtName,
+      courtLocation: courtLocation,
+      courtType: courtType,
+      status: status ?? this.status,
+      plantiff: plantiff,
+      defendant: defendant,
+      assignedRepresentative: assignedRepresentative,
+      opposingRepresentative: opposingRepresentative,
+      remark: remark,
+      caseBrief: caseBrief,
+      litigationClosureData:
+          litigationClosureData ?? this.litigationClosureData,
+      isDelete: isDelete,
+      createdById: createdById,
+      createdBy: createdBy,
+      createdDate: createdDate,
+      modifiedById: modifiedById,
+      modifiedBy: modifiedBy,
+      modifiedDate: modifiedDate,
+      hearingDate: hearingDate,
+      closureDate: closureDate ?? this.closureDate,
+    );
+  }
 }

@@ -301,11 +301,11 @@ class LitigationRepositoryImpl extends LitigationRepository {
     required int litigationDocumentId,
   }) async {
     try {
-      var result = await litigationDatasource.apicallDeleteLitigationHearing(
+      var result = await litigationDatasource.apicallDeleteLitigationDocument(
         litigationId: litigationId,
         uniqueKey: uniqueKey,
         projectId: projectId,
-        litigationHearingId: litigationDocumentId,
+        litigationDocumentId: litigationDocumentId,
       );
       return right(result);
     } catch (error) {
