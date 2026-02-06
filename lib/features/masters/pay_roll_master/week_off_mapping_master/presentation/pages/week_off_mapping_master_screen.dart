@@ -108,6 +108,10 @@ class _WeekOffMappingMasterScreenState
         },
         textController: _searchC,
         onExportCallback: (value) {
+          if(_weekOffMappingMasterCubit.state.totalNumberOfRecord == 0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _weekOffMappingMasterCubit.exportExcelPdf(context, value);
         },
         onSearchSubmit: (value) {

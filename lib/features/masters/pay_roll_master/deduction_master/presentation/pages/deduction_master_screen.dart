@@ -120,6 +120,10 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
           }
         },
         onExportCallback: (value) {
+          if(_deductionMasterCubit.state.totalNumberOfRecord==0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _deductionMasterCubit.exportExcelPdf(context, value);
         },
       ),

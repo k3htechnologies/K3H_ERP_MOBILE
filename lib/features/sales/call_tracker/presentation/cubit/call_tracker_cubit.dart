@@ -5,7 +5,9 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/data/model/call_log.model.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/data/model/calling_data.model.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/data/repository/call_tracker.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'call_tracker_state.dart';
 
@@ -114,6 +116,148 @@ class CallTrackerCubit extends Cubit<CallTrackerState> {
             totalNumberOfRecordCallLog: response["totalNumberOfRecord"],
             currentPageCallLog: pageNumber,
           ),
+        );
+      },
+    );
+  }
+
+  // <---- UPDATE CALL LOG ---->
+  Future updateCallLog({
+    required BuildContext context,
+    required int callLogId,
+    required int projectId,
+    required String uniqueKey,
+    required String remark,
+    required DateTime rescheduleDate,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, dynamic> requestBody = {
+      "CallLogId": callLogId,
+      "ProjectId": projectId,
+      "Uniquekey": uniqueKey,
+      "Status": "",
+      "Remark": remark,
+      "RescheduleDate": rescheduleDate.toIso8601String(),
+    };
+    var addResult = await _callTrackerRepository.updateCallLog(
+      body: requestBody,
+    );
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        final updatedCallLog = response['data'][0] as CallLogModel;
+
+        if (state.callLogList.isNotEmpty && index < state.callLogList.length) {
+          final updatedList = List<CallLogModel>.from(state.callLogList);
+          updatedList[index] = updatedCallLog;
+          emit(state.copyWith(callLogList: updatedList, isLoading: false));
+        }
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Call Log Updated Successfully!!!',
+        );
+      },
+    );
+  }
+
+  // <---- DELETE CALL LOG ---->
+  Future deleteCallLog({
+    required BuildContext context,
+    required int callLogId,
+    required String uniqueKey,
+    required int projectId,
+    int? index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _callTrackerRepository.deleteCallLog(
+      projectId: projectId,
+      callLogId: callLogId,
+      uniqueKey: uniqueKey,
+    );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(context);
+        if (index != null) {
+          final updatedList = List<CallLogModel>.from(state.callLogList);
+          updatedList.removeAt(index);
+          emit(state.copyWith(callLogList: updatedList, isLoading: false));
+        } else {
+          getCallLogList(context, state.currentPageCallLog, projectId);
+        }
+      },
+    );
+  }
+
+  // <---- EXPORT EXCEL PDF ---->
+  Future exportCallingDataExcelPdf(
+    BuildContext context,
+    String exportType,
+    int projectId,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _callTrackerRepository.exportCallingData(
+      projectId: projectId,
+      pageNumber: 1,
+      pageSize: state.totalNumberOfRecordCallingData,
+      queryParams:
+          state.searchText != ""
+              ? {"Name": state.searchText, "ExportType": exportType}
+              : {"ExportType": exportType},
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "calling_data_${DateTime.now()}.pdf"
+              : "calling_data_${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+
+  Future exportCallLogExcelPdf(
+    BuildContext context,
+    String exportType,
+    int projectId,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _callTrackerRepository.exportCallLog(
+      projectId: projectId,
+      pageNumber: 1,
+      pageSize: state.totalNumberOfRecordCallingData,
+      queryParams:
+          state.searchText != ""
+              ? {"Name": state.searchText, "ExportType": exportType}
+              : {"ExportType": exportType},
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "calling_log_${DateTime.now()}.pdf"
+              : "calling_log_${DateTime.now()}.xlsx",
         );
       },
     );

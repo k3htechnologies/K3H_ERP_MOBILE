@@ -21,13 +21,29 @@ abstract interface class CallTrackerDataSource {
   Future<Map<String, dynamic>> apiCallToAddCallLog({
     required Map<String, String> body,
   });
+
   Future<Map<String, dynamic>> apiCallToUpdateCallLog({
-    required Map<String, String> body,
+    required Map<String, dynamic> body,
   });
+
   Future<Map<String, dynamic>> apicallDeleteCallLog({
     required int projectId,
     required int callLogId,
     required String uniqueKey,
+  });
+
+  Future<Map<String, dynamic>> apicallPullCallingDataExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> apicallPullCallLogExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
   });
 }
 
@@ -155,7 +171,7 @@ class CallTrackerDataSourceImpl implements CallTrackerDataSource {
 
   @override
   Future<Map<String, dynamic>> apiCallToUpdateCallLog({
-    required Map<String, String> body,
+    required Map<String, dynamic> body,
   }) async {
     String updateCallLogUrl = "CallLog/UpdateCallLog";
 
@@ -210,6 +226,96 @@ class CallTrackerDataSourceImpl implements CallTrackerDataSource {
           projectId: projectId,
           callLogId: callLogId,
           uniqueKey: uniqueKey,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullCallingDataExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullCallingDataUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "CallTracker/PullCallingData?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await _baseClient.getRequestWithAuthentication(
+        pullCallingDataUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullCallingDataExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          projectId: projectId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullCallLogExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullCallLogUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "CallLog/PullCallLog?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await _baseClient.getRequestWithAuthentication(
+        pullCallLogUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullCallLogExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          projectId: projectId,
+          queryParams: queryParams,
         );
       }
       rethrow;

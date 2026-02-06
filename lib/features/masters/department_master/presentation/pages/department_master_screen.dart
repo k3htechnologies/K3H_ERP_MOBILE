@@ -203,6 +203,10 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
         screenTitle: 'Department',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
+          if(_departmentMasterCubit.state.totalNumberOfRecord==0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _departmentMasterCubit.exportExcelPdf(context, value);
         },
         onAddCallback: () async {

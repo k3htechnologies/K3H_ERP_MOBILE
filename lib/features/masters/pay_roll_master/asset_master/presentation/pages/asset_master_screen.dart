@@ -248,6 +248,10 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
           }
         },
         onExportCallback: (value) {
+          if(_assetMasterCubit.state.totalNumberOfRecord==0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _assetMasterCubit.exportExcelPdf(context, value);
         },
         isFilterOn: true,
@@ -403,11 +407,11 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     Color textColor;
 
     switch (status.toLowerCase()) {
-      case 'active':
+      case 'booked':
         bgColor = AppColor.lightGreen;
         textColor = AppColor.darkGreen;
         break;
-      case 'inactive':
+      case 'available':
         bgColor = AppColor.lightRed;
         textColor = AppColor.error;
         break;

@@ -113,6 +113,10 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
           goRouter.pushNamed(AppRoutes.addHolidayMaster);
         },
         onExportCallback: (value) {
+          if (holidayMasterCubit.state.totalNumberOfRecord == 0) {
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           holidayMasterCubit.exportExcelPdf(context, value);
         },
       ),

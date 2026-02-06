@@ -45,7 +45,10 @@ class TermsAndConditionsDatasourceImpl extends TermsAndConditionsDatasource {
     }) {
       String url =
           "TermsAndConditionsMaster/PullTermsAndConditionsMaster?PageSize=$pageSize&PageNumber=$pageNumber&ModuleName=$moduleName";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      queryParams?.forEach((key, value) {
+        final encoded = Uri.encodeQueryComponent(value?.toString() ?? '');
+        url += "&$key=$encoded";
+      });
       return url;
     }
 
@@ -156,7 +159,10 @@ class TermsAndConditionsDatasourceImpl extends TermsAndConditionsDatasource {
     }) {
       String url =
           "TermsAndConditionsMaster/PullTermsAndConditionsMaster?PageSize=$pageSize&PageNumber=$pageNumber&ModuleName=$moduleName";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      queryParams?.forEach((key, value) {
+        final encoded = Uri.encodeQueryComponent(value?.toString() ?? '');
+        url += "&$key=$encoded";
+      });
       return url;
     }
 

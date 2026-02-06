@@ -106,6 +106,10 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
         },
         textController: _searchC,
         onExportCallback: (value) {
+          if(_shiftMappingMasterCubit.state.totalNumberOfRecord == 0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _shiftMappingMasterCubit.exportExcelPdf(context, value);
         },
         onSearchSubmit: (value) {

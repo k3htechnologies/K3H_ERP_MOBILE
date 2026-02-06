@@ -255,6 +255,10 @@ class _VendorScreenState extends State<VendorScreen> {
         screenTitle: 'Vendor Management',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
+          if(_vendorCubit.state.totalNumberOfRecord==0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _vendorCubit.exportExcelPdf(context, value);
         },
         onAddCallback: () async {
@@ -278,7 +282,7 @@ class _VendorScreenState extends State<VendorScreen> {
             return loader();
           }
           if (state.vendorList.isEmpty) {
-            return noDataWidget();
+            return Center(child: noDataWidget());
           }
           return ListView.builder(
             controller: scrollController,

@@ -292,6 +292,10 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
         screenTitle: 'Company',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
+          if(_companyMasterCubit.state.totalNumberOfRecord==0){
+            showErrorMessage(context, "Error", "No data found");
+            return;
+          }
           _companyMasterCubit.exportExcelPdf(context, value);
         },
         onSearchSubmit: (value) {

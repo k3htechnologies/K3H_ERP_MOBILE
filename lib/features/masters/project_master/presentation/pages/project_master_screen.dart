@@ -181,6 +181,10 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
           }
         },
         onExportCallback: (value) {
+          if(_projectMasterCubit.state.totalNumberOfRecord==0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _projectMasterCubit.exportExcelPdf(context, value);
         },
         isFilterOn: true,

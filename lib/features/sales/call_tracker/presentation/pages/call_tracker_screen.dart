@@ -10,10 +10,15 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CallTrackerScreen extends StatefulWidget {
@@ -35,7 +40,10 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
   late AuthorizationModel _routhAuthorizationModel;
 
   // TEXT EDITING CONTROLLER
-  late TextEditingController _searchC;
+  late TextEditingController _searchC, _remarkC;
+
+  // FORM KEY
+  final _formKey = GlobalKey<FormState>();
 
   // PAGINATION
   late ScrollController scrollController;
@@ -46,6 +54,9 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
   // PROJECT
   late ProjectModel _project;
 
+  // RESCHEDULE DATE SELECT
+  DateTime? selectedRescheduleDate;
+
   @override
   void initState() {
     super.initState();
@@ -54,9 +65,10 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     _callTrackerCubit = context.read<CallTrackerCubit>();
     _project = getProject();
     _searchC = TextEditingController();
+    _remarkC = TextEditingController();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
-    _onScroll();
+    _onScrollCallingData();
     _onScrollCallLog();
     _callTrackerCubit.getCallingDataList(context, 1, _project.projectId);
   }
@@ -65,6 +77,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
   void dispose() {
     _tabController.dispose();
     _searchC.dispose();
+    _remarkC.dispose();
     scrollController.dispose();
     _scrollControllerCallLog.dispose();
     _debounce?.cancel();
@@ -72,6 +85,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     super.dispose();
   }
 
+  // HANDLE TAB CHANGE
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
       _searchC.clear();
@@ -85,7 +99,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
   }
 
   // <---- PAGINATION ---->
-  void _onScroll() {
+  void _onScrollCallingData() {
     scrollController = ScrollController();
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
@@ -105,6 +119,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     });
   }
 
+  // <---- PAGINATION ---->
   void _onScrollCallLog() {
     _scrollControllerCallLog = ScrollController();
     _scrollControllerCallLog.addListener(() {
@@ -124,6 +139,95 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
         });
       }
     });
+  }
+
+  // <---- UPDATE CALL LOG ---->
+  Future<void> _showBottomSheetToUpdateCallLog(
+    BuildContext context,
+    CallLogModel obj,
+    int projectId,
+    int index,
+  ) async {
+    _remarkC.text = obj.remark;
+    selectedRescheduleDate = obj.rescheduleDate;
+
+    DialogHelper.showCustomBottomSheet(
+      context,
+      "Update Call Log",
+      Container(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              CustomDatePicker(
+                isRequired: true,
+                title: "Reschedule Date",
+                initialDate: selectedRescheduleDate,
+                setValue: (value) {
+                  selectedRescheduleDate = value;
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select a date';
+                  }
+                  return null;
+                },
+              ),
+              verticalSpacing(),
+              CustomTextField(
+                isRequired: true,
+                title: "Remark",
+                hint: "Enter Remark",
+                textController: _remarkC,
+                minLines: 3,
+                maxLines: 3,
+              ),
+              Spacer(),
+              CustomButton(
+                text: "Save",
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _callTrackerCubit.updateCallLog(
+                      context: context,
+                      callLogId: obj.callLogId,
+                      projectId: projectId,
+                      uniqueKey: obj.uniquekey,
+                      remark: _remarkC.text,
+                      rescheduleDate: selectedRescheduleDate!,
+                      index: index,
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // <---- DELETE CALL LOG ---->
+  Future<void> _showPopupToDeleteCallLog(
+    BuildContext context,
+    CallLogModel obj,
+    int projectId,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a call log?',
+      'Deleting this call log will permanently remove its contents.',
+    );
+    if (result && context.mounted) {
+      _callTrackerCubit.deleteCallLog(
+        context: context,
+        callLogId: obj.callLogId,
+        uniqueKey: obj.uniquekey,
+        projectId: projectId,
+        index: index,
+      );
+    }
   }
 
   @override
@@ -150,7 +254,30 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
         },
         textController: _searchC,
         searchHintText: "Search By Customer Name",
-        onExportCallback: (value) {},
+        onExportCallback: (value) {
+          if (_callTrackerCubit.state.currentTabIndex == 0) {
+            if (_callTrackerCubit.state.totalNumberOfRecordCallingData==0) {
+              showErrorMessage(context, "Error", "Data Not Found");
+              return;
+            }
+            _callTrackerCubit.exportCallingDataExcelPdf(
+              context,
+              value,
+              _project.projectId,
+            );
+          }
+          if (_callTrackerCubit.state.currentTabIndex == 1) {
+            if (_callTrackerCubit.state.totalNumberOfRecordCallLog==0) {
+              showErrorMessage(context, "Error", "Data Not Found");
+              return;
+            }
+            _callTrackerCubit.exportCallLogExcelPdf(
+              context,
+              value,
+              _project.projectId,
+            );
+          }
+        },
       ),
       body: Column(
         children: [
@@ -203,7 +330,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     );
   }
 
-  // OVERVIEW
+  // CALLING DATA SECTION
   Widget _buildCallingData() {
     return BlocBuilder<CallTrackerCubit, CallTrackerState>(
       builder: (context, state) {
@@ -288,7 +415,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     );
   }
 
-  // CALL LOG
+  // CALL LOG SECTION
   Widget _buildCallLog() {
     return BlocBuilder<CallTrackerCubit, CallTrackerState>(
       builder: (context, state) {
@@ -312,20 +439,47 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                   : const SizedBox.shrink();
             }
             final callLog = state.callLogList[index];
-            return  CallLogExpandableCard(callLog: callLog);
+            return CallLogExpandableCard(
+              callLog: callLog,
+              index: index,
+              editCallBack: () {
+                _showBottomSheetToUpdateCallLog(
+                  context,
+                  callLog,
+                  _project.projectId,
+                  index,
+                );
+              },
+              deleteCallBack: () {
+                _showPopupToDeleteCallLog(
+                  context,
+                  callLog,
+                  _project.projectId,
+                  index,
+                );
+              },
+            );
           },
         );
       },
     );
   }
-
 }
 
-
+// EXPANDABLE CARD
 class CallLogExpandableCard extends StatefulWidget {
-  final dynamic callLog;
+  final Function deleteCallBack;
+  final Function editCallBack;
+  final CallLogModel callLog;
+  final int index;
 
-  const CallLogExpandableCard({super.key, required this.callLog});
+  const CallLogExpandableCard({
+    super.key,
+    required this.callLog,
+    required this.index,
+    required this.deleteCallBack,
+    required this.editCallBack,
+  });
 
   @override
   State<CallLogExpandableCard> createState() => _CallLogExpandableCardState();
@@ -347,14 +501,17 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
       child: Column(
         children: [
           _header(callLog),
-          AnimatedCrossFade(
+          AnimatedSize(
             duration: const Duration(milliseconds: 250),
-            crossFadeState:
-            isExpanded
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
-            firstChild: const SizedBox(),
-            secondChild: _expandedContent(callLog),
+            curve: Curves.easeInOut,
+            child:
+                isExpanded
+                    ? AnimatedOpacity(
+                      duration: const Duration(milliseconds: 200),
+                      opacity: 1,
+                      child: _expandedContent(callLog, widget.index),
+                    )
+                    : const SizedBox(),
           ),
         ],
       ),
@@ -368,13 +525,10 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
       child: Row(
         children: [
           Expanded(
-            child: Text(
-              callLog.receiverName,
-              style: AppTextStyle.ts14SB(),
-            ),
+            child: Text(callLog.receiverName, style: AppTextStyle.ts14SB()),
           ),
           _statusChip("Outgoing"),
-          const SizedBox(width: 6),
+          horizontalSpacing(width: 6),
           AnimatedRotation(
             turns: isExpanded ? 0.5 : 0,
             duration: const Duration(milliseconds: 300),
@@ -386,7 +540,7 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
   }
 
   // EXPANDED CONTENT
-  Widget _expandedContent(CallLogModel callLog) {
+  Widget _expandedContent(CallLogModel callLog, int index) {
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Column(
@@ -396,49 +550,58 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              buildColumnTitleValue(title: "Sales Executive Name", value: callLog.callerName),
-              buildColumnTitleValue(title: "Customer’s Phone No.", value: callLog.mobileNumber)
+              buildColumnTitleValue(
+                title: "Sales Executive Name",
+                value: callLog.callerName,
+              ),
+              buildColumnTitleValue(
+                title: "Customer’s Phone No.",
+                value: callLog.mobileNumber,
+              ),
             ],
           ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              buildColumnTitleValue(title: "Call Date", value: formatDateTimeAsDDMMMYYYY(callLog.callDate)),
-              buildColumnTitleValue(title: "Duration", value: callLog.duration)
-            ],
-          ), Row(
-            children: [
-              buildColumnTitleValue(title: "Call Rescheduled Date", value: callLog.rescheduleDate!=null?formatDateTimeAsDDMMMYYYY(callLog.rescheduleDate!):"-"),
-            ],
-          ), Row(
-            children: [
-              buildColumnTitleValue(title: "Remark", value: callLog.remark)
+              buildColumnTitleValue(
+                title: "Call Date",
+                value: formatDateTimeAsDDMMMYYYY(callLog.callDate),
+              ),
+              buildColumnTitleValue(title: "Duration", value: callLog.duration),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  // ROW
-  Widget _row(String title, String value, {IconData? trailingIcon}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTextStyle.ts12R()),
-                const SizedBox(height: 4),
-                Text(value, style: AppTextStyle.ts14M()),
-              ],
-            ),
+          Row(
+            children: [
+              buildColumnTitleValue(
+                title: "Call Rescheduled Date",
+                value:
+                    callLog.rescheduleDate != null
+                        ? formatDateTimeAsDDMMMYYYY(callLog.rescheduleDate!)
+                        : "-",
+              ),
+            ],
           ),
-          if (trailingIcon != null)
-            Icon(trailingIcon, size: 18, color: AppColor.grey),
+          Row(
+            children: [
+              buildColumnTitleValue(title: "Remark", value: callLog.remark),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 10,
+                children: [
+                  CustomIconButton.edit(
+                    onPressed: () {
+                      widget.editCallBack();
+                    },
+                  ),
+                  CustomIconButton.delete(
+                    onPressed: () {
+                      widget.deleteCallBack();
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
         ],
       ),
     );

@@ -6,7 +6,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 
-class SearchWidget extends StatelessWidget {
+class SearchWidget extends StatefulWidget {
   final Function(String) onSubmit;
   final VoidCallback? onFilterTap;
   final TextEditingController textController;
@@ -23,9 +23,34 @@ class SearchWidget extends StatelessWidget {
   });
 
   @override
+  State<SearchWidget> createState() => _SearchWidgetState();
+}
+
+class _SearchWidgetState extends State<SearchWidget> {
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onChanged(String value) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(seconds: 1), () {
+      widget.onSubmit(value);
+    });
+  }
+
+  void _onSubmitted(String value) {
+    // Avoid a queued debounce firing after manual submit.
+    _debounce?.cancel();
+    widget.onSubmit(value);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    Timer? debounce;
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       height: 40.0,
@@ -51,33 +76,27 @@ class SearchWidget extends StatelessWidget {
           /// SEARCH FIELD
           Expanded(
             child: TextField(
-              controller: textController,
-              onChanged: (value) {
-                if (debounce?.isActive ?? false) debounce!.cancel();
-                debounce = Timer(const Duration(seconds: 1), () {
-                  onSubmit(value);
-                });
-              },
-              onSubmitted: onSubmit,
+              controller: widget.textController,
+              onChanged: _onChanged,
+              onSubmitted: _onSubmitted,
               cursorHeight: 15,
-              cursorColor:
-              isDarkMode ? AppColor.warning : AppColor.cursorColor,
-              style: AppTextStyle.ts12R()
-                  .copyWith(color: isDarkMode ? AppColor.white : AppColor.black),
+              cursorColor: isDarkMode ? AppColor.warning : AppColor.cursorColor,
+              style: AppTextStyle.ts12R().copyWith(
+                color: isDarkMode ? AppColor.white : AppColor.black,
+              ),
               decoration: InputDecoration.collapsed(
-                hintText: hintText,
+                hintText: widget.hintText,
                 hintStyle: AppTextStyle.ts12R(color: AppColor.grey),
               ),
             ),
           ),
 
           // FILTER ICON
-          if (isFilterOn) ...[
-
+          if (widget.isFilterOn) ...[
             GestureDetector(
-              onTap: onFilterTap,
+              onTap: widget.onFilterTap,
               child: Container(
-                padding: EdgeInsets.all(6),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: AppColor.lightBlue,
                   borderRadius: BorderRadius.circular(3),

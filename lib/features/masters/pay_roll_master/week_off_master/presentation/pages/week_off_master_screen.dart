@@ -103,6 +103,10 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
         },
         textController: _searchC,
         onExportCallback: (value) {
+          if(_weekOffMasterCubit.state.totalNumberOfRecord == 0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _weekOffMasterCubit.exportExcelPdf(context, value);
         },
         onSearchSubmit: (value) {

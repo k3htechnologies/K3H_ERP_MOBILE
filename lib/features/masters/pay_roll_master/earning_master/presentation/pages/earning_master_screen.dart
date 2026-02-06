@@ -118,6 +118,10 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
         },
         textController: _searchC,
         onExportCallback: (value) {
+          if (_earningMasterCubit.state.totalNumberOfRecord == 0) {
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _earningMasterCubit.exportExcelPdf(context, value);
         },
       ),

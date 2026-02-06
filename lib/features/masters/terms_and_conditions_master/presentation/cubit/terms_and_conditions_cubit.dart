@@ -19,14 +19,18 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
   // <---- GET MATERIAL REQUISITION LIST ---->
   Future getMaterialRequisitionTermsAndConditionList(
     BuildContext context,
-    int pageNumber,
-  ) async {
+    int pageNumber, {
+    String? searchOverride,
+  }) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {
-      "Title": state.searchTextMaterialRequisition,
+    final searchText = searchOverride ?? state.searchTextMaterialRequisition;
+    final Map<String, dynamic> queryParams = {
       "SortBy":
           "${state.currentSortColumnMaterialRequisition} ${state.currentSortDirectionMaterialRequisition}",
     };
+    if (searchText.trim().isNotEmpty) {
+      queryParams["Title"] = searchText.trim();
+    }
     var result = await _termsAndConditionsMasterRepository
         .getTermsAndConditionsList(
           pageNumber: pageNumber,
@@ -66,14 +70,18 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
   // <---- GET BOOKING LIST ---->
   Future getBookingTermsAndConditionList(
     BuildContext context,
-    int pageNumber,
-  ) async {
+    int pageNumber, {
+    String? searchOverride,
+  }) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {
-      "Title": state.searchTextBooking,
+    final searchText = searchOverride ?? state.searchTextBooking;
+    final Map<String, dynamic> queryParams = {
       "SortBy":
           "${state.currentSortColumnBooking} ${state.currentSortDirectionBooking}",
     };
+    if (searchText.trim().isNotEmpty) {
+      queryParams["Title"] = searchText.trim();
+    }
     var result = await _termsAndConditionsMasterRepository
         .getTermsAndConditionsList(
           pageNumber: pageNumber,
@@ -169,8 +177,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
       },
       (response) {
         goRouter.pop();
-        final updatedItem =
-            response['data'][0] as TermsAndConditionsModel;
+        final updatedItem = response['data'][0] as TermsAndConditionsModel;
 
         if (state.materialRequisitionTermsAndConditionsList.isNotEmpty &&
             index < state.materialRequisitionTermsAndConditionsList.length) {
@@ -254,8 +261,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
       },
       (response) {
         goRouter.pop();
-        final updatedItem =
-            response['data'][0] as TermsAndConditionsModel;
+        final updatedItem = response['data'][0] as TermsAndConditionsModel;
 
         if (state.bookingTermsAndConditionsList.isNotEmpty &&
             index < state.bookingTermsAndConditionsList.length) {
@@ -318,10 +324,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
             ),
           );
         } else {
-          getMaterialRequisitionTermsAndConditionList(
-            context,
-            pageNumber,
-          );
+          getMaterialRequisitionTermsAndConditionList(context, pageNumber);
         }
       },
     );
@@ -380,7 +383,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         bookingTermsAndConditionsList: [],
       ),
     );
-    await getBookingTermsAndConditionList(context, 1);
+    await getBookingTermsAndConditionList(context, 1, searchOverride: value);
   }
 
   // <---- SORT BOOKING ---->
@@ -407,7 +410,11 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         materialRequisitionTermsAndConditionsList: [],
       ),
     );
-    await getMaterialRequisitionTermsAndConditionList(context, 1);
+    await getMaterialRequisitionTermsAndConditionList(
+      context,
+      1,
+      searchOverride: value,
+    );
   }
 
   // <---- SORT MATERIAL REQUISITION ---->
@@ -491,14 +498,14 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     );
   }
 
+  // Same as Call Tracker: only update state; screen calls the API on tab change.
   void onTabChanged(int index, BuildContext context) {
-    emit(state.copyWith(currentTabIndex: index));
-    if (index == 0) {
-      // Always start from page 1 when switching tabs to avoid duplicates
-      getMaterialRequisitionTermsAndConditionList(context, 1);
-    } else if (index == 1) {
-      // Always start from page 1 when switching tabs to avoid duplicates
-      getBookingTermsAndConditionList(context, 1);
-    }
+    emit(
+      state.copyWith(
+        currentTabIndex: index,
+        searchTextBooking: "",
+        searchTextMaterialRequisition: "",
+      ),
+    );
   }
 }

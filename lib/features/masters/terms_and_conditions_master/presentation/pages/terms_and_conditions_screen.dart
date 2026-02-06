@@ -53,6 +53,9 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
   Timer? _materialRequisitionDebounce;
   Timer? _bookingDebounce;
 
+  int _lastHandledTabIndex = 0;
+  bool _isHandlingTabChange = false;
+
   @override
   void initState() {
     super.initState();
@@ -92,15 +95,35 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
     super.dispose();
   }
 
-  // HANDLE TAB CHANGE
+  // Same as Call Tracker: clear search, update state, call API once. Guard against double fire.
   void _handleTabChange() {
-    if (!_tabController.indexIsChanging) {
-      _termsAndConditionsCubit.onTabChanged(_tabController.index, context);
+    if (_tabController.indexIsChanging) return;
+    if (_isHandlingTabChange) return;
+    final index = _tabController.index;
+    if (index == _lastHandledTabIndex) return;
+    _isHandlingTabChange = true;
+    _lastHandledTabIndex = index;
+    _searchC.clear();
+    _termsAndConditionsCubit.onTabChanged(index, context);
+    if (index == 0) {
+      _termsAndConditionsCubit.getMaterialRequisitionTermsAndConditionList(
+        context,
+        1,
+        searchOverride: "",
+      );
+    } else if (index == 1) {
+      _termsAndConditionsCubit.getBookingTermsAndConditionList(
+        context,
+        1,
+        searchOverride: "",
+      );
     }
+    _isHandlingTabChange = false;
   }
 
-  // PAGINATION - MATERIAL REQUISITION
+  // PAGINATION - MATERIAL REQUISITION (only when on this tab, same as Call Tracker)
   void _onMaterialRequisitionScroll() {
+    if (_tabController.index != 0) return;
     if (_materialRequisitionScrollController.position.pixels >=
             _materialRequisitionScrollController.position.maxScrollExtent -
                 100 &&
@@ -130,8 +153,9 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
     }
   }
 
-  // PAGINATION - BOOKING
+  // PAGINATION - BOOKING (only when on this tab, same as Call Tracker)
   void _onBookingScroll() {
+    if (_tabController.index != 1) return;
     if (_bookingScrollController.position.pixels >=
             _bookingScrollController.position.maxScrollExtent - 100 &&
         !_termsAndConditionsCubit.state.isLoading! &&
@@ -208,6 +232,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
+        key: ValueKey<int>(_tabController.index),
         screenTitle: "Terms And Conditions",
         authorization: _routeAuthorizationModel,
         onSearchSubmit: (value) {
@@ -240,11 +265,25 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
         },
         onExportCallback: (value) {
           if (_termsAndConditionsCubit.state.currentTabIndex == 0) {
+            if (_termsAndConditionsCubit
+                    .state
+                    .materialRequisitionTotalNumberOfRecordTermsAndConditions ==
+                0) {
+              showErrorMessage(context, "Error", "No data found");
+              return;
+            }
             _termsAndConditionsCubit.exportExcelPdfMaterialRequisition(
               context,
               value,
             );
           } else {
+            if (_termsAndConditionsCubit
+                    .state
+                    .bookingTotalNumberOfRecordTermsAndConditions ==
+                0) {
+              showErrorMessage(context, "Error", "No data found");
+              return;
+            }
             _termsAndConditionsCubit.exportExcelPdfBooking(context, value);
           }
         },

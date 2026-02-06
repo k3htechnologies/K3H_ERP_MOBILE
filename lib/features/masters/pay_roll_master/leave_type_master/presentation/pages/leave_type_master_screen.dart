@@ -108,6 +108,10 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
         },
         textController: _searchC,
         onExportCallback: (value) {
+          if(_leaveTypeMasterCubit.state.totalNumberOfRecord == 0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _leaveTypeMasterCubit.exportExcelPdf(context, value);
         },
         onSearchSubmit: (value) {

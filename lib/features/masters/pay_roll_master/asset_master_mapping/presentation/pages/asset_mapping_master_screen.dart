@@ -123,6 +123,10 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
           }
         },
         onExportCallback: (value) {
+          if(_assetMappingMasterCubit.state.totalNumberOfRecord==0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _assetMappingMasterCubit.exportExcelPdf(context, value);
         },
       ),

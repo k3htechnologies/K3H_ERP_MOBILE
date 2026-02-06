@@ -135,6 +135,10 @@ class _LeaveCreditDebitMasterScreenState
           }
         },
         onExportCallback: (value) {
+          if(_leaveCreditDebitMasterCubit.state.totalNumberOfRecord == 0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _leaveCreditDebitMasterCubit.exportExcelPdf(context, value);
         },
       ),

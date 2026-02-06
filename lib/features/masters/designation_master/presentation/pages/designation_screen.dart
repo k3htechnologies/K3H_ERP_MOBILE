@@ -216,6 +216,10 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
         screenTitle: 'Designation',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
+          if(_designationMasterCubit.state.totalNumberOfRecord==0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _designationMasterCubit.exportExcelPdf(context, value);
         },
         onAddCallback: () async {

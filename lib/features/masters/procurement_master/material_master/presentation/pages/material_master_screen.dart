@@ -114,6 +114,10 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
         screenTitle: 'Material Master',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
+          if(_materialMasterCubit.state.totalNumberOfRecord == 0){
+            showErrorMessage(context, "Error", "No data found");
+            return;
+          }
           _materialMasterCubit.exportExcelPdf(context, value);
         },
         onAddCallback: () async {

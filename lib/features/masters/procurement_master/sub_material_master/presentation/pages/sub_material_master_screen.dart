@@ -116,6 +116,10 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
         screenTitle: 'Sub Material',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
+          if(_subMaterialMasterCubit.state.totalNumberOfRecord == 0){
+            showErrorMessage(context, "Error", "No data found");
+            return;
+          }
           _subMaterialMasterCubit.exportExcelPdf(context, value);
         },
         onAddCallback: () async {

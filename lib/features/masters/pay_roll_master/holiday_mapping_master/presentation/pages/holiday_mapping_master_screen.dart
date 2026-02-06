@@ -125,6 +125,10 @@ class _HolidayMappingMasterScreenState
           }
         },
         onExportCallback: (value) {
+          if (_holidayMappingMasterCubit.state.totalNumberOfRecord == 0) {
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _holidayMappingMasterCubit.exportExcelPdf(context, value);
         },
       ),

@@ -128,6 +128,10 @@ class _BranchAssociationMasterScreenState
           }
         },
         onExportCallback: (value) {
+          if(_branchAssociationMasterCubit.state.totalNumberOfRecord==0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _branchAssociationMasterCubit.exportExcelPdf(context, value);
         },
       ),

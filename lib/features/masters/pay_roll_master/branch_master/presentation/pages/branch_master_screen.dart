@@ -123,6 +123,10 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
           }
         },
         onExportCallback: (value) {
+          if(_branchMasterCubit.state.totalNumberOfRecord==0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _branchMasterCubit.exportExcelPdf(context, value);
         },
       ),

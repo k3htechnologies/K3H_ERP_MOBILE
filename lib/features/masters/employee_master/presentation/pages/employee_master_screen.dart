@@ -549,6 +549,10 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
         screenTitle: 'Employee',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
+          if(_employeeMasterCubit.state.totalNumberOfRecord==0){
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _employeeMasterCubit.exportExcelPdf(context, value);
         },
         onAddCallback: () async {
