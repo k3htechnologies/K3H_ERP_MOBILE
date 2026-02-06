@@ -71,6 +71,7 @@ class _AddLitigationHearingScreenState
   }
 
   void _submitForm() {
+    if (!_formKey.currentState!.validate()) return;
     var body = {
       "LitigationHearingId":
           _isEditMode
@@ -122,6 +123,7 @@ class _AddLitigationHearingScreenState
                   title: "Hearing Date",
                   isRequired: true,
                   initialDate: hearingDate,
+                  startDate: DateTime.now(),
                   setValue: (value) => hearingDate = value,
                   validator: (value) {
                     if (value == null) return "Hearing Date is required";
