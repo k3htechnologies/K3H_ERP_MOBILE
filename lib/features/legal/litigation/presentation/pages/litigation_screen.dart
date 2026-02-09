@@ -247,7 +247,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
                     ),
                     verticalSpacing(height: 10),
                     buildRowTitleValue(
-                      title: "Case Number",
+                      title: "Case / Petition / Dispute Number",
                       value: litigation.caseNumber,
                     ),
                     buildRowTitleValue(

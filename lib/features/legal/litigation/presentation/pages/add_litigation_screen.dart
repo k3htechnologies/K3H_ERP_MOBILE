@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
@@ -212,16 +213,22 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             title: "Case Title",
             hint: "Enter Case Title",
             textController: _caseTitleC,
+            inputFormatterList: [LengthLimitingTextInputFormatter(250)],
             isRequired: true,
             validator: (v) => v!.isEmpty ? "Case Title is required" : null,
           ),
 
           CustomTextField(
-            title: "Case Number",
-            hint: "Enter Case Number",
+            title: "Case / Petition / Dispute Number",
+            hint: "Enter Case / Petition / Dispute Number",
+            inputFormatterList: [LengthLimitingTextInputFormatter(250)],
             isRequired: true,
             textController: _caseNumberC,
-            validator: (v) => v!.isEmpty ? "Case Number is required" : null,
+            validator:
+                (v) =>
+                    v!.isEmpty
+                        ? "Case / Petition / Dispute Number is required"
+                        : null,
           ),
 
           CustomDropDownWidget(
@@ -299,19 +306,24 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
           verticalSpacing(),
 
           CustomTextField(
-            title: "Plantiff",
+            title: "Plainiff / Petitioner",
             isRequired: true,
-            hint: "Enter Plantiff Name",
+            hint: "Enter Plainiff / Petitioner Name",
             textController: _plantiffC,
-            validator: (v) => v!.isEmpty ? "Plantiff is required" : null,
+            validator:
+                (v) => v!.isEmpty ? "Plainiff / Petitioner is required" : null,
           ),
 
           CustomTextField(
-            title: "Defendant",
+            title: "Defendant / Opposite Party / Respondents",
             isRequired: true,
-            hint: "Enter Defendant Name",
+            hint: "Enter Defendant / Opposite Party / Respondents Name",
             textController: _defendantC,
-            validator: (v) => v!.isEmpty ? "Defendant is required" : null,
+            validator:
+                (v) =>
+                    v!.isEmpty
+                        ? "Defendant / Opposite Party / Respondents is required"
+                        : null,
           ),
 
           CustomTextField(
@@ -335,12 +347,12 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
           ),
 
           CustomTextField(
-            title: "Remark",
+            title: "Case Remark",
             isRequired: true,
-            hint: "Enter Remark",
+            hint: "Enter Case Remark",
             textController: _remarkC,
             maxLines: 3,
-            validator: (v) => v!.isEmpty ? "Remark is required" : null,
+            validator: (v) => v!.isEmpty ? "Case Remark is required" : null,
           ),
         ],
       ),
@@ -354,12 +366,15 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Case Brief", style: AppTextStyle.ts14M(color: AppColor.grey)),
+          Text(
+            "Case Description",
+            style: AppTextStyle.ts14M(color: AppColor.grey),
+          ),
           verticalSpacing(),
 
           CustomTextField(
-            title: "Add Case Brief",
-            hint: "Enter Case Brief",
+            title: "Case Brief / Petition / Suit",
+            hint: "Enter Case Brief / Petition / Suit",
             isRequired: true,
             textController: _caseBriefC,
             maxLines: 5,
