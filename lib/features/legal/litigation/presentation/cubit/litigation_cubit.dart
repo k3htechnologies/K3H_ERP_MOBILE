@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_closure.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_document.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
@@ -17,7 +18,7 @@ class LitigationCubit extends Cubit<LitigationState> {
   final LitigationRepository _litigationRepository =
       serviceLocator<LitigationRepository>();
 
-  /// Pull litigation list (with pagination)
+  /// PULL LITIGATION LIST
   Future<void> getLitigationList({
     required BuildContext context,
     required int pageNumber,
@@ -93,6 +94,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
+  // ADD LITIGATION
   Future addLitigation({
     required BuildContext context,
     required Map<String, dynamic> body,
@@ -115,6 +117,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
+  // UPDATE LITIGATION
   Future updateLitigation({
     required BuildContext context,
     required int index,
@@ -154,39 +157,12 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
-  /// Change tab index
+  /// CHANGE TAB INDEX
   void changeTab(int index) {
     emit(state.copyWith(currentTabIndex: index, isLoading: true));
   }
 
-  // EXPORT LITIGATION
-  Future exportExcelPdf(BuildContext context, String exportType) async {
-    DialogHelper.showProcessingOverlay(context);
-    var result = await _litigationRepository.getLitigationForExport(
-      pageNumber: 1,
-      pageSize: state.litigationTotalRecords,
-      queryParams: {
-        "ExportType": exportType,
-        "Title": state.searchText.trim(),
-        "ProjectId": getProject().projectId,
-      },
-    );
-    goRouter.pop();
-    result.fold(
-      (failure) {
-        showErrorMessage(context, "Error", failure.message);
-      },
-      (success) {
-        exportExcelOrPdfMobile(
-          success["data"],
-          exportType.toLowerCase() == "pdf"
-              ? "litigation_${DateTime.now()}.pdf"
-              : "litigation_${DateTime.now()}.xlsx",
-        );
-      },
-    );
-  }
-
+  // PULL LITIGATION HEARING
   Future<void> getLitigationHearingList({
     required BuildContext context,
     required int pageNumber,
@@ -229,6 +205,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
+  // ADD LITIGATION HEARING
   Future addLitigationHearing({
     required BuildContext context,
     required Map<String, String> body,
@@ -268,6 +245,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
+  // UPDATE LITIGATION HEARING
   Future updateLitigationHearing({
     required BuildContext context,
     required int index,
@@ -371,6 +349,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
+  // PULL LITIGATION DOCUMENT
   Future<void> getLitigationDocumentList({
     required BuildContext context,
     required int pageNumber,
@@ -413,6 +392,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
+  // ADD LITIGATION DOCUMENT
   Future addLitigationDocument({
     required BuildContext context,
     required Map<String, String> body,
@@ -452,6 +432,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
+  // UPDATE LITIGATION DOCUMENT
   Future updateLitigationDocument({
     required BuildContext context,
     required int index,
@@ -512,6 +493,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
+  // DELETE LITIGATION DOCUMENT
   Future deleteLitigationDocument(
     int index,
     LitigationDocumentModel litigationDocModel,
@@ -566,29 +548,26 @@ class LitigationCubit extends Cubit<LitigationState> {
     getLitigationList(context: context, pageNumber: 1);
   }
 
-  void clearHearingData() {
-    emit(
-      state.copyWith(
-        litigationHearingList: [],
-        hearingCurrentPage: 1, // Reset pagination too
-      ),
-    );
-  }
-
-  void clearDocumentData() {
-    emit(
-      state.copyWith(
-        litigationDocumentList: [],
-        documentCurrentPage: 1, // Reset pagination too
-      ),
-    );
-  }
-
+  // RESET LITIGATION DATA
   void resetLitigationData() {
     clearHearingData();
     clearDocumentData();
   }
 
+  void clearHearingData() {
+    emit(
+      state.copyWith(
+        litigationHearingList: [],
+        hearingCurrentPage: 1,
+      ),
+    );
+  }
+
+  void clearDocumentData() {
+    emit(state.copyWith(litigationDocumentList: [], documentCurrentPage: 1));
+  }
+
+  // GET LITIGATION CLOSURE
   Future<void> getLitigationClosureList({
     required BuildContext context,
     required int pageNumber,
@@ -630,23 +609,27 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
-  Future addLitigationClosure({
+  // ADD LITIGATION CLOSURE
+  Future<void> addLitigationClosure({
     required BuildContext context,
+    required int litigationIndex,
     required Map<String, String> body,
     required MultiFilePickerModel litigationClosureDocuments,
   }) async {
     DialogHelper.showProcessingOverlay(context);
+
     List<Map<String, dynamic>> fileList = [];
+
     for (int i = 0; i < litigationClosureDocuments.fileNameList.length; i++) {
-      if (litigationClosureDocuments.fileNameList[i].contains("http")) {
-        continue;
-      }
+      if (litigationClosureDocuments.fileNameList[i].contains("http")) continue;
+
       fileList.add({
         "key": "ClosureAttachementURL",
         "value": litigationClosureDocuments.fileBytesList[i],
         "fileName": litigationClosureDocuments.fileNameList[i],
       });
     }
+
     final result = await _litigationRepository.addUpdateLitigationClosure(
       body: body,
       fileList: fileList,
@@ -661,32 +644,54 @@ class LitigationCubit extends Cubit<LitigationState> {
       (response) {
         goRouter.pop();
 
-        showSuccessMessage(
-          context,
-          subTitle: 'Litigation Closure Added Successfully',
+        final newClosure = LitigationClosureModel.fromJson(response['data'][0]);
+
+        final updatedLitigationList = List<LitigationModel>.from(
+          state.litigationList,
         );
+
+        final selectedLitigation = updatedLitigationList[litigationIndex];
+
+        final updatedClosureList = [
+          newClosure,
+          ...selectedLitigation.litigationClosureData,
+        ];
+
+        updatedLitigationList[litigationIndex] = selectedLitigation.copyWith(
+          status: "Closed",
+          closureDate: newClosure.closureDate,
+          litigationClosureData: updatedClosureList,
+        );
+
+        emit(state.copyWith(litigationList: updatedLitigationList));
+
+        showSuccessMessage(context, subTitle: 'Closure added successfully');
       },
     );
   }
 
-  Future updateLitigationClosure({
+  // UPDATE LITIGATION CLOSURE
+  Future<void> updateLitigationClosure({
     required BuildContext context,
-    required int index,
+    required int litigationIndex,
+    required int closureIndex,
     required Map<String, String> body,
     required MultiFilePickerModel litigationClosureDocuments,
   }) async {
     DialogHelper.showProcessingOverlay(context);
+
     List<Map<String, dynamic>> fileList = [];
+
     for (int i = 0; i < litigationClosureDocuments.fileNameList.length; i++) {
-      if (litigationClosureDocuments.fileNameList[i].contains("http")) {
-        continue;
-      }
+      if (litigationClosureDocuments.fileNameList[i].contains("http")) continue;
+
       fileList.add({
         "key": "ClosureAttachementURL",
         "value": litigationClosureDocuments.fileBytesList[i],
         "fileName": litigationClosureDocuments.fileNameList[i],
       });
     }
+
     final result = await _litigationRepository.addUpdateLitigationClosure(
       body: body,
       fileList: fileList,
@@ -701,58 +706,100 @@ class LitigationCubit extends Cubit<LitigationState> {
       (response) {
         goRouter.pop();
 
-        final updatedLitigationDocument = LitigationDocumentModel.fromJson(
-          response['data'][0] as Map<String, dynamic>,
+        final updatedClosure = LitigationClosureModel.fromJson(
+          response['data'][0],
         );
 
-        if (state.litigationDocumentList.isNotEmpty &&
-            index < state.litigationDocumentList.length) {
-          final updatedList = List<LitigationDocumentModel>.from(
-            state.litigationDocumentList,
-          );
-
-          updatedList[index] = updatedLitigationDocument;
-
-          emit(
-            state.copyWith(
-              isLoading: false,
-              litigationDocumentList: updatedList,
-            ),
-          );
-        }
-
-        showSuccessMessage(
-          context,
-          subTitle: 'Litigation Document Updated Successfully',
+        /// Update inside litigation list
+        final updatedLitigationList = List<LitigationModel>.from(
+          state.litigationList,
         );
+
+        final selectedLitigation = updatedLitigationList[litigationIndex];
+
+        final closureData = List<LitigationClosureModel>.from(
+          selectedLitigation.litigationClosureData,
+        );
+
+        closureData[closureIndex] = updatedClosure;
+
+        updatedLitigationList[litigationIndex] = selectedLitigation.copyWith(
+          litigationClosureData: closureData,
+        );
+
+        emit(state.copyWith(litigationList: updatedLitigationList));
+
+        showSuccessMessage(context, subTitle: 'Closure updated successfully');
       },
     );
   }
 
-  Future updateLitigationReopen({
+  // UPDATE LITIGATION STATUS TO REOPEN
+  Future<void> updateLitigationReopen({
     required BuildContext context,
+    required int litigationIndex,
     required int litigationId,
     required String uniqueKey,
     required int projectId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
+
     var body = {
       "LitigationId": litigationId,
       "Uniquekey": uniqueKey,
       "ProjectId": projectId,
     };
+
     var result = await _litigationRepository.updateLitigationReopen(body: body);
+
     goRouter.pop();
+
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
         return;
       },
       (success) {
+        final updatedLitigation = LitigationModel.fromJson(success['data'][0]);
+
         final updatedList = List<LitigationModel>.from(state.litigationList);
 
-        emit(state.copyWith(litigationList: updatedList, isLoading: false));
-        showSuccessMessage(context, subTitle: "Litigation Reopen Successfully");
+        updatedList[litigationIndex] = updatedLitigation;
+
+        emit(state.copyWith(litigationList: updatedList));
+
+        showSuccessMessage(
+          context,
+          subTitle: "Litigation Reopened Successfully",
+        );
+      },
+    );
+  }
+
+  // EXPORT LITIGATION
+  Future exportExcelPdf(BuildContext context, String exportType) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _litigationRepository.getLitigationForExport(
+      pageNumber: 1,
+      pageSize: state.litigationTotalRecords,
+      queryParams: {
+        "ExportType": exportType,
+        "Title": state.searchText.trim(),
+        "ProjectId": getProject().projectId,
+      },
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (success) {
+        exportExcelOrPdfMobile(
+          success["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "litigation_${DateTime.now()}.pdf"
+              : "litigation_${DateTime.now()}.xlsx",
+        );
       },
     );
   }

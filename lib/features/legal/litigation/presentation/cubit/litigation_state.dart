@@ -1,4 +1,5 @@
 import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_closure.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_document.model.dart';
@@ -99,7 +100,7 @@ class LitigationState extends BaseState {
       documentTotalRecords: documentTotalRecords ?? this.documentTotalRecords,
 
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
-      searchText: searchText ?? this.searchText,
+      searchText: searchText ?? this.searchText
     );
   }
 

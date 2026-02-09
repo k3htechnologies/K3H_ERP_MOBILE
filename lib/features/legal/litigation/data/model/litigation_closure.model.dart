@@ -36,7 +36,7 @@ class LitigationClosureModel {
         closureDate: parseValue<DateTime>(json, "ClosureDate"),
         closureAttachementUrl: parseValue<String>(
           json,
-          "ClosureAttachementUrl",
+          "ClosureAttachementURL",
         ),
         remark: parseValue<String>(json, "Remark"),
         conclusion: parseValue<String>(json, "Conclusion"),
@@ -55,7 +55,7 @@ class LitigationClosureModel {
     "LitigationClosureId": litigationClosureId,
     "Uniquekey": uniquekey,
     "ClosureDate": closureDate.toIso8601String(),
-    "ClosureAttachementUrl": closureAttachementUrl,
+    "ClosureAttachementURL": closureAttachementUrl,
     "Remark": remark,
     "Conclusion": conclusion,
     "CreatedById": createdById,
@@ -65,4 +65,35 @@ class LitigationClosureModel {
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
   };
+
+  LitigationClosureModel copyWith({
+    int? litigationClosureId,
+    String? uniquekey,
+    DateTime? closureDate,
+    String? closureAttachementUrl,
+    String? remark,
+    String? conclusion,
+    int? createdById,
+    String? createdBy,
+    DateTime? createdDate,
+    int? modifiedById,
+    String? modifiedBy,
+    DateTime? modifiedDate,
+  }) {
+    return LitigationClosureModel(
+      litigationClosureId: litigationClosureId ?? this.litigationClosureId,
+      uniquekey: uniquekey ?? this.uniquekey,
+      closureDate: closureDate ?? this.closureDate,
+      closureAttachementUrl:
+          closureAttachementUrl ?? this.closureAttachementUrl,
+      remark: remark ?? this.remark,
+      conclusion: conclusion ?? this.conclusion,
+      createdById: createdById ?? this.createdById,
+      createdBy: createdBy ?? this.createdBy,
+      createdDate: createdDate ?? this.createdDate,
+      modifiedById: modifiedById ?? this.modifiedById,
+      modifiedBy: modifiedBy ?? this.modifiedBy,
+      modifiedDate: modifiedDate ?? this.modifiedDate,
+    );
+  }
 }

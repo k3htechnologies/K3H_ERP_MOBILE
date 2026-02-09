@@ -21,6 +21,12 @@ abstract interface class LitigationRepository {
     required int projectId,
   });
 
+  Future<Either<Failure, Map<String, dynamic>>> getLitigationForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+
   Future<Either<Failure, Map<String, dynamic>>> pullLitigationHearing({
     required int pageNumber,
     required int pageSize,
@@ -49,17 +55,10 @@ abstract interface class LitigationRepository {
 
     Map<String, dynamic>? queryParams,
   });
+
   Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigationClosure({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
-  });
-  Future<Either<Failure, Map<String, dynamic>>> updateLitigationReopen({
-    required Map<String, dynamic> body,
-  });
-  Future<Either<Failure, Map<String, dynamic>>> getLitigationForExport({
-    required int pageNumber,
-    required int pageSize,
-    Map<String, dynamic>? queryParams,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> pullLitigationDocument({
@@ -81,6 +80,10 @@ abstract interface class LitigationRepository {
     required int projectId,
     required int litigationDocumentId,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> updateLitigationReopen({
+    required Map<String, dynamic> body,
+  });
 }
 
 class LitigationRepositoryImpl extends LitigationRepository {
@@ -88,6 +91,7 @@ class LitigationRepositoryImpl extends LitigationRepository {
 
   LitigationRepositoryImpl({required this.litigationDatasource});
 
+  // GET LITIGATION
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullLitigation({
     required int pageNumber,
@@ -123,6 +127,7 @@ class LitigationRepositoryImpl extends LitigationRepository {
     }
   }
 
+  // DELETE LITIGAITON
   @override
   Future<Either<Failure, Map<String, dynamic>>> deleteLitigation({
     required int litigationId,
@@ -141,7 +146,7 @@ class LitigationRepositoryImpl extends LitigationRepository {
     }
   }
 
-  // ✅ PULL LITIGATION HEARING
+  // PULL LITIGATION HEARING
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullLitigationHearing({
     required int pageNumber,
@@ -179,6 +184,7 @@ class LitigationRepositoryImpl extends LitigationRepository {
     }
   }
 
+  //DELETE LITIGATION HEARING
   @override
   Future<Either<Failure, Map<String, dynamic>>> deleteLitigationHearing({
     required int litigationId,
@@ -199,7 +205,7 @@ class LitigationRepositoryImpl extends LitigationRepository {
     }
   }
 
-  // ✅ PULL LITIGATION CLOSURE
+  // PULL LITIGATION CLOSURE
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullLitigationClosure({
     required int pageNumber,
@@ -238,6 +244,7 @@ class LitigationRepositoryImpl extends LitigationRepository {
     }
   }
 
+  //GET LITIGATION DOCUMENTS
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullLitigationDocument({
     required int pageNumber,
@@ -261,6 +268,43 @@ class LitigationRepositoryImpl extends LitigationRepository {
     }
   }
 
+  // ADD / UPDATE LITIGATION DOCUMENT
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigationDocument({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      final result = await litigationDatasource
+          .apiCallAddUpdateLitigationDocument(body: body, fileList: fileList);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  //DELETE LITIGATION DOCUMENTS
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteLitigationDocument({
+    required int litigationId,
+    required String uniqueKey,
+    required int projectId,
+    required int litigationDocumentId,
+  }) async {
+    try {
+      var result = await litigationDatasource.apicallDeleteLitigationDocument(
+        litigationId: litigationId,
+        uniqueKey: uniqueKey,
+        projectId: projectId,
+        litigationDocumentId: litigationDocumentId,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  // EXPORT LITIGATION
   @override
   Future<Either<Failure, Map<String, dynamic>>> getLitigationForExport({
     required int pageNumber,
@@ -279,40 +323,7 @@ class LitigationRepositoryImpl extends LitigationRepository {
     }
   }
 
-  @override
-  Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigationDocument({
-    required Map<String, String> body,
-    required List<Map<String, dynamic>> fileList,
-  }) async {
-    try {
-      final result = await litigationDatasource
-          .apiCallAddUpdateLitigationDocument(body: body, fileList: fileList);
-      return right(result);
-    } catch (error) {
-      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Map<String, dynamic>>> deleteLitigationDocument({
-    required int litigationId,
-    required String uniqueKey,
-    required int projectId,
-    required int litigationDocumentId,
-  }) async {
-    try {
-      var result = await litigationDatasource.apicallDeleteLitigationHearing(
-        litigationId: litigationId,
-        uniqueKey: uniqueKey,
-        projectId: projectId,
-        litigationHearingId: litigationDocumentId,
-      );
-      return right(result);
-    } catch (error) {
-      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-    }
-  }
-
+  // REQUEST FOR LITIGATION REOPEN
   @override
   Future<Either<Failure, Map<String, dynamic>>> updateLitigationReopen({
     required Map<String, dynamic> body,
