@@ -22,15 +22,15 @@ class BranchAssociationMasterState extends BaseState {
     required this.currentSortDirection,
   });
 
-  factory BranchAssociationMasterState.initial() => BranchAssociationMasterState(
-    branchAssociationList: [],
-    currentPage: 1,
-    employeeList: [],
-    branchList: [],
-    currentSortColumn: "Created Date",
-    currentSortDirection: "DESC",
-
-  );
+  factory BranchAssociationMasterState.initial() =>
+      BranchAssociationMasterState(
+        branchAssociationList: [],
+        currentPage: 1,
+        employeeList: [],
+        branchList: [],
+        currentSortColumn: "Created Date",
+        currentSortDirection: "DESC",
+      );
 
   BranchAssociationMasterState copyWith({
     bool? isLoading = false,
@@ -48,7 +48,7 @@ class BranchAssociationMasterState extends BaseState {
     return BranchAssociationMasterState(
       isLoading: isLoading ?? this.isLoading,
       branchAssociationList:
-      branchAssociationList ?? this.branchAssociationList,
+          branchAssociationList ?? this.branchAssociationList,
       searchText: searchText ?? this.searchText,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
@@ -66,6 +66,6 @@ class BranchAssociationMasterState extends BaseState {
     currentPage,
     searchText,
     employeeList,
-    branchList
+    branchList,
   ];
 }

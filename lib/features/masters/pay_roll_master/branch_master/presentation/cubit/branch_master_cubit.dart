@@ -44,6 +44,8 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
 
     final queryParams = {
       "BranchName": state.searchText,
+      "BranchCode": state.filterBranchCode,
+      "Location": state.filterBranchLocation,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 
@@ -220,5 +222,26 @@ class BranchMasterCubit extends Cubit<BranchMasterState> {
         );
       },
     );
+  }
+
+  Future<void> applyFilterAndSort({
+    required BuildContext context,
+    required String filterBranchCode,
+    required String filterBranchLocation,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
+    emit(
+      state.copyWith(
+        filterBranchCode: filterBranchCode,
+        filterBranchLocation: filterBranchLocation,
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
+        branchList: [],
+        currentPage: 1,
+      ),
+    );
+
+    await getBranchList(context: context, pageNumber: 1);
   }
 }

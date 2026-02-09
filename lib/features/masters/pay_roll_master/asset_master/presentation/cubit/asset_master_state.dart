@@ -8,6 +8,10 @@ class AssetMasterState extends BaseState {
   final String currentSortColumn;
   final String currentSortDirection;
   final String filterAssetStatus;
+  final String filterAssetType;
+  final String filterAssetBrand;
+  final String filterAssetModel;
+  final String filterSerialNumber;
 
   const AssetMasterState({
     required this.assetList,
@@ -18,6 +22,10 @@ class AssetMasterState extends BaseState {
     required this.currentSortColumn,
     required this.currentSortDirection,
     this.filterAssetStatus = "",
+    this.filterAssetType = "",
+    this.filterAssetBrand = "",
+    this.filterAssetModel = "",
+    this.filterSerialNumber = "",
   });
 
   factory AssetMasterState.initial() => AssetMasterState(
@@ -29,11 +37,15 @@ class AssetMasterState extends BaseState {
     searchText: "",
     totalNumberOfRecord: 0,
     filterAssetStatus: "",
+    filterAssetType: "",
+    filterAssetBrand: "",
+    filterAssetModel: "",
+    filterSerialNumber: "",
   );
 
   AssetMasterState copyWith({
     List<AssetMasterModel>? assetList,
-    bool? isLoading = false,
+    bool? isLoading,
     StateType? stateType,
     String? errorMessage,
     String? searchText,
@@ -42,6 +54,10 @@ class AssetMasterState extends BaseState {
     String? currentSortColumn,
     String? currentSortDirection,
     String? filterAssetStatus,
+    String? filterAssetType,
+    String? filterAssetBrand,
+    String? filterAssetModel,
+    String? filterSerialNumber,
   }) {
     return AssetMasterState(
       assetList: assetList ?? this.assetList,
@@ -52,6 +68,10 @@ class AssetMasterState extends BaseState {
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       filterAssetStatus: filterAssetStatus ?? this.filterAssetStatus,
+      filterAssetType: filterAssetType ?? this.filterAssetType,
+      filterAssetBrand: filterAssetBrand ?? this.filterAssetBrand,
+      filterAssetModel: filterAssetModel ?? this.filterAssetModel,
+      filterSerialNumber: filterSerialNumber ?? this.filterSerialNumber,
     );
   }
 
@@ -65,5 +85,9 @@ class AssetMasterState extends BaseState {
     currentSortColumn,
     currentSortDirection,
     filterAssetStatus,
+    filterAssetType,
+    filterAssetBrand,
+    filterAssetModel,
+    filterSerialNumber,
   ];
 }

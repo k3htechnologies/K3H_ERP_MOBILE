@@ -108,6 +108,111 @@ class _BranchAssociationMasterScreenState
     }
   }
 
+  // SORT BOTTOM SHEET - BRANCH ASSOCIATION (EMPLOYEE NAME)
+  Future<void> _showSortBottomSheetForBranchAssociation(
+    BuildContext context,
+  ) async {
+    final state = _branchAssociationMasterCubit.state;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Employee Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String? initialDirection = selectedDirection;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool applied = false;
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        applyEnabled.value = selectedDirection != initialDirection;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Sort Branch Association",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Sort By Employee Name", style: AppTextStyle.ts14M()),
+              verticalSpacing(),
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => selectDirection("ASC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "ASC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("A-Z", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                  horizontalSpacing(),
+                  GestureDetector(
+                    onTap: () => selectDirection("DESC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "DESC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("Z-A", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+      onClear: () {
+        _branchAssociationMasterCubit.applyFilterAndSort(
+          context: context,
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
+        );
+      },
+      onApply: () {
+        applied = true;
+        _branchAssociationMasterCubit.applyFilterAndSort(
+          context: context,
+          sortColumn: "Employee Name",
+          sortDirection: selectedDirection,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -128,11 +233,15 @@ class _BranchAssociationMasterScreenState
           }
         },
         onExportCallback: (value) {
-          if(_branchAssociationMasterCubit.state.totalNumberOfRecord==0){
+          if (_branchAssociationMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
           _branchAssociationMasterCubit.exportExcelPdf(context, value);
+        },
+        isFilterOn: true,
+        onFilterTap: () {
+          _showSortBottomSheetForBranchAssociation(context);
         },
       ),
       body: BlocBuilder<

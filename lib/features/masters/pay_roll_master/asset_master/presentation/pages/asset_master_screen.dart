@@ -35,9 +35,13 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC, _filterAssetStatusC;
+  late TextEditingController _searchC,
+      _filterAssetStatusC,
+      _filterAssetTypeC,
+      _filterAssetBrandC,
+      _filterAssetModelC,
+      _filterSerialNumberC;
 
   @override
   void initState() {
@@ -63,6 +67,10 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _filterAssetStatusC = TextEditingController();
+    _filterAssetTypeC = TextEditingController();
+    _filterAssetBrandC = TextEditingController();
+    _filterAssetModelC = TextEditingController();
+    _filterSerialNumberC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -108,6 +116,10 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     final state = _assetMasterCubit.state;
 
     _filterAssetStatusC.text = state.filterAssetStatus;
+    _filterAssetTypeC.text = state.filterAssetType;
+    _filterAssetBrandC.text = state.filterAssetBrand;
+    _filterAssetModelC.text = state.filterAssetModel;
+    _filterSerialNumberC.text = state.filterSerialNumber;
 
     String? selectedDirection =
         state.currentSortColumn == "Asset Name"
@@ -115,6 +127,10 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
             : null;
 
     final String initialAssetStatus = _filterAssetStatusC.text;
+    final String initialAssetType = _filterAssetTypeC.text;
+    final String initialAssetBrand = _filterAssetBrandC.text;
+    final String initialAssetModel = _filterAssetModelC.text;
+    final String initialSerialNumber = _filterSerialNumberC.text;
     final String? initialDirection = selectedDirection;
 
     bool manualClose = false;
@@ -125,7 +141,12 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
       innerState(() {
         manualClose =
             (_filterAssetStatusC.text.trim() != initialAssetStatus) ||
+            (_filterAssetTypeC.text.trim() != initialAssetType) ||
+            (_filterAssetBrandC.text.trim() != initialAssetBrand) ||
+            (_filterAssetModelC.text.trim() != initialAssetModel) ||
+            (_filterSerialNumberC.text.trim() != initialSerialNumber) ||
             (selectedDirection != initialDirection);
+
         applyEnabled.value = manualClose;
       });
     }
@@ -149,7 +170,6 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                 Text("Sort By Asset Name", style: AppTextStyle.ts14M()),
                 verticalSpacing(),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     GestureDetector(
                       onTap: () => selectDirection("ASC"),
@@ -190,11 +210,45 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                     ),
                   ],
                 ),
+
                 verticalSpacing(height: 20),
+
                 CustomTextField(
                   title: "Asset Status",
                   hint: "Enter Asset Status",
                   textController: _filterAssetStatusC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(),
+
+                CustomTextField(
+                  title: "Asset Type",
+                  hint: "Enter Asset Type",
+                  textController: _filterAssetTypeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(),
+
+                CustomTextField(
+                  title: "Brand",
+                  hint: "Enter Brand",
+                  textController: _filterAssetBrandC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(),
+
+                CustomTextField(
+                  title: "Model",
+                  hint: "Enter Model",
+                  textController: _filterAssetModelC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(),
+
+                CustomTextField(
+                  title: "Serial Number",
+                  hint: "Enter Serial Number",
+                  textController: _filterSerialNumberC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 verticalSpacing(),
@@ -207,6 +261,10 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
         _assetMasterCubit.applyFilterAndSort(
           context: context,
           filterAssetStatus: "",
+          filterAssetType: "",
+          filterAssetBrand: "",
+          filterAssetModel: "",
+          filterSerialNumber: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
         );
@@ -216,6 +274,10 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
         _assetMasterCubit.applyFilterAndSort(
           context: context,
           filterAssetStatus: _filterAssetStatusC.text,
+          filterAssetType: _filterAssetTypeC.text,
+          filterAssetBrand: _filterAssetBrandC.text,
+          filterAssetModel: _filterAssetModelC.text,
+          filterSerialNumber: _filterSerialNumberC.text,
           sortColumn: selectedDirection != null ? "Asset Name" : null,
           sortDirection: selectedDirection,
         );
@@ -224,9 +286,12 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
       applyEnabledNotifier: applyEnabled,
     );
 
-    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
       _filterAssetStatusC.clear();
+      _filterAssetTypeC.clear();
+      _filterAssetBrandC.clear();
+      _filterAssetModelC.clear();
+      _filterSerialNumberC.clear();
     }
   }
 
@@ -361,21 +426,19 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                       ],
                     ),
                     verticalSpacing(height: 8),
-                    buildRowTitleValue(
-                      title: "Code",
-                      value: asset.assetCode,
-                    ),
-                    buildRowTitleValue(
-                      title: "Type",
-                      value: asset.assetType,
-                    ),
+                    buildRowTitleValue(title: "Code", value: asset.assetCode),
+                    buildRowTitleValue(title: "Type", value: asset.assetType),
                     buildRowTitleValue(title: "Brand", value: asset.assetBrand),
                     buildRowTitleValue(title: "Model", value: asset.assetModel),
                     buildRowTitleValue(
                       title: "Serial Number",
                       value: asset.serialNumber,
                     ),
-                   buildRowTitleValue(title: "Status", value: asset.status,customValueWidget:  _buildStatusWidget(asset.status)),
+                    buildRowTitleValue(
+                      title: "Status",
+                      value: asset.status,
+                      customValueWidget: _buildStatusWidget(asset.status),
+                    ),
                   ],
                 ),
               );

@@ -214,4 +214,22 @@ class BranchAssociationMasterCubit extends Cubit<BranchAssociationMasterState> {
       },
     );
   }
+
+  // APPLY FILTER AND SORT - BRANCH ASSOCIATION
+  Future<void> applyFilterAndSort({
+    required BuildContext context,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
+    emit(
+      state.copyWith(
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
+        branchAssociationList: [],
+        currentPage: 1,
+      ),
+    );
+
+    await getBranchAssociationList(context: context, pageNumber: 1);
+  }
 }

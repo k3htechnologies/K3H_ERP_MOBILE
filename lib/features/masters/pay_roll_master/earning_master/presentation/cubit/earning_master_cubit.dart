@@ -210,4 +210,21 @@ class EarningMasterCubit extends Cubit<EarningMasterState> {
       },
     );
   }
+
+  Future<void> applyFilterAndSort({
+    required BuildContext context,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
+    emit(
+      state.copyWith(
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
+        earningList: [],
+        currentPage: 1,
+      ),
+    );
+
+    await getEarningList(context: context, pageNumber: 1);
+  }
 }

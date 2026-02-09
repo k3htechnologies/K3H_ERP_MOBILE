@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BranchMasterScreen extends StatefulWidget {
@@ -37,7 +38,9 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC;
+  late TextEditingController _searchC,
+      _filterBranchCodeC,
+      _filterBranchLocationC;
 
   @override
   void initState() {
@@ -54,12 +57,17 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
   // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterBranchCodeC = TextEditingController();
+    _filterBranchLocationC = TextEditingController();
   }
 
   @override
   void dispose() {
     scrollController.dispose();
     _searchC.dispose();
+    _filterBranchCodeC.dispose();
+    _filterBranchLocationC.dispose();
+
     super.dispose();
   }
 
@@ -106,6 +114,147 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
     }
   }
 
+  Future<void> _showBottomSheetToFilterBranch(BuildContext context) async {
+    final state = _branchMasterCubit.state;
+
+    _filterBranchCodeC.text = state.filterBranchCode;
+    _filterBranchLocationC.text = state.filterBranchLocation;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Branch Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String initialBranchCode = _filterBranchCodeC.text;
+    final String initialBranchLocation = _filterBranchLocationC.text;
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool applied = false;
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_filterBranchCodeC.text.trim() != initialBranchCode) ||
+            (_filterBranchLocationC.text.trim() != initialBranchLocation) ||
+            (selectedDirection != initialDirection);
+
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Branch",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Sort By Branch Code", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+
+                verticalSpacing(height: 20),
+
+                CustomTextField(
+                  title: "Branch Code",
+                  hint: "Enter Branch Code",
+                  textController: _filterBranchCodeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(),
+
+                CustomTextField(
+                  title: "Branch Location",
+                  hint: "Enter Branch Location",
+                  textController: _filterBranchLocationC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(),
+              ],
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _branchMasterCubit.applyFilterAndSort(
+          context: context,
+          filterBranchCode: "",
+          filterBranchLocation: "",
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
+        );
+      },
+      onApply: () {
+        applied = true;
+        _branchMasterCubit.applyFilterAndSort(
+          context: context,
+          filterBranchCode: _filterBranchCodeC.text,
+          filterBranchLocation: _filterBranchLocationC.text,
+          sortColumn: selectedDirection != null ? "Branch Name" : null,
+          sortDirection: selectedDirection,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    if (!applied && manualClose) {
+      _filterBranchCodeC.clear();
+      _filterBranchLocationC.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,11 +272,15 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
           }
         },
         onExportCallback: (value) {
-          if(_branchMasterCubit.state.totalNumberOfRecord==0){
+          if (_branchMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
           _branchMasterCubit.exportExcelPdf(context, value);
+        },
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterBranch(context);
         },
       ),
       body: BlocBuilder<BranchMasterCubit, BranchMasterState>(
