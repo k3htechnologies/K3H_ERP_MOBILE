@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
+import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
@@ -258,6 +259,8 @@ import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/ten
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_tracker_cubit.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
+import 'package:k3h_erp_app/features/sales/target/presentation/cubit/target_cubit.dart';
+import 'package:k3h_erp_app/features/sales/target/presentation/pages/target_screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
@@ -2803,6 +2806,29 @@ final GoRouter goRouter = GoRouter(
                 );
               },
             ),
+            GoRoute(
+              name: AppRoutes.channelPartnerView,
+              path: AppRoutes.channelPartnerView,
+              builder: (context, state) {
+                final queryParameterChannelPartner =
+                    state.uri.queryParameters['channelPartner'];
+
+                final ChannelPartnerModel? channelPartner =
+                    queryParameterChannelPartner != null
+                        ? ChannelPartnerModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterChannelPartner),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                return ChannelPartnerViewScreen(
+                  channelPartnerModel: channelPartner!,
+                );
+              },
+            ),
           ],
         ),
         // DOCUMENT
@@ -3631,6 +3657,24 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.callTracker,
                   builder: (context, state) {
                     return CallTrackerScreen();
+                  },
+                ),
+              ],
+            ),
+            // SALES TARGET
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => TargetCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.salesTarget,
+                  path: AppRoutes.salesTarget,
+                  builder: (context, state) {
+                    return const TargetScreen();
                   },
                 ),
               ],

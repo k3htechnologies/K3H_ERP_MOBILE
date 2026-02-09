@@ -542,39 +542,78 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
               decoration: commonCardDecoration(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
                 children: [
-                  Text(
-                    attendance.fullName,
-                    style: AppTextStyle.ts16M(),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              attendance.fullName,
+                              style: AppTextStyle.ts16SB(),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  "Attendance Date: ",
+                                  style: AppTextStyle.ts12R(color: AppColor.grey),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  formatDateTimeAsDDMMMYYYY(attendance.attendanceDate),
+                                  style: AppTextStyle.ts12R(),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      _statusButton(attendance.attendanceStatus)
+                    ],
                   ),
-                  verticalSpacing(height: 10),
-                  buildRowTitleValue(
-                    title: "Attendance Date",
-                    value: formatDateTimeAsDDMMMYYYY(attendance.attendanceDate),
+                  verticalSpacing(height: 2),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Punch In",
+                        value:
+                            attendance.punchIn != null
+                                ? DateFormat('hh:mm a').format(attendance.punchIn!)
+                                : "-",
+                      ),
+                      buildColumnTitleValue(
+                        title: "Punch In Address",
+                        value: attendance.punchInAddress.isEmpty?"-":attendance.punchInAddress,
+                      ),
+                    ],
                   ),
-                  buildRowTitleValue(
-                    title: "Punch In",
-                    value:
-                        attendance.punchIn != null
-                            ? DateFormat('hh:mm a').format(attendance.punchIn!)
-                            : "-",
-                  ),
-                  buildRowTitleValue(
-                    title: "Punch Out",
-                    value:
-                        attendance.punchOut != null
-                            ? DateFormat('hh:mm a').format(attendance.punchOut!)
-                            : "-",
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Punch Out",
+                        value:
+                            attendance.punchOut != null
+                                ? DateFormat('hh:mm a').format(attendance.punchOut!)
+                                : "-",
+                      ),
+                      buildColumnTitleValue(
+                        title: "Punch Out Address",
+                        value: attendance.punchOutAddress.isEmpty?"-":attendance.punchOutAddress,
+                      ),
+                    ],
                   ),
                   buildRowTitleValue(
                     title: "Working Hours",
                     value: attendance.workingHours,
-                  ),
-                  buildRowTitleValue(
-                    title: "Attendance Status",
-                    value: attendance.attendanceStatus,
                   ),
                 ],
               ),

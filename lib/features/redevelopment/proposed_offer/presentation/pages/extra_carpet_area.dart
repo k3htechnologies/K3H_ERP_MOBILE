@@ -169,9 +169,6 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                         if (value == null || value.trim().isEmpty) {
                           return "Residential percentage is required";
                         }
-                        if (double.parse(value) <= 0) {
-                          return "Please enter valid Percentage";
-                        }
                         if (double.parse(value) > 100) {
                           return "Percentage should be less than 100";
                         }
@@ -189,9 +186,6 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Commercial percentage is required";
-                        }
-                        if (double.parse(value) <= 0) {
-                          return "Please enter valid Percentage";
                         }
                         if (double.parse(value) > 100) {
                           return "Percentage should be less than 100";

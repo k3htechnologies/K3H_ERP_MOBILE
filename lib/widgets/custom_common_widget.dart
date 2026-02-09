@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 Widget buildRowTitleValue({
   required String title,
   required String value,
+  double fixesWidth=140,
   TextStyle? valueTextStyle,
   Widget? customValueWidget,
 }) {
@@ -16,7 +17,7 @@ Widget buildRowTitleValue({
       children: [
         // TITLE
         SizedBox(
-          width: 140,
+          width: fixesWidth,
           child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
         ),
 

@@ -10,7 +10,7 @@ import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/p
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/security_deposit.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/shifting_details.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 
 class ProposedOfferSecondaryScreen extends StatefulWidget {
   final int projectId;
@@ -37,7 +37,7 @@ class _ProposedOfferSecondaryScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: CustomAppBarWithBackButton(
         screenTitle: "Proposed Offer",
         authorization: AuthorizationModel(),
       ),
