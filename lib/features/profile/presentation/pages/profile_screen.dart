@@ -7,7 +7,10 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -26,7 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 8, vsync: this);
     _tabController.addListener(_handleTabChange);
   }
 
@@ -36,12 +39,140 @@ class _ProfileScreenState extends State<ProfileScreen>
     super.dispose();
   }
 
+  // HANDLE TAB CHANGE
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
       context.read<ProfileCubit>().onTabChanged(_tabController.index, context);
     }
   }
 
+  // HELPER METHOD
+  String _getDisplayValue(String? value) {
+    if (value == null) return '-';
+    final trimmed = value.trim();
+    if (trimmed.isEmpty || trimmed.toLowerCase() == 'null') return '-';
+    return value;
+  }
+
+  // HELPER METHOD
+  bool _hasBankDetails(UserModel user) {
+    return user.bankName.trim().isNotEmpty ||
+        user.bankBranchName.trim().isNotEmpty ||
+        user.ifscCode.trim().isNotEmpty ||
+        user.accountNo.trim().isNotEmpty;
+  }
+
+  // <---- DELETE DEPARTMENT ---->
+  Future<void> _showBottomSheetToAddUpdateEducation(
+    BuildContext context,
+  ) async {
+    DialogHelper.showCustomBottomSheet(
+      context,
+      "Add Update Education",
+      Column(children: [Container(color: AppColor.red)]),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        if (state.user == null) {
+          return Scaffold(
+            appBar: AppBar(
+              centerTitle: false,
+              automaticallyImplyLeading: false,
+              title: Text('Profile', style: AppTextStyle.ts16SB()),
+            ),
+            body: const Center(child: Text("No user information found")),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            centerTitle: false,
+            automaticallyImplyLeading: false,
+            title: Text('Profile', style: AppTextStyle.ts16SB()),
+          ),
+          body: SafeArea(
+            child: Column(
+              children: [
+                verticalSpacing(),
+                _buildHeader(state.user!, state.selectedProject),
+                verticalSpacing(),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IntrinsicWidth(
+                    child: Container(
+                      height: 35,
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: AppColor.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppColor.grey.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: TabBar(
+                        controller: _tabController,
+                        isScrollable: true,
+                        tabAlignment: TabAlignment.start,
+                        labelColor: AppColor.primary,
+                        unselectedLabelColor: AppColor.grey,
+                        indicator: BoxDecoration(
+                          color: AppColor.lightBlue,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        dividerColor: Colors.transparent,
+                        labelStyle: AppTextStyle.ts14M(),
+                        unselectedLabelStyle: AppTextStyle.ts14M(),
+                        labelPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                        ),
+                        padding: EdgeInsets.zero,
+                        tabs: const [
+                          Tab(text: 'Overview'),
+                          Tab(text: 'Education Details'),
+                          Tab(text: 'Experience Details'),
+                          Tab(text: 'Document'),
+                          Tab(text: 'Assets'),
+                          Tab(text: 'Project'),
+                          Tab(text: 'Shift Policy'),
+                          Tab(text: 'Week Off Policy'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: TabBarView(
+                    physics: NeverScrollableScrollPhysics(),
+                    controller: _tabController,
+                    children: [
+                      _buildOverviewTab(state.user!),
+                      _buildEducationDetailsTab(),
+                      _buildExperienceDetailsTab(),
+                      _buildDocumentTab(),
+                      _buildAssetTab(),
+                      _buildProjectTab(
+                        state.projectList,
+                        state.isLoadingProjects,
+                      ),
+                      _buildShiftPolicyTab(),
+                      _buildWeekOffPolicyTab(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // BUILD HEADER
   Widget _buildHeader(UserModel user, ProjectModel? project) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -100,6 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  // BUILD INFO CARD
   Widget _buildInfoCard({
     required String title,
     required List<Map<String, String>> items,
@@ -119,6 +251,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  // BUILD INFO ROWS
   List<Widget> _buildInfoRows(List<Map<String, String>> items) {
     List<Widget> rows = [];
     int i = 0;
@@ -171,20 +304,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     return rows;
   }
 
-  String _getDisplayValue(String? value) {
-    if (value == null) return '-';
-    final trimmed = value.trim();
-    if (trimmed.isEmpty || trimmed.toLowerCase() == 'null') return '-';
-    return value;
-  }
-
-  bool _hasBankDetails(UserModel user) {
-    return user.bankName.trim().isNotEmpty ||
-        user.bankBranchName.trim().isNotEmpty ||
-        user.ifscCode.trim().isNotEmpty ||
-        user.accountNo.trim().isNotEmpty;
-  }
-
+  // BUILD INFO ITEM
   Widget _buildInfoItem(
     String label,
     String? value, {
@@ -220,6 +340,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  // BUILD EMPLOYEE REPORTING CYCLE CARD
   Widget _buildEmployeeReportingCycleCard(
     List<Map<String, dynamic>> employeeReportingCycleData,
   ) {
@@ -333,6 +454,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  // BUILD LOGOUT BUTTON
   Widget _buildLogoutButton(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(16),
@@ -368,6 +490,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  // BUILD OVERVIEW TAB
   Widget _buildOverviewTab(UserModel user) {
     return SingleChildScrollView(
       child: Column(
@@ -464,6 +587,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  // BUILD PROJECT TAB
   Widget _buildProjectTab(
     List<ProjectModel> projectList,
     bool isLoadingProjects,
@@ -576,6 +700,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  // BUILD ASSETS TAB
   Widget _buildAssetTab() {
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
@@ -715,6 +840,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  // BUILD SHIFT POLICY TAB
   Widget _buildShiftPolicyTab() {
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
@@ -847,6 +973,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  // BUILD WEEK OFF POLICY TAB
   Widget _buildWeekOffPolicyTab() {
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
@@ -995,99 +1122,115 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ProfileCubit, ProfileState>(
-      builder: (context, state) {
-        if (state.user == null) {
-          return Scaffold(
-            appBar: AppBar(
-              centerTitle: false,
-              automaticallyImplyLeading: false,
-              title: Text('Profile', style: AppTextStyle.ts16SB()),
-            ),
-            body: const Center(child: Text("No user information found")),
-          );
-        }
-
-        return Scaffold(
-          appBar: AppBar(
-            centerTitle: false,
-            automaticallyImplyLeading: false,
-            title: Text('Profile', style: AppTextStyle.ts16SB()),
+  // EDUCATION DETAILS TAB
+  Widget _buildEducationDetailsTab() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Add Education", style: AppTextStyle.ts14SB()),
+              CustomIconButton(
+                onPressed: () {
+                  _showBottomSheetToAddUpdateEducation(context);
+                },
+                icon: Icon(Icons.add, size: 16, color: AppColor.darkGreen),
+                backgroundColor: AppColor.lightGreen,
+              ),
+            ],
           ),
-          body: SafeArea(
-            child: Column(
-              children: [
-                verticalSpacing(),
-                _buildHeader(state.user!, state.selectedProject),
-                verticalSpacing(),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IntrinsicWidth(
-                    child: Container(
-                      height: 35,
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: AppColor.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: AppColor.grey.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: TabBar(
-                        controller: _tabController,
-                        isScrollable: true,
-                        tabAlignment: TabAlignment.start,
-                        labelColor: AppColor.primary,
-                        unselectedLabelColor: AppColor.grey,
-                        indicator: BoxDecoration(
-                          color: AppColor.lightBlue,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        dividerColor: Colors.transparent,
-                        labelStyle: AppTextStyle.ts14M(),
-                        unselectedLabelStyle: AppTextStyle.ts14M(),
-                        labelPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                        ),
-                        padding: EdgeInsets.zero,
-                        tabs: const [
-                          Tab(text: 'Overview'),
-                          Tab(text: 'Document'),
-                          Tab(text: 'Assets'),
-                          Tab(text: 'Project'),
-                          Tab(text: 'Shift Policy'),
-                          Tab(text: 'Week Off Policy'),
-                        ],
+          verticalSpacing(height: 15),
+          Expanded(
+            child: BlocBuilder<ProfileCubit, ProfileState>(
+              builder: (context, state) {
+                if (state.isLoading == true && state.employeeEducationDetailsList.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                if (state.employeeEducationDetailsList.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Text(
+                        "No education details found",
+                        style: AppTextStyle.ts16M(color: AppColor.grey),
                       ),
                     ),
-                  ),
-                ),
-                Expanded(
-                  child: TabBarView(
-                    physics: NeverScrollableScrollPhysics(),
-                    controller: _tabController,
-                    children: [
-                      _buildOverviewTab(state.user!),
-                      _buildDocumentTab(),
-                      _buildAssetTab(),
-                      _buildProjectTab(
-                        state.projectList,
-                        state.isLoadingProjects,
+                  );
+                }
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: state.employeeEducationDetailsList.length,
+                  itemBuilder: (_, index) {
+                    final education = state.employeeEducationDetailsList[index];
+                    return Container(
+                      margin: EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.all(16),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        spacing: 10,
+                        children: [
+                          Row(
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Qualification",
+                                value: education.qualification,
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              buildColumnTitleValue(
+                                title: "College",
+                                value: education.collegeName,
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Passing Year",
+                                value: education.passing,
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CustomIconButton.edit(
+                                    onPressed: () {
+                                      _showBottomSheetToAddUpdateEducation(
+                                        context,
+                                      );
+                                    },
+                                  ),
+                                  horizontalSpacing(),
+                                  CustomIconButton.delete(onPressed: () {}),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      _buildShiftPolicyTab(),
-                      _buildWeekOffPolicyTab(),
-                    ],
-                  ),
-                ),
-              ],
+                    );
+                  },
+                );
+              },
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
+  }
+
+  // EXPERIENCE DETAILS TAB
+  Widget _buildExperienceDetailsTab() {
+    return Container();
   }
 
   Widget _buildDocumentTab() {

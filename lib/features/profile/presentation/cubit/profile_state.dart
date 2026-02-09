@@ -10,6 +10,7 @@ class ProfileState extends BaseState {
   final List<AssetMappingModel> assetMappingList;
   final List<ShiftMappingModel> shiftManagementList;
   final List<WeekOffMappingModel> weekOffMappingList;
+  final List<EmployeeEducationDetailsModel> employeeEducationDetailsList;
 
   const ProfileState({
     super.isLoading,
@@ -22,6 +23,7 @@ class ProfileState extends BaseState {
     required this.assetMappingList,
     required this.shiftManagementList,
     required this.weekOffMappingList,
+    required this.employeeEducationDetailsList,
   });
 
   factory ProfileState.initial() => const ProfileState(
@@ -33,6 +35,7 @@ class ProfileState extends BaseState {
     assetMappingList: [],
     shiftManagementList: [],
     weekOffMappingList: [],
+    employeeEducationDetailsList: [],
   );
 
   ProfileState copyWith({
@@ -46,6 +49,7 @@ class ProfileState extends BaseState {
     List<AssetMappingModel>? assetMappingList,
     List<ShiftMappingModel>? shiftManagementList,
     List<WeekOffMappingModel>? weekOffMappingList,
+    List<EmployeeEducationDetailsModel>? employeeEducationDetailsList,
   }) {
     return ProfileState(
       isLoading: isLoading ?? this.isLoading,
@@ -58,6 +62,7 @@ class ProfileState extends BaseState {
       assetMappingList: assetMappingList ?? this.assetMappingList,
       shiftManagementList: shiftManagementList ?? this.shiftManagementList,
       weekOffMappingList: weekOffMappingList ?? this.weekOffMappingList,
+      employeeEducationDetailsList: employeeEducationDetailsList ?? this.employeeEducationDetailsList,
     );
   }
 
@@ -73,5 +78,6 @@ class ProfileState extends BaseState {
     assetMappingList,
     shiftManagementList,
     weekOffMappingList,
+    employeeEducationDetailsList,
   ];
 }

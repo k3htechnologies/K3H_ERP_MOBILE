@@ -10,6 +10,13 @@ abstract interface class EmployeeMasterRepository {
     Map<String, dynamic>? queryParams,
   });
 
+  Future<Either<Failure, Map<String, dynamic>>>
+  getEmployeeEducationDetailsList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+
   Future<Either<Failure, Map<String, dynamic>>> getEmployeeDocumentList({
     required int pageNumber,
     required int pageSize,
@@ -77,6 +84,26 @@ class EmployeeMasterRepositoryImp implements EmployeeMasterRepository {
         pageSize: pageSize,
         query: queryParams,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  getEmployeeEducationDetailsList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await employeeMasterDataSource
+          .apicallPullEmployeeEducationDetails(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

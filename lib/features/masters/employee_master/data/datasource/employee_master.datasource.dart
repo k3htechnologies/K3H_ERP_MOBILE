@@ -1,5 +1,6 @@
 import 'package:k3h_erp_app/core/models/branch.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_education_details.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_document.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
@@ -12,6 +13,12 @@ abstract interface class EmployeeMasterDataSource {
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? query,
+  });
+
+  Future<Map<String, dynamic>> apicallPullEmployeeEducationDetails({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
   });
 
   Future<Map<String, dynamic>> apiCallToPullEmployeeDocument({
@@ -106,6 +113,51 @@ class EmployeeMasterDataSourceImpl extends EmployeeMasterDataSource {
           pageNumber: pageNumber,
           pageSize: pageSize,
           query: query,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullEmployeeEducationDetails({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullEmployeeEducationDetailsUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "EmployeeEducationDetails/PullEmployeeEducationDetails?PageSize=$pageSize&PageNumber=$pageNumber";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullEmployeeEducationDetailsUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': List<EmployeeEducationDetailsModel>.from(
+          networkResponse["data"].map(
+            (e) => EmployeeEducationDetailsModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullEmployeeEducationDetails(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
         );
       }
       rethrow;

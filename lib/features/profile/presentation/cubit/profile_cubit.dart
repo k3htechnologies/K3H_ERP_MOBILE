@@ -7,6 +7,9 @@ import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_education_details.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_education_details.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_education_details.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_document.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
@@ -128,22 +131,24 @@ class ProfileCubit extends Cubit<ProfileState> {
     if (state.user == null) return;
 
     final employeeId = state.user!.employeeId;
-
     if (index == 1) {
       // Document tab
+      getEmployeeEducationDetailsList(context, 1, 100, employeeId);
+    } else if (index == 3) {
+      // Document tab
       getEmployeeDocumentList(context, 1, 100, employeeId);
-    } else if (index == 2) {
+    } else if (index == 4) {
       // Assets tab
       getEmployeeAssetList(context, 1, 100, employeeId);
-    } else if (index == 3) {
+    } else if (index == 5) {
       // Project tab
       if (state.projectList.isEmpty && state.user!.projectData.isNotEmpty) {
         fetchProjects(context);
       }
-    } else if (index == 4) {
+    } else if (index == 6) {
       // Shift Policy tab
       getShiftManagementList(context, 1, 100, employeeId);
-    } else if (index == 5) {
+    } else if (index == 7) {
       // Week Off Policy tab
       getWeekOffMappingList(context, 1, 100, employeeId);
     }
@@ -280,6 +285,47 @@ class ProfileCubit extends Cubit<ProfileState> {
                 ];
 
         emit(state.copyWith(isLoading: false, weekOffMappingList: newList));
+      },
+    );
+  }
+
+  // <---- GET EMPLOYEE EDUCATION DETAILS LIST ---->
+  Future getEmployeeEducationDetailsList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await _employeeMasterRepository
+        .getEmployeeEducationDetailsList(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: {"EmployeeId": employeeId},
+        );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final dataList = response['data'] as List;
+        List<EmployeeEducationDetailsModel> newList =
+            pageNumber == 1
+                ? List<EmployeeEducationDetailsModel>.from(dataList)
+                : [
+                  ...state.employeeEducationDetailsList,
+                  ...List<EmployeeEducationDetailsModel>.from(dataList),
+                ];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            employeeEducationDetailsList: newList,
+          ),
+        );
       },
     );
   }
