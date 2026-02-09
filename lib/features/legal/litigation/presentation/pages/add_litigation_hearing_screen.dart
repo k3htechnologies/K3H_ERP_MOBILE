@@ -30,8 +30,6 @@ class AddLitigationHearingScreen extends StatefulWidget {
 
 class _AddLitigationHearingScreenState
     extends State<AddLitigationHearingScreen> {
-  bool get _isEditMode => widget.litigationHearingModel != null;
-  final _formKey = GlobalKey<FormState>();
   //CUBIT
   late LitigationCubit _litigationCubit;
 
@@ -41,8 +39,17 @@ class _AddLitigationHearingScreenState
     fileNameList: [],
     deletedFileList: "",
   );
+  // TEXT CONTROLLER
   late TextEditingController _remarkC;
+
+  // DATE VARIABLE
   DateTime? hearingDate;
+
+  // EDIT MODE
+  bool get _isEditMode => widget.litigationHearingModel != null;
+
+  //FORM KEY FOR FORM VALIDATION
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {

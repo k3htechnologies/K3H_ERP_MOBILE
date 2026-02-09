@@ -1,5 +1,5 @@
 import 'package:k3h_erp_app/core/base_state.dart';
-import 'package:k3h_erp_app/features/legal/litigation/data/model/closure.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_closure.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_document.model.dart';
@@ -23,7 +23,6 @@ class LitigationState extends BaseState {
   // ---- UI ----
   final int currentTabIndex;
   final String searchText;
-  final List<LitigationClosureModel> closureList;
 
   const LitigationState({
     super.isLoading,
@@ -38,7 +37,6 @@ class LitigationState extends BaseState {
     required this.documentTotalRecords,
     required this.currentTabIndex,
     this.searchText = "",
-    this.closureList = const [],
   });
 
   // ---------------- INITIAL ----------------
@@ -81,7 +79,6 @@ class LitigationState extends BaseState {
 
     int? currentTabIndex,
     String? searchText,
-    List<LitigationClosureModel>? closureList,
   }) {
     return LitigationState(
       isLoading: isLoading ?? this.isLoading,
@@ -103,8 +100,7 @@ class LitigationState extends BaseState {
       documentTotalRecords: documentTotalRecords ?? this.documentTotalRecords,
 
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
-      searchText: searchText ?? this.searchText,
-      closureList: closureList ?? this.closureList,
+      searchText: searchText ?? this.searchText
     );
   }
 
@@ -126,6 +122,5 @@ class LitigationState extends BaseState {
 
     currentTabIndex,
     searchText,
-    closureList,
   ];
 }

@@ -3346,7 +3346,15 @@ final GoRouter goRouter = GoRouter(
                               ),
                             )
                             : null;
-                    return LitigationViewScreen(litigationModel: litigation!);
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return LitigationViewScreen(
+                      litigationModel: litigation!,
+                      index: index,
+                    );
                   },
                 ),
                 GoRoute(

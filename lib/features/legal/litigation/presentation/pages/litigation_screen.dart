@@ -34,7 +34,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
   //AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
 
-  //PAGINATION
+  // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
 
@@ -158,6 +158,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
                                       jsonEncode(litigation.toJson()),
                                     ),
                                   ),
+                                  'index': index.toString(),
                                 },
                               );
                               _litigationCubit.resetLitigationData();

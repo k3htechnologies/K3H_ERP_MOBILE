@@ -22,6 +22,12 @@ abstract interface class LitigationDatasource {
     required int projectId,
   });
 
+  Future<Map<String, dynamic>> apiCallPullLitigationForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+
   Future<Map<String, dynamic>> apicallPullLitigationHearing({
     required int pageNumber,
     required int pageSize,
@@ -50,15 +56,10 @@ abstract interface class LitigationDatasource {
 
     Map<String, dynamic>? queryParams,
   });
+
   Future<Map<String, dynamic>> apiCallAddUpdateLitigationClosure({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
-  });
-
-  Future<Map<String, dynamic>> apiCallPullLitigationForExport({
-    required int pageNumber,
-    required int pageSize,
-    Map<String, dynamic>? queryParams,
   });
 
   Future<Map<String, dynamic>> apicallPullDocument({
@@ -90,6 +91,7 @@ abstract interface class LitigationDatasource {
 class LitigationDatasourceImpl extends LitigationDatasource {
   final baseClient = BaseClient();
 
+  //GET LITIGATION
   @override
   Future<Map<String, dynamic>> apicallPullLitigation({
     required int pageNumber,
@@ -130,6 +132,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     }
   }
 
+  //DELETE LITIGAITON
   @override
   Future<Map<String, dynamic>> apicallDeleteLitigation({
     required int litigationId,
@@ -168,7 +171,32 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     }
   }
 
-  // EXPORT SHIFT
+  // ADD / UPDATE LITIGATION
+  @override
+  Future<Map<String, dynamic>> apiCallAddUpdateLitigation({
+    required Map<String, dynamic> body,
+  }) async {
+    String addUpdateLitigationUrl = "Litigation/AddUpdateLitigation";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateLitigationUrl,
+        body,
+      );
+      return {
+        'data': networkResponse['data'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'message': networkResponse['message'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallAddUpdateLitigation(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  // EXPORT LITIGATION
   @override
   Future<Map<String, dynamic>> apiCallPullLitigationForExport({
     required int pageNumber,
@@ -210,108 +238,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     }
   }
 
-  // ADD / UPDATE LITIGATION
-  @override
-  Future<Map<String, dynamic>> apiCallAddUpdateLitigation({
-    required Map<String, dynamic> body,
-  }) async {
-    String addUpdateLitigationUrl = "Litigation/AddUpdateLitigation";
-
-    try {
-      var networkResponse = await baseClient.postRequestWithAuthentication(
-        addUpdateLitigationUrl,
-        body,
-      );
-      return {
-        'data': networkResponse['data'],
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
-        'message': networkResponse['message'],
-      };
-    } catch (error) {
-      if (error is TokenExpiredException) {
-        apiCallAddUpdateLitigation(body: body);
-      }
-      rethrow;
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> apicallPullLitigationClosure({
-    required int pageNumber,
-    required int pageSize,
-    required int projectId,
-    required int litigationId,
-
-    Map<String, dynamic>? queryParams,
-  }) async {
-    String pullLitigationClosureUrl({
-      required int projectId,
-      Map<String, dynamic>? queryParams,
-    }) {
-      String url =
-          "Litigation/PullLitigationClosure?PageSize=$pageSize&PageNumber=$pageNumber"
-          "&ProjectId=$projectId&LitigationId=$litigationId";
-
-      queryParams?.forEach((key, value) => url += "&$key=$value");
-      return url;
-    }
-
-    try {
-      var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullLitigationClosureUrl(
-          projectId: projectId,
-          queryParams: queryParams,
-        ),
-      );
-
-      return {
-        'data': List<LitigationModel>.from(
-          networkResponse['data'].map((e) => LitigationModel.fromJson(e)),
-        ),
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
-      };
-    } catch (error) {
-      if (error is TokenExpiredException) {
-        return apicallPullLitigationClosure(
-          pageNumber: pageNumber,
-          pageSize: pageSize,
-          projectId: projectId,
-          litigationId: litigationId,
-          queryParams: queryParams,
-        );
-      }
-      rethrow;
-    }
-  }
-
-  // ADD / UPDATE LITIGATION CLOSURE
-  @override
-  Future<Map<String, dynamic>> apiCallAddUpdateLitigationClosure({
-    required Map<String, String> body,
-    required List<Map<String, dynamic>> fileList,
-  }) async {
-    String addUpdateLitigationUrl = "Litigation/AddUpdateLitigationClosure";
-
-    try {
-      var networkResponse = await baseClient
-          .multipartRequestWithAuthenticationBytes(
-            addUpdateLitigationUrl,
-            fileList,
-            body,
-          );
-      return {
-        'data': networkResponse['data'],
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
-        'message': networkResponse['message'],
-      };
-    } catch (error) {
-      if (error is TokenExpiredException) {
-        apiCallAddUpdateLitigationClosure(body: body, fileList: fileList);
-      }
-      rethrow;
-    }
-  }
-
+  // GET LITIGATION HEARING
   @override
   Future<Map<String, dynamic>> apicallPullLitigationHearing({
     required int pageNumber,
@@ -392,6 +319,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     }
   }
 
+  //DELETE LITIGATION HEARING
   @override
   Future<Map<String, dynamic>> apicallDeleteLitigationHearing({
     required int litigationId,
@@ -434,6 +362,85 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     }
   }
 
+  // GET LITIGATION CLOSURE
+  @override
+  Future<Map<String, dynamic>> apicallPullLitigationClosure({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int litigationId,
+
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullLitigationClosureUrl({
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "Litigation/PullLitigationClosure?PageSize=$pageSize&PageNumber=$pageNumber"
+          "&ProjectId=$projectId&LitigationId=$litigationId";
+
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullLitigationClosureUrl(
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': List<LitigationModel>.from(
+          networkResponse['data'].map((e) => LitigationModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullLitigationClosure(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          projectId: projectId,
+          litigationId: litigationId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  // ADD / UPDATE LITIGATION CLOSURE
+  @override
+  Future<Map<String, dynamic>> apiCallAddUpdateLitigationClosure({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    String addUpdateLitigationUrl = "Litigation/AddUpdateLitigationClosure";
+
+    try {
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            addUpdateLitigationUrl,
+            fileList,
+            body,
+          );
+      return {
+        'data': networkResponse['data'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'message': networkResponse['message'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallAddUpdateLitigationClosure(body: body, fileList: fileList);
+      }
+      rethrow;
+    }
+  }
+
+  //GET LITIGATION DOCUMENTS
   @override
   Future<Map<String, dynamic>> apicallPullDocument({
     required int pageNumber,
@@ -517,6 +524,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     }
   }
 
+  //DELETE LITIGATION DOCUMENTS
   @override
   Future<Map<String, dynamic>> apicallDeleteLitigationDocument({
     required int litigationId,
@@ -559,6 +567,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     }
   }
 
+  // REQUEST FOR LITIGATION REOPEN
   @override
   Future<Map<String, dynamic>> apicallUpdateLitigationReopen({
     required Map<String, dynamic> body,

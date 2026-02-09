@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/legal/litigation/data/model/closure.model.dart';
+import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_closure.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_document.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
@@ -30,8 +30,13 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class LitigationViewScreen extends StatefulWidget {
   final LitigationModel litigationModel;
+  final int index;
 
-  const LitigationViewScreen({super.key, required this.litigationModel});
+  const LitigationViewScreen({
+    super.key,
+    required this.litigationModel,
+    required this.index,
+  });
 
   @override
   State<LitigationViewScreen> createState() => _LitigationViewScreenState();
@@ -39,29 +44,43 @@ class LitigationViewScreen extends StatefulWidget {
 
 class _LitigationViewScreenState extends State<LitigationViewScreen>
     with TickerProviderStateMixin {
+  /// ---------------- CUBIT ----------------
   late LitigationCubit _litigationCubit;
+
+  /// ---------------- TAB CONTROLLER ----------------
+  /// 3 tabs:
+  /// 0 → Overview
+  /// 1 → Hearing
+  /// 2 → Document
   late TabController _tabController;
 
-  // 🔹 Separate scroll controllers
+  /// ---------------- SCROLL CONTROLLERS ----------------
   late ScrollController _hearingScrollController;
   late ScrollController _documentScrollController;
 
+  /// ---------------- DOCUMENT FORM CONTROLLERS ----------------
   late TextEditingController _documentNameC;
-  // FILE PICKER VARIABLES
+
+  /// Multi file picker model for document upload/update
   MultiFilePickerModel litigationDocument = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
   );
 
+  /// Debounce to prevent multiple pagination API calls
   Timer? _debounce;
 
+  /// Common form key used in dialogs
   final _formKey = GlobalKey<FormState>();
+  final _formKeyDocument = GlobalKey<FormState>();
 
+  /// ---------------- CLOSURE FORM STATE ----------------
   DateTime? closureDate;
   late TextEditingController _remarkC;
   late TextEditingController _conclusionC;
 
+  /// File picker model for closure attachments
   MultiFilePickerModel closureFiles = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -81,9 +100,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _tabController.addListener(_onTabChanged);
 
     _onScroll();
-    _litigationCubit.setInitialClosures(
-      widget.litigationModel.litigationClosureData,
-    );
 
     _litigationCubit.getLitigationList(context: context, pageNumber: 1);
   }
@@ -95,7 +111,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
       switch (_tabController.index) {
         case 1:
-          _litigationCubit.clearHearingData();
           _litigationCubit.getLitigationHearingList(
             context: context,
             pageNumber: 1,
@@ -104,7 +119,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
           break;
 
         case 2:
-          _litigationCubit.clearDocumentData();
           _litigationCubit.getLitigationDocumentList(
             context: context,
             pageNumber: 1,
@@ -115,6 +129,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
   }
 
+  // PAGINATION
   void _onScroll() {
     _hearingScrollController =
         ScrollController()..addListener(_onHearingScroll);
@@ -204,10 +219,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   Widget _buildOverviewTab() {
     return BlocBuilder<LitigationCubit, LitigationState>(
       builder: (context, state) {
-        final litigation = state.litigationList.firstWhere(
-          (e) => e.litigationId == widget.litigationModel.litigationId,
-          orElse: () => widget.litigationModel,
-        );
+        final litigation = state.litigationList[widget.index];
 
         final status = litigation.status.toLowerCase();
 
@@ -439,15 +451,24 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     );
   }
 
-  // BUILD CLOSURE CARD LIST
+  /// ==========================================================
+  /// OVERVIEW TAB
+  /// Shows:
+  /// - Case details
+  /// - Court details
+  /// - Parties
+  /// - Closure history
+  /// - Action details
+  /// - Close/Reopen button
+  /// ==========================================================
+
+  /// Closure list builder
+  /// Uses litigationClosureData directly from litigation model
   Widget _buildClosureCardList() {
     return BlocBuilder<LitigationCubit, LitigationState>(
       builder: (context, state) {
         // get the current litigation from state
-        final litigation = state.litigationList.firstWhere(
-          (e) => e.litigationId == widget.litigationModel.litigationId,
-          orElse: () => widget.litigationModel,
-        );
+        final litigation = state.litigationList[widget.index];
         final closureList = litigation.litigationClosureData;
 
         if (closureList.isEmpty) return Center(child: noDataWidget());
@@ -466,7 +487,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 final closure = entry.value;
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: _buildClosureCard(closure, index),
+                  child: _buildClosureCard(closure, index, litigation.status),
                 );
               }),
             ],
@@ -476,7 +497,19 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     );
   }
 
-  Widget _buildClosureCard(LitigationClosureModel closure, int index) {
+  /// Single closure card
+  /// Shows:
+  /// - Date
+  /// - Remark
+  /// - Conclusion
+  /// - Attachment
+  /// - Edit button (only when status = reopen)
+
+  Widget _buildClosureCard(
+    LitigationClosureModel closure,
+    int index,
+    String status,
+  ) {
     return Container(
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -502,13 +535,14 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                   ],
                 ),
               ),
-
-              CustomIconButton.edit(
-                onPressed: () {
-                  _prefillClosureDate(closure: closure);
-                  _showClosurePopup(closure: closure, index: index);
-                },
-              ),
+              // only latest litigation can be edit
+              if (status.toLowerCase() == 'reopen' && index == 0)
+                CustomIconButton.edit(
+                  onPressed: () {
+                    _prefillClosureDate(closure: closure);
+                    _showClosurePopup(closure: closure, index: index);
+                  },
+                ),
             ],
           ),
 
@@ -773,10 +807,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     return BlocBuilder<LitigationCubit, LitigationState>(
       builder: (context, state) {
         // Find the current litigation from state using its ID
-        final litigation = state.litigationList.firstWhere(
-          (e) => e.litigationId == widget.litigationModel.litigationId,
-          orElse: () => widget.litigationModel,
-        );
+        final litigation = state.litigationList[widget.index];
 
         if (state.isLoading! && state.litigationDocumentList.isEmpty) {
           return Center(child: loader());
@@ -1041,6 +1072,13 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
   }
 
+  /// ==========================================================
+  /// DOCUMENT ADD/UPDATE POPUP
+  /// Shared dialog for both add & edit
+  /// ==========================================================
+
+  /// Prefill document data for edit
+
   void _prefillDocumentDetails(LitigationDocumentModel documentModel) {
     _documentNameC.text = documentModel.documentName;
     litigationDocument.fileBytesList = [];
@@ -1064,7 +1102,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
       context,
       documentModel != null ? 'Update Document' : 'Add Document',
       Form(
-        key: _formKey,
+        key: _formKeyDocument,
         child: Padding(
           padding: EdgeInsets.all(16),
 
@@ -1125,8 +1163,9 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _clearDialogueToAddUpdateDocument();
   }
 
+  /// Submit add/update document
   void _submitForm({LitigationDocumentModel? documentModel, int? index}) {
-    if (!_formKey.currentState!.validate()) {
+    if (!_formKeyDocument.currentState!.validate()) {
       return;
     }
     var body = {
@@ -1156,6 +1195,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
   }
 
+  /// Reset document dialog state
   void _clearDialogueToAddUpdateDocument() {
     _documentNameC.clear();
     closureDate = null;
@@ -1164,6 +1204,14 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     litigationDocument.deletedFileList = "";
   }
 
+  /// ==========================================================
+  /// CLOSURE FORM
+  /// Used for:
+  /// - Add closure
+  /// - Update closure
+  /// ==========================================================
+
+  /// Prefill closure data for editing
   Future<void> _prefillClosureDate({LitigationClosureModel? closure}) async {
     if (closure != null) {
       closureDate = closure.closureDate;
@@ -1309,6 +1357,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _clearClosureForm();
   }
 
+  /// Submit closure add/update
   void _submitClosure({int? index}) {
     final state = context.read<LitigationCubit>().state;
 
@@ -1319,9 +1368,18 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     var body = {
       "LitigationClosureId":
           isEdit
-              ? state.closureList[index].litigationClosureId.toString()
+              ? state
+                  .litigationList[widget.index]
+                  .litigationClosureData[index]
+                  .litigationClosureId
+                  .toString()
               : "0",
-      if (isEdit) "Uniquekey": state.closureList[index].uniquekey,
+      if (isEdit)
+        "Uniquekey":
+            state
+                .litigationList[widget.index]
+                .litigationClosureData[index]
+                .uniquekey,
       "ProjectId": getProject().projectId.toString(),
       "LitigationId": widget.litigationModel.litigationId.toString(),
       "ClosureDate": closureDate!.toIso8601String(),
@@ -1335,16 +1393,19 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
         closureIndex: index,
         body: body,
         litigationClosureDocuments: closureFiles,
+        litigationIndex: widget.index,
       );
     } else {
       _litigationCubit.addLitigationClosure(
         context: context,
         body: body,
         litigationClosureDocuments: closureFiles,
+        litigationIndex: widget.index,
       );
     }
   }
 
+  /// Reset closure form
   void _clearClosureForm() {
     _remarkC.clear();
     _conclusionC.clear();
@@ -1354,12 +1415,15 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     closureFiles.deletedFileList = "";
   }
 
+  /// ==========================================================
+  /// REOPEN CONFIRMATION
+  /// ==========================================================
   Future<void> _showPopupToReopenLitigation(BuildContext context) async {
     final shouldDelete = await DialogHelper.showConfirmationDialog(
       context: context,
       title: 'Are you sure you want to reopen this litigation?',
       message:
-          'Reopening will move this case back to active status and allow further updates.',
+          'Reopening will move this case back to open status and allow further updates.',
       confirmText: "Reopen",
     );
 
@@ -1369,6 +1433,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
         litigationId: widget.litigationModel.litigationId,
         projectId: getProject().projectId,
         uniqueKey: widget.litigationModel.uniquekey,
+        litigationIndex: widget.index,
       );
     }
   }
