@@ -11,6 +11,8 @@ class ProfileState extends BaseState {
   final List<ShiftMappingModel> shiftManagementList;
   final List<WeekOffMappingModel> weekOffMappingList;
   final List<EmployeeEducationDetailsModel> employeeEducationDetailsList;
+  final List<EmployeeExperienceDetailsModel> employeeExperienceDetailsList;
+  final List<BranchAssociationModel> branchAssociationList;
 
   const ProfileState({
     super.isLoading,
@@ -24,6 +26,8 @@ class ProfileState extends BaseState {
     required this.shiftManagementList,
     required this.weekOffMappingList,
     required this.employeeEducationDetailsList,
+    required this.employeeExperienceDetailsList,
+    required this.branchAssociationList,
   });
 
   factory ProfileState.initial() => const ProfileState(
@@ -36,6 +40,8 @@ class ProfileState extends BaseState {
     shiftManagementList: [],
     weekOffMappingList: [],
     employeeEducationDetailsList: [],
+    employeeExperienceDetailsList: [],
+    branchAssociationList: [],
   );
 
   ProfileState copyWith({
@@ -50,6 +56,8 @@ class ProfileState extends BaseState {
     List<ShiftMappingModel>? shiftManagementList,
     List<WeekOffMappingModel>? weekOffMappingList,
     List<EmployeeEducationDetailsModel>? employeeEducationDetailsList,
+    List<EmployeeExperienceDetailsModel>? employeeExperienceDetailsList,
+    List<BranchAssociationModel>? branchAssociationList,
   }) {
     return ProfileState(
       isLoading: isLoading ?? this.isLoading,
@@ -63,6 +71,8 @@ class ProfileState extends BaseState {
       shiftManagementList: shiftManagementList ?? this.shiftManagementList,
       weekOffMappingList: weekOffMappingList ?? this.weekOffMappingList,
       employeeEducationDetailsList: employeeEducationDetailsList ?? this.employeeEducationDetailsList,
+      employeeExperienceDetailsList: employeeExperienceDetailsList ?? this.employeeExperienceDetailsList,
+      branchAssociationList: branchAssociationList ?? this.branchAssociationList,
     );
   }
 
@@ -79,5 +89,7 @@ class ProfileState extends BaseState {
     shiftManagementList,
     weekOffMappingList,
     employeeEducationDetailsList,
+    employeeExperienceDetailsList,
+    branchAssociationList,
   ];
 }

@@ -43,8 +43,10 @@ class CustomButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: isDisable ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor:
-            gradient != null ? Colors.transparent : backgroundColor,
+        // Keep the Material layer transparent in all states;
+        // visual colors are handled by the Ink decoration below.
+        backgroundColor: Colors.transparent,
+        disabledBackgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
         padding: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
@@ -65,7 +67,11 @@ class CustomButton extends StatelessWidget {
                   : null,
 
           // FOR OUTLINE BUTTONS
-          border: borderColor != null ? Border.all(color: borderColor!) : null,
+          border: borderColor != null
+              ? Border.all(
+                  color: isDisable ? AppColor.grey : borderColor!,
+                )
+              : null,
 
           borderRadius: BorderRadius.circular(borderRadius),
         ),
@@ -75,20 +81,36 @@ class CustomButton extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (leading != null) ...[leading!, horizontalSpacing(width: 6)],
+              if (leading != null) ...[
+                IconTheme(
+                  data: IconThemeData(
+                    color: isDisable ? AppColor.grey : textColor,
+                  ),
+                  child: leading!,
+                ),
+                horizontalSpacing(width: 6),
+              ],
               Flexible(
                 child: Text(
                   text,
                   style:
                       titleTextStyle ??
                       AppTextStyle.ts12SB(
-                        color: isDisable ? AppColor.white : textColor,
+                        color: isDisable ? AppColor.grey : textColor,
                       ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
               ),
-              if (trailing != null) ...[horizontalSpacing(width: 6), trailing!],
+              if (trailing != null) ...[
+                horizontalSpacing(width: 6),
+                IconTheme(
+                  data: IconThemeData(
+                    color: isDisable ? AppColor.grey : textColor,
+                  ),
+                  child: trailing!,
+                ),
+              ],
             ],
           ),
         ),
@@ -194,6 +216,24 @@ class CustomButton extends StatelessWidget {
         backgroundColor: Colors.transparent,
         textColor: AppColor.primary,
         borderColor: AppColor.primary,
+        elevation: 0,
+        boxShadow: [],
+      );
+
+  // RESET (OUTLINE)
+  CustomButton.documentOutline({Key? key, required VoidCallback onPressed,bool isDisable = false,})
+    : this(
+        key: key,
+        trailing: Icon(
+          Icons.remove_red_eye_outlined,
+          size: 18,
+        ),
+        onPressed: onPressed,
+        isDisable: isDisable,
+        text: 'Document',
+        backgroundColor: Colors.transparent,
+        textColor: AppColor.mediumBlue,
+        borderColor: AppColor.mediumBlue,
         elevation: 0,
         boxShadow: [],
       );

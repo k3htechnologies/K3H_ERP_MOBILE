@@ -17,6 +17,30 @@ abstract interface class EmployeeMasterRepository {
     Map<String, dynamic>? queryParams,
   });
 
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdateEmployeeEducationDetails({required Map<String, dynamic> body});
+
+  Future<Either<Failure, Map<String, dynamic>>> deleteEmployeeEducationDetails({
+    required int employeeEducationDetailsId,
+    required String uniqueKey,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>>
+  getEmployeeExperienceDetailsList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdateEmployeeExperienceDetails({required Map<String, dynamic> body});
+
+  Future<Either<Failure, Map<String, dynamic>>>
+  deleteEmployeeExperienceDetails({
+    required int employeeExperienceDetailsId,
+    required String uniqueKey,
+  });
+
   Future<Either<Failure, Map<String, dynamic>>> getEmployeeDocumentList({
     required int pageNumber,
     required int pageSize,
@@ -103,6 +127,89 @@ class EmployeeMasterRepositoryImp implements EmployeeMasterRepository {
             pageNumber: pageNumber,
             pageSize: pageSize,
             queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdateEmployeeEducationDetails({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await employeeMasterDataSource
+          .apicallAddUpdateEmployeeEducationDetails(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteEmployeeEducationDetails({
+    required int employeeEducationDetailsId,
+    required String uniqueKey,
+  }) async {
+    try {
+      var result = await employeeMasterDataSource
+          .apicallDeletelEmployeeEducationDetails(
+            employeeEducationDetailsId: employeeEducationDetailsId,
+            uniqueKey: uniqueKey,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  getEmployeeExperienceDetailsList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await employeeMasterDataSource
+          .apicallPullEmployeeExperienceDetails(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdateEmployeeExperienceDetails({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await employeeMasterDataSource
+          .apicallAddUpdateEmployeeExperienceDetails(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  deleteEmployeeExperienceDetails({
+    required int employeeExperienceDetailsId,
+    required String uniqueKey,
+  }) async {
+    try {
+      var result = await employeeMasterDataSource
+          .apicallDeletelEmployeeExperienceDetails(
+            employeeExperienceDetailsId: employeeExperienceDetailsId,
+            uniqueKey: uniqueKey,
           );
       return right(result);
     } catch (error) {

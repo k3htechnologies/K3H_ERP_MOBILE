@@ -1,12 +1,12 @@
 import 'package:k3h_erp_app/utils/common_function.dart';
 
-class EmployeeEducationDetailsModel {
-  int employeeEducationDetailsId;
+class EmployeeExperienceDetailsModel {
+  int employeeExperienceDetailsId;
   String uniquekey;
   int employeeId;
-  String qualification;
-  String collegeName;
-  String passing;
+  String companyName;
+  String role;
+  String tenure;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -14,13 +14,13 @@ class EmployeeEducationDetailsModel {
   String modifiedBy;
   DateTime? modifiedDate;
 
-  EmployeeEducationDetailsModel({
-    required this.employeeEducationDetailsId,
+  EmployeeExperienceDetailsModel({
+    required this.employeeExperienceDetailsId,
     required this.uniquekey,
     required this.employeeId,
-    required this.qualification,
-    required this.collegeName,
-    required this.passing,
+    required this.companyName,
+    required this.role,
+    required this.tenure,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -29,17 +29,17 @@ class EmployeeEducationDetailsModel {
     required this.modifiedDate,
   });
 
-  factory EmployeeEducationDetailsModel.fromJson(Map<String, dynamic> json) =>
-      EmployeeEducationDetailsModel(
-        employeeEducationDetailsId: parseValue<int>(
+  factory EmployeeExperienceDetailsModel.fromJson(Map<String, dynamic> json) =>
+      EmployeeExperienceDetailsModel(
+        employeeExperienceDetailsId: parseValue<int>(
           json,
-          "EmployeeEducationDetailsId",
+          "EmployeeExperienceDetailsId",
         ),
         uniquekey: parseValue<String>(json, "Uniquekey"),
         employeeId: parseValue<int>(json, "EmployeeId"),
-        qualification: parseValue<String>(json, "Qualification"),
-        collegeName: parseValue<String>(json, "CollegeName"),
-        passing: parseValue<String>(json, "Passing"),
+        companyName: parseValue<String>(json, "CompanyName"),
+        role: parseValue<String>(json, "Role"),
+        tenure: parseValue<String>(json, "Tenure"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -52,12 +52,12 @@ class EmployeeEducationDetailsModel {
       );
 
   Map<String, dynamic> toJson() => {
-    "EmployeeEducationDetailsId": employeeEducationDetailsId,
+    "EmployeeExperienceDetailsId": employeeExperienceDetailsId,
     "Uniquekey": uniquekey,
     "EmployeeId": employeeId,
-    "Qualification": qualification,
-    "CollegeName": collegeName,
-    "Passing": passing,
+    "CompanyName": companyName,
+    "Role": role,
+    "Tenure": tenure,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

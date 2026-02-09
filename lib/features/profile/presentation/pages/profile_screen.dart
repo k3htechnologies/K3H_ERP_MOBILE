@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_education_details.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_experience_details.model.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -13,6 +15,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -26,17 +29,46 @@ class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  // CUBIT
+  late ProfileCubit _profileCubit;
+
+  // TEXT EDITING CONTROLLER
+  late TextEditingController _qualificationC, _collageNameC, _passingC;
+  late TextEditingController _companyNameC, _roleC, _tenureC;
+
+  // FORM KEY FOR BOTTOM SHEETS
+  final _educationFormKey = GlobalKey<FormState>();
+  final _experienceFormKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 8, vsync: this);
+    _profileCubit = context.read<ProfileCubit>();
+    _initializeTextEditingControllers();
+    _tabController = TabController(length: 9, vsync: this);
     _tabController.addListener(_handleTabChange);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _qualificationC.dispose();
+    _collageNameC.dispose();
+    _passingC.dispose();
+    _companyNameC.dispose();
+    _roleC.dispose();
+    _tenureC.dispose();
     super.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLERS
+  void _initializeTextEditingControllers() {
+    _qualificationC = TextEditingController();
+    _collageNameC = TextEditingController();
+    _passingC = TextEditingController();
+    _companyNameC = TextEditingController();
+    _roleC = TextEditingController();
+    _tenureC = TextEditingController();
   }
 
   // HANDLE TAB CHANGE
@@ -62,15 +94,278 @@ class _ProfileScreenState extends State<ProfileScreen>
         user.accountNo.trim().isNotEmpty;
   }
 
-  // <---- DELETE DEPARTMENT ---->
+  // <---- ADD / UPDATE EDUCATION ---->
   Future<void> _showBottomSheetToAddUpdateEducation(
-    BuildContext context,
-  ) async {
+    BuildContext context, {
+    EmployeeEducationDetailsModel? education,
+    int? index,
+  }) async {
+    final isUpdate = education != null && index != null;
+    if (isUpdate) {
+      _qualificationC.text = education.qualification;
+      _collageNameC.text = education.collegeName;
+      _passingC.text = education.passing;
+    } else {
+      _qualificationC.clear();
+      _collageNameC.clear();
+      _passingC.clear();
+    }
+
     DialogHelper.showCustomBottomSheet(
       context,
-      "Add Update Education",
-      Column(children: [Container(color: AppColor.red)]),
+      isUpdate ? "Update Education" : "Add Education",
+      Builder(
+        builder: (bottomSheetContext) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Form(
+              key: _educationFormKey,
+              child: Column(
+                children: [
+                  CustomTextField(
+                    title: "Qualification",
+                    isRequired: true,
+                    hint: "Enter Qualification",
+                    textController: _qualificationC,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter Qualification';
+                      }
+                      return null;
+                    },
+                  ),
+                  CustomTextField(
+                    title: "College Name",
+                    isRequired: true,
+                    hint: "Enter College Name",
+                    textController: _collageNameC,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter College Name';
+                      }
+                      return null;
+                    },
+                  ),
+                  CustomTextField(
+                    title: "Passing Year",
+                    isRequired: true,
+                    hint: "Enter Passing Year",
+                    textController: _passingC,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter Passing Year';
+                      }
+                      return null;
+                    },
+                  ),
+                  verticalSpacing(height: 30),
+                  CustomButton(
+                    leading: Icon(
+                      isUpdate ? Icons.edit : Icons.add,
+                      size: 18,
+                      color: AppColor.white,
+                    ),
+                    text: isUpdate ? "Update" : "Add",
+                    onPressed: () async {
+                      if (_educationFormKey.currentState?.validate() != true) {
+                        return;
+                      }
+                      if (!context.mounted) return;
+                      Navigator.pop(bottomSheetContext);
+                      final qualification = _qualificationC.text.trim();
+                      final collegeName = _collageNameC.text.trim();
+                      final passing = _passingC.text.trim();
+                      final employeeId =
+                          _profileCubit.state.user?.employeeId.toString() ?? '';
+                      if (employeeId.isEmpty) return;
+                      if (isUpdate) {
+                        await _profileCubit.updateEmployeeEducationDetails(
+                          context: context,
+                          employeeEducationDetailsId:
+                              education.employeeEducationDetailsId,
+                          uniqueKey: education.uniquekey,
+                          employeeId: employeeId,
+                          qualification: qualification,
+                          collegeName: collegeName,
+                          passing: passing,
+                          index: index,
+                        );
+                      } else {
+                        await _profileCubit.addEmployeeEducationDetails(
+                          context: context,
+                          employeeId: employeeId,
+                          qualification: qualification,
+                          collegeName: collegeName,
+                          passing: passing,
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
+  }
+
+  // <---- DELETE EMPLOYEE EDUCAtION DETAILS ---->
+  Future<void> _showPopupToDeleteEmployeeEducationDetails(
+    BuildContext context,
+    EmployeeEducationDetailsModel obj,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a education?',
+      'Deleting this education will permanently remove its contents.',
+    );
+    if (result && context.mounted) {
+      _profileCubit.deleteEmployeeEducationDetails(
+        context: context,
+        employeeEducationDetailsId: obj.employeeEducationDetailsId,
+        uniqueKey: obj.uniquekey,
+        index: index,
+      );
+    }
+  }
+
+  // <---- ADD / UPDATE EXPERIENCE ---->
+  Future<void> _showBottomSheetToAddUpdateExperience(
+    BuildContext context, {
+    EmployeeExperienceDetailsModel? experience,
+    int? index,
+  }) async {
+    final isUpdate = experience != null && index != null;
+    if (isUpdate) {
+      _companyNameC.text = experience.companyName;
+      _roleC.text = experience.role;
+      _tenureC.text = experience.tenure;
+    } else {
+      _companyNameC.clear();
+      _roleC.clear();
+      _tenureC.clear();
+    }
+
+    DialogHelper.showCustomBottomSheet(
+      context,
+      isUpdate ? "Update Experience" : "Add Experience",
+      Builder(
+        builder: (bottomSheetContext) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Form(
+              key: _experienceFormKey,
+              child: Column(
+                children: [
+                  CustomTextField(
+                    title: "Company Name",
+                    isRequired: true,
+                    hint: "Enter Company Name",
+                    textController: _companyNameC,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter Company Name';
+                      }
+                      return null;
+                    },
+                  ),
+                  CustomTextField(
+                    title: "Role",
+                    isRequired: true,
+                    hint: "Enter Role",
+                    textController: _roleC,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter Role';
+                      }
+                      return null;
+                    },
+                  ),
+                  CustomTextField(
+                    title: "Tenure",
+                    isRequired: true,
+                    hint: "Enter Tenure (e.g. 2 years)",
+                    textController: _tenureC,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter Tenure';
+                      }
+                      return null;
+                    },
+                  ),
+                  verticalSpacing(height: 30),
+                  CustomButton(
+                    leading: Icon(
+                      isUpdate ? Icons.edit : Icons.add,
+                      size: 18,
+                      color: AppColor.white,
+                    ),
+                    text: isUpdate ? "Update" : "Add",
+                    onPressed: () async {
+                      if (_experienceFormKey.currentState?.validate() != true) {
+                        return;
+                      }
+                      if (!context.mounted) return;
+                      Navigator.pop(bottomSheetContext);
+                      final companyName = _companyNameC.text.trim();
+                      final role = _roleC.text.trim();
+                      final tenure = _tenureC.text.trim();
+                      final employeeId =
+                          _profileCubit.state.user?.employeeId.toString() ?? '';
+                      if (employeeId.isEmpty) return;
+                      if (isUpdate) {
+                        await _profileCubit.updateEmployeeExperienceDetails(
+                          context: context,
+                          employeeExperienceDetailsId:
+                              experience.employeeExperienceDetailsId,
+                          uniqueKey: experience.uniquekey,
+                          employeeId: employeeId,
+                          companyName: companyName,
+                          role: role,
+                          tenure: tenure,
+                          index: index,
+                        );
+                      } else {
+                        await _profileCubit.addEmployeeExperienceDetails(
+                          context: context,
+                          employeeId: employeeId,
+                          companyName: companyName,
+                          role: role,
+                          tenure: tenure,
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // <---- DELETE EMPLOYEE EXPERIENCE DETAILS ---->
+  Future<void> _showPopupToDeleteEmployeeExperienceDetails(
+    BuildContext context,
+    EmployeeExperienceDetailsModel obj,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete this experience?',
+      'Deleting this experience will permanently remove its contents.',
+    );
+    if (result && context.mounted) {
+      _profileCubit.deleteEmployeeExperienceDetails(
+        context: context,
+        employeeExperienceDetailsId: obj.employeeExperienceDetailsId,
+        uniqueKey: obj.uniquekey,
+        index: index,
+      );
+    }
   }
 
   @override
@@ -135,6 +430,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           Tab(text: 'Overview'),
                           Tab(text: 'Education Details'),
                           Tab(text: 'Experience Details'),
+                          Tab(text: 'Branch Associations'),
                           Tab(text: 'Document'),
                           Tab(text: 'Assets'),
                           Tab(text: 'Project'),
@@ -153,6 +449,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       _buildOverviewTab(state.user!),
                       _buildEducationDetailsTab(),
                       _buildExperienceDetailsTab(),
+                      _buildBranchAssociationTab(),
                       _buildDocumentTab(),
                       _buildAssetTab(),
                       _buildProjectTab(
@@ -1145,7 +1442,8 @@ class _ProfileScreenState extends State<ProfileScreen>
           Expanded(
             child: BlocBuilder<ProfileCubit, ProfileState>(
               builder: (context, state) {
-                if (state.isLoading == true && state.employeeEducationDetailsList.isEmpty) {
+                if (state.isLoading == true &&
+                    state.employeeEducationDetailsList.isEmpty) {
                   return const Center(
                     child: Padding(
                       padding: EdgeInsets.all(24.0),
@@ -1206,11 +1504,21 @@ class _ProfileScreenState extends State<ProfileScreen>
                                     onPressed: () {
                                       _showBottomSheetToAddUpdateEducation(
                                         context,
+                                        education: education,
+                                        index: index,
                                       );
                                     },
                                   ),
                                   horizontalSpacing(),
-                                  CustomIconButton.delete(onPressed: () {}),
+                                  CustomIconButton.delete(
+                                    onPressed: () {
+                                      _showPopupToDeleteEmployeeEducationDetails(
+                                        context,
+                                        education,
+                                        index,
+                                      );
+                                    },
+                                  ),
                                 ],
                               ),
                             ],
@@ -1230,7 +1538,161 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   // EXPERIENCE DETAILS TAB
   Widget _buildExperienceDetailsTab() {
-    return Container();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Add Experience", style: AppTextStyle.ts14SB()),
+              CustomIconButton(
+                onPressed: () {
+                  _showBottomSheetToAddUpdateExperience(context);
+                },
+                icon: Icon(Icons.add, size: 16, color: AppColor.darkGreen),
+                backgroundColor: AppColor.lightGreen,
+              ),
+            ],
+          ),
+          verticalSpacing(height: 15),
+          Expanded(
+            child: BlocBuilder<ProfileCubit, ProfileState>(
+              builder: (context, state) {
+                if (state.isLoading == true &&
+                    state.employeeExperienceDetailsList.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                if (state.employeeExperienceDetailsList.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Text(
+                        "No experience details found",
+                        style: AppTextStyle.ts16M(color: AppColor.grey),
+                      ),
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: state.employeeExperienceDetailsList.length,
+                  itemBuilder: (_, index) {
+                    final experience =
+                        state.employeeExperienceDetailsList[index];
+                    return Container(
+                      margin: EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.all(16),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        spacing: 10,
+                        children: [
+                          Row(
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Company",
+                                value: experience.companyName,
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Role",
+                                value: experience.role,
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Tenure",
+                                value: experience.tenure,
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CustomIconButton.edit(
+                                    onPressed: () {
+                                      _showBottomSheetToAddUpdateExperience(
+                                        context,
+                                        experience: experience,
+                                        index: index,
+                                      );
+                                    },
+                                  ),
+                                  horizontalSpacing(),
+                                  CustomIconButton.delete(
+                                    onPressed: () {
+                                      _showPopupToDeleteEmployeeExperienceDetails(
+                                        context,
+                                        experience,
+                                        index,
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // BRANCH ASSOCIATION TAB
+  Widget _buildBranchAssociationTab() {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (_, state) {
+        if (state.isLoading == true && state.branchAssociationList.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (state.branchAssociationList.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Text(
+                "No data found",
+                style: AppTextStyle.ts16M(color: AppColor.grey),
+              ),
+            ),
+          );
+        }
+        return ListView.builder(
+          shrinkWrap: true,
+          itemCount: state.branchAssociationList.length,
+          itemBuilder: (_, index) {
+            final branch = state.branchAssociationList[index];
+            return Container(
+              decoration: commonCardDecoration(),
+              padding: EdgeInsets.all(16),
+              margin: EdgeInsets.only(bottom: 10),
+              child: Text(branch.branchName, style: AppTextStyle.ts14R()),
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget _buildDocumentTab() {

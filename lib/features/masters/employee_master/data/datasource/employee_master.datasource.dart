@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/core/models/branch.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_education_details.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_experience_details.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_document.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
@@ -19,6 +20,30 @@ abstract interface class EmployeeMasterDataSource {
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> apicallAddUpdateEmployeeEducationDetails({
+    required Map<String, dynamic> body,
+  });
+
+  Future<Map<String, dynamic>> apicallDeletelEmployeeEducationDetails({
+    required int employeeEducationDetailsId,
+    required String uniqueKey,
+  });
+
+  Future<Map<String, dynamic>> apicallPullEmployeeExperienceDetails({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> apicallAddUpdateEmployeeExperienceDetails({
+    required Map<String, dynamic> body,
+  });
+
+  Future<Map<String, dynamic>> apicallDeletelEmployeeExperienceDetails({
+    required int employeeExperienceDetailsId,
+    required String uniqueKey,
   });
 
   Future<Map<String, dynamic>> apiCallToPullEmployeeDocument({
@@ -158,6 +183,175 @@ class EmployeeMasterDataSourceImpl extends EmployeeMasterDataSource {
           pageNumber: pageNumber,
           pageSize: pageSize,
           queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateEmployeeEducationDetails({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      String addUpdateEmployeeEducationDetailsUrl =
+          "EmployeeEducationDetails/AddUpdateEmployeeEducationDetails";
+
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateEmployeeEducationDetailsUrl,
+        body,
+      );
+      return {
+        'data': List<EmployeeEducationDetailsModel>.from(
+          networkResponse["data"].map(
+            (e) => EmployeeEducationDetailsModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAddUpdateEmployeeEducationDetails(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeletelEmployeeEducationDetails({
+    required int employeeEducationDetailsId,
+    required String uniqueKey,
+  }) async {
+    String deleteEmployeeEducationDetailsUrl({
+      required int employeeEducationDetailsId,
+      required String uniqueKey,
+    }) {
+      return "EmployeeEducationDetails/DeleteEmployeeEducationDetails?EmployeeEducationDetailsId=$employeeEducationDetailsId&Uniquekey=$uniqueKey";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteEmployeeEducationDetailsUrl(
+          employeeEducationDetailsId: employeeEducationDetailsId,
+          uniqueKey: uniqueKey,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['TotalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallDeletelEmployeeEducationDetails(
+          employeeEducationDetailsId: employeeEducationDetailsId,
+          uniqueKey: uniqueKey,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullEmployeeExperienceDetails({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullEmployeeExperienceDetailsUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "EmployeeExperienceDetails/PullEmployeeExperienceDetails?PageSize=$pageSize&PageNumber=$pageNumber";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullEmployeeExperienceDetailsUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': List<EmployeeExperienceDetailsModel>.from(
+          networkResponse["data"].map(
+            (e) => EmployeeExperienceDetailsModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullEmployeeExperienceDetails(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateEmployeeExperienceDetails({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      String addUpdateEmployeeExperienceDetailsUrl =
+          "EmployeeExperienceDetails/AddUpdateEmployeeExperienceDetails";
+
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateEmployeeExperienceDetailsUrl,
+        body,
+      );
+      return {
+        'data': List<EmployeeExperienceDetailsModel>.from(
+          networkResponse["data"].map(
+            (e) => EmployeeExperienceDetailsModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAddUpdateEmployeeExperienceDetails(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeletelEmployeeExperienceDetails({
+    required int employeeExperienceDetailsId,
+    required String uniqueKey,
+  }) async {
+    String deleteEmployeeExperienceDetailsUrl({
+      required int employeeExperienceDetailsId,
+      required String uniqueKey,
+    }) {
+      return "EmployeeExperienceDetails/DeleteEmployeeExperienceDetails?EmployeeExperienceDetailsId=$employeeExperienceDetailsId&Uniquekey=$uniqueKey";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteEmployeeExperienceDetailsUrl(
+          employeeExperienceDetailsId: employeeExperienceDetailsId,
+          uniqueKey: uniqueKey,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['TotalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallDeletelEmployeeExperienceDetails(
+          employeeExperienceDetailsId: employeeExperienceDetailsId,
+          uniqueKey: uniqueKey,
         );
       }
       rethrow;

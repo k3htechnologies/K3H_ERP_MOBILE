@@ -8,15 +8,18 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_education_details.model.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_education_details.model.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_education_details.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_experience_details.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_document.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/data/model/branch_association_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/data/repository/branch_association_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 
@@ -31,6 +34,8 @@ class ProfileCubit extends Cubit<ProfileState> {
       serviceLocator<ProjectMasterRepository>();
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
+  final BranchAssociationMasterRepository _branchAssociationMasterRepository =
+      serviceLocator<BranchAssociationMasterRepository>();
 
   void _loadUserData() {
     final user = _getUser();
@@ -132,23 +137,29 @@ class ProfileCubit extends Cubit<ProfileState> {
 
     final employeeId = state.user!.employeeId;
     if (index == 1) {
-      // Document tab
+      // Education tab
       getEmployeeEducationDetailsList(context, 1, 100, employeeId);
+    } else if (index == 2) {
+      // Experience tab
+      getEmployeeExperienceDetailsList(context, 1, 100, employeeId);
     } else if (index == 3) {
       // Document tab
-      getEmployeeDocumentList(context, 1, 100, employeeId);
+      getBranchAssociationList(context, 1, 100, employeeId);
     } else if (index == 4) {
+      // Document tab
+      getEmployeeDocumentList(context, 1, 100, employeeId);
+    } else if (index == 5) {
       // Assets tab
       getEmployeeAssetList(context, 1, 100, employeeId);
-    } else if (index == 5) {
+    } else if (index == 6) {
       // Project tab
       if (state.projectList.isEmpty && state.user!.projectData.isNotEmpty) {
         fetchProjects(context);
       }
-    } else if (index == 6) {
+    } else if (index == 7) {
       // Shift Policy tab
       getShiftManagementList(context, 1, 100, employeeId);
-    } else if (index == 7) {
+    } else if (index == 8) {
       // Week Off Policy tab
       getWeekOffMappingList(context, 1, 100, employeeId);
     }
@@ -326,6 +337,359 @@ class ProfileCubit extends Cubit<ProfileState> {
             employeeEducationDetailsList: newList,
           ),
         );
+      },
+    );
+  }
+
+  // <---- ADD DEPARTMENT ---->
+  Future addEmployeeEducationDetails({
+    required BuildContext context,
+    required String employeeId,
+    required String qualification,
+    required String collegeName,
+    required String passing,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, dynamic> requestBody = {
+      "EmployeeEducationDetailsId": 0,
+      "EmployeeId": employeeId,
+      "Qualification": qualification,
+      "CollegeName": collegeName,
+      "Passing": passing,
+    };
+    var addResult = await _employeeMasterRepository
+        .addUpdateEmployeeEducationDetails(body: requestBody);
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Education Added Successfully!!!',
+        );
+        if (state.user != null) {
+          getEmployeeEducationDetailsList(
+            context,
+            1,
+            100,
+            state.user!.employeeId,
+          );
+        }
+      },
+    );
+  }
+
+  // <---- UPDATE DEPARTMENT ---->
+  Future updateEmployeeEducationDetails({
+    required BuildContext context,
+    required int employeeEducationDetailsId,
+    required String uniqueKey,
+    required String employeeId,
+    required String qualification,
+    required String collegeName,
+    required String passing,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, dynamic> requestBody = {
+      "EmployeeEducationDetailsId": employeeEducationDetailsId,
+      "Uniquekey": uniqueKey,
+      "EmployeeId": employeeId,
+      "Qualification": qualification,
+      "CollegeName": collegeName,
+      "Passing": passing,
+    };
+    var addResult = await _employeeMasterRepository
+        .addUpdateEmployeeEducationDetails(body: requestBody);
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        final updatedEducation =
+            response['data'][0] as EmployeeEducationDetailsModel;
+
+        if (state.employeeEducationDetailsList.isNotEmpty &&
+            index < state.employeeEducationDetailsList.length) {
+          final updatedList = List<EmployeeEducationDetailsModel>.from(
+            state.employeeEducationDetailsList,
+          );
+          updatedList[index] = updatedEducation;
+          emit(
+            state.copyWith(
+              employeeEducationDetailsList: updatedList,
+              isLoading: false,
+            ),
+          );
+        }
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Education Updated Successfully!!!',
+        );
+      },
+    );
+  }
+
+  // <---- DELETE EMPLOYEE EDUCATION DETAILS ---->
+  Future deleteEmployeeEducationDetails({
+    required BuildContext context,
+    required int employeeEducationDetailsId,
+    required String uniqueKey,
+    int? index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _employeeMasterRepository
+        .deleteEmployeeEducationDetails(
+          employeeEducationDetailsId: employeeEducationDetailsId,
+          uniqueKey: uniqueKey,
+        );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Education Deleted Successfully!!!',
+        );
+        if (index != null) {
+          final updatedList = List<EmployeeEducationDetailsModel>.from(
+            state.employeeEducationDetailsList,
+          );
+          updatedList.removeAt(index);
+
+          emit(state.copyWith(employeeEducationDetailsList: updatedList));
+        } else {
+          getEmployeeEducationDetailsList(
+            context,
+            1,
+            100,
+            state.user!.employeeId,
+          );
+        }
+      },
+    );
+  }
+
+  // <---- GET EMPLOYEE EDUCATION DETAILS LIST ---->
+  Future getEmployeeExperienceDetailsList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await _employeeMasterRepository
+        .getEmployeeExperienceDetailsList(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: {"EmployeeId": employeeId},
+        );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final dataList = response['data'] as List;
+        List<EmployeeExperienceDetailsModel> newList =
+            pageNumber == 1
+                ? List<EmployeeExperienceDetailsModel>.from(dataList)
+                : [
+                  ...state.employeeExperienceDetailsList,
+                  ...List<EmployeeExperienceDetailsModel>.from(dataList),
+                ];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            employeeExperienceDetailsList: newList,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- ADD EXPERIENCE DETAILS ---->
+  Future addEmployeeExperienceDetails({
+    required BuildContext context,
+    required String employeeId,
+    required String companyName,
+    required String role,
+    required String tenure,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, dynamic> requestBody = {
+      "EmployeeExperienceDetailsId": 0,
+      "EmployeeId": employeeId,
+      "CompanyName": companyName,
+      "Role": role,
+      "Tenure": tenure,
+    };
+    var addResult = await _employeeMasterRepository
+        .addUpdateEmployeeExperienceDetails(body: requestBody);
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Experience Added Successfully!!!',
+        );
+        if (state.user != null) {
+          getEmployeeExperienceDetailsList(
+            context,
+            1,
+            100,
+            state.user!.employeeId,
+          );
+        }
+      },
+    );
+  }
+
+  // <---- UPDATE EXPERIENCE DETAILS ---->
+  Future updateEmployeeExperienceDetails({
+    required BuildContext context,
+    required int employeeExperienceDetailsId,
+    required String uniqueKey,
+    required String employeeId,
+    required String companyName,
+    required String role,
+    required String tenure,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, dynamic> requestBody = {
+      "EmployeeExperienceDetailsId": employeeExperienceDetailsId,
+      "Uniquekey": uniqueKey,
+      "EmployeeId": employeeId,
+      "CompanyName": companyName,
+      "Role": role,
+      "Tenure": tenure,
+    };
+    var addResult = await _employeeMasterRepository
+        .addUpdateEmployeeExperienceDetails(body: requestBody);
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        final updatedEducation =
+            response['data'][0] as EmployeeExperienceDetailsModel;
+
+        if (state.employeeExperienceDetailsList.isNotEmpty &&
+            index < state.employeeExperienceDetailsList.length) {
+          final updatedList = List<EmployeeExperienceDetailsModel>.from(
+            state.employeeExperienceDetailsList,
+          );
+          updatedList[index] = updatedEducation;
+          emit(
+            state.copyWith(
+              employeeExperienceDetailsList: updatedList,
+              isLoading: false,
+            ),
+          );
+        }
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Experience Updated Successfully!!!',
+        );
+      },
+    );
+  }
+
+  // <---- DELETE EMPLOYEE EXPERIENCE DETAILS ---->
+  Future deleteEmployeeExperienceDetails({
+    required BuildContext context,
+    required int employeeExperienceDetailsId,
+    required String uniqueKey,
+    int? index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _employeeMasterRepository
+        .deleteEmployeeExperienceDetails(
+          employeeExperienceDetailsId: employeeExperienceDetailsId,
+          uniqueKey: uniqueKey,
+        );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Experience Deleted Successfully!!!',
+        );
+        if (index != null) {
+          final updatedList = List<EmployeeExperienceDetailsModel>.from(
+            state.employeeExperienceDetailsList,
+          );
+          updatedList.removeAt(index);
+
+          emit(state.copyWith(employeeExperienceDetailsList: updatedList));
+        } else {
+          getEmployeeExperienceDetailsList(
+            context,
+            1,
+            100,
+            state.user!.employeeId,
+          );
+        }
+      },
+    );
+  }
+
+  // <---- GET BRANCH ASSOCIATION LIST ---->
+  Future getBranchAssociationList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await _branchAssociationMasterRepository
+        .getBranchAssociationList(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: {"EmployeeId": employeeId},
+        );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final dataList = response['data'] as List;
+        List<BranchAssociationModel> newList =
+            pageNumber == 1
+                ? List<BranchAssociationModel>.from(dataList)
+                : [
+                  ...state.branchAssociationList,
+                  ...List<BranchAssociationModel>.from(dataList),
+                ];
+
+        emit(state.copyWith(isLoading: false, branchAssociationList: newList));
       },
     );
   }
