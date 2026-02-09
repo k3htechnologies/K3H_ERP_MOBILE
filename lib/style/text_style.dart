@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 
@@ -11,6 +10,11 @@ class AppTextStyle {
   );
 
   // REGULAR
+  static TextStyle ts10R({Color? color}) => TextStyle(
+    fontFamily: "regular",
+    fontSize: 10.0,
+    color: color ?? AppColor.black,
+  );
   static TextStyle ts12R({Color? color}) => TextStyle(
     fontFamily: "regular",
     fontSize: 12.0,
@@ -43,6 +47,11 @@ class AppTextStyle {
   );
 
   // MEDIUM
+  static TextStyle ts10M({Color? color}) => TextStyle(
+    fontFamily: "medium",
+    fontSize: 10.0,
+    color: color ?? AppColor.black,
+  );
   static TextStyle ts12M({Color? color}) => TextStyle(
     fontFamily: "medium",
     fontSize: 12.0,

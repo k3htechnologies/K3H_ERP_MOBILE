@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -370,6 +371,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         _buildScheduledTaskWidget(context),
                         verticalSpacing(),
                         _buildQuickActionsWidget(context),
+                        verticalSpacing(),
+                        _buildAttendanceSummaryWidget(context),
+                        verticalSpacing(),
+                        _buildWorkingHourSummaryWidget(context),
+                        verticalSpacing(),
+                        _buildTeamAttendanceSummaryWidget(context),
+                        verticalSpacing(),
+                        _buildLeaveBalanceSummaryWidget(context),
+                        verticalSpacing(),
+                        _buildHolidaySummaryWidget(context),
+                        verticalSpacing(),
+                        _buildEventsAndMoreWidget(context),
                       ],
                     ),
                   ),
@@ -730,7 +743,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       decoration: commonCardDecoration(),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -746,51 +758,460 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-          verticalSpacing(),
-          Wrap(
-            spacing: 20,
-            alignment: WrapAlignment.spaceBetween,
+          const SizedBox(height: 20),
+          GridView.count(
+            crossAxisCount: 3,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisSpacing: 26.0,
             children: [
-              Column(
-                children: [
-                  SvgPicture.asset(AppAssets.departmentIcon),
-                  Text("Apply Leave"),
-                ],
+              QuickActionTile(
+                icon: AppAssets.applyLeaveIcon,
+                title: "Apply Leave",
+                onTap: () {},
               ),
-              Column(
-                children: [
-                  SvgPicture.asset(AppAssets.departmentIcon),
-                  Text("Raise Task"),
-                ],
+              QuickActionTile(
+                icon: AppAssets.raiseTaskIcon,
+                title: "Raise Task",
+                onTap: () {},
               ),
-              Column(
-                children: [
-                  SvgPicture.asset(AppAssets.departmentIcon),
-                  Text("Apply Advance"),
-                ],
+              QuickActionTile(
+                icon: AppAssets.applyAdvanceIcon,
+                title: "Apply Advance",
+                onTap: () {},
               ),
-              Column(
-                children: [
-                  SvgPicture.asset(AppAssets.departmentIcon),
-                  Text("Regularize"),
-                ],
+              QuickActionTile(
+                icon: AppAssets.regularizeIcon,
+                title: "Regularize",
+                onTap: () {},
               ),
-              Column(
-                children: [
-                  SvgPicture.asset(AppAssets.departmentIcon),
-                  Text("Request Asset"),
-                ],
+              QuickActionTile(
+                icon: AppAssets.requestAssetIcon,
+                title: "Request Asset",
+                onTap: () {},
               ),
-              Column(
-                children: [
-                  SvgPicture.asset(AppAssets.departmentIcon),
-                  Text("Payslip"),
-                ],
+              QuickActionTile(
+                icon: AppAssets.payslipIcon,
+                title: "Payslip",
+                onTap: () {},
               ),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAttendanceSummaryWidget(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  "Attendance Summary",
+                  style: AppTextStyle.ts14M(
+                    color: AppColor.black.withValues(alpha: 0.50),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 13,
+            crossAxisSpacing: 16,
+            childAspectRatio: 1.95,
+            children: const [
+              AttendanceStatCard(
+                title: "Present Days",
+                value: "22",
+                subtitle: "This Month",
+                bgColor: Color(0xFFEFFAF3),
+                borderColor: Color(0xFFB7E4C7),
+                valueColor: Color(0xFF2E7D32),
+              ),
+              AttendanceStatCard(
+                title: "Avg Login Time",
+                value: "9:12 am",
+                bgColor: Color(0xFFFFF6ED),
+                borderColor: Color(0xFFFFD8B5),
+                valueColor: Color(0xFFE65100),
+              ),
+              AttendanceStatCard(
+                title: "WFH Days",
+                value: "03",
+                subtitle: "This Month",
+                bgColor: Color(0xFFEFF5FF),
+                borderColor: Color(0xFFCFE0FF),
+                valueColor: Color(0xFF1565C0),
+              ),
+              AttendanceStatCard(
+                title: "Shift Pattern",
+                value: "9 am - 6 pm",
+                bgColor: Color(0xFFF4F0FF),
+                borderColor: Color(0xFFD9CCFF),
+                valueColor: Color(0xFF6A1B9A),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWorkingHourSummaryWidget(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  "Working Hour Summary",
+                  style: AppTextStyle.ts14M(
+                    color: AppColor.black.withValues(alpha: 0.50),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              summaryOverallWidget(title: "This Week", subTitle: "42h"),
+              summaryOverallWidget(
+                title: "Overtime",
+                subTitle: "8h",
+                color: AppColor.yellow,
+              ),
+              summaryOverallWidget(title: "Avg Daily", subTitle: "8.2h"),
+            ],
+          ),
+          const SizedBox(height: 30),
+          _buildDayWiseProgress(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeamAttendanceSummaryWidget(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  "Team Attendance Summary",
+                  style: AppTextStyle.ts14M(
+                    color: AppColor.black.withValues(alpha: 0.50),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [AttendanceRadialChart(present: 8, absent: 3, leave: 1)],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLeaveBalanceSummaryWidget(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  "Leave Balance",
+                  style: AppTextStyle.ts14M(
+                    color: AppColor.black.withValues(alpha: 0.50),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _leaveRow(title: "Total Leaves", value: "24"),
+          _leaveRow(title: "Used Leaves", value: "20"),
+          _leaveRow(title: "Pending Leaves", value: "04"),
+          const SizedBox(height: 20),
+          Text(
+            "Upcoming Approved",
+            style: AppTextStyle.ts14M(
+              color: AppColor.black.withValues(alpha: 0.5),
+            ),
+          ),
+          const SizedBox(height: 10),
+          _buildUpcomingAttendanceWidget(
+            title: "Casual Leave",
+            value: "",
+            subtitle: "Feb 14-16, 2024 (3 days)",
+            bgColor: Color(0xFFEFFAF3),
+            borderColor: Color(0xFFB7E4C7),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _leaveRow({required String title, required String value}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          Expanded(flex: 6, child: Text(title, style: AppTextStyle.ts14M())),
+
+          SizedBox(
+            width: 24,
+            child: Center(child: Text(":", style: AppTextStyle.ts14M())),
+          ),
+
+          Expanded(
+            flex: 2,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Text(value, style: AppTextStyle.ts16SB()),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUpcomingAttendanceWidget({
+    String? title,
+    String? value,
+    String? subtitle,
+    Color? bgColor,
+    Color? borderColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor!, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(title!, style: AppTextStyle.ts14M(color: AppColor.black)),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                value!,
+                style: AppTextStyle.ts16SB(color: Color(0xFF2E7D32)),
+              ),
+              if (subtitle != null) ...[
+                Text(
+                  subtitle,
+                  style: AppTextStyle.ts10R(color: AppColor.black),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHolidaySummaryWidget(BuildContext context) {
+    return Container(
+      height: 300.0,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  "Holiday",
+                  style: AppTextStyle.ts14M(
+                    color: AppColor.black.withValues(alpha: 0.50),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Expanded(
+            child: ListView.builder(
+              itemCount: 10,
+              shrinkWrap: true,
+              itemBuilder: (context, int index) {
+                return Container(
+                  margin: EdgeInsets.only(bottom: 8.0),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 12.0,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4.0),
+                    color: AppColor.lightPurple.withValues(alpha: 0.50),
+                    border: Border.all(width: 1, color: AppColor.lightPurple),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Labour’s Day", style: AppTextStyle.ts14M()),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Feb 22 , Monday",
+                            style: AppTextStyle.ts12R(
+                              color: AppColor.black.withValues(alpha: 0.50),
+                            ),
+                          ),
+                          Text(
+                            "In 26 days",
+                            style: AppTextStyle.ts10M().copyWith(
+                              color: AppColor.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEventsAndMoreWidget(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  "Events & More",
+                  style: AppTextStyle.ts14M(
+                    color: AppColor.black.withValues(alpha: 0.50),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Divider(
+            thickness: 0.3,
+            color: AppColor.black.withValues(alpha: 0.50),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  "Upcoming Birthday",
+                  style: AppTextStyle.ts14SB(color: AppColor.black),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ListView.builder(
+            itemCount: 5,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, int index) {
+              return ListTile(
+                leading: CircleAvatar(
+                  radius: 45,
+                  backgroundColor: AppColor.white,
+                  backgroundImage: AssetImage(AppAssets.sampleCompanyImage),
+                ),
+                title: Text("data"),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget summaryOverallWidget({String? title, String? subTitle, Color? color}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title!, style: AppTextStyle.ts14M()),
+        Text(subTitle!, style: AppTextStyle.ts16SB(color: color)),
+      ],
+    );
+  }
+
+  Widget _buildDayWiseProgress() {
+    return Column(
+      children: const [
+        DayWorkProgress(
+          day: "Monday",
+          worked: Duration(hours: 8, minutes: 53),
+          target: Duration(hours: 9),
+        ),
+        DayWorkProgress(
+          day: "Tuesday",
+          worked: Duration(hours: 9, minutes: 10),
+          target: Duration(hours: 9),
+        ),
+        DayWorkProgress(
+          day: "Wednesday",
+          worked: Duration(hours: 6, minutes: 10),
+          target: Duration(hours: 9),
+        ),
+        DayWorkProgress(
+          day: "Thursday",
+          worked: Duration(hours: 9, minutes: 10),
+          target: Duration(hours: 9),
+        ),
+        DayWorkProgress(
+          day: "Friday",
+          worked: Duration(hours: 9, minutes: 10),
+          target: Duration(hours: 9),
+        ),
+      ],
     );
   }
 
@@ -805,4 +1226,324 @@ class _DashboardScreenState extends State<DashboardScreen> {
       subTitle: "Project Selected ${project.projectName}",
     );
   }
+}
+
+class QuickActionTile extends StatelessWidget {
+  final String icon;
+  final String title;
+  final VoidCallback onTap;
+
+  const QuickActionTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SvgPicture.asset(icon, height: 24, width: 24),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: AppTextStyle.ts12M(color: AppColor.black),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AttendanceStatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final String? subtitle;
+  final Color bgColor;
+  final Color borderColor;
+  final Color valueColor;
+
+  const AttendanceStatCard({
+    super.key,
+    required this.title,
+    required this.value,
+    this.subtitle,
+    required this.bgColor,
+    required this.borderColor,
+    required this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: AppTextStyle.ts14SB(
+              color: AppColor.black.withValues(alpha: 0.45),
+            ),
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(value, style: AppTextStyle.ts16SB(color: valueColor)),
+              if (subtitle != null) ...[
+                const SizedBox(width: 10),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: Text(
+                    subtitle!,
+                    style: AppTextStyle.ts10R(color: valueColor),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DayWorkProgress extends StatelessWidget {
+  final String day;
+  final Duration worked;
+  final Duration target;
+
+  const DayWorkProgress({
+    super.key,
+    required this.day,
+    required this.worked,
+    required this.target,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = (worked.inSeconds / target.inSeconds).clamp(0.0, 1.0);
+
+    String format(Duration d) =>
+        "${d.inHours}:${(d.inMinutes % 60).toString().padLeft(2, '0')}:00";
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(day, style: AppTextStyle.ts14M()),
+        const SizedBox(height: 8),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Stack(
+              children: [
+                // Grey track
+                Container(
+                  height: 22,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AppColor.lightGreyBackground,
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                ),
+                // Blue progress
+                Container(
+                  height: 22,
+                  width: constraints.maxWidth * progress,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFF1E3A8A),
+                        Color(0xFF2563EB),
+                        Color(0xFF1E40AF),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "${format(worked)} / ${format(target)} hrs",
+          style: AppTextStyle.ts12R(
+            color: AppColor.black.withValues(alpha: 0.5),
+          ),
+        ),
+
+        const SizedBox(height: 22),
+      ],
+    );
+  }
+}
+
+class AttendanceRadialChart extends StatelessWidget {
+  final int present;
+  final int absent;
+  final int leave;
+
+  const AttendanceRadialChart({
+    super.key,
+    required this.present,
+    required this.absent,
+    required this.leave,
+  });
+
+  int get total => present + absent + leave;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              height: 110,
+              width: 110,
+              child: CustomPaint(
+                painter: RadialPainter(
+                  present: present,
+                  absent: absent,
+                  leave: leave,
+                ),
+                child: Center(
+                  child: Text("$total", style: AppTextStyle.ts16SB()),
+                ),
+              ),
+            ),
+            const SizedBox(width: 30),
+            // Legend
+            SizedBox(
+              height: 110, // SAME as chart
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: _legend(AppColor.primary, present, "Present"),
+                    ),
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: _legend(AppColor.blue, absent, "Absent"),
+                    ),
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: _legend(AppColor.grey50, leave, "On Leave"),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        verticalSpacing(height: 20.0),
+        Text(
+          "$total Total Employee",
+          style: AppTextStyle.ts12SB(
+            color: AppColor.black.withValues(alpha: 0.50),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _legend(Color color, int value, String text) {
+    return Row(
+      children: [
+        Container(
+          height: 14,
+          width: 14,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(100),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Text(value.toString().padLeft(2, '0'), style: AppTextStyle.ts16SB()),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: AppTextStyle.ts16M(
+            color: AppColor.black.withValues(alpha: 0.5),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class RadialPainter extends CustomPainter {
+  final int present;
+  final int absent;
+  final int leave;
+
+  RadialPainter({
+    required this.present,
+    required this.absent,
+    required this.leave,
+  });
+
+  final double stroke = 20;
+  final double gapDegrees = 25;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final total = present + absent + leave;
+
+    final center = size.center(Offset.zero);
+    final radius = size.width / 2.2;
+    final rect = Rect.fromCircle(center: center, radius: radius);
+
+    final paint =
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = stroke
+          ..strokeCap = StrokeCap.round;
+
+    // Total degrees available after gaps
+    final usable = 360 - (gapDegrees * 3);
+
+    final presentSweep = (present / total) * usable;
+    final absentSweep = (absent / total) * usable;
+    final leaveSweep = (leave / total) * usable;
+
+    // ⭐ KEY: center PRESENT arc at top
+    double start = -90 - (presentSweep / 2);
+
+    void draw(Color color, double sweep) {
+      paint.color = color;
+      canvas.drawArc(rect, _deg(start), _deg(sweep), false, paint);
+      start += sweep + gapDegrees;
+    }
+
+    draw(AppColor.primary, presentSweep); // Present
+    draw(AppColor.blue, absentSweep); // Absent
+    draw(AppColor.grey50, leaveSweep); // Leave
+  }
+
+  double _deg(double d) => d * pi / 180;
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

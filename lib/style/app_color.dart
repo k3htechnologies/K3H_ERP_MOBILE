@@ -57,6 +57,9 @@ class AppColor {
   static const Color yellow10 = Color(0x1AF59E0B);
   static const Color lightYellow = Color(0xFFFEF3C7);
   static const Color lightBlue2 = Color(0xFFE7EEFF);
+  static const Color lightGreenBg = Color(0xFFBBF7D0);
+  static const Color lightOrangenBg = Color(0xFFFED7AA);
+  static const Color lightPurple = Color(0xFFFAF5FF);
 
   // TEXT
   static const Color textPrimary = Color(0xFF212121); // BLACK
