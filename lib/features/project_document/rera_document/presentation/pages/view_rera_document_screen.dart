@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -82,7 +83,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: CustomAppBarWithBackButton(
         screenTitle: "RERA Documents",
         authorization: _routeAuthorizationModel,
       ),
@@ -263,52 +264,18 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
               buildColumnTitleValue(
                 title: "View Document",
                 value: document.projectRERADocumentURL,
-                customValueWidget: GestureDetector(
-                  onTap: () {
-                    if (document.projectRERADocumentURL.isNotEmpty) {
-                      showFilePreviewDialog(
-                        context,
-                        document.projectRERADocumentURL.split(","),
-                      );
-                    }
-                  },
-                  child: Row(
-                    spacing: 10,
-                    children: [
-                      Text(
-                        "Document",
-                        style: AppTextStyle.ts14M(
-                          color:
-                              document.projectRERADocumentURL.isNotEmpty
-                                  ? AppColor.primary
-                                  : AppColor.grey,
-                        ),
-                      ),
-
-                      CustomIconButton(
-                        onPressed: () {
-                          if (document.projectRERADocumentURL.isNotEmpty) {
-                            showFilePreviewDialog(
-                              context,
-                              document.projectRERADocumentURL.split(","),
-                            );
-                          }
-                        },
-                        backgroundColor:
-                            document.projectRERADocumentURL.isNotEmpty
-                                ? AppColor.lightBlue
-                                : AppColor.lightGrey,
-                        icon: Icon(
-                          Icons.remove_red_eye_outlined,
-                          color:
-                              document.projectRERADocumentURL.isNotEmpty
-                                  ? AppColor.primary
-                                  : AppColor.grey,
-                          size: 16,
-                        ),
-                      ),
-                    ],
-                  ),
+                customValueWidget: Row(
+                  children: [
+                    CustomButton.documentOutline(
+                      isDisable: document.projectRERADocumentURL.isEmpty,
+                      onPressed: () {
+                        showFilePreviewDialog(
+                          context,
+                          document.projectRERADocumentURL.split(","),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],
