@@ -27,7 +27,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     var queryParams = {"Title": state.searchText};
     final result = await _litigationRepository.pullLitigation(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 4,
       projectId: getProject().projectId,
       queryParams: queryParams,
     );
@@ -173,7 +173,7 @@ class LitigationCubit extends Cubit<LitigationState> {
 
     final result = await _litigationRepository.pullLitigationHearing(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 5,
       projectId: getProject().projectId,
       litigationId: litigationId,
       queryParams: queryParams,
@@ -198,7 +198,7 @@ class LitigationCubit extends Cubit<LitigationState> {
             isLoading: false,
             litigationCurrentPage: pageNumber,
             litigationHearingList: updatedList,
-            litigationTotalRecords: response['totalNumberOfRecord'],
+            hearingTotalRecords: response['totalNumberOfRecord'],
           ),
         );
       },
@@ -235,8 +235,8 @@ class LitigationCubit extends Cubit<LitigationState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        getLitigationList(context: context, pageNumber: 1);
         goRouter.pop();
-
         showSuccessMessage(
           context,
           subTitle: 'Litigation Hearing Added Successfully',
@@ -350,7 +350,7 @@ class LitigationCubit extends Cubit<LitigationState> {
   }
 
   // PULL LITIGATION DOCUMENT
-  Future<void> getLitigationDocumentList({
+  Future getLitigationDocumentList({
     required BuildContext context,
     required int pageNumber,
     required int litigationId,
@@ -360,7 +360,7 @@ class LitigationCubit extends Cubit<LitigationState> {
 
     final result = await _litigationRepository.pullLitigationDocument(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 15,
       projectId: getProject().projectId,
       litigationId: litigationId,
       queryParams: queryParams,
@@ -555,12 +555,7 @@ class LitigationCubit extends Cubit<LitigationState> {
   }
 
   void clearHearingData() {
-    emit(
-      state.copyWith(
-        litigationHearingList: [],
-        hearingCurrentPage: 1,
-      ),
-    );
+    emit(state.copyWith(litigationHearingList: [], hearingCurrentPage: 1));
   }
 
   void clearDocumentData() {

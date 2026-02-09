@@ -87,7 +87,15 @@ class _AddLitigationHearingScreenState
       if (_isEditMode) "Uniquekey": widget.litigationHearingModel!.uniquekey,
       "ProjectId": getProject().projectId.toString(),
       "LitigationId": widget.litigationId,
-      "HearingDate": hearingDate!.toIso8601String(),
+      "HearingDate":
+          DateTime(
+            hearingDate!.year,
+            hearingDate!.month,
+            hearingDate!.day,
+            DateTime.now().hour,
+            DateTime.now().minute,
+            DateTime.now().second,
+          ).toIso8601String(),
       "Remark": _remarkC.text.trim(),
     };
     if (!_isEditMode) {
@@ -159,15 +167,15 @@ class _AddLitigationHearingScreenState
                   },
                 ),
                 CustomTextField(
-                  title: 'Remark',
-                  hint: 'Enter Remark',
+                  title: "Case Remark / Comment",
+                  hint: 'Enter Case Remark / Comment',
                   isRequired: true,
                   textController: _remarkC,
                   minLines: 3,
                   maxLines: 5,
                   validator: (string) {
                     if (string == null || string.trim().isEmpty) {
-                      return 'Remark is required';
+                      return 'Case Remark / Comment is required';
                     }
                     return null;
                   },

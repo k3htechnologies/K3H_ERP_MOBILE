@@ -69,7 +69,8 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   );
 
   /// Debounce to prevent multiple pagination API calls
-  Timer? _debounce;
+  Timer? _hearingDebounce;
+  Timer? _documentDebounce;
 
   /// Common form key used in dialogs
   final _formKey = GlobalKey<FormState>();
@@ -100,8 +101,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _tabController.addListener(_onTabChanged);
 
     _onScroll();
-
-    _litigationCubit.getLitigationList(context: context, pageNumber: 1);
   }
 
   // TAB CHANGE HANDLER
@@ -131,47 +130,52 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
   // PAGINATION
   void _onScroll() {
-    _hearingScrollController =
-        ScrollController()..addListener(_onHearingScroll);
-
-    _documentScrollController =
-        ScrollController()..addListener(_onDocumentScroll);
+    _onHearingScroll();
+    _onDocumentScroll();
   }
 
   // HEARING PAGINATION
   void _onHearingScroll() {
-    if (_hearingScrollController.position.pixels >=
-            _hearingScrollController.position.maxScrollExtent - 100 &&
-        !_litigationCubit.state.isLoading! &&
-        _litigationCubit.state.litigationHearingList.length <
-            _litigationCubit.state.hearingTotalRecords) {
-      _debounce?.cancel();
-      _debounce = Timer(const Duration(milliseconds: 300), () {
-        _litigationCubit.getLitigationHearingList(
-          context: context,
-          pageNumber: _litigationCubit.state.hearingCurrentPage + 1,
-          litigationId: widget.litigationModel.litigationId,
-        );
-      });
-    }
+    _hearingScrollController = ScrollController();
+    _hearingScrollController.addListener(() {
+      if (_hearingScrollController.position.pixels >=
+              _hearingScrollController.position.maxScrollExtent - 100 &&
+          !(_litigationCubit.state.isLoading ?? false) &&
+          _litigationCubit.state.litigationHearingList.length <
+              _litigationCubit.state.hearingTotalRecords) {
+        // TO HANDLE MULTIPLE TIME API CALLS
+        if (_hearingDebounce?.isActive ?? false) _hearingDebounce?.cancel();
+        _hearingDebounce = Timer(const Duration(milliseconds: 300), () {
+          _litigationCubit.getLitigationHearingList(
+            context: context,
+            pageNumber: _litigationCubit.state.hearingCurrentPage + 1,
+            litigationId: widget.litigationModel.litigationId,
+          );
+        });
+      }
+    });
   }
 
   // DOCUMENT PAGINATION
   void _onDocumentScroll() {
-    if (_documentScrollController.position.pixels >=
-            _documentScrollController.position.maxScrollExtent - 100 &&
-        !_litigationCubit.state.isLoading! &&
-        _litigationCubit.state.litigationDocumentList.length <
-            _litigationCubit.state.documentTotalRecords) {
-      _debounce?.cancel();
-      _debounce = Timer(const Duration(milliseconds: 300), () {
-        _litigationCubit.getLitigationDocumentList(
-          context: context,
-          pageNumber: _litigationCubit.state.documentCurrentPage + 1,
-          litigationId: widget.litigationModel.litigationId,
-        );
-      });
-    }
+    _documentScrollController = ScrollController();
+    _documentScrollController.addListener(() {
+      if (_documentScrollController.position.pixels >=
+              _documentScrollController.position.maxScrollExtent - 100 &&
+          !(_litigationCubit.state.isLoading ?? false) &&
+          _litigationCubit.state.litigationDocumentList.length <
+              _litigationCubit.state.documentTotalRecords) {
+        // TO HANDLE MULTIPLE TIME API CALLS
+        if (_documentDebounce?.isActive ?? false) _documentDebounce?.cancel();
+        _documentDebounce = Timer(const Duration(milliseconds: 300), () {
+          _litigationCubit.getLitigationDocumentList(
+            context: context,
+            pageNumber: _litigationCubit.state.documentCurrentPage + 1,
+            litigationId: widget.litigationModel.litigationId,
+          );
+        });
+      }
+    });
   }
 
   @override
@@ -181,8 +185,8 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _documentScrollController.dispose();
     _remarkC.dispose();
     _conclusionC.dispose();
-
-    _debounce?.cancel();
+    _documentDebounce?.cancel();
+    _hearingDebounce?.cancel();
     super.dispose();
   }
 
@@ -246,7 +250,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                             value: litigation.title,
                           ),
                           buildColumnTitleValue(
-                            title: "Case Number",
+                            title: "Case / Petition / Dispute Number",
                             value: litigation.caseNumber,
                           ),
                         ],
@@ -287,22 +291,19 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                           ),
                         ],
                       ),
-                      Row(
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Case Brief",
-                            value: litigation.caseBrief,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Remark",
-                            value: litigation.remark,
-                          ),
-                        ],
-                      ),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text("Court Brief", style: AppTextStyle.ts16SB()),
+                      Text(litigation.caseBrief, style: AppTextStyle.ts14M()),
                     ],
                   ),
                 ),
@@ -355,7 +356,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           buildColumnTitleValue(
-                            title: "Plaintiff",
+                            title: "Plainiff / Petitioner",
                             value: litigation.plantiff,
                           ),
                           buildColumnTitleValue(
@@ -368,7 +369,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           buildColumnTitleValue(
-                            title: "Defendant",
+                            title: "Defendant / Opposite Party / Respondents",
                             value: litigation.defendant,
                           ),
                           buildColumnTitleValue(
@@ -383,6 +384,22 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
                 /// ================= CLOSURE LIST =================
                 _buildClosureCardList(),
+
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        "Case Remark / Comment",
+                        style: AppTextStyle.ts16SB(),
+                      ),
+                      Text(litigation.remark, style: AppTextStyle.ts14M()),
+                    ],
+                  ),
+                ),
 
                 /// ================= ACTION DETAILS =================
                 Container(
@@ -688,18 +705,25 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                   controller: _hearingScrollController,
                   itemCount: state.litigationHearingList.length + 1,
                   itemBuilder: (context, index) {
+                    print(
+                      "--- state.litigationDocumentList length: ${state.litigationHearingList.length}",
+                    );
+                    print("--- index: ${index}");
+                    print(
+                      "---  state.documentTotalRecords: ${state.hearingTotalRecords}",
+                    );
                     if (index == state.litigationHearingList.length) {
                       return state.litigationHearingList.length <
                               state.hearingTotalRecords
                           ? Padding(
                             padding: EdgeInsets.all(16),
-                            child: Center(child: loader()),
+                            child: Center(child: CircularProgressIndicator()),
                           )
                           : const SizedBox.shrink();
                     }
 
                     final hearing = state.litigationHearingList[index];
-
+                    final status = state.litigationList[widget.index].status;
                     return Container(
                       padding: EdgeInsets.all(16),
                       margin: EdgeInsets.only(bottom: 10),
@@ -711,16 +735,15 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                dateFormatterDDMMYYYYDAY(
-                                  hearing.modifiedDate ?? hearing.createdDate,
-                                ),
+                                dateFormatterDDMMYYYYDAY(hearing.hearingDate),
                                 style: AppTextStyle.ts14M(),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
 
                               //Only Lastest Hearing can be Update and Delete but make sure Api return data by date and Time
-                              if (index == 0)
+                              if (index == 0 &&
+                                  status.toLowerCase() != 'closed')
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
@@ -880,7 +903,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                               state.documentTotalRecords
                           ? Padding(
                             padding: EdgeInsets.all(16),
-                            child: Center(child: loader()),
+                            child: Center(child: CircularProgressIndicator()),
                           )
                           : const SizedBox.shrink();
                     }
@@ -1198,7 +1221,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   /// Reset document dialog state
   void _clearDialogueToAddUpdateDocument() {
     _documentNameC.clear();
-    closureDate = null;
     litigationDocument.fileBytesList.clear();
     litigationDocument.fileNameList.clear();
     litigationDocument.deletedFileList = "";
@@ -1409,7 +1431,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   void _clearClosureForm() {
     _remarkC.clear();
     _conclusionC.clear();
-
+    closureDate = null;
     closureFiles.fileBytesList.clear();
     closureFiles.fileNameList.clear();
     closureFiles.deletedFileList = "";
