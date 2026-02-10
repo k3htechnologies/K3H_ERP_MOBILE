@@ -5,6 +5,8 @@ import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/data/model/asset_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/data/repository/asset_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/repository/asset_master_mapping.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -14,8 +16,25 @@ part 'asset_master_state.dart';
 class AssetMasterCubit extends Cubit<AssetMasterState> {
   AssetMasterCubit() : super(AssetMasterState.initial());
 
+  // REPOSITORY
   final AssetMasterRepository assetMasterRepository =
       serviceLocator<AssetMasterRepository>();
+
+  final AssetMasterMappingRepository assetMasterMappingRepository =
+      serviceLocator<AssetMasterMappingRepository>();
+
+  void onTabChanged(int index, BuildContext context, int assetMasterId) {
+    emit(state.copyWith(currentTabIndex: index));
+
+    if (index == 1) {
+      // RETURN HISTORY TAB
+      getAssetMappingList(
+        context: context,
+        pageNumber: 1,
+        assetMasterId: assetMasterId,
+      );
+    }
+  }
 
   // <---- SEARCH ASSET ---->
   void searchAsset(String value, BuildContext context) {
@@ -306,6 +325,40 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
               ? "asset_${DateTime.now()}.pdf"
               : "asset_${DateTime.now()}.xlsx",
         );
+      },
+    );
+  }
+
+  Future getAssetMappingList({
+    required BuildContext context,
+    required int pageNumber,
+    required int assetMasterId,
+  }) async {
+    emit(state.copyWith(isLoading: true,assetMappingList: []));
+
+    var queryParams = {
+      "AssetMasterId": assetMasterId,
+      "IsCheckPermission": false,
+      "Status": "Inactive",
+    };
+
+    var result = await assetMasterMappingRepository.getAssetMasterMappedList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<AssetMappingModel> dataList = List<AssetMappingModel>.from(
+          response['data'] ?? [],
+        );
+
+        emit(state.copyWith(assetMappingList: dataList, isLoading: false));
       },
     );
   }

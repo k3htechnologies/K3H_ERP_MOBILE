@@ -81,10 +81,10 @@ void initDependencies() {
   registerBankListMasterDependencies(serviceLocator);
   // TERMS AND CONDITIONS MASTER DEPENDENCIES
   registerTermsAndConditionsMasterDependencies(serviceLocator);
-  // ASSET MASTER DEPENDENCIES
-  registerAssetMasterDependencies(serviceLocator);
   // ASSET MAPPING MASTER DEPENDENCIES
   registerAssetMappingMasterDependencies(serviceLocator);
+  // ASSET MASTER DEPENDENCIES
+  registerAssetMasterDependencies(serviceLocator);
   // BRANCH MASTER DEPENDENCIES
   registerBranchMasterDependencies(serviceLocator);
   // BRANCH ASSOCIATION MASTER DEPENDENCIES

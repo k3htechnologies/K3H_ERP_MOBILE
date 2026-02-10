@@ -1,16 +1,4 @@
-// To parse this JSON data, do
-//
-//     final assetMappingModel = assetMappingModelFromJson(jsonString);
-
-import 'dart:convert';
-
 import 'package:k3h_erp_app/utils/common_function.dart';
-
-AssetMappingModel assetMappingModelFromJson(String str) =>
-    AssetMappingModel.fromJson(json.decode(str));
-
-String assetMappingModelToJson(AssetMappingModel data) =>
-    json.encode(data.toJson());
 
 class AssetMappingModel {
   int assetMasterMappingId;
@@ -34,6 +22,9 @@ class AssetMappingModel {
   int assetCost;
   String supplierName;
   String status;
+  String department;
+  String designation;
+  String branch;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -63,6 +54,9 @@ class AssetMappingModel {
     required this.assetCost,
     required this.supplierName,
     required this.status,
+    required this.department,
+    required this.designation,
+    required this.branch,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -81,7 +75,7 @@ class AssetMappingModel {
         returnDate:
             json["ReturnDate"] == null
                 ? null
-                : DateTime.parse(json["ReturnDate"]),
+                : parseValue<DateTime>(json, "ReturnDate"),
         conditionOnIssue: parseValue<String>(json, "ConditionOnIssue"),
         conditionOnReturn: parseValue<String>(json, "ConditionOnReturn"),
         remarks: parseValue<String>(json, "Remarks"),
@@ -97,6 +91,9 @@ class AssetMappingModel {
         assetCost: parseValue<int>(json, "AssetCost"),
         supplierName: parseValue<String>(json, "SupplierName"),
         status: parseValue<String>(json, "Status"),
+        department: parseValue<String>(json, "Department"),
+        designation: parseValue<String>(json, "Designation"),
+        branch: parseValue<String>(json, "Branch"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -114,7 +111,7 @@ class AssetMappingModel {
     "AssignedDate": assignedDate.toIso8601String(),
     "EmployeeId": employeeId,
     "EmployeeName": employeeName,
-    "ReturnDate": returnDate?.toIso8601String(),
+    "ReturnDate": returnDate,
     "ConditionOnIssue": conditionOnIssue,
     "ConditionOnReturn": conditionOnReturn,
     "Remarks": remarks,
@@ -130,6 +127,9 @@ class AssetMappingModel {
     "AssetCost": assetCost,
     "SupplierName": supplierName,
     "Status": status,
+    "Department": department,
+    "Designation": designation,
+    "Branch": branch,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

@@ -1,6 +1,7 @@
 part of 'asset_master_cubit.dart';
 
 class AssetMasterState extends BaseState {
+  final List<AssetMappingModel> assetMappingList;
   final List<AssetMasterModel> assetList;
   final int currentPage;
   final String searchText;
@@ -12,8 +13,10 @@ class AssetMasterState extends BaseState {
   final String filterAssetBrand;
   final String filterAssetModel;
   final String filterSerialNumber;
+  final int currentTabIndex;
 
   const AssetMasterState({
+    required this.assetMappingList,
     required this.assetList,
     super.isLoading,
     this.currentPage = 1,
@@ -26,10 +29,12 @@ class AssetMasterState extends BaseState {
     this.filterAssetBrand = "",
     this.filterAssetModel = "",
     this.filterSerialNumber = "",
+    required this.currentTabIndex,
   });
 
   factory AssetMasterState.initial() => AssetMasterState(
     isLoading: true,
+    assetMappingList: [],
     assetList: [],
     currentPage: 1,
     currentSortColumn: 'Created Date',
@@ -41,9 +46,11 @@ class AssetMasterState extends BaseState {
     filterAssetBrand: "",
     filterAssetModel: "",
     filterSerialNumber: "",
+    currentTabIndex: 0,
   );
 
   AssetMasterState copyWith({
+    List<AssetMappingModel>? assetMappingList,
     List<AssetMasterModel>? assetList,
     bool? isLoading,
     StateType? stateType,
@@ -58,8 +65,10 @@ class AssetMasterState extends BaseState {
     String? filterAssetBrand,
     String? filterAssetModel,
     String? filterSerialNumber,
+    int? currentTabIndex,
   }) {
     return AssetMasterState(
+      assetMappingList: assetMappingList ?? this.assetMappingList,
       assetList: assetList ?? this.assetList,
       isLoading: isLoading ?? this.isLoading,
       searchText: searchText ?? this.searchText,
@@ -72,11 +81,13 @@ class AssetMasterState extends BaseState {
       filterAssetBrand: filterAssetBrand ?? this.filterAssetBrand,
       filterAssetModel: filterAssetModel ?? this.filterAssetModel,
       filterSerialNumber: filterSerialNumber ?? this.filterSerialNumber,
+      currentTabIndex: currentTabIndex ?? this.currentTabIndex,
     );
   }
 
   @override
   List<Object?> get props => [
+    assetMappingList,
     assetList,
     isLoading,
     currentPage,
@@ -89,5 +100,6 @@ class AssetMasterState extends BaseState {
     filterAssetBrand,
     filterAssetModel,
     filterSerialNumber,
+    currentTabIndex,
   ];
 }
