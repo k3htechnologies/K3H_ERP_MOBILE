@@ -257,6 +257,8 @@ import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/ten
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_tenant_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_view_screen.dart';
+import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
+import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_tracker_cubit.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/cubit/target_cubit.dart';
@@ -3675,6 +3677,24 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.salesTarget,
                   builder: (context, state) {
                     return const TargetScreen();
+                  },
+                ),
+              ],
+            ),
+            // SALES BOOKING
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => BookingCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.booking,
+                  path: AppRoutes.booking,
+                  builder: (context, state) {
+                    return const BookingScreen();
                   },
                 ),
               ],

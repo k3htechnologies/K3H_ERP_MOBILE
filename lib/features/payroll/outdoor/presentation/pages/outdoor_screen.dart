@@ -91,6 +91,7 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Outdoor",
+        isMenuButton: true,
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
           _outdoorCubit.exportExcelPdf(context, value);

@@ -17,6 +17,8 @@ import 'package:k3h_erp_app/di/feature_dependencies/project_document/approval_ca
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/approval_document/approval_document.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document/rera_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document_category/rera_document_category.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/sales/booking/booking.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/sales/enquiry/enquiry.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
@@ -173,6 +175,10 @@ void initDependencies() {
   registerCallTrackerDependencies(serviceLocator);
   // TARGET DEPENDENCIES
   registerTargetDependencies(serviceLocator);
+  // BOOKING DEPENDENCIES
+  registerBookingDependencies(serviceLocator);
+  // ENQUIRY DEPENDENCIES
+  registerEnquiryDependencies(serviceLocator);
   // DASHBOARD DEPENDENCIES
   registerDashboardDependencies(serviceLocator);
 }
