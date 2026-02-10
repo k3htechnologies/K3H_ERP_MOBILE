@@ -13,7 +13,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -90,7 +90,7 @@ class _ViewApprovalDocumentScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: CustomAppBarWithBackButton(
         screenTitle: "Approval Documents",
         authorization: _routeAuthorizationModel,
       ),
@@ -257,52 +257,18 @@ class _ViewApprovalDocumentScreenState
               buildColumnTitleValue(
                 title: "View Document",
                 value: document.approvalDocumentURL,
-                customValueWidget: GestureDetector(
-                  onTap: () {
-                    if (document.approvalDocumentURL.isNotEmpty) {
-                      showFilePreviewDialog(
-                        context,
-                        document.approvalDocumentURL.split(","),
-                      );
-                    }
-                  },
-                  child: Row(
-                    spacing: 10,
-                    children: [
-                      Text(
-                        "Document",
-                        style: AppTextStyle.ts14M(
-                          color:
-                              document.approvalDocumentURL.isNotEmpty
-                                  ? AppColor.primary
-                                  : AppColor.grey,
-                        ),
-                      ),
-
-                      CustomIconButton(
-                        onPressed: () {
-                          if (document.approvalDocumentURL.isNotEmpty) {
-                            showFilePreviewDialog(
-                              context,
-                              document.approvalDocumentURL.split(","),
-                            );
-                          }
-                        },
-                        backgroundColor:
-                            document.approvalDocumentURL.isNotEmpty
-                                ? AppColor.lightBlue
-                                : AppColor.lightGrey,
-                        icon: Icon(
-                          Icons.remove_red_eye_outlined,
-                          color:
-                              document.approvalDocumentURL.isNotEmpty
-                                  ? AppColor.primary
-                                  : AppColor.grey,
-                          size: 16,
-                        ),
-                      ),
-                    ],
-                  ),
+                customValueWidget: Row(
+                  children: [
+                    CustomButton.documentOutline(
+                      isDisable: document.approvalDocumentURL.isEmpty,
+                      onPressed: () {
+                        showFilePreviewDialog(
+                          context,
+                          document.approvalDocumentURL.split(","),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],

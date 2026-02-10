@@ -35,12 +35,20 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
   Future applyFilterAndSort({
     required BuildContext context,
     required String filterAssetStatus,
+    String? filterAssetType,
+    String? filterAssetBrand,
+    String? filterAssetModel,
+    String? filterSerialNumber,
     String? sortColumn,
     String? sortDirection,
   }) async {
     emit(
       state.copyWith(
         filterAssetStatus: filterAssetStatus,
+        filterAssetType: filterAssetType ?? state.filterAssetType,
+        filterAssetBrand: filterAssetBrand ?? state.filterAssetBrand,
+        filterAssetModel: filterAssetModel ?? state.filterAssetModel,
+        filterSerialNumber: filterSerialNumber ?? state.filterSerialNumber,
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
         assetList: [],
@@ -60,7 +68,11 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
 
     final queryParams = {
       "AssetName": state.searchText,
+      "AssetType": state.filterAssetType,
+      "AssetModel": state.filterAssetModel,
       "Status": state.filterAssetStatus,
+      "AssetBrand": state.filterAssetBrand,
+      "SerialNumber": state.filterSerialNumber,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 

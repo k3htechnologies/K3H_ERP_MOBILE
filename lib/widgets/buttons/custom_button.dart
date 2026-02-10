@@ -63,15 +63,14 @@ class CustomButton extends StatelessWidget {
               (gradient == null && borderColor == null)
                   ? !isDisable
                       ? backgroundColor
-                      : AppColor.grey
+                      : AppColor.grey30
                   : null,
 
           // FOR OUTLINE BUTTONS
-          border: borderColor != null
-              ? Border.all(
-                  color: isDisable ? AppColor.grey : borderColor!,
-                )
-              : null,
+          border:
+              borderColor != null
+                  ? Border.all(color: isDisable ? AppColor.grey : borderColor!)
+                  : null,
 
           borderRadius: BorderRadius.circular(borderRadius),
         ),
@@ -221,20 +220,20 @@ class CustomButton extends StatelessWidget {
       );
 
   // RESET (OUTLINE)
-  CustomButton.documentOutline({Key? key, required VoidCallback onPressed,bool isDisable = false,})
-    : this(
-        key: key,
-        trailing: Icon(
-          Icons.remove_red_eye_outlined,
-          size: 18,
-        ),
-        onPressed: onPressed,
-        isDisable: isDisable,
-        text: 'Document',
-        backgroundColor: Colors.transparent,
-        textColor: AppColor.mediumBlue,
-        borderColor: AppColor.mediumBlue,
-        elevation: 0,
-        boxShadow: [],
-      );
+  CustomButton.documentOutline({
+    Key? key,
+    required VoidCallback onPressed,
+    bool isDisable = false,
+  }) : this(
+         key: key,
+         trailing: Icon(Icons.remove_red_eye_outlined, size: 18),
+         onPressed: onPressed,
+         isDisable: isDisable,
+         text: 'Document',
+         backgroundColor: Colors.transparent,
+         textColor: AppColor.mediumBlue,
+         borderColor: AppColor.mediumBlue,
+         elevation: 0,
+         boxShadow: [],
+       );
 }

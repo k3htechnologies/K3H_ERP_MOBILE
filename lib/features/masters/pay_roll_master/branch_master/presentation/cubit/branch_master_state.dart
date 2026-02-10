@@ -7,6 +7,8 @@ class BranchMasterState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
+  final String filterBranchCode;
+  final String filterBranchLocation;
 
   const BranchMasterState({
     super.isLoading,
@@ -16,6 +18,8 @@ class BranchMasterState extends BaseState {
     required this.searchText,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    this.filterBranchCode = "",
+    this.filterBranchLocation = "",
   });
 
   factory BranchMasterState.initial() => BranchMasterState(
@@ -26,6 +30,8 @@ class BranchMasterState extends BaseState {
     isLoading: true,
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
+    filterBranchCode: "",
+    filterBranchLocation: "",
   );
 
   BranchMasterState copyWith({
@@ -36,6 +42,8 @@ class BranchMasterState extends BaseState {
     String? searchText,
     String? currentSortColumn,
     String? currentSortDirection,
+    String? filterBranchCode,
+    String? filterBranchLocation,
   }) {
     return BranchMasterState(
       isLoading: isLoading ?? this.isLoading,
@@ -45,6 +53,8 @@ class BranchMasterState extends BaseState {
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      filterBranchCode: filterBranchCode ?? this.filterBranchCode,
+      filterBranchLocation: filterBranchLocation ?? this.filterBranchLocation,
     );
   }
 
@@ -57,5 +67,7 @@ class BranchMasterState extends BaseState {
     searchText,
     currentSortColumn,
     currentSortDirection,
+    filterBranchCode,
+    filterBranchLocation,
   ];
 }

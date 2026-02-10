@@ -577,38 +577,19 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
               ),
             ],
           ),
-          SizedBox(
-            width: 120,
-            child: CustomButton(
-              trailing: Icon(
-                Icons.remove_red_eye_outlined,
-                color:
-                    closure.closureAttachementUrl.isNotEmpty
-                        ? AppColor.primary
-                        : AppColor.grey,
+          Row(
+            children: [
+              CustomButton.documentOutline(
+                onPressed: () {
+                  if (closure.closureAttachementUrl.isNotEmpty) {
+                    showFilePreviewDialog(
+                      context,
+                      closure.closureAttachementUrl.split(","),
+                    );
+                  }
+                },
               ),
-              text: "Document",
-              titleTextStyle: AppTextStyle.ts14M(
-                color:
-                    closure.closureAttachementUrl.isNotEmpty
-                        ? AppColor.primary
-                        : AppColor.grey,
-              ),
-
-              backgroundColor: AppColor.white,
-              borderColor:
-                  closure.closureAttachementUrl.isNotEmpty
-                      ? AppColor.primary
-                      : AppColor.grey,
-              onPressed: () {
-                if (closure.closureAttachementUrl.isNotEmpty) {
-                  showFilePreviewDialog(
-                    context,
-                    closure.closureAttachementUrl.split(","),
-                  );
-                }
-              },
-            ),
+            ],
           ),
         ],
       ),
@@ -791,26 +772,21 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                             style: AppTextStyle.ts14R(color: AppColor.grey),
                           ),
                           verticalSpacing(),
-                          SizedBox(
-                            width: 120,
-                            child: CustomButton(
-                              trailing: Icon(Icons.remove_red_eye_outlined),
-                              text: "Document",
-                              titleTextStyle: AppTextStyle.ts14M(
-                                color: AppColor.primary,
+                          Row(
+                            children: [
+                              CustomButton.documentOutline(
+                                onPressed: () {
+                                  if (hearing
+                                      .hearingAttachementUrl
+                                      .isNotEmpty) {
+                                    showFilePreviewDialog(
+                                      context,
+                                      hearing.hearingAttachementUrl.split(","),
+                                    );
+                                  }
+                                },
                               ),
-
-                              backgroundColor: AppColor.white,
-                              borderColor: AppColor.primary,
-                              onPressed: () {
-                                if (hearing.hearingAttachementUrl.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    hearing.hearingAttachementUrl.split(","),
-                                  );
-                                }
-                              },
-                            ),
+                            ],
                           ),
                         ],
                       ),

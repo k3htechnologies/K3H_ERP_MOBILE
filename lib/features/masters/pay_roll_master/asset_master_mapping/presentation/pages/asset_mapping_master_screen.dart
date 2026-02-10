@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AssetMappingMasterScreen extends StatefulWidget {
@@ -37,7 +38,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC;
+  late TextEditingController _searchC, _filterEmployeeNameC;
 
   @override
   void initState() {
@@ -63,6 +64,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
 
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterEmployeeNameC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -103,6 +105,137 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     }
   }
 
+  // ASSET MAPPING FILTER
+  Future<void> _showBottomSheetToFilterAssetMapping(
+    BuildContext context,
+  ) async {
+    final state = _assetMappingMasterCubit.state;
+
+    _filterEmployeeNameC.text = state.filterEmployeeName;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Asset Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String initialEmployeeName = _filterEmployeeNameC.text;
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool applied = false;
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_filterEmployeeNameC.text.trim() != initialEmployeeName) ||
+            (selectedDirection != initialDirection);
+
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Asset Mapping",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Sort By Employee Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+
+                verticalSpacing(height: 20),
+
+                CustomTextField(
+                  title: "Employee Name",
+                  hint: "Enter Employee Name",
+                  textController: _filterEmployeeNameC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(),
+              ],
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _assetMappingMasterCubit.applyFilterAndSort(
+          context: context,
+          filterEmployeeName: "",
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
+        );
+      },
+      onApply: () {
+        applied = true;
+        _assetMappingMasterCubit.applyFilterAndSort(
+          context: context,
+          filterEmployeeName: _filterEmployeeNameC.text,
+          sortColumn: selectedDirection != null ? "Asset Name" : null,
+          sortDirection: selectedDirection,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // IF CLOSED WITHOUT APPLY
+    if (!applied && manualClose) {
+      _filterEmployeeNameC.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,11 +256,15 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
           }
         },
         onExportCallback: (value) {
-          if(_assetMappingMasterCubit.state.totalNumberOfRecord==0){
+          if (_assetMappingMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
           _assetMappingMasterCubit.exportExcelPdf(context, value);
+        },
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterAssetMapping(context);
         },
       ),
       body: BlocBuilder<AssetMappingMasterCubit, AssetMappingMasterState>(

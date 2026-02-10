@@ -39,7 +39,8 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
     emit(state.copyWith(isLoading: true));
 
     var queryParams = {
-      "EmployeeName": state.searchText,
+      "AssetName": state.searchText,
+      "EmployeeName": state.filterEmployeeName,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 
@@ -253,5 +254,25 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
         );
       },
     );
+  }
+
+  // APPLY FILTER AND SORT
+  Future<void> applyFilterAndSort({
+    required BuildContext context,
+    required String filterEmployeeName,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
+    emit(
+      state.copyWith(
+        filterEmployeeName: filterEmployeeName,
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
+        assetMappingList: [],
+        currentPage: 1,
+      ),
+    );
+
+    await getAssetMappingList(context: context, pageNumber: 1);
   }
 }

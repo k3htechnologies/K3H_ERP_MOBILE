@@ -256,7 +256,7 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
         onTap = () {
           // Set conclusion text right before opening the dialog
           _conclusionC.text = outdoor.conclusion;
-          
+
           DialogHelper.showCustomDialogue(
             context,
             title: "Add Conclusion",
@@ -292,10 +292,18 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
                 Spacer(),
                 SizedBox(
                   width: 120,
-                  child: CustomButton(text: "Save", onPressed: () {
-                    goRouter.pop();
-                    _outdoorCubit.addUpdateConclusion(context: context, outdoorId: outdoor.outdoorId, conclusion: _conclusionC.text, index: index);
-                  }),
+                  child: CustomButton(
+                    text: "Save",
+                    onPressed: () {
+                      goRouter.pop();
+                      _outdoorCubit.addUpdateConclusion(
+                        context: context,
+                        outdoorId: outdoor.outdoorId,
+                        conclusion: _conclusionC.text,
+                        index: index,
+                      );
+                    },
+                  ),
                 ),
               ],
             ),

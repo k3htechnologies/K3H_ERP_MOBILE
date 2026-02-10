@@ -7,6 +7,7 @@ class AssetMappingMasterState extends BaseState {
   final int totalNumberOfRecord;
   final String currentSortColumn;
   final String currentSortDirection;
+  final String filterEmployeeName;
 
   const AssetMappingMasterState({
     required this.assetMappingList,
@@ -16,6 +17,7 @@ class AssetMappingMasterState extends BaseState {
     this.totalNumberOfRecord = 0,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    this.filterEmployeeName = "",
   });
 
   factory AssetMappingMasterState.initial() => AssetMappingMasterState(
@@ -23,11 +25,14 @@ class AssetMappingMasterState extends BaseState {
     currentPage: 1,
     currentSortColumn: 'Created Date',
     currentSortDirection: 'DESC',
+    searchText: "",
+    totalNumberOfRecord: 0,
+    filterEmployeeName: "",
   );
 
   AssetMappingMasterState copyWith({
     List<AssetMappingModel>? assetMappingList,
-    bool? isLoading = false,
+    bool? isLoading,
     StateType? stateType,
     String? errorMessage,
     String? searchText,
@@ -35,6 +40,7 @@ class AssetMappingMasterState extends BaseState {
     int? currentPage,
     String? currentSortColumn,
     String? currentSortDirection,
+    String? filterEmployeeName,
   }) {
     return AssetMappingMasterState(
       assetMappingList: assetMappingList ?? this.assetMappingList,
@@ -44,6 +50,7 @@ class AssetMappingMasterState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      filterEmployeeName: filterEmployeeName ?? this.filterEmployeeName,
     );
   }
 
@@ -54,7 +61,8 @@ class AssetMappingMasterState extends BaseState {
     currentPage,
     searchText,
     totalNumberOfRecord,
+    currentSortColumn,
+    currentSortDirection,
+    filterEmployeeName,
   ];
 }
-
-

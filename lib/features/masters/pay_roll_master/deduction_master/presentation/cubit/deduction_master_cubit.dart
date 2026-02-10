@@ -221,4 +221,21 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
       },
     );
   }
+
+  Future<void> applyFilterAndSort({
+    required BuildContext context,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
+    emit(
+      state.copyWith(
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
+        deductionList: [],
+        currentPage: 1,
+      ),
+    );
+
+    await getDeductionList(context: context, pageNumber: 1);
+  }
 }
