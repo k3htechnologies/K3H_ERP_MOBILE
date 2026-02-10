@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -37,6 +38,7 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
 
   @override
   void dispose() {
+    _assetMasterCubit.clearReturnHistory();
     _tabController.dispose();
     super.dispose();
   }
@@ -144,7 +146,7 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Asset Type",
+                      title: "Serial Type",
                       value: widget.assetMaster.assetType,
                     ),
                     buildColumnTitleValue(
@@ -210,6 +212,21 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
                     ),
                   ],
                 ),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Invoice",
+                      value: widget.assetMaster.assetInvoiceURL,
+                      customValueWidget: CustomButton.documentOutline(onPressed: (){
+                        if(widget.assetMaster.assetInvoiceURL.isNotEmpty){
+                          showFilePreviewDialog(context, widget.assetMaster.assetInvoiceURL.split(","));
+                        }
+                      },isDisable: widget.assetMaster.assetInvoiceURL.isEmpty,)
+                    ),
+                    Expanded(child: SizedBox())
+                  ],
+                )
               ],
             ),
           ),
@@ -269,7 +286,7 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
   Widget _buildReturnHistoryTab() {
     return BlocBuilder<AssetMasterCubit, AssetMasterState>(
       builder: (context, state) {
-        if (state.isLoading! && state.assetMappingList.isEmpty) {
+        if ((state.isLoading??true) && state.assetMappingList.isEmpty) {
           return loader();
         }
         if (state.assetMappingList.isEmpty) {

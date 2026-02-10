@@ -23,6 +23,12 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
   final AssetMasterMappingRepository assetMasterMappingRepository =
       serviceLocator<AssetMasterMappingRepository>();
 
+
+  // CLEAR RETURN HISTORY
+  void clearReturnHistory() {
+    emit(state.copyWith(assetMappingList: [], currentTabIndex: 0));
+  }
+
   void onTabChanged(int index, BuildContext context, int assetMasterId) {
     emit(state.copyWith(currentTabIndex: index));
 

@@ -91,16 +91,35 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                           value: assetMapping.employeeName,
                         ),
                         buildColumnTitleValue(
-                          title: "Assigned Date",
-                          value: formatDateTimeAsDDMMMYYYY(
-                            assetMapping.assignedDate,
-                          ),
+                          title: "Branch",
+                          value: assetMapping.branch,
                         ),
+
                       ],
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        buildColumnTitleValue(
+                          title: "Department",
+                          value: assetMapping.department,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Designation",
+                          value: assetMapping.designation,
+                        ),
+
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Assigned Date",
+                          value: formatDateTimeAsDDMMMYYYY(
+                            assetMapping.assignedDate,
+                          ),
+                        ),
                         buildColumnTitleValue(
                           title: "Return Date",
                           value:
@@ -110,20 +129,15 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                                   )
                                   : '-',
                         ),
-                        buildColumnTitleValue(
-                          title: "Condition On Issue",
-                          value: assetMapping.conditionOnIssue,
-                        ),
                       ],
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
-                          title: "Condition On Return",
-                          value: assetMapping.conditionOnReturn,
+                          title: "Condition On Issue",
+                          value: assetMapping.conditionOnIssue,
                         ),
-                        Expanded(child: SizedBox()),
                       ],
                     ),
                     Row(
@@ -184,6 +198,37 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                         buildColumnTitleValue(
                           title: "Asset Cost",
                           value: "₹ ${assetMapping.assetCost}",
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Return Details", style: AppTextStyle.ts16SB()),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Return Date",
+                          value:assetMapping.returnDate!=null? formatDateTimeAsDDMMMYYYY(
+                            assetMapping.returnDate!,
+                          ):"-",
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Condition At Return",
+                          value: assetMapping.conditionOnReturn,
                         ),
                       ],
                     ),

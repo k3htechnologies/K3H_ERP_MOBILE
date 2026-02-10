@@ -36,6 +36,7 @@ class DeductionMasterViewScreen extends StatelessWidget {
                   children: [
                     Text("Basic Details", style: AppTextStyle.ts16SB()),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
@@ -49,6 +50,7 @@ class DeductionMasterViewScreen extends StatelessWidget {
                       ],
                     ),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
@@ -81,6 +83,7 @@ class DeductionMasterViewScreen extends StatelessWidget {
                   children: [
                     Text("Deduction Details", style: AppTextStyle.ts16SB()),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
@@ -94,6 +97,7 @@ class DeductionMasterViewScreen extends StatelessWidget {
                       ],
                     ),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
@@ -119,6 +123,7 @@ class DeductionMasterViewScreen extends StatelessWidget {
                   children: [
                     Text("Action Details", style: AppTextStyle.ts16SB()),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
@@ -134,6 +139,7 @@ class DeductionMasterViewScreen extends StatelessWidget {
                       ],
                     ),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(

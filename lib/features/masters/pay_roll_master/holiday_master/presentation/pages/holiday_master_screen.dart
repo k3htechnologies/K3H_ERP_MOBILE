@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -171,18 +172,11 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
                                 horizontal: 0,
                                 vertical: 4,
                               ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
                               child: Text(
                                 holiday.holidayName,
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                                ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                               ),
                             ),
                           ),

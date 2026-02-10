@@ -356,6 +356,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Calendar",
+        isMenuButton: true,
         authorization: _routeAuthorization,
         onAddCallback: () {
           goRouter.pushNamed(AppRoutes.addDetailsCalendar);

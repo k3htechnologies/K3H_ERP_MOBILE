@@ -257,10 +257,14 @@ import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/ten
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_tenant_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_view_screen.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_screen.dart';
+import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_tracker_cubit.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
+import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
+import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/enquiry_screen.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/cubit/target_cubit.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/pages/target_screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
@@ -3666,10 +3670,7 @@ final GoRouter goRouter = GoRouter(
             // SALES TARGET
             ShellRoute(
               builder: (context, state, child) {
-                return BlocProvider(
-                  create: (_) => TargetCubit(),
-                  child: child,
-                );
+                return BlocProvider(create: (_) => TargetCubit(), child: child);
               },
               routes: [
                 GoRoute(
@@ -3695,6 +3696,44 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.booking,
                   builder: (context, state) {
                     return const BookingScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewBooking,
+                  path: AppRoutes.viewBooking,
+                  builder: (context, state) {
+                    final queryParameterBooking =
+                        state.uri.queryParameters['booking'];
+                    final booking =
+                        queryParameterBooking != null &&
+                                queryParameterBooking.isNotEmpty
+                            ? BookingModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterBooking),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return BookingViewScreen(bookingModel: booking!);
+                  },
+                ),
+              ],
+            ),
+            // SALES ENQUIRY
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => EnquiryCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.enquiry,
+                  path: AppRoutes.enquiry,
+                  builder: (context, state) {
+                    return const EnquiryScreen();
                   },
                 ),
               ],

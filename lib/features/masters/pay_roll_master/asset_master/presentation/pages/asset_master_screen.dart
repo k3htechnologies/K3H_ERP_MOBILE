@@ -375,23 +375,17 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                                 horizontal: 0,
                                 vertical: 4,
                               ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
                               child: Text(
                                 asset.assetName,
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                                ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                               ),
                             ),
                           ),
                         ),
                         Row(
+                          spacing: 10,
                           children: [
                             if (asset.status.toLowerCase() != "booked") ...[
                               CustomIconButton.edit(
@@ -409,7 +403,6 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                                   );
                                 },
                               ),
-                              horizontalSpacing(width: 8),
                               CustomIconButton.delete(
                                 onPressed: () {
                                   _showPopupToDeleteAssetMaster(
@@ -421,6 +414,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                                 },
                               ),
                             ],
+                            _buildStatusWidget(asset.status)
                           ],
                         ),
                       ],
@@ -433,11 +427,6 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                     buildRowTitleValue(
                       title: "Serial Number",
                       value: asset.serialNumber,
-                    ),
-                    buildRowTitleValue(
-                      title: "Status",
-                      value: asset.status,
-                      customValueWidget: _buildStatusWidget(asset.status),
                     ),
                   ],
                 ),
@@ -473,6 +462,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
       padding: const EdgeInsets.only(top: 8),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        margin: EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(4),

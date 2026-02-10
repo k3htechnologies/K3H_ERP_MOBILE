@@ -4,6 +4,7 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/data
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class HolidayMasterViewScreen extends StatelessWidget {
@@ -39,6 +40,28 @@ class HolidayMasterViewScreen extends StatelessWidget {
                           title: "Holiday Name",
                           value: holidayMaster.holidayName,
                         ),
+                      ],
+                    ),
+                    Row(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Holiday Document",
+                          value: holidayMaster.holidayUrl,
+                          customValueWidget: CustomButton.documentOutline(
+                            onPressed: () {
+                              if (holidayMaster.holidayUrl.isNotEmpty) {
+                                showFilePreviewDialog(
+                                  context,
+                                  holidayMaster.holidayUrl.split(","),
+                                );
+                              }
+                            },
+                            isDisable: holidayMaster.holidayUrl.isEmpty,
+                          ),
+                        ),
+                        Expanded(child: SizedBox())
                       ],
                     ),
                   ],
