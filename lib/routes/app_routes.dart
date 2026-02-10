@@ -142,7 +142,7 @@ class AppRoutes {
   static String weekOffMappingMaster = "/weekOffMappingMaster";
   static String viewWeekOffMappingMaster = "/viewWeekOffMappingMaster";
   static String addWeekOffMappingMaster = "/addWeekOffMappingMaster";
-  static String leaveCreditConfigurationMaster = "/leaveCreditConfiguration";
+  static String leaveCreditConfigurationMaster = "/leaveCreditDebit";
   static String addLeaveCreditConfigurationMaster =
       "/addLeaveCreditConfigurationMaster";
   static String addLeaveBalanceType = "/addLeaveBalanceType";

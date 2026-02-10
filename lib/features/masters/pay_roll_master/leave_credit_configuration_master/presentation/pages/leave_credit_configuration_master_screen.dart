@@ -15,6 +15,8 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class LeaveCreditConfigurationMasterScreen extends StatefulWidget {
@@ -34,7 +36,7 @@ class _LeaveCreditConfigurationMasterScreenState
   late AuthorizationModel _routeAuthorizationModel;
 
   // TEXT EDITING CONTROLLER
-  late TextEditingController _searchC;
+  late TextEditingController _searchC, _filterDesignationNameC;
 
   // PAGINATION
   late ScrollController scrollController;
@@ -43,7 +45,8 @@ class _LeaveCreditConfigurationMasterScreenState
   @override
   void initState() {
     super.initState();
-    _leaveCreditConfigurationMasterCubit = context.read<LeaveCreditConfigurationMasterCubit>();
+    _leaveCreditConfigurationMasterCubit =
+        context.read<LeaveCreditConfigurationMasterCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes
             .leaveCreditConfigurationMaster]!;
@@ -63,6 +66,7 @@ class _LeaveCreditConfigurationMasterScreenState
   // INITIALIZING TEXT EDITING CONTROLLER
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterDesignationNameC = TextEditingController();
   }
 
   // INITIALIZE SCROLL CONTROLLER
@@ -72,7 +76,10 @@ class _LeaveCreditConfigurationMasterScreenState
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
           !_leaveCreditConfigurationMasterCubit.state.isLoading! &&
-          _leaveCreditConfigurationMasterCubit.state.leaveCreditConfigurationMasterList.length <
+          _leaveCreditConfigurationMasterCubit
+                  .state
+                  .leaveCreditConfigurationMasterList
+                  .length <
               _leaveCreditConfigurationMasterCubit.state.totalNumberOfRecord) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
@@ -88,8 +95,14 @@ class _LeaveCreditConfigurationMasterScreenState
 
   // LOAD INITIAL DATA
   void _loadInitialData() {
-    if (_leaveCreditConfigurationMasterCubit.state.leaveCreditConfigurationMasterList.isEmpty) {
-      _leaveCreditConfigurationMasterCubit.getLeaveCreditConfigurationList(context, 1);
+    if (_leaveCreditConfigurationMasterCubit
+        .state
+        .leaveCreditConfigurationMasterList
+        .isEmpty) {
+      _leaveCreditConfigurationMasterCubit.getLeaveCreditConfigurationList(
+        context,
+        1,
+      );
     }
   }
 
@@ -107,16 +120,258 @@ class _LeaveCreditConfigurationMasterScreenState
     ).then((value) {
       if (value == true) {
         if (context.mounted) {
-          _leaveCreditConfigurationMasterCubit.deleteLeaveCreditConfigurationMaster(
-            context: context,
-            leaveCreditConfigurationId:
-                leaveCreditConfigurationMaster.leaveCreditConfigurationId,
-            uniqueKey: leaveCreditConfigurationMaster.uniquekey,
-            pageNumber: currentPage,
-          );
+          _leaveCreditConfigurationMasterCubit
+              .deleteLeaveCreditConfigurationMaster(
+                context: context,
+                leaveCreditConfigurationId:
+                    leaveCreditConfigurationMaster.leaveCreditConfigurationId,
+                uniqueKey: leaveCreditConfigurationMaster.uniquekey,
+                pageNumber: currentPage,
+              );
         }
       }
     });
+  }
+
+  Future<void> _showBottomSheetToFilterLeaveCreditConfiguration(
+    BuildContext context,
+  ) async {
+    final state = _leaveCreditConfigurationMasterCubit.state;
+
+    _filterDesignationNameC.text = state.filterDesignationName;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Department Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String initialBranchName = _filterDesignationNameC.text;
+    final String? initialDirection = selectedDirection;
+
+    DateTime? filterFromDate = state.filterFromLeaveCreditDate;
+    DateTime? filterToDate = state.filterToLeaveCreditDate;
+    final DateTime? initialFromDate = state.filterFromLeaveCreditDate;
+    final DateTime? initialToDate = state.filterToLeaveCreditDate;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool applied = false;
+    final filterFormKey = GlobalKey<FormState>();
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_filterDesignationNameC.text.trim() != initialBranchName) ||
+            (selectedDirection != initialDirection) ||
+            (filterFromDate != initialFromDate) ||
+            (filterToDate != initialToDate);
+        // Disable Apply when only one of From/To is set (both or neither required)
+        final bool onlyOneSet =
+            (filterFromDate != null && filterToDate == null) ||
+            (filterToDate != null && filterFromDate == null);
+        // Disable Apply when From > To (invalid range)
+        final bool invalidRange =
+            filterFromDate != null &&
+            filterToDate != null &&
+            filterFromDate!.isAfter(
+              DateTime(
+                filterToDate!.year,
+                filterToDate!.month,
+                filterToDate!.day,
+              ),
+            );
+        final bool dobInvalid = onlyOneSet || invalidRange;
+        applyEnabled.value = manualClose && !dobInvalid;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Leave Credit Configuration",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return Form(
+            key: filterFormKey,
+            child: SingleChildScrollView(
+              padding: EdgeInsets.only(right: 15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Sort By Leave Credit Name",
+                    style: AppTextStyle.ts14M(),
+                  ),
+                  verticalSpacing(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onTap: () => selectDirection("ASC"),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color:
+                                selectedDirection == "ASC"
+                                    ? AppColor.lightBlue
+                                    : Colors.transparent,
+                            border: Border.all(color: AppColor.grey, width: .5),
+                          ),
+                          child: Text("A-Z", style: AppTextStyle.ts12R()),
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      GestureDetector(
+                        onTap: () => selectDirection("DESC"),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color:
+                                selectedDirection == "DESC"
+                                    ? AppColor.lightBlue
+                                    : Colors.transparent,
+                            border: Border.all(color: AppColor.grey, width: .5),
+                          ),
+                          child: Text("Z-A", style: AppTextStyle.ts12R()),
+                        ),
+                      ),
+                    ],
+                  ),
+                  verticalSpacing(height: 20),
+
+                  CustomTextField(
+                    textController: _filterDesignationNameC,
+                    hint: "Enter Designation Name",
+                    title: "Designation Name",
+                  ),
+                  CustomDatePicker(
+                    title: "Date of Leave Credit (From)",
+                    initialDate: filterFromDate,
+                    setValue: (value) {
+                      innerState(() {
+                        filterFromDate = value;
+                        updateApplyState(innerState);
+                      });
+                    },
+                  ),
+                  if (filterFromDate != null && filterToDate == null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4),
+                      child: Text(
+                        'Please select To date also',
+                        style: AppTextStyle.ts12R().copyWith(
+                          color: AppColor.error,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  if (filterToDate != null && filterFromDate == null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4),
+                      child: Text(
+                        'Please select From date also',
+                        style: AppTextStyle.ts12R().copyWith(
+                          color: AppColor.error,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  if (filterFromDate != null &&
+                      filterToDate != null &&
+                      filterFromDate!.isAfter(
+                        DateTime(
+                          filterToDate!.year,
+                          filterToDate!.month,
+                          filterToDate!.day,
+                        ),
+                      ))
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4),
+                      child: Text(
+                        'Invalid Date range',
+                        style: AppTextStyle.ts12R().copyWith(
+                          color: AppColor.error,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  CustomDatePicker(
+                    title: "Date of Leave Credit (To)",
+                    initialDate: filterToDate,
+                    setValue: (value) {
+                      innerState(() {
+                        filterToDate = value;
+                        updateApplyState(innerState);
+                      });
+                    },
+                    validator: (value) {
+                      if (filterFromDate != null && value == null) {
+                        return 'Date of Birth (To) is required when Date of Birth (From) is entered';
+                      }
+                      if (filterFromDate != null &&
+                          value != null &&
+                          filterFromDate!.isAfter(
+                            DateTime(value.year, value.month, value.day),
+                          )) {
+                        return 'Invalid Date range';
+                      }
+                      return null;
+                    },
+                  ),
+                  verticalSpacing(),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _filterDesignationNameC.clear();
+
+        _leaveCreditConfigurationMasterCubit.applyFilterAndSort(
+          context: context,
+          filterFromLeaveCreditDate: null,
+          filterToLeaveCreditDate: null,
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
+          filterDesignationName: '',
+        );
+      },
+      onApply: () {
+        if (filterFormKey.currentState?.validate() ?? false) {
+          applied = true;
+          _leaveCreditConfigurationMasterCubit.applyFilterAndSort(
+            context: context,
+            filterDesignationName: _filterDesignationNameC.text,
+            filterFromLeaveCreditDate: filterFromDate,
+            filterToLeaveCreditDate: filterToDate,
+            sortColumn: selectedDirection != null ? "Department Name" : null,
+            sortDirection: selectedDirection,
+          );
+        }
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
+    if (!applied && manualClose) {
+      _filterDesignationNameC.clear();
+    }
   }
 
   @override
@@ -127,20 +382,29 @@ class _LeaveCreditConfigurationMasterScreenState
         authorization: _routeAuthorizationModel,
         textController: _searchC,
         onSearchSubmit: (value) {
-          _leaveCreditConfigurationMasterCubit.searchLeaveCreditConfiguration(context, value);
+          _leaveCreditConfigurationMasterCubit.searchLeaveCreditConfiguration(
+            context,
+            value,
+          );
         },
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addLeaveCreditConfigurationMaster);
           if (context.mounted) {
-            _leaveCreditConfigurationMasterCubit.getLeaveCreditConfigurationList(context, 1);
+            _leaveCreditConfigurationMasterCubit
+                .getLeaveCreditConfigurationList(context, 1);
           }
         },
         onExportCallback: (value) {
-          if (_leaveCreditConfigurationMasterCubit.state.totalNumberOfRecord == 0) {
+          if (_leaveCreditConfigurationMasterCubit.state.totalNumberOfRecord ==
+              0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
           _leaveCreditConfigurationMasterCubit.exportExcelPdf(context, value);
+        },
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterLeaveCreditConfiguration(context);
         },
       ),
       body: BlocBuilder<
@@ -193,13 +457,15 @@ class _LeaveCreditConfigurationMasterScreenState
                               goRouter.pushNamed(
                                 AppRoutes.viewLeaveCreditConfigurationMaster,
                                 queryParameters: {
-                                  "leaveCreditConfiguration": Uri.encodeComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(
-                                        leaveCreditConfigurationMaster.toJson(),
+                                  "leaveCreditConfiguration":
+                                      Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(
+                                            leaveCreditConfigurationMaster
+                                                .toJson(),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
                                 },
                               );
                             },
@@ -234,7 +500,8 @@ class _LeaveCreditConfigurationMasterScreenState
                                         Uri.encodeComponent(
                                           EncryptionManager.encryptData(
                                             jsonEncode(
-                                              leaveCreditConfigurationMaster.toJson(),
+                                              leaveCreditConfigurationMaster
+                                                  .toJson(),
                                             ),
                                           ),
                                         ),
