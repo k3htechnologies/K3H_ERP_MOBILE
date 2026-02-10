@@ -9,6 +9,9 @@ class ShiftMappingMasterState extends BaseState {
   final String currentSortColumn;
   final String currentSortDirection;
 
+  final String filterDepartmentName;
+  final String filterEmployeeName;
+
   const ShiftMappingMasterState({
     required this.shiftMappingList,
     super.isLoading,
@@ -17,6 +20,8 @@ class ShiftMappingMasterState extends BaseState {
     this.totalNumberOfRecord = 0,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    this.filterDepartmentName = "",
+    this.filterEmployeeName = "",
   });
 
   factory ShiftMappingMasterState.initial() => ShiftMappingMasterState(
@@ -24,11 +29,13 @@ class ShiftMappingMasterState extends BaseState {
     currentPage: 1,
     currentSortColumn: 'Created Date',
     currentSortDirection: 'DESC',
+    filterDepartmentName: "",
+    filterEmployeeName: "",
   );
 
   ShiftMappingMasterState copyWith({
     List<ShiftMappingModel>? shiftMappingList,
-    bool? isLoading = false,
+    bool? isLoading,
     StateType? stateType,
     String? errorMessage,
     String? searchText,
@@ -36,6 +43,8 @@ class ShiftMappingMasterState extends BaseState {
     int? currentPage,
     String? currentSortColumn,
     String? currentSortDirection,
+    String? filterDepartmentName,
+    String? filterEmployeeName,
   }) {
     return ShiftMappingMasterState(
       shiftMappingList: shiftMappingList ?? this.shiftMappingList,
@@ -45,6 +54,8 @@ class ShiftMappingMasterState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      filterDepartmentName: filterDepartmentName ?? this.filterDepartmentName,
+      filterEmployeeName: filterEmployeeName ?? this.filterEmployeeName,
     );
   }
 
@@ -55,5 +66,9 @@ class ShiftMappingMasterState extends BaseState {
     currentPage,
     searchText,
     totalNumberOfRecord,
+    currentSortColumn,
+    currentSortDirection,
+    filterDepartmentName,
+    filterEmployeeName,
   ];
 }

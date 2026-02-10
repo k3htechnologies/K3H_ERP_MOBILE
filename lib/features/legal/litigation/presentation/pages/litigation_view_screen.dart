@@ -686,13 +686,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                   controller: _hearingScrollController,
                   itemCount: state.litigationHearingList.length + 1,
                   itemBuilder: (context, index) {
-                    print(
-                      "--- state.litigationDocumentList length: ${state.litigationHearingList.length}",
-                    );
-                    print("--- index: ${index}");
-                    print(
-                      "---  state.documentTotalRecords: ${state.hearingTotalRecords}",
-                    );
                     if (index == state.litigationHearingList.length) {
                       return state.litigationHearingList.length <
                               state.hearingTotalRecords
@@ -1272,8 +1265,9 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                               startDate: DateTime.now(),
                               setValue: (value) => closureDate = value,
                               validator: (value) {
-                                if (value == null)
+                                if (value == null) {
                                   return "Closure Date is required";
+                                }
                                 return null;
                               },
                             ),

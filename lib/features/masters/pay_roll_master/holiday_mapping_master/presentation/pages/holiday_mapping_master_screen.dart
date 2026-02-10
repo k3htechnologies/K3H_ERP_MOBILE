@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class HolidayMappingMasterScreen extends StatefulWidget {
@@ -39,7 +40,7 @@ class _HolidayMappingMasterScreenState
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC;
+  late TextEditingController _searchC, _filterBranchNameC;
 
   @override
   void initState() {
@@ -60,11 +61,14 @@ class _HolidayMappingMasterScreenState
   void dispose() {
     scrollController.dispose();
     _searchC.dispose();
+    _filterBranchNameC.dispose();
+
     super.dispose();
   }
 
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterBranchNameC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -105,6 +109,238 @@ class _HolidayMappingMasterScreenState
     }
   }
 
+  Future<void> _showBottomSheetToFilterHolidayMapping(
+    BuildContext context,
+  ) async {
+    final state = _holidayMappingMasterCubit.state;
+
+    _filterBranchNameC.text = state.filterBranchName;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Holiday Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String initialBranchName = _filterBranchNameC.text;
+    final String? initialDirection = selectedDirection;
+
+    DateTime? filterFromDate = state.filterFromHolidayDate;
+    DateTime? filterToDate = state.filterToHolidayDate;
+    final DateTime? initialFromDate = state.filterFromHolidayDate;
+    final DateTime? initialToDate = state.filterToHolidayDate;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool applied = false;
+    final filterFormKey = GlobalKey<FormState>();
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_filterBranchNameC.text.trim() != initialBranchName) ||
+            (selectedDirection != initialDirection) ||
+            (filterFromDate != initialFromDate) ||
+            (filterToDate != initialToDate);
+        // Disable Apply when only one of From/To is set (both or neither required)
+        final bool onlyOneSet =
+            (filterFromDate != null && filterToDate == null) ||
+            (filterToDate != null && filterFromDate == null);
+        // Disable Apply when From > To (invalid range)
+        final bool invalidRange =
+            filterFromDate != null &&
+            filterToDate != null &&
+            filterFromDate!.isAfter(
+              DateTime(
+                filterToDate!.year,
+                filterToDate!.month,
+                filterToDate!.day,
+              ),
+            );
+        final bool dobInvalid = onlyOneSet || invalidRange;
+        applyEnabled.value = manualClose && !dobInvalid;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Holiday",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return Form(
+            key: filterFormKey,
+            child: SingleChildScrollView(
+              padding: EdgeInsets.only(right: 15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Sort By Holiday Name", style: AppTextStyle.ts14M()),
+                  verticalSpacing(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onTap: () => selectDirection("ASC"),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color:
+                                selectedDirection == "ASC"
+                                    ? AppColor.lightBlue
+                                    : Colors.transparent,
+                            border: Border.all(color: AppColor.grey, width: .5),
+                          ),
+                          child: Text("A-Z", style: AppTextStyle.ts12R()),
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      GestureDetector(
+                        onTap: () => selectDirection("DESC"),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color:
+                                selectedDirection == "DESC"
+                                    ? AppColor.lightBlue
+                                    : Colors.transparent,
+                            border: Border.all(color: AppColor.grey, width: .5),
+                          ),
+                          child: Text("Z-A", style: AppTextStyle.ts12R()),
+                        ),
+                      ),
+                    ],
+                  ),
+                  verticalSpacing(height: 20),
+                  CustomDatePicker(
+                    title: "Date of Holiday (From)",
+                    initialDate: filterFromDate,
+                    setValue: (value) {
+                      innerState(() {
+                        filterFromDate = value;
+                        updateApplyState(innerState);
+                      });
+                    },
+                  ),
+                  if (filterFromDate != null && filterToDate == null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4),
+                      child: Text(
+                        'Please select To date also',
+                        style: AppTextStyle.ts12R().copyWith(
+                          color: AppColor.error,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  if (filterToDate != null && filterFromDate == null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4),
+                      child: Text(
+                        'Please select From date also',
+                        style: AppTextStyle.ts12R().copyWith(
+                          color: AppColor.error,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  if (filterFromDate != null &&
+                      filterToDate != null &&
+                      filterFromDate!.isAfter(
+                        DateTime(
+                          filterToDate!.year,
+                          filterToDate!.month,
+                          filterToDate!.day,
+                        ),
+                      ))
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 4),
+                      child: Text(
+                        'Invalid Date range',
+                        style: AppTextStyle.ts12R().copyWith(
+                          color: AppColor.error,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  CustomDatePicker(
+                    title: "Date of Holiday (To)",
+                    initialDate: filterToDate,
+                    setValue: (value) {
+                      innerState(() {
+                        filterToDate = value;
+                        updateApplyState(innerState);
+                      });
+                    },
+                    validator: (value) {
+                      if (filterFromDate != null && value == null) {
+                        return 'Date of Birth (To) is required when Date of Birth (From) is entered';
+                      }
+                      if (filterFromDate != null &&
+                          value != null &&
+                          filterFromDate!.isAfter(
+                            DateTime(value.year, value.month, value.day),
+                          )) {
+                        return 'Invalid Date range';
+                      }
+                      return null;
+                    },
+                  ),
+                  verticalSpacing(),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _filterBranchNameC.clear();
+
+        _holidayMappingMasterCubit.applyFilterAndSort(
+          context: context,
+          filterFromHolidayDate: null,
+          filterToHolidayDate: null,
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
+          filterBranchName: '',
+        );
+      },
+      onApply: () {
+        if (filterFormKey.currentState?.validate() ?? false) {
+          applied = true;
+          _holidayMappingMasterCubit.applyFilterAndSort(
+            context: context,
+            filterBranchName: _filterBranchNameC.text,
+            filterFromHolidayDate: filterFromDate,
+            filterToHolidayDate: filterToDate,
+            sortColumn: selectedDirection != null ? "Holiday Name" : null,
+            sortDirection: selectedDirection,
+          );
+        }
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
+    if (!applied && manualClose) {
+      _filterBranchNameC.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,6 +366,10 @@ class _HolidayMappingMasterScreenState
             return;
           }
           _holidayMappingMasterCubit.exportExcelPdf(context, value);
+        },
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterHolidayMapping(context);
         },
       ),
       body: BlocBuilder<HolidayMappingMasterCubit, HolidayMappingMasterState>(

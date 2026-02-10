@@ -1,6 +1,6 @@
 import 'package:k3h_erp_app/utils/common_function.dart';
 
-class LeaveCreditDebitMasterModel {
+class LeaveCreditConfigurationMasterModel {
   int leaveCreditConfigurationId;
   String uniquekey;
   String leavePeriodMode;
@@ -18,7 +18,7 @@ class LeaveCreditDebitMasterModel {
   String modifiedBy;
   DateTime? modifiedDate;
 
-  LeaveCreditDebitMasterModel({
+  LeaveCreditConfigurationMasterModel({
     required this.leaveCreditConfigurationId,
     required this.uniquekey,
     required this.leavePeriodMode,
@@ -37,39 +37,37 @@ class LeaveCreditDebitMasterModel {
     required this.modifiedDate,
   });
 
-  factory LeaveCreditDebitMasterModel.fromJson(Map<String, dynamic> json) =>
-      LeaveCreditDebitMasterModel(
-        leaveCreditConfigurationId: parseValue<int>(
-          json,
-          "LeaveCreditConfigurationId",
-        ),
-        uniquekey: parseValue<String>(json, "Uniquekey"),
-        leavePeriodMode: parseValue<String>(json, "LeavePeriodMode"),
-        financialYearStartDate: parseValue<DateTime>(
-          json,
-          "FinancialYearStartDate",
-        ),
-        financialYearEndDate: parseValue<DateTime>(
-          json,
-          "FinancialYearEndDate",
-        ),
-        departmentMasterId: parseValue<int>(json, "DepartmentMasterId"),
-        departmentName: parseValue<String>(json, "DepartmentName"),
-        designationName: parseValue<String>(json, "DesignationName"),
-        designationId: parseValue<String>(json, "DesignationId"),
-        leaveBalanceType: List<LeaveBalanceType>.from(
-          json["LeaveBalanceType"].map((x) => LeaveBalanceType.fromJson(x)),
-        ),
-        createdById: parseValue<int>(json, "CreatedById"),
-        createdBy: parseValue<String>(json, "CreatedBy"),
-        createdDate: parseValue<DateTime>(json, "CreatedDate"),
-        modifiedById: parseValue<int>(json, "ModifiedById"),
-        modifiedBy: parseValue<String>(json, "ModifiedBy"),
-        modifiedDate:
-            json["ModifiedDate"] == null
-                ? null
-                : parseValue<DateTime>(json, "ModifiedDate"),
-      );
+  factory LeaveCreditConfigurationMasterModel.fromJson(
+    Map<String, dynamic> json,
+  ) => LeaveCreditConfigurationMasterModel(
+    leaveCreditConfigurationId: parseValue<int>(
+      json,
+      "LeaveCreditConfigurationId",
+    ),
+    uniquekey: parseValue<String>(json, "Uniquekey"),
+    leavePeriodMode: parseValue<String>(json, "LeavePeriodMode"),
+    financialYearStartDate: parseValue<DateTime>(
+      json,
+      "FinancialYearStartDate",
+    ),
+    financialYearEndDate: parseValue<DateTime>(json, "FinancialYearEndDate"),
+    departmentMasterId: parseValue<int>(json, "DepartmentMasterId"),
+    departmentName: parseValue<String>(json, "DepartmentName"),
+    designationName: parseValue<String>(json, "DesignationName"),
+    designationId: parseValue<String>(json, "DesignationId"),
+    leaveBalanceType: List<LeaveBalanceType>.from(
+      json["LeaveBalanceType"].map((x) => LeaveBalanceType.fromJson(x)),
+    ),
+    createdById: parseValue<int>(json, "CreatedById"),
+    createdBy: parseValue<String>(json, "CreatedBy"),
+    createdDate: parseValue<DateTime>(json, "CreatedDate"),
+    modifiedById: parseValue<int>(json, "ModifiedById"),
+    modifiedBy: parseValue<String>(json, "ModifiedBy"),
+    modifiedDate:
+        json["ModifiedDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "ModifiedDate"),
+  );
 
   Map<String, dynamic> toJson() => {
     "LeaveCreditConfigurationId": leaveCreditConfigurationId,

@@ -111,8 +111,7 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
     final String? initialDirection = selectedDirection;
 
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-    bool applied = false;
-
+  
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         applyEnabled.value = selectedDirection != initialDirection;
@@ -190,8 +189,7 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
         );
       },
       onApply: () {
-        applied = true;
-        _earningMasterCubit.applyFilterAndSort(
+         _earningMasterCubit.applyFilterAndSort(
           context: context,
           sortColumn: "Name",
           sortDirection: selectedDirection,

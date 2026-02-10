@@ -56,6 +56,8 @@ class WeekOffMappingMasterCubit extends Cubit<WeekOffMappingMasterState> {
     var queryParams = {
       "WeekOffPolicyName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+      "DepartmentName": state.filterDepartmentName,
+      "EmployeeName": state.filterEmployeeName,
     };
 
     var result = await _weekOffMasterMappingRepository.getWeekOffMappingList(
@@ -360,5 +362,24 @@ class WeekOffMappingMasterCubit extends Cubit<WeekOffMappingMasterState> {
 
   void onSelectedOptionChanged(String value) {
     emit(state.copyWith(selectedOption: value));
+  }
+
+  void applyFilterAndSort({
+    required BuildContext context,
+    String? filterDepartmentName,
+    String? filterEmployeeName,
+    String? sortColumn,
+    String? sortDirection,
+  }) {
+    final newState = state.copyWith(
+      filterDepartmentName: filterDepartmentName ?? "",
+      filterEmployeeName: filterEmployeeName ?? "",
+      currentSortColumn: sortColumn ?? state.currentSortColumn,
+      currentSortDirection: sortDirection ?? state.currentSortDirection,
+      currentPage: 1,
+    );
+
+    emit(newState);
+    getWeekOffMappingList(context: context, pageNumber: 1);
   }
 }

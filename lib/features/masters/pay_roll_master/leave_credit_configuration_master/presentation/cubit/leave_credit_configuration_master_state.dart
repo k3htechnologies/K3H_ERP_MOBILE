@@ -1,7 +1,7 @@
-part of 'leave_credit_debit_master_cubit.dart';
+part of 'leave_credit_configuration_master_cubit.dart';
 
-class LeaveCreditDebitMasterState extends BaseState {
-  final List<LeaveCreditDebitMasterModel> leaveCreditDebitMasterList;
+class LeaveCreditConfigurationMasterState extends BaseState {
+  final List<LeaveCreditConfigurationMasterModel> leaveCreditConfigurationMasterList;
   final int totalNumberOfRecord;
   final int currentPage;
   final List<DepartmentModel> departmentList;
@@ -12,9 +12,9 @@ class LeaveCreditDebitMasterState extends BaseState {
   final int leaveTotalCount;
   final String searchText;
 
-  const LeaveCreditDebitMasterState({
+  const LeaveCreditConfigurationMasterState({
     super.isLoading,
-    required this.leaveCreditDebitMasterList,
+    required this.leaveCreditConfigurationMasterList,
     required this.totalNumberOfRecord,
     required this.currentPage,
     required this.departmentList,
@@ -26,9 +26,9 @@ class LeaveCreditDebitMasterState extends BaseState {
     required this.searchText,
   });
 
-  factory LeaveCreditDebitMasterState.initial() => LeaveCreditDebitMasterState(
+  factory LeaveCreditConfigurationMasterState.initial() => LeaveCreditConfigurationMasterState(
     isLoading: true,
-    leaveCreditDebitMasterList: [],
+    leaveCreditConfigurationMasterList: [],
     totalNumberOfRecord: 0,
     currentPage: 1,
     departmentList: [],
@@ -40,9 +40,9 @@ class LeaveCreditDebitMasterState extends BaseState {
     searchText: "",
   );
 
-  LeaveCreditDebitMasterState copyWith({
+  LeaveCreditConfigurationMasterState copyWith({
     bool? isLoading,
-    List<LeaveCreditDebitMasterModel>? leaveCreditDebitMasterList,
+    List<LeaveCreditConfigurationMasterModel>? leaveCreditConfigurationMasterList,
     int? totalNumberOfRecord,
     int? currentPage,
     List<DepartmentModel>? departmentList,
@@ -53,10 +53,10 @@ class LeaveCreditDebitMasterState extends BaseState {
     int? leaveTotalCount,
     String? searchText,
   }) {
-    return LeaveCreditDebitMasterState(
+    return LeaveCreditConfigurationMasterState(
       isLoading: isLoading ?? this.isLoading,
-      leaveCreditDebitMasterList:
-          leaveCreditDebitMasterList ?? this.leaveCreditDebitMasterList,
+      leaveCreditConfigurationMasterList:
+          leaveCreditConfigurationMasterList ?? this.leaveCreditConfigurationMasterList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       departmentList: departmentList ?? this.departmentList,
@@ -64,7 +64,7 @@ class LeaveCreditDebitMasterState extends BaseState {
       designationList: designationList ?? this.designationList,
       designationTotalCount:
           designationTotalCount ?? this.designationTotalCount,
-      leaveTypeList: leaveTypeList?? this.leaveTypeList,
+      leaveTypeList: leaveTypeList ?? this.leaveTypeList,
       leaveTotalCount: leaveTotalCount ?? this.leaveTotalCount,
       searchText: searchText ?? this.searchText,
     );
@@ -73,7 +73,7 @@ class LeaveCreditDebitMasterState extends BaseState {
   @override
   List<Object?> get props => [
     isLoading,
-    leaveCreditDebitMasterList,
+    leaveCreditConfigurationMasterList,
     totalNumberOfRecord,
     currentPage,
     departmentList,

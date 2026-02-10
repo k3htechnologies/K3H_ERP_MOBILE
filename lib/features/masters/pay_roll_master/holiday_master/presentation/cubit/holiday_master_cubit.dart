@@ -234,4 +234,21 @@ class HolidayMasterCubit extends Cubit<HolidayMasterState> {
       },
     );
   }
+
+  Future<void> applyFilterAndSort({
+    required BuildContext context,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
+    emit(
+      state.copyWith(
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
+        holidays: [],
+        currentPage: 1,
+      ),
+    );
+
+    await getHolidayList(context: context, pageNumber: 1);
+  }
 }

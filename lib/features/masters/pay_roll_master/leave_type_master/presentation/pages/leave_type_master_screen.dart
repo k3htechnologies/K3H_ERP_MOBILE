@@ -10,6 +10,8 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/p
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/presentation/cubit/leave_type_master_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
@@ -48,11 +50,7 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
 
     _onScroll();
     _initializeTextEditingController();
-    _leaveTypeMasterCubit.getLeaveTypeList(
-      context: context,
-      pageNumber: 1,
-      pageSize: 10,
-    );
+    _leaveTypeMasterCubit.getLeaveTypeList(context: context, pageNumber: 1);
   }
 
   void _initializeTextEditingController() {
@@ -74,7 +72,6 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
           _leaveTypeMasterCubit.getLeaveTypeList(
             context: context,
             pageNumber: _leaveTypeMasterCubit.state.currentPage + 1,
-            pageSize: 10,
           );
         });
       }
@@ -97,6 +94,107 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
     }
   }
 
+  // SORT BOTTOM SHEET - LEAVE TYPE (LEAVE TYPE)
+  Future<void> _showSortBottomSheetForLeaveType(BuildContext context) async {
+    final state = _leaveTypeMasterCubit.state;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Leave Type"
+            ? state.currentSortDirection
+            : null;
+
+    final String? initialDirection = selectedDirection;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        applyEnabled.value = selectedDirection != initialDirection;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Sort Leave Type",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Sort By Leave Type", style: AppTextStyle.ts14M()),
+              verticalSpacing(),
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => selectDirection("ASC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "ASC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("A-Z", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                  horizontalSpacing(),
+                  GestureDetector(
+                    onTap: () => selectDirection("DESC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "DESC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("Z-A", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+      onClear: () {
+        _leaveTypeMasterCubit.applyFilterAndSort(
+          context: context,
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
+        );
+      },
+      onApply: () {
+        _leaveTypeMasterCubit.applyFilterAndSort(
+          context: context,
+          sortColumn: "Leave Type",
+          sortDirection: selectedDirection,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,7 +206,7 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
         },
         textController: _searchC,
         onExportCallback: (value) {
-          if(_leaveTypeMasterCubit.state.totalNumberOfRecord == 0){
+          if (_leaveTypeMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
@@ -116,6 +214,10 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
         },
         onSearchSubmit: (value) {
           _leaveTypeMasterCubit.searchLeaveType(value, context);
+        },
+        isFilterOn: true,
+        onFilterTap: () {
+          _showSortBottomSheetForLeaveType(context);
         },
       ),
       body: BlocBuilder<LeaveTypeMasterCubit, LeaveTypeMasterState>(

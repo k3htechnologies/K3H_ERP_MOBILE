@@ -122,7 +122,6 @@ class _BranchAssociationMasterScreenState
     final String? initialDirection = selectedDirection;
 
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-    bool applied = false;
 
     void updateApplyState(StateSetter innerState) {
       innerState(() {
@@ -201,7 +200,6 @@ class _BranchAssociationMasterScreenState
         );
       },
       onApply: () {
-        applied = true;
         _branchAssociationMasterCubit.applyFilterAndSort(
           context: context,
           sortColumn: "Employee Name",

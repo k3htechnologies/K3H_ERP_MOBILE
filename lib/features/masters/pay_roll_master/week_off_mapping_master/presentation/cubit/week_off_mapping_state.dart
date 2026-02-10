@@ -11,6 +11,8 @@ class WeekOffMappingMasterState extends BaseState {
   final String selectedOption;
   final List<String> options = const ['Employee', 'Department'];
 
+  final String filterDepartmentName;
+  final String filterEmployeeName;
   const WeekOffMappingMasterState({
     required this.weekOffMappingList,
     super.isLoading,
@@ -20,6 +22,8 @@ class WeekOffMappingMasterState extends BaseState {
     required this.currentSortColumn,
     required this.currentSortDirection,
     this.selectedOption = 'Employee',
+    this.filterDepartmentName = "",
+    this.filterEmployeeName = "",
   });
 
   factory WeekOffMappingMasterState.initial() => WeekOffMappingMasterState(
@@ -28,6 +32,8 @@ class WeekOffMappingMasterState extends BaseState {
     currentSortColumn: 'Created Date',
     currentSortDirection: 'DESC',
     selectedOption: 'Employee',
+    filterDepartmentName: "",
+    filterEmployeeName: "",
   );
 
   WeekOffMappingMasterState copyWith({
@@ -41,6 +47,8 @@ class WeekOffMappingMasterState extends BaseState {
     String? currentSortColumn,
     String? currentSortDirection,
     String? selectedOption,
+    String? filterDepartmentName,
+    String? filterEmployeeName,
   }) {
     return WeekOffMappingMasterState(
       weekOffMappingList: weekOffMappingList ?? this.weekOffMappingList,
@@ -51,9 +59,10 @@ class WeekOffMappingMasterState extends BaseState {
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       selectedOption: selectedOption ?? this.selectedOption,
+      filterDepartmentName: filterDepartmentName ?? this.filterDepartmentName,
+      filterEmployeeName: filterEmployeeName ?? this.filterEmployeeName,
     );
   }
-
 
   @override
   List<Object?> get props => [
@@ -64,6 +73,9 @@ class WeekOffMappingMasterState extends BaseState {
     totalNumberOfRecord,
     selectedOption,
     options,
+    currentSortColumn,
+    currentSortDirection,
+    filterDepartmentName,
+    filterEmployeeName,
   ];
 }
-

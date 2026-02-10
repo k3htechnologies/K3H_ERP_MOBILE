@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_mapping_master/data/model/holiday_mapping_master.model.dart';
@@ -41,11 +42,23 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
     var queryParams = {
       "HolidayName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+      "BranchName": state.filterBranchName,
     };
 
+    if (state.filterFromHolidayDate != null) {
+      queryParams["FromHolidayDate"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.filterFromHolidayDate!);
+    }
+
+    if (state.filterToHolidayDate != null) {
+      queryParams["ToHolidayDate"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.filterToHolidayDate!);
+    }
     var result = await holidayMappingMasterRepository.getMappedHolidayList(
       pageNumber: pageNumber,
-      pageSize: 5,
+      pageSize: 10,
       queryParams: queryParams,
     );
 
@@ -217,5 +230,28 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
         );
       },
     );
+  }
+
+  Future<void> applyFilterAndSort({
+    required BuildContext context,
+    required String filterBranchName,
+    required DateTime? filterFromHolidayDate,
+    required DateTime? filterToHolidayDate,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
+    emit(
+      state.copyWith(
+        filterBranchName: filterBranchName,
+        filterFromHolidayDate: filterFromHolidayDate,
+        filterToHolidayDate: filterToHolidayDate,
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
+        holidayMappingList: [],
+        currentPage: 1,
+      ),
+    );
+
+    await getHolidayMappingList(context: context, pageNumber: 1);
   }
 }

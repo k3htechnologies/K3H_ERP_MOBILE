@@ -19,7 +19,10 @@ class WeekOffMasterCubit extends Cubit<WeekOffMasterState> {
     required int pageNumber,
   }) async {
     emit(state.copyWith(isLoading: true));
-    var queryParams = {"WeekOffPolicyName": state.searchText.trim()};
+    var queryParams = {
+      "WeekOffPolicyName": state.searchText.trim(),
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+    };
     var result = await weekOffMasterRepository.getWeekOffList(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -238,5 +241,22 @@ class WeekOffMasterCubit extends Cubit<WeekOffMasterState> {
       ),
     );
     getWeekOffList(context: context, pageNumber: 1);
+  }
+
+  Future<void> applyFilterAndSort({
+    required BuildContext context,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
+    emit(
+      state.copyWith(
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
+        weekOffMasterList: [],
+        currentPage: 1,
+      ),
+    );
+
+    await getWeekOffList(context: context, pageNumber: 1);
   }
 }

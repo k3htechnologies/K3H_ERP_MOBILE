@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/data/model/leave_credit_debit_master.model.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/cubit/leave_credit_debit_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/data/model/leave_credit_configuration_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/presentation/cubit/leave_credit_configuration_master_cubit.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -29,7 +29,7 @@ class AddLeaveBalanceTypeScreen extends StatefulWidget {
 
 class _AddLeaveBalanceTypeScreenState extends State<AddLeaveBalanceTypeScreen> {
   // CUBIT
-  late LeaveCreditDebitMasterCubit _leaveCreditDebitMasterCubit;
+  late LeaveCreditConfigurationMasterCubit _leaveCreditConfigurationMasterCubit;
 
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -44,7 +44,8 @@ class _AddLeaveBalanceTypeScreenState extends State<AddLeaveBalanceTypeScreen> {
   @override
   void initState() {
     super.initState();
-    _leaveCreditDebitMasterCubit = context.read<LeaveCreditDebitMasterCubit>();
+    _leaveCreditConfigurationMasterCubit =
+        context.read<LeaveCreditConfigurationMasterCubit>();
     _leaveCreditC = TextEditingController();
   }
 
@@ -63,7 +64,8 @@ class _AddLeaveBalanceTypeScreenState extends State<AddLeaveBalanceTypeScreen> {
 
     // SEARCH MODE
     if (value != null && value.isNotEmpty) {
-      final leaveTypeList = _leaveCreditDebitMasterCubit.state.leaveTypeList;
+      final leaveTypeList =
+          _leaveCreditConfigurationMasterCubit.state.leaveTypeList;
       final filteredLeaveType =
           leaveTypeList
               .where(
@@ -88,16 +90,17 @@ class _AddLeaveBalanceTypeScreenState extends State<AddLeaveBalanceTypeScreen> {
     }
 
     final currentLoadedCount =
-        _leaveCreditDebitMasterCubit.state.leaveTypeList.length;
+        _leaveCreditConfigurationMasterCubit.state.leaveTypeList.length;
     if (currentLoadedCount == 0) {
-      await _leaveCreditDebitMasterCubit.getLeaveTypeList(
+      await _leaveCreditConfigurationMasterCubit.getLeaveTypeList(
         context,
         pageNumber,
         pageSize,
       );
     }
 
-    final leaveTypeList = _leaveCreditDebitMasterCubit.state.leaveTypeList;
+    final leaveTypeList =
+        _leaveCreditConfigurationMasterCubit.state.leaveTypeList;
 
     final Map<int, Map<String, dynamic>> uniqueDesignation = {};
 

@@ -142,10 +142,12 @@ class AppRoutes {
   static String weekOffMappingMaster = "/weekOffMappingMaster";
   static String viewWeekOffMappingMaster = "/viewWeekOffMappingMaster";
   static String addWeekOffMappingMaster = "/addWeekOffMappingMaster";
-  static String leaveCreditDebitMaster = "/leaveCreditDebit";
-  static String addLeaveCreditDebitMaster = "/addLeaveCreditDebitMaster";
+  static String leaveCreditConfigurationMaster = "/leaveCreditConfiguration";
+  static String addLeaveCreditConfigurationMaster =
+      "/addLeaveCreditConfigurationMaster";
   static String addLeaveBalanceType = "/addLeaveBalanceType";
-  static String viewLeaveCreditDebitMaster = "/viewLeaveCreditDebitMaster";
+  static String viewLeaveCreditConfigurationMaster =
+      "/viewLeaveCreditConfigurationMaster";
 
   // STOCK MANAGEMENT
   static String stockManagement = "/stock";
@@ -204,7 +206,6 @@ class AppRoutes {
   static String addresignation = "/addresignation";
   // PAYROLL REPORT
   static String payrollReport = "/payrollReport";
-
 
   // PROJECT DOCUMENTS
   // --DOCUMENT

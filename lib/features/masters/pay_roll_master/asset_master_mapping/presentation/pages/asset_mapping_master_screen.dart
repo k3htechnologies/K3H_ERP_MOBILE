@@ -151,7 +151,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Sort By Employee Name", style: AppTextStyle.ts14M()),
+                Text("Sort By Asset Name", style: AppTextStyle.ts14M()),
                 verticalSpacing(),
                 Row(
                   children: [

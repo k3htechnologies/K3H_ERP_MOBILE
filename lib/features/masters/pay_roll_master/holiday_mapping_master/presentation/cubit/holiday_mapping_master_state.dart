@@ -8,6 +8,12 @@ class HolidayMappingMasterState extends BaseState {
   final String currentSortColumn;
   final String currentSortDirection;
 
+  final String filterBranchName;
+
+  // IMPORTANT → must be DateTime?
+  final DateTime? filterFromHolidayDate;
+  final DateTime? filterToHolidayDate;
+
   const HolidayMappingMasterState({
     super.isLoading,
     required this.holidayMappingList,
@@ -16,6 +22,9 @@ class HolidayMappingMasterState extends BaseState {
     required this.searchText,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    this.filterBranchName = "",
+    this.filterFromHolidayDate,
+    this.filterToHolidayDate,
   });
 
   factory HolidayMappingMasterState.initial() => HolidayMappingMasterState(
@@ -26,6 +35,9 @@ class HolidayMappingMasterState extends BaseState {
     isLoading: true,
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
+    filterBranchName: "",
+    filterFromHolidayDate: null,
+    filterToHolidayDate: null,
   );
 
   HolidayMappingMasterState copyWith({
@@ -36,6 +48,10 @@ class HolidayMappingMasterState extends BaseState {
     String? searchText,
     String? currentSortColumn,
     String? currentSortDirection,
+    String? filterBranchName,
+
+    Object? filterFromHolidayDate = _noChange,
+    Object? filterToHolidayDate = _noChange,
   }) {
     return HolidayMappingMasterState(
       isLoading: isLoading ?? this.isLoading,
@@ -45,8 +61,21 @@ class HolidayMappingMasterState extends BaseState {
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      filterBranchName: filterBranchName ?? this.filterBranchName,
+
+      filterFromHolidayDate:
+          filterFromHolidayDate == _noChange
+              ? this.filterFromHolidayDate
+              : filterFromHolidayDate as DateTime?,
+
+      filterToHolidayDate:
+          filterToHolidayDate == _noChange
+              ? this.filterToHolidayDate
+              : filterToHolidayDate as DateTime?,
     );
   }
+
+  static const _noChange = Object();
 
   @override
   List<Object?> get props => [
@@ -55,5 +84,10 @@ class HolidayMappingMasterState extends BaseState {
     totalNumberOfRecord,
     currentPage,
     searchText,
+    currentSortColumn,
+    currentSortDirection,
+    filterBranchName,
+    filterFromHolidayDate,
+    filterToHolidayDate,
   ];
 }

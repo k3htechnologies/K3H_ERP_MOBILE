@@ -92,6 +92,107 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
     }
   }
 
+  // SORT BOTTOM SHEET - WEEK OFF (WEEK OFF NAME)
+  Future<void> _showSortBottomSheetForEarning(BuildContext context) async {
+    final state = _weekOffMasterCubit.state;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Week Off Policy Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String? initialDirection = selectedDirection;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        applyEnabled.value = selectedDirection != initialDirection;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Sort Week Off",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Sort By Week Off Name", style: AppTextStyle.ts14M()),
+              verticalSpacing(),
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => selectDirection("ASC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "ASC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("A-Z", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                  horizontalSpacing(),
+                  GestureDetector(
+                    onTap: () => selectDirection("DESC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "DESC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("Z-A", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+      onClear: () {
+        _weekOffMasterCubit.applyFilterAndSort(
+          context: context,
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
+        );
+      },
+      onApply: () {
+        _weekOffMasterCubit.applyFilterAndSort(
+          context: context,
+          sortColumn: "Week Off Policy Name",
+          sortDirection: selectedDirection,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,7 +204,7 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
         },
         textController: _searchC,
         onExportCallback: (value) {
-          if(_weekOffMasterCubit.state.totalNumberOfRecord == 0){
+          if (_weekOffMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
@@ -111,6 +212,10 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
         },
         onSearchSubmit: (value) {
           _weekOffMasterCubit.searchWeekOff(value, context);
+        },
+        isFilterOn: true,
+        onFilterTap: () {
+          _showSortBottomSheetForEarning(context);
         },
       ),
       body: BlocBuilder<WeekOffMasterCubit, WeekOffMasterState>(
@@ -258,5 +363,4 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
       ),
     );
   }
-
 }
