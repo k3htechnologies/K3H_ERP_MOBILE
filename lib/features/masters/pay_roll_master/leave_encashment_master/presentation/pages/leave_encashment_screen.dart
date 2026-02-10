@@ -95,6 +95,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Leave Encashment Master",
         authorization: _routeAuthorizationModel,
+        isMenuButton: true,
       ),
       body: Column(
         children: [

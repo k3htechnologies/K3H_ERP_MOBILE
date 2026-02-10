@@ -126,8 +126,8 @@ void initDependencies() {
   registerWeekOffMasterDependencies(serviceLocator);
   //WEEK OFF MAPPING MASTER DEPENDENCIES
   registerWeekOffMappingMasterDependencies(serviceLocator);
-  // LEAVE CREDIT DEBIT MASTER DEPENDENCIES
-  registerLeaveCreditDebitMasterDependencies(serviceLocator);
+  // LEAVE CREDIT CONFIGURATION MASTER DEPENDENCIES
+  registerLeaveCreditConfigurationMasterDependencies(serviceLocator);
   // TENANT DEPENDENCIES
   registerTenantMasterDependencies(serviceLocator);
   // PROPOSED PLAN DEPENDENCIES

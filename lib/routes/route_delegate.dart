@@ -39,12 +39,12 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/deduction_master/pr
 import 'package:k3h_erp_app/features/masters/pay_roll_master/earning_master/presentation/pages/earning_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_mapping_master/presentation/pages/holiday_mapping_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/presentation/pages/holiday_master_view_screen.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/data/model/leave_credit_debit_master.model.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/cubit/leave_credit_debit_master_cubit.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/pages/add_leave_credit_debit_master_screen.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/pages/add_leave_balance_type_screen.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/pages/leave_credit_debit_master_screen.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/pages/leave_credit_debit_master_view_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/data/model/leave_credit_configuration_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/presentation/cubit/leave_credit_configuration_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/presentation/pages/add_leave_credit_configuration_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/presentation/pages/add_leave_balance_type_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/presentation/pages/leave_credit_configuration_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/presentation/pages/leave_credit_configuration_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/pages/asset_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/pages/asset_mapping_master_view_screen.dart';
@@ -1602,32 +1602,33 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider(
-              create: (_) => LeaveCreditDebitMasterCubit(),
+              create: (_) => LeaveCreditConfigurationMasterCubit(),
               child: child,
             );
           },
           routes: [
             GoRoute(
-              path: AppRoutes.leaveCreditDebitMaster,
-              name: AppRoutes.leaveCreditDebitMaster,
+              path: AppRoutes.leaveCreditConfigurationMaster,
+              name: AppRoutes.leaveCreditConfigurationMaster,
               builder: (context, state) {
-                return const LeaveCreditDebitMasterScreen();
+                return const LeaveCreditConfigurationMasterScreen();
               },
             ),
             GoRoute(
-              path: AppRoutes.addLeaveCreditDebitMaster,
-              name: AppRoutes.addLeaveCreditDebitMaster,
+              path: AppRoutes.addLeaveCreditConfigurationMaster,
+              name: AppRoutes.addLeaveCreditConfigurationMaster,
               builder: (context, state) {
-                final queryParameterLeaveCreditDebit =
-                    state.uri.queryParameters['leaveCreditDebit'];
+                final queryParameterLeaveCreditConfiguration =
+                    state.uri.queryParameters['leaveCreditConfiguration'];
 
-                final LeaveCreditDebitMasterModel? leaveCreditDebit =
-                    queryParameterLeaveCreditDebit != null
-                        ? LeaveCreditDebitMasterModel.fromJson(
+                final LeaveCreditConfigurationMasterModel?
+                leaveCreditConfiguration =
+                    queryParameterLeaveCreditConfiguration != null
+                        ? LeaveCreditConfigurationMasterModel.fromJson(
                           jsonDecode(
                             EncryptionManager.decryptData(
                               Uri.decodeComponent(
-                                queryParameterLeaveCreditDebit,
+                                queryParameterLeaveCreditConfiguration,
                               ),
                             ),
                           ),
@@ -1636,8 +1637,8 @@ final GoRouter goRouter = GoRouter(
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
 
-                return AddLeaveCreditDebitMasterScreen(
-                  leaveCreditDebitMasterModel: leaveCreditDebit,
+                return AddLeaveCreditConfigurationMasterScreen(
+                  leaveCreditConfigurationMasterModel: leaveCreditConfiguration,
                   index: index,
                 );
               },
@@ -1667,26 +1668,27 @@ final GoRouter goRouter = GoRouter(
               },
             ),
             GoRoute(
-              path: AppRoutes.viewLeaveCreditDebitMaster,
-              name: AppRoutes.viewLeaveCreditDebitMaster,
+              path: AppRoutes.viewLeaveCreditConfigurationMaster,
+              name: AppRoutes.viewLeaveCreditConfigurationMaster,
               builder: (context, state) {
-                final queryParameterLeaveCreditDebit =
-                    state.uri.queryParameters['leaveCreditDebit'];
+                final queryParameterLeaveCreditConfiguration =
+                    state.uri.queryParameters['leaveCreditConfiguration'];
 
-                final LeaveCreditDebitMasterModel? leaveCreditDebitMaster =
-                    queryParameterLeaveCreditDebit != null
-                        ? LeaveCreditDebitMasterModel.fromJson(
+                final LeaveCreditConfigurationMasterModel?
+                leaveCreditConfigurationMaster =
+                    queryParameterLeaveCreditConfiguration != null
+                        ? LeaveCreditConfigurationMasterModel.fromJson(
                           jsonDecode(
                             EncryptionManager.decryptData(
                               Uri.decodeComponent(
-                                queryParameterLeaveCreditDebit,
+                                queryParameterLeaveCreditConfiguration,
                               ),
                             ),
                           ),
                         )
                         : null;
-                return LeaveCreditDebitMasterViewScreen(
-                  leaveCreditDebitMaster: leaveCreditDebitMaster!,
+                return LeaveCreditConfigurationMasterViewScreen(
+                  leaveCreditConfigurationMaster: leaveCreditConfigurationMaster!,
                 );
               },
             ),

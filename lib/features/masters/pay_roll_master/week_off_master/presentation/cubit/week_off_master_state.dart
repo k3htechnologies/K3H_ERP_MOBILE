@@ -5,21 +5,30 @@ class WeekOffMasterState extends BaseState {
   final List<WeekOffMasterModel> weekOffMasterList;
   final int currentPage;
   final int totalNumberOfRecord;
+  final String currentSortColumn;
+  final String currentSortDirection;
   final String searchText;
   const WeekOffMasterState({
     super.isLoading,
     required this.weekOffMasterList,
     this.currentPage = 1,
     this.totalNumberOfRecord = 0,
+    required this.currentSortColumn,
+    required this.currentSortDirection,
     this.searchText = "",
   });
-  factory WeekOffMasterState.initial() =>
-      WeekOffMasterState(weekOffMasterList: [], currentPage: 1);
+  factory WeekOffMasterState.initial() => WeekOffMasterState(
+    weekOffMasterList: [],
+    currentPage: 1,
+    currentSortColumn: 'Created Date',
+    currentSortDirection: 'DESC',
+  );
 
   WeekOffMasterState copyWith({
     List<WeekOffMasterModel>? weekOffMasterList,
     bool? isLoading = false,
-
+    String? currentSortColumn,
+    String? currentSortDirection,
     StateType? stateType,
     String? searchText,
     String? errorMessage,
@@ -32,6 +41,8 @@ class WeekOffMasterState extends BaseState {
       searchText: searchText ?? this.searchText,
       isLoading: isLoading ?? isLoading,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
     );
   }
 

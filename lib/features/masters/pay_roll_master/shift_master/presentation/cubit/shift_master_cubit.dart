@@ -19,7 +19,10 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
     required int pageNumber,
   }) async {
     emit(state.copyWith(isLoading: true));
-    var queryParams = {"ShiftName": state.searchText.trim()};
+    var queryParams = {
+      "ShiftName": state.searchText.trim(),
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+    };
     var result = await shiftMasterRepository.getShiftList(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -259,5 +262,22 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
       ),
     );
     getShiftList(context: context, pageNumber: 1);
+  }
+
+  Future<void> applyFilterAndSort({
+    required BuildContext context,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
+    emit(
+      state.copyWith(
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
+        shiftMasterList: [],
+        currentPage: 1,
+      ),
+    );
+
+    await getShiftList(context: context, pageNumber: 1);
   }
 }

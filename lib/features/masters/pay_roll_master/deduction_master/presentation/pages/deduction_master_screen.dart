@@ -110,8 +110,7 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
     final String? initialDirection = selectedDirection;
 
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-    bool applied = false;
-
+ 
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         applyEnabled.value = selectedDirection != initialDirection;
@@ -189,7 +188,6 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
         );
       },
       onApply: () {
-        applied = true;
         _deductionMasterCubit.applyFilterAndSort(
           context: context,
           sortColumn: "Name",

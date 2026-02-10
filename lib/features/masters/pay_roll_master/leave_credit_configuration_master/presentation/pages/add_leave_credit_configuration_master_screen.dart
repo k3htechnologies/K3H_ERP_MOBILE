@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/data/model/leave_credit_debit_master.model.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/presentation/cubit/leave_credit_debit_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/data/model/leave_credit_configuration_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/presentation/cubit/leave_credit_configuration_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -20,30 +20,31 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class AddLeaveCreditDebitMasterScreen extends StatefulWidget {
-  final LeaveCreditDebitMasterModel? leaveCreditDebitMasterModel;
+class AddLeaveCreditConfigurationMasterScreen extends StatefulWidget {
+  final LeaveCreditConfigurationMasterModel?
+  leaveCreditConfigurationMasterModel;
   final int index;
-  const AddLeaveCreditDebitMasterScreen({
+  const AddLeaveCreditConfigurationMasterScreen({
     super.key,
-    this.leaveCreditDebitMasterModel,
+    this.leaveCreditConfigurationMasterModel,
     this.index = 0,
   });
 
   @override
-  State<AddLeaveCreditDebitMasterScreen> createState() =>
-      _AddLeaveCreditDebitMasterScreenState();
+  State<AddLeaveCreditConfigurationMasterScreen> createState() =>
+      _AddLeaveCreditConfigurationMasterScreenState();
 }
 
-class _AddLeaveCreditDebitMasterScreenState
-    extends State<AddLeaveCreditDebitMasterScreen> {
+class _AddLeaveCreditConfigurationMasterScreenState
+    extends State<AddLeaveCreditConfigurationMasterScreen> {
   // CUBIT
-  late LeaveCreditDebitMasterCubit _leaveCreditDebitMasterCubit;
+  late LeaveCreditConfigurationMasterCubit _leaveCreditConfigurationMasterCubit;
 
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   //EDIT MODE
-  bool get _isEditMode => widget.leaveCreditDebitMasterModel != null;
+  bool get _isEditMode => widget.leaveCreditConfigurationMasterModel != null;
 
   // STATIC LEAVE PERIOD LIST
   List<Map<String, dynamic>> leavePeriodList = [
@@ -74,12 +75,13 @@ class _AddLeaveCreditDebitMasterScreenState
   @override
   void initState() {
     super.initState();
-    _leaveCreditDebitMasterCubit = context.read<LeaveCreditDebitMasterCubit>();
+    _leaveCreditConfigurationMasterCubit =
+        context.read<LeaveCreditConfigurationMasterCubit>();
     selectedLeavePeriod = leavePeriodList.first;
 
     // Initialize with existing data if in edit mode
-    if (_isEditMode && widget.leaveCreditDebitMasterModel != null) {
-      final model = widget.leaveCreditDebitMasterModel!;
+    if (_isEditMode && widget.leaveCreditConfigurationMasterModel != null) {
+      final model = widget.leaveCreditConfigurationMasterModel!;
 
       // Set leave period
       selectedLeavePeriod = leavePeriodList.firstWhere(
@@ -131,12 +133,14 @@ class _AddLeaveCreditDebitMasterScreenState
     int pageNumber, {
     String? value,
   }) async {
-    final totalCount = _leaveCreditDebitMasterCubit.state.departmentTotalCount;
+    final totalCount =
+        _leaveCreditConfigurationMasterCubit.state.departmentTotalCount;
     final pageSize = 15;
 
     // SEARCH MODE
     if (value != null && value.isNotEmpty) {
-      final departmentList = _leaveCreditDebitMasterCubit.state.departmentList;
+      final departmentList =
+          _leaveCreditConfigurationMasterCubit.state.departmentList;
       final filteredDepartments =
           departmentList
               .where(
@@ -162,17 +166,18 @@ class _AddLeaveCreditDebitMasterScreenState
     }
 
     final currentLoadedCount =
-        _leaveCreditDebitMasterCubit.state.departmentList.length;
+        _leaveCreditConfigurationMasterCubit.state.departmentList.length;
 
     if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
-      await _leaveCreditDebitMasterCubit.getDepartmentList(
+      await _leaveCreditConfigurationMasterCubit.getDepartmentList(
         context,
         pageNumber,
         pageSize,
       );
     }
 
-    final departmentList = _leaveCreditDebitMasterCubit.state.departmentList;
+    final departmentList =
+        _leaveCreditConfigurationMasterCubit.state.departmentList;
 
     final Map<int, Map<String, dynamic>> uniqueDepartments = {};
 
@@ -195,13 +200,14 @@ class _AddLeaveCreditDebitMasterScreenState
     int pageNumber, {
     String? value,
   }) async {
-    final totalCount = _leaveCreditDebitMasterCubit.state.designationTotalCount;
+    final totalCount =
+        _leaveCreditConfigurationMasterCubit.state.designationTotalCount;
     final pageSize = 15;
 
     // SEARCH MODE
     if (value != null && value.isNotEmpty) {
       final designationList =
-          _leaveCreditDebitMasterCubit.state.designationList;
+          _leaveCreditConfigurationMasterCubit.state.designationList;
       final filteredDesignation =
           designationList
               .where(
@@ -227,17 +233,18 @@ class _AddLeaveCreditDebitMasterScreenState
     }
 
     final currentLoadedCount =
-        _leaveCreditDebitMasterCubit.state.designationList.length;
+        _leaveCreditConfigurationMasterCubit.state.designationList.length;
 
     if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
-      await _leaveCreditDebitMasterCubit.getDesignationList(
+      await _leaveCreditConfigurationMasterCubit.getDesignationList(
         context,
         pageNumber,
         pageSize,
       );
     }
 
-    final designationList = _leaveCreditDebitMasterCubit.state.designationList;
+    final designationList =
+        _leaveCreditConfigurationMasterCubit.state.designationList;
 
     final Map<int, Map<String, dynamic>> uniqueDesignation = {};
 
@@ -305,8 +312,8 @@ class _AddLeaveCreditDebitMasterScreenState
             children: [
               Text(
                 _isEditMode
-                    ? "Update Leave Credit Debit Master"
-                    : "Add Leave Credit Debit Master",
+                    ? "Update Leave Credit Configuration Master"
+                    : "Add Leave Credit Configuration Master",
                 style: AppTextStyle.ts16M(),
               ),
               verticalSpacing(),
@@ -571,31 +578,34 @@ class _AddLeaveCreditDebitMasterScreenState
                     .map((ele) => ele['zAttributesId'].toString())
                     .join(",");
 
-                if (_isEditMode && widget.leaveCreditDebitMasterModel != null) {
-                  final model = widget.leaveCreditDebitMasterModel!;
-                  _leaveCreditDebitMasterCubit.updateLeaveCreditDebitMaster(
-                    context: context,
-                    leaveCreditConfigurationId:
-                        model.leaveCreditConfigurationId,
-                    uniquekey: model.uniquekey,
-                    leavePeriodMode: selectedLeavePeriod!["DisplayName"],
-                    financialYearStartDate: _startDateNotifier.value!,
-                    financialYearEndDate: _endDateNotifier.value!,
-                    departmentMasterId: departmentMasterId,
-                    designationIds: designationIds,
-                    leaveBalanceTypeList: leaveBalanceTypeList,
-                    index: widget.index,
-                  );
+                if (_isEditMode &&
+                    widget.leaveCreditConfigurationMasterModel != null) {
+                  final model = widget.leaveCreditConfigurationMasterModel!;
+                  _leaveCreditConfigurationMasterCubit
+                      .updateLeaveCreditConfigurationMaster(
+                        context: context,
+                        leaveCreditConfigurationId:
+                            model.leaveCreditConfigurationId,
+                        uniquekey: model.uniquekey,
+                        leavePeriodMode: selectedLeavePeriod!["DisplayName"],
+                        financialYearStartDate: _startDateNotifier.value!,
+                        financialYearEndDate: _endDateNotifier.value!,
+                        departmentMasterId: departmentMasterId,
+                        designationIds: designationIds,
+                        leaveBalanceTypeList: leaveBalanceTypeList,
+                        index: widget.index,
+                      );
                 } else {
-                  _leaveCreditDebitMasterCubit.addLeaveCreditDebitMaster(
-                    context: context,
-                    leavePeriodMode: selectedLeavePeriod!["DisplayName"],
-                    financialYearStartDate: _startDateNotifier.value!,
-                    financialYearEndDate: _endDateNotifier.value!,
-                    departmentMasterId: departmentMasterId,
-                    designationIds: designationIds,
-                    leaveBalanceTypeList: leaveBalanceTypeList,
-                  );
+                  _leaveCreditConfigurationMasterCubit
+                      .addLeaveCreditConfigurationMaster(
+                        context: context,
+                        leavePeriodMode: selectedLeavePeriod!["DisplayName"],
+                        financialYearStartDate: _startDateNotifier.value!,
+                        financialYearEndDate: _endDateNotifier.value!,
+                        departmentMasterId: departmentMasterId,
+                        designationIds: designationIds,
+                        leaveBalanceTypeList: leaveBalanceTypeList,
+                      );
                 }
               }
             },

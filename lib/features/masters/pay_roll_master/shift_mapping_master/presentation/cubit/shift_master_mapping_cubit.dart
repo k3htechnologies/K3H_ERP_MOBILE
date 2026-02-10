@@ -56,6 +56,8 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
     var queryParams = {
       "ShiftName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+      "DepartmentName": state.filterDepartmentName,
+      "EmployeeName": state.filterEmployeeName,
     };
 
     var result = await _shiftMasterMappingRepository.getShiftMasterMappedList(
@@ -352,5 +354,24 @@ class ShiftMappingMasterCubit extends Cubit<ShiftMappingMasterState> {
         };
       },
     );
+  }
+
+  void applyFilterAndSort({
+    required BuildContext context,
+    String? filterDepartmentName,
+    String? filterEmployeeName,
+    String? sortColumn,
+    String? sortDirection,
+  }) {
+    final newState = state.copyWith(
+      filterDepartmentName: filterDepartmentName ?? "",
+      filterEmployeeName: filterEmployeeName ?? "",
+      currentSortColumn: sortColumn ?? state.currentSortColumn,
+      currentSortDirection: sortDirection ?? state.currentSortDirection,
+      currentPage: 1,
+    );
+
+    emit(newState);
+    getShiftMappingList(context: context, pageNumber: 1);
   }
 }

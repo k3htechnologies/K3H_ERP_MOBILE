@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ShiftMappingMasterScreen extends StatefulWidget {
@@ -38,7 +39,7 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC;
+  late TextEditingController _searchC, _filterDepartmentC, _filterEmployeeNameC;
   @override
   void initState() {
     super.initState();
@@ -56,6 +57,8 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
 
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterEmployeeNameC = TextEditingController();
+    _filterDepartmentC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -95,6 +98,161 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
     }
   }
 
+  // SHIFT MAPPING FILTER
+  Future<void> _showBottomSheetToFilterShiftMapping(
+    BuildContext context,
+  ) async {
+    final state = _shiftMappingMasterCubit.state;
+
+    // Initialize filter text controllers
+    _filterDepartmentC.text = state.filterDepartmentName;
+    _filterEmployeeNameC.text = state.filterEmployeeName;
+
+    // Sorting
+    String? selectedDirection =
+        state.currentSortColumn == "Shift Name"
+            ? state.currentSortDirection
+            : null;
+
+    // Keep initial values to detect changes
+    final String initialDepartment = _filterDepartmentC.text;
+    final String initialEmployeeName = _filterEmployeeNameC.text;
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    bool applied = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_filterDepartmentC.text.trim() != initialDepartment) ||
+            (_filterEmployeeNameC.text.trim() != initialEmployeeName) ||
+            (selectedDirection != initialDirection);
+
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Shift Mapping",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() => selectedDirection = direction);
+            updateApplyState(innerState);
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Sort By Shift Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+
+                verticalSpacing(height: 20),
+
+                CustomTextField(
+                  title: "Department",
+                  hint: "Enter Department",
+                  textController: _filterDepartmentC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(height: 10),
+
+                CustomTextField(
+                  title: "Employee Name",
+                  hint: "Enter Employee Name",
+                  textController: _filterEmployeeNameC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                verticalSpacing(height: 10),
+              ],
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _shiftMappingMasterCubit.applyFilterAndSort(
+          context: context,
+          filterDepartmentName: "",
+          filterEmployeeName: "",
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
+        );
+      },
+      onApply: () {
+        applied = true;
+        _shiftMappingMasterCubit.applyFilterAndSort(
+          context: context,
+          filterDepartmentName: _filterDepartmentC.text,
+          filterEmployeeName: _filterEmployeeNameC.text,
+          sortColumn: selectedDirection != null ? "Shift Name" : null,
+          sortDirection: selectedDirection,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // If bottom sheet closed without applying, reset
+    if (!applied && manualClose) {
+      _filterDepartmentC.clear();
+      _filterEmployeeNameC.clear();
+    }
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    _searchC.dispose();
+    _filterDepartmentC.dispose();
+    _filterEmployeeNameC.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,7 +264,7 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
         },
         textController: _searchC,
         onExportCallback: (value) {
-          if(_shiftMappingMasterCubit.state.totalNumberOfRecord == 0){
+          if (_shiftMappingMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
@@ -114,6 +272,10 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
         },
         onSearchSubmit: (value) {
           _shiftMappingMasterCubit.searchShiftMapping(value, context);
+        },
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterShiftMapping(context);
         },
       ),
       body: BlocBuilder<ShiftMappingMasterCubit, ShiftMappingMasterState>(
@@ -219,7 +381,7 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
                     verticalSpacing(height: 10),
 
                     buildRowTitleValue(
-                      title: "Deparment Code",
+                      title: "Deparment Name",
                       value: shiftMappingMaster.departmentName,
                     ),
                     buildRowTitleValue(

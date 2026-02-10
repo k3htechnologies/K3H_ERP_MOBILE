@@ -8,22 +8,22 @@ import 'package:k3h_erp_app/features/masters/department_master/data/model/depart
 import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/repository/designation_master.repository.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/data/model/leave_credit_debit_master.model.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/data/repository/leave_credit_debit_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/data/model/leave_credit_configuration_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/data/repository/leave_credit_configuration_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/model/leave_type_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/repository/leave_type_master.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
-part 'leave_credit_debit_master_state.dart';
+part 'leave_credit_configuration_master_state.dart';
 
-class LeaveCreditDebitMasterCubit extends Cubit<LeaveCreditDebitMasterState> {
-  LeaveCreditDebitMasterCubit() : super(LeaveCreditDebitMasterState.initial());
+class LeaveCreditConfigurationMasterCubit extends Cubit<LeaveCreditConfigurationMasterState> {
+  LeaveCreditConfigurationMasterCubit() : super(LeaveCreditConfigurationMasterState.initial());
 
   // REPOSITORY
-  final LeaveCreditDebitMasterRepository _leaveCreditDebitMasterRepository =
-      serviceLocator<LeaveCreditDebitMasterRepository>();
+  final LeaveCreditConfigurationMasterRepository _leaveCreditConfigurationMasterRepository =
+      serviceLocator<LeaveCreditConfigurationMasterRepository>();
   final DepartmentMasterRepository _departmentMasterRepository =
       serviceLocator<DepartmentMasterRepository>();
   final DesignationMasterRepository _designationMasterRepository =
@@ -38,17 +38,17 @@ class LeaveCreditDebitMasterCubit extends Cubit<LeaveCreditDebitMasterState> {
   }
 
   // <---- SEARCH DEPARTMENT ---->
-  Future searchLeaveCreditDebit(BuildContext context, String value) async {
-    emit(state.copyWith(searchText: value, leaveCreditDebitMasterList: []));
-    await getLeaveCreditDebitList(context, 1);
+  Future searchLeaveCreditConfiguration(BuildContext context, String value) async {
+    emit(state.copyWith(searchText: value, leaveCreditConfigurationMasterList: []));
+    await getLeaveCreditConfigurationList(context, 1);
   }
 
   // <---- GET DEPARTMENT LIST ---->
-  Future getLeaveCreditDebitList(BuildContext context, int pageNumber) async {
+  Future getLeaveCreditConfigurationList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     var queryParams = {"DepartmentName": state.searchText};
-    var result = await _leaveCreditDebitMasterRepository
-        .getLeaveCreditDebitList(
+    var result = await _leaveCreditConfigurationMasterRepository
+        .getLeaveCreditConfigurationList(
           pageNumber: pageNumber,
           pageSize: 10,
           queryParams: queryParams,
@@ -60,16 +60,18 @@ class LeaveCreditDebitMasterCubit extends Cubit<LeaveCreditDebitMasterState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        final List<LeaveCreditDebitMasterModel> newData =
-            List<LeaveCreditDebitMasterModel>.from(response['data'] ?? []);
+        final List<LeaveCreditConfigurationMasterModel> newData =
+            List<LeaveCreditConfigurationMasterModel>.from(
+              response['data'] ?? [],
+            );
 
-        final List<LeaveCreditDebitMasterModel> updatedList =
+        final List<LeaveCreditConfigurationMasterModel> updatedList =
             pageNumber == 1
                 ? newData
-                : [...state.leaveCreditDebitMasterList, ...newData];
+                : [...state.leaveCreditConfigurationMasterList, ...newData];
         emit(
           state.copyWith(
-            leaveCreditDebitMasterList: updatedList,
+            leaveCreditConfigurationMasterList: updatedList,
             isLoading: false,
             totalNumberOfRecord: response["totalNumberOfRecord"],
             currentPage: pageNumber,
@@ -80,7 +82,7 @@ class LeaveCreditDebitMasterCubit extends Cubit<LeaveCreditDebitMasterState> {
   }
 
   // <---- ADD LEAVE CREDIT DEBIT MASTER ---->
-  Future addLeaveCreditDebitMaster({
+  Future addLeaveCreditConfigurationMaster({
     required BuildContext context,
     required String leavePeriodMode,
     required DateTime financialYearStartDate,
@@ -99,8 +101,8 @@ class LeaveCreditDebitMasterCubit extends Cubit<LeaveCreditDebitMasterState> {
       "DesignationId": designationIds,
       "LeaveTypebalanceJSONList": getEncodedList(leaveBalanceTypeList),
     };
-    var addResult = await _leaveCreditDebitMasterRepository
-        .addUpdateLeaveCreditDebitMaster(body: requestBody);
+    var addResult = await _leaveCreditConfigurationMasterRepository
+        .addUpdateLeaveCreditConfigurationMaster(body: requestBody);
     goRouter.pop();
     addResult.fold(
       (failure) {
@@ -110,14 +112,14 @@ class LeaveCreditDebitMasterCubit extends Cubit<LeaveCreditDebitMasterState> {
       (response) {
         goRouter.pop();
         // Refresh the list to show the newly added item
-        getLeaveCreditDebitList(context, 1);
+        getLeaveCreditConfigurationList(context, 1);
         showSuccessMessage(context, subTitle: 'Added Successfully!!!');
       },
     );
   }
 
   // <---- UPDATE LEAVE CREDIT DEBIT MASTER ---->
-  Future updateLeaveCreditDebitMaster({
+  Future updateLeaveCreditConfigurationMaster({
     required BuildContext context,
     required int leaveCreditConfigurationId,
     required String uniquekey,
@@ -140,8 +142,8 @@ class LeaveCreditDebitMasterCubit extends Cubit<LeaveCreditDebitMasterState> {
       "DesignationId": designationIds,
       "LeaveTypebalanceJSONList": getEncodedList(leaveBalanceTypeList),
     };
-    var updateResult = await _leaveCreditDebitMasterRepository
-        .addUpdateLeaveCreditDebitMaster(body: requestBody);
+    var updateResult = await _leaveCreditConfigurationMasterRepository
+        .addUpdateLeaveCreditConfigurationMaster(body: requestBody);
     goRouter.pop();
     updateResult.fold(
       (failure) {
@@ -150,24 +152,23 @@ class LeaveCreditDebitMasterCubit extends Cubit<LeaveCreditDebitMasterState> {
       },
       (response) {
         goRouter.pop();
-        final updatedLeaveCreditDebit = LeaveCreditDebitMasterModel.fromJson(
-          response['data'][0],
-        );
+        final updatedLeaveCreditConfiguration =
+            LeaveCreditConfigurationMasterModel.fromJson(response['data'][0]);
 
-        if (state.leaveCreditDebitMasterList.isNotEmpty &&
-            index < state.leaveCreditDebitMasterList.length) {
-          final updatedList = List<LeaveCreditDebitMasterModel>.from(
-            state.leaveCreditDebitMasterList,
+        if (state.leaveCreditConfigurationMasterList.isNotEmpty &&
+            index < state.leaveCreditConfigurationMasterList.length) {
+          final updatedList = List<LeaveCreditConfigurationMasterModel>.from(
+            state.leaveCreditConfigurationMasterList,
           );
-          updatedList[index] = updatedLeaveCreditDebit;
+          updatedList[index] = updatedLeaveCreditConfiguration;
           emit(
             state.copyWith(
-              leaveCreditDebitMasterList: updatedList,
+              leaveCreditConfigurationMasterList: updatedList,
               isLoading: false,
             ),
           );
         } else {
-          getLeaveCreditDebitList(context, 1);
+          getLeaveCreditConfigurationList(context, 1);
         }
 
         showSuccessMessage(context, subTitle: 'Updated Successfully!!!');
@@ -176,7 +177,7 @@ class LeaveCreditDebitMasterCubit extends Cubit<LeaveCreditDebitMasterState> {
   }
 
   // <---- DELETE DEPARTMENT ---->
-  Future deleteLeaveCreditDebitMaster({
+  Future deleteLeaveCreditConfigurationMaster({
     required BuildContext context,
     required int leaveCreditConfigurationId,
     required String uniqueKey,
@@ -184,8 +185,8 @@ class LeaveCreditDebitMasterCubit extends Cubit<LeaveCreditDebitMasterState> {
     int? index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-    var deleteResult = await _leaveCreditDebitMasterRepository
-        .deleteLeaveCreditDebit(
+    var deleteResult = await _leaveCreditConfigurationMasterRepository
+        .deleteLeaveCreditConfiguration(
           leaveCreditConfigurationId: leaveCreditConfigurationId,
           uniqueKey: uniqueKey,
         );
@@ -214,7 +215,7 @@ class LeaveCreditDebitMasterCubit extends Cubit<LeaveCreditDebitMasterState> {
             ),
           );
         } else {
-          getLeaveCreditDebitList(context, state.currentPage);
+          getLeaveCreditConfigurationList(context, state.currentPage);
         }
       },
     );
@@ -223,7 +224,7 @@ class LeaveCreditDebitMasterCubit extends Cubit<LeaveCreditDebitMasterState> {
   // <---- EXPORT EXCEL PDF ---->
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
-    var result = await _leaveCreditDebitMasterRepository.exportLeaveCreditDebit(
+    var result = await _leaveCreditConfigurationMasterRepository.exportLeaveCreditConfiguration(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
       queryParams:

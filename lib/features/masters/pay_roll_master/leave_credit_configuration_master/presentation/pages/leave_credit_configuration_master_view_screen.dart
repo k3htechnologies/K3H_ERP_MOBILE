@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/data/model/leave_credit_debit_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/data/model/leave_credit_configuration_master.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -8,20 +8,20 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class LeaveCreditDebitMasterViewScreen extends StatefulWidget {
-  final LeaveCreditDebitMasterModel leaveCreditDebitMaster;
-  const LeaveCreditDebitMasterViewScreen({
+class LeaveCreditConfigurationMasterViewScreen extends StatefulWidget {
+  final LeaveCreditConfigurationMasterModel leaveCreditConfigurationMaster;
+  const LeaveCreditConfigurationMasterViewScreen({
     super.key,
-    required this.leaveCreditDebitMaster,
+    required this.leaveCreditConfigurationMaster,
   });
 
   @override
-  State<LeaveCreditDebitMasterViewScreen> createState() =>
-      _LeaveCreditDebitMasterViewScreenState();
+  State<LeaveCreditConfigurationMasterViewScreen> createState() =>
+      _LeaveCreditConfigurationMasterViewScreenState();
 }
 
-class _LeaveCreditDebitMasterViewScreenState
-    extends State<LeaveCreditDebitMasterViewScreen>
+class _LeaveCreditConfigurationMasterViewScreenState
+    extends State<LeaveCreditConfigurationMasterViewScreen>
     with SingleTickerProviderStateMixin {
   // TAB CONTROLLER
   late TabController _tabController;
@@ -124,11 +124,13 @@ class _LeaveCreditDebitMasterViewScreenState
                   children: [
                     buildColumnTitleValue(
                       title: "Leave Period Mode",
-                      value: widget.leaveCreditDebitMaster.leavePeriodMode,
+                      value:
+                          widget.leaveCreditConfigurationMaster.leavePeriodMode,
                     ),
                     buildColumnTitleValue(
                       title: "Department",
-                      value: widget.leaveCreditDebitMaster.departmentName,
+                      value:
+                          widget.leaveCreditConfigurationMaster.departmentName,
                     ),
                   ],
                 ),
@@ -139,13 +141,17 @@ class _LeaveCreditDebitMasterViewScreenState
                     buildColumnTitleValue(
                       title: "Financial Year Start Date",
                       value: formatDateTimeAsDDMMMYYYY(
-                        widget.leaveCreditDebitMaster.financialYearStartDate,
+                        widget
+                            .leaveCreditConfigurationMaster
+                            .financialYearStartDate,
                       ),
                     ),
                     buildColumnTitleValue(
                       title: "Financial Year End Date",
                       value: formatDateTimeAsDDMMMYYYY(
-                        widget.leaveCreditDebitMaster.financialYearEndDate,
+                        widget
+                            .leaveCreditConfigurationMaster
+                            .financialYearEndDate,
                       ),
                     ),
                   ],
@@ -165,11 +171,13 @@ class _LeaveCreditDebitMasterViewScreenState
                           verticalSpacing(height: 4),
                           Text(
                             widget
-                                    .leaveCreditDebitMaster
+                                    .leaveCreditConfigurationMaster
                                     .designationName
                                     .isEmpty
                                 ? "-"
-                                : widget.leaveCreditDebitMaster.designationName,
+                                : widget
+                                    .leaveCreditConfigurationMaster
+                                    .designationName,
                             style: AppTextStyle.ts14M(color: AppColor.black),
                           ),
                         ],
@@ -195,12 +203,12 @@ class _LeaveCreditDebitMasterViewScreenState
                   children: [
                     buildColumnTitleValue(
                       title: "Created By",
-                      value: widget.leaveCreditDebitMaster.createdBy,
+                      value: widget.leaveCreditConfigurationMaster.createdBy,
                     ),
                     buildColumnTitleValue(
                       title: "Created Date",
                       value: formatDateTimeAsDDMMMYYYY(
-                        widget.leaveCreditDebitMaster.createdDate,
+                        widget.leaveCreditConfigurationMaster.createdDate,
                       ),
                     ),
                   ],
@@ -212,16 +220,24 @@ class _LeaveCreditDebitMasterViewScreenState
                     buildColumnTitleValue(
                       title: "Modified By",
                       value:
-                          widget.leaveCreditDebitMaster.modifiedBy.isEmpty
+                          widget
+                                  .leaveCreditConfigurationMaster
+                                  .modifiedBy
+                                  .isEmpty
                               ? "-"
-                              : widget.leaveCreditDebitMaster.modifiedBy,
+                              : widget
+                                  .leaveCreditConfigurationMaster
+                                  .modifiedBy,
                     ),
                     buildColumnTitleValue(
                       title: "Modified Date",
                       value:
-                          widget.leaveCreditDebitMaster.modifiedDate != null
+                          widget.leaveCreditConfigurationMaster.modifiedDate !=
+                                  null
                               ? formatDateTimeAsDDMMMYYYY(
-                                widget.leaveCreditDebitMaster.modifiedDate!,
+                                widget
+                                    .leaveCreditConfigurationMaster
+                                    .modifiedDate!,
                               )
                               : "-",
                     ),
@@ -243,7 +259,7 @@ class _LeaveCreditDebitMasterViewScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           verticalSpacing(),
-          if (widget.leaveCreditDebitMaster.leaveBalanceType.isEmpty)
+          if (widget.leaveCreditConfigurationMaster.leaveBalanceType.isEmpty)
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(40.0),
@@ -254,7 +270,7 @@ class _LeaveCreditDebitMasterViewScreenState
               ),
             )
           else
-            ...widget.leaveCreditDebitMaster.leaveBalanceType.map((
+            ...widget.leaveCreditConfigurationMaster.leaveBalanceType.map((
               balanceType,
             ) {
               return Container(

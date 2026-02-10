@@ -99,6 +99,107 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
     }
   }
 
+  // SORT BOTTOM SHEET - HOLIDAY (HOLIDAY NAME)
+  Future<void> _showSortBottomSheetForHoliday(BuildContext context) async {
+    final state = holidayMasterCubit.state;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Holiday Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String? initialDirection = selectedDirection;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        applyEnabled.value = selectedDirection != initialDirection;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Sort Holiday",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Sort By Holiday Name", style: AppTextStyle.ts14M()),
+              verticalSpacing(),
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => selectDirection("ASC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "ASC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("A-Z", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                  horizontalSpacing(),
+                  GestureDetector(
+                    onTap: () => selectDirection("DESC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "DESC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("Z-A", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+      onClear: () {
+        holidayMasterCubit.applyFilterAndSort(
+          context: context,
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
+        );
+      },
+      onApply: () {
+        holidayMasterCubit.applyFilterAndSort(
+          context: context,
+          sortColumn: "Holiday Name",
+          sortDirection: selectedDirection,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,6 +219,10 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
             return;
           }
           holidayMasterCubit.exportExcelPdf(context, value);
+        },
+        isFilterOn: true,
+        onFilterTap: () {
+          _showSortBottomSheetForHoliday(context);
         },
       ),
       body: BlocBuilder<HolidayMasterCubit, HolidayMasterState>(

@@ -17,13 +17,15 @@ class LeaveTypeMasterCubit extends Cubit<LeaveTypeMasterState> {
   Future getLeaveTypeList({
     required BuildContext context,
     required int pageNumber,
-    required int pageSize,
   }) async {
     emit(state.copyWith(isLoading: true));
-    var queryParams = {"LeaveType": state.searchText.trim()};
+    var queryParams = {
+      "LeaveType": state.searchText.trim(),
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+    };
     var result = await leaveTypeMasterRepository.getLeaveTypeList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       queryParams: queryParams,
     );
     result.fold(
@@ -228,6 +230,23 @@ class LeaveTypeMasterCubit extends Cubit<LeaveTypeMasterState> {
         currentPage: 1,
       ),
     );
-    getLeaveTypeList(context: context, pageNumber: 1, pageSize: 15);
+    getLeaveTypeList(context: context, pageNumber: 1);
+  }
+
+  Future<void> applyFilterAndSort({
+    required BuildContext context,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
+    emit(
+      state.copyWith(
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
+        leaveTypeList: [],
+        currentPage: 1,
+      ),
+    );
+
+    await getLeaveTypeList(context: context, pageNumber: 1);
   }
 }

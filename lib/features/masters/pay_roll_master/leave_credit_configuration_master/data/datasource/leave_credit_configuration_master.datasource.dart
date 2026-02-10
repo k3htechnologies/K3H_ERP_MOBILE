@@ -1,41 +1,41 @@
-import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_debit_master/data/model/leave_credit_debit_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/data/model/leave_credit_configuration_master.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
-abstract interface class LeaveCreditDebitMasterDatasource {
-  Future<Map<String, dynamic>> apicallPullLeaveCreditDebitMaster({
+abstract interface class LeaveCreditConfigurationMasterDatasource {
+  Future<Map<String, dynamic>> apicallPullLeaveCreditConfigurationMaster({
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
 
-  Future<Map<String, dynamic>> apicallAddUpdateLeaveCreditDebitMaster({
+  Future<Map<String, dynamic>> apicallAddUpdateLeaveCreditConfigurationMaster({
     required Map<String, dynamic> body,
   });
 
-  Future<Map<String, dynamic>> apicallDeleteLeaveCreditDebitMaster({
+  Future<Map<String, dynamic>> apicallDeleteLeaveCreditConfigurationMaster({
     required int leaveCreditConfigurationId,
     required String uniqueKey,
   });
 
-  Future<Map<String, dynamic>> apicallPullLeaveCreditDebitMasterExport({
+  Future<Map<String, dynamic>> apicallPullLeaveCreditConfigurationMasterExport({
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
 }
 
-class LeaveCreditDebitMasterDatasourceImpl
-    extends LeaveCreditDebitMasterDatasource {
+class LeaveCreditConfigurationMasterDatasourceImpl
+    extends LeaveCreditConfigurationMasterDatasource {
   final baseClient = BaseClient();
 
   @override
-  Future<Map<String, dynamic>> apicallPullLeaveCreditDebitMaster({
+  Future<Map<String, dynamic>> apicallPullLeaveCreditConfigurationMaster({
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullLeaveCreditDebitUrl({
+    String pullLeaveCreditConfigurationUrl({
       required int pageSize,
       required int pageNumber,
       Map<String, dynamic>? queryParams,
@@ -48,23 +48,23 @@ class LeaveCreditDebitMasterDatasourceImpl
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullLeaveCreditDebitUrl(
+        pullLeaveCreditConfigurationUrl(
           pageSize: pageSize,
           pageNumber: pageNumber,
           queryParams: queryParams,
         ),
       );
       return {
-        'data': List<LeaveCreditDebitMasterModel>.from(
+        'data': List<LeaveCreditConfigurationMasterModel>.from(
           networkResponse["data"].map(
-            (e) => LeaveCreditDebitMasterModel.fromJson(e),
+            (e) => LeaveCreditConfigurationMasterModel.fromJson(e),
           ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return apicallPullLeaveCreditDebitMaster(
+        return apicallPullLeaveCreditConfigurationMaster(
           pageNumber: pageNumber,
           pageSize: pageSize,
           queryParams: queryParams,
@@ -75,39 +75,39 @@ class LeaveCreditDebitMasterDatasourceImpl
   }
 
   @override
-  Future<Map<String, dynamic>> apicallAddUpdateLeaveCreditDebitMaster({
+  Future<Map<String, dynamic>> apicallAddUpdateLeaveCreditConfigurationMaster({
     required Map<String, dynamic> body,
   }) async {
     try {
-      String addUpdateLeaveCreditDebitMasterUrl =
+      String addUpdateLeaveCreditConfigurationMasterUrl =
           "LeaveCreditConfiguration/AddUpdateLeaveCreditConfiguration";
 
       var networkResponse = await baseClient.postRequestWithAuthentication(
-        addUpdateLeaveCreditDebitMasterUrl,
+        addUpdateLeaveCreditConfigurationMasterUrl,
         body,
       );
       return {
-        'data': List<LeaveCreditDebitMasterModel>.from(
+        'data': List<LeaveCreditConfigurationMasterModel>.from(
           networkResponse["data"].map(
-            (e) => LeaveCreditDebitMasterModel.fromJson(e),
+            (e) => LeaveCreditConfigurationMasterModel.fromJson(e),
           ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return apicallAddUpdateLeaveCreditDebitMaster(body: body);
+        return apicallAddUpdateLeaveCreditConfigurationMaster(body: body);
       }
       rethrow;
     }
   }
 
   @override
-  Future<Map<String, dynamic>> apicallDeleteLeaveCreditDebitMaster({
+  Future<Map<String, dynamic>> apicallDeleteLeaveCreditConfigurationMaster({
     required int leaveCreditConfigurationId,
     required String uniqueKey,
   }) async {
-    String deleteLeaveCreditDebitUrl({
+    String deleteLeaveCreditConfigurationUrl({
       required int leaveCreditConfigurationId,
       required String uniqueKey,
     }) {
@@ -116,7 +116,7 @@ class LeaveCreditDebitMasterDatasourceImpl
 
     try {
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
-        deleteLeaveCreditDebitUrl(
+        deleteLeaveCreditConfigurationUrl(
           leaveCreditConfigurationId: leaveCreditConfigurationId,
           uniqueKey: uniqueKey,
         ),
@@ -127,7 +127,7 @@ class LeaveCreditDebitMasterDatasourceImpl
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return apicallDeleteLeaveCreditDebitMaster(
+        return apicallDeleteLeaveCreditConfigurationMaster(
           leaveCreditConfigurationId: leaveCreditConfigurationId,
           uniqueKey: uniqueKey,
         );
@@ -137,12 +137,12 @@ class LeaveCreditDebitMasterDatasourceImpl
   }
 
   @override
-  Future<Map<String, dynamic>> apicallPullLeaveCreditDebitMasterExport({
+  Future<Map<String, dynamic>> apicallPullLeaveCreditConfigurationMasterExport({
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullLeaveCreditDebitExportUrl({
+    String pullLeaveCreditConfigurationExportUrl({
       required int pageSize,
       required int pageNumber,
       Map<String, dynamic>? queryParams,
@@ -155,7 +155,7 @@ class LeaveCreditDebitMasterDatasourceImpl
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullLeaveCreditDebitExportUrl(
+        pullLeaveCreditConfigurationExportUrl(
           pageSize: pageSize,
           pageNumber: pageNumber,
           queryParams: queryParams,
@@ -167,7 +167,7 @@ class LeaveCreditDebitMasterDatasourceImpl
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallPullLeaveCreditDebitMasterExport(
+        apicallPullLeaveCreditConfigurationMasterExport(
           pageNumber: pageNumber,
           pageSize: pageSize,
           queryParams: queryParams,
