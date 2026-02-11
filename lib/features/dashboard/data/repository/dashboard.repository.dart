@@ -12,6 +12,9 @@ abstract interface class DashboardRepository {
   Future<Either<Failure, Map<String, dynamic>>> addAttendace({
     required Map<String, dynamic> requestBody,
   });
+  Future<Either<Failure, Map<String, dynamic>>> getDashboardList({
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class DashboardRepositoryImpl implements DashboardRepository {
@@ -43,6 +46,20 @@ class DashboardRepositoryImpl implements DashboardRepository {
     try {
       var result = await dashboardDatasource.apicallAddAttendance(
         body: requestBody,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getDashboardList({
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await dashboardDatasource.apiCallPullDashboard(
+        queryParams: queryParams,
       );
       return right(result);
     } catch (error) {

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/dashboard.model.dart';
+import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
 import 'package:k3h_erp_app/features/dashboard/data/repository/dashboard.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
@@ -76,7 +78,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     );
 
     // close loader
-    Navigator.of(context, rootNavigator: true).pop();
+    goRouter.pop();
 
     addResult.fold(
       (failure) {
@@ -106,7 +108,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     );
 
     // close loader
-    Navigator.of(context, rootNavigator: true).pop();
+    goRouter.pop();
 
     addResult.fold(
       (failure) {
@@ -114,6 +116,32 @@ class DashboardCubit extends Cubit<DashboardState> {
       },
       (response) {
         showSuccessMessage(context, subTitle: "Punched In Successfully");
+      },
+    );
+  }
+
+  // <---- GET Dashboard LIST ---->
+  Future getDashboardList(BuildContext context) async {
+    emit(state.copyWith(isLoading: true));
+    var result = await _dashboardRepository.getDashboardList();
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<UserDashboardModel> newData = List<UserDashboardModel>.from(
+          response['data'] ?? [],
+        );
+
+        emit(
+          state.copyWith(
+            userDashboardModelList: newData,
+            userData: newData.isNotEmpty ? newData.first : null,
+            isLoading: false,
+          ),
+        );
       },
     );
   }

@@ -13,7 +13,6 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -41,23 +40,23 @@ class _SplashMobileScreenState extends State<SplashScreen> {
           );
           ProjectModel project = ProjectModel.fromJson(projectJson);
           final UtilsRepository utilsRepository =
-          serviceLocator<UtilsRepository>();
+              serviceLocator<UtilsRepository>();
           var result = await utilsRepository.getMenu(
             employeeId:
-            UserModel.fromJson(
-              jsonDecode(
-                LocalStorageManager().getString(StorageKey.currentUser) ??
-                    '',
-              ),
-            ).employeeId,
+                UserModel.fromJson(
+                  jsonDecode(
+                    LocalStorageManager().getString(StorageKey.currentUser) ??
+                        '',
+                  ),
+                ).employeeId,
             projectId: project.projectId,
           );
           return result.fold(
-                (failure) {
+            (failure) {
               // Handle failure
               return false;
             },
-                (data) async {
+            (data) async {
               localStorage.setString(
                 StorageKey.menu,
                 jsonEncode(data["menuData"] as List<ModuleModel>),
@@ -84,10 +83,6 @@ class _SplashMobileScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Image.asset(AppAssets.splashLogoGif),
-      ),
-    );
+    return Scaffold(body: Center(child: Image.asset(AppAssets.splashLogoGif)));
   }
 }

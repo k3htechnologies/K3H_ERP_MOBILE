@@ -83,6 +83,8 @@ class AppAssets {
   static const String regularizeIcon = "$svgPath/regularize.svg";
   static const String requestAssetIcon = "$svgPath/requestAssetImage.svg";
   static const String payslipIcon = "$svgPath/payslip.svg";
+  static const String mailIcon = "$svgPath/mailIcon.svg";
+  static const String phoneIcon = "$svgPath/phoneIcon.svg";
 
   // COMMON
   static const String backIcon = "$svgPath/backButtonIcon.svg";

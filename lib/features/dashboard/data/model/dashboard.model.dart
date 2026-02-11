@@ -6,8 +6,8 @@ class DashboardModel {
   final String fullName;
   final int attendanceId;
   final DateTime attendanceDate;
-  final DateTime punchIn;
-  final DateTime punchOut;
+  final DateTime? punchIn;
+  final DateTime? punchOut;
   final String punchInAddress;
   final String punchOutAddress;
   final String workingHours;
@@ -25,8 +25,8 @@ class DashboardModel {
     required this.fullName,
     required this.attendanceId,
     required this.attendanceDate,
-    required this.punchIn,
-    required this.punchOut,
+    this.punchIn,
+    this.punchOut,
     required this.punchInAddress,
     required this.punchOutAddress,
     required this.workingHours,
@@ -45,8 +45,8 @@ class DashboardModel {
     fullName: parseValue<String>(json, "FullName"),
     attendanceId: parseValue<int>(json, "AttendanceId"),
     attendanceDate: parseValue<DateTime>(json, "AttendanceDate"),
-    punchIn: parseValue<DateTime>(json, "PunchIn"),
-    punchOut: parseValue<DateTime>(json, "PunchOut"),
+    punchIn: parseApiDate(json["PunchIn"]),
+    punchOut: parseApiDate(json["PunchOut"]),
     punchInAddress: parseValue<String>(json, "PunchInAddress"),
     punchOutAddress: parseValue<String>(json, "PunchOutAddress"),
     workingHours: parseValue<String>(json, "WorkingHours"),
