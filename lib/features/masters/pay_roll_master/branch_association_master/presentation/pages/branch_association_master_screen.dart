@@ -146,7 +146,7 @@ class _BranchAssociationMasterScreenState
             mainAxisSize: MainAxisSize.min,
             children: [
               Text("Sort By Employee Name", style: AppTextStyle.ts14M()),
-              verticalSpacing(),
+              verticalSpacing(height: 15),
               Row(
                 children: [
                   GestureDetector(

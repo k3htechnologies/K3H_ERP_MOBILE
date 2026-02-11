@@ -164,7 +164,7 @@ class _HolidayMappingMasterScreenState
 
     DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Holiday",
+      title: "Filter Holiday Mapping",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {
@@ -230,6 +230,7 @@ class _HolidayMappingMasterScreenState
                     textController: _filterBranchNameC,
                     hint: "Enter Branch Name",
                     title: "Branch Name",
+                    onChangeFunction: (_) => updateApplyState(innerState),
                   ),
 
                   CustomDatePicker(

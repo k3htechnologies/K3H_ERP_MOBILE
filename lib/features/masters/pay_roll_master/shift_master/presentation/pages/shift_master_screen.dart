@@ -113,7 +113,7 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
 
     DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Sort Shift Name",
+      title: "Sort Shift",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {

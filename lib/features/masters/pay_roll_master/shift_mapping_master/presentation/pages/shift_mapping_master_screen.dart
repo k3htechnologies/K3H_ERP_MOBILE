@@ -200,7 +200,6 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
                   textController: _filterDepartmentC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(height: 10),
 
                 CustomTextField(
                   title: "Employee Name",
@@ -208,7 +207,6 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
                   textController: _filterEmployeeNameC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(height: 10),
               ],
             ),
           );

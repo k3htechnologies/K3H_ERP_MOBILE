@@ -133,6 +133,7 @@ class _LeaveCreditConfigurationMasterScreenState
     });
   }
 
+  // Filter: Leave Credit Configuration
   Future<void> _showBottomSheetToFilterLeaveCreditConfiguration(
     BuildContext context,
   ) async {
@@ -257,6 +258,7 @@ class _LeaveCreditConfigurationMasterScreenState
                     textController: _filterDesignationNameC,
                     hint: "Enter Designation Name",
                     title: "Designation Name",
+                    onChangeFunction: (_) => updateApplyState(innerState),
                   ),
                   CustomDatePicker(
                     title: "Date of Leave Credit (From)",
