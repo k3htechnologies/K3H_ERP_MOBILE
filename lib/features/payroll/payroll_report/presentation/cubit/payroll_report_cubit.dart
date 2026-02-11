@@ -38,6 +38,10 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     emit(state.copyWith(currentTabIndex: index));
   }
 
+  void search(String value) {
+    emit(state.copyWith(searchText: value.trim()));
+  }
+
   // <---- GET ATTENDANCE LIST ---->
   Future getAttendanceList(
     BuildContext context,
@@ -47,6 +51,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
   }) async {
     emit(state.copyWith(isLoading: true));
     final queryParams = {
+      'EmployeeName': state.searchText,
       'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
       'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
     };

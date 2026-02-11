@@ -137,6 +137,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Attendance",
         authorization: AuthorizationModel(),
+        isMenuButton: true,
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(vertical: 10),
