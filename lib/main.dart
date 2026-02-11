@@ -148,6 +148,8 @@ Future initialSetup() async {
     );
     await updateRouteAuthorization(moduleData);
   }
+  // LOCATION PERMISSION
+  handleLocationPermission();
   // ROUTING
   GoRouter.optionURLReflectsImperativeAPIs = true;
 }

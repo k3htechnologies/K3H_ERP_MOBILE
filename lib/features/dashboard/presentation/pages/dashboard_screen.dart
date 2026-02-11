@@ -25,7 +25,10 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DashboardScreen extends StatefulWidget {
   final DashboardModel? data;
@@ -71,6 +74,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
     });
+    // _dashboardCubit.getDashboardList(context);
   }
 
   @override
@@ -154,19 +158,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  void _startTimerFrom(DateTime start, DateTime? end) {
+  void _startTimerFrom(DateTime start) {
     _timer?.cancel();
 
     punchInTime = start;
-    punchOutTime = end;
 
-    // ✅ SET INITIAL VALUE FIRST
-    final initialEnd = punchOutTime ?? DateTime.now();
-    workedDuration.value = initialEnd.difference(punchInTime);
+    workedDuration.value = DateTime.now().difference(punchInTime);
 
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      final effectiveEnd = punchOutTime ?? DateTime.now();
-      workedDuration.value = effectiveEnd.difference(punchInTime);
+      final diff = DateTime.now().difference(punchInTime);
+      workedDuration.value = diff.isNegative ? Duration.zero : diff;
     });
   }
 
@@ -194,33 +195,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<String> _getAddressFromGPS() async {
-    LocationPermission permission = await Geolocator.requestPermission();
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        return "Location service disabled";
+      }
 
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      throw Exception("Location permission denied");
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        return "Location permission not granted";
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      final placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      final place = placemarks.first;
+
+      return "${place.name}, ${place.street}, ${place.locality}, "
+          "${place.administrativeArea}, ${place.postalCode}, ${place.country}";
+    } catch (e) {
+      return "Unable to fetch location";
     }
-
-    final position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    final placemarks = await placemarkFromCoordinates(
-      position.latitude,
-      position.longitude,
-    );
-
-    final place = placemarks.first;
-
-    return "${place.name}, ${place.street}, ${place.locality}, "
-        "${place.administrativeArea}, ${place.postalCode}, ${place.country}";
   }
 
   double dragPosition = 0.0;
   double maxWidth = 0.0;
 
   bool isPunchedIn = false;
-  bool isDraggingRight = true; // direction tracker
+  bool isDraggingRight = true;
 
   void _handleDragEnd() async {
     if (!isPunchedIn && dragPosition > maxWidth * 0.75) {
@@ -240,7 +249,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final end = start.add(const Duration(days: 1));
 
       await _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
-      isPunchedIn = true;
+      // isPunchedIn = true;
       dragPosition = maxWidth;
     } else if (isPunchedIn && dragPosition < maxWidth * 0.25) {
       // PUNCH OUT
@@ -260,7 +269,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final end = start.add(const Duration(days: 1));
 
       await _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
-      isPunchedIn = false;
+      // isPunchedIn = false;
       dragPosition = 0;
     } else {
       dragPosition = isPunchedIn ? maxWidth : 0;
@@ -269,35 +278,57 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {});
   }
 
+  Future<void> _openEmail(String email) async {
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: email,
+      queryParameters: {'subject': 'Hello', 'body': 'Hi'},
+    );
+
+    await launchUrl(emailUri, mode: LaunchMode.externalApplication);
+  }
+
+  void _openDialer(String phone) async {
+    final Uri launchUri = Uri(scheme: 'tel', path: phone);
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<DashboardCubit, DashboardState>(
       listener: (context, state) {
-        final item = state.data;
-        if (item == null) return;
+        final today = DateTime.now();
 
-        currentAttendanceId = item.attendanceId;
+        final todayRecords =
+            state.dashboardModelList
+                .where(
+                  (e) =>
+                      e.punchIn != null &&
+                      e.punchIn!.year == today.year &&
+                      e.punchIn!.month == today.month &&
+                      e.punchIn!.day == today.day,
+                )
+                .toList();
 
-        // If punched in and not punched out → start live timer from API time
-        if (item.punchIn != null && item.punchOut == null) {
+        if (todayRecords.isEmpty) return;
+
+        final record = todayRecords.first;
+
+        currentAttendanceId = record.attendanceId;
+        if (record.punchOut == null) {
           isPunchedIn = true;
           dragPosition = maxWidth;
-          _startTimerFrom(item.punchIn, null);
-        }
-        // If punched out → show fixed duration
-        else if (item.punchIn != null && item.punchOut != null) {
+          _startTimerFrom(record.punchIn!);
+        } else {
+          _timer?.cancel();
           isPunchedIn = false;
           dragPosition = 0;
-          _timer?.cancel();
-          workedDuration.value = item.punchOut.difference(item.punchIn);
+          workedDuration.value = record.punchOut!.difference(record.punchIn!);
         }
-        // No punch at all
-        else {
-          isPunchedIn = false;
-          dragPosition = 0;
-          _timer?.cancel();
-          workedDuration.value = Duration.zero;
-        }
+
+        setState(() {});
       },
       child: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
@@ -383,6 +414,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         _buildHolidaySummaryWidget(context),
                         verticalSpacing(),
                         _buildEventsAndMoreWidget(context),
+                        verticalSpacing(),
+                        _buildReportingManagerWidget(context),
                       ],
                     ),
                   ),
@@ -568,7 +601,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               TextSpan(
                 text:
                     data.punchIn != null
-                        ? DateFormat('hh:mm a').format(data.punchIn)
+                        ? DateFormat('hh:mm a').format(data.punchIn!)
                         : "--",
                 style: AppTextStyle.ts14M(color: AppColor.black),
               ),
@@ -605,7 +638,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               TextSpan(
                 text:
                     data.punchOut != null
-                        ? DateFormat('hh:mm a').format(data.punchOut)
+                        ? DateFormat('hh:mm a').format(data.punchOut!)
                         : "--",
                 style: AppTextStyle.ts14M(color: AppColor.black),
               ),
@@ -1159,14 +1192,204 @@ class _DashboardScreenState extends State<DashboardScreen> {
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, int index) {
               return ListTile(
-                leading: CircleAvatar(
-                  radius: 45,
-                  backgroundColor: AppColor.white,
-                  backgroundImage: AssetImage(AppAssets.sampleCompanyImage),
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(shape: BoxShape.circle),
+                  child: NetworkImageWidget(
+                    borderRadius: BorderRadius.circular(100.0),
+                    imageUrl:
+                        'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
+                    width: 45,
+                    height: 45,
+                    fit: BoxFit.cover,
+                    errorWidget: Container(
+                      color: AppColor.white,
+                      width: 45,
+                      height: 45,
+                      child: Icon(
+                        Icons.image_not_supported,
+                        size: 20,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ),
                 ),
-                title: Text("data"),
+
+                title: Text("Neha Sawant", style: AppTextStyle.ts14M()),
+                subtitle: Text(
+                  "Sales",
+                  style: AppTextStyle.ts14R(
+                    color: AppColor.black.withValues(alpha: 0.50),
+                  ),
+                ),
+                trailing: Text(
+                  formatDateTimeAsDDMMMYYYY(DateTime.now()),
+                  style: AppTextStyle.ts14R(),
+                ),
               );
             },
+          ),
+          const SizedBox(height: 12),
+          Divider(
+            thickness: 0.3,
+            color: AppColor.black.withValues(alpha: 0.50),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  "Upcoming Events",
+                  style: AppTextStyle.ts14SB(color: AppColor.black),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ListView.builder(
+            itemCount: 5,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, int index) {
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text("Diwali Celebration", style: AppTextStyle.ts14M()),
+                subtitle: Text(
+                  "Andheri",
+                  style: AppTextStyle.ts16R(
+                    color: AppColor.black.withValues(alpha: 0.50),
+                  ),
+                ),
+                trailing: Text(
+                  formatDateTimeAsDDMMMYYYY(DateTime.now()),
+                  style: AppTextStyle.ts14R(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReportingManagerWidget(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  "Reporting Manager",
+                  style: AppTextStyle.ts14M(
+                    color: AppColor.black.withValues(alpha: 0.50),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Container(
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(shape: BoxShape.circle),
+              child: NetworkImageWidget(
+                borderRadius: BorderRadius.circular(100.0),
+                imageUrl:
+                    'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
+                width: 45,
+                height: 45,
+                fit: BoxFit.cover,
+                errorWidget: Container(
+                  color: AppColor.white,
+                  width: 45,
+                  height: 45,
+                  child: Icon(
+                    Icons.image_not_supported,
+                    size: 20,
+                    color: Colors.grey[700],
+                  ),
+                ),
+              ),
+            ),
+            title: Text("Prachin Bari", style: AppTextStyle.ts14B()),
+            subtitle: Text(
+              "HOD",
+              style: AppTextStyle.ts14R(
+                color: AppColor.black.withValues(alpha: 0.50),
+              ),
+            ),
+            trailing: Text("IT Department", style: AppTextStyle.ts14R()),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: CustomButton(text: "Send Mail", onPressed: () {}),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                child: CustomButton(
+                  textColor: AppColor.primary,
+                  backgroundColor: AppColor.white,
+                  borderColor: AppColor.primary,
+                  text: "Request Meeting",
+                  onPressed: () {},
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: () {
+              _openEmail("prachinbari@gmail.com");
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SvgPicture.asset(
+                        AppAssets.mailIcon,
+                        height: 16.0,
+                        width: 16.0,
+                      ),
+                      const SizedBox(width: 6.0),
+                      Text(
+                        "prachinbari@gmail.com",
+                        style: AppTextStyle.ts14M(),
+                      ),
+                    ],
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    _openDialer("9975535595");
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SvgPicture.asset(
+                        AppAssets.phoneIcon,
+                        height: 16.0,
+                        width: 16.0,
+                      ),
+                      const SizedBox(width: 6.0),
+                      Text("9975535595", style: AppTextStyle.ts14M()),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

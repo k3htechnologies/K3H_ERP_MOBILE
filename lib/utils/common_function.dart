@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -93,6 +94,21 @@ T parseValue<T>(Map<String, dynamic> json, String key) {
   }
 }
 
+// FOR ATTENDANCE DATETIME
+DateTime? parseApiDate(String? value) {
+  if (value == null || value.isEmpty) return null;
+
+  final dt = DateTime.parse(value);
+  return DateTime(
+    dt.year,
+    dt.month,
+    dt.day,
+    dt.hour,
+    dt.minute,
+    dt.second,
+    dt.millisecond,
+  );
+}
 // <---- UPDATE ROUTE AUTHORIZATION ---->
 
 Future<void> updateRouteAuthorization(List<ModuleModel> moduleData) async {
@@ -136,6 +152,27 @@ Map<String, AuthorizationModel> _processRouteAuthorizationModules(
   }
 
   return updatedMap;
+}
+
+// <---- LOCATION PERMISSION ---->
+
+Future<void> handleLocationPermission() async {
+  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+  if (!serviceEnabled) {
+    await Geolocator.openLocationSettings();
+    return;
+  }
+
+  LocationPermission permission = await Geolocator.checkPermission();
+
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+  }
+
+  if (permission == LocationPermission.deniedForever) {
+    await Geolocator.openAppSettings();
+  }
 }
 
 // LOGOUT
