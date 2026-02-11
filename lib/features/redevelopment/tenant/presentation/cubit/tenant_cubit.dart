@@ -24,6 +24,27 @@ class TenantCubit extends Cubit<TenantState> {
   // TENANT REPOSITORY
   final TenantRepository _tenantRepository = serviceLocator<TenantRepository>();
 
+  // <---- ON TAB CHANGED ---->
+  void onTabChanged(
+      int index,
+      BuildContext context,
+      int projectId,
+      int buildingId,
+      int tenantId,
+      ) {
+    emit(state.copyWith(currentTabIndex: index));
+
+    if (index == 1) {
+      // Document tab
+      getTenantDocumentList(
+        context: context,
+        projectId: projectId,
+        buildingId: buildingId,
+        tenantId: tenantId,
+      );
+    }
+  }
+
   // <---- SEARCH TENANT ---->
   void searchTenant(
     String value,
@@ -697,11 +718,9 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
-  // <---- ADD/UPDATE BUILDING DOCUMENT ---->
-  Future updateBuildingDocument({
+  // <---- ADD TENaNT DOCUMENT ---->
+  Future addTenantDocument({
     required BuildContext context,
-    required int tenantDocumentId,
-    required String uniqueKey,
     required int tenantId,
     required int projectId,
     required int buildingId,
@@ -709,8 +728,6 @@ class TenantCubit extends Cubit<TenantState> {
     required MultiFilePickerModel files,
   }) async {
     if (isClosed) return;
-
-    final isAddMode = tenantDocumentId == 0 || tenantDocumentId == -1;
 
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < files.fileNameList.length; i++) {
@@ -726,20 +743,72 @@ class TenantCubit extends Cubit<TenantState> {
       }
     }
 
-    if (isAddMode && fileList.isEmpty && files.deletedFileList.isEmpty) {
-      showErrorMessage(
-        context,
-        'Error',
-        'Please select at least one file to upload',
-      );
-      return;
+    DialogHelper.showProcessingOverlay(context);
+
+    final body = <String, String>{
+      'TenantDocumentId': "0",
+      'TenantId': tenantId.toString(),
+      'ProjectId': projectId.toString(),
+      'BuildingId': buildingId.toString(),
+      'DocumentName': documentName,
+    };
+
+    var updateResult = await _tenantRepository.addUpdateTenantDocument(
+      body: body,
+      fileList: fileList,
+    );
+    goRouter.pop();
+
+    updateResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) async {
+        showSuccessMessage(context, subTitle: "Upload Successfully");
+        await getTenantDocumentList(
+          context: context,
+          projectId: projectId,
+          buildingId: buildingId,
+          tenantId: tenantId,
+        );
+      },
+    );
+  }
+
+  // <---- ADD/UPDATE BUILDING DOCUMENT ---->
+  Future updateTenantDocument({
+    required BuildContext context,
+    required int tenantDocumentId,
+    required String uniqueKey,
+    required int tenantId,
+    required int projectId,
+    required int buildingId,
+    required String documentName,
+    required MultiFilePickerModel files,
+  }) async {
+
+
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < files.fileNameList.length; i++) {
+      if (files.fileNameList[i].contains("http")) {
+        continue;
+      }
+      if (i < files.fileBytesList.length && files.fileBytesList[i].isNotEmpty) {
+        fileList.add({
+          "key": "DocumentURL",
+          "value": files.fileBytesList[i],
+          "fileName": files.fileNameList[i],
+        });
+      }
     }
+
 
     DialogHelper.showProcessingOverlay(context);
 
     final body = <String, String>{
-      'TenantDocumentId': isAddMode ? '0' : tenantDocumentId.toString(),
-      'Uniquekey': isAddMode ? '' : uniqueKey,
+      'TenantDocumentId':  tenantDocumentId.toString(),
+      'Uniquekey':  uniqueKey,
       'ProjectId': projectId.toString(),
       'BuildingId': buildingId.toString(),
       'DocumentName': documentName,
@@ -773,24 +842,4 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
-  // <---- ON TAB CHANGED ---->
-  void onTabChanged(
-    int index,
-    BuildContext context,
-    int projectId,
-    int buildingId,
-    int tenantId,
-  ) {
-    emit(state.copyWith(currentTabIndex: index));
-
-    if (index == 1) {
-      // Document tab
-      getTenantDocumentList(
-        context: context,
-        projectId: projectId,
-        buildingId: buildingId,
-        tenantId: tenantId,
-      );
-    }
-  }
 }

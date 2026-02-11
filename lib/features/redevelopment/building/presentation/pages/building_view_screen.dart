@@ -52,7 +52,7 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
   final ValueNotifier<Map<int, bool>> _loadingChildDocuments =
       ValueNotifier<Map<int, bool>>({});
 
-  // Add new document form (title only in bottom sheet)
+  // TEXT EDITING CONTROLLER
   late TextEditingController _newDocumentTitleController;
 
   @override
@@ -806,7 +806,6 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                       },
                     );
 
-                    // When coming back from AddUpdateDocumentScreen, refresh parent list
                     if (!context.mounted) return;
                     _buildingCubit.getBuildingDocumentList(
                       context,
@@ -910,7 +909,6 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                                           _loadingChildDocuments.value =
                                               loadingMapDone;
 
-                                          // Poke expanded set so ValueListenableBuilder rebuilds and shows children
                                           _expandedDocumentIds.value =
                                               Set<int>.from(
                                                 _expandedDocumentIds.value,

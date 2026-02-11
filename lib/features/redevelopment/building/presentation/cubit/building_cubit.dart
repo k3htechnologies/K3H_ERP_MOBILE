@@ -20,6 +20,28 @@ class BuildingCubit extends Cubit<BuildingState> {
   final BuildingRepository _buildingRepository =
       serviceLocator<BuildingRepository>();
 
+  // <---- ON TAB CHANGED ---->
+  void onTabChanged(
+    int index,
+    BuildContext context,
+    int projectId,
+    int buildingId,
+  ) {
+    if (isClosed) return;
+    emit(state.copyWith(currentTabIndex: index));
+
+    if (index == 1) {
+      // DETAILS TAB
+      getBuildingDetails(
+        context: context,
+        buildingId: buildingId,
+        projectId: projectId,
+      );
+    } else if (index == 2) {
+      getBuildingDocumentList(context, projectId, buildingId, 1, 100, null);
+    }
+  }
+
   // <---- SEARCH BUILDING ---->
   Future searchBuilding(
     BuildContext context,
@@ -147,7 +169,8 @@ class BuildingCubit extends Cubit<BuildingState> {
     int pageSize,
     int? buildingDocumentId,
   ) async {
-    final bool isParentRequest = buildingDocumentId == null || buildingDocumentId == 0;
+    final bool isParentRequest =
+        buildingDocumentId == null || buildingDocumentId == 0;
     if (isParentRequest) {
       emit(state.copyWith(isLoading: true));
     }
@@ -164,7 +187,6 @@ class BuildingCubit extends Cubit<BuildingState> {
       projectId: projectId,
       queryParams: queryParameter,
     );
-
 
     result.fold(
       (failure) {
@@ -234,7 +256,6 @@ class BuildingCubit extends Cubit<BuildingState> {
   }) async {
     if (isClosed) return;
 
-
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < files.fileNameList.length; i++) {
       if (files.fileNameList[i].contains("http")) {
@@ -255,7 +276,7 @@ class BuildingCubit extends Cubit<BuildingState> {
       'ProjectId': projectId.toString(),
       'BuildingId': buildingId.toString(),
       'DocumentName': documentName,
-      "IsMaster":"1"
+      "IsMaster": "1",
     };
 
     var addResult = await _buildingRepository.addUpdateBuildingDocument(
@@ -532,27 +553,5 @@ class BuildingCubit extends Cubit<BuildingState> {
         }
       },
     );
-  }
-
-  // <---- ON TAB CHANGED ---->
-  void onTabChanged(
-    int index,
-    BuildContext context,
-    int projectId,
-    int buildingId,
-  ) {
-    if (isClosed) return;
-    emit(state.copyWith(currentTabIndex: index));
-
-    if (index == 1) {
-      // Details tab
-      getBuildingDetails(
-        context: context,
-        buildingId: buildingId,
-        projectId: projectId,
-      );
-    } else if (index == 2) {
-      getBuildingDocumentList(context, projectId, buildingId, 1, 100, null);
-    }
   }
 }

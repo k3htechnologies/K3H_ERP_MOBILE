@@ -41,6 +41,7 @@ class _AddUpdateDocumentScreenState extends State<AddUpdateDocumentScreen> {
   bool _isLoading = true;
   List<BuildingDocumentModel> _parentDocuments = [];
 
+  // EXPANDED AND CHILD DOCUMENTS
   final ValueNotifier<Set<int>> _expandedDocumentIds = ValueNotifier<Set<int>>(
     {},
   );
@@ -64,6 +65,7 @@ class _AddUpdateDocumentScreenState extends State<AddUpdateDocumentScreen> {
     super.dispose();
   }
 
+  // LOAD PARENT DOCUMENTS
   Future<void> _loadParentDocuments() async {
     setState(() {
       _isLoading = true;
@@ -86,6 +88,7 @@ class _AddUpdateDocumentScreenState extends State<AddUpdateDocumentScreen> {
     });
   }
 
+  // PICK DOCUMENTS
   Future<void> _pickDocuments(BuildingDocumentModel doc) async {
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
@@ -122,6 +125,7 @@ class _AddUpdateDocumentScreenState extends State<AddUpdateDocumentScreen> {
     }
   }
 
+  // CONVERT TO MULTI FILE PICKER
   MultiFilePickerModel _convertToMultiFilePicker(List<PlatformFile> files) {
     return MultiFilePickerModel(
       fileNameList: files.map((e) => e.name).toList(),
@@ -201,12 +205,13 @@ class _AddUpdateDocumentScreenState extends State<AddUpdateDocumentScreen> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Container(
-            width: 200,
+            width: 180,
             padding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 10,
             ),
             child: CustomButton(
+              leading: Icon(Icons.add,size: 18,color: AppColor.white,),
               text: "Add Document",
               onPressed: _showAddDocumentBottomSheet,
             ),

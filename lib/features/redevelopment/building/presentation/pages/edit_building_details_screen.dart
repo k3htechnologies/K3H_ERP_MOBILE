@@ -35,41 +35,42 @@ class _EditBuildingDetailsScreenState extends State<EditBuildingDetailsScreen> {
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
-  // Plot Area Controllers
+  // PLOT AREA KEYS
   late TextEditingController _grossPlotAreaController;
   late TextEditingController _plotAreaPhysicalSurveyController;
   late TextEditingController _plotAreaOldApprovedPlanController;
   late TextEditingController _plotAreaConveyanceController;
   late TextEditingController _plotAreaPRCardController;
 
-  // Construction Details Controllers
+  // CONSTRUCTION DETAILS KEYS
   late TextEditingController _totalBuiltUpAreaController;
   late TextEditingController _totalResidentialUnitsController;
   late TextEditingController _totalResidentialCarpetAreaController;
   late TextEditingController _totalCommercialUnitsController;
   late TextEditingController _totalCommercialCarpetAreaController;
 
-  // Contact Details Controllers - Chairman
+  // CONTACT DETAILS KEYS
+  // CONTRACT DETAILS CONTROLLERS - CHAIRMAN
   late TextEditingController _chairmanContactNameController;
   late TextEditingController _chairmanMobileNumberController;
   late TextEditingController _chairmanEmailIdController;
 
-  // Contact Details Controllers - Secretary
+  // CONTACT DETAILS CONTROLLERS - SECRETARY
   late TextEditingController _secretaryContactNameController;
   late TextEditingController _secretaryMobileNumberController;
   late TextEditingController _secretaryEmailIdController;
 
-  // Contact Details Controllers - Treasurer
+  // CONTACT DETAILS CONTROLLERS - TREASURER
   late TextEditingController _treasurerContactNameController;
   late TextEditingController _treasurerMobileNumberController;
   late TextEditingController _treasurerEmailIdController;
 
-  // Contact Details Controllers - PMC
+  // CONTACT DETAILS CONTROLLERS - PMC
   late TextEditingController _pmcContactNameController;
   late TextEditingController _pmcMobileNumberController;
   late TextEditingController _pmcEmailIdController;
 
-  // Contact Details Controllers - Broker
+  // CONTACT DETAILS CONTROLLERS - BROKER
   late TextEditingController _brokerContactNameController;
   late TextEditingController _brokerMobileNumberController;
   late TextEditingController _brokerEmailIdController;
@@ -81,47 +82,46 @@ class _EditBuildingDetailsScreenState extends State<EditBuildingDetailsScreen> {
     _project = getProject();
     _initializeControllers();
 
-    // Prefill details from the passed model
     _prefillDetails(widget.buildingDetailsModel);
   }
 
   @override
   void dispose() {
-    // Plot Area Controllers
+    // PLOT AREA Controllers
     _grossPlotAreaController.dispose();
     _plotAreaPhysicalSurveyController.dispose();
     _plotAreaOldApprovedPlanController.dispose();
     _plotAreaConveyanceController.dispose();
     _plotAreaPRCardController.dispose();
 
-    // Construction Details Controllers
+    // CONSTRUCTION DETAILS Controllers
     _totalBuiltUpAreaController.dispose();
     _totalResidentialUnitsController.dispose();
     _totalResidentialCarpetAreaController.dispose();
     _totalCommercialUnitsController.dispose();
     _totalCommercialCarpetAreaController.dispose();
 
-    // Contact Details Controllers - Chairman
+    // CONTACT DETAILS CONTROLLERS - CHAIRMAN
     _chairmanContactNameController.dispose();
     _chairmanMobileNumberController.dispose();
     _chairmanEmailIdController.dispose();
 
-    // Contact Details Controllers - Secretary
+    // CONTACT DETAILS CONTROLLERS - SECRETARY
     _secretaryContactNameController.dispose();
     _secretaryMobileNumberController.dispose();
     _secretaryEmailIdController.dispose();
 
-    // Contact Details Controllers - Treasurer
+    // CONTACT DETAILS CONTROLLERS - TREASURER
     _treasurerContactNameController.dispose();
     _treasurerMobileNumberController.dispose();
     _treasurerEmailIdController.dispose();
 
-    // Contact Details Controllers - PMC
+    // CONTACT DETAILS CONTROLLERS - PMC
     _pmcContactNameController.dispose();
     _pmcMobileNumberController.dispose();
     _pmcEmailIdController.dispose();
 
-    // Contact Details Controllers - Broker
+    // CONTACT DETAILS CONTROLLERS - BROKER
     _brokerContactNameController.dispose();
     _brokerMobileNumberController.dispose();
     _brokerEmailIdController.dispose();
@@ -131,41 +131,34 @@ class _EditBuildingDetailsScreenState extends State<EditBuildingDetailsScreen> {
 
   // INITIALIZE CONTROLLERS
   void _initializeControllers() {
-    // Plot Area Controllers
     _grossPlotAreaController = TextEditingController();
     _plotAreaPhysicalSurveyController = TextEditingController();
     _plotAreaOldApprovedPlanController = TextEditingController();
     _plotAreaConveyanceController = TextEditingController();
     _plotAreaPRCardController = TextEditingController();
 
-    // Construction Details Controllers
     _totalBuiltUpAreaController = TextEditingController();
     _totalResidentialUnitsController = TextEditingController();
     _totalResidentialCarpetAreaController = TextEditingController();
     _totalCommercialUnitsController = TextEditingController();
     _totalCommercialCarpetAreaController = TextEditingController();
 
-    // Contact Details Controllers - Chairman
     _chairmanContactNameController = TextEditingController();
     _chairmanMobileNumberController = TextEditingController();
     _chairmanEmailIdController = TextEditingController();
 
-    // Contact Details Controllers - Secretary
     _secretaryContactNameController = TextEditingController();
     _secretaryMobileNumberController = TextEditingController();
     _secretaryEmailIdController = TextEditingController();
 
-    // Contact Details Controllers - Treasurer
     _treasurerContactNameController = TextEditingController();
     _treasurerMobileNumberController = TextEditingController();
     _treasurerEmailIdController = TextEditingController();
 
-    // Contact Details Controllers - PMC
     _pmcContactNameController = TextEditingController();
     _pmcMobileNumberController = TextEditingController();
     _pmcEmailIdController = TextEditingController();
 
-    // Contact Details Controllers - Broker
     _brokerContactNameController = TextEditingController();
     _brokerMobileNumberController = TextEditingController();
     _brokerEmailIdController = TextEditingController();
@@ -173,7 +166,6 @@ class _EditBuildingDetailsScreenState extends State<EditBuildingDetailsScreen> {
 
   // PREFILL DETAILS
   void _prefillDetails(BuildingDetailsModel buildingDetails) {
-    // Plot Area Fields
     _grossPlotAreaController.text =
         buildingDetails.grossPlotAreaSqFt.toString();
     _plotAreaPhysicalSurveyController.text =
@@ -185,7 +177,6 @@ class _EditBuildingDetailsScreenState extends State<EditBuildingDetailsScreen> {
     _plotAreaPRCardController.text =
         buildingDetails.plotAreaPRCardSqFt.toString();
 
-    // Construction Details Fields
     _totalBuiltUpAreaController.text =
         buildingDetails.totalBuiltUpAreaSqFt.toString();
     _totalResidentialUnitsController.text =
@@ -197,7 +188,6 @@ class _EditBuildingDetailsScreenState extends State<EditBuildingDetailsScreen> {
     _totalCommercialCarpetAreaController.text =
         buildingDetails.totalCommercialCarpetAreaSqFt.toString();
 
-    // Contact Details Fields
     for (var contact in buildingDetails.buildingKeyContactDetailsData) {
       switch (contact.contactType) {
         case 'Chairman':

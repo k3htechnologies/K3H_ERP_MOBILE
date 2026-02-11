@@ -56,7 +56,6 @@ class _BuildingScreenState extends State<BuildingScreen> {
     _initializeTextEditingController();
     _onScroll();
 
-    // Call API directly in initState, similar to DepartmentMasterScreen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _buildingCubit.getBuildingList(context, 1, _project.projectId);

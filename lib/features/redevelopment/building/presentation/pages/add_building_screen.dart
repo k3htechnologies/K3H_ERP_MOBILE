@@ -163,7 +163,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     _fsiTdrUtilizationC.text = buildingModel.fsiTdrUtilizationSqFt.toString();
     _litigationRemarksC.text = buildingModel.litigationRemarks;
 
-    // Set address values
+    // SET ADDRESS
     _stateMasterId = buildingModel.stateMasterId;
     _districtMasterId = buildingModel.districtMasterId;
     _cityMasterId = buildingModel.cityMasterId;

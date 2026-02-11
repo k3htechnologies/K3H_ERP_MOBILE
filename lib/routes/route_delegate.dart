@@ -258,6 +258,7 @@ import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/ten
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_tenant_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_view_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_update_tenant_document_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_screen.dart';
@@ -2200,6 +2201,27 @@ final GoRouter goRouter = GoRouter(
                         : null;
 
                 return TenantViewScreen(tenant: tenant!);
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addUpdateTenantDoc,
+              path: AppRoutes.addUpdateTenantDoc,
+              builder: (context, state) {
+                final queryParameterTenant =
+                    state.uri.queryParameters['tenant'];
+
+                final TenantModel? tenant =
+                    queryParameterTenant != null
+                        ? TenantModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterTenant),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                return AddUpdateTenantDocumentScreen(tenant: tenant!);
               },
             ),
           ],

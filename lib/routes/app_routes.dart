@@ -170,6 +170,7 @@ class AppRoutes {
   static String tenant = "/tenant";
   static String addTenant = "/addTenant";
   static String viewTenant = "/viewTenant";
+  static String addUpdateTenantDoc = "/addUpdateTenantDoc";
   static String viewPayTrackRentLedger = "/viewPayTrackRentLedger";
 
   // CRM
