@@ -7,6 +7,7 @@ class BuildingDocumentModel {
   int projectId;
   String documentName;
   String documentURL;
+  int uploadedBuildingDocumentCount;
   int createdById;
   String createdBy;
   DateTime? createdDate;
@@ -21,6 +22,7 @@ class BuildingDocumentModel {
     required this.projectId,
     required this.documentName,
     required this.documentURL,
+    required this.uploadedBuildingDocumentCount,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -37,6 +39,7 @@ class BuildingDocumentModel {
         projectId: parseValue<int>(json, "ProjectId"),
         documentName: parseValue<String>(json, "DocumentName"),
         documentURL: parseValue<String>(json, "DocumentURL"),
+        uploadedBuildingDocumentCount: parseValue<int>(json, "UploadedBuildingDocumentCount"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate:
@@ -58,6 +61,7 @@ class BuildingDocumentModel {
     "ProjectId": projectId,
     "DocumentName": documentName,
     "DocumentURL": documentURL,
+    "UploadedBuildingDocumentCount": uploadedBuildingDocumentCount,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate?.toIso8601String(),
@@ -73,6 +77,7 @@ class BuildingDocumentModel {
     projectId: -1,
     documentName: '',
     documentURL: '',
+    uploadedBuildingDocumentCount: 0,
     createdById: -1,
     createdBy: '',
     createdDate: DateTime.now(),
@@ -88,6 +93,7 @@ class BuildingDocumentModel {
     int? projectId,
     String? documentName,
     String? documentURL,
+    int? uploadedBuildingDocumentCount,
     int? createdById,
     String? createdBy,
     DateTime? createdDate,
@@ -102,6 +108,7 @@ class BuildingDocumentModel {
       projectId: projectId ?? this.projectId,
       documentName: documentName ?? this.documentName,
       documentURL: documentURL ?? this.documentURL,
+      uploadedBuildingDocumentCount: uploadedBuildingDocumentCount ?? this.uploadedBuildingDocumentCount,
       createdById: createdById ?? this.createdById,
       createdBy: createdBy ?? this.createdBy,
       createdDate: createdDate ?? this.createdDate,

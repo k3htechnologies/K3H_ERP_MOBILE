@@ -1,10 +1,8 @@
 import 'dart:convert';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
-import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
@@ -54,6 +52,9 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
   final ValueNotifier<Map<int, bool>> _loadingChildDocuments =
       ValueNotifier<Map<int, bool>>({});
 
+  // Add new document form (title only in bottom sheet)
+  late TextEditingController _newDocumentTitleController;
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +63,7 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
     _routeAuthorizationModel = AuthorizationModel();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_handleTabChange);
+    _newDocumentTitleController = TextEditingController();
   }
 
   @override
@@ -70,6 +72,7 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
     _expandedDocumentIds.dispose();
     _childDocuments.dispose();
     _loadingChildDocuments.dispose();
+    _newDocumentTitleController.dispose();
     super.dispose();
   }
 
@@ -83,53 +86,6 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
         widget.building.buildingId,
       );
     }
-  }
-
-  // ───────────────── PICK DOCUMENTS ─────────────────
-  Future<void> _pickDocuments(BuildingDocumentModel doc) async {
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      withData: true,
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-    );
-
-    if (result == null || result.files.isEmpty) return;
-    if (!mounted) return;
-
-    final multiFileModel = _convertToMultiFilePicker(result.files);
-
-    await _buildingCubit.updateBuildingDocument(
-      context: context,
-      buildingDocumentId: doc.buildingDocumentId,
-      uniqueKey: doc.uniquekey,
-      projectId: doc.projectId,
-      buildingId: doc.buildingId,
-      documentName: doc.documentName,
-      files: multiFileModel,
-    );
-
-    if (mounted) {
-      final updatedExpanded = Set<int>.from(_expandedDocumentIds.value);
-      updatedExpanded.remove(doc.buildingDocumentId);
-      _expandedDocumentIds.value = updatedExpanded;
-
-      final updatedChildren = Map<int, List<BuildingDocumentModel>>.from(
-        _childDocuments.value,
-      );
-      updatedChildren.remove(doc.buildingDocumentId);
-      _childDocuments.value = updatedChildren;
-    }
-  }
-
-  MultiFilePickerModel _convertToMultiFilePicker(List<PlatformFile> files) {
-    return MultiFilePickerModel(
-      fileNameList: files.map((e) => e.name).toList(),
-
-      fileBytesList: files.map((e) => e.bytes!).toList(),
-
-      deletedFileList: "",
-    );
   }
 
   @override
@@ -818,237 +774,280 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
           return Center(child: noDataWidget());
         }
 
-        // Store parent list when it's loaded (top-level documents)
         final parentDocuments = state.buildingDocumentList;
 
-        return SingleChildScrollView(
-          child: ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            itemCount: parentDocuments.length,
-            itemBuilder: (context, index) {
-              final doc = parentDocuments[index];
+        final filteredDocuments = parentDocuments
+            .where((e) => (e.uploadedBuildingDocumentCount) > 0)
+            .toList();
 
-              return ValueListenableBuilder<Set<int>>(
-                valueListenable: _expandedDocumentIds,
-                builder: (context, expandedSet, _) {
-                  final isExpanded = expandedSet.contains(
-                    doc.buildingDocumentId,
-                  );
-                  final childDocs =
-                      _childDocuments.value[doc.buildingDocumentId] ?? [];
-                  final isLoadingChildren =
-                      _loadingChildDocuments.value[doc.buildingDocumentId] ??
-                      false;
+        if (filteredDocuments.isEmpty) {
+          return Center(child: noDataWidget());
+        }
 
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    decoration: commonCardDecoration(),
-                    child: Column(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            final currentExpanded = Set<int>.from(
-                              _expandedDocumentIds.value,
-                            );
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            verticalSpacing(),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
+                width: 160,
+                child: CustomButton(
+                  text: "Add/Update",
+                  onPressed: () async {
+                    await goRouter.pushNamed(
+                      AppRoutes.addUpdateBuildingDoc,
+                      queryParameters: {
+                        "building": Uri.encodeComponent(
+                          EncryptionManager.encryptData(
+                            jsonEncode(widget.building.toJson()),
+                          ),
+                        ),
+                      },
+                    );
 
-                            if (isExpanded) {
-                              // Collapse
-                              currentExpanded.remove(doc.buildingDocumentId);
-                              _expandedDocumentIds.value = currentExpanded;
-                            } else {
-                              // Expand - call API if not already loaded
-                              currentExpanded.add(doc.buildingDocumentId);
-                              _expandedDocumentIds.value = currentExpanded;
+                    // When coming back from AddUpdateDocumentScreen, refresh parent list
+                    if (!context.mounted) return;
+                    _buildingCubit.getBuildingDocumentList(
+                      context,
+                      _project.projectId,
+                      widget.building.buildingId,
+                      1,
+                      100,
+                      null,
+                    );
+                  },
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                itemCount: filteredDocuments.length,
+                itemBuilder: (context, index) {
+                  final doc = filteredDocuments[index];
 
-                              if (!_childDocuments.value.containsKey(
-                                doc.buildingDocumentId,
-                              )) {
-                                // Set loading true
-                                final loadingMap = Map<int, bool>.from(
-                                  _loadingChildDocuments.value,
+                  return ValueListenableBuilder<Set<int>>(
+                    valueListenable: _expandedDocumentIds,
+                    builder: (context, expandedSet, _) {
+                      final isExpanded = expandedSet.contains(
+                        doc.buildingDocumentId,
+                      );
+                      final childDocs =
+                          _childDocuments.value[doc.buildingDocumentId] ?? [];
+                      final isLoadingChildren =
+                          _loadingChildDocuments.value[doc
+                              .buildingDocumentId] ??
+                          false;
+
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeInOut,
+                        margin: const EdgeInsets.only(bottom: 10),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                final currentExpanded = Set<int>.from(
+                                  _expandedDocumentIds.value,
                                 );
-                                loadingMap[doc.buildingDocumentId] = true;
-                                _loadingChildDocuments.value = loadingMap;
 
-                                _buildingCubit
-                                    .getBuildingDocumentList(
-                                      context,
-                                      _project.projectId,
-                                      widget.building.buildingId,
-                                      1,
-                                      100,
-                                      doc.buildingDocumentId,
-                                    )
-                                    .then((_) {
-                                      if (!mounted) return;
-                                      final currentState = _buildingCubit.state;
+                                if (isExpanded) {
+                                  // Collapse
+                                  currentExpanded.remove(
+                                    doc.buildingDocumentId,
+                                  );
+                                  _expandedDocumentIds.value = currentExpanded;
+                                } else {
+                                  // Expand - call API if not already loaded
+                                  currentExpanded.add(doc.buildingDocumentId);
+                                  _expandedDocumentIds.value = currentExpanded;
 
-                                      // Update children map
-                                      final childrenMap = Map<
-                                        int,
-                                        List<BuildingDocumentModel>
-                                      >.from(_childDocuments.value);
-                                      childrenMap[doc.buildingDocumentId] =
-                                          List<BuildingDocumentModel>.from(
-                                            currentState.buildingDocumentList,
-                                          );
-                                      _childDocuments.value = childrenMap;
+                                  if (!_childDocuments.value.containsKey(
+                                    doc.buildingDocumentId,
+                                  )) {
+                                    // Set loading true
+                                    final loadingMap = Map<int, bool>.from(
+                                      _loadingChildDocuments.value,
+                                    );
+                                    loadingMap[doc.buildingDocumentId] = true;
+                                    _loadingChildDocuments.value = loadingMap;
 
-                                      // Set loading false
-                                      final loadingMapDone =
-                                          Map<int, bool>.from(
-                                            _loadingChildDocuments.value,
-                                          );
-                                      loadingMapDone[doc.buildingDocumentId] =
-                                          false;
-                                      _loadingChildDocuments.value =
-                                          loadingMapDone;
-
-                                      if (context.mounted) {
-                                        _buildingCubit.getBuildingDocumentList(
+                                    _buildingCubit
+                                        .getBuildingChildDocuments(
                                           context,
                                           _project.projectId,
                                           widget.building.buildingId,
-                                          1,
-                                          100,
-                                          null,
-                                        );
-                                      }
-                                    });
-                              }
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    doc.documentName,
-                                    style: AppTextStyle.ts14SB(),
-                                  ),
-                                ),
-                                Row(
-                                  spacing: 20,
+                                          doc.buildingDocumentId,
+                                        )
+                                        .then((children) {
+                                          if (!mounted) return;
+
+                                          // Update children map
+                                          final childrenMap = Map<
+                                            int,
+                                            List<BuildingDocumentModel>
+                                          >.from(_childDocuments.value);
+                                          childrenMap[doc.buildingDocumentId] =
+                                              List<
+                                                BuildingDocumentModel
+                                              >.from(children);
+                                          _childDocuments.value = childrenMap;
+
+                                          // Set loading false
+                                          final loadingMapDone =
+                                              Map<int, bool>.from(
+                                                _loadingChildDocuments.value,
+                                              );
+                                          loadingMapDone[doc
+                                                  .buildingDocumentId] =
+                                              false;
+                                          _loadingChildDocuments.value =
+                                              loadingMapDone;
+
+                                          // Poke expanded set so ValueListenableBuilder rebuilds and shows children
+                                          _expandedDocumentIds.value =
+                                              Set<int>.from(
+                                                _expandedDocumentIds.value,
+                                              );
+                                        });
+                                  }
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    CustomIconButton(
-                                      onPressed: () => _pickDocuments(doc),
-                                      icon: Icon(
-                                        Icons.add,
-                                        color: AppColor.darkGreen,
-                                        size: 16,
-                                      ),
-                                      backgroundColor: AppColor.lightGreen,
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.all(2),
-                                      decoration: BoxDecoration(
-                                        color: AppColor.lightGrey,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Icon(
-                                        isExpanded
-                                            ? Icons.arrow_drop_up
-                                            : Icons.arrow_drop_down,
-                                        size: 24,
+                                    Expanded(
+                                      child: Text(
+                                        doc.documentName,
+                                        style: AppTextStyle.ts14SB(),
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        if (isExpanded)
-                          Builder(
-                            builder: (context) {
-                              if (isLoadingChildren) {
-                                return const Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                );
-                              }
-
-                              if (childDocs.isEmpty) {
-                                return Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Center(
-                                    child: Text(
-                                      "No documents found",
-                                      style: AppTextStyle.ts14R(
-                                        color: AppColor.grey,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-
-                              return Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 16,
-                                  right: 16,
-                                  bottom: 16,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children:
-                                      childDocs.map((childDoc) {
-                                        return Container(
-                                          margin: const EdgeInsets.only(
-                                            bottom: 8,
-                                          ),
-                                          padding: const EdgeInsets.all(12),
+                                    Row(
+                                      spacing: 20,
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.all(2),
                                           decoration: BoxDecoration(
-                                            color: AppColor.lightGreyBackground,
+                                            color: AppColor.lightGrey,
                                             borderRadius: BorderRadius.circular(
                                               8,
                                             ),
                                           ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Flexible(
-                                                child: Text(
-                                                  childDoc.documentName,
-                                                  style: AppTextStyle.ts14R(),
-                                                ),
-                                              ),
-                                              CustomIconButton(
-                                                onPressed: () {
-                                                  showFilePreviewDialog(
-                                                    context,
-                                                    childDoc.documentURL.split(
-                                                      ",",
-                                                    ),
-                                                  );
-                                                },
-                                                icon: Icon(
-                                                  Icons.remove_red_eye_outlined,
-                                                  color: AppColor.primary,
-                                                  size: 16,
-                                                ),
-                                              ),
-                                            ],
+                                          child: Icon(
+                                            isExpanded
+                                                ? Icons.arrow_drop_up
+                                                : Icons.arrow_drop_down,
+                                            size: 24,
                                           ),
-                                        );
-                                      }).toList(),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                          ),
-                      ],
-                    ),
+                              ),
+                            ),
+                            if (isExpanded)
+                              Builder(
+                                builder: (context) {
+                                  if (isLoadingChildren) {
+                                    return const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    );
+                                  }
+
+                                  if (childDocs.isEmpty) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Center(
+                                        child: Text(
+                                          "No documents found",
+                                          style: AppTextStyle.ts14R(
+                                            color: AppColor.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 16,
+                                      right: 16,
+                                      bottom: 16,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children:
+                                          childDocs.map((childDoc) {
+                                            return Container(
+                                              margin: const EdgeInsets.only(
+                                                bottom: 8,
+                                              ),
+                                              padding: const EdgeInsets.all(12),
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    AppColor
+                                                        .lightGreyBackground,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Flexible(
+                                                    child: Text(
+                                                      childDoc.documentName,
+                                                      style:
+                                                          AppTextStyle.ts14R(),
+                                                    ),
+                                                  ),
+                                                  CustomIconButton(
+                                                    onPressed: () {
+                                                      showFilePreviewDialog(
+                                                        context,
+                                                        childDoc.documentURL
+                                                            .split(","),
+                                                      );
+                                                    },
+                                                    icon: Icon(
+                                                      Icons
+                                                          .remove_red_eye_outlined,
+                                                      color: AppColor.primary,
+                                                      size: 16,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }).toList(),
+                                    ),
+                                  );
+                                },
+                              ),
+                          ],
+                        ),
+                      );
+                    },
                   );
                 },
-              );
-            },
-          ),
+              ),
+            ),
+          ],
         );
       },
     );

@@ -157,6 +157,7 @@ class AppRoutes {
   static String redevelopmentDashboard = "/redevelopmentDashboard";
   static String building = "/building";
   static String addBuilding = "/addBuilding";
+  static String addUpdateBuildingDoc = "/addUpdateBuildingDoc";
   static String editBuildingDetails = "/editBuildingDetails";
   static String viewBuilding = "/viewBuilding";
   static String buildingDescription = "/buildingDescription";

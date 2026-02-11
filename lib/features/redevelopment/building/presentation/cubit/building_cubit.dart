@@ -147,8 +147,10 @@ class BuildingCubit extends Cubit<BuildingState> {
     int pageSize,
     int? buildingDocumentId,
   ) async {
-    if (isClosed) return;
-    emit(state.copyWith(isLoading: true));
+    final bool isParentRequest = buildingDocumentId == null || buildingDocumentId == 0;
+    if (isParentRequest) {
+      emit(state.copyWith(isLoading: true));
+    }
 
     final queryParameter = {
       "IsCheckPermission": true,
@@ -163,16 +165,15 @@ class BuildingCubit extends Cubit<BuildingState> {
       queryParams: queryParameter,
     );
 
-    if (isClosed) return;
 
     result.fold(
       (failure) {
-        if (isClosed) return;
-        emit(state.copyWith(isLoading: false));
+        if (isParentRequest) {
+          emit(state.copyWith(isLoading: false));
+        }
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        if (isClosed) return;
         final List<BuildingDocumentModel> newList =
             pageNumber == 1
                 ? List<BuildingDocumentModel>.from(response['data'])
@@ -180,11 +181,103 @@ class BuildingCubit extends Cubit<BuildingState> {
 
         emit(
           state.copyWith(
-            isLoading: false,
+            isLoading: isParentRequest ? false : state.isLoading,
             buildingDocumentList: newList,
             currentPage: pageNumber,
             totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
+        );
+      },
+    );
+  }
+
+  /// <---- GET CHILD BUILDING DOCUMENTS (NO STATE MUTATION) ---->
+  Future<List<BuildingDocumentModel>> getBuildingChildDocuments(
+    BuildContext context,
+    int projectId,
+    int buildingId,
+    int parentBuildingDocumentId,
+  ) async {
+    final queryParameter = {
+      "IsCheckPermission": true,
+      "BuildingDocumentId": parentBuildingDocumentId,
+    };
+
+    final result = await _buildingRepository.pullBuildingDocument(
+      pageNumber: 1,
+      pageSize: 100,
+      buildingId: buildingId,
+      projectId: projectId,
+      queryParams: queryParameter,
+    );
+
+    return result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return <BuildingDocumentModel>[];
+      },
+      (response) {
+        return List<BuildingDocumentModel>.from(
+          response['data'] as List<BuildingDocumentModel>,
+        );
+      },
+    );
+  }
+
+  // <---- ADD BUILDING DOCUMENT ---->
+  Future addBuildingDocument({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+    required String documentName,
+    required MultiFilePickerModel files,
+  }) async {
+    if (isClosed) return;
+
+
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < files.fileNameList.length; i++) {
+      if (files.fileNameList[i].contains("http")) {
+        continue;
+      }
+      if (i < files.fileBytesList.length && files.fileBytesList[i].isNotEmpty) {
+        fileList.add({
+          "key": "DocumentURL",
+          "value": files.fileBytesList[i],
+          "fileName": files.fileNameList[i],
+        });
+      }
+    }
+
+    DialogHelper.showProcessingOverlay(context);
+
+    final body = <String, String>{
+      'ProjectId': projectId.toString(),
+      'BuildingId': buildingId.toString(),
+      'DocumentName': documentName,
+      "IsMaster":"1"
+    };
+
+    var addResult = await _buildingRepository.addUpdateBuildingDocument(
+      body: body,
+      fileList: fileList,
+    );
+    goRouter.pop();
+
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) async {
+        showSuccessMessage(context, subTitle: "Document Added Successfully");
+        await getBuildingDocumentList(
+          context,
+          projectId,
+          buildingId,
+          1,
+          100,
+          null,
         );
       },
     );

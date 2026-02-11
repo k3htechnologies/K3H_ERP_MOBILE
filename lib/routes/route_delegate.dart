@@ -236,6 +236,7 @@ import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/building_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_building_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_update_document_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_view_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/edit_building_details_screen.dart';
@@ -276,7 +277,6 @@ import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/d
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/documents_view_vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/view_details_vendor_screen.dart';
-import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
@@ -2005,90 +2005,113 @@ final GoRouter goRouter = GoRouter(
           builder: (context, state) => const RedevelopmentDashboardScreen(),
         ),
         // BUILDING
-        GoRoute(
-          name: AppRoutes.building,
-          path: AppRoutes.building,
-          builder: (context, state) {
-            return const BuildingScreen();
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => BuildingCubit(),
+              child: child,
+            );
           },
-        ),
-        GoRoute(
-          name: AppRoutes.addBuilding,
-          path: AppRoutes.addBuilding,
-          builder: (context, state) {
-            final queryParameterBuilding =
+          routes: [
+            GoRoute(
+              name: AppRoutes.building,
+              path: AppRoutes.building,
+              builder: (context, state) {
+                return const BuildingScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addUpdateBuildingDoc,
+              path: AppRoutes.addUpdateBuildingDoc,
+              builder: (context, state) {
+                final queryParameterBuilding =
                 state.uri.queryParameters['building'];
 
-            final RedevelopmentBuildingModel? building =
+                final RedevelopmentBuildingModel? building =
                 queryParameterBuilding != null
                     ? RedevelopmentBuildingModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterBuilding),
-                        ),
-                      ),
-                    )
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterBuilding),
+                    ),
+                  ),
+                )
                     : null;
 
-            final index =
-                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-
-            final projectId = int.tryParse(
-              state.uri.queryParameters['projectId'] ?? '',
-            );
-
-            return BlocProvider.value(
-              value: serviceLocator<BuildingCubit>(),
-              child: AddBuildingScreen(
-                building: building,
-                index: index,
-                projectId: projectId,
-              ),
-            );
-          },
-        ),
-        GoRoute(
-          name: AppRoutes.viewBuilding,
-          path: AppRoutes.viewBuilding,
-          builder: (context, state) {
-            final queryParameterBuilding =
+                return AddUpdateDocumentScreen(building: building!);
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addBuilding,
+              path: AppRoutes.addBuilding,
+              builder: (context, state) {
+                final queryParameterBuilding =
                 state.uri.queryParameters['building'];
 
-            final RedevelopmentBuildingModel? building =
+                final RedevelopmentBuildingModel? building =
                 queryParameterBuilding != null
                     ? RedevelopmentBuildingModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterBuilding),
-                        ),
-                      ),
-                    )
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterBuilding),
+                    ),
+                  ),
+                )
                     : null;
 
-            return BlocProvider.value(
-              value: serviceLocator<BuildingCubit>(),
-              child: BuildingViewScreen(building: building!),
-            );
-          },
-        ),
-        GoRoute(
-          name: AppRoutes.editBuildingDetails,
-          path: AppRoutes.editBuildingDetails,
-          builder: (context, state) {
-            // Check for both parameter names (buildingDetail and buildingDetails)
-            final queryParameterBuildingDetail =
-                state.uri.queryParameters['buildingDetail'] ??
-                state.uri.queryParameters['buildingDetails'];
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
 
-            if (queryParameterBuildingDetail == null) {
-              // Return error screen or navigate back
-              return Scaffold(
-                appBar: AppBar(title: const Text('Error')),
-                body: const Center(child: Text('Building details not found')),
-              );
-            }
+                final projectId = int.tryParse(
+                  state.uri.queryParameters['projectId'] ?? '',
+                );
 
-            final BuildingDetailsModel buildingDetail =
+                return AddBuildingScreen(
+                  building: building,
+                  index: index,
+                  projectId: projectId,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewBuilding,
+              path: AppRoutes.viewBuilding,
+              builder: (context, state) {
+                final queryParameterBuilding =
+                state.uri.queryParameters['building'];
+
+                final RedevelopmentBuildingModel? building =
+                queryParameterBuilding != null
+                    ? RedevelopmentBuildingModel.fromJson(
+                  jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeComponent(queryParameterBuilding),
+                    ),
+                  ),
+                )
+                    : null;
+
+                return BuildingViewScreen(building: building!);
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.editBuildingDetails,
+              path: AppRoutes.editBuildingDetails,
+              builder: (context, state) {
+                // Check for both parameter names (buildingDetail and buildingDetails)
+                final queryParameterBuildingDetail =
+                    state.uri.queryParameters['buildingDetail'] ??
+                        state.uri.queryParameters['buildingDetails'];
+
+                if (queryParameterBuildingDetail == null) {
+                  // Return error screen or navigate back
+                  return Scaffold(
+                    appBar: AppBar(title: const Text('Error')),
+                    body: const Center(child: Text('Building details not found')),
+                  );
+                }
+
+                final BuildingDetailsModel buildingDetail =
                 BuildingDetailsModel.fromJson(
                   jsonDecode(
                     EncryptionManager.decryptData(
@@ -2097,13 +2120,12 @@ final GoRouter goRouter = GoRouter(
                   ),
                 );
 
-            return BlocProvider.value(
-              value: serviceLocator<BuildingCubit>(),
-              child: EditBuildingDetailsScreen(
-                buildingDetailsModel: buildingDetail,
-              ),
-            );
-          },
+                return EditBuildingDetailsScreen(
+                  buildingDetailsModel: buildingDetail,
+                );
+              },
+            ),
+          ],
         ),
         // TENANT
         ShellRoute(
