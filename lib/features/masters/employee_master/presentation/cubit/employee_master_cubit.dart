@@ -41,6 +41,12 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   final ProjectMasterRepository _projectMasterRepository =
       serviceLocator<ProjectMasterRepository>();
 
+  // <---- SEARCH EMPLOYEE ---->
+  Future searchEmployee(BuildContext context, String value) async {
+    emit(state.copyWith(searchText: value, employeeMasterList: []));
+    await getEmployeeMasterList(context, 1);
+  }
+
   Future applyFilterAndSort({
     required BuildContext context,
     required String employeeCode,
@@ -176,8 +182,6 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
           state.copyWith(
             isLoading: false,
             employeeDocumentList: newList,
-            currentPage: pageNumber,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
         );
       },
@@ -214,8 +218,6 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
           state.copyWith(
             isLoading: false,
             assetMappingList: newList,
-            currentPage: pageNumber,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
         );
       },
@@ -253,8 +255,6 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
           state.copyWith(
             isLoading: false,
             shiftManagementList: newList,
-            currentPage: pageNumber,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
         );
       },
@@ -291,8 +291,6 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
           state.copyWith(
             isLoading: false,
             weekOffMappingList: newList,
-            currentPage: pageNumber,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
           ),
         );
       },
@@ -721,12 +719,6 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
         };
       },
     );
-  }
-
-  // <---- SEARCH EMPLOYEE ---->
-  Future searchEmployee(BuildContext context, String value) async {
-    emit(state.copyWith(searchText: value, employeeMasterList: []));
-    await getEmployeeMasterList(context, 1);
   }
 
   // <---- EXPORT EXCEL PDF ---->

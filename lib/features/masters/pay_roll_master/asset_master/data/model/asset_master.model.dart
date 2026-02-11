@@ -15,6 +15,11 @@ class AssetMasterModel {
   String supplierName;
   String status;
   String assetInvoiceURL;
+  String employeeName;
+  String branch;
+  String department;
+  String designation;
+  DateTime assignedDate;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -36,6 +41,11 @@ class AssetMasterModel {
     required this.assetCost,
     required this.supplierName,
     required this.status,
+    required this.employeeName,
+    required this.branch,
+    required this.department,
+    required this.designation,
+    required this.assignedDate,
     required this.assetInvoiceURL,
     required this.createdById,
     required this.createdBy,
@@ -63,6 +73,11 @@ class AssetMasterModel {
         assetCost: parseValue<double>(json, 'AssetCost'),
         supplierName: parseValue<String>(json, 'SupplierName'),
         status: parseValue<String>(json, 'Status'),
+        employeeName: parseValue<String>(json, 'EmployeeName'),
+        branch: parseValue<String>(json, 'Branch'),
+        department: parseValue<String>(json, 'Department'),
+        designation: parseValue<String>(json, 'Designation'),
+        assignedDate: parseValue<DateTime>(json, 'AssignedDate'),
         assetInvoiceURL: parseValue<String>(json, 'AssetInvoiceURL'),
         createdById: parseValue(json, 'CreatedById'),
         createdBy: parseValue<String>(json, 'CreatedBy'),
@@ -86,6 +101,11 @@ class AssetMasterModel {
     "AssetCost": assetCost,
     "SupplierName": supplierName,
     "Status": status,
+    "EmployeeName": employeeName,
+    "Branch": branch,
+    "Department": department,
+    "Designation": designation,
+    "AssignedDate": assignedDate.toIso8601String(),
     "AssetInvoiceURL": assetInvoiceURL,
     "CreatedById": createdById,
     "CreatedBy": createdBy,

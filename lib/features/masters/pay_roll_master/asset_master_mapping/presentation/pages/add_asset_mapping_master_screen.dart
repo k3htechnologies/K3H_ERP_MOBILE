@@ -116,6 +116,7 @@ class _AddAssetMappingMasterScreenState
         'zAttributesId': assetMapping.assetMasterId,
         'DisplayName': assetMapping.assetName,
         'assetCode': assetMapping.assetCode,
+        'assetModel': assetMapping.assetModel,
         'assetType': assetMapping.assetType,
         'assetBrand': assetMapping.assetBrand,
         'serialNumber': assetMapping.serialNumber,
@@ -131,7 +132,7 @@ class _AddAssetMappingMasterScreenState
     _fetchEmployeeDetailsForEdit(assetMapping.employeeId);
   }
 
-  /// In edit mode, load full employee by id and update selected employee so the card has all fields.
+  // FETCH EMPLOYEE
   Future<void> _fetchEmployeeDetailsForEdit(int employeeId) async {
     final result = await _employeeMasterRepository.getEmployeeMasterList(
       pageNumber: 1,
@@ -225,6 +226,7 @@ class _AddAssetMappingMasterScreenState
                   "zAttributesId": asset.assetMasterId,
                   "DisplayName": asset.assetName,
                   "assetCode": asset.assetCode,
+                  "assetModel": asset.assetModel,
                   "assetType": asset.assetType,
                   "assetBrand": asset.assetBrand,
                   "serialNumber": asset.serialNumber,
@@ -311,6 +313,103 @@ class _AddAssetMappingMasterScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // ASSET SELECT
+                ValueListenableBuilder<List<Map<String, dynamic>>>(
+                  valueListenable: _selectedAssetNotifier,
+                  builder: (context, selectedAsset, _) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomMultipleSelectPopup(
+                          title: 'Asset',
+                          isRequired: true,
+                          isMultiSelect: false,
+                          initialValue: selectedAsset,
+                          dataList: const [],
+                          onSelected: (value) {
+                            _selectedAssetNotifier.value = value;
+                          },
+                          dataFetchCallBack: _fetchAssets,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Asset is required";
+                            }
+                            return null;
+                          },
+                        ),
+                        if (selectedAsset.isNotEmpty) ...[
+                          Container(
+                            margin: EdgeInsets.only(bottom: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: AppColor.lightBlue),
+                            ),
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              spacing: 10,
+                              children: [
+                                Row(
+                                  spacing: 10,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildColumnTitleValue(
+                                      title: "Asset Code",
+                                      value:
+                                      selectedAsset.first["assetCode"] ??
+                                          '',
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "Asset Name",
+                                      value:
+                                      selectedAsset.first["DisplayName"] ??
+                                          '',
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  spacing: 10,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildColumnTitleValue(
+                                      title: "Asset Type",
+                                      value:
+                                      selectedAsset.first["assetType"] ??
+                                          '',
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "Asset Model",
+                                      value:
+                                      selectedAsset.first["assetModel"] ??
+                                          '',
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  spacing: 10,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildColumnTitleValue(
+                                      title: "Asset Brand",
+                                      value:
+                                      selectedAsset.first["assetBrand"] ??
+                                          '',
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "Serial Number",
+                                      value:
+                                      selectedAsset.first["serialNumber"] ??
+                                          '',
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    );
+                  },
+                ),
                 // EMPLOYEE SELECT + CARD
                 ValueListenableBuilder<List<Map<String, dynamic>>>(
                   valueListenable: _selectedEmployeeNotifier,
@@ -412,104 +511,6 @@ class _AddAssetMappingMasterScreenState
                     );
                   },
                 ),
-                // ASSET SELECT
-                ValueListenableBuilder<List<Map<String, dynamic>>>(
-                  valueListenable: _selectedAssetNotifier,
-                  builder: (context, selectedAsset, _) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomMultipleSelectPopup(
-                          title: 'Asset',
-                          isRequired: true,
-                          isMultiSelect: false,
-                          initialValue: selectedAsset,
-                          dataList: const [],
-                          onSelected: (value) {
-                            _selectedAssetNotifier.value = value;
-                          },
-                          dataFetchCallBack: _fetchAssets,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Asset is required";
-                            }
-                            return null;
-                          },
-                        ),
-                        if (selectedAsset.isNotEmpty) ...[
-                          Container(
-                            margin: EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: AppColor.lightBlue),
-                            ),
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              spacing: 10,
-                              children: [
-                                Row(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Asset Code",
-                                      value:
-                                          selectedAsset.first["assetCode"] ??
-                                          '',
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Asset Name",
-                                      value:
-                                          selectedAsset.first["DisplayName"] ??
-                                          '',
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Asset Type",
-                                      value:
-                                          selectedAsset.first["assetType"] ??
-                                          '',
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Asset Model",
-                                      value:
-                                          selectedAsset.first["asselModel"] ??
-                                          '',
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Asset Brand",
-                                      value:
-                                          selectedAsset.first["assetBrand"] ??
-                                          '',
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Serial Number",
-                                      value:
-                                          selectedAsset.first["serialNumber"] ??
-                                          '',
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    );
-                  },
-                ),
-
                 // ASSIGNED DATE
                 ValueListenableBuilder<DateTime?>(
                   valueListenable: _assignedDateNotifier,

@@ -30,7 +30,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_handleTabChange);
     _bookingCubit = context.read<BookingCubit>();
   }
@@ -97,6 +97,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   tabs: const [
                     Tab(text: 'Details'),
                     Tab(text: 'Extra Charges'),
+                    Tab(text: 'Payment Schedule'),
                   ],
                 ),
               ),
@@ -106,7 +107,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
             child: TabBarView(
               physics: NeverScrollableScrollPhysics(),
               controller: _tabController,
-              children: [_buildDetailsTab(), _buildExtraChargesTab()],
+              children: [_buildDetailsTab(), _buildExtraChargesTab(),_buildPaymentSchedule()],
             ),
           ),
         ],
@@ -645,15 +646,14 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Management Details", style: AppTextStyle.ts16SB(),
-              ),
+                Text("Management Details", style: AppTextStyle.ts16SB()),
                 Row(
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // buildColumnTitleValue(title: "Sourcing Manager", value: widget.bookingModel.)
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -664,6 +664,77 @@ class _BookingViewScreenState extends State<BookingViewScreen>
 
   // BUILD EXTRA CHARGES TAB
   Widget _buildExtraChargesTab() {
-    return Container();
+    if(widget.bookingModel.bookingOtherChargesData.isEmpty){
+      return noDataWidget();
+    }
+    return ListView.builder(
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      shrinkWrap: true,
+      itemCount: widget.bookingModel.bookingOtherChargesData.length,
+      itemBuilder: (context,index) {
+        final extraCharge = widget.bookingModel.bookingOtherChargesData[index];
+        return Container(
+          decoration: commonCardDecoration(),
+          margin: EdgeInsets.only(bottom: 10),
+          padding: EdgeInsets.all(16),
+          child:Column(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  buildColumnTitleValue(title: "Name", value: extraCharge.chargeName)
+                ],
+              ),
+              Row(
+                children: [
+                  buildColumnTitleValue(title: "Value (In ₹)", value: "${extraCharge.value} ${extraCharge.calculatedOn}"),
+                  buildColumnTitleValue(title: "Gst (%)", value: extraCharge.gstPercentage.toString()),
+                ],
+              )
+            ],
+          )
+        );
+      }
+    );
   }
+
+  // BUILD PAYMENT SCHEDULE
+  Widget _buildPaymentSchedule() {
+    if(widget.bookingModel.bookingPaymentScheduleData.isEmpty){
+      return noDataWidget();
+    }
+    return ListView.builder(
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        shrinkWrap: true,
+        itemCount: widget.bookingModel.bookingPaymentScheduleData.length,
+        itemBuilder: (context,index) {
+          final payment = widget.bookingModel.bookingPaymentScheduleData[index];
+          return Container(
+              decoration: commonCardDecoration(),
+              margin: EdgeInsets.only(bottom: 10),
+              padding: EdgeInsets.all(16),
+              child:Column(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      buildColumnTitleValue(title: "Ranking", value: payment.type),
+                      buildColumnTitleValue(title: "Name", value: payment.name),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      buildColumnTitleValue(title: "Percentage (%)", value: payment.paymentSchedulePercentage.toString()),
+                      // buildColumnTitleValue(title: "Cumulative(%)", value: payment..toString()),
+                    ],
+                  )
+                ],
+              )
+          );
+        }
+    );
+  }
+
 }

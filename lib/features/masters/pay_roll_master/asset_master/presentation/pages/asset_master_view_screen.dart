@@ -218,16 +218,77 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
                     buildColumnTitleValue(
                       title: "Invoice",
                       value: widget.assetMaster.assetInvoiceURL,
-                      customValueWidget: CustomButton.documentOutline(onPressed: (){
-                        if(widget.assetMaster.assetInvoiceURL.isNotEmpty){
-                          showFilePreviewDialog(context, widget.assetMaster.assetInvoiceURL.split(","));
-                        }
-                      },isDisable: widget.assetMaster.assetInvoiceURL.isEmpty,)
+                      customValueWidget: CustomButton.documentOutline(
+                        onPressed: () {
+                          if (widget.assetMaster.assetInvoiceURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              widget.assetMaster.assetInvoiceURL.split(","),
+                            );
+                          }
+                        },
+                        isDisable: widget.assetMaster.assetInvoiceURL.isEmpty,
+                      ),
                     ),
-                    Expanded(child: SizedBox())
+                    Expanded(child: SizedBox()),
                   ],
-                )
+                ),
               ],
+            ),
+          ),
+          Visibility(
+            visible: widget.assetMaster.status.toLowerCase()=="booked",
+            child: Container(
+              padding: EdgeInsets.all(16),
+              decoration: commonCardDecoration(),
+              margin: EdgeInsets.only(bottom: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
+                children: [
+                  Text("Alloted Details", style: AppTextStyle.ts16SB()),
+                  Row(
+                    spacing: 5,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Employee Name",
+                        value: widget.assetMaster.employeeName,
+                      ),
+                      buildColumnTitleValue(
+                        title: "Branch",
+                        value: widget.assetMaster.branch,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    spacing: 5,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Department",
+                        value: widget.assetMaster.department,
+                      ),
+                      buildColumnTitleValue(
+                        title: "Designation",
+                        value: widget.assetMaster.designation,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    spacing: 5,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Assigned Date",
+                        value: formatDateTimeAsDDMMMYYYY(
+                          widget.assetMaster.assignedDate,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
           Container(
@@ -286,53 +347,72 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
   Widget _buildReturnHistoryTab() {
     return BlocBuilder<AssetMasterCubit, AssetMasterState>(
       builder: (context, state) {
-        if ((state.isLoading??true) && state.assetMappingList.isEmpty) {
+        if ((state.isLoading ?? true) && state.assetMappingList.isEmpty) {
           return loader();
         }
         if (state.assetMappingList.isEmpty) {
           return noDataWidget();
         }
         return ListView.builder(
-          padding: EdgeInsets.symmetric(horizontal: 16,vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           shrinkWrap: true,
           itemCount: state.assetMappingList.length,
           itemBuilder: (_, index) {
             final assetMapping = state.assetMappingList[index];
             return Container(
               padding: EdgeInsets.all(16),
-              margin: EdgeInsets.only(bottom:10),
+              margin: EdgeInsets.only(bottom: 10),
               decoration: commonCardDecoration(),
               child: Column(
                 spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Asset Details",style: AppTextStyle.ts16SB(),),
+                  Text("Asset Details", style: AppTextStyle.ts16SB()),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumnTitleValue(title: "Employee Name", value: assetMapping.employeeName,),
-                      buildColumnTitleValue(title: "Branch", value: assetMapping.branch)
+                      buildColumnTitleValue(
+                        title: "Employee Name",
+                        value: assetMapping.employeeName,
+                      ),
+                      buildColumnTitleValue(
+                        title: "Branch",
+                        value: assetMapping.branch,
+                      ),
                     ],
                   ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumnTitleValue(title: "Department", value: assetMapping.department,),
-                      buildColumnTitleValue(title: "Designation", value: assetMapping.designation)
+                      buildColumnTitleValue(
+                        title: "Department",
+                        value: assetMapping.department,
+                      ),
+                      buildColumnTitleValue(
+                        title: "Designation",
+                        value: assetMapping.designation,
+                      ),
                     ],
                   ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumnTitleValue(title: "Duration Date", value: "${formatDateTimeAsDDMMMYYYY(assetMapping.assignedDate)} to ${formatDateTimeAsDDMMMYYYY(assetMapping.returnDate!)}",),
+                      buildColumnTitleValue(
+                        title: "Duration Date",
+                        value:
+                            "${formatDateTimeAsDDMMMYYYY(assetMapping.assignedDate)} to ${formatDateTimeAsDDMMMYYYY(assetMapping.returnDate!)}",
+                      ),
                     ],
                   ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumnTitleValue(title: "Condition At Return", value: assetMapping.conditionOnReturn),
+                      buildColumnTitleValue(
+                        title: "Condition At Return",
+                        value: assetMapping.conditionOnReturn,
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
             );

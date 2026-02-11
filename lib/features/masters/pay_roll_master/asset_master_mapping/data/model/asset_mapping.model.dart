@@ -19,7 +19,7 @@ class AssetMappingModel {
   String serialNumber;
   DateTime purchaseDate;
   DateTime warrantyExpiryDate;
-  int assetCost;
+  double assetCost;
   String supplierName;
   String status;
   String department;
@@ -88,7 +88,7 @@ class AssetMappingModel {
         serialNumber: parseValue<String>(json, "SerialNumber"),
         purchaseDate: DateTime.parse(json["PurchaseDate"]),
         warrantyExpiryDate: DateTime.parse(json["WarrantyExpiryDate"]),
-        assetCost: parseValue<int>(json, "AssetCost"),
+        assetCost: parseValue<double>(json, "AssetCost"),
         supplierName: parseValue<String>(json, "SupplierName"),
         status: parseValue<String>(json, "Status"),
         department: parseValue<String>(json, "Department"),

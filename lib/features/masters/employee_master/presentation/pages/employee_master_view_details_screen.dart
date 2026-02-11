@@ -590,7 +590,7 @@ class _EmployeeMasterViewDetailsScreenState
                               child: Align(
                                 alignment: Alignment.centerLeft,
                                 child: _buildInfoItem(
-                                  "Asset Type",
+                                  "Serial Type",
                                   asset.assetType,
                                 ),
                               ),
@@ -612,32 +612,7 @@ class _EmployeeMasterViewDetailsScreenState
                             Expanded(
                               child: Align(
                                 alignment: Alignment.centerLeft,
-                                child: _buildInfoItem("Status", asset.status),
-                              ),
-                            ),
-                          ],
-                        ),
-                        verticalSpacing(),
-                        Text("Purchase Details", style: AppTextStyle.ts14SB()),
-                        verticalSpacing(),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: _buildInfoItem(
-                                  "Purchase Date",
-                                  formatDateTimeAsDDMMMYYYY(asset.purchaseDate),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: _buildInfoItem(
-                                  "Asset Cost",
-                                  asset.assetCost.toString(),
-                                ),
+                                child: _buildInfoItem("Assigned Date", formatDateTimeAsDDMMMYYYY(asset.assignedDate)),
                               ),
                             ),
                           ],
@@ -649,21 +624,13 @@ class _EmployeeMasterViewDetailsScreenState
                               child: Align(
                                 alignment: Alignment.centerLeft,
                                 child: _buildInfoItem(
-                                  "Warranty Expiry Date",
-                                  formatDateTimeAsDDMMMYYYY(
-                                    asset.warrantyExpiryDate,
-                                  ),
+                                  "Assigned By",
+                                  asset.createdBy,
                                 ),
                               ),
                             ),
                             Expanded(
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: _buildInfoItem(
-                                  "Supplier Name",
-                                  asset.supplierName,
-                                ),
-                              ),
+                              child: Container()
                             ),
                           ],
                         ),

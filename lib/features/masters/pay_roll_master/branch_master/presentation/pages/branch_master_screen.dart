@@ -367,17 +367,19 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
                                 );
                               },
                             ),
-                            const SizedBox(width: 8),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteAssetMappingMaster(
-                                  context,
-                                  branch,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
+                            if(branch.numberOfEmployee==0)...[
+                              const SizedBox(width: 8),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteAssetMappingMaster(
+                                    context,
+                                    branch,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ]
                           ],
                         ),
                       ],
