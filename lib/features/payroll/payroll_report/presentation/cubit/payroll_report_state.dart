@@ -4,22 +4,31 @@ class PayrollReportState extends BaseState {
   final List<AttendanceModel> attendanceList;
   final int totalNumberOfRecordAttendance;
   final int currentPageAttendance;
+
   final List<OutdoorModel> outdoorList;
   final int currentPageOutdoor;
   final int totalNumberOfRecordOutdoor;
+
   final List<LeaveModel> leaveList;
   final int currentPageLeave;
   final int totalNumberOfRecordLeave;
+
   final List<ResignationModel> resignationList;
   final int currentPageResignation;
   final int totalNumberOfRecordResignation;
+
   final List<CompOffModel> compOffList;
   final int currentPageCompOff;
   final int totalNumberOfRecordCompOff;
+
   final List<AttendanceRegularizationModel> regularizationList;
   final int currentPageRegurization;
   final int totalNumberOfRecordRegurization;
+
   final int currentTabIndex;
+  final String searchText;
+  final DateTime? filterStartDate;
+  final DateTime? filterEndDate;
 
   const PayrollReportState({
     super.isLoading,
@@ -42,6 +51,9 @@ class PayrollReportState extends BaseState {
     required this.currentPageRegurization,
     required this.totalNumberOfRecordRegurization,
     required this.currentTabIndex,
+    required this.searchText,
+    this.filterStartDate,
+    this.filterEndDate,
   });
 
   factory PayrollReportState.initial() => PayrollReportState(
@@ -62,9 +74,12 @@ class PayrollReportState extends BaseState {
     currentPageCompOff: 1,
     totalNumberOfRecordCompOff: 0,
     regularizationList: [],
-    currentPageRegurization: 0,
+    currentPageRegurization: 1,
     totalNumberOfRecordRegurization: 0,
     currentTabIndex: 0,
+    searchText: '',
+    filterStartDate: null,
+    filterEndDate: null,
   );
 
   PayrollReportState copyWith({
@@ -88,6 +103,9 @@ class PayrollReportState extends BaseState {
     int? currentPageRegurization,
     int? totalNumberOfRecordRegurization,
     int? currentTabIndex,
+    String? searchText,
+    DateTime? filterStartDate,
+    DateTime? filterEndDate,
   }) {
     return PayrollReportState(
       isLoading: isLoading ?? this.isLoading,
@@ -115,11 +133,14 @@ class PayrollReportState extends BaseState {
           totalNumberOfRecordCompOff ?? this.totalNumberOfRecordCompOff,
       regularizationList: regularizationList ?? this.regularizationList,
       currentPageRegurization:
-          currentPageResignation ?? this.currentPageRegurization,
+          currentPageRegurization ?? this.currentPageRegurization,
       totalNumberOfRecordRegurization:
           totalNumberOfRecordRegurization ??
           this.totalNumberOfRecordRegurization,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
+      searchText: searchText ?? this.searchText,
+      filterStartDate: filterStartDate ?? this.filterStartDate,
+      filterEndDate: filterEndDate ?? this.filterEndDate,
     );
   }
 
@@ -145,5 +166,8 @@ class PayrollReportState extends BaseState {
     currentPageRegurization,
     totalNumberOfRecordRegurization,
     currentTabIndex,
+    searchText,
+    filterStartDate,
+    filterEndDate,
   ];
 }

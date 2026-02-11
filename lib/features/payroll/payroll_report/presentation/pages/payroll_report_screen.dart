@@ -442,9 +442,19 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             ),
           ),
           verticalSpacing(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: SearchWidget(onSubmit: (value) {}, textController: _searchC),
+          BlocBuilder<PayrollReportCubit, PayrollReportState>(
+            builder: (context, state) {
+              if (state.currentTabIndex == 0) {
+                return SizedBox.shrink();
+              }
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: SearchWidget(
+                  onSubmit: (value) {},
+                  textController: _searchC,
+                ),
+              );
+            },
           ),
           verticalSpacing(height: 15),
           Padding(
@@ -560,12 +570,16 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                               children: [
                                 Text(
                                   "Attendance Date: ",
-                                  style: AppTextStyle.ts12R(color: AppColor.grey),
+                                  style: AppTextStyle.ts12R(
+                                    color: AppColor.grey,
+                                  ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
-                                  formatDateTimeAsDDMMMYYYY(attendance.attendanceDate),
+                                  formatDateTimeAsDDMMMYYYY(
+                                    attendance.attendanceDate,
+                                  ),
                                   style: AppTextStyle.ts12R(),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -575,7 +589,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                           ],
                         ),
                       ),
-                      _statusButton(attendance.attendanceStatus)
+                      _statusButton(attendance.attendanceStatus),
                     ],
                   ),
                   verticalSpacing(height: 2),
@@ -586,12 +600,17 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                         title: "Punch In",
                         value:
                             attendance.punchIn != null
-                                ? DateFormat('hh:mm a').format(attendance.punchIn!)
+                                ? DateFormat(
+                                  'hh:mm a',
+                                ).format(attendance.punchIn!)
                                 : "-",
                       ),
                       buildColumnTitleValue(
                         title: "Punch In Address",
-                        value: attendance.punchInAddress.isEmpty?"-":attendance.punchInAddress,
+                        value:
+                            attendance.punchInAddress.isEmpty
+                                ? "-"
+                                : attendance.punchInAddress,
                       ),
                     ],
                   ),
@@ -602,12 +621,17 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                         title: "Punch Out",
                         value:
                             attendance.punchOut != null
-                                ? DateFormat('hh:mm a').format(attendance.punchOut!)
+                                ? DateFormat(
+                                  'hh:mm a',
+                                ).format(attendance.punchOut!)
                                 : "-",
                       ),
                       buildColumnTitleValue(
                         title: "Punch Out Address",
-                        value: attendance.punchOutAddress.isEmpty?"-":attendance.punchOutAddress,
+                        value:
+                            attendance.punchOutAddress.isEmpty
+                                ? "-"
+                                : attendance.punchOutAddress,
                       ),
                     ],
                   ),

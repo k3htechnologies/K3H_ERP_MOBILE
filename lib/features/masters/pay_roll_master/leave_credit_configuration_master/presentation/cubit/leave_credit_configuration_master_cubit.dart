@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
@@ -64,15 +63,12 @@ class LeaveCreditConfigurationMasterCubit
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     if (state.filterFromLeaveCreditDate != null) {
-      queryParams["StartDate"] = DateFormat(
-        'yyyy-MM-dd',
-      ).format(state.filterFromLeaveCreditDate!);
+      queryParams["StartDate"] =
+          state.filterFromLeaveCreditDate!.toIso8601String();
     }
 
     if (state.filterToLeaveCreditDate != null) {
-      queryParams["EndDate"] = DateFormat(
-        'yyyy-MM-dd',
-      ).format(state.filterToLeaveCreditDate!);
+      queryParams["EndDate"] = state.filterToLeaveCreditDate!.toIso8601String();
     }
     var result = await _leaveCreditConfigurationMasterRepository
         .getLeaveCreditConfigurationList(

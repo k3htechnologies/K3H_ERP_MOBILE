@@ -95,6 +95,7 @@ class _ResignationScreenState extends State<ResignationScreen> {
       appBar: CustomAppBarWithBackButton(
         screenTitle: 'Resignation',
         authorization: _routeAuthorizationModel,
+        isMenuButton: true,
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addresignation);
           if (context.mounted) {

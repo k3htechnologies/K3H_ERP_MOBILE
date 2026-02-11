@@ -356,8 +356,20 @@ class _EmployeeMasterViewDetailsScreenState
               {'label': 'Gender', 'value': user.gender},
               {'label': 'Marital Status', 'value': user.maritalStatus},
               {'label': 'Blood Group', 'value': user.bloodGroup},
-              {'label': 'Probation Date', 'value': user.probationDate!=null?formatDateTimeAsDDMMMYYYY(user.probationDate!):"-"},
-              {'label': 'Id Card Issued Date', 'value': user.idCardIssuedDate!=null?formatDateTimeAsDDMMMYYYY(user.idCardIssuedDate!):"-"},
+              {
+                'label': 'Probation Date',
+                'value':
+                    user.probationDate != null
+                        ? formatDateTimeAsDDMMMYYYY(user.probationDate!)
+                        : "-",
+              },
+              {
+                'label': 'Id Card Issued Date',
+                'value':
+                    user.idCardIssuedDate != null
+                        ? formatDateTimeAsDDMMMYYYY(user.idCardIssuedDate!)
+                        : "-",
+              },
               {
                 'label': 'Communication Address',
                 'value': user.communicationAddress,

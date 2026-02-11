@@ -582,6 +582,9 @@ class _LeaveScreenState extends State<LeaveScreen>
 
   // STATUS WIDGET
   Widget _statusWidget(String status) {
+    if (status.trim().isEmpty) {
+      return SizedBox.shrink();
+    }
     final statusConfig = _getStatusConfig(status);
 
     return Container(

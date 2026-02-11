@@ -39,8 +39,12 @@ class _CompOffScreenState extends State<CompOffScreen> {
   Timer? _debounce;
 
   // FILTER
-  final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier<DateTime?>(null);
-  final ValueNotifier<DateTime?> _endDateNotifier = ValueNotifier<DateTime?>(null);
+  final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
+  final ValueNotifier<DateTime?> _endDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
 
   @override
   void initState() {
@@ -115,8 +119,7 @@ class _CompOffScreenState extends State<CompOffScreen> {
     _prefillFilterFromState();
     final state = _compOffCubit.state;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(
-          state.filterStartDate != null ||
-          state.filterEndDate != null,
+      state.filterStartDate != null || state.filterEndDate != null,
     );
     DialogHelper.showCustomFilterBottomSheet(
       context,
@@ -198,7 +201,6 @@ class _CompOffScreenState extends State<CompOffScreen> {
         _compOffCubit.clearFilterOnCompOff(context);
       },
       onApply: () {
-
         final startDate = _startDateNotifier.value;
         final endDate = _endDateNotifier.value;
         if (startDate != null && endDate != null) {
@@ -243,19 +245,14 @@ class _CompOffScreenState extends State<CompOffScreen> {
             await _compOffCubit.getCompOffList(context, 1);
           }
         },
+        isMenuButton: true,
         onFilterTap: () {
           _showBottomSheetToFilterCompOff(context);
         },
       ),
       body: BlocBuilder<CompOffCubit, CompOffState>(
         builder: (context, state) {
-          return Column(
-            children: [
-              Expanded(
-                child: _buildBody(state),
-              ),
-            ],
-          );
+          return Column(children: [Expanded(child: _buildBody(state))]);
         },
       ),
     );
@@ -273,77 +270,32 @@ class _CompOffScreenState extends State<CompOffScreen> {
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       itemCount: _compOffCubit.state.compOffList.length + 1,
       itemBuilder: (context, index) {
-              if (index == state.compOffList.length) {
-                return state.compOffList.length < state.totalNumberOfRecord
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var compOff = state.compOffList[index];
-              return Container(
-                margin: EdgeInsets.only(bottom: 10),
-                padding: EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        if (index == state.compOffList.length) {
+          return state.compOffList.length < state.totalNumberOfRecord
+              ? Padding(
+                padding: const EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator()),
+              )
+              : const SizedBox.shrink();
+        }
+        var compOff = state.compOffList[index];
+        return Container(
+          margin: EdgeInsets.only(bottom: 10),
+          padding: EdgeInsets.all(12),
+          decoration: commonCardDecoration(),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
                   children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  goRouter.pushNamed(
-                                    AppRoutes.viewCompOff,
-                                    queryParameters: {
-                                      "compOff": Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(compOff),
-                                        ),
-                                      ),
-                                    },
-                                  );
-                                },
-                                child: Text(
-                                  formatDateTimeAsDDMMMYYYY(
-                                    compOff.compOffDate,
-                                  ),
-                                  style: AppTextStyle.ts16M(
-                                    color: AppColor.primary,
-                                  ),
-                                ),
-                              ),
-                              horizontalSpacing(width: 20),
-                              _statusWidget("Pending"),
-                            ],
-                          ),
-                          verticalSpacing(),
-                          buildRowTitleValue(
-                            title: "Working Date",
-                            value: formatDateTimeAsDDMMMYYYY(
-                              compOff.workingDate,
-                            ),
-                          ),
-                          buildRowTitleValue(
-                            title: "Reason",
-                            value: compOff.reason,
-                          ),
-                        ],
-                      ),
-                    ),
-                    horizontalSpacing(),
                     Row(
-                      spacing: 10,
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        CustomIconButton.edit(
-                          onPressed: () {
+                        GestureDetector(
+                          onTap: () {
                             goRouter.pushNamed(
-                              AppRoutes.addCompOff,
+                              AppRoutes.viewCompOff,
                               queryParameters: {
                                 "compOff": Uri.encodeComponent(
                                   EncryptionManager.encryptData(
@@ -353,24 +305,58 @@ class _CompOffScreenState extends State<CompOffScreen> {
                               },
                             );
                           },
+                          child: Text(
+                            formatDateTimeAsDDMMMYYYY(compOff.compOffDate),
+                            style: AppTextStyle.ts16M(color: AppColor.primary),
+                          ),
                         ),
-                        CustomIconButton.delete(
-                          onPressed: () {
-                            _showPopupToDeleteDepartmentMaster(
-                              context,
-                              compOff,
-                              state.currentPage,
-                              index,
-                            );
-                          },
-                        ),
+                        horizontalSpacing(width: 20),
+                        _statusWidget("Pending"),
                       ],
                     ),
+                    verticalSpacing(),
+                    buildRowTitleValue(
+                      title: "Working Date",
+                      value: formatDateTimeAsDDMMMYYYY(compOff.workingDate),
+                    ),
+                    buildRowTitleValue(title: "Reason", value: compOff.reason),
                   ],
                 ),
-              );
-            },
-      );
+              ),
+              horizontalSpacing(),
+              Row(
+                spacing: 10,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomIconButton.edit(
+                    onPressed: () {
+                      goRouter.pushNamed(
+                        AppRoutes.addCompOff,
+                        queryParameters: {
+                          "compOff": Uri.encodeComponent(
+                            EncryptionManager.encryptData(jsonEncode(compOff)),
+                          ),
+                        },
+                      );
+                    },
+                  ),
+                  CustomIconButton.delete(
+                    onPressed: () {
+                      _showPopupToDeleteDepartmentMaster(
+                        context,
+                        compOff,
+                        state.currentPage,
+                        index,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   // STATUS WIDGET

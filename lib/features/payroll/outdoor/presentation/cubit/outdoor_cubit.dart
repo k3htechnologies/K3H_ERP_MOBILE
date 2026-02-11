@@ -38,9 +38,20 @@ class OutdoorCubit extends Cubit<OutdoorState> {
   // <---- GET OUTDOOR LIST ---->
   Future getOutdoorList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
+    var queryParams = {
+      "StartDate":
+          state.filterStartDate != null
+              ? state.filterStartDate?.toIso8601String().split("T")[0]
+              : null,
+      "EndDate":
+          state.filterEndDate != null
+              ? state.filterEndDate?.toIso8601String().split("T")[0]
+              : null,
+    };
     var result = await _outdoorRepository.getOutdoorList(
       pageNumber: pageNumber,
       pageSize: 10,
+      queryParams: queryParams,
     );
 
     result.fold(
@@ -424,5 +435,22 @@ class OutdoorCubit extends Cubit<OutdoorState> {
 
   void onTabChanged(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndex: index));
+  }
+
+  Future<void> applyFilterAndSort({
+    required BuildContext context,
+    DateTime? filterFromHolidayDate,
+    DateTime? filterToHolidayDate,
+  }) async {
+    // Update state with new filters and reset pagination
+    emit(
+      state.copyWith(
+        isLoading: true,
+        currentPage: 1,
+        filterStartDate: filterFromHolidayDate,
+        filterEndDate: filterToHolidayDate,
+      ),
+    );
+    getOutdoorList(context, 1);
   }
 }

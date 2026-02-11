@@ -10,6 +10,8 @@ class OutdoorState extends BaseState {
   final int currentPage;
   final String searchText;
   final int currentTabIndex;
+  final DateTime? filterStartDate;
+  final DateTime? filterEndDate;
 
   const OutdoorState({
     super.isLoading,
@@ -22,6 +24,8 @@ class OutdoorState extends BaseState {
     required this.currentPage,
     required this.searchText,
     required this.currentTabIndex,
+    this.filterStartDate,
+    this.filterEndDate,
   });
 
   factory OutdoorState.initial() => OutdoorState(
@@ -35,6 +39,8 @@ class OutdoorState extends BaseState {
     currentPage: 1,
     searchText: "",
     currentTabIndex: 0,
+    filterStartDate: null,
+    filterEndDate: null,
   );
 
   OutdoorState copyWith({
@@ -48,6 +54,9 @@ class OutdoorState extends BaseState {
     int? currentPage,
     String? searchText,
     int? currentTabIndex,
+
+    Object? filterStartDate = _noChange,
+    Object? filterEndDate = _noChange,
   }) {
     return OutdoorState(
       isLoading: isLoading ?? this.isLoading,
@@ -60,17 +69,32 @@ class OutdoorState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
+      filterStartDate:
+          filterStartDate == _noChange
+              ? this.filterStartDate
+              : filterStartDate as DateTime?,
+      filterEndDate:
+          filterEndDate == _noChange
+              ? this.filterEndDate
+              : filterEndDate as DateTime?,
     );
   }
+
+  static const _noChange = Object();
 
   @override
   List<Object?> get props => [
     isLoading,
     outdoorList,
+    departmentList,
+    employeeList,
     totalNumberOfRecord,
+    departmentTotalCount,
+    employeeTotalCount,
     currentPage,
     searchText,
     currentTabIndex,
+    filterStartDate,
+    filterEndDate,
   ];
 }
-

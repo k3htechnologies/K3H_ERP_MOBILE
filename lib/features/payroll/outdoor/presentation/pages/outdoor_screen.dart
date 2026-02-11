@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -86,6 +87,165 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
     });
   }
 
+  Future<void> _showBottomSheetToFilterOutdoor(BuildContext context) async {
+    final state = _outdoorCubit.state;
+
+    DateTime? filterStartDate = state.filterStartDate;
+    DateTime? filterEndDate = state.filterEndDate;
+    final DateTime? initialStartDate = state.filterStartDate;
+    final DateTime? initialEndDate = state.filterEndDate;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    final filterFormKey = GlobalKey<FormState>();
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (filterStartDate != initialStartDate) ||
+            (filterEndDate != initialEndDate);
+        // Disable Apply when only one of Start/End is set (both or neither required)
+        final bool onlyOneSet =
+            (filterStartDate != null && filterEndDate == null) ||
+            (filterEndDate != null && filterStartDate == null);
+        // Disable Apply when Start > End (invalid range)
+        final bool invalidRange =
+            filterStartDate != null &&
+            filterEndDate != null &&
+            filterStartDate!.isAfter(
+              DateTime(
+                filterEndDate!.year,
+                filterEndDate!.month,
+                filterEndDate!.day,
+              ),
+            );
+        final bool dobInvalid = onlyOneSet || invalidRange;
+        applyEnabled.value = manualClose && !dobInvalid;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Outdoor",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          return Form(
+            key: filterFormKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  spacing: 10,
+                  children: [
+                    Expanded(
+                      child: CustomDatePicker(
+                        title: "Start Date",
+                        initialDate: filterStartDate,
+                        setValue: (value) {
+                          innerState(() {
+                            filterStartDate = value;
+                            updateApplyState(innerState);
+                          });
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: CustomDatePicker(
+                        title: "End Date",
+                        initialDate: filterEndDate,
+                        setValue: (value) {
+                          innerState(() {
+                            filterEndDate = value;
+                            updateApplyState(innerState);
+                          });
+                        },
+                        validator: (value) {
+                          if (filterStartDate != null && value == null) {
+                            return 'End Date is required when Start Date is selected';
+                          }
+                          if (filterStartDate != null &&
+                              value != null &&
+                              filterStartDate!.isAfter(
+                                DateTime(value.year, value.month, value.day),
+                              )) {
+                            return 'Invalid Date range';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+
+                if (filterStartDate != null && filterEndDate == null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4, bottom: 4),
+                    child: Text(
+                      'Please select End Date also',
+                      style: AppTextStyle.ts12R().copyWith(
+                        color: AppColor.error,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+
+                if (filterEndDate != null && filterStartDate == null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4, bottom: 4),
+                    child: Text(
+                      'Please select Start Date also',
+                      style: AppTextStyle.ts12R().copyWith(
+                        color: AppColor.error,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+
+                if (filterStartDate != null &&
+                    filterEndDate != null &&
+                    filterStartDate!.isAfter(
+                      DateTime(
+                        filterEndDate!.year,
+                        filterEndDate!.month,
+                        filterEndDate!.day,
+                      ),
+                    ))
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4, bottom: 4),
+                    child: Text(
+                      'Invalid Date range',
+                      style: AppTextStyle.ts12R().copyWith(
+                        color: AppColor.error,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _outdoorCubit.applyFilterAndSort(
+          context: context,
+          filterFromHolidayDate: null,
+          filterToHolidayDate: null,
+        );
+      },
+      onApply: () {
+        if (filterFormKey.currentState?.validate() ?? false) {
+          _outdoorCubit.applyFilterAndSort(
+            context: context,
+            filterFromHolidayDate: filterStartDate,
+            filterToHolidayDate: filterEndDate,
+          );
+        }
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,6 +261,9 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
           if (context.mounted) {
             _outdoorCubit.getOutdoorList(context, 1);
           }
+        },
+        onFilterTap: () {
+          _showBottomSheetToFilterOutdoor(context);
         },
       ),
       body: BlocBuilder<OutdoorCubit, OutdoorState>(

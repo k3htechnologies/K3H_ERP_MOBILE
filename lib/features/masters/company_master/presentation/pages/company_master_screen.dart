@@ -39,7 +39,11 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC, _filterFirmsTypeC,_filterContactPersonC,_filterMobileNumberC,_filterCityNameC;
+  late TextEditingController _searchC,
+      _filterFirmsTypeC,
+      _filterContactPersonC,
+      _filterMobileNumberC,
+      _filterCityNameC;
 
   @override
   void initState() {
@@ -115,7 +119,6 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     _filterContactPersonC.text = state.filterByContactPerson;
     _filterMobileNumberC.text = state.filterByMobileNumber;
     _filterCityNameC.text = state.filterByCityName;
-
 
     String? selectedDirection =
         state.currentSortColumn == "Company Name"
@@ -292,7 +295,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
         screenTitle: 'Company',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
-          if(_companyMasterCubit.state.totalNumberOfRecord==0){
+          if (_companyMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No data found");
             return;
           }

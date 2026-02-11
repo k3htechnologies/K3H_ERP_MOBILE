@@ -7,10 +7,7 @@ class HolidayMappingMasterState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
-
   final String filterBranchName;
-
-  // IMPORTANT → must be DateTime?
   final DateTime? filterFromHolidayDate;
   final DateTime? filterToHolidayDate;
 
