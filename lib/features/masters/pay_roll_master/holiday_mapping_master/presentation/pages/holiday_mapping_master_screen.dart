@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class HolidayMappingMasterScreen extends StatefulWidget {
@@ -163,7 +164,7 @@ class _HolidayMappingMasterScreenState
 
     DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Holiday",
+      title: "Filter Holiday Mapping",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {
@@ -225,6 +226,13 @@ class _HolidayMappingMasterScreenState
                     ],
                   ),
                   verticalSpacing(height: 20),
+                  CustomTextField(
+                    textController: _filterBranchNameC,
+                    hint: "Enter Branch Name",
+                    title: "Branch Name",
+                    onChangeFunction: (_) => updateApplyState(innerState),
+                  ),
+
                   CustomDatePicker(
                     title: "Date of Holiday (From)",
                     initialDate: filterFromDate,

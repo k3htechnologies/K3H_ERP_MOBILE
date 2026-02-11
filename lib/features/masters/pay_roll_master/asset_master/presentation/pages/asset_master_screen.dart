@@ -219,39 +219,30 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                   textController: _filterAssetStatusC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(),
-
                 CustomTextField(
                   title: "Asset Type",
                   hint: "Enter Asset Type",
                   textController: _filterAssetTypeC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(),
-
                 CustomTextField(
                   title: "Brand",
                   hint: "Enter Brand",
                   textController: _filterAssetBrandC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(),
-
                 CustomTextField(
                   title: "Model",
                   hint: "Enter Model",
                   textController: _filterAssetModelC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(),
-
                 CustomTextField(
                   title: "Serial Number",
                   hint: "Enter Serial Number",
                   textController: _filterSerialNumberC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(),
               ],
             ),
           );
@@ -379,7 +370,10 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                                 asset.assetName,
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
-                                ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
                               ),
                             ),
                           ),
@@ -414,7 +408,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                                 },
                               ),
                             ],
-                            _buildStatusWidget(asset.status)
+                            _buildStatusWidget(asset.status),
                           ],
                         ),
                       ],

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
@@ -18,11 +19,14 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'leave_credit_configuration_master_state.dart';
 
-class LeaveCreditConfigurationMasterCubit extends Cubit<LeaveCreditConfigurationMasterState> {
-  LeaveCreditConfigurationMasterCubit() : super(LeaveCreditConfigurationMasterState.initial());
+class LeaveCreditConfigurationMasterCubit
+    extends Cubit<LeaveCreditConfigurationMasterState> {
+  LeaveCreditConfigurationMasterCubit()
+    : super(LeaveCreditConfigurationMasterState.initial());
 
   // REPOSITORY
-  final LeaveCreditConfigurationMasterRepository _leaveCreditConfigurationMasterRepository =
+  final LeaveCreditConfigurationMasterRepository
+  _leaveCreditConfigurationMasterRepository =
       serviceLocator<LeaveCreditConfigurationMasterRepository>();
   final DepartmentMasterRepository _departmentMasterRepository =
       serviceLocator<DepartmentMasterRepository>();
@@ -38,15 +42,38 @@ class LeaveCreditConfigurationMasterCubit extends Cubit<LeaveCreditConfiguration
   }
 
   // <---- SEARCH DEPARTMENT ---->
-  Future searchLeaveCreditConfiguration(BuildContext context, String value) async {
-    emit(state.copyWith(searchText: value, leaveCreditConfigurationMasterList: []));
+  Future searchLeaveCreditConfiguration(
+    BuildContext context,
+    String value,
+  ) async {
+    emit(
+      state.copyWith(searchText: value, leaveCreditConfigurationMasterList: []),
+    );
     await getLeaveCreditConfigurationList(context, 1);
   }
 
   // <---- GET DEPARTMENT LIST ---->
-  Future getLeaveCreditConfigurationList(BuildContext context, int pageNumber) async {
+  Future getLeaveCreditConfigurationList(
+    BuildContext context,
+    int pageNumber,
+  ) async {
     emit(state.copyWith(isLoading: true));
-    var queryParams = {"DepartmentName": state.searchText};
+    var queryParams = {
+      "DepartmentName": state.searchText,
+      "DesignationName": state.filterDesignationName,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+    };
+    if (state.filterFromLeaveCreditDate != null) {
+      queryParams["StartDate"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.filterFromLeaveCreditDate!);
+    }
+
+    if (state.filterToLeaveCreditDate != null) {
+      queryParams["EndDate"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.filterToLeaveCreditDate!);
+    }
     var result = await _leaveCreditConfigurationMasterRepository
         .getLeaveCreditConfigurationList(
           pageNumber: pageNumber,
@@ -224,14 +251,18 @@ class LeaveCreditConfigurationMasterCubit extends Cubit<LeaveCreditConfiguration
   // <---- EXPORT EXCEL PDF ---->
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
-    var result = await _leaveCreditConfigurationMasterRepository.exportLeaveCreditConfiguration(
-      pageNumber: 1,
-      pageSize: state.totalNumberOfRecord,
-      queryParams:
-          state.searchText != ""
-              ? {"DepartmentName": state.searchText, "ExportType": exportType}
-              : {"ExportType": exportType},
-    );
+    var result = await _leaveCreditConfigurationMasterRepository
+        .exportLeaveCreditConfiguration(
+          pageNumber: 1,
+          pageSize: state.totalNumberOfRecord,
+          queryParams:
+              state.searchText != ""
+                  ? {
+                    "DepartmentName": state.searchText,
+                    "ExportType": exportType,
+                  }
+                  : {"ExportType": exportType},
+        );
     goRouter.pop();
     result.fold(
       (failure) {
@@ -357,5 +388,28 @@ class LeaveCreditConfigurationMasterCubit extends Cubit<LeaveCreditConfiguration
         );
       },
     );
+  }
+
+  Future<void> applyFilterAndSort({
+    required BuildContext context,
+    required String filterDesignationName,
+    required DateTime? filterFromLeaveCreditDate,
+    required DateTime? filterToLeaveCreditDate,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
+    emit(
+      state.copyWith(
+        filterDesignationName: filterDesignationName,
+        filterFromLeaveCreditDate: filterFromLeaveCreditDate,
+        filterToLeaveCreditDate: filterToLeaveCreditDate,
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
+        leaveCreditConfigurationMasterList: [],
+        currentPage: 1,
+      ),
+    );
+
+    await getLeaveCreditConfigurationList(context, 1);
   }
 }

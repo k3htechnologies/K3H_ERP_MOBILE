@@ -212,7 +212,6 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
                   textController: _filterBranchCodeC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(),
 
                 CustomTextField(
                   title: "Branch Location",
@@ -220,7 +219,6 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
                   textController: _filterBranchLocationC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                verticalSpacing(),
               ],
             ),
           );
