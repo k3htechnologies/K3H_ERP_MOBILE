@@ -6,7 +6,9 @@ import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/data/model/sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/data/repository/sourcing.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'sourcing_state.dart';
 
@@ -18,19 +20,23 @@ class SourcingCubit extends Cubit<SourcingState> {
       serviceLocator<SourcingRepository>();
 
   final ChannelPartnerRepository _channelPartnerRepository =
-  serviceLocator<ChannelPartnerRepository>();
-
+      serviceLocator<ChannelPartnerRepository>();
 
   // ON TAB CHANGE
-  void onTabChanged(int index, BuildContext context,{required int channelPartnerId,required int projectId}) {
-    emit(state.copyWith(currentTabIndex: index,isIBM: true));
-    if(index==1){
+  void onTabChanged(
+    int index,
+    BuildContext context, {
+    required int channelPartnerId,
+    required int projectId,
+  }) {
+    emit(state.copyWith(currentTabIndex: index, isIBM: true));
+    if (index == 1) {
       getSourcingList(context, 1, channelPartnerId, projectId);
     }
   }
 
   void onIBMTabChanged(String value, BuildContext context) {
-    emit(state.copyWith(isIBM: value.toLowerCase()=="ibm"?true:false));
+    emit(state.copyWith(isIBM: value.toLowerCase() == "ibm" ? true : false));
   }
 
   // <---- SEARCH CHANNEL PARTNER ---->
@@ -39,9 +45,18 @@ class SourcingCubit extends Cubit<SourcingState> {
     await getChannelPartnerList(context, 1);
   }
 
+  Future clearSourcingList() async {
+    emit(state.copyWith(sourcingList: []));
+  }
+
   // <---- GET SOURCING LIST ---->
-  Future getSourcingList(BuildContext context, int pageNumber,int channelPartnerId,int projectId) async {
-    emit(state.copyWith(isLoading: true));
+  Future getSourcingList(
+    BuildContext context,
+    int pageNumber,
+    int channelPartnerId,
+    int projectId,
+  ) async {
+    emit(state.copyWith(isLoading: true,sourcingList: []));
     Map<String, dynamic> queryParams = {
       "ChannelPartnerId": channelPartnerId,
       "ProjectId": projectId,
@@ -64,12 +79,7 @@ class SourcingCubit extends Cubit<SourcingState> {
 
         final List<SourcingModel> updatedList =
             pageNumber == 1 ? newData : [...state.sourcingList, ...newData];
-        emit(
-          state.copyWith(
-            sourcingList: updatedList,
-            isLoading: false,
-          ),
-        );
+        emit(state.copyWith(sourcingList: updatedList, isLoading: false));
       },
     );
   }
@@ -77,9 +87,7 @@ class SourcingCubit extends Cubit<SourcingState> {
   // <---- GET CHANNEL PARTNER LIST ---->
   Future getChannelPartnerList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {
-      "ChannelPartnerName": state.searchText,
-    };
+    Map<String, dynamic> queryParams = {"ChannelPartnerName": state.searchText};
     var result = await _channelPartnerRepository.getChannelPartnerList(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -87,17 +95,18 @@ class SourcingCubit extends Cubit<SourcingState> {
     );
 
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
-          (response) {
-        final List<ChannelPartnerModel> newData = List<ChannelPartnerModel>.from(
-          response['data'] ?? [],
-        );
+      (response) {
+        final List<ChannelPartnerModel> newData =
+            List<ChannelPartnerModel>.from(response['data'] ?? []);
 
         final List<ChannelPartnerModel> updatedList =
-        pageNumber == 1 ? newData : [...state.channelPartnerList, ...newData];
+            pageNumber == 1
+                ? newData
+                : [...state.channelPartnerList, ...newData];
         emit(
           state.copyWith(
             channelPartnerList: updatedList,
@@ -110,4 +119,107 @@ class SourcingCubit extends Cubit<SourcingState> {
     );
   }
 
+  // <---- ADD REMARK ---->
+  Future addRemark({
+    required BuildContext context,
+    required int channelPartnerId,
+    required String type,
+    required int projectId,
+    required String remark,
+    required String support,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, dynamic> requestBody = {
+      "ChannelPartnerId": channelPartnerId,
+      "ChannelPartnerSourcingId": 0,
+      "IBM_OBM": type,
+      "Support": support,
+      "ProjectId": projectId,
+      "SourcingRemark": remark,
+    };
+    var addResult = await _sourcingRepository.addUpdateSourcing(
+      body: requestBody,
+    );
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: 'Remark Added Successfully!!!');
+        getSourcingList(context, 1, channelPartnerId, projectId);
+      },
+    );
+  }
+
+  // <---- UPDATE REMARK ---->
+  Future updateRemark({
+    required BuildContext context,
+    required int channelPartnerSourcingId,
+    required String uniqueKey,
+    required int channelPartnerId,
+    required String type,
+    required int projectId,
+    required String remark,
+    required String support,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, dynamic> requestBody = {
+      "ChannelPartnerId": channelPartnerId,
+      "ChannelPartnerSourcingId": channelPartnerSourcingId,
+      "Uniquekey": uniqueKey,
+      "IBM_OBM": type,
+      "Support": support,
+      "ProjectId": projectId,
+      "SourcingRemark": remark,
+    };
+    var updateResult = await _sourcingRepository.addUpdateSourcing(
+      body: requestBody,
+    );
+    goRouter.pop();
+    updateResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+
+        showSuccessMessage(context, subTitle: 'Remark Updated Successfully!!!');
+
+        getSourcingList(context, 1, channelPartnerId, projectId);
+      },
+    );
+  }
+
+  // <---- DELETE REMARK ---->
+  Future deleteDepartmentMaster({
+    required BuildContext context,
+    required int channelPartnerSourcingId,
+    required int channelPartnerId,
+    required int projectId,
+    required String uniqueKey,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _sourcingRepository.deleteSourcing(
+      channelPartnerSourcingId: channelPartnerSourcingId,
+      uniqueKey: uniqueKey,
+    );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Department Deleted Successfully!!!',
+        );
+        getSourcingList(context, 1, channelPartnerId, projectId);
+      },
+    );
+  }
 }

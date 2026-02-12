@@ -8,6 +8,15 @@ abstract interface class SourcingDatasource {
     required int pageNumber,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Map<String, dynamic>> apicallAddUpdateSourcing({
+    required Map<String, dynamic> body,
+  });
+
+  Future<Map<String, dynamic>> apicallDeleteSourcing({
+    required int channelPartnerSourcingId,
+    required String uniqueKey,
+  });
 }
 
 class SourcingDatasourceImpl extends SourcingDatasource {
@@ -50,6 +59,66 @@ class SourcingDatasourceImpl extends SourcingDatasource {
           pageSize: pageSize,
           pageNumber: pageNumber,
           queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateSourcing({
+    required Map<String, dynamic> body,
+  }) async {
+    String addUpdateSourcingUrl =
+        "ChannelPartnerSourcing/AddUpdateChannelPartnerSourcing";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateSourcingUrl,
+        body,
+      );
+      return {
+        'data': List<SourcingModel>.from(
+          networkResponse["data"].map((e) => SourcingModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallAddUpdateSourcing(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeleteSourcing({
+    required int channelPartnerSourcingId,
+    required String uniqueKey,
+  }) async {
+    String deleteSourcingUrl({
+      required int channelPartnerSourcingId,
+      required String uniqueKey,
+    }) {
+      return "ChannelPartnerSourcing/DeleteChannelPartnerSourcing?ChannelPartnerSourcingId=$channelPartnerSourcingId&Uniquekey=$uniqueKey";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteSourcingUrl(
+          channelPartnerSourcingId: channelPartnerSourcingId,
+          uniqueKey: uniqueKey,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallDeleteSourcing(
+          channelPartnerSourcingId: channelPartnerSourcingId,
+          uniqueKey: uniqueKey,
         );
       }
       rethrow;

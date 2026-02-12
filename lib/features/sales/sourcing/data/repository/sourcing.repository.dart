@@ -9,6 +9,15 @@ abstract interface class SourcingRepository {
     required int pageNumber,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateSourcing({
+    required Map<String, dynamic> body,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> deleteSourcing({
+    required int channelPartnerSourcingId,
+    required String uniqueKey,
+  });
 }
 
 class SourcingRepositoryImpl extends SourcingRepository {
@@ -27,6 +36,36 @@ class SourcingRepositoryImpl extends SourcingRepository {
         pageSize: pageSize,
         pageNumber: pageNumber,
         queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateSourcing({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await sourcingDatasource.apicallAddUpdateSourcing(
+        body: body,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteSourcing({
+    required int channelPartnerSourcingId,
+    required String uniqueKey,
+  }) async {
+    try {
+      var result = await sourcingDatasource.apicallDeleteSourcing(
+        channelPartnerSourcingId: channelPartnerSourcingId,
+        uniqueKey: uniqueKey,
       );
       return right(result);
     } catch (error) {

@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_docume
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document_category/rera_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/booking/booking.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/enquiry/enquiry.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/sales/other_charges/other_charges.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
@@ -182,6 +183,8 @@ void initDependencies() {
   registerEnquiryDependencies(serviceLocator);
   // SOURCING DEPENDENCIES
   registerSourcingDependencies(serviceLocator);
+  // OTHER CHARGES DEPENDENCIES
+  registerOtherChargesDependencies(serviceLocator);
   // DASHBOARD DEPENDENCIES
   registerDashboardDependencies(serviceLocator);
 }

@@ -267,6 +267,8 @@ import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/enquiry_screen.dart';
+import 'package:k3h_erp_app/features/sales/other_charges/presentation/cubit/other_charges_cubit.dart';
+import 'package:k3h_erp_app/features/sales/other_charges/presentation/pages/other_charges_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/pages/sourcing_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/pages/sourcing_view_screen.dart';
@@ -3831,6 +3833,24 @@ final GoRouter goRouter = GoRouter(
                       channelPartner: channelPartner!,
                       projectId: projectId,
                     );
+                  },
+                ),
+              ],
+            ),
+            // OTHER CHARGES
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => OtherChargesCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.otherCharges,
+                  path: AppRoutes.otherCharges,
+                  builder: (context, state) {
+                    return const OtherChargesScreen();
                   },
                 ),
               ],
