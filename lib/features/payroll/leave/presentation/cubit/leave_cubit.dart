@@ -122,7 +122,7 @@ class LeaveCubit extends Cubit<LeaveState> {
           state.copyWith(
             isLoading: false,
             leaveTypeList: updatedList,
-            leaveTypeTotalCount: totalCount,
+            totalNumberOfRecord: totalCount,
           ),
         );
       },

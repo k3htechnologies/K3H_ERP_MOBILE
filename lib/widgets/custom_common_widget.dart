@@ -7,7 +7,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 Widget buildRowTitleValue({
   required String title,
   required String value,
-  double fixesWidth=140,
+  double fixesWidth = 140,
   TextStyle? valueTextStyle,
   Widget? customValueWidget,
 }) {
@@ -69,5 +69,16 @@ Widget buildColumnTitleValue({
             ),
       ],
     ),
+  );
+}
+
+Widget statusChip(String text, Color bg, Color txt) {
+  return Container(
+    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
+    decoration: BoxDecoration(
+      color: bg,
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Text(text, style: AppTextStyle.ts12M(color: txt)),
   );
 }

@@ -94,6 +94,7 @@ dependencies:
   geolocator: ^14.0.2
   # GEO CODING
   geocoding: ^4.0.0
+  syncfusion_flutter_sliders: ^32.2.4
 
 # DEV DEPENDENCIES
 dev_dependencies:

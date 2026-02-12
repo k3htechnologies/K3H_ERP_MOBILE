@@ -10,6 +10,8 @@ abstract interface class EnquiryRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdateEnquiry({required Map<String, dynamic> body});
 }
 
 class EnquiryRepositoryImpl extends EnquiryRepository {
@@ -30,6 +32,19 @@ class EnquiryRepositoryImpl extends EnquiryRepository {
         projectId: projectId,
         queryParams: queryParams,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdateEnquiry({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await enquiryDatasource.apicallAddUpdateEnquiry(body: body);
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

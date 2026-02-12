@@ -153,7 +153,7 @@ class _LeaveScreenState extends State<LeaveScreen>
     int pageNumber, {
     String? value,
   }) async {
-    final totalCount = _leaveCubit.state.leaveTypeTotalCount;
+    final totalCount = _leaveCubit.state.totalNumberOfRecord;
     final pageSize = 15;
 
     // SEARCH MODE

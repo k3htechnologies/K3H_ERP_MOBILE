@@ -265,7 +265,9 @@ import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_sc
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_tracker_cubit.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
+import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
+import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/add_enquiry_screen.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/enquiry_screen.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/cubit/target_cubit.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/pages/target_screen.dart';
@@ -1698,7 +1700,8 @@ final GoRouter goRouter = GoRouter(
                         )
                         : null;
                 return LeaveCreditConfigurationMasterViewScreen(
-                  leaveCreditConfigurationMaster: leaveCreditConfigurationMaster!,
+                  leaveCreditConfigurationMaster:
+                      leaveCreditConfigurationMaster!,
                 );
               },
             ),
@@ -2008,10 +2011,7 @@ final GoRouter goRouter = GoRouter(
         // BUILDING
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => BuildingCubit(),
-              child: child,
-            );
+            return BlocProvider(create: (_) => BuildingCubit(), child: child);
           },
           routes: [
             GoRoute(
@@ -2026,18 +2026,18 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addUpdateBuildingDoc,
               builder: (context, state) {
                 final queryParameterBuilding =
-                state.uri.queryParameters['building'];
+                    state.uri.queryParameters['building'];
 
                 final RedevelopmentBuildingModel? building =
-                queryParameterBuilding != null
-                    ? RedevelopmentBuildingModel.fromJson(
-                  jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeComponent(queryParameterBuilding),
-                    ),
-                  ),
-                )
-                    : null;
+                    queryParameterBuilding != null
+                        ? RedevelopmentBuildingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterBuilding),
+                            ),
+                          ),
+                        )
+                        : null;
 
                 return AddUpdateDocumentScreen(building: building!);
               },
@@ -2047,18 +2047,18 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addBuilding,
               builder: (context, state) {
                 final queryParameterBuilding =
-                state.uri.queryParameters['building'];
+                    state.uri.queryParameters['building'];
 
                 final RedevelopmentBuildingModel? building =
-                queryParameterBuilding != null
-                    ? RedevelopmentBuildingModel.fromJson(
-                  jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeComponent(queryParameterBuilding),
-                    ),
-                  ),
-                )
-                    : null;
+                    queryParameterBuilding != null
+                        ? RedevelopmentBuildingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterBuilding),
+                            ),
+                          ),
+                        )
+                        : null;
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
@@ -2079,18 +2079,18 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.viewBuilding,
               builder: (context, state) {
                 final queryParameterBuilding =
-                state.uri.queryParameters['building'];
+                    state.uri.queryParameters['building'];
 
                 final RedevelopmentBuildingModel? building =
-                queryParameterBuilding != null
-                    ? RedevelopmentBuildingModel.fromJson(
-                  jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeComponent(queryParameterBuilding),
-                    ),
-                  ),
-                )
-                    : null;
+                    queryParameterBuilding != null
+                        ? RedevelopmentBuildingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterBuilding),
+                            ),
+                          ),
+                        )
+                        : null;
 
                 return BuildingViewScreen(building: building!);
               },
@@ -2102,24 +2102,26 @@ final GoRouter goRouter = GoRouter(
                 // Check for both parameter names (buildingDetail and buildingDetails)
                 final queryParameterBuildingDetail =
                     state.uri.queryParameters['buildingDetail'] ??
-                        state.uri.queryParameters['buildingDetails'];
+                    state.uri.queryParameters['buildingDetails'];
 
                 if (queryParameterBuildingDetail == null) {
                   // Return error screen or navigate back
                   return Scaffold(
                     appBar: AppBar(title: const Text('Error')),
-                    body: const Center(child: Text('Building details not found')),
+                    body: const Center(
+                      child: Text('Building details not found'),
+                    ),
                   );
                 }
 
                 final BuildingDetailsModel buildingDetail =
-                BuildingDetailsModel.fromJson(
-                  jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeComponent(queryParameterBuildingDetail),
-                    ),
-                  ),
-                );
+                    BuildingDetailsModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterBuildingDetail),
+                        ),
+                      ),
+                    );
 
                 return EditBuildingDetailsScreen(
                   buildingDetailsModel: buildingDetail,
@@ -3780,6 +3782,35 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.enquiry,
                   builder: (context, state) {
                     return const EnquiryScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addEnquiry,
+                  path: AppRoutes.addEnquiry,
+                  builder: (context, state) {
+                    final queryParameterEnquiry =
+                        state.uri.queryParameters['booking'];
+                    final enquiry =
+                        queryParameterEnquiry != null &&
+                                queryParameterEnquiry.isNotEmpty
+                            ? EnquiryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterEnquiry),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddEnquiryScreen(
+                      enquiryModel: enquiry,
+                      index: index,
+                    );
                   },
                 ),
               ],

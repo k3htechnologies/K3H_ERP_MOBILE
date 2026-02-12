@@ -199,6 +199,7 @@ class AppAssets {
   static const String otherCharges =
       "$sideDrawerIconsPath/otherChargesSubmodule.svg";
   static const String booking = "$sideDrawerIconsPath/bookingSubmodule.svg";
+  static const String whatsAppIcon = "$sideDrawerIconsPath/whatsapp.svg";
 
   // GIF
   static const String splashLogoGif = "$pngPath/splash.gif";

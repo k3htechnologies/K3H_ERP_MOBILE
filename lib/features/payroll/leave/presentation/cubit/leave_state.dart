@@ -2,7 +2,7 @@ part of 'leave_cubit.dart';
 
 class LeaveState extends BaseState {
   final List<LeaveTypeModel> leaveTypeList;
-  final int leaveTypeTotalCount;
+  // final int leaveTypeTotalCount;
   final List<LeaveModel> leaveList;
   final int totalNumberOfRecord;
   final int currentPage;
@@ -18,7 +18,7 @@ class LeaveState extends BaseState {
   const LeaveState({
     super.isLoading,
     required this.leaveTypeList,
-    required this.leaveTypeTotalCount,
+    // required this.leaveTypeTotalCount,
     required this.leaveList,
     required this.totalNumberOfRecord,
     required this.currentPage,
@@ -34,7 +34,7 @@ class LeaveState extends BaseState {
 
   factory LeaveState.initial() => LeaveState(
     leaveTypeList: [],
-    leaveTypeTotalCount: 0,
+    // leaveTypeTotalCount: 0,
     leaveList: [],
     totalNumberOfRecord: 0,
     currentPage: 1,
@@ -52,7 +52,7 @@ class LeaveState extends BaseState {
   LeaveState copyWith({
     bool? isLoading,
     List<LeaveTypeModel>? leaveTypeList,
-    int? leaveTypeTotalCount,
+    // int? leaveTypeTotalCount,
     List<LeaveModel>? leaveList,
     int? totalNumberOfRecord,
     int? currentPage,
@@ -69,7 +69,7 @@ class LeaveState extends BaseState {
     return LeaveState(
       isLoading: isLoading ?? this.isLoading,
       leaveTypeList: leaveTypeList ?? this.leaveTypeList,
-      leaveTypeTotalCount: leaveTypeTotalCount ?? this.leaveTypeTotalCount,
+      // leaveTypeTotalCount: leaveTypeTotalCount ?? this.leaveTypeTotalCount,
       leaveList: leaveList ?? this.leaveList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
@@ -88,7 +88,7 @@ class LeaveState extends BaseState {
   List<Object?> get props => [
     isLoading,
     leaveTypeList,
-    leaveTypeTotalCount,
+    // leaveTypeTotalCount,
     leaveList,
     totalNumberOfRecord,
     currentPage,
