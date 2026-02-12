@@ -108,29 +108,12 @@ class ChannelPartnerViewScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      buildColumnTitleValue(title: "RERA Number", value: channelPartnerModel.reraNumber)
+                      buildColumnTitleValue(
+                        title: "RERA Number",
+                        value: channelPartnerModel.reraNumber,
+                      ),
                     ],
-                  )
-                ],
-              ),
-            ),
-            Container(
-              decoration: commonCardDecoration(),
-              padding: EdgeInsets.all(16),
-              margin: EdgeInsets.only(bottom: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Project Details",
-                    style: AppTextStyle.ts14M(color: AppColor.grey),
                   ),
-                  verticalSpacing(),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(title: "Project", value: channelPartnerModel.projectName)
-                    ],
-                  )
                 ],
               ),
             ),
@@ -148,12 +131,15 @@ class ChannelPartnerViewScreen extends StatelessWidget {
                   verticalSpacing(),
                   Row(
                     children: [
-                      buildColumnTitleValue(title: "Office Address", value: channelPartnerModel.officeAddress)
+                      buildColumnTitleValue(
+                        title: "Office Address",
+                        value: channelPartnerModel.officeAddress,
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

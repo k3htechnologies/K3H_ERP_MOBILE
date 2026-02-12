@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
@@ -57,6 +58,163 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
             currentPage: pageNumber,
           ),
         );
+      },
+    );
+  }
+
+  // <---- ADD CHANNEL PARTNER ---->
+  Future addChannelPartner({
+    required BuildContext context,
+    required int channelPartnerId,
+    required String name,
+    required String emailId,
+    required String mobileNumber,
+    required String panCardNumber,
+    required MultiFilePickerModel panCardURL,
+    required String aadharCardNumber,
+    required MultiFilePickerModel aadharCardURL,
+    required String speciality,
+    required String officeAddress,
+    required int selectedCountryNameId,
+    required int selectedStateId,
+    required int selectedDistrictId,
+    required int selectedCityId,
+    required String reraNumber,
+    required String companyName,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> body = {
+      "ChannelPartnerId": channelPartnerId.toString(),
+      "Name": name,
+      "EmailId": emailId,
+      "MobileNumber": mobileNumber,
+      "PanNumber": panCardNumber,
+      "AadharCardNumber": aadharCardNumber,
+      "Speciality": speciality.toString(),
+      "OfficeAddress": officeAddress,
+      "CountryMasterId": selectedCountryNameId.toString(),
+      "StateMasterId": selectedStateId.toString(),
+      "DistrictMasterId": selectedDistrictId.toString(),
+      "CityMasterId": selectedCityId.toString(),
+      "RERANumber": reraNumber,
+      "CompanyName": companyName,
+    };
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < panCardURL.fileNameList.length; i++) {
+      if (panCardURL.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "PanCardURL",
+        "value": panCardURL.fileBytesList[i],
+        "fileName": panCardURL.fileNameList[i],
+      });
+    }
+    for (int i = 0; i < aadharCardURL.fileNameList.length; i++) {
+      if (aadharCardURL.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "AadharCardURL",
+        "value": aadharCardURL.fileBytesList[i],
+        "fileName": aadharCardURL.fileNameList[i],
+      });
+    }
+    final result = await _channelPartnerRepository.addUpdateChannelPartner(
+      body: body,
+      fileList: fileList,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: 'Asset Added Successfully');
+      },
+    );
+  }
+
+  // <---- ADD CHANNEL PARTNER ---->
+  Future updateChannelPartner({
+    required BuildContext context,
+    required int channelPartnerId,
+    required int index,
+    required String uniqueKey,
+    required String name,
+    required String emailId,
+    required String mobileNumber,
+    required String panCardNumber,
+    required MultiFilePickerModel panCardURL,
+    required String aadharCardNumber,
+    required MultiFilePickerModel aadharCardURL,
+    required String speciality,
+    required String officeAddress,
+    required int selectedCountryNameId,
+    required int selectedStateId,
+    required int selectedDistrictId,
+    required int selectedCityId,
+    required String reraNumber,
+    required String companyName,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> body = {
+      "ChannelPartnerId": channelPartnerId.toString(),
+      "Uniquekey": uniqueKey,
+      "Name": name,
+      "EmailId": emailId,
+      "MobileNumber": mobileNumber,
+      "PanNumber": panCardNumber,
+      "AadharCardNumber": aadharCardNumber,
+      "Speciality": speciality.toString(),
+      "OfficeAddress": officeAddress,
+      "CountryMasterId": selectedCountryNameId.toString(),
+      "StateMasterId": selectedStateId.toString(),
+      "DistrictMasterId": selectedDistrictId.toString(),
+      "CityMasterId": selectedCityId.toString(),
+      "RERANumber": reraNumber,
+      "CompanyName": companyName,
+    };
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < panCardURL.fileNameList.length; i++) {
+      if (panCardURL.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "PanCardURL",
+        "value": panCardURL.fileBytesList[i],
+        "fileName": panCardURL.fileNameList[i],
+      });
+    }
+    for (int i = 0; i < aadharCardURL.fileNameList.length; i++) {
+      if (aadharCardURL.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "AadharCardURL",
+        "value": aadharCardURL.fileBytesList[i],
+        "fileName": aadharCardURL.fileNameList[i],
+      });
+    }
+    final result = await _channelPartnerRepository.addUpdateChannelPartner(
+      body: body,
+      fileList: fileList,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: 'Asset Added Successfully');
       },
     );
   }
