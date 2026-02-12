@@ -235,6 +235,18 @@ String formatDateTimeAsDDMMMYYYY(DateTime d, {String? separator}) {
   ).format(d);
 }
 
+// DATE FORMATTERS
+String formatDate(DateTime? date) {
+  if (date == null) return "";
+  return DateFormat("dd MMMM yyyy, EEEE").format(date);
+}
+
+// TIME FORMATTERS
+String formatTime(DateTime? date) {
+  if (date == null) return "";
+  return DateFormat("hh:mma").format(date);
+}
+
 // <---- EXPORT AND DOWNLOAD FILE FOR MOBILE ---->
 Future<void> exportExcelOrPdfMobile(String base64, String fileName) async {
   try {

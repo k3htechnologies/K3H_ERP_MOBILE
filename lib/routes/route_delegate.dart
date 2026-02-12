@@ -267,6 +267,9 @@ import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/enquiry_screen.dart';
+import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sourcing/presentation/pages/sourcing_screen.dart';
+import 'package:k3h_erp_app/features/sales/sourcing/presentation/pages/sourcing_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/cubit/target_cubit.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/pages/target_screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
@@ -1698,7 +1701,8 @@ final GoRouter goRouter = GoRouter(
                         )
                         : null;
                 return LeaveCreditConfigurationMasterViewScreen(
-                  leaveCreditConfigurationMaster: leaveCreditConfigurationMaster!,
+                  leaveCreditConfigurationMaster:
+                      leaveCreditConfigurationMaster!,
                 );
               },
             ),
@@ -2008,10 +2012,7 @@ final GoRouter goRouter = GoRouter(
         // BUILDING
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => BuildingCubit(),
-              child: child,
-            );
+            return BlocProvider(create: (_) => BuildingCubit(), child: child);
           },
           routes: [
             GoRoute(
@@ -2026,18 +2027,18 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addUpdateBuildingDoc,
               builder: (context, state) {
                 final queryParameterBuilding =
-                state.uri.queryParameters['building'];
+                    state.uri.queryParameters['building'];
 
                 final RedevelopmentBuildingModel? building =
-                queryParameterBuilding != null
-                    ? RedevelopmentBuildingModel.fromJson(
-                  jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeComponent(queryParameterBuilding),
-                    ),
-                  ),
-                )
-                    : null;
+                    queryParameterBuilding != null
+                        ? RedevelopmentBuildingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterBuilding),
+                            ),
+                          ),
+                        )
+                        : null;
 
                 return AddUpdateDocumentScreen(building: building!);
               },
@@ -2047,18 +2048,18 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addBuilding,
               builder: (context, state) {
                 final queryParameterBuilding =
-                state.uri.queryParameters['building'];
+                    state.uri.queryParameters['building'];
 
                 final RedevelopmentBuildingModel? building =
-                queryParameterBuilding != null
-                    ? RedevelopmentBuildingModel.fromJson(
-                  jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeComponent(queryParameterBuilding),
-                    ),
-                  ),
-                )
-                    : null;
+                    queryParameterBuilding != null
+                        ? RedevelopmentBuildingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterBuilding),
+                            ),
+                          ),
+                        )
+                        : null;
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
@@ -2079,18 +2080,18 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.viewBuilding,
               builder: (context, state) {
                 final queryParameterBuilding =
-                state.uri.queryParameters['building'];
+                    state.uri.queryParameters['building'];
 
                 final RedevelopmentBuildingModel? building =
-                queryParameterBuilding != null
-                    ? RedevelopmentBuildingModel.fromJson(
-                  jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeComponent(queryParameterBuilding),
-                    ),
-                  ),
-                )
-                    : null;
+                    queryParameterBuilding != null
+                        ? RedevelopmentBuildingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterBuilding),
+                            ),
+                          ),
+                        )
+                        : null;
 
                 return BuildingViewScreen(building: building!);
               },
@@ -2102,24 +2103,26 @@ final GoRouter goRouter = GoRouter(
                 // Check for both parameter names (buildingDetail and buildingDetails)
                 final queryParameterBuildingDetail =
                     state.uri.queryParameters['buildingDetail'] ??
-                        state.uri.queryParameters['buildingDetails'];
+                    state.uri.queryParameters['buildingDetails'];
 
                 if (queryParameterBuildingDetail == null) {
                   // Return error screen or navigate back
                   return Scaffold(
                     appBar: AppBar(title: const Text('Error')),
-                    body: const Center(child: Text('Building details not found')),
+                    body: const Center(
+                      child: Text('Building details not found'),
+                    ),
                   );
                 }
 
                 final BuildingDetailsModel buildingDetail =
-                BuildingDetailsModel.fromJson(
-                  jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeComponent(queryParameterBuildingDetail),
-                    ),
-                  ),
-                );
+                    BuildingDetailsModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterBuildingDetail),
+                        ),
+                      ),
+                    );
 
                 return EditBuildingDetailsScreen(
                   buildingDetailsModel: buildingDetail,
@@ -3780,6 +3783,54 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.enquiry,
                   builder: (context, state) {
                     return const EnquiryScreen();
+                  },
+                ),
+              ],
+            ),
+            // SALES SOURCING
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => SourcingCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.sourcing,
+                  path: AppRoutes.sourcing,
+                  builder: (context, state) {
+                    return const SourcingScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewSourcing,
+                  path: AppRoutes.viewSourcing,
+                  builder: (context, state) {
+                    final queryParameterChannelPartner =
+                    state.uri.queryParameters['channelPartner'];
+
+                    final ChannelPartnerModel? channelPartner =
+                    queryParameterChannelPartner != null
+                        ? ChannelPartnerModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(
+                            queryParameterChannelPartner,
+                          ),
+                        ),
+                      ),
+                    )
+                        : null;
+                    final projectId =
+                        int.tryParse(
+                          state.uri.queryParameters['projectId'] ?? '',
+                        ) ??
+                        0;
+                    return SourcingViewScreen(
+                      channelPartner: channelPartner!,
+                      projectId: projectId,
+                    );
                   },
                 ),
               ],

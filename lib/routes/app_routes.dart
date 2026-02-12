@@ -100,6 +100,7 @@ class AppRoutes {
   static String enquiryReport = "/enquiryReport";
   static String cpEnquiryReport = "/cpEnquiryReport";
   static String sourcing = "/sourcing";
+  static String viewSourcing = "/viewSourcing";
 
   // HRM
   static String assetMaster = "/assetMaster";
