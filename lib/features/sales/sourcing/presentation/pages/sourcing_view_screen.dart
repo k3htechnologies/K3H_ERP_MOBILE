@@ -615,7 +615,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                     ),
                     buildColumnTitleValue(
                       title: "Aadhaar Number",
-                      value: widget.channelPartner.adharCardNumber,
+                      value: widget.channelPartner.aadharCardNumber,
                     ),
                   ],
                 ),
