@@ -431,6 +431,7 @@ final GoRouter goRouter = GoRouter(
         );
       },
     ),
+    // SCREENS
     ShellRoute(
       navigatorKey: shellNavigatorKey,
       builder: (context, state, child) {
@@ -669,7 +670,8 @@ final GoRouter goRouter = GoRouter(
               },
             ),
           ],
-        ), // BANK LIST MASTER
+        ),
+        // BANK LIST MASTER
         GoRoute(
           name: AppRoutes.bankListMaster,
           path: AppRoutes.bankListMaster,
@@ -1310,7 +1312,6 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-
         // LEAVE TYPE MASTER
         ShellRoute(
           builder: (context, state, child) {
@@ -1353,7 +1354,6 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-
         // SHIFT MASTER
         ShellRoute(
           builder: (context, state, child) {
@@ -1416,7 +1416,6 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-
         // SHIFT MAPPING MASTER
         ShellRoute(
           builder: (context, state, child) {
@@ -1484,7 +1483,6 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-
         //WEEK OFF MASTER
         ShellRoute(
           builder: (context, state, child) {
@@ -1549,7 +1547,6 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-
         //WEEK OFF MAPPING MASTER
         ShellRoute(
           builder: (context, state, child) {
@@ -1616,7 +1613,6 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-
         // LEAVE CREDIT DEBIT MASTER
         ShellRoute(
           builder: (context, state, child) {
@@ -1714,7 +1710,6 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-
         // EMPLOYEE MASTER
         ShellRoute(
           builder: (context, state, child) {
@@ -1872,7 +1867,6 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-
         // MATERIAL MASTER
         ShellRoute(
           builder: (context, state, child) {
@@ -2469,6 +2463,7 @@ final GoRouter goRouter = GoRouter(
             );
           },
         ),
+        // NOTIFICATION
         GoRoute(
           path: AppRoutes.notificationScreenMobile,
           name: AppRoutes.notificationScreenMobile,
