@@ -127,34 +127,31 @@ class _TenantScreenState extends State<TenantScreen> {
     _filterFlatConfigurationC = TextEditingController();
   }
 
-  // FETCH BUILDINGS
+  // FETCH BUILDINGS — when [value] is set, calls API with search param; otherwise uses/paginates loaded list
   Future<Map<String, dynamic>> _fetchBuildings(
     int pageNumber, {
     String? value,
   }) async {
-    final buildingList =
-        _tenantCubit.state.buildingList
-            .where((b) => b.projectId == _project.projectId)
-            .toList();
+    const pageSize = 12;
 
-    final totalCount = _tenantCubit.state.buildingTotalCount;
-
-    final pageSize = 12;
-
-    // 🔍 SEARCH MODE
+    // 🔍 SEARCH MODE: call API with search term so backend returns filtered buildings
     if (value != null && value.isNotEmpty) {
-      final filteredBuildings =
-          buildingList
-              .where(
-                (building) => building.buildingName.toLowerCase().contains(
-                  value.toLowerCase(),
-                ),
-              )
+      await _tenantCubit.getBuildingList(
+        context,
+        pageNumber,
+        pageSize,
+        _project.projectId,
+        searchQuery: value,
+      );
+
+      final buildingList =
+          _tenantCubit.state.buildingList
+              .where((b) => b.projectId == _project.projectId)
               .toList();
+      final totalCount = _tenantCubit.state.buildingTotalCount;
 
       final Map<int, Map<String, dynamic>> uniqueFiltered = {};
-
-      for (final b in filteredBuildings) {
+      for (final b in buildingList) {
         uniqueFiltered[b.buildingId] = {
           "zAttributesId": b.buildingId,
           "DisplayName": b.buildingName,
@@ -163,10 +160,16 @@ class _TenantScreenState extends State<TenantScreen> {
 
       return {
         "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord": uniqueFiltered.length,
+        "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueFiltered.length,
       };
     }
 
+    // No search: use/paginate already loaded buildings
+    final buildingList =
+        _tenantCubit.state.buildingList
+            .where((b) => b.projectId == _project.projectId)
+            .toList();
+    final totalCount = _tenantCubit.state.buildingTotalCount;
     final currentLoadedCount = buildingList.length;
 
     if (currentLoadedCount < totalCount) {
@@ -184,7 +187,6 @@ class _TenantScreenState extends State<TenantScreen> {
             .toList();
 
     final Map<int, Map<String, dynamic>> uniqueBuildings = {};
-
     for (final b in updatedList) {
       uniqueBuildings[b.buildingId] = {
         "zAttributesId": b.buildingId,

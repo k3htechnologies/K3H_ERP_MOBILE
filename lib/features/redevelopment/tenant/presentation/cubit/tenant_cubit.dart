@@ -102,14 +102,18 @@ class TenantCubit extends Cubit<TenantState> {
     BuildContext context,
     int pageNumber,
     int pageSize,
-    int projectId,
-  ) async {
+    int projectId, {
+    String? searchQuery,
+  }) async {
     emit(state.copyWith(isLoading: true));
 
     final result = await _buildingRepository.pullBuilding(
       pageNumber: pageNumber,
       pageSize: pageSize,
       projectId: projectId,
+      queryParams: searchQuery != null && searchQuery.isNotEmpty
+          ? {"BuildingName": searchQuery}
+          : null,
     );
 
     final buildingList = result.fold<List<RedevelopmentBuildingModel>>(

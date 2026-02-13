@@ -350,6 +350,10 @@ class _DropdownListState extends State<DropdownList> {
   // For single select (radio button), store the selected ID (can be int or String)
   dynamic selectedRadioId;
 
+  /// Persists selections made during this session. Used when merging after search
+  /// so that previously selected items are not lost when tempDataListForSearch is cleared.
+  List<Map<String, dynamic>> _localSelectedValues = [];
+
   Future<void> _fetchData() async {
     if (isLoading) return; // Prevent multiple simultaneous calls
     setState(() => isLoading = true);
@@ -366,20 +370,20 @@ class _DropdownListState extends State<DropdownList> {
         .map((e) => Map<String, dynamic>.from(e as Map))
         .toList();
 
-    // Mark API items as checked if already selected
+    // Mark API items as checked if already selected (use _localSelectedValues so search doesn't wipe selections)
     for (int i = 0; i < fetchedItems.length; i++) {
       final item = fetchedItems[i];
       if (widget.isMultiSelect) {
         fetchedItems[i] = {
           ...item,
-          'isChecked': widget.initialValue.any(
+          'isChecked': _localSelectedValues.any(
             (selected) => selected['zAttributesId'] == item['zAttributesId'],
           ),
         };
       } else {
         // For single select, check if this is the selected item
-        if (widget.initialValue.isNotEmpty &&
-            widget.initialValue.first['zAttributesId'] ==
+        if (_localSelectedValues.isNotEmpty &&
+            _localSelectedValues.first['zAttributesId'] ==
                 item['zAttributesId']) {
           fetchedItems[i] = {
             ...item,
@@ -395,9 +399,9 @@ class _DropdownListState extends State<DropdownList> {
       }
     }
 
-    // Merge selected items that are not in fetched list yet
+    // Merge selected items that are not in fetched list yet (keep in-session selections when search changes list)
     if (widget.isMultiSelect) {
-      for (var selected in widget.initialValue) {
+      for (var selected in _localSelectedValues) {
         if (!fetchedItems.any(
           (item) => item['zAttributesId'] == selected['zAttributesId'],
         )) {
@@ -410,9 +414,9 @@ class _DropdownListState extends State<DropdownList> {
         }
       }
     } else {
-      // For single select, add the initial value if not in fetched list
-      if (widget.initialValue.isNotEmpty) {
-        final initialItem = widget.initialValue.first;
+      // For single select, add the selected value if not in fetched list
+      if (_localSelectedValues.isNotEmpty) {
+        final initialItem = _localSelectedValues.first;
         if (!fetchedItems.any(
           (item) => item['zAttributesId'] == initialItem['zAttributesId'],
         )) {
@@ -448,16 +452,16 @@ class _DropdownListState extends State<DropdownList> {
     currentPage = 1;
     totalNumberOfRecord = 0;
     tempDataListForSearch.clear();
-    if (!widget.isMultiSelect) {
-      selectedRadioId = null;
-    }
+    // Do not clear _localSelectedValues — selections must persist across search
     _fetchData();
   }
 
-  // PAGINATION
+  // PAGINATION — load more from API when scrolling near bottom
   void _onScroll() {
     if (!scrollController.hasClients) return;
     if (isLoading) return;
+    // When initial data was static list (dataList not empty) and user hasn't searched, don't call API
+    if (widget.dataList.isNotEmpty && searchText.isEmpty) return;
     if (tempDataListForSearch.length >= totalNumberOfRecord) return;
 
     final maxScroll = scrollController.position.maxScrollExtent;
@@ -465,7 +469,6 @@ class _DropdownListState extends State<DropdownList> {
 
     // Load more when user scrolls within 200px of the bottom
     if (currentScroll >= maxScroll - 200) {
-      // TO HANDLE MULTIPLE TIME API CALLS
       if (_debounce?.isActive ?? false) _debounce?.cancel();
       _debounce = Timer(const Duration(milliseconds: 300), () {
         if (mounted &&
@@ -481,6 +484,10 @@ class _DropdownListState extends State<DropdownList> {
   void initState() {
     super.initState();
     searchC = TextEditingController();
+    // Persist selections in session so search does not wipe them
+    _localSelectedValues = widget.initialValue
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
     initialIds = widget.initialValue
         .where((e) => e['zAttributesId'] != null)
         .map<int>((e) => e['zAttributesId'] is int 
@@ -498,10 +505,11 @@ class _DropdownListState extends State<DropdownList> {
 
     // SCROLL CONTROLLER
     scrollController = ScrollController();
-    // SCROLL LISTENER IF DATA IS COMING FROM AN API
+    // Always listen to scroll for pagination (when in API search mode)
+    scrollController.addListener(_onScroll);
+
     if (widget.dataList.isEmpty) {
-      scrollController.addListener(_onScroll);
-      // Fetch initial data
+      // Fetch initial data from API
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           _fetchData();
@@ -552,19 +560,32 @@ class _DropdownListState extends State<DropdownList> {
   void _handleItemSelection(Map<String, dynamic> item) {
     setState(() {
       if (widget.isMultiSelect) {
-        // Multi-select: toggle checkbox
+        // Multi-select: toggle checkbox and keep _localSelectedValues in sync
         final index = tempDataListForSearch.indexWhere(
           (e) => e['zAttributesId'] == item['zAttributesId'],
         );
         if (index != -1) {
+          final newChecked = !(tempDataListForSearch[index]['isChecked'] ?? false);
           tempDataListForSearch[index] = {
             ...tempDataListForSearch[index],
-            'isChecked': !(tempDataListForSearch[index]['isChecked'] ?? false),
+            'isChecked': newChecked,
           };
+          if (newChecked) {
+            if (!_localSelectedValues.any(
+                (s) => s['zAttributesId'] == item['zAttributesId'])) {
+              _localSelectedValues.add({
+                'zAttributesId': item['zAttributesId'],
+                'DisplayName': item['DisplayName'],
+                ...item,
+              });
+            }
+          } else {
+            _localSelectedValues
+                .removeWhere((s) => s['zAttributesId'] == item['zAttributesId']);
+          }
         }
       } else {
-        // Single select: radio button behavior
-        // Uncheck all items first, then check the selected item
+        // Single select: radio button behavior; update _localSelectedValues
         for (int i = 0; i < tempDataListForSearch.length; i++) {
           final isSelected = tempDataListForSearch[i]['zAttributesId'] == item['zAttributesId'];
           tempDataListForSearch[i] = {
@@ -573,10 +594,17 @@ class _DropdownListState extends State<DropdownList> {
           };
           if (isSelected) {
             selectedRadioId = item['zAttributesId'];
+            _localSelectedValues = [
+              {
+                'zAttributesId': item['zAttributesId'],
+                'DisplayName': item['DisplayName'],
+                ...item,
+              }
+            ];
           } else {
-            // Clear selection if this item was previously selected
             if (selectedRadioId == item['zAttributesId']) {
               selectedRadioId = null;
+              _localSelectedValues = [];
             }
           }
         }
@@ -708,33 +736,18 @@ class _DropdownListState extends State<DropdownList> {
               ),
               onPressed: () {
                 if (widget.isMultiSelect) {
-                  final selected =
-                      tempDataListForSearch
-                          .where((e) => e['isChecked'] ?? false)
-                          .toList();
+                  // Use _localSelectedValues so all in-session selections are returned
                   if (widget.onSelectCallback != null) {
-                    widget.onSelectCallback!(selected);
+                    widget.onSelectCallback!(_localSelectedValues);
                   } else {
-                    Navigator.of(context).pop(selected);
+                    Navigator.of(context).pop(_localSelectedValues);
                   }
                 } else {
-                  // For single select, return a list with one item
-                  final selectedItem = tempDataListForSearch.firstWhere(
-                    (e) => e['isChecked'] == true,
-                    orElse: () => <String, dynamic>{},
-                  );
-                  if (selectedItem.isNotEmpty) {
-                    if (widget.onSelectCallback != null) {
-                      widget.onSelectCallback!([selectedItem]);
-                    } else {
-                      Navigator.of(context).pop([selectedItem]);
-                    }
+                  // For single select, return _localSelectedValues (length 0 or 1)
+                  if (widget.onSelectCallback != null) {
+                    widget.onSelectCallback!(_localSelectedValues);
                   } else {
-                    if (widget.onSelectCallback != null) {
-                      widget.onSelectCallback!([]);
-                    } else {
-                      Navigator.of(context).pop([]);
-                    }
+                    Navigator.of(context).pop(_localSelectedValues);
                   }
                 }
               },
