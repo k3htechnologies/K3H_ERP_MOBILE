@@ -356,14 +356,18 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                       title: "Google Location",
                       isRequired: true,
                       hint: "Enter Google Location",
-                      suffixWidget: Icon(Icons.location_on_outlined,size: 16,color: AppColor.grey,),
+                      suffixWidget: Icon(
+                        Icons.location_on_outlined,
+                        size: 16,
+                        color: AppColor.grey,
+                      ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Google Location is required";
                         }
 
                         final googleMapRegex = RegExp(
-                          r'^(https?:\/\/)?(www\.)?(google\.com\/maps|maps\.google\.com|goo\.gl\/maps|maps\.app\.goo\.gl)\/.+$',
+                          r'^(https?:\/\/)?(www\.)?(google\.[a-z.]+\/maps(\?|\/)|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|goo\.gl\/maps|share\.google)\/?.*$',
                           caseSensitive: false,
                         );
 
@@ -439,28 +443,28 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
               Container(
                 decoration: commonCardDecoration(),
                 padding: EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "FSI / TDR Information",
-                        style: AppTextStyle.ts14M(color: AppColor.grey),
-                      ),
-                      verticalSpacing(),
-                      CustomTextField(
-                        textController: _propertyAgeYearsC,
-                        title: 'Property Age (Years)',
-                        hint: 'Enter Property Age',
-                        inputFormatterList: InputValidator.decimal(5),
-                      ),
-                      CustomTextField(
-                        textController: _fsiTdrUtilizationC,
-                        title: 'FSI / TDR Utilization (SqFt)',
-                        hint: 'Enter FSI / TDR Utilization',
-                        inputFormatterList: InputValidator.decimal(10),
-                      ),
-                    ],
-                  ) ,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "FSI / TDR Information",
+                      style: AppTextStyle.ts14M(color: AppColor.grey),
+                    ),
+                    verticalSpacing(),
+                    CustomTextField(
+                      textController: _propertyAgeYearsC,
+                      title: 'Property Age (Years)',
+                      hint: 'Enter Property Age',
+                      inputFormatterList: InputValidator.decimal(5),
+                    ),
+                    CustomTextField(
+                      textController: _fsiTdrUtilizationC,
+                      title: 'FSI / TDR Utilization (SqFt)',
+                      hint: 'Enter FSI / TDR Utilization',
+                      inputFormatterList: InputValidator.decimal(10),
+                    ),
+                  ],
+                ),
               ),
               verticalSpacing(),
               Container(
@@ -648,6 +652,11 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
           padding: EdgeInsets.all(16),
           child: CustomButton(
             text: _isEditMode ? "Update Building" : "Add Building",
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              size: 18,
+              color: AppColor.white,
+            ),
             onPressed: () {
               _addUpdateBuilding(
                 context,

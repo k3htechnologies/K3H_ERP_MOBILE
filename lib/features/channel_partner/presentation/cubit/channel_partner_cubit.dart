@@ -133,6 +133,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        getChannelPartnerList(context, 1);
         goRouter.pop();
         showSuccessMessage(context, subTitle: 'Asset Added Successfully');
       },
@@ -214,7 +215,66 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       },
       (response) {
         goRouter.pop();
-        showSuccessMessage(context, subTitle: 'Asset Added Successfully');
+        final updatedChannelPartner =
+            (response['data'] as List<ChannelPartnerModel>).first;
+
+        if (state.channelPartnerList.isNotEmpty &&
+            index < state.channelPartnerList.length) {
+          final updatedList = List<ChannelPartnerModel>.from(
+            state.channelPartnerList,
+          );
+
+          updatedList[index] = updatedChannelPartner;
+
+          emit(
+            state.copyWith(isLoading: false, channelPartnerList: updatedList),
+          );
+        }
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Channel Partner Updated Successfully',
+        );
+      },
+    );
+  }
+
+  // <---- DELETE CHANNEL PARTNER ---->
+  Future deleteChannelPartner(
+    int index,
+    ChannelPartnerModel channelPartnerModel,
+    BuildContext context,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _channelPartnerRepository.deleteChannelPartner(
+      channelPartnerId: channelPartnerModel.channelPartnerId,
+      uniqueKey: channelPartnerModel.uniquekey,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+        return;
+      },
+      (success) {
+        final updatedList = List<ChannelPartnerModel>.from(
+          state.channelPartnerList,
+        );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            channelPartnerList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
+        showSuccessMessage(
+          context,
+          subTitle: "Channel Partner Deleted Successfully",
+        );
       },
     );
   }

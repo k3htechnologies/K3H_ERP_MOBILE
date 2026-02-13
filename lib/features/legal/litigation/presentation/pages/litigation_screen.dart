@@ -84,8 +84,8 @@ class _LitigationScreenState extends State<LitigationScreen> {
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a Litigation?',
-      'Deleting this Litigation will permanently remove its contents.',
+      'You are about to delete a Channel Partner?',
+      'Deleting this Channel Partner will permanently remove its contents.',
     );
     if (result && context.mounted) {
       _litigationCubit.deleteLitigation(index, obj, context);

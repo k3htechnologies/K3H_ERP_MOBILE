@@ -76,8 +76,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     selectedSpeciality = specialityList[0];
     selectedFirmsType = firmsType[0];
     selectedType = type[0];
-
-    // Prefill if in edit mode
     if (widget.channelPartnerModel != null) {
       _prefillChannelPartner(widget.channelPartnerModel!);
     }
@@ -195,6 +193,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     (c) => {
                       'zAttributesId': c.companyId,
                       'DisplayName': c.companyName,
+                      'FirmsType': c.firmsType,
                     },
                   )
                   .toList();
@@ -263,6 +262,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _aadhaarNumberC.text = channelPartnerMasterModel.aadharCardNumber;
     _companyNameC.text = channelPartnerMasterModel.companyName;
     _reraNumberC.text = channelPartnerMasterModel.reraNumber;
+    hasReraNumber = channelPartnerMasterModel.reraNumber.isNotEmpty;
     _gstNumberC.text = channelPartnerMasterModel.gstNumber;
     _officeAddressC.text = channelPartnerMasterModel.officeAddress;
     if (channelPartnerMasterModel.companyName.isNotEmpty) {
@@ -272,6 +272,27 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
           "zAttributesId": 0,
         },
       ];
+    }
+    if (channelPartnerMasterModel.companyName.isNotEmpty) {
+      // EXISTING COMPANY FLOW
+      selectedCompanyType.value = companyTypeList[2];
+
+      selectedCompany = [
+        {
+          "DisplayName": channelPartnerMasterModel.companyName,
+          "zAttributesId": 0,
+        },
+      ];
+
+      _companyNameC.text = channelPartnerMasterModel.companyName;
+
+      selectedFirmsType = firmsType.firstWhere(
+        (e) => e['DisplayName'] == channelPartnerMasterModel.firmsType,
+        orElse: () => firmsType[0],
+      );
+    } else {
+      // NEW COMPANY FLOW
+      selectedCompanyType.value = companyTypeList[1];
     }
     if (channelPartnerMasterModel.designation.isNotEmpty) {
       selectedDesignation = [
@@ -316,9 +337,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       "DisplayName": widget.channelPartnerModel!.stateName,
       "zAttributesId": widget.channelPartnerModel!.stateMasterId,
     };
-    hasReraNumber = channelPartnerMasterModel.reraNumber.isNotEmpty;
   }
 
+  // ON SAVE BUTTON
   void _submitForm({int index = 0}) {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -515,13 +536,22 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                     selectedCompany = selectedValue;
 
                                     if (selectedValue.isNotEmpty) {
+                                      final company = selectedValue.first;
                                       _companyNameC.text =
-                                          selectedValue.first['DisplayName'] ??
-                                          '';
-                                      selectedFirmsType = firmsType[1];
+                                          company['DisplayName'] ?? '';
+                                      if (company.containsKey('FirmsType')) {
+                                        selectedFirmsType = firmsType
+                                            .firstWhere(
+                                              (e) =>
+                                                  e['DisplayName'] ==
+                                                  company['FirmsType'],
+                                              orElse: () => firmsType[0],
+                                            );
+                                      }
                                     }
                                   });
                                 },
+
                                 validator: (selectedValue) {
                                   if (selectedValue == null ||
                                       selectedValue.isEmpty) {
@@ -558,16 +588,18 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 },
                               ),
                             ],
-                            if (typeId == 1) ...[
+                            if (typeId == 1 || typeId == 2) ...[
                               CustomDropDownWidget(
                                 title: "Firms Type",
-                                isRequired: false,
+                                isRequired: true,
                                 dataList: firmsType,
                                 initialValue: selectedFirmsType,
                                 onSelected: (value) {
-                                  setState(() {
-                                    selectedFirmsType = value;
-                                  });
+                                  if (typeId == 1) {
+                                    setState(() {
+                                      selectedFirmsType = value;
+                                    });
+                                  }
                                 },
                               ),
                             ],
