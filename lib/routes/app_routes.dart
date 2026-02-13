@@ -85,6 +85,7 @@ class AppRoutes {
   static String callTracker = "/callTracker";
   static String enquiry = "/enquiry";
   static String addEnquiry = "/addEnquiry";
+  static String viewEnquiry = "/viewEnquiry";
   static String channelPartner = "/channelPartner";
   static String addChannelPartner = "/addChannelPartner";
   static String channelPartnerView = "/channelPartnerView";

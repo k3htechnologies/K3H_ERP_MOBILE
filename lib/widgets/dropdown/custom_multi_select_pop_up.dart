@@ -362,9 +362,10 @@ class _DropdownListState extends State<DropdownList> {
     // Create new maps to avoid type conflicts
     // Handle both 'itemList' and 'data' keys, and handle null case
     final itemList = result['itemList'] ?? result['data'] ?? [];
-    List<Map<String, dynamic>> fetchedItems = (itemList as List)
-        .map((e) => Map<String, dynamic>.from(e as Map))
-        .toList();
+    List<Map<String, dynamic>> fetchedItems =
+        (itemList as List)
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
 
     // Mark API items as checked if already selected
     for (int i = 0; i < fetchedItems.length; i++) {
@@ -381,16 +382,10 @@ class _DropdownListState extends State<DropdownList> {
         if (widget.initialValue.isNotEmpty &&
             widget.initialValue.first['zAttributesId'] ==
                 item['zAttributesId']) {
-          fetchedItems[i] = {
-            ...item,
-            'isChecked': true,
-          };
+          fetchedItems[i] = {...item, 'isChecked': true};
           selectedRadioId = item['zAttributesId'];
         } else {
-          fetchedItems[i] = {
-            ...item,
-            'isChecked': false,
-          };
+          fetchedItems[i] = {...item, 'isChecked': false};
         }
       }
     }
@@ -430,8 +425,7 @@ class _DropdownListState extends State<DropdownList> {
       totalNumberOfRecord = result["totalNumberOfRecord"] ?? 0;
 
       final Map<dynamic, Map<String, dynamic>> uniqueMap = {
-        for (var item in tempDataListForSearch)
-          item['zAttributesId']: item
+        for (var item in tempDataListForSearch) item['zAttributesId']: item,
       };
 
       for (var item in fetchedItems) {
@@ -481,12 +475,16 @@ class _DropdownListState extends State<DropdownList> {
   void initState() {
     super.initState();
     searchC = TextEditingController();
-    initialIds = widget.initialValue
-        .where((e) => e['zAttributesId'] != null)
-        .map<int>((e) => e['zAttributesId'] is int 
-            ? e['zAttributesId'] 
-            : int.tryParse(e['zAttributesId'].toString()) ?? -1)
-        .toList();
+    initialIds =
+        widget.initialValue
+            .where((e) => e['zAttributesId'] != null)
+            .map<int>(
+              (e) =>
+                  e['zAttributesId'] is int
+                      ? e['zAttributesId']
+                      : int.tryParse(e['zAttributesId'].toString()) ?? -1,
+            )
+            .toList();
 
     // For single select, set the initial selected ID
     if (!widget.isMultiSelect && widget.initialValue.isNotEmpty) {
@@ -525,16 +523,10 @@ class _DropdownListState extends State<DropdownList> {
           if (widget.initialValue.isNotEmpty &&
               widget.initialValue.first['zAttributesId'] ==
                   item['zAttributesId']) {
-            tempDataListForSearch[i] = {
-              ...item,
-              'isChecked': true,
-            };
+            tempDataListForSearch[i] = {...item, 'isChecked': true};
             selectedRadioId = item['zAttributesId'];
           } else {
-            tempDataListForSearch[i] = {
-              ...item,
-              'isChecked': false,
-            };
+            tempDataListForSearch[i] = {...item, 'isChecked': false};
           }
         }
       }
@@ -566,7 +558,9 @@ class _DropdownListState extends State<DropdownList> {
         // Single select: radio button behavior
         // Uncheck all items first, then check the selected item
         for (int i = 0; i < tempDataListForSearch.length; i++) {
-          final isSelected = tempDataListForSearch[i]['zAttributesId'] == item['zAttributesId'];
+          final isSelected =
+              tempDataListForSearch[i]['zAttributesId'] ==
+              item['zAttributesId'];
           tempDataListForSearch[i] = {
             ...tempDataListForSearch[i],
             'isChecked': isSelected,

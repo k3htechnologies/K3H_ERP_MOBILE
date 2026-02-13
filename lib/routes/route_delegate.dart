@@ -269,6 +269,7 @@ import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/add_enquiry_screen.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/enquiry_screen.dart';
+import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/view_enquiry_screen.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/presentation/cubit/other_charges_cubit.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/presentation/pages/other_charges_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
@@ -3794,7 +3795,7 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.addEnquiry,
                   builder: (context, state) {
                     final queryParameterEnquiry =
-                        state.uri.queryParameters['booking'];
+                        state.uri.queryParameters['enquiry'];
                     final enquiry =
                         queryParameterEnquiry != null &&
                                 queryParameterEnquiry.isNotEmpty
@@ -3814,6 +3815,35 @@ final GoRouter goRouter = GoRouter(
                         0;
                     return AddEnquiryScreen(
                       enquiryModel: enquiry,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewEnquiry,
+                  path: AppRoutes.viewEnquiry,
+                  builder: (context, state) {
+                    final queryParameterEnquiry =
+                        state.uri.queryParameters['enquiry'];
+                    final enquiry =
+                        queryParameterEnquiry != null &&
+                                queryParameterEnquiry.isNotEmpty
+                            ? EnquiryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterEnquiry),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return ViewEnquiryScreen(
+                      enquiryModel: enquiry!,
                       index: index,
                     );
                   },
@@ -3841,20 +3871,20 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.viewSourcing,
                   builder: (context, state) {
                     final queryParameterChannelPartner =
-                    state.uri.queryParameters['channelPartner'];
+                        state.uri.queryParameters['channelPartner'];
 
                     final ChannelPartnerModel? channelPartner =
-                    queryParameterChannelPartner != null
-                        ? ChannelPartnerModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(
-                            queryParameterChannelPartner,
-                          ),
-                        ),
-                      ),
-                    )
-                        : null;
+                        queryParameterChannelPartner != null
+                            ? ChannelPartnerModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterChannelPartner,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
                     final projectId =
                         int.tryParse(
                           state.uri.queryParameters['projectId'] ?? '',

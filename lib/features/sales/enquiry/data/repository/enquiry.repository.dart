@@ -10,8 +10,21 @@ abstract interface class EnquiryRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-  Future<Either<Failure, Map<String, dynamic>>>
-  addUpdateEnquiry({required Map<String, dynamic> body});
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateEnquiry({
+    required Map<String, dynamic> body,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> getVillageList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> exportEnquiry({
+    required int pageNumber,
+    required int projectId,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class EnquiryRepositoryImpl extends EnquiryRepository {
@@ -39,12 +52,49 @@ class EnquiryRepositoryImpl extends EnquiryRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>>
-  addUpdateEnquiry({
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateEnquiry({
     required Map<String, dynamic> body,
   }) async {
     try {
       var result = await enquiryDatasource.apicallAddUpdateEnquiry(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getVillageList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await enquiryDatasource.apiCallPullVillage(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> exportEnquiry({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await enquiryDatasource.apiCallPullEnquiryForExport(
+        pageNumber: pageNumber,
+        projectId: projectId,
+        pageSize: pageSize,
+        queryParams: queryParams,
+      );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
