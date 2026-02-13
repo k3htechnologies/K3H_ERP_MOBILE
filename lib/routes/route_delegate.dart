@@ -269,7 +269,9 @@ import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/add_enquiry_screen.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/enquiry_screen.dart';
+import 'package:k3h_erp_app/features/sales/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/presentation/cubit/other_charges_cubit.dart';
+import 'package:k3h_erp_app/features/sales/other_charges/presentation/pages/add_other_charges_screen.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/presentation/pages/other_charges_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/pages/sourcing_screen.dart';
@@ -3841,20 +3843,20 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.viewSourcing,
                   builder: (context, state) {
                     final queryParameterChannelPartner =
-                    state.uri.queryParameters['channelPartner'];
+                        state.uri.queryParameters['channelPartner'];
 
                     final ChannelPartnerModel? channelPartner =
-                    queryParameterChannelPartner != null
-                        ? ChannelPartnerModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(
-                            queryParameterChannelPartner,
-                          ),
-                        ),
-                      ),
-                    )
-                        : null;
+                        queryParameterChannelPartner != null
+                            ? ChannelPartnerModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterChannelPartner,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
                     final projectId =
                         int.tryParse(
                           state.uri.queryParameters['projectId'] ?? '',
@@ -3882,6 +3884,43 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.otherCharges,
                   builder: (context, state) {
                     return const OtherChargesScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addOtherCharges,
+                  path: AppRoutes.addOtherCharges,
+                  builder: (context, state) {
+                    final queryParameterOtherCharges =
+                        state.uri.queryParameters['otherCharges'];
+                    final otherCharges =
+                        queryParameterOtherCharges != null &&
+                                queryParameterOtherCharges.isNotEmpty
+                            ? OtherChargeModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterOtherCharges,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    final projectId =
+                        int.tryParse(
+                          state.uri.queryParameters['projectId'] ?? '',
+                        ) ??
+                            0;
+                    return AddOtherChargesScreen(
+                      otherChargeModel: otherCharges,
+                      index: index,
+                      projectId: projectId,
+                    );
                   },
                 ),
               ],

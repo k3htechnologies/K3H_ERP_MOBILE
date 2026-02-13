@@ -92,6 +92,7 @@ class AppRoutes {
   static String viewBookingReport = "/channelPartnerBooking";
   static String viewEnquiryReport = "/viewEnquiryReport";
   static String otherCharges = "/otherCharges";
+  static String addOtherCharges = "/addOtherCharges";
   static String bookingOtherCharges = "/bookingOtherCharges";
   static String booking = "/booking";
   static String addBooking = "/addBooking";
