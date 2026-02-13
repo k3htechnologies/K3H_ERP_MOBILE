@@ -284,16 +284,16 @@ class _ViewApprovalDocumentScreenState
 
     switch (s) {
       case 'applied':
-        return _statusChip(status, AppColor.lightBlue2, AppColor.primary);
+        return statusChip(status, AppColor.lightBlue2, AppColor.primary);
 
       case 'doc missing':
-        return _statusChip(status, AppColor.warning20, AppColor.warning);
+        return statusChip(status, AppColor.warning20, AppColor.warning);
 
       case 'in process':
-        return _statusChip(status, AppColor.lightYellow, AppColor.brown);
+        return statusChip(status, AppColor.lightYellow, AppColor.brown);
 
       case 'issued':
-        return _statusChip(
+        return statusChip(
           status,
           AppColor.darkBackground.withValues(alpha: 0.29),
           AppColor.darkBackground,
@@ -301,30 +301,19 @@ class _ViewApprovalDocumentScreenState
 
       case 'not applied':
       case 'not applicable':
-        return _statusChip(status, AppColor.grey2, AppColor.black);
+        return statusChip(status, AppColor.grey2, AppColor.black);
 
       case 'paid':
-        return _statusChip(status, AppColor.green20, AppColor.darkGreen10);
+        return statusChip(status, AppColor.green20, AppColor.darkGreen10);
 
       case 'payment due':
-        return _statusChip(status, AppColor.purple20, AppColor.purple);
+        return statusChip(status, AppColor.purple20, AppColor.purple);
 
       case 'rejected':
-        return _statusChip(status, AppColor.lightRed, AppColor.red);
+        return statusChip(status, AppColor.lightRed, AppColor.red);
 
       default:
-        return _statusChip(status, Colors.white, Colors.black);
+        return statusChip(status, Colors.white, Colors.black);
     }
-  }
-
-  Widget _statusChip(String text, Color bg, Color txt) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(text, style: AppTextStyle.ts12M(color: txt)),
-    );
   }
 }

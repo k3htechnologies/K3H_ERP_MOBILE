@@ -9,6 +9,9 @@ abstract interface class EnquiryDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apicallAddUpdateEnquiry({
+    required Map<String, dynamic> body,
+  });
 }
 
 class EnquiryDatasourceImpl extends EnquiryDatasource {
@@ -56,6 +59,31 @@ class EnquiryDatasourceImpl extends EnquiryDatasource {
           projectId: projectId,
           queryParams: queryParams,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateEnquiry({
+    required Map<String, dynamic> body,
+  }) async {
+    String addUpdateProjectDocumentCategoryUrl = "Enquiry/AddUpdateEnquiry";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateProjectDocumentCategoryUrl,
+        body,
+      );
+      return {
+        'data': List<EnquiryModel>.from(
+          networkResponse["data"].map((e) => EnquiryModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallAddUpdateEnquiry(body: body);
       }
       rethrow;
     }

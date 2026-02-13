@@ -99,16 +99,19 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
     _reasonC.text = m.reason;
     selectedStartDuration = _durationFromModel(m.startDateLeaveDuration);
     selectedEndDuration = _durationFromModel(m.endDateLeaveDuration);
-    final urls = m.leaveDocumentUrl.trim().isEmpty
-        ? <String>[]
-        : m.leaveDocumentUrl
-            .split(",")
-            .map((e) => e.trim())
-            .where((s) => s.isNotEmpty)
-            .toList();
+    final urls =
+        m.leaveDocumentUrl.trim().isEmpty
+            ? <String>[]
+            : m.leaveDocumentUrl
+                .split(",")
+                .map((e) => e.trim())
+                .where((s) => s.isNotEmpty)
+                .toList();
     leaveDocument.fileNameList = urls;
-    leaveDocument.fileBytesList =
-        List.generate(urls.length, (_) => Uint8List(0));
+    leaveDocument.fileBytesList = List.generate(
+      urls.length,
+      (_) => Uint8List(0),
+    );
   }
 
   @override
@@ -132,7 +135,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
     int pageNumber, {
     String? value,
   }) async {
-    final totalCount = _leaveCubit.state.leaveTypeTotalCount;
+    final totalCount = _leaveCubit.state.totalNumberOfRecord;
     final pageSize = 15;
 
     // SEARCH MODE
@@ -311,7 +314,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                                           value.day,
                                         );
 
-                                        if (endDateOnly.isBefore(startDateOnly)) {
+                                        if (endDateOnly.isBefore(
+                                          startDateOnly,
+                                        )) {
                                           return 'End Date cannot be before Start Date';
                                         }
                                       }
@@ -421,9 +426,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
             text: _isEditMode ? "Update Leave" : "Apply Leave",
             onPressed: () {
               if (!_formKey.currentState!.validate()) return;
-              final leaveTypeMasterId = _selectedLeaveTypeNotifier
-                  .value[0]["zAttributesId"]
-                  .toString();
+              final leaveTypeMasterId =
+                  _selectedLeaveTypeNotifier.value[0]["zAttributesId"]
+                      .toString();
               final startDate = _startDateNotifier.value!;
               final endDate = _endDateNotifier.value!;
               final startDateLeaveDuration =

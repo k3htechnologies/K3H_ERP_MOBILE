@@ -5,6 +5,8 @@ class EnquiryModel {
   String uniquekey;
   int projectId;
   String projectName;
+  String enquiryTimeIn;
+  DateTime dateOfBirth;
   String name;
   String emailId;
   String mobileNumber;
@@ -32,6 +34,8 @@ class EnquiryModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String systemGeneratedCode;
+  String currentLocation;
 
   EnquiryModel({
     required this.enquiryId,
@@ -39,6 +43,7 @@ class EnquiryModel {
     required this.projectId,
     required this.projectName,
     required this.name,
+    required this.enquiryTimeIn,
     required this.emailId,
     required this.mobileNumber,
     required this.occupationType,
@@ -65,12 +70,18 @@ class EnquiryModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.systemGeneratedCode,
+    required this.currentLocation,
+    required this.dateOfBirth,
   });
 
   factory EnquiryModel.fromJson(Map<String, dynamic> json) => EnquiryModel(
     enquiryId: parseValue<int>(json, "EnquiryId"),
     uniquekey: parseValue<String>(json, "Uniquekey"),
+    systemGeneratedCode: parseValue<String>(json, "SystemGeneratedCode"),
+    currentLocation: parseValue<String>(json, "CurrentLocation"),
     projectId: parseValue<int>(json, "ProjectId"),
+    enquiryTimeIn: parseValue<String>(json, "EnquiryTimeIn"),
     projectName: parseValue<String>(json, "ProjectName"),
     name: parseValue<String>(json, "Name"),
     emailId: parseValue<String>(json, "EmailId"),
@@ -105,6 +116,7 @@ class EnquiryModel {
         json["ModifiedDate"] == null
             ? null
             : parseValue<DateTime>(json, "ModifiedDate"),
+    dateOfBirth: parseValue<DateTime>(json, "DateOfBirth"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -112,6 +124,9 @@ class EnquiryModel {
     "Uniquekey": uniquekey,
     "ProjectId": projectId,
     "ProjectName": projectName,
+    "SystemGeneratedCode": systemGeneratedCode,
+    "EnquiryTimeIn": enquiryTimeIn,
+    "CurrentLocation": currentLocation,
     "Name": name,
     "EmailId": emailId,
     "MobileNumber": mobileNumber,
@@ -139,5 +154,6 @@ class EnquiryModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "DateOfBirth": dateOfBirth.toIso8601String(),
   };
 }
