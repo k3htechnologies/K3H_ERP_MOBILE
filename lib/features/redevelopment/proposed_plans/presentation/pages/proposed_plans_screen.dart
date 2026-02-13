@@ -358,6 +358,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
       child: Scaffold(
         appBar: CustomAppBarWithBackButton(
           screenTitle: "Proposed Plan",
+          isMenuButton: true,
           authorization: _routeAuthorizationModel,
           onProjectChangeCallback: (project) {
             _project = project;

@@ -174,11 +174,13 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     );
 
     void setFileLists(MultiFilePickerModel target, String url) {
-      target.fileNameList = url.isEmpty ? [] : url.split(",");
-      target.fileBytesList = List.generate(
-        target.fileNameList.length,
-        (_) => Uint8List(0),
-      );
+      if (url.isEmpty) {
+        target.fileNameList = [];
+        target.fileBytesList = [];
+      } else {
+        target.fileNameList = url.split(",");
+        target.fileBytesList = [];
+      }
     }
 
     setFileLists(profilePhotoFile, applicant.photoURL);
