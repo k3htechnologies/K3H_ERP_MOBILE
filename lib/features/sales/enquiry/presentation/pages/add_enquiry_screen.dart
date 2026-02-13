@@ -33,13 +33,27 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
   final _formKey = GlobalKey<FormState>();
   String? _timeInC;
-
-  late TextEditingController _nameC,
+  String? _timeOutC;
+  String nationality = 'Indian';
+  late TextEditingController uniqueCodeC,
+      _nameC,
       _mobileC,
       _emailC,
+      _ageC,
       _locationC,
       _areaPrefC,
       _budgetC,
+      // Employee Reference
+      _employeeName,
+      _employeeMobileNumber,
+      // Loyalty
+      _existingProjectName,
+      _existingUnitNumber,
+      // Referral (Reference)
+      _referralName,
+      _referralMobile,
+      _referralProjectName,
+      _referralUnitNumber,
       _remarkC;
 
   DateTime? dateOfBirth;
@@ -62,6 +76,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   late Map<String, dynamic> selectedEthnicity;
   late Map<String, dynamic> selectedSource;
   late Map<String, dynamic> selectedSubSource;
+  late Map<String, dynamic> selectedChannelPartner;
   late Map<String, dynamic> selectedSubSubSource;
   late Map<String, dynamic> selectedFinalStage;
   late Map<String, dynamic> selectedSaleAdvisor;
@@ -74,7 +89,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': 2, 'DisplayName': 'Self-Owned'},
   ];
   final List<Map<String, dynamic>> occupationType = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Occupation Typr'},
+    {'zAttributesId': -1, 'DisplayName': 'Select Occupation Type'},
 
     {'zAttributesId': 1, 'DisplayName': 'Business'},
     {'zAttributesId': 2, 'DisplayName': 'Homemaker'},
@@ -230,6 +245,19 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     selectedFinalStage = sourceTypeList.first;
     selectedTimeline = timelineTypeList.first;
 
+    /// ADD THESE ↓↓↓
+    selectedSubSource = directWalkingSubSourceList.first;
+    selectedSubSubSource = subSubSourceList.first;
+    selectedLocation = {'zAttributesId': -1, 'DisplayName': 'Select Location'};
+    selectedSaleAdvisor = {
+      'zAttributesId': -1,
+      'DisplayName': 'Select Advisor',
+    };
+    selectedSourcingManager = {
+      'zAttributesId': -1,
+      'DisplayName': 'Select Manager',
+    };
+
     if (_isEditMode) {
       _populateForm(widget.enquiryModel!);
     } else {
@@ -241,9 +269,25 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _nameC = TextEditingController();
     _mobileC = TextEditingController();
     _emailC = TextEditingController();
+    _ageC = TextEditingController();
     _locationC = TextEditingController();
     _areaPrefC = TextEditingController();
     _budgetC = TextEditingController();
+
+    // Employee Reference
+    _employeeName = TextEditingController();
+    _employeeMobileNumber = TextEditingController();
+
+    // Loyalty
+    _existingProjectName = TextEditingController();
+    _existingUnitNumber = TextEditingController();
+
+    // Referral
+    _referralName = TextEditingController();
+    _referralMobile = TextEditingController();
+    _referralProjectName = TextEditingController();
+    _referralUnitNumber = TextEditingController();
+
     _remarkC = TextEditingController();
   }
 
@@ -304,6 +348,31 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   }
 
   @override
+  void dispose() {
+    _nameC.dispose();
+    _mobileC.dispose();
+    _emailC.dispose();
+    _locationC.dispose();
+    _areaPrefC.dispose();
+    _budgetC.dispose();
+
+    _employeeName.dispose();
+    _employeeMobileNumber.dispose();
+
+    _existingProjectName.dispose();
+    _existingUnitNumber.dispose();
+
+    _referralName.dispose();
+    _referralMobile.dispose();
+    _referralProjectName.dispose();
+    _referralUnitNumber.dispose();
+
+    _remarkC.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
@@ -352,12 +421,14 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         setValue: (val) => _timeInC = formatTimeOfDayHHmm(val),
       ),
       CustomTextField(
-        title: "Full Name*",
+        isRequired: true,
+        title: "Full Name",
         textController: _nameC,
         hint: "Enter Name",
       ),
       CustomTextField(
-        title: "Mobile Number*",
+        title: "Mobile Number",
+        isRequired: true,
         textController: _mobileC,
         hint: "Enter Mobile",
       ),
@@ -367,18 +438,28 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         hint: "Enter Email",
       ),
       CustomDatePicker(
-        title: "DOB*",
+        title: "DOB",
+        isRequired: true,
         initialDate: dateOfBirth,
         setValue: (v) => dateOfBirth = v,
       ),
+      CustomTextField(
+        isRequired: true,
+        readOnly: true,
+        title: "Age",
+        textController: _ageC,
+        hint: "System calculated Age",
+      ),
       CustomDropDownWidget(
-        title: "Current Accommodation*",
+        isRequired: true,
+        title: "Current Accommodation",
         initialValue: selectedAccommodation,
         dataList: currentAccommodation,
         onSelected: (v) => selectedAccommodation = v,
       ),
       CustomDropDownWidget(
         title: "Occupation Type",
+        isRequired: true,
         initialValue: selectedOccupationType,
         dataList: occupationType,
         onSelected: (v) => selectedOccupationType = v,
@@ -387,25 +468,125 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   }
 
   Widget _sourceCard() {
+    final bool isDirectWalking =
+        selectedSource['zAttributesId'] == sourceTypeList[2]['zAttributesId'];
+
+    final int subSourceId = selectedSubSource['zAttributesId'];
+
     return _card("Source", [
       CustomDropDownWidget(
         title: "Source*",
         initialValue: selectedSource,
         dataList: sourceTypeList,
-        onSelected: (v) => selectedSource = v,
+        onSelected: (v) {
+          setState(() {
+            selectedSource = v;
+
+            // Reset SubSource when Source changes
+            selectedSubSource =
+                selectedSource['zAttributesId'] ==
+                        sourceTypeList[1]['zAttributesId']
+                    ? channelPartnerActivityList.first
+                    : directWalkingSubSourceList.first;
+
+            selectedSubSubSource = subSubSourceList.first;
+          });
+        },
       ),
+
       CustomDropDownWidget(
         title: "Sub Source*",
         initialValue: selectedSubSource,
-        dataList: subSubSourceList,
-        onSelected: (v) => selectedSubSource = v,
+        dataList:
+            selectedSource['zAttributesId'] ==
+                    sourceTypeList[1]['zAttributesId']
+                ? channelPartnerActivityList
+                : directWalkingSubSourceList,
+        onSelected: (v) {
+          setState(() {
+            selectedSubSource = v;
+            selectedSubSubSource = subSubSourceList.first;
+          });
+        },
       ),
-      CustomDropDownWidget(
-        title: "Sub Sub Source*",
-        initialValue: selectedSubSource,
-        dataList: subSubSourceList,
-        onSelected: (v) => selectedSubSource = v,
-      ),
+      if (!isDirectWalking)
+        CustomDropDownWidget(
+          title: "Channel Partner*",
+          initialValue: selectedChannelPartner,
+          dataList: channelPartnerActivityList,
+          onSelected: (v) {
+            setState(() {
+              selectedChannelPartner = v;
+            });
+          },
+        ),
+
+      /// ---------------- DIRECT WALKING CASES ----------------
+
+      /// Advertisement → show SubSubSource dropdown
+      if (isDirectWalking && subSourceId == 1)
+        CustomDropDownWidget(
+          title: "Sub Sub Source*",
+          initialValue: selectedSubSubSource,
+          dataList: subSubSourceList,
+          onSelected: (v) {
+            setState(() {
+              selectedSubSubSource = v;
+            });
+          },
+        ),
+
+      /// Employee Reference → 2 fields
+      if (isDirectWalking && subSourceId == 3) ...[
+        CustomTextField(
+          title: "Employee Name",
+          hint: "Enter Employee Name",
+          textController: _employeeName,
+        ),
+        CustomTextField(
+          title: "Employee Mobile Number",
+          hint: "Enter Mobile Number",
+          textController: _employeeMobileNumber,
+        ),
+      ],
+
+      /// Loyalty → 2 fields
+      if (isDirectWalking && subSourceId == 5) ...[
+        CustomTextField(
+          title: "Existing Project Name",
+          hint: "Enter Project Name",
+          textController: _existingProjectName,
+        ),
+        CustomTextField(
+          title: "Existing Unit Number",
+          hint: "Enter Unit Number",
+          textController: _existingUnitNumber,
+        ),
+      ],
+
+      /// Reference → 4 fields
+      if (isDirectWalking && subSourceId == 10) ...[
+        CustomTextField(
+          title: "Referral Name*",
+          hint: "Enter Referral Name",
+          textController: _referralName,
+        ),
+        CustomTextField(
+          title: "Referral Mobile Number*",
+          hint: "Enter Referral Mobile Number",
+          textController: _referralMobile,
+        ),
+        CustomTextField(
+          title: "Referral Project Name*",
+          hint: "Enter Referral Project Name",
+          textController: _referralProjectName,
+        ),
+        CustomTextField(
+          title: "Referral Unit Number*",
+          hint: "Enter Referral Unit Number",
+          textController: _referralUnitNumber,
+        ),
+      ],
     ]);
   }
 
@@ -505,7 +686,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         initialDate: nextFollowUpDate,
         setValue: (v) => nextFollowUpDate = v,
       ),
-      CustomTextField(title: "Remarks", textController: _remarkC, maxLines: 3),
     ]);
   }
 
@@ -513,9 +693,11 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     return _card("Sales Details", [
       const Text("Customer Time Out"),
       CustomTimePicker(
-        initialTime: parseTimeOfDayFromHHmm(_timeInC),
-        setValue: (val) => _timeInC = formatTimeOfDayHHmm(val),
+        initialTime: parseTimeOfDayFromHHmm(_timeOutC),
+        setValue: (val) => _timeOutC = formatTimeOfDayHHmm(val),
       ),
+
+      CustomTextField(title: "Remarks", textController: _remarkC, maxLines: 3),
     ]);
   }
 
