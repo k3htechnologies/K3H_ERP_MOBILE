@@ -236,49 +236,107 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                         horizontal: 10.0,
                         vertical: 10.0,
                       ),
-                      child:
-                          selectedValues.isNotEmpty
-                              ? Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      widget.isMultiSelect
-                                          ? selectedValues
-                                              .map((e) => e['DisplayName'])
-                                              .join(', ')
-                                          : selectedValues
-                                                  .first['DisplayName'] ??
-                                              '',
-                                      style: AppTextStyle.ts14M(),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                      child: selectedValues.isNotEmpty
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Wrap(
+                                    spacing: 6,
+                                    runSpacing: 2,
+                                    children: widget.isMultiSelect
+                                        ? selectedValues
+                                            .map<Widget>(
+                                              (e) => Chip(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  side: BorderSide(
+                                                    color: AppColor.grey,
+                                                    width: .5,
+                                                  ),
+                                                ),
+                                                label: Text(
+                                                  e['DisplayName'] ?? '',
+                                                  style: AppTextStyle.ts14M(),
+                                                ),
+                                                deleteIcon: const Icon(
+                                                  Icons.close,
+                                                  size: 18,
+                                                ),
+                                                onDeleted: () {
+                                                  setState(() {
+                                                    selectedValues.removeWhere(
+                                                      (s) =>
+                                                          s['zAttributesId'] ==
+                                                          e['zAttributesId'],
+                                                    );
+                                                  });
+                                                  formFieldState
+                                                      .didChange(selectedValues);
+                                                  widget.onSelected(
+                                                      selectedValues);
+                                                },
+                                              ),
+                                            )
+                                            .toList()
+                                        : [
+                                            Row(
+                                              children: [
+                                                Flexible(
+                                                  child: Text(
+                                                    selectedValues.first[
+                                                            'DisplayName'] ??
+                                                        '',
+                                                    style: AppTextStyle.ts14M(),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      selectedValues = [];
+                                                    });
+                                                    formFieldState
+                                                        .didChange(selectedValues);
+                                                    widget.onSelected(
+                                                        selectedValues);
+                                                  },
+                                                  child: const Icon(
+                                                    Icons.close,
+                                                    size: 20,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
                                   ),
-                                  const Icon(
-                                    Icons.keyboard_arrow_down,
-                                    size: 24,
+                                ),
+                                const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  size: 24,
+                                ),
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Select',
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.grey,
                                   ),
-                                ],
-                              )
-                              : Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Select',
-                                    style: AppTextStyle.ts14R(
-                                      color: AppColor.grey,
-                                    ),
-                                  ),
-                                  const Icon(
-                                    Icons.keyboard_arrow_down,
-                                    size: 24,
-                                  ),
-                                ],
-                              ),
+                                ),
+                                const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  size: 24,
+                                ),
+                              ],
+                            ),
                     ),
                   ),
                   if (hasError)
@@ -350,8 +408,6 @@ class _DropdownListState extends State<DropdownList> {
   // For single select (radio button), store the selected ID (can be int or String)
   dynamic selectedRadioId;
 
-  /// Persists selections made during this session. Used when merging after search
-  /// so that previously selected items are not lost when tempDataListForSearch is cleared.
   List<Map<String, dynamic>> _localSelectedValues = [];
 
   Future<void> _fetchData() async {
@@ -363,8 +419,7 @@ class _DropdownListState extends State<DropdownList> {
       value: searchText,
     );
 
-    // Create new maps to avoid type conflicts
-    // Handle both 'itemList' and 'data' keys, and handle null case
+
     final itemList = result['itemList'] ?? result['data'] ?? [];
     List<Map<String, dynamic>> fetchedItems = (itemList as List)
         .map((e) => Map<String, dynamic>.from(e as Map))
@@ -401,16 +456,18 @@ class _DropdownListState extends State<DropdownList> {
 
     // Merge selected items that are not in fetched list yet (keep in-session selections when search changes list)
     if (widget.isMultiSelect) {
-      for (var selected in _localSelectedValues) {
-        if (!fetchedItems.any(
-          (item) => item['zAttributesId'] == selected['zAttributesId'],
-        )) {
-          // Add previously selected item to list so it shows in UI
-          fetchedItems.insert(0, {
-            'zAttributesId': selected['zAttributesId'],
-            'DisplayName': selected['DisplayName'],
-            'isChecked': true,
-          });
+      if (searchText.isEmpty) {
+        for (var selected in _localSelectedValues) {
+          if (!fetchedItems.any(
+            (item) => item['zAttributesId'] == selected['zAttributesId'],
+          )) {
+            // Add previously selected item to list so it shows in UI
+            fetchedItems.insert(0, {
+              'zAttributesId': selected['zAttributesId'],
+              'DisplayName': selected['DisplayName'],
+              'isChecked': true,
+            });
+          }
         }
       }
     } else {
@@ -505,7 +562,6 @@ class _DropdownListState extends State<DropdownList> {
 
     // SCROLL CONTROLLER
     scrollController = ScrollController();
-    // Always listen to scroll for pagination (when in API search mode)
     scrollController.addListener(_onScroll);
 
     if (widget.dataList.isEmpty) {
@@ -587,24 +643,19 @@ class _DropdownListState extends State<DropdownList> {
       } else {
         // Single select: radio button behavior; update _localSelectedValues
         for (int i = 0; i < tempDataListForSearch.length; i++) {
-          final isSelected = tempDataListForSearch[i]['zAttributesId'] == item['zAttributesId'];
+          final isSelected =
+              tempDataListForSearch[i]['zAttributesId'] == item['zAttributesId'];
           tempDataListForSearch[i] = {
             ...tempDataListForSearch[i],
             'isChecked': isSelected,
           };
           if (isSelected) {
+            // Only update visual selection (radio). Do NOT commit to _localSelectedValues
+            // until the user confirms via the Select button.
             selectedRadioId = item['zAttributesId'];
-            _localSelectedValues = [
-              {
-                'zAttributesId': item['zAttributesId'],
-                'DisplayName': item['DisplayName'],
-                ...item,
-              }
-            ];
           } else {
             if (selectedRadioId == item['zAttributesId']) {
               selectedRadioId = null;
-              _localSelectedValues = [];
             }
           }
         }
@@ -743,11 +794,23 @@ class _DropdownListState extends State<DropdownList> {
                     Navigator.of(context).pop(_localSelectedValues);
                   }
                 } else {
-                  // For single select, return _localSelectedValues (length 0 or 1)
-                  if (widget.onSelectCallback != null) {
-                    widget.onSelectCallback!(_localSelectedValues);
+                  // For single select, return the currently checked item (visual selection)
+                  final selectedItem = tempDataListForSearch.firstWhere(
+                    (e) => e['isChecked'] == true,
+                    orElse: () => <String, dynamic>{},
+                  );
+                  if (selectedItem.isNotEmpty) {
+                    if (widget.onSelectCallback != null) {
+                      widget.onSelectCallback!([selectedItem]);
+                    } else {
+                      Navigator.of(context).pop([selectedItem]);
+                    }
                   } else {
-                    Navigator.of(context).pop(_localSelectedValues);
+                    if (widget.onSelectCallback != null) {
+                      widget.onSelectCallback!([]);
+                    } else {
+                      Navigator.of(context).pop([]);
+                    }
                   }
                 }
               },
