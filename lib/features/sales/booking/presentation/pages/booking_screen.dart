@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -94,7 +95,9 @@ class _BookingScreenState extends State<BookingScreen> {
         authorization: _routhAuthorizationModel,
         textController: _searchC,
         onSearchSubmit: (value) {},
-        onAddCallback: () {},
+        onAddCallback: () {
+          goRouter.pushNamed(AppRoutes.addBooking);
+        },
         onExportCallback: (value) {},
         onProjectChangeCallback: (value) {
           _project = value;
@@ -160,6 +163,29 @@ class _BookingScreenState extends State<BookingScreen> {
                         Text(
                           booking.approvalStatus,
                           style: AppTextStyle.ts14M(),
+                        ),
+                        horizontalSpacing(),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CustomIconButton.edit(
+                              onPressed: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.addBooking,
+                                  queryParameters: {
+                                    "booking": Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(booking),
+                                      ),
+                                    ),
+                                    "index": index.toString(),
+                                  },
+                                );
+                              },
+                            ),
+                            horizontalSpacing(),
+                            CustomIconButton.delete(onPressed: () {}),
+                          ],
                         ),
                       ],
                     ),

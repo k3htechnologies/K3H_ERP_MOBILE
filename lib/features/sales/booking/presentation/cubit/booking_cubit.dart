@@ -4,6 +4,8 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
+import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
+import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 
 part 'booking_state.dart';
@@ -15,8 +17,21 @@ class BookingCubit extends Cubit<BookingState> {
   final BookingRepository _bookingRepository =
       serviceLocator<BookingRepository>();
 
+  final EnquiryRepository _enquiryRepository =
+      serviceLocator<EnquiryRepository>();
+
+  // CLEAR ENQUIRY LIST
+  void clearEnquiryList() {
+    emit(state.copyWith(enquiryList: []));
+  }
+
   void onTabChanged(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndex: index));
+  }
+
+  // ADD FORM TAB
+  void onTabChangedAddForm(int index, BuildContext context) {
+    emit(state.copyWith(currentTabIndexAddForm: index));
   }
 
   // <---- GET BOOKING LIST ---->
@@ -54,6 +69,73 @@ class BookingCubit extends Cubit<BookingState> {
             currentPage: pageNumber,
           ),
         );
+      },
+    );
+  }
+
+  // <---- GET BOOKING BY ID LIST ---->
+  Future getBookingListById(
+    BuildContext context,
+    int pageNumber,
+    int projectId,
+    int bookingId,
+  ) async {
+    emit(state.copyWith(isLoading: true, bookingListById: []));
+    Map<String, dynamic> queryParams = {"BookingId": bookingId};
+    var result = await _bookingRepository.getBookingList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      projectId: projectId,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            bookingListById: List<BookingModel>.from(response['data'] ?? []),
+            isLoading: false,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET ENQUIRY LIST ---->
+  Future getEnquiryList(
+    BuildContext context,
+    int pageNumber,
+    int projectId,
+    String systemGeneratedCode,
+  ) async {
+    emit(state.copyWith(isLoading: true, enquiryList: []));
+    Map<String, dynamic> queryParams = {
+      "SystemGeneratedCode": systemGeneratedCode,
+    };
+    var result = await _enquiryRepository.getEnquiryList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      projectId: projectId,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<EnquiryModel> newData = List<EnquiryModel>.from(
+          response['data'] ?? [],
+        );
+
+        final List<EnquiryModel> updatedList =
+            pageNumber == 1 ? newData : [...state.enquiryList, ...newData];
+        emit(state.copyWith(enquiryList: updatedList, isLoading: false));
       },
     );
   }

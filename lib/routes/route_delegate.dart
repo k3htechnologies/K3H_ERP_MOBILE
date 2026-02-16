@@ -261,6 +261,7 @@ import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/ten
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_update_tenant_document_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
+import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_tracker_cubit.dart';
@@ -3750,6 +3751,36 @@ final GoRouter goRouter = GoRouter(
                   },
                 ),
                 GoRoute(
+                  name: AppRoutes.addBooking,
+                  path: AppRoutes.addBooking,
+                  builder: (context, state) {
+                    final queryParameterBooking =
+                        state.uri.queryParameters['booking'];
+                    final booking =
+                        queryParameterBooking != null &&
+                                queryParameterBooking.isNotEmpty
+                            ? BookingModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterBooking),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+
+                    return AddBookingScreen(
+                      bookingModel: booking,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
                   name: AppRoutes.viewBooking,
                   path: AppRoutes.viewBooking,
                   builder: (context, state) {
@@ -3940,7 +3971,7 @@ final GoRouter goRouter = GoRouter(
                         int.tryParse(
                           state.uri.queryParameters['projectId'] ?? '',
                         ) ??
-                            0;
+                        0;
                     return AddOtherChargesScreen(
                       otherChargeModel: otherCharges,
                       index: index,

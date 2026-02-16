@@ -567,23 +567,38 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                   spacing: 5,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValue(title: "Country", value: ""),
-                    buildColumnTitleValue(title: "State", value: ""),
+                    buildColumnTitleValue(
+                      title: "Country",
+                      value: widget.channelPartner.countryName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "State",
+                      value: widget.channelPartner.stateName,
+                    ),
                   ],
                 ),
                 Row(
                   spacing: 5,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValue(title: "District", value: ""),
-                    buildColumnTitleValue(title: "City", value: ""),
+                    buildColumnTitleValue(
+                      title: "District",
+                      value: widget.channelPartner.districtName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "City",
+                      value: widget.channelPartner.cityName,
+                    ),
                   ],
                 ),
                 Row(
                   spacing: 5,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValue(title: "Village", value: ""),
+                    buildColumnTitleValue(
+                      title: "Village",
+                      value: widget.channelPartner.villageName,
+                    ),
                     buildColumnTitleValue(
                       title: "Office Address",
                       value: widget.channelPartner.officeAddress,
@@ -646,11 +661,11 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                 .where((e) => e.ibmObm == (state.isIBM ? "IBM" : "OBM"))
                 .toList();
 
-
-        final displayList = [...data]
-          ..sort((a, b) => (b.createdDate ?? DateTime(0))
-              .compareTo(a.createdDate ?? DateTime(0)));
-
+        final displayList = [...data]..sort(
+          (a, b) => (b.createdDate ?? DateTime(0)).compareTo(
+            a.createdDate ?? DateTime(0),
+          ),
+        );
 
         return Column(
           children: [

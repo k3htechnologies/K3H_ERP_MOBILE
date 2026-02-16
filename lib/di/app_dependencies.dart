@@ -177,10 +177,10 @@ void initDependencies() {
   registerCallTrackerDependencies(serviceLocator);
   // TARGET DEPENDENCIES
   registerTargetDependencies(serviceLocator);
-  // BOOKING DEPENDENCIES
-  registerBookingDependencies(serviceLocator);
   // ENQUIRY DEPENDENCIES
   registerEnquiryDependencies(serviceLocator);
+  // BOOKING DEPENDENCIES
+  registerBookingDependencies(serviceLocator);
   // SOURCING DEPENDENCIES
   registerSourcingDependencies(serviceLocator);
   // OTHER CHARGES DEPENDENCIES
