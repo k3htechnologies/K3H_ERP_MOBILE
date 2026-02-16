@@ -3,6 +3,9 @@ part of 'employee_master_cubit.dart';
 class EmployeeMasterState extends BaseState {
   final List<UserModel> employeeMasterList;
   final List<EmployeeDocumentModel> employeeDocumentList;
+  final List<DepartmentModel> departmentList;
+  final List<CompanyModel> companyNameList;
+  final List<DesignationMasterModel> designationList;
   final List<AssetMappingModel> assetMappingList;
   final List<ShiftMappingModel> shiftManagementList;
   final List<WeekOffMappingModel> weekOffMappingList;
@@ -12,6 +15,9 @@ class EmployeeMasterState extends BaseState {
   final List<Map<String, dynamic>> districtList;
   final List<Map<String, dynamic>> cityList;
   final int totalNumberOfRecord;
+  final int departmentTotalCount;
+  final int companyNameTotalCount;
+  final int designationTotalCount;
   final int currentPage;
   final String searchText;
   final String currentSortColumn;
@@ -37,6 +43,9 @@ class EmployeeMasterState extends BaseState {
     super.stateType,
     required this.employeeMasterList,
     required this.employeeDocumentList,
+    required this.departmentList,
+    required this.companyNameList,
+    required this.designationList,
     required this.assetMappingList,
     required this.shiftManagementList,
     required this.weekOffMappingList,
@@ -46,6 +55,9 @@ class EmployeeMasterState extends BaseState {
     required this.districtList,
     required this.cityList,
     required this.totalNumberOfRecord,
+    required this.departmentTotalCount,
+    required this.companyNameTotalCount,
+    required this.designationTotalCount,
     required this.currentPage,
     required this.searchText,
     required this.currentSortColumn,
@@ -70,6 +82,9 @@ class EmployeeMasterState extends BaseState {
   factory EmployeeMasterState.initial() => EmployeeMasterState(
     employeeMasterList: [],
     employeeDocumentList: [],
+    departmentList: [],
+    companyNameList: [],
+    designationList: [],
     assetMappingList: [],
     shiftManagementList: [],
     weekOffMappingList: [],
@@ -79,6 +94,9 @@ class EmployeeMasterState extends BaseState {
     districtList: [],
     cityList: [],
     totalNumberOfRecord: 0,
+    departmentTotalCount: 0,
+    companyNameTotalCount: 0,
+    designationTotalCount: 0,
     currentPage: 1,
     searchText: "",
     currentSortColumn: "Created Date",
@@ -106,6 +124,9 @@ class EmployeeMasterState extends BaseState {
     StateType? stateType,
     List<UserModel>? employeeMasterList,
     List<EmployeeDocumentModel>? employeeDocumentList,
+    List<DepartmentModel>? departmentList,
+    List<CompanyModel>? companyNameList,
+    List<DesignationMasterModel>? designationList,
     List<AssetMappingModel>? assetMappingList,
     List<ShiftMappingModel>? shiftManagementList,
     List<WeekOffMappingModel>? weekOffMappingList,
@@ -116,6 +137,9 @@ class EmployeeMasterState extends BaseState {
     List<Map<String, dynamic>>? districtList,
     List<Map<String, dynamic>>? cityList,
     int? totalNumberOfRecord,
+    int? departmentTotalCount,
+    int? companyNameTotalCount,
+    int? designationTotalCount,
     int? currentPage,
     String? searchText,
     String? currentSortColumn,
@@ -143,6 +167,9 @@ class EmployeeMasterState extends BaseState {
       stateType: stateType ?? this.stateType,
       employeeMasterList: employeeMasterList ?? this.employeeMasterList,
       employeeDocumentList: employeeDocumentList ?? this.employeeDocumentList,
+      departmentList: departmentList ?? this.departmentList,
+      companyNameList: companyNameList ?? this.companyNameList,
+      designationList: designationList ?? this.designationList,
       assetMappingList: assetMappingList ?? this.assetMappingList,
       shiftManagementList: shiftManagementList ?? this.shiftManagementList,
       weekOffMappingList: weekOffMappingList ?? this.weekOffMappingList,
@@ -152,6 +179,11 @@ class EmployeeMasterState extends BaseState {
       districtList: districtList ?? this.districtList,
       cityList: cityList ?? this.cityList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
+      departmentTotalCount: departmentTotalCount ?? this.departmentTotalCount,
+      companyNameTotalCount:
+          companyNameTotalCount ?? this.companyNameTotalCount,
+      designationTotalCount:
+          designationTotalCount ?? this.designationTotalCount,
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
@@ -183,6 +215,9 @@ class EmployeeMasterState extends BaseState {
     stateType,
     employeeMasterList,
     employeeDocumentList,
+    departmentList,
+    companyNameList,
+    designationList,
     assetMappingList,
     shiftManagementList,
     weekOffMappingList,
@@ -192,6 +227,9 @@ class EmployeeMasterState extends BaseState {
     districtList,
     cityList,
     totalNumberOfRecord,
+    departmentTotalCount,
+    companyNameTotalCount,
+    designationTotalCount,
     currentPage,
     searchText,
     currentSortColumn,

@@ -21,6 +21,11 @@ abstract interface class TargetRepository {
     required String uniqueKey,
     required int projectId,
   });
+  Future<Either<Failure, Map<String, dynamic>>> exportSalesTarget({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class TargetRepositoryImpl extends TargetRepository {
@@ -76,6 +81,25 @@ class TargetRepositoryImpl extends TargetRepository {
         uniqueKey: uniqueKey,
         projectId: projectId,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> exportSalesTarget({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await salesTargetDatasource
+          .apicallPullSalesTargetMasterForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

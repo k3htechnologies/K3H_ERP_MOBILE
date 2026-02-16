@@ -4,7 +4,9 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/target/data/model/target.model.dart';
 import 'package:k3h_erp_app/features/sales/target/data/repository/target.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'target_state.dart';
 
@@ -61,6 +63,7 @@ class TargetCubit extends Cubit<TargetState> {
 
         final List<TargetModel> updatedList =
             pageNumber == 1 ? newData : [...state.salesTargets, ...newData];
+
         emit(
           state.copyWith(
             salesTargets: updatedList,
@@ -68,6 +71,33 @@ class TargetCubit extends Cubit<TargetState> {
             totalNumberOfRecords: response["totalNumberOfRecord"],
             currentPage: pageNumber,
           ),
+        );
+      },
+    );
+  }
+
+  // <---- EXPORT EXCEL PDF ---->
+  Future exportExcelPdf(BuildContext context, String exportType) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _salesTargetRepository.exportSalesTarget(
+      pageNumber: 1,
+      pageSize: state.totalNumberOfRecords,
+      queryParams:
+          state.searchText != ""
+              ? {"EmployeeName": state.searchText, "ExportType": exportType}
+              : {"ExportType": exportType},
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "sales_target_${DateTime.now()}.pdf"
+              : "sales_target_${DateTime.now()}.xlsx",
         );
       },
     );
