@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
@@ -124,9 +126,12 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         screenTitle: "Enquiry",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
-        onSearchSubmit: (value) {},
-
-        onExportCallback: (value) {},
+        onSearchSubmit: (value) {
+          _enquiryCubit.search(context, value);
+        },
+        onExportCallback: (value) {
+          _enquiryCubit.exportExcelPdf(context, value);
+        },
         onProjectChangeCallback: (value) {
           _project = value;
           _enquiryCubit.getEnquiryList(context, 1, value.projectId);
@@ -165,13 +170,28 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(
-                            enquiry.channelPartnerName,
-                            style: AppTextStyle.ts14M(
-                              color: AppColor.primary,
-                            ).copyWith(
-                              decoration: TextDecoration.underline,
-                              decorationColor: AppColor.primary,
+                          child: GestureDetector(
+                            onTap: () async {
+                              await goRouter.pushNamed(
+                                AppRoutes.viewEnquiry,
+                                queryParameters: {
+                                  "enquiry": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(enquiry.toJson()),
+                                    ),
+                                  ),
+                                  'index': index.toString(),
+                                },
+                              );
+                            },
+                            child: Text(
+                              enquiry.name,
+                              style: AppTextStyle.ts14M(
+                                color: AppColor.primary,
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
+                              ),
                             ),
                           ),
                         ),
@@ -188,7 +208,17 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                         horizontalSpacing(),
                         CustomIconButton.edit(
                           onPressed: () {
-                            goRouter.pushNamed(AppRoutes.addEnquiry);
+                            goRouter.pushNamed(
+                              AppRoutes.addEnquiry,
+                              queryParameters: {
+                                "enquiry": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(enquiry.toJson()),
+                                  ),
+                                ),
+                                'index': index.toString(),
+                              },
+                            );
                           },
                         ),
                       ],
