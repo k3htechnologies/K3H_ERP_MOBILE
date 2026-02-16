@@ -1,5 +1,6 @@
 import 'package:k3h_erp_app/core/models/village.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
+import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry_followup.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -18,6 +19,15 @@ abstract interface class EnquiryDatasource {
   });
   Future<Map<String, dynamic>> apicallAddUpdateEnquiry({
     required Map<String, dynamic> body,
+  });
+
+  Future<Map<String, dynamic>> apiCallPullEnquiryFollowUp({
+    required int pageNumber,
+    required int projectId,
+
+    required int pageSize,
+    required int enquiryId,
+    Map<String, dynamic>? queryParams,
   });
   Future<Map<String, dynamic>> apiCallPullEnquiryForExport({
     required int pageNumber,
@@ -183,6 +193,58 @@ class EnquiryDatasourceImpl extends EnquiryDatasource {
         apiCallPullEnquiryForExport(
           pageNumber: pageNumber,
           pageSize: pageSize,
+          projectId: projectId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  // ADD THIS METHOD
+  @override
+  Future<Map<String, dynamic>> apiCallPullEnquiryFollowUp({
+    required int pageNumber,
+    required int pageSize,
+    required int enquiryId,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullEnquiryFollowUpUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      required int enquiryId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "EnquiryFollowUp/PullEnquiryFollowUp?PageSize=$pageSize&PageNumber=$pageNumber&EnquiryId=$enquiryId&ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullEnquiryFollowUpUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          enquiryId: enquiryId,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': List<EnquiryFollowUpModel>.from(
+          networkResponse["data"].map((e) => EnquiryFollowUpModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apiCallPullEnquiryFollowUp(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          enquiryId: enquiryId,
           projectId: projectId,
           queryParams: queryParams,
         );

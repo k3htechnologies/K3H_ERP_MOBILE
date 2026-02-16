@@ -25,6 +25,14 @@ abstract interface class EnquiryRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> getEnquiryFollowUpList({
+    required int pageNumber,
+    required int pageSize,
+    required int enquiryId,
+    required int projectId,
+
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class EnquiryRepositoryImpl extends EnquiryRepository {
@@ -93,6 +101,29 @@ class EnquiryRepositoryImpl extends EnquiryRepository {
         pageNumber: pageNumber,
         projectId: projectId,
         pageSize: pageSize,
+        queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getEnquiryFollowUpList({
+    required int pageNumber,
+    required int pageSize,
+    required int enquiryId,
+    required int projectId,
+
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await enquiryDatasource.apiCallPullEnquiryFollowUp(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        enquiryId: enquiryId,
+        projectId: projectId,
         queryParams: queryParams,
       );
       return right(result);

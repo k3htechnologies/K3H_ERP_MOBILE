@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
+import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_state.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -11,6 +12,7 @@ import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_time_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -36,12 +38,57 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _timeInC;
   String? _timeOutC;
-  String nationality = 'Indian';
   final List<int> budgetOptions = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25];
 
-  int _budgetValue = 1; // selected value
-
-  late TextEditingController uniqueCodeC,
+  // ValueNotifiers for reactive state
+  final ValueNotifier<int> _budgetValueNotifier = ValueNotifier<int>(1);
+  final ValueNotifier<Map<String, dynamic>?> _selectedAccommodationNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedOccupationTypeNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedPossessionTypeNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedTimelineNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedFloorBandNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedRequirementNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedResidentialTypeNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedCommercialTypeNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?>
+  _selectedCommercialLeasingNotifier = ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedFundingNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedEthnicityNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedSourceNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedSubSourceNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedSubSubSourceNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> _selectedFinalStageNotifier =
+      ValueNotifier(null);
+  final ValueNotifier<List<Map<String, dynamic>>>
+  _selectedChannelPartnerNotifier = ValueNotifier([]);
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedLocationsNotifier =
+      ValueNotifier([]);
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedSaleAdvisorNotifier =
+      ValueNotifier([]);
+  final ValueNotifier<List<Map<String, dynamic>>>
+  _selectedSourcingManagerNotifier = ValueNotifier([]);
+  final ValueNotifier<DateTime?> _dateOfBirthNotifier = ValueNotifier(null);
+  final ValueNotifier<DateTime?> _enquiryDateNotifier = ValueNotifier(null);
+  final ValueNotifier<DateTime?> _nextFollowUpDateNotifier = ValueNotifier(
+    null,
+  );
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedTeamMemberNotifier =
+      ValueNotifier([]);
+  final ValueNotifier<String> _channelPartnerMobileNotifier = ValueNotifier('');
+  late TextEditingController _uniqueKey,
       _nameC,
       _mobileC,
       _emailC,
@@ -49,6 +96,13 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       _locationC,
       _areaPrefC,
       _budgetC,
+      // NRI Fields
+      _countryOfResidenceC, // ADD THIS
+      _cityOfResidenceC, // ADD THIS
+      // Channel Partner
+      _channelPartnerMobileC,
+      _teamMemberNameC,
+      _teamMemberMobileC,
       // Employee Reference
       _employeeName,
       _employeeMobileNumber,
@@ -61,58 +115,30 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       _referralProjectName,
       _referralUnitNumber,
       _remarkC;
-
-  DateTime? dateOfBirth;
-  DateTime? enquiryDate;
-  DateTime? nextFollowUpDate;
-
-  late Map<String, dynamic> selectedAccommodation;
-  late Map<String, dynamic> selectedOccupationType;
-  late Map<String, dynamic> selectedPossessionType;
-  late Map<String, dynamic> selectedTimeline;
-  late Map<String, dynamic> selectedFloorBand;
-  late Map<String, dynamic> selectedRequirement;
-  late Map<String, dynamic> selectedResidentialType;
-  late Map<String, dynamic> selectedCommercialType;
-  late Map<String, dynamic> selectedCommercialLeasing;
-  late Map<String, dynamic> selectTimeline;
-  late Map<String, dynamic> selectedFunding;
-  late Map<String, dynamic> selectedEthnicity;
-  late Map<String, dynamic> selectedSource;
-  late Map<String, dynamic> selectedSubSource;
-  List<Map<String, dynamic>> selectedChannelPartner = [];
-  List<Map<String, dynamic>> selectedLocations = [];
-
-  late Map<String, dynamic> selectedSubSubSource;
-  late Map<String, dynamic> selectedFinalStage;
-  List<Map<String, dynamic>> selectedSaleAdvisor = [];
-  List<Map<String, dynamic>> selectedSourcingManager = [];
-
+  // Static dropdown lists
   final List<Map<String, dynamic>> currentAccommodation = [
     {'zAttributesId': -1, 'DisplayName': 'Select Current Accomodation'},
-
     {'zAttributesId': 1, 'DisplayName': 'Rented'},
     {'zAttributesId': 2, 'DisplayName': 'Self-Owned'},
   ];
+
   final List<Map<String, dynamic>> occupationType = [
     {'zAttributesId': -1, 'DisplayName': 'Select Occupation Type'},
-
     {'zAttributesId': 1, 'DisplayName': 'Business'},
     {'zAttributesId': 2, 'DisplayName': 'Homemaker'},
     {'zAttributesId': 3, 'DisplayName': 'Professional'},
     {'zAttributesId': 4, 'DisplayName': 'Salaried'},
     {'zAttributesId': 5, 'DisplayName': 'Retired'},
   ];
+
   final List<Map<String, dynamic>> sourceTypeList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Source'},
-
     {'zAttributesId': 1, 'DisplayName': 'Channel Partner'},
     {'zAttributesId': 2, 'DisplayName': 'Direct Walking'},
   ];
 
   final List<Map<String, dynamic>> residentialType = [
     {'zAttributesId': -1, 'DisplayName': 'Select Unit Type'},
-
     {'zAttributesId': 1, 'DisplayName': '1 RK'},
     {'zAttributesId': 2, 'DisplayName': '1 BHK'},
     {'zAttributesId': 3, 'DisplayName': '2 BHK'},
@@ -124,16 +150,16 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': 9, 'DisplayName': '2 + 3 JODI'},
     {'zAttributesId': 10, 'DisplayName': 'PENTHOUSE'},
   ];
+
   final List<Map<String, dynamic>> floorBrand = [
     {'zAttributesId': -1, 'DisplayName': 'Select Floor Brand'},
-
     {'zAttributesId': 1, 'DisplayName': 'Higher'},
     {'zAttributesId': 2, 'DisplayName': 'Middle'},
     {'zAttributesId': 3, 'DisplayName': 'Lower'},
   ];
+
   final List<Map<String, dynamic>> possessionType = [
     {'zAttributesId': -1, 'DisplayName': 'Select Possession Type'},
-
     {'zAttributesId': 1, 'DisplayName': 'RTMI'},
     {'zAttributesId': 2, 'DisplayName': 'Under 1 Year'},
     {'zAttributesId': 3, 'DisplayName': '1 Years To 2 Years'},
@@ -147,27 +173,28 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': 2, 'DisplayName': 'Commercial Leasing'},
     {'zAttributesId': 3, 'DisplayName': 'Residential'},
   ];
+
   final List<Map<String, dynamic>> commercialUnitTypeList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Type'},
     {'zAttributesId': 1, 'DisplayName': 'OFFICE'},
     {'zAttributesId': 2, 'DisplayName': 'SHOP'},
   ];
+
   final List<Map<String, dynamic>> timelineTypeList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Timeline'},
-
     {'zAttributesId': 1, 'DisplayName': 'Within 1 Month'},
     {'zAttributesId': 2, 'DisplayName': 'Beyond 1 Month'},
   ];
+
   final List<Map<String, dynamic>> fundingSourceList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Funding Source'},
-
     {'zAttributesId': 1, 'DisplayName': 'Loan'},
     {'zAttributesId': 2, 'DisplayName': 'Self-funded'},
     {'zAttributesId': 3, 'DisplayName': 'Sale Of Property Funding'},
   ];
+
   final List<Map<String, dynamic>> ethnicityList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Ethnicity'},
-
     {'zAttributesId': 1, 'DisplayName': 'Bengali'},
     {'zAttributesId': 2, 'DisplayName': 'Christian'},
     {'zAttributesId': 3, 'DisplayName': 'Gujarati'},
@@ -182,9 +209,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': 12, 'DisplayName': 'South Indian'},
     {'zAttributesId': 13, 'DisplayName': 'Others'},
   ];
+
   final List<Map<String, dynamic>> stageTypeList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Stage'},
-
     {'zAttributesId': 1, 'DisplayName': 'Site Visit'},
     {'zAttributesId': 2, 'DisplayName': 'Re-Visit Proposed'},
     {'zAttributesId': 3, 'DisplayName': 'Re-Visit Scheduled'},
@@ -196,16 +223,16 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': 9, 'DisplayName': 'Lost'},
     {'zAttributesId': 10, 'DisplayName': 'Cancelled'},
   ];
+
   final List<Map<String, dynamic>> channelPartnerActivityList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Activity'},
-
     {'zAttributesId': 1, 'DisplayName': 'Channel Partner Data Calling'},
     {'zAttributesId': 2, 'DisplayName': 'Channel Partner Walked In'},
     {'zAttributesId': 3, 'DisplayName': 'Digital Activity'},
   ];
+
   final List<Map<String, dynamic>> directWalkingSubSourceList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Sub Source'},
-
     {'zAttributesId': 1, 'DisplayName': 'Advertisement'},
     {'zAttributesId': 2, 'DisplayName': 'Exhibition'},
     {'zAttributesId': 3, 'DisplayName': 'Employee Reference'},
@@ -218,9 +245,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     {'zAttributesId': 10, 'DisplayName': 'Reference'},
     {'zAttributesId': 11, 'DisplayName': 'Other'},
   ];
+
   final List<Map<String, dynamic>> subSubSourceList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Sub-Sub Source'},
-
     {'zAttributesId': 1, 'DisplayName': 'Facebook'},
     {'zAttributesId': 2, 'DisplayName': 'Hoarding'},
     {'zAttributesId': 3, 'DisplayName': 'Instagram'},
@@ -233,37 +260,18 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     super.initState();
     _enquiryCubit = context.read<EnquiryCubit>();
     _initControllers();
-
-    selectedAccommodation = currentAccommodation.first;
-    selectedOccupationType = occupationType.first;
-    selectedPossessionType = possessionType.first;
-    selectedResidentialType = residentialType.first;
-    selectedFloorBand = floorBrand.first;
-    selectedRequirement = requirementType.first;
-    selectedCommercialType = commercialUnitTypeList.first;
-    selectedCommercialLeasing = commercialUnitTypeList.first;
-    selectTimeline = timelineTypeList.first;
-    selectedFunding = fundingSourceList.first;
-    selectedEthnicity = ethnicityList.first;
-    selectedSource = sourceTypeList.first;
-    selectedFinalStage = stageTypeList.first;
-    selectedTimeline = timelineTypeList.first;
-
-    selectedSubSource = directWalkingSubSourceList.first;
-    selectedSubSubSource = subSubSourceList.first;
-    selectedLocations = [];
-    selectedChannelPartner = [];
-    selectedSaleAdvisor = [];
-    selectedSourcingManager = [];
+    _initializeDefaultValues();
 
     if (_isEditMode) {
       _populateForm(widget.enquiryModel!);
     } else {
-      _timeInC = DateTime.now().toIso8601String();
+      _timeInC = DateTime.now().toIso8601String().split("T")[1];
+      _enquiryDateNotifier.value = DateTime.now();
     }
   }
 
   void _initControllers() {
+    _uniqueKey = TextEditingController();
     _nameC = TextEditingController();
     _mobileC = TextEditingController();
     _emailC = TextEditingController();
@@ -271,6 +279,15 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _locationC = TextEditingController();
     _areaPrefC = TextEditingController();
     _budgetC = TextEditingController();
+
+    // NRI Fields
+    _countryOfResidenceC = TextEditingController(); // ADD THIS
+    _cityOfResidenceC = TextEditingController(); // ADD THIS
+
+    // Channel Partner
+    _channelPartnerMobileC = TextEditingController();
+    _teamMemberNameC = TextEditingController();
+    _teamMemberMobileC = TextEditingController();
 
     // Employee Reference
     _employeeName = TextEditingController();
@@ -289,8 +306,27 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _remarkC = TextEditingController();
   }
 
+  void _initializeDefaultValues() {
+    _selectedAccommodationNotifier.value = currentAccommodation.first;
+    _selectedOccupationTypeNotifier.value = occupationType.first;
+    _selectedPossessionTypeNotifier.value = possessionType.first;
+    _selectedFloorBandNotifier.value = floorBrand.first;
+    _selectedRequirementNotifier.value = requirementType.first;
+    _selectedResidentialTypeNotifier.value = residentialType.first;
+    _selectedCommercialTypeNotifier.value = commercialUnitTypeList.first;
+    _selectedCommercialLeasingNotifier.value = commercialUnitTypeList.first;
+    _selectedTimelineNotifier.value = timelineTypeList.first;
+    _selectedFundingNotifier.value = fundingSourceList.first;
+    _selectedEthnicityNotifier.value = ethnicityList.first;
+    _selectedSourceNotifier.value = sourceTypeList.first;
+    _selectedFinalStageNotifier.value = stageTypeList.first;
+    _selectedSubSourceNotifier.value = directWalkingSubSourceList.first;
+    _selectedSubSubSourceNotifier.value = subSubSourceList.first;
+  }
+
   void _populateForm(EnquiryModel model) {
-    /// TEXT CONTROLLERS
+    // TEXT CONTROLLERS
+    _uniqueKey.text = model.systemGeneratedCode;
     _nameC.text = model.name;
     _mobileC.text = model.mobileNumber;
     _emailC.text = model.emailId;
@@ -299,30 +335,49 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _budgetC.text = model.budget;
     _remarkC.text = model.remark;
 
-    /// SOURCE BASED TEXT FIELDS
+    // SOURCE BASED TEXT FIELDS
     _employeeName.text = model.employeeReferenceName;
     _employeeMobileNumber.text = model.employeeReferenceMobileNumber;
-
     _existingProjectName.text = model.loyaltyExistingProjectName;
     _existingUnitNumber.text = model.loyaltyExistingUnitNumber;
-
     _referralName.text = model.referelName;
     _referralMobile.text = model.referelMobileNumber;
     _referralProjectName.text = model.referelProjectName;
     _referralUnitNumber.text = model.referelUnitNumber;
 
-    /// TIME
+    _channelPartnerMobileC.text = model.channelPartnerMobileNumber;
+    _channelPartnerMobileNotifier.value = model.channelPartnerMobileNumber;
+    _teamMemberNameC.text = model.channelPartnerName;
+    _teamMemberMobileC.text = model.channelPartnerTeamMemberMobileNumber;
+
+    // TIME
     _timeInC = model.enquiryTimeIn;
     _timeOutC = model.enquiryTimeOut;
 
-    /// DATES
-    dateOfBirth = model.dateOfBirth;
-    enquiryDate = model.enquiryDate;
-    nextFollowUpDate = model.nextFollowUpDate;
+    // DATES
+    _dateOfBirthNotifier.value = model.dateOfBirth;
+    _enquiryDateNotifier.value = model.enquiryDate;
+    _nextFollowUpDateNotifier.value = model.nextFollowUpDate;
+
+    // NRI FIELDS
+    _countryOfResidenceC.text = model.countryOfResidence ?? '';
+    _cityOfResidenceC.text = model.cityOfResidence ?? '';
+
+    // TEAM MEMBER SELECTION
+    if (model.source == "Channel Partner" &&
+        model.channelPartnerName.isNotEmpty) {
+      _selectedTeamMemberNotifier.value = [
+        {
+          "zAttributesId": model.channelPartnerTeamMemberId,
+          "DisplayName": model.channelPartnerName,
+          "Mobile": model.channelPartnerTeamMemberMobileNumber,
+        },
+      ];
+    }
 
     _updateAge();
 
-    /// HELPER
+    /// HELPER: Find item in list by DisplayName
     Map<String, dynamic> findItem(
       List<Map<String, dynamic>> list,
       String value,
@@ -335,42 +390,91 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       );
     }
 
-    /// DROPDOWNS
-    selectedAccommodation = findItem(currentAccommodation, model.accommodation);
-    selectedOccupationType = findItem(occupationType, model.occupationType);
-    selectedPossessionType = findItem(possessionType, model.possessionType);
-    selectedFloorBand = findItem(floorBrand, model.desiredFloorBand);
-    selectedRequirement = findItem(requirementType, model.requirementType);
-    selectedFunding = findItem(fundingSourceList, model.sourceOfFunding);
-    selectedEthnicity = findItem(ethnicityList, model.ethnicity);
-    selectedSource = findItem(sourceTypeList, model.source);
-    selectedFinalStage = findItem(stageTypeList, model.finalStage);
-    selectedTimeline = findItem(timelineTypeList, model.timeline);
+    // DROPDOWNS
+    _selectedAccommodationNotifier.value = findItem(
+      currentAccommodation,
+      model.accommodation,
+    );
+    _selectedOccupationTypeNotifier.value = findItem(
+      occupationType,
+      model.occupationType,
+    );
+    _selectedPossessionTypeNotifier.value = findItem(
+      possessionType,
+      model.possessionType,
+    );
+    _selectedFloorBandNotifier.value = findItem(
+      floorBrand,
+      model.desiredFloorBand,
+    );
+    _selectedRequirementNotifier.value = findItem(
+      requirementType,
+      model.requirement,
+    );
 
-    /// SUB SOURCE
+    // Populate dependent requirement type dropdowns
+    final reqDisplay = model.requirement;
+    if (reqDisplay == "Residential") {
+      _selectedResidentialTypeNotifier.value = findItem(
+        residentialType,
+        model.requirementType,
+      );
+    } else if (reqDisplay == "Commercial") {
+      _selectedCommercialTypeNotifier.value = findItem(
+        commercialUnitTypeList,
+        model.requirementType,
+      );
+    } else if (reqDisplay == "Commercial Leasing") {
+      _selectedCommercialLeasingNotifier.value = findItem(
+        commercialUnitTypeList,
+        model.requirementType,
+      );
+    }
+
+    _selectedFundingNotifier.value = findItem(
+      fundingSourceList,
+      model.sourceOfFunding,
+    );
+    _selectedEthnicityNotifier.value = findItem(ethnicityList, model.ethnicity);
+    _selectedSourceNotifier.value = findItem(sourceTypeList, model.source);
+    _selectedFinalStageNotifier.value = findItem(
+      stageTypeList,
+      model.finalStage,
+    );
+    _selectedTimelineNotifier.value = findItem(
+      timelineTypeList,
+      model.timeline,
+    );
+
+    // SUB SOURCE
     if (model.source == "Channel Partner") {
-      // Prefill dynamic channel partner
-      selectedChannelPartner = [
+      _selectedChannelPartnerNotifier.value = [
         {
           "zAttributesId": model.subSubSource,
           "DisplayName": model.channelPartnerName,
           "Mobile": model.channelPartnerMobileNumber,
         },
       ];
-
-      selectedSubSubSource = selectedChannelPartner.first;
-      selectedSubSource = channelPartnerActivityList.firstWhere(
+      _selectedSubSubSourceNotifier.value =
+          _selectedChannelPartnerNotifier.value.first;
+      _selectedSubSourceNotifier.value = channelPartnerActivityList.firstWhere(
         (e) => e['DisplayName'] == model.subSource,
         orElse: () => channelPartnerActivityList.first,
       );
     } else {
-      selectedSubSource = findItem(directWalkingSubSourceList, model.subSource);
-      selectedSubSubSource = findItem(subSubSourceList, model.subSubSource);
+      _selectedSubSourceNotifier.value = findItem(
+        directWalkingSubSourceList,
+        model.subSource,
+      );
+      _selectedSubSubSourceNotifier.value = findItem(
+        subSubSourceList,
+        model.subSubSource,
+      );
     }
 
-    /// -------- PREFILL LOCATIONS --------
+    // PREFILL LOCATIONS
     if (model.villageName.isNotEmpty) {
-      selectedLocations =
+      _selectedLocationsNotifier.value =
           model.villageName
               .split(',')
               .map(
@@ -382,9 +486,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               .toList();
     }
 
-    /// -------- PREFILL SALES ADVISOR --------
+    // PREFILL SALES ADVISOR
     if (model.salesAdvisor.isNotEmpty) {
-      selectedSaleAdvisor = [
+      _selectedSaleAdvisorNotifier.value = [
         {
           "zAttributesId": model.salesAdvisorId,
           "DisplayName": model.salesAdvisor,
@@ -392,9 +496,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       ];
     }
 
-    /// -------- PREFILL SOURCING MANAGER --------
+    // PREFILL SOURCING MANAGER
     if (model.sourcingManager.isNotEmpty) {
-      selectedSourcingManager = [
+      _selectedSourcingManagerNotifier.value = [
         {
           "zAttributesId": model.sourcingManagerId,
           "DisplayName": model.sourcingManager,
@@ -402,219 +506,153 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       ];
     }
 
-    /// BUDGET SLIDER
+    // BUDGET SLIDER
     if (model.budget.isNotEmpty) {
       final cleaned = model.budget.replaceAll("+", "").replaceAll(">", "");
       final value = int.tryParse(cleaned);
       if (value != null && budgetOptions.contains(value)) {
-        _budgetValue = value;
+        _budgetValueNotifier.value = value;
       }
     }
-
-    setState(() {});
   }
 
-  String get selectedVillage =>
-      selectedLocations.map((month) => month["DisplayName"]).join(", ");
-
-  String? getDropdownValue(Map<String, dynamic>? item) {
-    if (item == null) return null;
-    if (item["zAttributesId"] == -1) return null;
-    return item["DisplayName"];
+  String getValue(Map<String, dynamic>? item) {
+    if (item == null || item["zAttributesId"] == -1) return "";
+    return item["DisplayName"] ?? "";
   }
 
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
 
+    // Helper: get dropdown value or " " if null/placeholder
+    String getDropdown(Map<String, dynamic>? selected) =>
+        (selected == null || selected["zAttributesId"] == -1)
+            ? " "
+            : selected["DisplayName"] ?? " ";
+
+    // Source & SubSubSource
+    final source = getDropdown(_selectedSourceNotifier.value);
+    final subSubSource =
+        (_selectedSubSubSourceNotifier.value == null)
+            ? ""
+            : (source == "Channel Partner"
+                ? (_selectedSubSubSourceNotifier.value!["zAttributesId"]
+                        ?.toString() ??
+                    "")
+                : getDropdown(_selectedSubSubSourceNotifier.value));
+
+    // Count selected fields (Possession, Requirement, Location, Budget)
+    int selectedCount = 0;
+    if (getDropdown(_selectedPossessionTypeNotifier.value).trim().isNotEmpty) {
+      selectedCount++;
+    }
+    if (getDropdown(_selectedRequirementNotifier.value).trim().isNotEmpty) {
+      selectedCount++;
+    }
+    if (_locationC.text.trim().isNotEmpty) selectedCount++;
+    if (_budgetC.text.trim().isNotEmpty) selectedCount++;
+
+    final timeline = getDropdown(_selectedTimelineNotifier.value);
+
+    // CustomerClassification logic including Budget
+    String customerClassification;
+    if (selectedCount >= 3 && timeline.contains("Within 1 Month")) {
+      customerClassification = "Hot";
+    } else if (selectedCount == 2 && timeline.contains("Beyond 1 Month")) {
+      customerClassification = "Warm";
+    } else {
+      customerClassification = "Cold";
+    }
+
+    // RequirementType from cascading dropdown
+    final req = _selectedRequirementNotifier.value?["DisplayName"] ?? "";
+    final requirementTypeValue =
+        (req == "Residential")
+            ? getDropdown(_selectedResidentialTypeNotifier.value)
+            : (req == "Commercial")
+            ? getDropdown(_selectedCommercialTypeNotifier.value)
+            : (req == "Commercial Leasing")
+            ? getDropdown(_selectedCommercialLeasingNotifier.value)
+            : " ";
+
+    // Build payload
     final payload = {
-      if (_isEditMode) "Uniquekey": widget.enquiryModel?.uniquekey,
-
-      "EnquiryId": _isEditMode ? widget.enquiryModel?.enquiryId ?? 0 : 0,
+      "EnquiryId": _isEditMode ? widget.enquiryModel!.enquiryId : 0,
+      if (_isEditMode) "Uniquekey": widget.enquiryModel!.uniquekey,
       "ProjectId": getProject().projectId,
-
-      /// TIME
-      "EnquiryTimeIn": _timeInC ?? widget.enquiryModel?.enquiryTimeIn ?? "",
-      "EnquiryTimeOut": _timeOutC ?? widget.enquiryModel?.enquiryTimeOut ?? "",
-
-      /// BASIC INFO
-      "Name":
-          _nameC.text.trim().isEmpty
-              ? widget.enquiryModel?.name
-              : _nameC.text.trim(),
-      "MobileNumber":
-          _mobileC.text.trim().isEmpty
-              ? widget.enquiryModel?.mobileNumber
-              : _mobileC.text.trim(),
-      "EmailId":
-          _emailC.text.trim().isEmpty
-              ? widget.enquiryModel?.emailId
-              : _emailC.text.trim(),
-      "DateOfBirth":
-          dateOfBirth?.toIso8601String() ??
-          widget.enquiryModel?.dateOfBirth?.toIso8601String(),
-
-      /// DROPDOWNS (fallback to old value)
-      "Accommodation":
-          getDropdownValue(selectedAccommodation) ??
-          widget.enquiryModel?.accommodation,
-      "OccupationType":
-          getDropdownValue(selectedOccupationType) ??
-          widget.enquiryModel?.occupationType,
-      "Source": getDropdownValue(selectedSource) ?? widget.enquiryModel?.source,
-      "SubSource":
-          getDropdownValue(selectedSubSource) ?? widget.enquiryModel?.subSource,
-      "SubSubSource":
-          getDropdownValue(selectedSubSubSource) ??
-          widget.enquiryModel?.subSubSource,
-
-      /// CHANNEL PARTNER
+      "EnquiryTimeIn": _timeInC,
+      "EnquiryTimeOut": _timeOutC,
+      "Name": _nameC.text.trim(),
+      "MobileNumber": _mobileC.text.trim(),
+      "EmailId": _emailC.text.trim(),
+      "DateOfBirth": _dateOfBirthNotifier.value?.toIso8601String(),
+      "Accommodation": getDropdown(_selectedAccommodationNotifier.value),
+      "OccupationType": getDropdown(_selectedOccupationTypeNotifier.value),
+      "Source": source,
+      "SubSource": getDropdown(_selectedSubSourceNotifier.value),
+      "SubSubSource": subSubSource,
+      "ReferelName": _referralName.text.trim(),
+      "ReferelMobileNumber": _referralMobile.text.trim(),
+      "ReferelProjectName": _referralProjectName.text.trim(),
+      "ReferelUnitNumber": _referralUnitNumber.text.trim(),
+      "LoyaltyExistingProjectName": _existingProjectName.text.trim(),
+      "LoyaltyExistingUnitNumber": _existingUnitNumber.text.trim(),
+      "EmployeeReferenceName": _employeeName.text.trim(),
+      "EmployeeReferenceMobileNumber": _employeeMobileNumber.text.trim(),
       "ChannelPartnerTeamMemberId":
-          selectedChannelPartner.isNotEmpty
-              ? selectedChannelPartner.first["zAttributesId"]
-              : widget.enquiryModel?.channelPartnerTeamMemberId ?? 0,
-      "ChannelPartnerTeamMemberName":
-          selectedChannelPartner.isNotEmpty
-              ? selectedChannelPartner.first["Name"]
-              : widget.enquiryModel?.channelPartnerName ?? "",
-      "ChannelPartnerTeamMemberMobileNumber":
-          selectedChannelPartner.isNotEmpty
-              ? selectedChannelPartner.first["Mobile"]
-              : widget.enquiryModel?.channelPartnerMobileNumber ?? "",
-
-      /// REFERRAL
-      "ReferelName":
-          _referralName.text.trim().isEmpty
-              ? widget.enquiryModel?.referelName
-              : _referralName.text.trim(),
-      "ReferelMobileNumber":
-          _referralMobile.text.trim().isEmpty
-              ? widget.enquiryModel?.referelMobileNumber
-              : _referralMobile.text.trim(),
-      "ReferelProjectName":
-          _referralProjectName.text.trim().isEmpty
-              ? widget.enquiryModel?.referelProjectName
-              : _referralProjectName.text.trim(),
-      "ReferelUnitNumber":
-          _referralUnitNumber.text.trim().isEmpty
-              ? widget.enquiryModel?.referelUnitNumber
-              : _referralUnitNumber.text.trim(),
-
-      /// LOYALTY
-      "LoyaltyExistingProjectName":
-          _existingProjectName.text.trim().isEmpty
-              ? widget.enquiryModel?.loyaltyExistingProjectName
-              : _existingProjectName.text.trim(),
-      "LoyaltyExistingUnitNumber":
-          _existingUnitNumber.text.trim().isEmpty
-              ? widget.enquiryModel?.loyaltyExistingUnitNumber
-              : _existingUnitNumber.text.trim(),
-
-      /// EMPLOYEE REF
-      "EmployeeReferenceName":
-          _employeeName.text.trim().isEmpty
-              ? widget.enquiryModel?.employeeReferenceName
-              : _employeeName.text.trim(),
-      "EmployeeReferenceMobileNumber":
-          _employeeMobileNumber.text.trim().isEmpty
-              ? widget.enquiryModel?.employeeReferenceMobileNumber
-              : _employeeMobileNumber.text.trim(),
-
-      /// LOCATION
-      "Nationality": nationality,
-      "CountryOfResidence": "",
-      "CityOfResidence": "",
-      "CurrentLocation":
-          _locationC.text.trim().isEmpty
-              ? widget.enquiryModel?.currentLocation
-              : _locationC.text.trim(),
-
-      /// PROPERTY DETAILS
-      "PossessionType":
-          getDropdownValue(selectedPossessionType) ??
-          widget.enquiryModel?.possessionType,
-      "AreaPreferred":
-          _areaPrefC.text.trim().isEmpty
-              ? widget.enquiryModel?.areaPreferred
-              : int.tryParse(_areaPrefC.text.trim()) ?? 0,
-      "DesiredFloorBand":
-          getDropdownValue(selectedFloorBand) ??
-          widget.enquiryModel?.desiredFloorBand,
-      "Budget":
-          _budgetC.text.trim().isEmpty
-              ? widget.enquiryModel?.budget
-              : _budgetC.text.trim(),
-      "Requirement":
-          getDropdownValue(selectedRequirement) ??
-          widget.enquiryModel?.requirement,
-      "RequirementType":
-          getDropdownValue(selectedRequirement) ??
-          widget.enquiryModel?.requirementType,
-
-      /// FUNDING + PROFILE
-      "CustomerClassification": "",
-      "SourceOfFunding":
-          getDropdownValue(selectedFunding) ??
-          widget.enquiryModel?.sourceOfFunding,
-      "Ethnicity":
-          getDropdownValue(selectedEthnicity) ?? widget.enquiryModel?.ethnicity,
-      "Timeline":
-          getDropdownValue(selectedTimeline) ?? widget.enquiryModel?.timeline,
-
-      /// STAGE
-      "FinalStage":
-          getDropdownValue(selectedFinalStage) ??
-          widget.enquiryModel?.finalStage,
+          _selectedTeamMemberNotifier.value.isNotEmpty
+              ? _selectedTeamMemberNotifier.value.first["zAttributesId"]
+              : 0,
+      "ChannelPartnerTeamMemberName": _teamMemberNameC.text.trim(),
+      "ChannelPartnerTeamMemberMobileNumber": _teamMemberMobileC.text.trim(),
+      "Nationality": _enquiryCubit.state.selectedNationality ?? "",
+      "CountryOfResidence": _countryOfResidenceC.text.trim(),
+      "CityOfResidence": _cityOfResidenceC.text.trim(),
+      "CurrentLocation": _locationC.text.trim(),
+      "VillageMasterId": selectedVillages ?? "",
+      "PossessionType": getDropdown(_selectedPossessionTypeNotifier.value),
+      "AreaPreferred": int.tryParse(_areaPrefC.text.trim()) ?? 0,
+      "DesiredFloorBand": getDropdown(_selectedFloorBandNotifier.value),
+      "Budget": _budgetC.text.trim(),
+      "Requirement": getDropdown(_selectedRequirementNotifier.value),
+      "RequirementType": requirementTypeValue,
+      "CustomerClassification": customerClassification,
+      "SourceOfFunding": getDropdown(_selectedFundingNotifier.value),
+      "Ethnicity": getDropdown(_selectedEthnicityNotifier.value),
+      "FinalStage": getDropdown(_selectedFinalStageNotifier.value),
       "FinalStageDetail": "",
-
-      /// DATES
-      "EnquiryDate":
-          enquiryDate?.toIso8601String() ??
-          widget.enquiryModel?.enquiryDate?.toIso8601String(),
-      "NextFollowUpDate":
-          nextFollowUpDate?.toIso8601String() ??
-          widget.enquiryModel?.nextFollowUpDate?.toIso8601String(),
-
-      /// SALES TEAM
+      "EnquiryDate": _enquiryDateNotifier.value?.toIso8601String(),
+      "NextFollowUpDate": _nextFollowUpDateNotifier.value?.toIso8601String(),
       "SalesAdvisorId":
-          selectedSaleAdvisor.isNotEmpty
-              ? selectedSaleAdvisor.first["zAttributesId"]
-              : widget.enquiryModel?.salesAdvisorId ?? 0,
+          _selectedSaleAdvisorNotifier.value.isNotEmpty
+              ? _selectedSaleAdvisorNotifier.value.first["zAttributesId"]
+              : 0,
       "SourcingManagerId":
-          selectedSourcingManager.isNotEmpty
-              ? selectedSourcingManager.first["zAttributesId"]
-              : widget.enquiryModel?.sourcingManagerId ?? 0,
-
-      /// OTHER
-      "Remark":
-          _remarkC.text.trim().isEmpty
-              ? widget.enquiryModel?.remark
-              : _remarkC.text.trim(),
-      "VillageMasterId":
-          selectedLocations.isNotEmpty
-              ? selectedVillages
-              : widget.enquiryModel?.villageMasterId ?? "",
+          _selectedSourcingManagerNotifier.value.isNotEmpty
+              ? _selectedSourcingManagerNotifier.value.first["zAttributesId"]
+              : 0,
+      "Remark": _remarkC.text.trim(),
     };
 
-    if (_isEditMode) {
-      _enquiryCubit.addUpdateEnquiry(
-        context: context,
-        index: widget.index,
-        body: payload,
-      );
-    } else {
-      _enquiryCubit.addUpdateEnquiry(context: context, body: payload);
-    }
+    // Submit
+    _enquiryCubit.addUpdateEnquiry(
+      context: context,
+      body: payload,
+      index: _isEditMode ? widget.index : null,
+    );
   }
 
-  String get selectedVillages =>
-      selectedLocations.map((village) => village["zAttributesId"]).join(", ");
+  String get selectedVillages => _selectedLocationsNotifier.value
+      .map((village) => village["zAttributesId"])
+      .join(",");
 
   void _updateAge() {
-    if (dateOfBirth != null) {
+    if (_dateOfBirthNotifier.value != null) {
       final today = DateTime.now();
-      int age = today.year - dateOfBirth!.year;
-      if (today.month < dateOfBirth!.month ||
-          (today.month == dateOfBirth!.month && today.day < dateOfBirth!.day)) {
+      int age = today.year - _dateOfBirthNotifier.value!.year;
+      if (today.month < _dateOfBirthNotifier.value!.month ||
+          (today.month == _dateOfBirthNotifier.value!.month &&
+              today.day < _dateOfBirthNotifier.value!.day)) {
         age--;
       }
       _ageC.text = age.toString();
@@ -623,24 +661,74 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
   @override
   void dispose() {
+    // Text Controllers
+    _uniqueKey.dispose();
     _nameC.dispose();
     _mobileC.dispose();
     _emailC.dispose();
+    _ageC.dispose();
     _locationC.dispose();
     _areaPrefC.dispose();
     _budgetC.dispose();
 
+    // Channel Partner Controllers
+    _channelPartnerMobileC.dispose();
+    _teamMemberNameC.dispose();
+    _teamMemberMobileC.dispose();
+
+    // Employee Reference Controllers
     _employeeName.dispose();
     _employeeMobileNumber.dispose();
 
+    // Loyalty Controllers
     _existingProjectName.dispose();
     _existingUnitNumber.dispose();
 
+    // Referral Controllers
     _referralName.dispose();
     _referralMobile.dispose();
     _referralProjectName.dispose();
     _referralUnitNumber.dispose();
+
+    // Other Controllers
     _remarkC.dispose();
+
+    // Value Notifiers - Budget & Dates
+    _budgetValueNotifier.dispose();
+    _dateOfBirthNotifier.dispose();
+    _enquiryDateNotifier.dispose();
+    _nextFollowUpDateNotifier.dispose();
+
+    // Value Notifiers - Dropdowns
+    _selectedAccommodationNotifier.dispose();
+    _selectedOccupationTypeNotifier.dispose();
+    _selectedPossessionTypeNotifier.dispose();
+    _selectedTimelineNotifier.dispose();
+    _selectedFloorBandNotifier.dispose();
+    _selectedRequirementNotifier.dispose();
+    _selectedResidentialTypeNotifier.dispose();
+    _selectedCommercialTypeNotifier.dispose();
+    _selectedCommercialLeasingNotifier.dispose();
+    _selectedFundingNotifier.dispose();
+    _selectedEthnicityNotifier.dispose();
+    _selectedFinalStageNotifier.dispose();
+
+    // NRI Fields
+    _countryOfResidenceC.dispose();
+    _cityOfResidenceC.dispose();
+
+    // Value Notifiers - Source Related
+    _selectedSourceNotifier.dispose();
+    _selectedSubSourceNotifier.dispose();
+    _selectedSubSubSourceNotifier.dispose();
+    _selectedTeamMemberNotifier.dispose();
+    _channelPartnerMobileNotifier.dispose();
+
+    // Value Notifiers - Multi-Select
+    _selectedLocationsNotifier.dispose();
+    _selectedSaleAdvisorNotifier.dispose();
+    _selectedSourcingManagerNotifier.dispose();
+
     super.dispose();
   }
 
@@ -687,7 +775,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               color: AppColor.white,
               size: 18,
             ),
-            text: _isEditMode ? 'Add' : 'Update',
+            text: !_isEditMode ? 'Add' : 'Update',
             onPressed: _submitForm,
             backgroundColor: AppColor.primary,
           ),
@@ -697,223 +785,601 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   }
 
   Widget _basicCard() {
-    return _card("Basic Enquiry Details", [
-      CustomTimePicker(
-        title: 'Customer Time In',
-        isRequired: true,
-        initialTime: parseTimeOfDayFromHHmm(_timeInC),
-        setValue: (val) => _timeInC = formatTimeOfDayHHmm(val),
-      ),
-      CustomTextField(
-        title: "Full Name",
-        textController: _nameC,
-        hint: "Enter Name",
-        isRequired: true,
-        validator: (val) {
-          if (val == null || val.trim().isEmpty) return "Name is required";
-          return null;
-        },
-      ),
+    return BlocBuilder<EnquiryCubit, EnquiryState>(
+      builder: (context, state) {
+        final bool isNRI = state.selectedNationality == 'NRI';
 
-      CustomTextField(
-        title: "Mobile Number",
-        textController: _mobileC,
-        hint: "Enter Mobile Number",
-        isRequired: true,
-        inputFormatterList: InputValidator.digit(10),
-        validator: (val) {
-          if (val == null || val.trim().isEmpty) {
-            return "Mobile number is required";
-          }
-          return null;
-        },
-      ),
-
-      CustomTextField(
-        title: "E-mail ID",
-        textController: _emailC,
-        hint: "Enter Email",
-      ),
-      CustomDatePicker(
-        title: "DOB",
-        isRequired: true,
-        initialDate: dateOfBirth,
-        setValue: (v) {
-          dateOfBirth = v;
-          _updateAge();
-        },
-      ),
-
-      CustomTextField(
-        isRequired: true,
-        readOnly: true,
-        title: "Age",
-        textController: _ageC,
-        hint: "System calculated Age",
-      ),
-      CustomDropDownWidget(
-        title: "Current Accommodation",
-        initialValue: selectedAccommodation,
-        dataList: currentAccommodation,
-        onSelected: (v) => selectedAccommodation = v,
-        validator: (val) {
-          if (val?['zAttributesId'] == -1) return "Please select accommodation";
-          return null;
-        },
-      ),
-
-      CustomDropDownWidget(
-        title: "Occupation Type",
-        isRequired: true,
-        initialValue: selectedOccupationType,
-        dataList: occupationType,
-        onSelected: (v) => selectedOccupationType = v,
-      ),
-    ]);
-  }
-
-  Widget _sourceCard() {
-    final bool isDirectWalking =
-        selectedSource['zAttributesId'] == sourceTypeList[2]['zAttributesId'];
-
-    final int subSourceId = selectedSubSource['zAttributesId'];
-
-    return _card("Source", [
-      CustomDropDownWidget(
-        title: "Source",
-        isRequired: true,
-        initialValue: selectedSource,
-        dataList: sourceTypeList,
-        onSelected: (v) {
-          setState(() {
-            selectedSource = v;
-
-            // Reset SubSource when Source changes
-            selectedSubSource =
-                selectedSource['zAttributesId'] ==
-                        sourceTypeList[1]['zAttributesId']
-                    ? channelPartnerActivityList.first
-                    : directWalkingSubSourceList.first;
-
-            selectedSubSubSource = subSubSourceList.first;
-          });
-        },
-      ),
-
-      CustomDropDownWidget(
-        title: "Sub Source",
-        isRequired: true,
-        initialValue: selectedSubSource,
-        dataList:
-            selectedSource['zAttributesId'] ==
-                    sourceTypeList[1]['zAttributesId']
-                ? channelPartnerActivityList
-                : directWalkingSubSourceList,
-        onSelected: (v) {
-          setState(() {
-            selectedSubSource = v;
-            selectedSubSubSource = subSubSourceList.first;
-          });
-        },
-      ),
-      if (selectedSource['zAttributesId'] == sourceTypeList[1]['zAttributesId'])
-        if (selectedSource['zAttributesId'] ==
-            sourceTypeList[1]['zAttributesId'])
-          CustomMultipleSelectPopup(
-            title: 'Channel Partner',
+        return _card("Basic Enquiry Details", [
+          CustomTextField(
+            readOnly: true,
+            textController: _uniqueKey,
+            title: 'Unique key',
+            hint: "System Generated Unique key",
+          ),
+          CustomTimePicker(
+            title: 'Customer Time In',
             isRequired: true,
-
-            isMultiSelect: false,
-            initialValue: selectedChannelPartner,
-            dataList: const [],
-            dataFetchCallBack: _enquiryCubit.fetchChannelPartners,
-            onSelected: (value) {
-              setState(() {
-                selectedChannelPartner = value;
-              });
+            readOnly: true,
+            initialTime: parseTimeOfDayFromHHmm(_timeInC),
+            setValue: (val) => _timeInC = formatTimeOfDayHHmm(val),
+          ),
+          CustomTextField(
+            title: "Full Name",
+            textController: _nameC,
+            hint: "Enter Name",
+            isRequired: true,
+            validator: (val) {
+              if (val == null || val.trim().isEmpty) return "Name is required";
+              return null;
             },
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return "Channel Partner is required";
+          ),
+          CustomTextField(
+            title: "Mobile Number",
+            textController: _mobileC,
+            hint: "Enter Mobile Number",
+            isRequired: true,
+            inputFormatterList: InputValidator.digit(10),
+            validator: (val) {
+              if (val == null || val.trim().isEmpty) {
+                return "Mobile number is required";
               }
               return null;
             },
           ),
+          CustomTextField(
+            title: "E-mail ID",
+            textController: _emailC,
+            hint: "Enter Email",
+          ),
+          ValueListenableBuilder<DateTime?>(
+            valueListenable: _dateOfBirthNotifier,
+            builder: (context, dateOfBirth, child) {
+              return CustomDatePicker(
+                title: "DOB",
+                isRequired: true,
+                initialDate: dateOfBirth,
+                validator: (value) {
+                  if (value == null) return "DOB is required";
+                  return null;
+                },
+                setValue: (v) {
+                  _dateOfBirthNotifier.value = v;
+                  _updateAge();
+                },
+              );
+            },
+          ),
+          CustomTextField(
+            isRequired: true,
+            readOnly: true,
+            title: "Age",
+            textController: _ageC,
+            hint: "System calculated Age",
+          ),
+          ValueListenableBuilder<Map<String, dynamic>?>(
+            valueListenable: _selectedAccommodationNotifier,
+            builder: (context, selectedAccommodation, child) {
+              return CustomDropDownWidget(
+                title: "Current Accommodation",
+                initialValue:
+                    selectedAccommodation ?? currentAccommodation.first,
+                isRequired: true,
+                dataList: currentAccommodation,
+                onSelected: (v) => _selectedAccommodationNotifier.value = v,
+                validator: (val) {
+                  if (val?['zAttributesId'] == -1) {
+                    return "Please select accommodation";
+                  }
+                  return null;
+                },
+              );
+            },
+          ),
+          ValueListenableBuilder<Map<String, dynamic>?>(
+            valueListenable: _selectedOccupationTypeNotifier,
+            builder: (context, selectedOccupationType, child) {
+              return CustomDropDownWidget(
+                title: "Occupation Type",
+                isRequired: true,
+                initialValue: selectedOccupationType ?? occupationType.first,
+                dataList: occupationType,
+                onSelected: (v) => _selectedOccupationTypeNotifier.value = v,
+                validator: (val) {
+                  if (val?['zAttributesId'] == -1) {
+                    return "Please select occupation type";
+                  }
+                  return null;
+                },
+              );
+            },
+          ),
+          Text("Nationality", style: AppTextStyle.ts14R()),
+          Row(
+            children: [
+              Radio<String>(
+                value: state.options[0],
+                groupValue: state.selectedNationality,
+                onChanged: (value) {
+                  _enquiryCubit.onSelectedOptionChanged(value!);
+                  // Clear NRI fields when switching to Indian
+                  if (value == 'Indian') {
+                    _countryOfResidenceC.clear();
+                    _cityOfResidenceC.clear();
+                  }
+                },
+              ),
+              Text("Indian", style: AppTextStyle.ts14R()),
+              horizontalSpacing(),
+              Radio<String>(
+                value: state.options[1],
+                groupValue: state.selectedNationality,
+                onChanged: (value) {
+                  _enquiryCubit.onSelectedOptionChanged(value!);
+                },
+              ),
+              Text("NRI", style: AppTextStyle.ts14R()),
+            ],
+          ),
 
-      /// ---------------- DIRECT WALKING CASES ----------------
+          // NRI-specific fields
+          if (isNRI) ...[
+            verticalSpacing(),
+            CustomTextField(
+              title: "Country Of Residence",
+              hint: "Enter Country Of Residence",
+              textController: _countryOfResidenceC,
+              isRequired: true,
+              validator: (val) {
+                if (val == null || val.trim().isEmpty) {
+                  return "Country of residence is required";
+                }
+                return null;
+              },
+            ),
+            CustomTextField(
+              title: "City Of Residence",
+              hint: "Enter City Of Residence",
+              textController: _cityOfResidenceC,
+              isRequired: true,
+              validator: (val) {
+                if (val == null || val.trim().isEmpty) {
+                  return "City of residence is required";
+                }
+                return null;
+              },
+            ),
+          ],
+        ]);
+      },
+    );
+  }
 
-      /// Advertisement → show SubSubSource dropdown
-      if (isDirectWalking && subSourceId == 1)
-        CustomDropDownWidget(
-          title: "Sub Sub Source",
-          isRequired: true,
-          initialValue: selectedSubSubSource,
-          dataList: subSubSourceList,
-          onSelected: (v) {
-            setState(() {
-              selectedSubSubSource = v;
-            });
+  Widget _sourceCard() {
+    return ValueListenableBuilder<Map<String, dynamic>?>(
+      valueListenable: _selectedSourceNotifier,
+      builder: (context, selectedSource, child) {
+        final bool isChannelPartner =
+            selectedSource?['zAttributesId'] ==
+            sourceTypeList[1]['zAttributesId'];
+        final bool isDirectWalking =
+            selectedSource?['zAttributesId'] ==
+            sourceTypeList[2]['zAttributesId'];
+
+        return ValueListenableBuilder<Map<String, dynamic>?>(
+          valueListenable: _selectedSubSourceNotifier,
+          builder: (context, selectedSubSource, child) {
+            final int subSourceId = selectedSubSource?['zAttributesId'] ?? -1;
+
+            return _card("Source", [
+              // Source Dropdown
+              CustomDropDownWidget(
+                title: "Source",
+                isRequired: true,
+                initialValue: selectedSource ?? sourceTypeList.first,
+                dataList: sourceTypeList,
+                onSelected: (v) {
+                  _selectedSourceNotifier.value = v;
+                  // Reset SubSource when Source changes
+                  _selectedSubSourceNotifier.value =
+                      v['zAttributesId'] == sourceTypeList[1]['zAttributesId']
+                          ? channelPartnerActivityList.first
+                          : directWalkingSubSourceList.first;
+                  _selectedSubSubSourceNotifier.value = subSubSourceList.first;
+                  // Clear channel partner fields
+                  _channelPartnerMobileC.clear();
+                  _channelPartnerMobileNotifier.value = '';
+                  _selectedTeamMemberNotifier.value = [];
+                  _teamMemberNameC.clear();
+                  _teamMemberMobileC.clear();
+                },
+                validator: (value) {
+                  if (value?['zAttributesId'] == -1) {
+                    return "Source is required";
+                  }
+                  return null;
+                },
+              ),
+
+              // Sub Source Dropdown (shown when Source is selected)
+              if ((selectedSource?['zAttributesId'] ?? -1) != -1)
+                CustomDropDownWidget(
+                  title: "Sub Source",
+                  isRequired: true,
+                  initialValue:
+                      selectedSubSource ??
+                      (isChannelPartner
+                          ? channelPartnerActivityList.first
+                          : directWalkingSubSourceList.first),
+                  dataList:
+                      isChannelPartner
+                          ? channelPartnerActivityList
+                          : directWalkingSubSourceList,
+                  onSelected: (v) {
+                    _selectedSubSourceNotifier.value = v;
+                    _selectedSubSubSourceNotifier.value =
+                        subSubSourceList.first;
+                    // Clear channel partner fields when sub source changes
+                    if (isChannelPartner) {
+                      _channelPartnerMobileC.clear();
+                      _channelPartnerMobileNotifier.value = '';
+                      _selectedTeamMemberNotifier.value = [];
+                      _teamMemberNameC.clear();
+                      _teamMemberMobileC.clear();
+                    }
+                  },
+                  validator: (value) {
+                    if (value?['zAttributesId'] == -1) {
+                      return "Sub source is required";
+                    }
+                    return null;
+                  },
+                ),
+
+              // Channel Partner Mobile Number Search Field
+              if (isChannelPartner && subSourceId != -1) ...[
+                CustomTextField(
+                  title: "Channel Partner",
+                  hint: "Search by Channel Partner Mobile No.",
+                  textController: _channelPartnerMobileC,
+                  isRequired: true,
+                  inputFormatterList: InputValidator.digit(10),
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return "Channel Partner mobile number is required";
+                    }
+                    if (val.trim().length != 10) {
+                      return "Mobile number must be 10 digits";
+                    }
+                    return null;
+                  },
+                  onChangeFunction: (value) async {
+                    _channelPartnerMobileNotifier.value = value;
+
+                    if (value.length != 10) {
+                      _selectedTeamMemberNotifier.value = [];
+                      _teamMemberNameC.clear();
+                      _teamMemberMobileC.clear();
+                      _selectedSubSubSourceNotifier.value = null;
+                      _enquiryCubit.clearChannelPartner();
+                      return;
+                    }
+
+                    final result = await _enquiryCubit.fetchChannelPartners(
+                      1,
+                      value: value,
+                    );
+
+                    if (result.isNotEmpty) {
+                      _selectedSubSubSourceNotifier.value = {
+                        "zAttributesId":
+                            _enquiryCubit
+                                .state
+                                .channelPartnerModel!
+                                .channelPartnerId,
+                        "DisplayName":
+                            _enquiryCubit.state.channelPartnerModel!.name,
+                      };
+                    }
+                  },
+                ),
+
+                BlocBuilder<EnquiryCubit, EnquiryState>(
+                  builder: (context, state) {
+                    final partner = state.channelPartnerModel;
+
+                    if (partner == null) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      margin: EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        color: AppColor.lightBlue,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(width: 0.5, color: AppColor.primary),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Full Name",
+                                value: partner.name,
+                              ),
+                              buildColumnTitleValue(
+                                title: "Company Name",
+                                value: partner.companyName,
+                              ),
+                            ],
+                          ),
+                          verticalSpacing(),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Firms Type",
+                                value: partner.firmsType,
+                              ),
+                              buildColumnTitleValue(
+                                title: "Mobile",
+                                value: partner.mobileNumber,
+                              ),
+                            ],
+                          ),
+                          verticalSpacing(),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Designation",
+                                value: partner.designation,
+                              ),
+                              buildColumnTitleValue(
+                                title: "Type",
+                                value: partner.type,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+              // Show Team Member fields only when valid 10-digit mobile is entered
+              ValueListenableBuilder<String>(
+                valueListenable: _channelPartnerMobileNotifier,
+                builder: (context, mobileValue, child) {
+                  if (!isChannelPartner ||
+                      subSourceId == -1 ||
+                      mobileValue.length != 10) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return ValueListenableBuilder<List<Map<String, dynamic>>>(
+                    valueListenable: _selectedTeamMemberNotifier,
+                    builder: (context, selectedTeamMember, child) {
+                      final bool hasTeamMemberSelected =
+                          selectedTeamMember.isNotEmpty;
+
+                      return Column(
+                        children: [
+                          // Team Member Dropdown
+                          CustomMultipleSelectPopup(
+                            title: 'Team Member',
+                            isRequired: false,
+                            isMultiSelect: false,
+                            initialValue: selectedTeamMember,
+                            dataList: const [],
+                            dataFetchCallBack: _enquiryCubit.fetchEmployees,
+                            onSelected: (value) {
+                              // Clear text fields when dropdown changes
+                              _teamMemberNameC.clear();
+                              _teamMemberMobileC.clear();
+
+                              _selectedTeamMemberNotifier.value = value;
+
+                              // Auto-populate name and mobile if available in the selected data
+                              if (value.isNotEmpty) {
+                                final member = value.first;
+                                _teamMemberNameC.text =
+                                    member['DisplayName'] ?? '';
+                                _teamMemberMobileC.text =
+                                    member['MobileNo'] ?? '';
+                              }
+                            },
+                          ),
+
+                          // Show text fields only if NO team member is selected from dropdown
+                          if (!hasTeamMemberSelected) ...[
+                            // Team Member Name
+                            CustomTextField(
+                              title: "Team Member Name",
+                              hint: "Enter Team Member Name",
+                              textController: _teamMemberNameC,
+                              isRequired: true,
+                              validator: (val) {
+                                if (val == null || val.trim().isEmpty) {
+                                  return "Team Member name is required";
+                                }
+                                return null;
+                              },
+                            ),
+
+                            // Team Member Mobile Number
+                            CustomTextField(
+                              title: "Team Member Mobile Number",
+                              hint: "Enter Mobile Number",
+                              textController: _teamMemberMobileC,
+                              isRequired: true,
+                              inputFormatterList: InputValidator.digit(10),
+                              validator: (val) {
+                                if (val == null || val.trim().isEmpty) {
+                                  return "Team Member mobile number is required";
+                                }
+                                if (val.trim().length != 10) {
+                                  return "Mobile number must be 10 digits";
+                                }
+                                return null;
+                              },
+                            ),
+                          ],
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+
+              // ========== DIRECT WALKING SUB-SOURCE SPECIFIC FIELDS ==========
+
+              // Advertisement (subSourceId == 1) → show SubSubSource dropdown
+              if (isDirectWalking && subSourceId == 1)
+                ValueListenableBuilder<Map<String, dynamic>?>(
+                  valueListenable: _selectedSubSubSourceNotifier,
+                  builder: (context, selectedSubSubSource, child) {
+                    return CustomDropDownWidget(
+                      title: "Sub Sub Source",
+                      isRequired: true,
+                      initialValue:
+                          selectedSubSubSource ?? subSubSourceList.first,
+                      dataList: subSubSourceList,
+                      onSelected: (v) {
+                        _selectedSubSubSourceNotifier.value = v;
+                      },
+                      validator: (value) {
+                        if (value?['zAttributesId'] == -1) {
+                          return "Sub Sub Source is required";
+                        }
+                        return null;
+                      },
+                    );
+                  },
+                ),
+
+              // Employee Reference (subSourceId == 3) → 2 fields
+              if (isDirectWalking && subSourceId == 3) ...[
+                CustomTextField(
+                  title: "Employee Name",
+                  hint: "Enter Employee Name",
+                  textController: _employeeName,
+                  isRequired: true,
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return "Employee name is required";
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  title: "Employee Mobile Number",
+                  hint: "Enter Mobile Number",
+                  textController: _employeeMobileNumber,
+                  isRequired: true,
+                  inputFormatterList: InputValidator.digit(10),
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return "Employee mobile number is required";
+                    }
+                    if (val.trim().length != 10) {
+                      return "Mobile number must be 10 digits";
+                    }
+                    return null;
+                  },
+                ),
+              ],
+
+              // Loyalty (subSourceId == 5) → 2 fields
+              if (isDirectWalking && subSourceId == 5) ...[
+                CustomTextField(
+                  title: "Existing Project Name",
+                  hint: "Enter Project Name",
+                  textController: _existingProjectName,
+                  isRequired: true,
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return "Existing project name is required";
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  title: "Existing Unit Number",
+                  hint: "Enter Unit Number",
+                  textController: _existingUnitNumber,
+                  isRequired: true,
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return "Existing unit number is required";
+                    }
+                    return null;
+                  },
+                ),
+              ],
+
+              // Reference (subSourceId == 10) → 4 fields
+              if (isDirectWalking && subSourceId == 10) ...[
+                CustomTextField(
+                  title: "Referral Name",
+                  isRequired: true,
+                  hint: "Enter Referral Name",
+                  textController: _referralName,
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return "Referral name is required";
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  title: "Referral Mobile Number",
+                  hint: "Enter Referral Mobile Number",
+                  isRequired: true,
+                  textController: _referralMobile,
+                  inputFormatterList: InputValidator.digit(10),
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return "Referral mobile number is required";
+                    }
+                    if (val.trim().length != 10) {
+                      return "Mobile number must be 10 digits";
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  isRequired: true,
+                  title: "Referral Project Name",
+                  hint: "Enter Referral Project Name",
+                  textController: _referralProjectName,
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return "Referral project name is required";
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  title: "Referral Unit Number",
+                  hint: "Enter Referral Unit Number",
+                  isRequired: true,
+                  textController: _referralUnitNumber,
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return "Referral unit number is required";
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ]);
           },
-        ),
-
-      /// Employee Reference → 2 fields
-      if (isDirectWalking && subSourceId == 3) ...[
-        CustomTextField(
-          title: "Employee Name",
-          hint: "Enter Employee Name",
-          textController: _employeeName,
-        ),
-        CustomTextField(
-          title: "Employee Mobile Number",
-          hint: "Enter Mobile Number",
-          textController: _employeeMobileNumber,
-        ),
-      ],
-
-      /// Loyalty → 2 fields
-      if (isDirectWalking && subSourceId == 5) ...[
-        CustomTextField(
-          title: "Existing Project Name",
-          hint: "Enter Project Name",
-          textController: _existingProjectName,
-        ),
-        CustomTextField(
-          title: "Existing Unit Number",
-          hint: "Enter Unit Number",
-          textController: _existingUnitNumber,
-        ),
-      ],
-
-      /// Reference → 4 fields
-      if (isDirectWalking && subSourceId == 10) ...[
-        CustomTextField(
-          title: "Referral Name",
-          isRequired: true,
-          hint: "Enter Referral Name",
-          textController: _referralName,
-        ),
-        CustomTextField(
-          title: "Referral Mobile Number",
-          hint: "Enter Referral Mobile Number",
-          isRequired: true,
-
-          textController: _referralMobile,
-        ),
-        CustomTextField(
-          isRequired: true,
-
-          title: "Referral Project Name",
-          hint: "Enter Referral Project Name",
-          textController: _referralProjectName,
-        ),
-        CustomTextField(
-          title: "Referral Unit Number",
-          hint: "Enter Referral Unit Number",
-          isRequired: true,
-          textController: _referralUnitNumber,
-        ),
-      ],
-    ]);
+        );
+      },
+    );
   }
 
   Widget _addressCard() {
@@ -923,188 +1389,298 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         isRequired: true,
         hint: "Enter Current Location",
         textController: _locationC,
+        validator: (val) {
+          if (val == null || val.isEmpty) {
+            return "Current location is required.";
+          }
+          return null;
+        },
       ),
     ]);
   }
 
   Widget _propertyPrefCard() {
-    return _card("Property Preferences", [
-      const Text("Budget (In Cr)"),
-
-      SfSlider(
-        min: 0,
-        max: (budgetOptions.length - 1).toDouble(),
-        value: budgetOptions.indexOf(_budgetValue).toDouble(),
-        interval: 1,
-        showTicks: false,
-        showLabels: true,
-        enableTooltip: false,
-        activeColor: AppColor.primary,
-        inactiveColor: AppColor.primary.withOpacity(0.25),
-        minorTicksPerInterval: 0, // no extra ticks between options
-        labelFormatterCallback: (actualValue, formattedText) {
-          int index = actualValue.round();
-          int val = budgetOptions[index];
-          return val == 1
-              ? ">1"
-              : val == 25
-              ? "25+"
-              : "$val";
-        },
-        onChanged: (dynamic value) {
-          int index = value.round();
-          int val = budgetOptions[index];
-          setState(() {
-            _budgetValue = val;
-            _budgetC.text =
-                val == 1
+    return ValueListenableBuilder<int>(
+      valueListenable: _budgetValueNotifier,
+      builder: (context, budgetValue, child) {
+        return _card("Property Preferences", [
+          const Text("Budget (In Cr)"),
+          SizedBox(
+            width: double.infinity,
+            child: SfSlider(
+              min: 0,
+              max: (budgetOptions.length - 1).toDouble(),
+              value: budgetOptions.indexOf(budgetValue).toDouble(),
+              interval: 1,
+              showTicks: false,
+              showLabels: true,
+              enableTooltip: false,
+              activeColor: AppColor.primary,
+              inactiveColor: AppColor.primary.withOpacity(0.25),
+              minorTicksPerInterval: 0,
+              labelFormatterCallback: (actualValue, formattedText) {
+                int index = actualValue.round();
+                int val = budgetOptions[index];
+                return val == 1
                     ? ">1"
                     : val == 25
                     ? "25+"
-                    : val.toString();
-          });
-        },
-      ),
-      verticalSpacing(height: 20),
-      CustomDropDownWidget(
-        title: "Possession Type",
-        initialValue: selectedPossessionType,
-        dataList: possessionType,
-        onSelected: (v) => selectedPossessionType = v,
-      ),
-      CustomDropDownWidget(
-        title: "Requirement",
-        initialValue: selectedRequirement,
-        dataList: requirementType,
-        onSelected: (v) => selectedRequirement = v,
-      ),
-      CustomMultipleSelectPopup(
-        title: 'Preferred Location',
+                    : "$val";
+              },
+              onChanged: (dynamic value) {
+                int index = value.round();
+                int val = budgetOptions[index];
+                _budgetValueNotifier.value = val;
+                _budgetC.text =
+                    val == 1
+                        ? ">1"
+                        : val == 25
+                        ? "25+"
+                        : val.toString();
+              },
+            ),
+          ),
+          verticalSpacing(height: 20),
+          ValueListenableBuilder<Map<String, dynamic>?>(
+            valueListenable: _selectedPossessionTypeNotifier,
+            builder: (context, selectedPossessionType, child) {
+              return CustomDropDownWidget(
+                title: "Possession Type",
+                initialValue: selectedPossessionType ?? possessionType.first,
+                dataList: possessionType,
+                onSelected: (v) => _selectedPossessionTypeNotifier.value = v,
+              );
+            },
+          ),
+          ValueListenableBuilder<Map<String, dynamic>?>(
+            valueListenable: _selectedRequirementNotifier,
+            builder: (context, selectedRequirement, child) {
+              // Determine which secondary dropdown to show based on requirement selection
+              List<Map<String, dynamic>> dependentList = [];
 
-        isRequired: true,
-        isMultiSelect: true,
-        initialValue: selectedLocations,
-        dataList: const [],
-        dataFetchCallBack: _enquiryCubit.fetchVillages,
-        onSelected: (value) {
-          setState(() {
-            selectedLocations = value;
-          });
-        },
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return "Location is required";
-          }
-          return null;
-        },
-      ),
+              if (selectedRequirement != null) {
+                String requirementValue =
+                    selectedRequirement["DisplayName"] ?? "";
 
-      CustomDropDownWidget(
-        title: "Timeline",
-        initialValue: selectedTimeline,
-        dataList: timelineTypeList,
-        onSelected: (v) => selectedTimeline = v,
-      ),
-      CustomTextField(
-        title: "Area Preferred (SqFt)",
-        hint: "Enter Area Preferred (SqFt)",
-        textController: _areaPrefC,
-      ),
-    ]);
+                if (requirementValue == "Residential") {
+                  dependentList = residentialType;
+                } else if (requirementValue == "Commercial") {
+                  dependentList = commercialUnitTypeList;
+                } else if (requirementValue == "Commercial Leasing") {
+                  dependentList = commercialUnitTypeList;
+                }
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Main Requirement Dropdown
+                  CustomDropDownWidget(
+                    title: "Requirement",
+                    initialValue: selectedRequirement ?? requirementType.first,
+                    dataList: requirementType,
+                    onSelected: (v) {
+                      _selectedRequirementNotifier.value = v;
+
+                      // Reset dependent selection when main requirement changes
+                      if (v["DisplayName"] == "Residential") {
+                        _selectedResidentialTypeNotifier.value =
+                            residentialType.first;
+                      } else if (v["DisplayName"] == "Commercial") {
+                        _selectedCommercialTypeNotifier.value =
+                            commercialUnitTypeList.first;
+                      } else if (v["DisplayName"] == "Commercial Leasing") {
+                        _selectedCommercialLeasingNotifier.value =
+                            commercialUnitTypeList.first;
+                      }
+                    },
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Dependent Dropdown (only shows if a dependent list exists)
+                  if (dependentList.isNotEmpty)
+                    CustomDropDownWidget(
+                      title: "Select Type",
+                      initialValue: () {
+                        if (selectedRequirement?["DisplayName"] ==
+                            "Residential") {
+                          return _selectedResidentialTypeNotifier.value;
+                        } else if (selectedRequirement?["DisplayName"] ==
+                            "Commercial") {
+                          return _selectedCommercialTypeNotifier.value;
+                        } else if (selectedRequirement?["DisplayName"] ==
+                            "Commercial Leasing") {
+                          return _selectedCommercialLeasingNotifier.value;
+                        }
+                        return dependentList.first;
+                      }(),
+                      dataList: dependentList,
+                      onSelected: (v) {
+                        if (selectedRequirement?["DisplayName"] ==
+                            "Residential") {
+                          _selectedResidentialTypeNotifier.value = v;
+                        } else if (selectedRequirement?["DisplayName"] ==
+                            "Commercial") {
+                          _selectedCommercialTypeNotifier.value = v;
+                        } else if (selectedRequirement?["DisplayName"] ==
+                            "Commercial Leasing") {
+                          _selectedCommercialLeasingNotifier.value = v;
+                        }
+                      },
+                    ),
+                ],
+              );
+            },
+          ),
+          ValueListenableBuilder<List<Map<String, dynamic>>>(
+            valueListenable: _selectedLocationsNotifier,
+            builder: (context, selectedLocations, child) {
+              return CustomMultipleSelectPopup(
+                title: 'Preferred Location',
+                isRequired: true,
+                isMultiSelect: true,
+                initialValue: selectedLocations,
+                dataList: const [],
+                dataFetchCallBack: _enquiryCubit.fetchVillages,
+                onSelected: (value) {
+                  _selectedLocationsNotifier.value = value;
+                },
+              );
+            },
+          ),
+          ValueListenableBuilder<Map<String, dynamic>?>(
+            valueListenable: _selectedTimelineNotifier,
+            builder: (context, selectedTimeline, child) {
+              return CustomDropDownWidget(
+                title: "Timeline",
+                initialValue: selectedTimeline ?? timelineTypeList.first,
+                dataList: timelineTypeList,
+                onSelected: (v) => _selectedTimelineNotifier.value = v,
+              );
+            },
+          ),
+          CustomTextField(
+            title: "Area Preferred (SqFt)",
+            hint: "Enter Area Preferred (SqFt)",
+            textController: _areaPrefC,
+          ),
+        ]);
+      },
+    );
   }
 
   Widget _customerDetailsCard() {
     return _card("Customer Details", [
-      CustomDropDownWidget(
-        title: "Source Of Funding",
-        initialValue: selectedFunding,
-        dataList: fundingSourceList,
-        onSelected: (v) => selectedFunding = v,
+      ValueListenableBuilder<Map<String, dynamic>?>(
+        valueListenable: _selectedFundingNotifier,
+        builder: (context, selectedFunding, child) {
+          return CustomDropDownWidget(
+            title: "Source Of Funding",
+            initialValue: selectedFunding ?? fundingSourceList.first,
+            dataList: fundingSourceList,
+            onSelected: (v) => _selectedFundingNotifier.value = v,
+          );
+        },
       ),
-      CustomDropDownWidget(
-        title: "Ethnicity",
-        initialValue: selectedEthnicity,
-        dataList: ethnicityList,
-        onSelected: (v) => selectedEthnicity = v,
+      ValueListenableBuilder<Map<String, dynamic>?>(
+        valueListenable: _selectedEthnicityNotifier,
+        builder: (context, selectedEthnicity, child) {
+          return CustomDropDownWidget(
+            title: "Ethnicity",
+            initialValue: selectedEthnicity ?? ethnicityList.first,
+            dataList: ethnicityList,
+            onSelected: (v) => _selectedEthnicityNotifier.value = v,
+          );
+        },
       ),
     ]);
   }
 
   Widget _enquiryInfoCard() {
-    return _card("Enquiry Information", [
-      CustomDropDownWidget(
-        title: "Stage",
-        initialValue: selectedFinalStage,
-        dataList: stageTypeList,
-        onSelected: (v) => selectedFinalStage = v,
-      ),
-    ]);
+    return ValueListenableBuilder<Map<String, dynamic>?>(
+      valueListenable: _selectedFinalStageNotifier,
+      builder: (context, selectedFinalStage, child) {
+        return _card("Enquiry Information", [
+          CustomDropDownWidget(
+            title: "Stage",
+            initialValue: selectedFinalStage ?? stageTypeList.first,
+            dataList: stageTypeList,
+            onSelected: (v) => _selectedFinalStageNotifier.value = v,
+          ),
+        ]);
+      },
+    );
   }
 
   Widget _followUpCard() {
     return _card("Follow Up Details", [
-      CustomDatePicker(
-        title: "Enquiry Date",
-        isRequired: true,
-        initialDate: enquiryDate,
-        setValue: (v) => enquiryDate = v,
+      ValueListenableBuilder<DateTime?>(
+        valueListenable: _enquiryDateNotifier,
+        builder: (context, enquiryDate, child) {
+          return CustomDatePicker(
+            title: "Enquiry Date",
+            isRequired: true,
+            initialDate: enquiryDate,
+            setValue: (v) => _enquiryDateNotifier.value = v,
+          );
+        },
       ),
-      CustomDatePicker(
-        title: "Next Follow-Up Date",
-        isRequired: true,
-        initialDate: nextFollowUpDate,
-        setValue: (v) => nextFollowUpDate = v,
+      ValueListenableBuilder<DateTime?>(
+        valueListenable: _nextFollowUpDateNotifier,
+        builder: (context, nextFollowUpDate, child) {
+          return CustomDatePicker(
+            title: "Next Follow-Up Date",
+            isRequired: true,
+            initialDate: nextFollowUpDate,
+            setValue: (v) => _nextFollowUpDateNotifier.value = v,
+            validator: (value) {
+              if (value == null) return "Next Follow-Up Date is required";
+              return null;
+            },
+          );
+        },
       ),
     ]);
   }
 
   Widget _salesCard() {
     return _card("Sales Details", [
-      CustomMultipleSelectPopup(
-        title: 'Sales Advisor',
-        isRequired: true,
-        isMultiSelect: false,
-        initialValue: selectedSaleAdvisor,
-        dataList: const [],
-        dataFetchCallBack: _enquiryCubit.fetchEmployees,
-        onSelected: (value) {
-          setState(() {
-            selectedSaleAdvisor = value;
-          });
-        },
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return "Sales Advisor is required";
-          }
-          return null;
+      ValueListenableBuilder<List<Map<String, dynamic>>>(
+        valueListenable: _selectedSaleAdvisorNotifier,
+        builder: (context, selectedSaleAdvisor, child) {
+          return CustomMultipleSelectPopup(
+            title: 'Sales Advisor',
+            isMultiSelect: false,
+            initialValue: selectedSaleAdvisor,
+            dataList: const [],
+            dataFetchCallBack: _enquiryCubit.fetchEmployees,
+            onSelected: (value) {
+              _selectedSaleAdvisorNotifier.value = value;
+            },
+          );
         },
       ),
-      CustomMultipleSelectPopup(
-        title: 'Sourcing Manager',
-        isRequired: true,
-        isMultiSelect: false,
-        initialValue: selectedSourcingManager,
-        dataList: const [],
-        dataFetchCallBack: _enquiryCubit.fetchEmployees,
-        onSelected: (value) {
-          setState(() {
-            selectedSourcingManager = value;
-          });
-        },
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return "Sourcing Manager is required";
-          }
-          return null;
+      ValueListenableBuilder<List<Map<String, dynamic>>>(
+        valueListenable: _selectedSourcingManagerNotifier,
+        builder: (context, selectedSourcingManager, child) {
+          return CustomMultipleSelectPopup(
+            title: 'Sourcing Manager',
+            isMultiSelect: false,
+            initialValue: selectedSourcingManager,
+            dataList: const [],
+            dataFetchCallBack: _enquiryCubit.fetchEmployees,
+            onSelected: (value) {
+              _selectedSourcingManagerNotifier.value = value;
+            },
+          );
         },
       ),
-
-      const Text("Customer Time Out"),
       CustomTimePicker(
+        title: "Customer Time Out",
         initialTime: parseTimeOfDayFromHHmm(_timeOutC),
         setValue: (val) => _timeOutC = formatTimeOfDayHHmm(val),
       ),
-
       CustomTextField(
         title: "Remarks",
         textController: _remarkC,
