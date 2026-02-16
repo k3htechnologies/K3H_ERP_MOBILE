@@ -55,6 +55,7 @@ class BookingModel {
   String modifiedBy;
   DateTime? modifiedDate;
   int projectId;
+  int enquiryId;
   String projectName;
   String flatAlterationRemark;
   String termsAndConditionsDescription;
@@ -120,6 +121,7 @@ class BookingModel {
     required this.modifiedBy,
     required this.modifiedDate,
     required this.projectId,
+    required this.enquiryId,
     required this.projectName,
     required this.flatAlterationRemark,
     required this.termsAndConditionsDescription,
@@ -224,6 +226,7 @@ class BookingModel {
         ? null
         : parseValue<DateTime>(json, "ModifiedDate"),
     projectId: parseValue<int>(json, "ProjectId"),
+    enquiryId: parseValue<int>(json, "EnquiryId"),
     projectName: parseValue<String>(json, "ProjectName"),
     flatAlterationRemark: parseValue<String>(json, "FlatAlterationRemark"),
     termsAndConditionsDescription: parseValue<String>(
@@ -289,7 +292,7 @@ class BookingModel {
     "Floor": floor,
     "Flat": flat,
     "FlatType": flatType,
-    "FlatSqFt": reraCarpetAreaSqFt,
+    "RERACarpetAreaSqFt": reraCarpetAreaSqFt,
     "FlatConfiguration": flatConfiguration,
     "AgreementValue": agreementValue,
     "AgreementValueTDS": agreementValueTDS,
@@ -323,6 +326,7 @@ class BookingModel {
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
     "ProjectId": projectId,
+    "EnquiryId": enquiryId,
     "ProjectName": projectName,
     "FlatAlterationRemark": flatAlterationRemark,
     "TermsAndConditionsDescription": termsAndConditionsDescription,

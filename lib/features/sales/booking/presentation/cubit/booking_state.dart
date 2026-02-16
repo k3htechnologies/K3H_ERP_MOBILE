@@ -2,6 +2,7 @@ part of 'booking_cubit.dart';
 
 class BookingState extends BaseState {
   final List<EnquiryModel> enquiryList;
+  final List<EnquiryModel> enquiryListById;
   final List<BookingModel> bookingListById;
   final List<BookingModel> bookingList;
   final int totalNumberOfRecord;
@@ -13,6 +14,7 @@ class BookingState extends BaseState {
   const BookingState({
     super.isLoading,
     required this.enquiryList,
+    required this.enquiryListById,
     required this.bookingListById,
     required this.bookingList,
     required this.totalNumberOfRecord,
@@ -25,6 +27,7 @@ class BookingState extends BaseState {
   factory BookingState.initial() => BookingState(
     isLoading: true,
     enquiryList: [],
+    enquiryListById: [],
     bookingListById: [],
     bookingList: [],
     totalNumberOfRecord: 0,
@@ -37,6 +40,7 @@ class BookingState extends BaseState {
   BookingState copyWith({
     bool? isLoading,
     List<EnquiryModel>? enquiryList,
+    List<EnquiryModel>? enquiryListById,
     List<BookingModel>? bookingListById,
     List<BookingModel>? bookingList,
     int? totalNumberOfRecord,
@@ -48,6 +52,7 @@ class BookingState extends BaseState {
     return BookingState(
       isLoading: isLoading ?? this.isLoading,
       enquiryList: enquiryList ?? this.enquiryList,
+      enquiryListById: enquiryListById ?? this.enquiryListById,
       bookingListById: bookingListById ?? this.bookingListById,
       bookingList: bookingList ?? this.bookingList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
@@ -62,6 +67,7 @@ class BookingState extends BaseState {
   List<Object?> get props => [
     isLoading,
     enquiryList,
+    enquiryListById,
     bookingListById,
     bookingList,
     totalNumberOfRecord,

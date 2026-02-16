@@ -25,6 +25,7 @@ class BookingCubit extends Cubit<BookingState> {
     emit(state.copyWith(enquiryList: []));
   }
 
+  // VIEW BOOKINGS TAB
   void onTabChanged(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndex: index));
   }
@@ -136,6 +137,38 @@ class BookingCubit extends Cubit<BookingState> {
         final List<EnquiryModel> updatedList =
             pageNumber == 1 ? newData : [...state.enquiryList, ...newData];
         emit(state.copyWith(enquiryList: updatedList, isLoading: false));
+      },
+    );
+  }
+
+  // <---- GET ENQUIRY LIST BY ID ---->
+  Future getEnquiryListById(
+    BuildContext context,
+    int pageNumber,
+    int projectId,
+    int enquiryId,
+  ) async {
+    emit(state.copyWith(isLoading: true, enquiryListById: []));
+    Map<String, dynamic> queryParams = {"EnquiryId": enquiryId};
+    var result = await _enquiryRepository.getEnquiryList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      projectId: projectId,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            enquiryListById: List<EnquiryModel>.from(response['data'] ?? []),
+            isLoading: false,
+          ),
+        );
       },
     );
   }

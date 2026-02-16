@@ -40,7 +40,34 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   // TEXT EDITING CONTROLLER
   late TextEditingController _enquiryUniqueCodeC,
       _permanentAddressC,
-      _communicationAddressC;
+      _communicationAddressC,
+      _agreementValueWithTdsC,
+      _tdsC,
+      _agreementValueWithoutTdsC,
+      _agreementGstPercentageC,
+      _agreementGstAmountC,
+      _stampDutyPercentageC,
+      _stampDutyAmountC,
+      _registrationFeesC;
+
+  final ValueNotifier<double> _agreementValueNotifier = ValueNotifier<double>(
+    0.0,
+  );
+
+  final ValueNotifier<double> _tdsNotifier = ValueNotifier<double>(0.0);
+
+  final ValueNotifier<double> _withoutTdsNotifier = ValueNotifier<double>(0.0);
+
+  final ValueNotifier<double> _agreementGstAmountNotifier =
+      ValueNotifier<double>(0.0);
+
+  final ValueNotifier<double> _stampDutyAmountNotifier = ValueNotifier<double>(
+    0.0,
+  );
+
+  final ValueNotifier<double> _registrationFeesNotifier = ValueNotifier<double>(
+    0.0,
+  );
 
   // SEARCH SYSTEM GENERATED CODE
   Timer? _debounce;
@@ -70,6 +97,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _project = getProject();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
+    _agreementValueNotifier.addListener(_calculateTds);
     if (_isEditMode) {
       _bookingCubit.getBookingListById(
         context,
@@ -84,9 +112,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   void dispose() {
     _tabController.dispose();
     _disposeTextControllers();
+    _bookingCubit.clearEnquiryList();
+    _agreementValueNotifier.dispose();
+    _tdsNotifier.dispose();
+    _withoutTdsNotifier.dispose();
+    _agreementGstAmountNotifier.dispose();
+    _stampDutyAmountNotifier.dispose();
+    _registrationFeesNotifier.dispose();
     super.dispose();
   }
 
+  // HANDLE TAB CHANGE
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
       _bookingCubit.onTabChangedAddForm(_tabController.index, context);
@@ -98,6 +134,14 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _enquiryUniqueCodeC = TextEditingController();
     _permanentAddressC = TextEditingController();
     _communicationAddressC = TextEditingController();
+    _agreementValueWithTdsC = TextEditingController();
+    _tdsC = TextEditingController();
+    _agreementValueWithoutTdsC = TextEditingController();
+    _agreementGstPercentageC = TextEditingController();
+    _agreementGstAmountC = TextEditingController();
+    _stampDutyPercentageC = TextEditingController();
+    _stampDutyAmountC = TextEditingController();
+    _registrationFeesC = TextEditingController();
   }
 
   // DISPOSE TEXT CONTROLLERS
@@ -105,6 +149,95 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _enquiryUniqueCodeC.dispose();
     _permanentAddressC.dispose();
     _communicationAddressC.dispose();
+    _agreementValueWithTdsC.dispose();
+    _tdsC.dispose();
+    _agreementValueWithoutTdsC.dispose();
+    _agreementGstPercentageC.dispose();
+    _agreementGstAmountC.dispose();
+    _stampDutyPercentageC.dispose();
+    _stampDutyAmountC.dispose();
+    _registrationFeesC.dispose();
+  }
+
+  void _calculateTds() {
+    final value = _agreementValueNotifier.value;
+
+    const limit = 4999999.99;
+
+    double tds = 0;
+    double withoutTds = value;
+
+    if (value > limit) {
+      tds = value * 0.01;
+      withoutTds = value - tds;
+    }
+
+    _tdsNotifier.value = tds;
+    _withoutTdsNotifier.value = withoutTds;
+
+    _tdsC.text = tds == 0 ? "" : tds.toStringAsFixed(2);
+    _agreementValueWithoutTdsC.text =
+        tds == 0 ? "" : withoutTds.toStringAsFixed(2);
+
+    // 🔥 IMPORTANT → always run
+    _calculateGst();
+    _calculateStampDuty();
+    _calculateRegistrationFees();
+  }
+
+  void _calculateGst() {
+    final agreementValue = _agreementValueNotifier.value;
+    final percent = double.tryParse(_agreementGstPercentageC.text) ?? 0;
+
+    if (agreementValue == 0 || percent == 0) {
+      _agreementGstAmountNotifier.value = 0;
+      _agreementGstAmountC.clear();
+      return;
+    }
+
+    final amount = agreementValue * percent / 100;
+
+    _agreementGstAmountNotifier.value = amount;
+    _agreementGstAmountC.text = amount.toStringAsFixed(2);
+  }
+
+  void _calculateStampDuty() {
+    final agreementValue = _agreementValueNotifier.value;
+    final percent = double.tryParse(_stampDutyPercentageC.text) ?? 0;
+
+    if (agreementValue == 0 || percent == 0) {
+      _stampDutyAmountNotifier.value = 0;
+      _stampDutyAmountC.clear();
+      return;
+    }
+
+    final amount = agreementValue * percent / 100;
+
+    _stampDutyAmountNotifier.value = amount;
+    _stampDutyAmountC.text = amount.toStringAsFixed(2);
+  }
+
+  void _calculateRegistrationFees() {
+    final value = _agreementValueNotifier.value;
+
+    if (value == 0) {
+      _registrationFeesNotifier.value = 0;
+      _registrationFeesC.clear();
+      return;
+    }
+
+    const limit = 4999999.99;
+
+    double fees;
+
+    if (value <= limit) {
+      fees = 30000;
+    } else {
+      fees = value * 0.01;
+    }
+
+    _registrationFeesNotifier.value = fees;
+    _registrationFeesC.text = fees.toStringAsFixed(2);
   }
 
   // OPEN APPLICANT FORM
@@ -253,7 +386,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         CustomTextField(
                           title: "Enquiry Unique Code",
                           isRequired: true,
-                          readOnly: _isEditMode,
                           inputFormatterList: [
                             LengthLimitingTextInputFormatter(18),
                           ],
@@ -466,6 +598,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           // APPLICANT
           Container(
             decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -530,7 +663,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           Container(
             decoration: commonCardDecoration(),
             padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(top: 10),
+            margin: EdgeInsets.only(bottom: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -567,42 +700,313 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             ),
           ),
           // PROJECT DETAILS
-          BlocBuilder<BookingCubit, BookingState>(
-            builder: (context, state) {
-              return Container(
-                decoration: commonCardDecoration(),
-                padding: EdgeInsets.all(16),
-                child: Column(
+          Container(
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Project Details", style: AppTextStyle.ts16SB()),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Project Details",
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
+                    buildColumnTitleValue(
+                      title: "Project Name",
+                      value: widget.bookingModel!.projectName,
                     ),
-                    verticalSpacing(),
-                    Container(
-                      padding: EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColor.lightBlue,
-                        border: Border.all(color: AppColor.primary, width: .5),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Building",
-                                value: "",
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                    buildColumnTitleValue(
+                      title: "Booking Type",
+                      value: widget.bookingModel!.bookingType,
                     ),
                   ],
                 ),
-              );
-            },
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Flat",
+                      value: widget.bookingModel!.flat,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Wing",
+                      value: widget.bookingModel!.wing,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Floor",
+                      value: widget.bookingModel!.floor,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Building Number",
+                      value: widget.bookingModel!.buildingNumber,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Flat Type",
+                      value: widget.bookingModel!.flatType,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Flat Configuration",
+                      value: widget.bookingModel!.flatConfiguration,
+                    ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "RERA Carpet Area (SqFt)",
+                      value: widget.bookingModel!.reraCarpetAreaSqFt.toString(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // PARKING SECTION
+          Container(
+            height: 350,
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Parking Details", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+                Expanded(
+                  child:
+                      widget.bookingModel!.parkingData.isNotEmpty
+                          ? ListView.builder(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 2,
+                              vertical: 10,
+                            ),
+                            shrinkWrap: true,
+                            itemCount: widget.bookingModel!.parkingData.length,
+                            itemBuilder: (_, index) {
+                              final parking =
+                                  widget.bookingModel!.parkingData[index];
+                              return Container(
+                                margin: EdgeInsets.only(bottom: 10),
+                                padding: EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: AppColor.primary,
+                                    width: .3,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  spacing: 10,
+                                  children: [
+                                    Row(
+                                      spacing: 5,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Parking Number",
+                                          value: parking.parkingNumber,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Building",
+                                          value: parking.buildingNumber,
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      spacing: 5,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Wing",
+                                          value: parking.wing,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Floor",
+                                          value: parking.floor,
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      spacing: 5,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Category",
+                                          value: parking.parkingCategory,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Type",
+                                          value: parking.parkingType,
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      spacing: 5,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "EV Charging",
+                                          value:
+                                              parking.isEVChargingAvailable
+                                                  ? "Yes"
+                                                  : "No",
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          )
+                          : Center(child: Text("No Parking")),
+                ),
+              ],
+            ),
+          ),
+          // AGREEMENT DETAILS
+          Container(
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Agreement Details", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+                CustomTextField(
+                  title: "Agreement Value (With TDS) (₹)",
+                  hint: "Enter Agreement Value (with TDS)",
+                  isRequired: true,
+                  textController: _agreementValueWithTdsC,
+                  keyboardType: TextInputType.number,
+                  onChangeFunction: (value) {
+                    final parsed = double.tryParse(value) ?? 0.0;
+                    _agreementValueNotifier.value = parsed;
+                  },
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Agreement Value (with TDS) is required";
+                    }
+                    return null;
+                  },
+                ),
+                ValueListenableBuilder<double>(
+                  valueListenable: _tdsNotifier,
+                  builder: (_, tds, __) {
+                    return CustomTextField(
+                      readOnly: true,
+                      title: "TDS (₹)",
+                      hint: "TDS",
+                      textController: _tdsC,
+                    );
+                  },
+                ),
+                ValueListenableBuilder<double>(
+                  valueListenable: _withoutTdsNotifier,
+                  builder: (_, value, __) {
+                    return CustomTextField(
+                      readOnly: true,
+                      title: "Agreement Value (Without TDS) (₹)",
+                      hint: "Agreement Value (without TDS)",
+                      textController: _agreementValueWithoutTdsC,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          // TAX DETAILS
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Tax Details", style: AppTextStyle.ts16SB()),
+                Column(
+                  children: [
+                    CustomTextField(
+                      isRequired: true,
+                      title: "Agreement GST (%)",
+                      hint: "Enter Agreement GST Percentage",
+                      textController: _agreementGstPercentageC,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Agreement GST Percentage is required";
+                        }
+                        return null;
+                      },
+                    ),
+                    ValueListenableBuilder<double>(
+                      valueListenable: _agreementGstAmountNotifier,
+                      builder: (_, value, __) {
+                        return CustomTextField(
+                          readOnly: true,
+                          title: "Agreement GST Amount (₹)",
+                          hint: "Agreement GST Amount",
+                          textController: _agreementGstAmountC,
+                        );
+                      },
+                    ),
+                    CustomTextField(
+                      isRequired: true,
+                      title: "Stamp Duty (%)",
+                      hint: "Enter Stamp Duty Percentage",
+                      textController: _stampDutyPercentageC,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Stamp Duty Percentage is required";
+                        }
+                        return null;
+                      },
+                    ),
+                    ValueListenableBuilder<double>(
+                      valueListenable: _stampDutyAmountNotifier,
+                      builder: (_, value, __) {
+                        return CustomTextField(
+                          readOnly: true,
+                          title: "Stamp Duty Amount (₹)",
+                          hint: "Stamp Duty Amount",
+                          textController: _stampDutyAmountC,
+                        );
+                      },
+                    ),
+                    ValueListenableBuilder<double>(
+                      valueListenable: _registrationFeesNotifier,
+                      builder: (_, value, __) {
+                        return CustomTextField(
+                          readOnly: true,
+                          title: "Registration Fees (₹)",
+                          hint: "Registration Fees",
+                          textController: _registrationFeesC,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
