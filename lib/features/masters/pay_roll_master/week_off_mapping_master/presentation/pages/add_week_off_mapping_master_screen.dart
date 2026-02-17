@@ -94,15 +94,6 @@ class _AddWeekOffMappingMasterScreenState
       showErrorMessage(context, 'Error', 'Please select a week off');
       return;
     }
-    // if (_selectedEmployee.isEmpty) {
-    //   showErrorMessage(context, 'Error', 'Please select an employee');
-    //   return;
-    // }
-
-    // if (_selectedDepartment.isEmpty) {
-    //   showErrorMessage(context, 'Error', 'Please select department');
-    //   return;
-    // }
 
     if (_isEditMode && widget.weekOffMappingMasterModel != null) {
       _weekOffMappingMasterCubit.updateWeekOffMapping(

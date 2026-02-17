@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
+import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -245,7 +246,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                     buildRowTitleValue(
                       title: "Stage",
                       value: enquiry.finalStage,
-                      customValueWidget: statusWidget('booking done'),
+                      customValueWidget: statusWidget(enquiry.finalStage),
                     ),
                   ],
                 ),
@@ -268,42 +269,56 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
 
   // Helper Widget
   Widget statusWidget(String status) {
-    final s = status.toLowerCase();
+    final trimmed = status.trim();
+
+    // If empty → show dash
+    if (trimmed.isEmpty) {
+      return statusChip("-", AppColor.lightGreyBackground, AppColor.black);
+    }
+
+    final s = trimmed.toLowerCase();
 
     switch (s) {
       case 'booking done':
         return statusChip(status, AppColor.green20, AppColor.green);
 
       case 'blocked':
-        return statusChip(status, AppColor.warning20, AppColor.warning);
+        return statusChip(status, AppColor.purple20, AppColor.purple);
 
       case 'cancelled':
+        return statusChip(status, AppColor.black10, AppColor.darkGrey);
+
+      case 'negotiation':
         return statusChip(status, AppColor.lightYellow, AppColor.brown);
-
-      case 'negation':
-        return statusChip(
-          status,
-          AppColor.darkBackground.withValues(alpha: 0.29),
-          AppColor.darkBackground,
-        );
-
-      case 'retention':
-        return statusChip(status, AppColor.grey2, AppColor.black);
-
-      case 'revisit scheduled':
-        return statusChip(status, AppColor.green20, AppColor.darkGreen10);
-
-      case 'site visit':
-        return statusChip(status, AppColor.purple20, AppColor.purple);
 
       case 'lost':
         return statusChip(status, AppColor.lightRed, AppColor.red);
 
-      case 'unit selection / Blocked':
-        return statusChip(status, AppColor.lightRed, AppColor.red);
+      case 'retention':
+        return statusChip(status, AppColor.lightBlue2, AppColor.info);
+
+      case 're - visit scheduled':
+        return statusChip(status, AppColor.lightGreenBg, AppColor.darkGreen);
+
+      case 're - visit proposed':
+        return statusChip(status, AppColor.lightOrangenBg, AppColor.orange);
+
+      case 'site visit':
+        return statusChip(
+          status,
+          AppColor.lightRed,
+          AppColor.priorityHighColor,
+        );
+
+      case 'unit selection / blocked':
+        return statusChip(
+          status,
+          AppColor.lightRed,
+          AppColor.priorityHighColor,
+        );
 
       default:
-        return statusChip(status, Colors.white, Colors.black);
+        return statusChip(status, AppColor.lightGreyBackground, AppColor.black);
     }
   }
 }

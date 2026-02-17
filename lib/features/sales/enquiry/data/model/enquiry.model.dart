@@ -44,11 +44,8 @@ class EnquiryModel {
     required this.channelPartnerTeamMemberMobileNumber,
     required this.channelPartnerMobileNumber,
     required this.systemGeneratedCode,
-
-    // ✅ NEW FIELDS
     required this.channelPartnerName,
     required this.villageName,
-
     required this.referelName,
     required this.referelMobileNumber,
     required this.referelProjectName,
@@ -59,6 +56,13 @@ class EnquiryModel {
     required this.employeeReferenceMobileNumber,
     required this.remark,
     required this.villageMasterId,
+
+    required this.createdById,
+    required this.createdBy,
+    required this.createdDate,
+    required this.modifiedById,
+    required this.modifiedBy,
+    required this.modifiedDate,
   });
 
   int enquiryId;
@@ -111,8 +115,6 @@ class EnquiryModel {
   /// CHANNEL PARTNER
   String channelPartnerTeamMemberName;
   String channelPartnerTeamMemberMobileNumber;
-
-  // ✅ NEW VARIABLES
   String channelPartnerName;
   String villageName;
 
@@ -133,6 +135,13 @@ class EnquiryModel {
   /// OTHER
   String remark;
   dynamic villageMasterId;
+
+  int createdById;
+  String createdBy;
+  DateTime createdDate;
+  int modifiedById;
+  String modifiedBy;
+  DateTime? modifiedDate;
 
   factory EnquiryModel.fromJson(Map<String, dynamic> json) {
     return EnquiryModel(
@@ -213,13 +222,20 @@ class EnquiryModel {
         "EmployeeReferenceMobileNumber",
       ),
       remark: parseValue<String>(json, "Remark"),
-      villageMasterId: json["VillageMasterId"], // keep dynamic as before
+      villageMasterId: json["VillageMasterId"],
+
+      createdById: parseValue<int>(json, "CreatedById"),
+      createdBy: parseValue<String>(json, "CreatedBy"),
+      createdDate: parseValue<DateTime>(json, "CreatedDate"),
+      modifiedById: parseValue<int>(json, "ModifiedById"),
+      modifiedBy: parseValue<String>(json, "ModifiedBy"),
+      modifiedDate: parseValue<DateTime>(json, "ModifiedDate"),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    "EnquiryId": enquiryId, "SystemGeneratedCode": systemGeneratedCode,
-
+    "EnquiryId": enquiryId,
+    "SystemGeneratedCode": systemGeneratedCode,
     "Uniquekey": uniquekey,
     "ProjectId": projectId,
     "EnquiryTimeIn": enquiryTimeIn,
@@ -260,11 +276,8 @@ class EnquiryModel {
     "ChannelPartnerTeamMemberName": channelPartnerTeamMemberName,
     "ChannelPartnerTeamMemberMobileNumber":
         channelPartnerTeamMemberMobileNumber,
-
-    // ✅ NEW TO JSON
     "ChannelPartnerName": channelPartnerName,
     "VillageName": villageName,
-
     "ReferelName": referelName,
     "ReferelMobileNumber": referelMobileNumber,
     "ReferelProjectName": referelProjectName,
@@ -276,5 +289,12 @@ class EnquiryModel {
     "Remark": remark,
     "VillageMasterId": villageMasterId,
     "ChannelPartnerMobileNumber": channelPartnerMobileNumber,
+
+    "CreatedById": createdById,
+    "CreatedBy": createdBy,
+    "CreatedDate": createdDate.toIso8601String(),
+    "ModifiedById": modifiedById,
+    "ModifiedBy": modifiedBy,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
   };
 }
