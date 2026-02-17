@@ -2,8 +2,11 @@ part of 'booking_cubit.dart';
 
 class BookingState extends BaseState {
   final List<ParkingModel> parkingList;
+  final List<TermsAndConditionsModel> termsList;
   final int totalNumberOfRecordParking;
+  final int totalNumberOfRecordTerms;
   final int currentPageParking;
+  final int currentPageTerms;
   final List<OtherChargeModel> otherChargesList;
   final List<EnquiryModel> enquiryList;
   final List<EnquiryModel> enquiryListById;
@@ -18,8 +21,11 @@ class BookingState extends BaseState {
   const BookingState({
     super.isLoading,
     required this.parkingList,
+    required this.termsList,
     required this.totalNumberOfRecordParking,
+    required this.totalNumberOfRecordTerms,
     required this.currentPageParking,
+    required this.currentPageTerms,
     required this.otherChargesList,
     required this.enquiryList,
     required this.enquiryListById,
@@ -35,8 +41,11 @@ class BookingState extends BaseState {
   factory BookingState.initial() => BookingState(
     isLoading: true,
     parkingList: [],
+    termsList: [],
     totalNumberOfRecordParking: 0,
+    totalNumberOfRecordTerms: 0,
     currentPageParking: 1,
+    currentPageTerms: 1,
     otherChargesList: [],
     enquiryList: [],
     enquiryListById: [],
@@ -52,8 +61,11 @@ class BookingState extends BaseState {
   BookingState copyWith({
     bool? isLoading,
     List<ParkingModel>? parkingList,
+    List<TermsAndConditionsModel>? termsList,
     int? totalNumberOfRecordParking,
+    int? totalNumberOfRecordTerms,
     int? currentPageParking,
+    int? currentPageTerms,
     List<OtherChargeModel>? otherChargesList,
     List<EnquiryModel>? enquiryList,
     List<EnquiryModel>? enquiryListById,
@@ -68,8 +80,11 @@ class BookingState extends BaseState {
     return BookingState(
       isLoading: isLoading ?? this.isLoading,
       parkingList: parkingList ?? this.parkingList,
+      termsList: termsList ?? this.termsList,
       totalNumberOfRecordParking: totalNumberOfRecordParking ?? this.totalNumberOfRecordParking,
+      totalNumberOfRecordTerms: totalNumberOfRecordTerms ?? this.totalNumberOfRecordTerms,
       currentPageParking: currentPageParking ?? this.currentPageParking,
+      currentPageTerms: currentPageTerms ?? this.currentPageTerms,
       otherChargesList: otherChargesList ?? this.otherChargesList,
       enquiryList: enquiryList ?? this.enquiryList,
       enquiryListById: enquiryListById ?? this.enquiryListById,
@@ -87,8 +102,11 @@ class BookingState extends BaseState {
   List<Object?> get props => [
     isLoading,
     parkingList,
+    termsList,
     totalNumberOfRecordParking,
+    totalNumberOfRecordTerms,
     currentPageParking,
+    currentPageTerms,
     otherChargesList,
     enquiryList,
     enquiryListById,

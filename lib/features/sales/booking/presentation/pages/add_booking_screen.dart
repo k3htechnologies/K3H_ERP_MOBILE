@@ -16,9 +16,13 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
 
 class AddBookingScreen extends StatefulWidget {
   final BookingModel? bookingModel;
@@ -49,7 +53,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       _agreementGstAmountC,
       _stampDutyPercentageC,
       _stampDutyAmountC,
-      _registrationFeesC;
+      _registrationFeesC,
+      _remarkC,
+      _termsAndConditionDescriptionC,
+      _bookingAmountC,
+      _chequeNoC;
 
   final ValueNotifier<double> _agreementValueNotifier = ValueNotifier<double>(
     0.0,
@@ -79,6 +87,34 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   // FLAGS TO PREVENT INFINITE CALLS
   int? _lastFetchedBuildingId;
 
+  // DATE PICKER
+  DateTime? _selectedExpectedRegistrationDate;
+  DateTime? _selectedChequeDate;
+
+  // STATIC HAND OVER TYPE LIST
+  List<Map<String, dynamic>> handOverTypeList = [
+    {"zAttributesId": -1, "DisplayName": "Select Handover Type"},
+    {"zAttributesId": 1, "DisplayName": "Bare Shell"},
+    {"zAttributesId": 2, "DisplayName": "Builder Finished"},
+  ];
+
+  late Map<String, dynamic> _selectedHandOverType;
+
+  // STATIC HAND OVER TYPE LIST
+  List<Map<String, dynamic>> modeOfPayment = [
+    {"zAttributesId": -1, "DisplayName": "Select Payment Mode"},
+    {"zAttributesId": 1, "DisplayName": "Cash"},
+    {"zAttributesId": 2, "DisplayName": "Cheque"},
+    {"zAttributesId": 3, "DisplayName": "Demand Draft"},
+    {"zAttributesId": 4, "DisplayName": "IMPS"},
+    {"zAttributesId": 5, "DisplayName": "NEFT"},
+    {"zAttributesId": 6, "DisplayName": "Online Transfer"},
+    {"zAttributesId": 7, "DisplayName": "RTGS"},
+    {"zAttributesId": 8, "DisplayName": "UPI"},
+  ];
+
+  late Map<String, dynamic> _selectedModeOfPayment;
+
   // METHODS TO CHECK IF APPLICANT TYPE IS PRIMARY
   bool _isApplicantType(String type) =>
       type.toLowerCase().trim() == 'applicant';
@@ -92,7 +128,15 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // PARKING SELECTION
   final ValueNotifier<List<Map<String, dynamic>>> _selectedParkingNotifier =
-  ValueNotifier([]);
+      ValueNotifier([]);
+
+  // TERMS AND CONDITIONS SELECTION
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedTermsNotifier =
+      ValueNotifier([]);
+ 
+  // BANK SELECTION
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier =
+      ValueNotifier([]);
 
   //EDIT MODE
   bool get _isEditMode => widget.bookingModel != null;
@@ -103,8 +147,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _initializeTextControllers();
     _bookingCubit = context.read<BookingCubit>();
     _project = getProject();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(_handleTabChange);
+    _selectedHandOverType = handOverTypeList.first;
+    _selectedModeOfPayment = modeOfPayment.first;
     _agreementValueNotifier.addListener(_calculateTds);
     if (_isEditMode) {
       _bookingCubit.getBookingListById(
@@ -151,6 +197,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _stampDutyPercentageC = TextEditingController();
     _stampDutyAmountC = TextEditingController();
     _registrationFeesC = TextEditingController();
+    _remarkC = TextEditingController();
+    _termsAndConditionDescriptionC = TextEditingController();
+    _bookingAmountC = TextEditingController();
+    _chequeNoC = TextEditingController();
   }
 
   // DISPOSE TEXT CONTROLLERS
@@ -166,6 +216,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _stampDutyPercentageC.dispose();
     _stampDutyAmountC.dispose();
     _registrationFeesC.dispose();
+    _remarkC.dispose();
+    _termsAndConditionDescriptionC.dispose();
+    _bookingAmountC.dispose();
+    _chequeNoC.dispose();
   }
 
   void _calculateTds() {
@@ -191,6 +245,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _calculateGst();
     _calculateStampDuty();
     _calculateRegistrationFees();
+  }
+
+  String _stripHtmlTags(String html) {
+    if (html.isEmpty) return '';
+    return html.replaceAll(RegExp(r'<[^>]*>'), '').trim();
   }
 
   void _calculateGst() {
@@ -310,13 +369,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _applicants.value = currentApplicants;
   }
 
-  Future<Map<String, dynamic>> _fetchBuildings(
-      int pageNumber, {
-        String? value,
-      }) async {
-    const pageSize = 12;
-
-    // 🔍 SEARCH MODE: call API with search term so backend returns filtered buildings
+  // FETCHING PARKING METHODS
+  Future<Map<String, dynamic>> _fetchParking(
+    int pageNumber, {
+    String? value,
+  }) async {
     if (value != null && value.isNotEmpty) {
       await _bookingCubit.getParkingList(
         context,
@@ -325,8 +382,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         searchQuery: value,
       );
 
-      final parkingList =
-      _bookingCubit.state.parkingList;
+      final parkingList = _bookingCubit.state.parkingList;
       final totalCount = _bookingCubit.state.totalNumberOfRecordParking;
 
       final Map<int, Map<String, dynamic>> uniqueFiltered = {};
@@ -339,17 +395,16 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
       return {
         "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueFiltered.length,
+        "totalNumberOfRecord":
+            totalCount > 0 ? totalCount : uniqueFiltered.length,
       };
     }
 
-    // No search: use/paginate already loaded buildings
-    final parkingList =
-    _bookingCubit.state.parkingList;
+    final parkingList = _bookingCubit.state.parkingList;
     final totalCount = _bookingCubit.state.totalNumberOfRecordParking;
     final currentLoadedCount = parkingList.length;
 
-    if (currentLoadedCount < totalCount) {
+    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
       await _bookingCubit.getParkingList(
         context,
         pageNumber,
@@ -357,8 +412,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       );
     }
 
-    final updatedList =
-    _bookingCubit.state.parkingList;
+    final updatedList = _bookingCubit.state.parkingList;
 
     final Map<int, Map<String, dynamic>> uniqueParking = {};
     for (final p in updatedList) {
@@ -370,9 +424,133 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
     return {
       "itemList": uniqueParking.values.toList(),
-      "totalNumberOfRecord":
-      totalCount > 0 ? totalCount : uniqueParking.length,
+      "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueParking.length,
     };
+  }
+
+  // FETCHING TERMS AND CONDITIONS METHODS
+  Future<Map<String, dynamic>> _fetchTerms(
+    int pageNumber, {
+    String? value,
+  }) async {
+    // SEARCH MODE
+    if (value != null && value.isNotEmpty) {
+      await _bookingCubit.getTermsAndConditionsList(
+        context,
+        pageNumber,
+        moduleName: "BOOKING",
+        searchQuery: value,
+      );
+
+      final termsList = _bookingCubit.state.termsList;
+      final totalCount = _bookingCubit.state.totalNumberOfRecordTerms;
+
+      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
+      for (final t in termsList) {
+        uniqueFiltered[t.termsAndConditionsMasterId] = {
+          "zAttributesId": t.termsAndConditionsMasterId,
+          "DisplayName": t.title,
+          "Description": t.description,
+        };
+      }
+
+      return {
+        "itemList": uniqueFiltered.values.toList(),
+        "totalNumberOfRecord":
+            totalCount > 0 ? totalCount : uniqueFiltered.length,
+      };
+    }
+
+    final termsList = _bookingCubit.state.termsList;
+    final totalCount = _bookingCubit.state.totalNumberOfRecordTerms;
+    final currentLoadedCount = termsList.length;
+
+    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
+      await _bookingCubit.getTermsAndConditionsList(
+        context,
+        pageNumber,
+        moduleName: "BOOKING",
+      );
+    }
+
+    final updatedList = _bookingCubit.state.termsList;
+
+    final Map<int, Map<String, dynamic>> uniqueTerms = {};
+    for (final t in updatedList) {
+      uniqueTerms[t.termsAndConditionsMasterId] = {
+        "zAttributesId": t.termsAndConditionsMasterId,
+        "DisplayName": t.title,
+        "Description": t.description,
+      };
+    }
+
+    return {
+      "itemList": uniqueTerms.values.toList(),
+      "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueTerms.length,
+    };
+  }
+
+  // FETCHING BANK METHODS
+  Future<Map<String, dynamic>> _fetchBanks(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final employeeRepo = serviceLocator<EmployeeMasterRepository>();
+    // SEARCH MODE
+    if (value != null && value.isNotEmpty) {
+      final result = await employeeRepo.getBankList(
+        pageNumber: pageNumber,
+        pageSize: 10,
+        query: {"BankName": value},
+      );
+      return result.fold((failure) {
+        return {"itemList": [], "totalNumberOfRecord": 0};
+      }, (response) {
+        final data = response['data'] as List? ?? [];
+        final banks = data
+            .map((e) => Map<String, dynamic>.from(e as Map<String, dynamic>))
+            .toList();
+        final Map<int, Map<String, dynamic>> unique = {};
+        for (final b in banks) {
+          final id = b['BankListMasterId'] is int
+              ? b['BankListMasterId'] as int
+              : int.tryParse(b['BankListMasterId'].toString()) ?? -1;
+          unique[id] = {
+            "zAttributesId": id,
+            "DisplayName": b['BankNameWithCode'],
+          };
+        }
+        final total = response['totalNumberOfRecord'] ?? unique.length;
+        return {"itemList": unique.values.toList(), "totalNumberOfRecord": total};
+      });
+    }
+
+    // NO SEARCH: paginate using API
+    final result = await employeeRepo.getBankList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      query: null,
+    );
+    return result.fold((failure) {
+      return {"itemList": [], "totalNumberOfRecord": 0};
+    }, (response) {
+      final data = response['data'] as List? ?? [];
+      final banks = data
+          .map((e) => Map<String, dynamic>.from(e as Map<String, dynamic>))
+          .toList();
+      final Map<int, Map<String, dynamic>> unique = {};
+      for (final b in banks) {
+        final id = b['BankListMasterId'] is int
+            ? b['BankListMasterId'] as int
+            : int.tryParse(b['BankListMasterId'].toString()) ?? -1;
+        unique[id] = {
+          "zAttributesId": id,
+          "DisplayName": b['BankNameWithCode'],
+        };
+      }
+      final total = response['totalNumberOfRecord'] ?? unique.length;
+      return {"itemList": unique.values.toList(), "totalNumberOfRecord": total};
+    });
   }
 
   @override
@@ -415,7 +593,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   padding: EdgeInsets.zero,
                   tabs: const [
                     Tab(text: 'Details'),
-                    Tab(text: 'Extra Charges'),
+                    Tab(text: 'Other Charges'),
+                    Tab(text: 'Payment Schedule'),
+                    Tab(text: 'Remark'),
+                    Tab(text: 'Terms & Condition'),
+                    Tab(text: 'Payment Details'),
                   ],
                 ),
               ),
@@ -425,10 +607,25 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             child: TabBarView(
               physics: NeverScrollableScrollPhysics(),
               controller: _tabController,
-              children: [_buildDetails(), _buildExtraCharges()],
+              children: [
+                _buildDetails(),
+                _buildOtherCharges(),
+                _buildPaymentSchedule(),
+                _buildRemark(),
+                _buildTermsAndCondition(),
+                _buildPaymentDetails(),
+              ],
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 70,
+          padding: EdgeInsets.all(16),
+          color: AppColor.white,
+          child: CustomButton(text: "Save", onPressed: () {}),
+        ),
       ),
     );
   }
@@ -1102,7 +1299,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         return CustomMultipleSelectPopup(
                           title: "Parking",
                           isRequired: true,
-                          isMultiSelect: false,
+                          isMultiSelect: true,
                           initialValue: selectedBuilding,
                           dataList: const [],
                           onSelected: (value) async {
@@ -1110,16 +1307,21 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             if (value.isNotEmpty &&
                                 value.first['zAttributesId'] != null &&
                                 mounted) {
-                              final newBuildingId = value.first['zAttributesId'] as int;
+                              final newBuildingId =
+                                  value.first['zAttributesId'] as int;
                               if (_lastFetchedBuildingId != newBuildingId) {
                                 _lastFetchedBuildingId = newBuildingId;
-                                await _bookingCubit.getParkingList(context, 1, _project.projectId);
+                                await _bookingCubit.getParkingList(
+                                  context,
+                                  1,
+                                  _project.projectId,
+                                );
                               }
                             } else if (mounted) {
                               _lastFetchedBuildingId = null;
                             }
                           },
-                          dataFetchCallBack: _fetchBuildings,
+                          dataFetchCallBack: _fetchParking,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Parking is required";
@@ -1131,17 +1333,311 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     );
                   },
                 ),
+                CustomDropDownWidget(
+                  title: "Handover Type",
+                  isRequired: true,
+                  dataList: handOverTypeList,
+                  onSelected: (value) {
+                    _selectedHandOverType = value;
+                  },
+                  validator: (value) {
+                    if (value == null ||
+                        value.isEmpty ||
+                        value["zAttributesId"] == -1) {
+                      return "Handover Type is required";
+                    }
+                    return null;
+                  },
+                ),
+                CustomDatePicker(
+                  title: "Expected Registration Date",
+                  isRequired: true,
+                  initialDate: _selectedExpectedRegistrationDate,
+                  setValue: (value) {
+                    _selectedExpectedRegistrationDate = value;
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return "Expected Registration Date is required";
+                    }
+                    return null;
+                  },
+                ),
+                CustomDropDownWidget(
+                  title: "Mode of Payment",
+                  isRequired: true,
+                  dataList: modeOfPayment,
+                  onSelected: (value) {
+                    _selectedModeOfPayment = value;
+                  },
+                  validator: (value) {
+                    if (value == null ||
+                        value.isEmpty ||
+                        value["zAttributesId"] == -1) {
+                      return "Payment Mode is required";
+                    }
+                    return null;
+                  },
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
   // BUILD EXTRA CHARGES
-  Widget _buildExtraCharges() {
+  Widget _buildOtherCharges() {
+    return BlocBuilder<BookingCubit, BookingState>(
+      builder: (context, state) {
+        final otherCharges = state.otherChargesList;
+
+        if (state.otherChargesList.isEmpty) {
+          return Center(child: Text("No Charges Available"));
+        }
+        return ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          shrinkWrap: true,
+          itemCount: otherCharges.length,
+          itemBuilder: (_, index) {
+            return Container(
+              decoration: commonCardDecoration(),
+              margin: EdgeInsets.only(bottom: 10),
+              padding: EdgeInsets.all(16),
+              child: Column(
+                spacing: 10,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        otherCharges[index].chargeName,
+                        style: AppTextStyle.ts14M(),
+                      ),
+                      Spacer(),
+                      CustomIconButton.delete(onPressed: () {}),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Calculated On",
+                        value: otherCharges[index].calculatedOn,
+                      ),
+                      buildColumnTitleValue(
+                        title: "Amount",
+                        value: "₹ ${otherCharges[index].value}",
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      buildColumnTitleValue(
+                        title: "GST(%)",
+                        value: "${otherCharges[index].gstPercentage} %",
+                      ),
+                      buildColumnTitleValue(
+                        title: "GST Value",
+                        value: "₹ ${otherCharges[index].gstValue}",
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // BUILD PAYMENT SCHEDULE
+  Widget _buildPaymentSchedule() {
     return Container();
+  }
+
+  // BUILD REMARK
+  Widget _buildRemark() {
+    return Container(
+      margin: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Add Remark", style: AppTextStyle.ts14M(color: AppColor.grey)),
+          verticalSpacing(),
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            child: CustomTextField(
+              title: "Remark",
+              hint: "Enter Remark",
+              minLines: 3,
+              maxLines: 3,
+              textController: _remarkC,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // BUILD TERMS AND CONDITION
+  Widget _buildTermsAndCondition() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Terms & Condition", style: AppTextStyle.ts16SB()),
+          verticalSpacing(),
+          BlocBuilder<BookingCubit, BookingState>(
+            bloc: _bookingCubit,
+            builder: (context, state) {
+              return ValueListenableBuilder<List<Map<String, dynamic>>>(
+                valueListenable: _selectedTermsNotifier,
+                builder: (context, selectedTerms, child) {
+                  return CustomMultipleSelectPopup(
+                    title: "Terms & Conditions",
+                    isRequired: false,
+                    isMultiSelect: true,
+                    initialValue: selectedTerms,
+                    dataList: const [],
+                    onSelected: (value) {
+                      final copied =
+                          value
+                              .map((e) => Map<String, dynamic>.from(e))
+                              .toList();
+                      _selectedTermsNotifier.value = copied;
+                      if (copied.isNotEmpty) {
+                        _termsAndConditionDescriptionC.text = copied
+                            .map((e) => e['Description'] ?? '')
+                            .join('\n\n');
+                      } else {
+                        _termsAndConditionDescriptionC.clear();
+                      }
+                    },
+                    dataFetchCallBack: _fetchTerms,
+                  );
+                },
+              );
+            },
+          ),
+          ValueListenableBuilder<List<Map<String, dynamic>>>(
+            valueListenable: _selectedTermsNotifier,
+            builder: (context, selectedTerms, child) {
+              if (selectedTerms.isEmpty) return SizedBox.shrink();
+              // Show each selected term with its title and cleaned description
+              return Column(
+                children:
+                    selectedTerms.map((term) {
+                      final title = term['DisplayName']?.toString() ?? '';
+                      final desc = term['Description']?.toString() ?? '';
+                      final cleaned = _stripHtmlTags(desc);
+                      if (cleaned.isEmpty && title.isEmpty)
+                        return SizedBox.shrink();
+                      return Container(
+                        width: double.infinity,
+                        margin: EdgeInsets.only(top: 8),
+                        decoration: commonCardDecoration(),
+                        padding: EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (title.isNotEmpty)
+                              Text(title, style: AppTextStyle.ts14SB()),
+                            if (title.isNotEmpty) verticalSpacing(height: 6),
+                            if (cleaned.isNotEmpty)
+                              Text(cleaned, style: AppTextStyle.ts14R()),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // PAYMENTS DETAILS
+  Widget _buildPaymentDetails() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Add Payment Details",
+            style: AppTextStyle.ts14M(color: AppColor.grey),
+          ),
+          verticalSpacing(),
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              children: [
+                CustomTextField(
+                  isRequired: true,
+                  title: "Booking Amount (₹)",
+                  hint: "Enter Booking Amount",
+                  textController: _bookingAmountC,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Booking Amount is required";
+                    }
+                    return null;
+                  },
+                ),
+                CustomTextField(
+                  isRequired: true,
+                  title: "Cheque/ RTGS No.",
+                  hint: "Enter Cheque/ RTGS No.",
+                  textController: _bookingAmountC,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Cheque/ RTGS No. is required";
+                    }
+                    return null;
+                  },
+                ),
+                CustomDatePicker(
+                  isRequired: true,
+                  title: "Cheque/ RTGS Date",
+                  initialDate: _selectedChequeDate,
+                  setValue: (value) {
+                    _selectedChequeDate = value;
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return "Cheque/ RTGS Date is required";
+                    }
+                    return null;
+                  },
+                ),
+                // BANK MULTI SELECT
+                ValueListenableBuilder<List<Map<String, dynamic>>>(
+                  valueListenable: _selectedBankNotifier,
+                  builder: (context, selectedBanks, child) {
+                    return CustomMultipleSelectPopup(
+                      title: "Bank",
+                      isMultiSelect: false,
+                      initialValue: selectedBanks,
+                      dataList: const [],
+                      onSelected: (value) {
+                        _selectedBankNotifier.value =
+                            value.map((e) => Map<String, dynamic>.from(e)).toList();
+                      },
+                      dataFetchCallBack: _fetchBanks,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // BUILD APPLICANT CARD

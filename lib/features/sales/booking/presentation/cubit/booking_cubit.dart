@@ -4,12 +4,13 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/data/repository/parking.repository.dart';
+import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
+import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/repository/terms_and_conditions.repository.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/data/model/other_charges.model.dart';
-import 'package:k3h_erp_app/features/sales/other_charges/data/repository/other_charges.repository.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/data/repository/other_charges.repository.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 
@@ -30,6 +31,9 @@ class BookingCubit extends Cubit<BookingState> {
 
   final ParkingRepository _parkingRepository =
       serviceLocator<ParkingRepository>();
+ 
+  final TermsAndConditionsMasterRepository _termsAndConditionsRepository =
+      serviceLocator<TermsAndConditionsMasterRepository>();
 
   // CLEAR ENQUIRY LIST
   void clearEnquiryList() {
@@ -251,6 +255,50 @@ class BookingCubit extends Cubit<BookingState> {
             isLoading: false,
             totalNumberOfRecordParking: response["totalNumberOfRecord"],
             currentPageParking: pageNumber,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET TERMS AND CONDITIONS LIST ---->
+  Future getTermsAndConditionsList(
+    BuildContext context,
+    int pageNumber, {
+    String moduleName = 'BOOKING',
+    String? searchQuery,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    final Map<String, dynamic>? queryParams = (searchQuery != null && searchQuery.isNotEmpty)
+        ? {"Title": searchQuery}
+        : null;
+
+    var result = await _termsAndConditionsRepository.getTermsAndConditionsList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      moduleName: moduleName,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<TermsAndConditionsModel> newData =
+            List<TermsAndConditionsModel>.from(response['data'] ?? []);
+
+        final List<TermsAndConditionsModel> updatedList =
+            pageNumber == 1 ? newData : [...state.termsList, ...newData];
+
+        emit(
+          state.copyWith(
+            termsList: updatedList,
+            isLoading: false,
+            totalNumberOfRecordTerms:
+                response["totalNumberOfRecord"] ?? updatedList.length,
+            currentPageTerms: pageNumber,
           ),
         );
       },
