@@ -289,82 +289,66 @@ class DialogHelper {
 
   // BOTTOM SHEET
   static Future showCustomBottomSheet(
-      BuildContext context,
-      String title,
-      Widget contentWidget,
-      ) async {
-    final ScrollController scrollController = ScrollController();
-
+    BuildContext context,
+    String title,
+    Widget contentWidget,
+  ) async {
     return await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (BuildContext context) => SafeArea(
-        child: Container(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          width: getActualWidth(context),
-          height: getActualHeight(context) * 0.50,
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20.0),
-              topRight: Radius.circular(20.0),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              /// DRAG HANDLE
-              Container(
-                alignment: Alignment.center,
-                margin: const EdgeInsets.symmetric(vertical: 6),
-                height: 5,
-                width: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: AppColor.grey,
+      builder:
+          (BuildContext context) => SafeArea(
+            child: Container(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              width: getActualWidth(context),
+              height: getActualHeight(context) * 0.50,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.0),
+                  topRight: Radius.circular(20.0),
                 ),
               ),
+              child: Column(
+                children: [
+                  /// DRAG HANDLE
+                  Container(
+                    alignment: Alignment.center,
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    height: 5,
+                    width: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppColor.grey,
+                    ),
+                  ),
 
-              /// TITLE
-              Container(
-                margin: const EdgeInsets.only(top: 10),
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Text(title, style: AppTextStyle.ts16SB()),
-                ),
-              ),
+                  /// TITLE
+                  Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(title, style: AppTextStyle.ts16SB()),
+                    ),
+                  ),
 
-              Divider(color: AppColor.grey, thickness: .3),
+                  Divider(color: AppColor.grey, thickness: .3),
 
-              /// ================= CONTENT WITH SCROLL =================
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: RawScrollbar(
-                    controller: scrollController,
-                    thumbVisibility: true,
-                    thickness: 6,
-                    radius: const Radius.circular(10),
-                    thumbColor:
-                    AppColor.mediumBlue.withValues(alpha: .8),
-                    trackColor: AppColor.lightGrey,
-                    trackVisibility: true,
-                    minThumbLength: 10,
-                    child: SingleChildScrollView(
-                      controller: scrollController,
+                  /// CONTENT (let child handle scrolling)
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: contentWidget,
                     ),
                   ),
-                ),
-              ),
 
-              verticalSpacing(height: 10.0),
-            ],
+                  verticalSpacing(height: 10.0),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
     );
   }
 
