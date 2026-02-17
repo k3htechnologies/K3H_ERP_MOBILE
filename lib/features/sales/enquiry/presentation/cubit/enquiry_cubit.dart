@@ -117,6 +117,15 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     emit(state.copyWith(clearChannelPartner: true));
   }
 
+  void clearEnquiryFollowUp() {
+    emit(
+      state.copyWith(
+        enquiryFollowUpList: [], // ✅ empty list
+        isLoading: true, // ✅ show loader immediately
+      ),
+    );
+  }
+
   // FETCH CHANNEL PARTNER LIST FOR DROPDOWN
   Future<List<ChannelPartnerModel>> fetchChannelPartners(
     int pageNumber, {
@@ -131,7 +140,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     return result.fold((failure) => [], (response) {
       final partners = response['data'] as List<ChannelPartnerModel>;
 
-      /// 🔥 Auto store first partner when searching by mobile
+      ///  Auto store first partner when searching by mobile
       if (partners.isNotEmpty && value != null && value.isNotEmpty) {
         emit(state.copyWith(channelPartnerModel: partners.first));
       }
@@ -268,12 +277,96 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false, enquiryFollowUpList: []));
-        // Optionally show error message
       },
       (response) {
         // Extract the data list from the map, just like getEnquiryList
         final followUps = response['data'] as List<EnquiryFollowUpModel>;
         emit(state.copyWith(isLoading: false, enquiryFollowUpList: followUps));
+      },
+    );
+  }
+
+  Future addUpdateEnquiryFollowUp({
+    required BuildContext context,
+    int? index,
+    required Map<String, dynamic> body,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    var result = await _enquiryRepository.addUpdateEnquiryFollowUp(body: body);
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+
+        final newItem = response['data'][0] as EnquiryFollowUpModel;
+
+        List<EnquiryFollowUpModel> updatedList = List.from(
+          state.enquiryFollowUpList,
+        );
+
+        if (index != null) {
+          updatedList[index] = newItem;
+        } else {
+          fetchEnquiryFollowUps(
+            enquiryId: newItem.enquiryId,
+            projectId: getProject().projectId,
+          );
+        }
+
+        emit(state.copyWith(enquiryFollowUpList: updatedList));
+
+        showSuccessMessage(
+          context,
+          subTitle:
+              index != null
+                  ? 'Enquiry FollowUp Updated Successfully'
+                  : 'Enquiry FollowUp Added Successfully',
+        );
+      },
+    );
+  }
+
+  Future<void> deleteFollowUp({
+    required int index,
+    required EnquiryFollowUpModel followUpModel,
+    required int enquiryId,
+
+    required BuildContext context,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    var result = await _enquiryRepository.deleteEnquiryFollowUp(
+      followUpId: followUpModel.enquiryFollowUpId,
+      uniqueKey: followUpModel.uniquekey,
+      enquiryId: enquiryId,
+      projectId: getProject().projectId,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (success) {
+        // Remove deleted item from list
+        final updatedList = List<EnquiryFollowUpModel>.from(
+          state.enquiryFollowUpList,
+        );
+        updatedList.removeAt(index);
+
+        emit(
+          state.copyWith(enquiryFollowUpList: updatedList, isLoading: false),
+        );
+
+        showSuccessMessage(context, subTitle: "Follow-Up Deleted Successfully");
       },
     );
   }

@@ -48,7 +48,6 @@ Widget buildRowTitleValue({
 }
 
 // BUILD COLUMN TITLE VALUE
-
 Widget buildColumnTitleValue({
   required String title,
   required String value,
@@ -72,13 +71,23 @@ Widget buildColumnTitleValue({
   );
 }
 
-Widget statusChip(String text, Color bg, Color txt) {
-  return Container(
-    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
+Widget statusChip(String text, Color bg, Color txt, {bool expand = false}) {
+  final chip = Container(
+    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
     decoration: BoxDecoration(
       color: bg,
       borderRadius: BorderRadius.circular(20),
     ),
-    child: Text(text, style: AppTextStyle.ts12M(color: txt)),
+    child: Text(
+      text,
+      textAlign: TextAlign.center,
+      style: AppTextStyle.ts12M(color: txt),
+    ),
   );
+
+  if (expand) {
+    return Flexible(child: chip);
+  }
+
+  return chip;
 }

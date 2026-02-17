@@ -260,7 +260,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     super.initState();
     _enquiryCubit = context.read<EnquiryCubit>();
     _initControllers();
-    _initializeDefaultValues();
+    // _initializeDefaultValues();
 
     if (_isEditMode) {
       _populateForm(widget.enquiryModel!);
@@ -304,24 +304,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _referralUnitNumber = TextEditingController();
 
     _remarkC = TextEditingController();
-  }
-
-  void _initializeDefaultValues() {
-    _selectedAccommodationNotifier.value = currentAccommodation.first;
-    _selectedOccupationTypeNotifier.value = occupationType.first;
-    _selectedPossessionTypeNotifier.value = possessionType.first;
-    _selectedFloorBandNotifier.value = floorBrand.first;
-    _selectedRequirementNotifier.value = requirementType.first;
-    _selectedResidentialTypeNotifier.value = residentialType.first;
-    _selectedCommercialTypeNotifier.value = commercialUnitTypeList.first;
-    _selectedCommercialLeasingNotifier.value = commercialUnitTypeList.first;
-    _selectedTimelineNotifier.value = timelineTypeList.first;
-    _selectedFundingNotifier.value = fundingSourceList.first;
-    _selectedEthnicityNotifier.value = ethnicityList.first;
-    _selectedSourceNotifier.value = sourceTypeList.first;
-    _selectedFinalStageNotifier.value = stageTypeList.first;
-    _selectedSubSourceNotifier.value = directWalkingSubSourceList.first;
-    _selectedSubSubSourceNotifier.value = subSubSourceList.first;
   }
 
   void _populateForm(EnquiryModel model) {
@@ -516,49 +498,36 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     }
   }
 
-  String getValue(Map<String, dynamic>? item) {
-    if (item == null || item["zAttributesId"] == -1) return "";
-    return item["DisplayName"] ?? "";
-  }
-
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
 
-    // Helper: get dropdown value or " " if null/placeholder
-    String getDropdown(Map<String, dynamic>? selected) =>
-        (selected == null || selected["zAttributesId"] == -1)
-            ? " "
-            : selected["DisplayName"] ?? " ";
-
     // Source & SubSubSource
-    final source = getDropdown(_selectedSourceNotifier.value);
+    final source = _selectedSourceNotifier.value?["DisplayName"] ?? "";
     final subSubSource =
-        (_selectedSubSubSourceNotifier.value == null)
-            ? ""
-            : (source == "Channel Partner"
-                ? (_selectedSubSubSourceNotifier.value!["zAttributesId"]
-                        ?.toString() ??
-                    "")
-                : getDropdown(_selectedSubSubSourceNotifier.value));
+        _selectedSubSubSourceNotifier.value?["DisplayName"] ?? "";
 
     // Count selected fields (Possession, Requirement, Location, Budget)
     int selectedCount = 0;
-    if (getDropdown(_selectedPossessionTypeNotifier.value).trim().isNotEmpty) {
+    if ((_selectedPossessionTypeNotifier.value?["DisplayName"] ?? "")
+        .trim()
+        .isNotEmpty) {
       selectedCount++;
     }
-    if (getDropdown(_selectedRequirementNotifier.value).trim().isNotEmpty) {
+    if ((_selectedRequirementNotifier.value?["DisplayName"] ?? "")
+        .trim()
+        .isNotEmpty) {
       selectedCount++;
     }
     if (_locationC.text.trim().isNotEmpty) selectedCount++;
     if (_budgetC.text.trim().isNotEmpty) selectedCount++;
 
-    final timeline = getDropdown(_selectedTimelineNotifier.value);
+    final timeline = _selectedTimelineNotifier.value?["DisplayName"] ?? "";
 
     // CustomerClassification logic including Budget
     String customerClassification;
     if (selectedCount >= 3 && timeline.contains("Within 1 Month")) {
       customerClassification = "Hot";
-    } else if (selectedCount == 2 && timeline.contains("Beyond 1 Month")) {
+    } else if (selectedCount >= 2 && timeline.contains("Beyond 1 Month")) {
       customerClassification = "Warm";
     } else {
       customerClassification = "Cold";
@@ -566,15 +535,20 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
     // RequirementType from cascading dropdown
     final req = _selectedRequirementNotifier.value?["DisplayName"] ?? "";
-    final requirementTypeValue =
-        (req == "Residential")
-            ? getDropdown(_selectedResidentialTypeNotifier.value)
-            : (req == "Commercial")
-            ? getDropdown(_selectedCommercialTypeNotifier.value)
-            : (req == "Commercial Leasing")
-            ? getDropdown(_selectedCommercialLeasingNotifier.value)
-            : " ";
+    final String requirementTypeValue;
 
+    if (req == "Residential") {
+      requirementTypeValue =
+          _selectedResidentialTypeNotifier.value?["DisplayName"] ?? "";
+    } else if (req == "Commercial") {
+      requirementTypeValue =
+          _selectedCommercialTypeNotifier.value?["DisplayName"] ?? "";
+    } else if (req == "Commercial Leasing") {
+      requirementTypeValue =
+          _selectedCommercialLeasingNotifier.value?["DisplayName"] ?? "";
+    } else {
+      requirementTypeValue = "";
+    }
     // Build payload
     final payload = {
       "EnquiryId": _isEditMode ? widget.enquiryModel!.enquiryId : 0,
@@ -586,10 +560,12 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       "MobileNumber": _mobileC.text.trim(),
       "EmailId": _emailC.text.trim(),
       "DateOfBirth": _dateOfBirthNotifier.value?.toIso8601String(),
-      "Accommodation": getDropdown(_selectedAccommodationNotifier.value),
-      "OccupationType": getDropdown(_selectedOccupationTypeNotifier.value),
+      "Accommodation":
+          _selectedAccommodationNotifier.value?["DisplayName"] ?? "",
+      "OccupationType":
+          _selectedOccupationTypeNotifier.value?["DisplayName"] ?? "",
       "Source": source,
-      "SubSource": getDropdown(_selectedSubSourceNotifier.value),
+      "SubSource": _selectedSubSourceNotifier.value?["DisplayName"] ?? "",
       "SubSubSource": subSubSource,
       "ReferelName": _referralName.text.trim(),
       "ReferelMobileNumber": _referralMobile.text.trim(),
@@ -609,17 +585,19 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       "CountryOfResidence": _countryOfResidenceC.text.trim(),
       "CityOfResidence": _cityOfResidenceC.text.trim(),
       "CurrentLocation": _locationC.text.trim(),
-      "VillageMasterId": selectedVillages ?? "",
-      "PossessionType": getDropdown(_selectedPossessionTypeNotifier.value),
+      "VillageMasterId": selectedVillages,
+      "PossessionType":
+          _selectedPossessionTypeNotifier.value?["DisplayName"] ?? "",
       "AreaPreferred": int.tryParse(_areaPrefC.text.trim()) ?? 0,
-      "DesiredFloorBand": getDropdown(_selectedFloorBandNotifier.value),
+      "DesiredFloorBand":
+          _selectedFloorBandNotifier.value?["DisplayName"] ?? "",
       "Budget": _budgetC.text.trim(),
-      "Requirement": getDropdown(_selectedRequirementNotifier.value),
+      "Requirement": _selectedRequirementNotifier.value?["DisplayName"] ?? "",
       "RequirementType": requirementTypeValue,
       "CustomerClassification": customerClassification,
-      "SourceOfFunding": getDropdown(_selectedFundingNotifier.value),
-      "Ethnicity": getDropdown(_selectedEthnicityNotifier.value),
-      "FinalStage": getDropdown(_selectedFinalStageNotifier.value),
+      "SourceOfFunding": _selectedFundingNotifier.value?["DisplayName"] ?? "",
+      "Ethnicity": _selectedEthnicityNotifier.value?["DisplayName"] ?? "",
+      "FinalStage": _selectedFinalStageNotifier.value?["DisplayName"] ?? "",
       "FinalStageDetail": "",
       "EnquiryDate": _enquiryDateNotifier.value?.toIso8601String(),
       "NextFollowUpDate": _nextFollowUpDateNotifier.value?.toIso8601String(),
@@ -632,6 +610,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               ? _selectedSourcingManagerNotifier.value.first["zAttributesId"]
               : 0,
       "Remark": _remarkC.text.trim(),
+      "Timeline": timeline,
     };
 
     // Submit

@@ -11,8 +11,10 @@ class EnquiryState extends BaseState {
   final List<String> options = const ['Indian', 'NRI'];
   final String selectedNationality;
   final ChannelPartnerModel? channelPartnerModel;
-  final List<EnquiryFollowUpModel> enquiryFollowUpList; // ADD THIS
+  final List<EnquiryFollowUpModel> enquiryFollowUpList;
 
+  final String currentSortColumn;
+  final String currentSortDirection;
   const EnquiryState({
     super.isLoading,
     required this.enquiryList,
@@ -21,7 +23,9 @@ class EnquiryState extends BaseState {
     required this.searchText,
     this.selectedNationality = 'Indian',
     this.channelPartnerModel,
-    this.enquiryFollowUpList = const [], // ADD THIS
+    this.enquiryFollowUpList = const [],
+    required this.currentSortColumn,
+    required this.currentSortDirection,
   });
 
   factory EnquiryState.initial() => const EnquiryState(
@@ -32,7 +36,9 @@ class EnquiryState extends BaseState {
     searchText: "",
     selectedNationality: 'Indian',
     channelPartnerModel: null,
-    enquiryFollowUpList: [], // ADD THIS
+    enquiryFollowUpList: [],
+    currentSortColumn: "",
+    currentSortDirection: "",
   );
 
   EnquiryState copyWith({
@@ -44,7 +50,10 @@ class EnquiryState extends BaseState {
     String? searchText,
     ChannelPartnerModel? channelPartnerModel,
     bool clearChannelPartner = false,
-    List<EnquiryFollowUpModel>? enquiryFollowUpList, // ADD THIS
+    List<EnquiryFollowUpModel>? enquiryFollowUpList,
+
+    String? currentSortColumn,
+    String? currentSortDirection,
   }) {
     return EnquiryState(
       isLoading: isLoading ?? this.isLoading,
@@ -57,8 +66,9 @@ class EnquiryState extends BaseState {
           clearChannelPartner
               ? null
               : (channelPartnerModel ?? this.channelPartnerModel),
-      enquiryFollowUpList:
-          enquiryFollowUpList ?? this.enquiryFollowUpList, // ADD THIS
+      enquiryFollowUpList: enquiryFollowUpList ?? this.enquiryFollowUpList,
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
     );
   }
 
@@ -71,6 +81,8 @@ class EnquiryState extends BaseState {
     currentPage,
     searchText,
     channelPartnerModel,
-    enquiryFollowUpList, // ADD THIS
+    enquiryFollowUpList,
+    currentSortColumn,
+    currentSortDirection,
   ];
 }
