@@ -1002,7 +1002,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             dataFetchCallBack: _fetchCompany,
             dataList: [],
             onSelected: (value) {
-              // Clear department list and selection first, before updating department
               _selectedCompany = value;
             },
             validator: (value) {
