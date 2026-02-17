@@ -219,13 +219,18 @@ class BookingCubit extends Cubit<BookingState> {
   Future getParkingList(
     BuildContext context,
     int pageNumber,
-    int projectId,
-  ) async {
+    int projectId, {
+    String? searchQuery,
+  }) async {
     emit(state.copyWith(isLoading: true));
     var result = await _parkingRepository.getParkingWithPagination(
       pageNumber: pageNumber,
       pageSize: 10,
       projectId: projectId,
+      queryParams:
+          searchQuery != null && searchQuery.isNotEmpty
+              ? {"ParkingNumber": searchQuery}
+              : null,
     );
 
     result.fold(

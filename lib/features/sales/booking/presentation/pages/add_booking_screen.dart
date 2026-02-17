@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -75,6 +76,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   // PROJECT
   late ProjectModel _project;
 
+  // FLAGS TO PREVENT INFINITE CALLS
+  int? _lastFetchedBuildingId;
+
   // METHODS TO CHECK IF APPLICANT TYPE IS PRIMARY
   bool _isApplicantType(String type) =>
       type.toLowerCase().trim() == 'applicant';
@@ -85,6 +89,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   // APPLICANT LIST
   final ValueNotifier<List<BookingApplicantData>> _applicants =
       ValueNotifier<List<BookingApplicantData>>([]);
+
+  // PARKING SELECTION
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedParkingNotifier =
+  ValueNotifier([]);
 
   //EDIT MODE
   bool get _isEditMode => widget.bookingModel != null;
@@ -300,6 +308,71 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     if (index < 0 || index >= currentApplicants.length) return;
     currentApplicants.removeAt(index);
     _applicants.value = currentApplicants;
+  }
+
+  Future<Map<String, dynamic>> _fetchBuildings(
+      int pageNumber, {
+        String? value,
+      }) async {
+    const pageSize = 12;
+
+    // 🔍 SEARCH MODE: call API with search term so backend returns filtered buildings
+    if (value != null && value.isNotEmpty) {
+      await _bookingCubit.getParkingList(
+        context,
+        pageNumber,
+        _project.projectId,
+        searchQuery: value,
+      );
+
+      final parkingList =
+      _bookingCubit.state.parkingList;
+      final totalCount = _bookingCubit.state.totalNumberOfRecordParking;
+
+      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
+      for (final p in parkingList) {
+        uniqueFiltered[p.parkingId] = {
+          "zAttributesId": p.parkingId,
+          "DisplayName": p.parkingNumber,
+        };
+      }
+
+      return {
+        "itemList": uniqueFiltered.values.toList(),
+        "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueFiltered.length,
+      };
+    }
+
+    // No search: use/paginate already loaded buildings
+    final parkingList =
+    _bookingCubit.state.parkingList;
+    final totalCount = _bookingCubit.state.totalNumberOfRecordParking;
+    final currentLoadedCount = parkingList.length;
+
+    if (currentLoadedCount < totalCount) {
+      await _bookingCubit.getParkingList(
+        context,
+        pageNumber,
+        _project.projectId,
+      );
+    }
+
+    final updatedList =
+    _bookingCubit.state.parkingList;
+
+    final Map<int, Map<String, dynamic>> uniqueParking = {};
+    for (final p in updatedList) {
+      uniqueParking[p.parkingId] = {
+        "zAttributesId": p.parkingId,
+        "DisplayName": p.parkingNumber,
+      };
+    }
+
+    return {
+      "itemList": uniqueParking.values.toList(),
+      "totalNumberOfRecord":
+      totalCount > 0 ? totalCount : uniqueParking.length,
+    };
   }
 
   @override
@@ -1020,7 +1093,44 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               children: [
                 Text("Other Details", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
-
+                BlocBuilder<BookingCubit, BookingState>(
+                  bloc: _bookingCubit,
+                  builder: (context, state) {
+                    return ValueListenableBuilder<List<Map<String, dynamic>>>(
+                      valueListenable: _selectedParkingNotifier,
+                      builder: (context, selectedBuilding, child) {
+                        return CustomMultipleSelectPopup(
+                          title: "Parking",
+                          isRequired: true,
+                          isMultiSelect: false,
+                          initialValue: selectedBuilding,
+                          dataList: const [],
+                          onSelected: (value) async {
+                            _selectedParkingNotifier.value = value;
+                            if (value.isNotEmpty &&
+                                value.first['zAttributesId'] != null &&
+                                mounted) {
+                              final newBuildingId = value.first['zAttributesId'] as int;
+                              if (_lastFetchedBuildingId != newBuildingId) {
+                                _lastFetchedBuildingId = newBuildingId;
+                                await _bookingCubit.getParkingList(context, 1, _project.projectId);
+                              }
+                            } else if (mounted) {
+                              _lastFetchedBuildingId = null;
+                            }
+                          },
+                          dataFetchCallBack: _fetchBuildings,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Parking is required";
+                            }
+                            return null;
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
               ],
             ),
           )

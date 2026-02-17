@@ -179,12 +179,12 @@ void initDependencies() {
   registerTargetDependencies(serviceLocator);
   // ENQUIRY DEPENDENCIES
   registerEnquiryDependencies(serviceLocator);
+  // OTHER CHARGES DEPENDENCIES
+  registerOtherChargesDependencies(serviceLocator);
   // BOOKING DEPENDENCIES
   registerBookingDependencies(serviceLocator);
   // SOURCING DEPENDENCIES
   registerSourcingDependencies(serviceLocator);
-  // OTHER CHARGES DEPENDENCIES
-  registerOtherChargesDependencies(serviceLocator);
   // DASHBOARD DEPENDENCIES
   registerDashboardDependencies(serviceLocator);
 }
