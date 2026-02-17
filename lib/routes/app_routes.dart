@@ -51,7 +51,6 @@ class AppRoutes {
   static String viewVendorDetails = "/viewVendorDetails";
   static String viewVendorDocument = "/viewVendorDocument";
 
-
   // TERMS AND CONDITIONS
   static String termsAndConditions = "/tnc";
   static String addTermsAndConditions = "/addTnc";
@@ -126,7 +125,7 @@ class AppRoutes {
 
   // SALES TARGET
   static String salesTarget = "/target";
-
+  static String addSalesTarget = "/addSalesTarget";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PAYROLL MASTER
@@ -207,7 +206,7 @@ class AppRoutes {
   static String viewLeaveCreditConfigurationMaster =
       "/viewLeaveCreditConfigurationMaster";
 
- /// << -----------------------------------------  $$$  ------------------------------------------- >>
+  /// << -----------------------------------------  $$$  ------------------------------------------- >>
 
   /// REDEVELOPMENT
 

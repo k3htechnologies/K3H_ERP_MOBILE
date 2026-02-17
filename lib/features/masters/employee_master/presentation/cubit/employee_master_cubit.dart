@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
@@ -86,6 +85,26 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
 
     await getEmployeeMasterList(context, 1);
+  }
+
+  // <---- CLEAR DEPARTMENT LIST ---->
+  void clearDepartmentList() {
+    emit(state.copyWith(departmentList: [], departmentTotalCount: 0));
+  }
+
+  // <---- CLEAR DEPARTMENT LIST ---->
+  void clearCompanyNameList() {
+    emit(state.copyWith(departmentList: [], departmentTotalCount: 0));
+  }
+
+  // <---- CLEAR DESIGNATION LIST ---->
+  void clearDesignationList() {
+    emit(state.copyWith(departmentList: [], departmentTotalCount: 0));
+  }
+
+  // <---- CLEAR BRANCH LIST ---->
+  void clearBranchList() {
+    emit(state.copyWith(departmentList: [], departmentTotalCount: 0));
   }
 
   // <---- GET EMPLOYEE MASTER LIST ---->
@@ -178,12 +197,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
                 ? List<EmployeeDocumentModel>.from(response['data'])
                 : [...state.employeeDocumentList, ...response['data']];
 
-        emit(
-          state.copyWith(
-            isLoading: false,
-            employeeDocumentList: newList,
-          ),
-        );
+        emit(state.copyWith(isLoading: false, employeeDocumentList: newList));
       },
     );
   }
@@ -214,12 +228,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
                 ? List<AssetMappingModel>.from(response['data'])
                 : [...state.assetMappingList, ...response['data']];
 
-        emit(
-          state.copyWith(
-            isLoading: false,
-            assetMappingList: newList,
-          ),
-        );
+        emit(state.copyWith(isLoading: false, assetMappingList: newList));
       },
     );
   }
@@ -251,12 +260,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
                 ? List<ShiftMappingModel>.from(response['data'])
                 : [...state.shiftManagementList, ...response['data']];
 
-        emit(
-          state.copyWith(
-            isLoading: false,
-            shiftManagementList: newList,
-          ),
-        );
+        emit(state.copyWith(isLoading: false, shiftManagementList: newList));
       },
     );
   }
@@ -287,12 +291,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
                 ? List<WeekOffMappingModel>.from(response['data'])
                 : [...state.weekOffMappingList, ...response['data']];
 
-        emit(
-          state.copyWith(
-            isLoading: false,
-            weekOffMappingList: newList,
-          ),
-        );
+        emit(state.copyWith(isLoading: false, weekOffMappingList: newList));
       },
     );
   }
@@ -567,94 +566,112 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   }
 
   // <---- COMPANY DROPDOWN ---->
-  Future<Map<String, dynamic>> getCompanies(
-    int pageNumber, {
-    String? value,
-  }) async {
-    var result = await companyMasterRepository.getCompanyList(
+  Future<void> getCompanies(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await companyMasterRepository.getCompanyList(
       pageNumber: pageNumber,
-      pageSize: 10,
-      queryParams: {'CompanyName': value ?? ''},
+      pageSize: pageSize,
     );
 
-    return result.fold(
+    result.fold(
       (failure) {
-        return {"itemList": [], "totalNumberOfRecord": 0};
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error Message", failure.message);
       },
       (response) {
-        return {
-          "itemList": List<Map<String, dynamic>>.from(
-            (response['data'] as List<CompanyModel>).map(
-              (e) => {
-                "zAttributesId": e.companyId,
-                "DisplayName": e.companyName,
-              },
-            ),
+        final newData = List<CompanyModel>.from(response['data']);
+
+        final List<CompanyModel> updatedList =
+            pageNumber == 1 ? newData : [...state.companyNameList, ...newData];
+
+        final totalCount = response['totalNumberOfRecord'] ?? 0;
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            companyNameList: updatedList,
+            companyNameTotalCount: totalCount,
           ),
-          "totalNumberOfRecord": response["totalNumberOfRecord"],
-        };
+        );
       },
     );
   }
 
   // <---- DEPARTMENT DROPDOWN ---->
-  Future<Map<String, dynamic>> getDepartments(
-    int pageNumber, {
-    String? value,
-  }) async {
-    var result = await departmentMasterRepository.getDepartmentList(
+  Future<void> getDepartmentList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await departmentMasterRepository.getDepartmentList(
       pageNumber: pageNumber,
-      pageSize: 10,
-      queryParams: {'DepartmentName': value ?? ''},
+      pageSize: pageSize,
     );
 
-    return result.fold(
+    result.fold(
       (failure) {
-        return {"itemList": [], "totalNumberOfRecord": 0};
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error Message", failure.message);
       },
       (response) {
-        return {
-          "itemList": List<Map<String, dynamic>>.from(
-            (response['data'] as List<DepartmentModel>).map(
-              (e) => {
-                "zAttributesId": e.departmentMasterId,
-                "DisplayName": e.departmentName,
-              },
-            ),
+        final newData = List<DepartmentModel>.from(response['data']);
+
+        final List<DepartmentModel> updatedList =
+            pageNumber == 1 ? newData : [...state.departmentList, ...newData];
+
+        final totalCount = response['totalNumberOfRecord'] ?? 0;
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            departmentList: updatedList,
+            departmentTotalCount: totalCount,
           ),
-          "totalNumberOfRecord": response["totalNumberOfRecord"],
-        };
+        );
       },
     );
   }
 
   // <---- DESIGNATION DROPDOWN ---->
-  Future<Map<String, dynamic>> getDesignations(
-    int pageNumber, {
-    String? value,
-  }) async {
-    var result = await designationRepository.getDesignationList(
+  Future<void> getDesignationList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await designationRepository.getDesignationList(
       pageNumber: pageNumber,
-      pageSize: 10,
-      queryParams: {'DesignationName': value ?? ''},
+      pageSize: pageSize,
     );
 
-    return result.fold(
+    result.fold(
       (failure) {
-        return {"itemList": [], "totalNumberOfRecord": 0};
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error Message", failure.message);
       },
       (response) {
-        return {
-          "itemList": List<Map<String, dynamic>>.from(
-            (response['data'] as List<DesignationMasterModel>).map(
-              (e) => {
-                "zAttributesId": e.designationMasterId,
-                "DisplayName": e.designationName,
-              },
-            ),
+        final newData = List<DesignationMasterModel>.from(response['data']);
+
+        final List<DesignationMasterModel> updatedList =
+            pageNumber == 1 ? newData : [...state.designationList, ...newData];
+
+        final totalCount = response['totalNumberOfRecord'] ?? 0;
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            designationList: updatedList,
+            designationTotalCount: totalCount,
           ),
-          "totalNumberOfRecord": response["totalNumberOfRecord"],
-        };
+        );
       },
     );
   }
@@ -688,35 +705,38 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   }
 
   // <---- BRANCH MASTER DROPDOWN ---->
-  Future<Map<String, dynamic>> getBranch(
-    int pageNumber, {
-    String? value,
-  }) async {
-    var result = await employeeMasterRepository.getBranchList(
+  Future<void> getBranch(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await employeeMasterRepository.getBranchList(
       pageNumber: pageNumber,
-      pageSize: 10,
-      query: {"BranchName": value ?? ''},
+      pageSize: pageSize,
     );
 
-    return result.fold(
+    result.fold(
       (failure) {
-        return {"itemList": [], "totalNumberOfRecord": 0};
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error Message", failure.message);
       },
-      (response) async {
-        return {
-          "itemList": List<Map<String, dynamic>>.from(
-            await compute(
-              (_) => (response['data'] as List<BranchModel>).map(
-                (e) => {
-                  "zAttributesId": e.branchMasterId,
-                  "DisplayName": e.branchName,
-                },
-              ),
-              '',
-            ),
+      (response) {
+        final newData = List<BranchModel>.from(response['data']);
+
+        final List<BranchModel> updatedList =
+            pageNumber == 1 ? newData : [...state.branchList, ...newData];
+
+        final totalCount = response['totalNumberOfRecord'] ?? 0;
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            branchList: updatedList,
+            branchTotalCount: totalCount,
           ),
-          "totalNumberOfRecord": response["totalNumberOfRecord"],
-        };
+        );
       },
     );
   }

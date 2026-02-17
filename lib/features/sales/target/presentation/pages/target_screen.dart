@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/cubit/target_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -88,6 +89,12 @@ class _TargetScreenState extends State<TargetScreen> {
         textController: _searchC,
         onSearchSubmit: (value) {
           _targetCubit.searchSalesTarget(context, _project.projectId, value);
+        },
+        onAddCallback: () {
+          goRouter.pushNamed(AppRoutes.addSalesTarget);
+        },
+        onExportCallback: (value) {
+          _targetCubit.exportExcelPdf(context, value);
         },
       ),
       body: BlocBuilder<TargetCubit, TargetState>(

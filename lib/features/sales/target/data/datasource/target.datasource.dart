@@ -20,6 +20,11 @@ abstract interface class TargetDatasource {
     required String uniqueKey,
     required int projectId,
   });
+  Future<Map<String, dynamic>> apicallPullSalesTargetMasterForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class TargetDatasourceImpl extends TargetDatasource {
@@ -131,6 +136,47 @@ class TargetDatasourceImpl extends TargetDatasource {
           saleTargetId: saleTargetId,
           uniqueKey: uniqueKey,
           projectId: projectId,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullSalesTargetMasterForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullSalesTargetExportUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "SaleTarget/PullSaleTarget?PageSize=$pageSize&PageNumber=$pageNumber";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullSalesTargetExportUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullSalesTargetMasterForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
         );
       }
       rethrow;
