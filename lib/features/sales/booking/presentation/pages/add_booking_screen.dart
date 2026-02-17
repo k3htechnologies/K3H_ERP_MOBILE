@@ -105,6 +105,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         _project.projectId,
         widget.bookingModel!.bookingId,
       );
+      _bookingCubit.getOtherChargesList(context, 1, _project.projectId);
     }
   }
 
@@ -179,7 +180,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _agreementValueWithoutTdsC.text =
         tds == 0 ? "" : withoutTds.toStringAsFixed(2);
 
-    // 🔥 IMPORTANT → always run
     _calculateGst();
     _calculateStampDuty();
     _calculateRegistrationFees();
@@ -231,9 +231,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     double fees;
 
     if (value <= limit) {
-      fees = 30000;
-    } else {
+      //  1% if <= 49,99,999.99
       fees = value * 0.01;
+    } else {
+      //  Fixed 30,000 if above limit
+      fees = 30000;
     }
 
     _registrationFeesNotifier.value = fees;
@@ -1008,6 +1010,20 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               ],
             ),
           ),
+          // OTHER DETAILS
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Other Details", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+
+              ],
+            ),
+          )
         ],
       ),
     );
