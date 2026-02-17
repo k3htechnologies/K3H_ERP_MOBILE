@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class InventoryScreen extends StatefulWidget {
@@ -691,7 +692,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   // FLAT LIST
   Widget _buildFlatList(
-    List flatList,
+    List<FlatModel> flatList,
     FloorModel floor,
     int buildingIndex,
     int wingIndex,
@@ -906,12 +907,52 @@ class _InventoryScreenState extends State<InventoryScreen>
                                 ),
                           ],
                         ),
-                        if (flat.ownerName != "") verticalSpacing(),
-                        if (flat.ownerName != "")
+                        if (flat.ownerName != "") ...[
+                          verticalSpacing(),
                           Text(
                             "Owner : ${flat.ownerName}",
                             style: AppTextStyle.ts12R(color: AppColor.primary),
                           ),
+                        ],
+
+                        if (flat.flatStatus.toLowerCase() == "available" &&
+                            flat.reraCarpetAreaSqFt != 0 &&
+                            flat.flatType != "" &&
+                            flat.flatConfiguration != "") ...[
+                          verticalSpacing(),
+                          CustomButton(
+                            leading: Icon(
+                              Icons.card_giftcard,
+                              size: 18,
+                              color: AppColor.white,
+                            ),
+                            text: "Book",
+                            onPressed: () {
+                              List<Map<String, dynamic>> list = [
+                                {
+                                  "buildingNumber": flat.buildingNumber,
+                                  "wing": flat.wing,
+                                  "floor": flat.floor,
+                                  "flat": flat.flat,
+                                  "flatType": flat.flatType,
+                                  "flatConfiguration": flat.flatConfiguration,
+                                  "reraCarpetAreaSqFt": flat.reraCarpetAreaSqFt,
+                                },
+                              ];
+
+                              goRouter.pushNamed(
+                                AppRoutes.addBooking,
+                                queryParameters: {
+                                  "inventoryObject": Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(list),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -927,8 +968,9 @@ class _InventoryScreenState extends State<InventoryScreen>
     int totalFlats = 0;
     int availableCount = 0;
     int blockedCount = 0;
+    int bookedCount = 0;
     int holdCount = 0;
-    int memberCount = 0;
+    int allotedCount = 0;
 
     for (var floor in wing.floorList) {
       for (var flat in floor.flatList) {
@@ -937,14 +979,17 @@ class _InventoryScreenState extends State<InventoryScreen>
           case "Available":
             availableCount++;
             break;
+          case "Booked":
+            bookedCount++;
+            break;
           case "Blocked":
             blockedCount++;
             break;
           case "Hold":
             holdCount++;
             break;
-          case "Member":
-            memberCount++;
+          case "Alloted":
+            allotedCount++;
             break;
         }
       }
@@ -952,8 +997,9 @@ class _InventoryScreenState extends State<InventoryScreen>
 
     return {
       'total': totalFlats,
+      'booked': bookedCount,
       'available': availableCount,
-      'member': memberCount,
+      'alloted': allotedCount,
       'hold': holdCount,
       'blocked': blockedCount,
     };
@@ -988,7 +1034,7 @@ class _InventoryScreenState extends State<InventoryScreen>
             counts['available']!,
             AppColor.darkGreen,
           ),
-          _buildCountItem("Member", counts['member']!, AppColor.purple),
+          _buildCountItem("Alloted", counts['alloted']!, AppColor.purple),
           _buildCountItem("Hold", counts['hold']!, AppColor.yellow),
           _buildCountItem("Blocked", counts['blocked']!, AppColor.error),
         ],
@@ -1017,12 +1063,14 @@ class _InventoryScreenState extends State<InventoryScreen>
   Color _statusColor(String status) {
     switch (status) {
       case "Available":
-        return AppColor.lightGreen;
+        return AppColor.lightGreen.withValues(alpha: .3);
       case "Blocked":
         return AppColor.lightRed;
+      case "Booked":
+        return AppColor.lightBlue;
       case "Hold":
         return AppColor.lightYellow;
-      case "Member":
+      case "Alloted":
         return AppColor.purple.withValues(alpha: .2);
       default:
         return AppColor.grey;

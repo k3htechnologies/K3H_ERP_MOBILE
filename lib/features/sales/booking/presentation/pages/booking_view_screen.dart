@@ -30,7 +30,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(_handleTabChange);
     _bookingCubit = context.read<BookingCubit>();
     _bookingCubit.getEnquiryListById(
@@ -104,6 +104,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     Tab(text: 'Details'),
                     Tab(text: 'Other Charges'),
                     Tab(text: 'Payment Schedule'),
+                    Tab(text: 'Remark'),
+                    Tab(text: 'Terms & Condition'),
+                    Tab(text: 'Payment Details'),
                   ],
                 ),
               ),
@@ -117,6 +120,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 _buildDetailsTab(),
                 _buildOtherChargesTab(),
                 _buildPaymentSchedule(),
+                _buildRemarkTab(),
+                _buildTermsAndConditionTab(),
+                _buildPaymentDetailsTab(),
               ],
             ),
           ),
@@ -166,9 +172,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
 
               return Container(
                 decoration: BoxDecoration(
-                  color: AppColor.lightBlue,
+                  color: AppColor.lightBlue.withValues(alpha: .5),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColor.primary, width: .5),
+                  border: Border.all(color: AppColor.primary, width: .3),
                 ),
                 margin: EdgeInsets.only(bottom: 10),
                 padding: EdgeInsets.all(16),
@@ -957,7 +963,10 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "Date",
-                    value:payment.date!=null? formatDateTimeAsDDMMMYYYY(payment.date!):"-",
+                    value:
+                        payment.date != null
+                            ? formatDateTimeAsDDMMMYYYY(payment.date!)
+                            : "-",
                   ),
                   buildColumnTitleValue(
                     title: "Percentage (%)",
@@ -967,19 +976,133 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               ),
               Row(
                 children: [
-                  buildColumnTitleValue(title: "Amount (₹)", value: "₹ ${payment.paymentScheduleAmount}"),
-                  buildColumnTitleValue(title: "GST (₹)", value: "₹ ${payment.paymentScheduleGSTAmount}"),
+                  buildColumnTitleValue(
+                    title: "Amount (₹)",
+                    value: "₹ ${payment.paymentScheduleAmount}",
+                  ),
+                  buildColumnTitleValue(
+                    title: "GST (₹)",
+                    value: "₹ ${payment.paymentScheduleGSTAmount}",
+                  ),
                 ],
               ),
               Row(
                 children: [
-                  buildColumnTitleValue(title: "TDS (₹)", value: "₹ ${payment.paymentScheduleTDSAmount}"),
+                  buildColumnTitleValue(
+                    title: "TDS (₹)",
+                    value: "₹ ${payment.paymentScheduleTDSAmount}",
+                  ),
                 ],
               ),
             ],
           ),
         );
       },
+    );
+  }
+
+  // BUILD REMARKS TAB
+  Widget _buildRemarkTab() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      child:
+          widget.bookingModel.flatAlterationRemark.isNotEmpty
+              ? Column(
+                children: [
+                  Text("Flat Alteration/ Remark", style: AppTextStyle.ts16SB()),
+                  verticalSpacing(),
+                  Container(
+                    decoration: commonCardDecoration(),
+                    padding: EdgeInsets.all(16),
+                    child: Text(
+                      widget.bookingModel.flatAlterationRemark,
+                      style: AppTextStyle.ts14M(),
+                    ),
+                  ),
+                ],
+              )
+              : Center(child: noDataWidget()),
+    );
+  }
+
+  // BUILD TERMS AND CONDITION TAB
+  Widget _buildTermsAndConditionTab() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      child:
+          widget.bookingModel.termsAndConditionsDescription.isNotEmpty
+              ? Column(
+                children: [
+                  Text("Terms & Conditions", style: AppTextStyle.ts16SB()),
+                  verticalSpacing(),
+                  Container(
+                    decoration: commonCardDecoration(),
+                    padding: EdgeInsets.all(16),
+                    child: Text(
+                      widget.bookingModel.termsAndConditionsDescription,
+                      style: AppTextStyle.ts14M(),
+                    ),
+                  ),
+                ],
+              )
+              : Center(child: noDataWidget()),
+    );
+  }
+
+  // BUILD PAYMENT DETAILS TAB
+  Widget _buildPaymentDetailsTab() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Payment Details", style: AppTextStyle.ts16SB()),
+          verticalSpacing(),
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              children: [
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Booking Amount",
+                      value: "₹ ${widget.bookingModel.bookingAmount}",
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Cheque/ RTGS Number",
+                      value: widget.bookingModel.chequeRTGSNumber,
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Cheque/ RTGS Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        widget.bookingModel.chequeRTGSDate,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Payment Bank",
+                      value: widget.bookingModel.bankName,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

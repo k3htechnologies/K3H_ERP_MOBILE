@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
@@ -12,7 +14,9 @@ import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart
 import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/data/repository/other_charges.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'booking_state.dart';
 
@@ -31,7 +35,7 @@ class BookingCubit extends Cubit<BookingState> {
 
   final ParkingRepository _parkingRepository =
       serviceLocator<ParkingRepository>();
- 
+
   final TermsAndConditionsMasterRepository _termsAndConditionsRepository =
       serviceLocator<TermsAndConditionsMasterRepository>();
 
@@ -269,9 +273,10 @@ class BookingCubit extends Cubit<BookingState> {
     String? searchQuery,
   }) async {
     emit(state.copyWith(isLoading: true));
-    final Map<String, dynamic>? queryParams = (searchQuery != null && searchQuery.isNotEmpty)
-        ? {"Title": searchQuery}
-        : null;
+    final Map<String, dynamic>? queryParams =
+        (searchQuery != null && searchQuery.isNotEmpty)
+            ? {"Title": searchQuery}
+            : null;
 
     var result = await _termsAndConditionsRepository.getTermsAndConditionsList(
       pageNumber: pageNumber,
@@ -301,6 +306,506 @@ class BookingCubit extends Cubit<BookingState> {
             currentPageTerms: pageNumber,
           ),
         );
+      },
+    );
+  }
+
+  // <---- ADD BOOKING ---->
+  Future addBooking({
+    required BuildContext context,
+    required int projectId,
+    required String permanentAddress,
+    required String communicationAddress,
+    required String source,
+    required String flatAlterationRemark,
+    required String termsAndConditionsDescription,
+    String? subSource,
+    required double brokeragePercentage,
+    required double brokerageAmount,
+    required int inventoryFlatId,
+    required double agreementValue,
+    required double agreementValueTds,
+    required double agreementValueGSTPercentage,
+    required double agreementValueGSTAmount,
+    required double stampDutyPercentage,
+    required double stampDutyAmount,
+    required double registrationFees,
+    String? parkingId,
+    required String handoverType,
+    required DateTime registrationDate,
+    required String modeOfPayment,
+    String bookingType = 'FLAT',
+    required List<OtherChargeModel> otherChargesDetailJSON,
+    required List<BookingPaymentScheduleData> paymentScheduleDetailJSON,
+    required double bookingAmount,
+    required String chequeRTGSNumber,
+    DateTime? chequeRTGSDate,
+    int? bankListMasterId,
+    required List<BookingApplicantData> addUpdateBookingApplicant,
+    int? tenantId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> requestBody = {
+      "BookingId": 0.toString(),
+      "ProjectId": projectId.toString(),
+      "PermanentAddress": permanentAddress,
+      "CommunicationAddress": communicationAddress,
+      "Source": source,
+      if (subSource != null) "SubSource": subSource,
+      "BrokeragePercentage": brokeragePercentage.toString(),
+      "BrokerageAmount": brokerageAmount.toString(),
+      "InventoryFlatId": inventoryFlatId.toString(),
+      "AgreementValue": agreementValue.toString(),
+      "AgreementValueTDS": agreementValueTds.toString(),
+      "AgreementValueGSTPercentage": agreementValueGSTPercentage.toString(),
+      "AgreementValueGSTAmount": agreementValueGSTAmount.toString(),
+      "StampDutyPercentage": stampDutyPercentage.toString(),
+      "StampDutyAmount": stampDutyAmount.toString(),
+      "RegistrationFees": registrationFees.toString(),
+      if (parkingId != null) "ParkingId": parkingId.toString(),
+      "HandoverType": handoverType,
+      "RegistrationDate": registrationDate.toIso8601String(),
+      "ModeOfPayment": modeOfPayment,
+      "BookingType": bookingType,
+      "FlatAlterationRemark": flatAlterationRemark,
+      "TermsAndConditionsDescription": termsAndConditionsDescription,
+      if (tenantId != null) "TenantId": tenantId.toString(),
+      "OtherChargesDetailJSON": jsonEncode(
+        otherChargesDetailJSON
+            .where((e) => e.isSelected)
+            .map(
+              (e) => {
+                'BookingOtherChargesId': e.bookingOtherChargesId,
+                'ChargeName': e.chargeName,
+                'CalculatedOn': e.calculatedOn,
+                'Value': e.value,
+                'GSTPercentage': e.gstPercentage,
+                'GSTValue': e.gstValue,
+              },
+            )
+            .toList(),
+      ),
+      "PaymentScheduleDetailJSON": jsonEncode(
+        paymentScheduleDetailJSON
+            .map(
+              (e) => {
+                "BookingPaymentScheduleId": e.bookingPaymentScheduleId,
+                "Type": e.type,
+                "Name": e.name,
+                if (e.date != null) "Date": e.date!.toIso8601String(),
+                "PaymentSchedulePercentage": e.paymentSchedulePercentage,
+                "PaymentScheduleAmount": e.paymentScheduleAmount,
+                "PaymentScheduleGSTAmount": e.paymentScheduleGSTAmount,
+                "PaymentScheduleTDSAmount": e.paymentScheduleTDSAmount,
+              },
+            )
+            .toList(),
+      ),
+      'BookingAmount': bookingAmount.toString(),
+      "ChequeRTGSNumber": chequeRTGSNumber,
+      if (chequeRTGSDate != null)
+        "ChequeRTGSDate": chequeRTGSDate.toIso8601String(),
+      if (bankListMasterId != null)
+        "BankListMasterId": bankListMasterId.toString(),
+    };
+
+    for (int i = 0; i < addUpdateBookingApplicant.length; i++) {
+      var e = addUpdateBookingApplicant[i];
+      requestBody.addAll({
+        "AddUpdateBookingApplicant[$i].ApplicantType": e.applicantType,
+        "AddUpdateBookingApplicant[$i].BookingApplicantId":
+            e.bookingApplicantId.toString(),
+        "AddUpdateBookingApplicant[$i].ApplicantName": e.applicantName,
+        "AddUpdateBookingApplicant[$i].ApplicantMobileNumber":
+            e.applicantMobileNumber,
+        "AddUpdateBookingApplicant[$i].ApplicantEmailId": e.applicantEmailId,
+        "AddUpdateBookingApplicant[$i].RemovePhotoURL":
+            e.profilePhotoImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].AadharCardNumber": e.aadharCardNumber,
+        "AddUpdateBookingApplicant[$i].RemoveAadharCardURL":
+            e.aadhaarImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].PanNumber": e.panNumber,
+        "AddUpdateBookingApplicant[$i].RemovePanCardURL":
+            e.panImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].PassportNumber": e.passportNumber,
+        "AddUpdateBookingApplicant[$i].RemovePassportURL":
+            e.passportImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].DrivingLicenseNumber":
+            e.drivingLicenseNumber,
+        "AddUpdateBookingApplicant[$i].RemoveDrivingLicenseURL":
+            e.drivingLicenseImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].VotingIdNumber": e.votingIdNumber,
+        "AddUpdateBookingApplicant[$i].RemoveVotingIdURL":
+            e.votingIdImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].GstNumber": e.gstNumber,
+        "AddUpdateBookingApplicant[$i].RemoveGSTNumberURL":
+            e.gstImage.deletedFileList,
+      });
+    }
+
+    List<Map<String, dynamic>> fileList = [];
+
+    for (var applicantData in addUpdateBookingApplicant) {
+      for (
+        int i = 0;
+        i < applicantData.profilePhotoImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.profilePhotoImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].PhotoURL",
+          "value": applicantData.profilePhotoImage.fileBytesList[i],
+          "fileName": applicantData.profilePhotoImage.fileNameList[i],
+        });
+      }
+
+      for (int i = 0; i < applicantData.aadhaarImage.fileNameList.length; i++) {
+        if (applicantData.aadhaarImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].AadharCardURL",
+          "value": applicantData.aadhaarImage.fileBytesList[i],
+          "fileName": applicantData.aadhaarImage.fileNameList[i],
+        });
+      }
+
+      for (int i = 0; i < applicantData.panImage.fileNameList.length; i++) {
+        if (applicantData.panImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].PanCardURL",
+          "value": applicantData.panImage.fileBytesList[i],
+          "fileName": applicantData.panImage.fileNameList[i],
+        });
+      }
+
+      for (
+        int i = 0;
+        i < applicantData.passportImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.passportImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].PassportURL",
+          "value": applicantData.passportImage.fileBytesList[i],
+          "fileName": applicantData.passportImage.fileNameList[i],
+        });
+      }
+
+      for (
+        int i = 0;
+        i < applicantData.drivingLicenseImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.drivingLicenseImage.fileNameList[i].contains(
+          "http",
+        )) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].DrivingLicenseURL",
+          "value": applicantData.drivingLicenseImage.fileBytesList[i],
+          "fileName": applicantData.drivingLicenseImage.fileNameList[i],
+        });
+      }
+
+      for (
+        int i = 0;
+        i < applicantData.votingIdImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.votingIdImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].VotingIdURL",
+          "value": applicantData.votingIdImage.fileBytesList[i],
+          "fileName": applicantData.votingIdImage.fileNameList[i],
+        });
+      }
+
+      for (int i = 0; i < applicantData.gstImage.fileNameList.length; i++) {
+        if (applicantData.gstImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].GstNumberURL",
+          "value": applicantData.gstImage.fileBytesList[i],
+          "fileName": applicantData.gstImage.fileNameList[i],
+        });
+      }
+    }
+
+    var addResult = await _bookingRepository.addUpdateBooking(
+      body: requestBody,
+      fileList: fileList,
+    );
+    goRouter.pop();
+
+    addResult.fold((failure) async {
+      showErrorMessage(context, 'Error Message', failure.message);
+      return;
+    }, (response) async {});
+  }
+
+  // <---- UPDATE BOOKING ---->
+  Future updateBooking({
+    required BuildContext context,
+    required int projectId,
+    required int bookingId,
+    required int index,
+    required String uniqueKey,
+    required String permanentAddress,
+    required String communicationAddress,
+    required String source,
+    required String flatAlterationRemark,
+    required String termsAndConditionsDescription,
+    String? subSource,
+    required double brokeragePercentage,
+    required double brokerageAmount,
+    required int inventoryFlatId,
+    String? parkingId,
+    required double agreementValue,
+    required double agreementValueTds,
+    required double agreementValueGSTPercentage,
+    required double agreementValueGSTAmount,
+    required double stampDutyPercentage,
+    required double stampDutyAmount,
+    required double registrationFees,
+    required String handoverType,
+    required DateTime registrationDate,
+    required String modeOfPayment,
+    required String bookingType,
+    required List<OtherChargeModel> otherChargesDetailJSON,
+    required List<BookingPaymentScheduleData> paymentScheduleDetailJSON,
+    required double bookingAmount,
+    required String chequeRTGSNumber,
+    DateTime? chequeRTGSDate,
+    int? bankListMasterId,
+    required List<BookingApplicantData> addUpdateBookingApplicant,
+    int? transferBookingId,
+    int? tenantId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> requestBody = {
+      "BookingId": transferBookingId != null ? '0' : bookingId.toString(),
+      "Uniquekey": uniqueKey,
+      "ProjectId": projectId.toString(),
+      "PermanentAddress": permanentAddress,
+      "CommunicationAddress": communicationAddress,
+      "Source": source,
+      if (subSource != null) "SubSource": subSource,
+      "BrokeragePercentage": brokeragePercentage.toString(),
+      "BrokerageAmount": brokerageAmount.toString(),
+      "InventoryFlatId": inventoryFlatId.toString(),
+      "AgreementValue": agreementValue.toString(),
+      "AgreementValueTDS": agreementValueTds.toString(),
+      "AgreementValueGSTPercentage": agreementValueGSTPercentage.toString(),
+      "AgreementValueGSTAmount": agreementValueGSTAmount.toString(),
+      "StampDutyPercentage": stampDutyPercentage.toString(),
+      "StampDutyAmount": stampDutyAmount.toString(),
+      "RegistrationFees": registrationFees.toString(),
+      if (parkingId != null) "ParkingId": parkingId.toString(),
+      "HandoverType": handoverType,
+      "RegistrationDate": registrationDate.toIso8601String(),
+      "ModeOfPayment": modeOfPayment,
+      "BookingType": bookingType,
+      "FlatAlterationRemark": flatAlterationRemark,
+      "TermsAndConditionsDescription": termsAndConditionsDescription,
+      if (tenantId != null) "TenantId": tenantId.toString(),
+      "OtherChargesDetailJSON": jsonEncode(
+        otherChargesDetailJSON
+            .where((e) => e.isSelected)
+            .map(
+              (e) => {
+                'BookingOtherChargesId': e.bookingOtherChargesId,
+                'Uniquekey': e.uniquekey,
+                'ChargeName': e.chargeName,
+                'CalculatedOn': e.calculatedOn,
+                'Value': e.value,
+                'GSTPercentage': e.gstPercentage,
+                'GSTValue': e.gstValue,
+              },
+            )
+            .toList(),
+      ),
+      "PaymentScheduleDetailJSON": jsonEncode(
+        paymentScheduleDetailJSON
+            .map(
+              (e) => {
+                "BookingPaymentScheduleId": e.bookingPaymentScheduleId,
+                "Type": e.type,
+                "Name": e.name,
+                if (e.date != null) "Date": e.date!.toIso8601String(),
+                "PaymentSchedulePercentage": e.paymentSchedulePercentage,
+                "PaymentScheduleAmount": e.paymentScheduleAmount,
+                "PaymentScheduleGSTAmount": e.paymentScheduleGSTAmount,
+                "PaymentScheduleTDSAmount": e.paymentScheduleTDSAmount,
+              },
+            )
+            .toList(),
+      ),
+      'BookingAmount': bookingAmount.toString(),
+      "ChequeRTGSNumber": chequeRTGSNumber,
+      if (chequeRTGSDate != null)
+        "ChequeRTGSDate": chequeRTGSDate.toIso8601String(),
+      if (bankListMasterId != null)
+        "BankListMasterId": bankListMasterId.toString(),
+      if (transferBookingId != null)
+        "TransferBookingId": transferBookingId.toString(),
+    };
+
+    for (int i = 0; i < addUpdateBookingApplicant.length; i++) {
+      var e = addUpdateBookingApplicant[i];
+      requestBody.addAll({
+        "AddUpdateBookingApplicant[$i].ApplicantType": e.applicantType,
+        "AddUpdateBookingApplicant[$i].BookingApplicantId":
+            e.bookingApplicantId.toString(),
+        "AddUpdateBookingApplicant[$i].ApplicantName": e.applicantName,
+        "AddUpdateBookingApplicant[$i].ApplicantMobileNumber":
+            e.applicantMobileNumber,
+        "AddUpdateBookingApplicant[$i].ApplicantEmailId": e.applicantEmailId,
+        "AddUpdateBookingApplicant[$i].RemovePhotoURL":
+            e.profilePhotoImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].AadharCardNumber": e.aadharCardNumber,
+        "AddUpdateBookingApplicant[$i].RemoveAadharCardURL":
+            e.aadhaarImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].PanNumber": e.panNumber,
+        "AddUpdateBookingApplicant[$i].RemovePanCardURL":
+            e.panImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].PassportNumber": e.passportNumber,
+        "AddUpdateBookingApplicant[$i].RemovePassportURL":
+            e.passportImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].DrivingLicenseNumber":
+            e.drivingLicenseNumber,
+        "AddUpdateBookingApplicant[$i].RemoveDrivingLicenseURL":
+            e.drivingLicenseImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].VotingIdNumber": e.votingIdNumber,
+        "AddUpdateBookingApplicant[$i].RemoveVotingIdURL":
+            e.votingIdImage.deletedFileList,
+        "AddUpdateBookingApplicant[$i].GstNumber": e.gstNumber,
+        "AddUpdateBookingApplicant[$i].RemoveGSTNumberURL":
+            e.gstImage.deletedFileList,
+      });
+    }
+
+    List<Map<String, dynamic>> fileList = [];
+
+    for (var applicantData in addUpdateBookingApplicant) {
+      for (
+        int i = 0;
+        i < applicantData.profilePhotoImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.profilePhotoImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].PhotoURL",
+          "value": applicantData.profilePhotoImage.fileBytesList[i],
+          "fileName": applicantData.profilePhotoImage.fileNameList[i],
+        });
+      }
+
+      for (int i = 0; i < applicantData.aadhaarImage.fileNameList.length; i++) {
+        if (applicantData.aadhaarImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].AadharCardURL",
+          "value": applicantData.aadhaarImage.fileBytesList[i],
+          "fileName": applicantData.aadhaarImage.fileNameList[i],
+        });
+      }
+
+      for (int i = 0; i < applicantData.panImage.fileNameList.length; i++) {
+        if (applicantData.panImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].PanCardURL",
+          "value": applicantData.panImage.fileBytesList[i],
+          "fileName": applicantData.panImage.fileNameList[i],
+        });
+      }
+
+      for (
+        int i = 0;
+        i < applicantData.passportImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.passportImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].PassportURL",
+          "value": applicantData.passportImage.fileBytesList[i],
+          "fileName": applicantData.passportImage.fileNameList[i],
+        });
+      }
+
+      for (
+        int i = 0;
+        i < applicantData.drivingLicenseImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.drivingLicenseImage.fileNameList[i].contains(
+          "http",
+        )) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].DrivingLicenseURL",
+          "value": applicantData.drivingLicenseImage.fileBytesList[i],
+          "fileName": applicantData.drivingLicenseImage.fileNameList[i],
+        });
+      }
+
+      for (
+        int i = 0;
+        i < applicantData.votingIdImage.fileNameList.length;
+        i++
+      ) {
+        if (applicantData.votingIdImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].VotingIdURL",
+          "value": applicantData.votingIdImage.fileBytesList[i],
+          "fileName": applicantData.votingIdImage.fileNameList[i],
+        });
+      }
+
+      for (int i = 0; i < applicantData.gstImage.fileNameList.length; i++) {
+        if (applicantData.gstImage.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "AddUpdateBookingApplicant[$i].GstNumberURL",
+          "value": applicantData.gstImage.fileBytesList[i],
+          "fileName": applicantData.gstImage.fileNameList[i],
+        });
+      }
+    }
+
+    var updateResult = await _bookingRepository.addUpdateBooking(
+      body: requestBody,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    updateResult.fold(
+      (failure) async {
+        await showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(context);
       },
     );
   }

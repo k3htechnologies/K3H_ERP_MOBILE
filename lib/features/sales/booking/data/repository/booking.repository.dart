@@ -10,6 +10,12 @@ abstract interface class BookingRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateBooking({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+
 }
 
 class BookingRepositoryImpl extends BookingRepository {
@@ -30,6 +36,22 @@ class BookingRepositoryImpl extends BookingRepository {
         pageSize: pageSize,
         projectId: projectId,
         queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateBooking({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      var result = await bookingDatasource.apiCallAddUpdateBooking(
+        body: body,
+        fileList: fileList,
       );
       return right(result);
     } catch (error) {

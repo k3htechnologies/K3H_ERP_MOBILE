@@ -23,12 +23,19 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/sales/other_charges/data/model/other_charges.model.dart';
 
 class AddBookingScreen extends StatefulWidget {
+  final List<Map<String, dynamic>>? inventoryObject;
   final BookingModel? bookingModel;
   final int? index;
 
-  const AddBookingScreen({super.key, this.bookingModel, this.index});
+  const AddBookingScreen({
+    super.key,
+    this.inventoryObject,
+    this.bookingModel,
+    this.index,
+  });
 
   @override
   State<AddBookingScreen> createState() => _AddBookingScreenState();
@@ -59,21 +66,27 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       _bookingAmountC,
       _chequeNoC;
 
+  // AGREEMENT VALUE NOTIFIER
   final ValueNotifier<double> _agreementValueNotifier = ValueNotifier<double>(
     0.0,
   );
 
+  // TDS NOTIFIER
   final ValueNotifier<double> _tdsNotifier = ValueNotifier<double>(0.0);
 
+  // WITHOUT TDS NOTIFIER
   final ValueNotifier<double> _withoutTdsNotifier = ValueNotifier<double>(0.0);
 
+  // AGREEMENT GST AMOUNT NOTIFIER
   final ValueNotifier<double> _agreementGstAmountNotifier =
       ValueNotifier<double>(0.0);
 
+  // STAMP DUTY AMOUNT NOTIFIER
   final ValueNotifier<double> _stampDutyAmountNotifier = ValueNotifier<double>(
     0.0,
   );
 
+  // REGISTRATION FEES NOTIFIER
   final ValueNotifier<double> _registrationFeesNotifier = ValueNotifier<double>(
     0.0,
   );
@@ -98,6 +111,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     {"zAttributesId": 2, "DisplayName": "Builder Finished"},
   ];
 
+  // SELECTED HAND OVER TYPE
   late Map<String, dynamic> _selectedHandOverType;
 
   // STATIC HAND OVER TYPE LIST
@@ -113,6 +127,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     {"zAttributesId": 8, "DisplayName": "UPI"},
   ];
 
+  // SELECTED MODE OF PAYMENT
   late Map<String, dynamic> _selectedModeOfPayment;
 
   // METHODS TO CHECK IF APPLICANT TYPE IS PRIMARY
@@ -133,6 +148,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   // TERMS AND CONDITIONS SELECTION
   final ValueNotifier<List<Map<String, dynamic>>> _selectedTermsNotifier =
       ValueNotifier([]);
+
+  // LOCAL COPY OF OTHER CHARGES (editable by UI, not tied to cubit)
+  final ValueNotifier<List<OtherChargeModel>> _localOtherCharges =
+      ValueNotifier<List<OtherChargeModel>>([]);
  
   // BANK SELECTION
   final ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier =
@@ -174,6 +193,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _agreementGstAmountNotifier.dispose();
     _stampDutyAmountNotifier.dispose();
     _registrationFeesNotifier.dispose();
+    _localOtherCharges.dispose();
     super.dispose();
   }
 
@@ -222,6 +242,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _chequeNoC.dispose();
   }
 
+  // CALCULATE TDS
   void _calculateTds() {
     final value = _agreementValueNotifier.value;
 
@@ -247,11 +268,13 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _calculateRegistrationFees();
   }
 
+  // REMOVE HTML TAGS
   String _stripHtmlTags(String html) {
     if (html.isEmpty) return '';
     return html.replaceAll(RegExp(r'<[^>]*>'), '').trim();
   }
 
+  // CALCULATE GST
   void _calculateGst() {
     final agreementValue = _agreementValueNotifier.value;
     final percent = double.tryParse(_agreementGstPercentageC.text) ?? 0;
@@ -268,6 +291,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _agreementGstAmountC.text = amount.toStringAsFixed(2);
   }
 
+  // CALCULATE STAMP DUTY
   void _calculateStampDuty() {
     final agreementValue = _agreementValueNotifier.value;
     final percent = double.tryParse(_stampDutyPercentageC.text) ?? 0;
@@ -284,6 +308,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _stampDutyAmountC.text = amount.toStringAsFixed(2);
   }
 
+  // CALCULATE REGISTRATION FEES
   void _calculateRegistrationFees() {
     final value = _agreementValueNotifier.value;
 
@@ -360,6 +385,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _applicants.value = currentApplicants;
   }
 
+  // DELETE APPLICANT
   void _deleteApplicant(int index) {
     final currentApplicants = List<BookingApplicantData>.from(
       _applicants.value,
@@ -503,26 +529,36 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         pageSize: 10,
         query: {"BankName": value},
       );
-      return result.fold((failure) {
-        return {"itemList": [], "totalNumberOfRecord": 0};
-      }, (response) {
-        final data = response['data'] as List? ?? [];
-        final banks = data
-            .map((e) => Map<String, dynamic>.from(e as Map<String, dynamic>))
-            .toList();
-        final Map<int, Map<String, dynamic>> unique = {};
-        for (final b in banks) {
-          final id = b['BankListMasterId'] is int
-              ? b['BankListMasterId'] as int
-              : int.tryParse(b['BankListMasterId'].toString()) ?? -1;
-          unique[id] = {
-            "zAttributesId": id,
-            "DisplayName": b['BankNameWithCode'],
+      return result.fold(
+        (failure) {
+          return {"itemList": [], "totalNumberOfRecord": 0};
+        },
+        (response) {
+          final data = response['data'] as List? ?? [];
+          final banks =
+              data
+                  .map(
+                    (e) => Map<String, dynamic>.from(e as Map<String, dynamic>),
+                  )
+                  .toList();
+          final Map<int, Map<String, dynamic>> unique = {};
+          for (final b in banks) {
+            final id =
+                b['BankListMasterId'] is int
+                    ? b['BankListMasterId'] as int
+                    : int.tryParse(b['BankListMasterId'].toString()) ?? -1;
+            unique[id] = {
+              "zAttributesId": id,
+              "DisplayName": b['BankNameWithCode'],
+            };
+          }
+          final total = response['totalNumberOfRecord'] ?? unique.length;
+          return {
+            "itemList": unique.values.toList(),
+            "totalNumberOfRecord": total,
           };
-        }
-        final total = response['totalNumberOfRecord'] ?? unique.length;
-        return {"itemList": unique.values.toList(), "totalNumberOfRecord": total};
-      });
+        },
+      );
     }
 
     // NO SEARCH: paginate using API
@@ -531,26 +567,36 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       pageSize: 10,
       query: null,
     );
-    return result.fold((failure) {
-      return {"itemList": [], "totalNumberOfRecord": 0};
-    }, (response) {
-      final data = response['data'] as List? ?? [];
-      final banks = data
-          .map((e) => Map<String, dynamic>.from(e as Map<String, dynamic>))
-          .toList();
-      final Map<int, Map<String, dynamic>> unique = {};
-      for (final b in banks) {
-        final id = b['BankListMasterId'] is int
-            ? b['BankListMasterId'] as int
-            : int.tryParse(b['BankListMasterId'].toString()) ?? -1;
-        unique[id] = {
-          "zAttributesId": id,
-          "DisplayName": b['BankNameWithCode'],
+    return result.fold(
+      (failure) {
+        return {"itemList": [], "totalNumberOfRecord": 0};
+      },
+      (response) {
+        final data = response['data'] as List? ?? [];
+        final banks =
+            data
+                .map(
+                  (e) => Map<String, dynamic>.from(e as Map<String, dynamic>),
+                )
+                .toList();
+        final Map<int, Map<String, dynamic>> unique = {};
+        for (final b in banks) {
+          final id =
+              b['BankListMasterId'] is int
+                  ? b['BankListMasterId'] as int
+                  : int.tryParse(b['BankListMasterId'].toString()) ?? -1;
+          unique[id] = {
+            "zAttributesId": id,
+            "DisplayName": b['BankNameWithCode'],
+          };
+        }
+        final total = response['totalNumberOfRecord'] ?? unique.length;
+        return {
+          "itemList": unique.values.toList(),
+          "totalNumberOfRecord": total,
         };
-      }
-      final total = response['totalNumberOfRecord'] ?? unique.length;
-      return {"itemList": unique.values.toList(), "totalNumberOfRecord": total};
-    });
+      },
+    );
   }
 
   @override
@@ -973,7 +1019,14 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           ),
           // PROJECT DETAILS
           Container(
-            decoration: commonCardDecoration(),
+            decoration: BoxDecoration(
+              color: AppColor.lightBlue.withValues(alpha: .5),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: AppColor.primary,
+                width: .3
+              )
+            ),
             margin: EdgeInsets.only(bottom: 10),
             padding: EdgeInsets.all(16),
             child: Column(
@@ -986,26 +1039,16 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Project Name",
-                      value: widget.bookingModel!.projectName,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Booking Type",
-                      value: widget.bookingModel!.bookingType,
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Flat",
-                      value: widget.bookingModel!.flat,
+                      title: "Building Number",
+                      value:
+                          widget.inventoryObject?[0]["buildingNumber"] ??
+                          widget.bookingModel!.buildingNumber,
                     ),
                     buildColumnTitleValue(
                       title: "Wing",
-                      value: widget.bookingModel!.wing,
+                      value:
+                          widget.inventoryObject?[0]["wing"] ??
+                          widget.bookingModel!.wing,
                     ),
                   ],
                 ),
@@ -1015,11 +1058,15 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Floor",
-                      value: widget.bookingModel!.floor,
+                      value:
+                          widget.inventoryObject?[0]["floor"] ??
+                          widget.bookingModel!.floor,
                     ),
                     buildColumnTitleValue(
-                      title: "Building Number",
-                      value: widget.bookingModel!.buildingNumber,
+                      title: "Flat",
+                      value:
+                          widget.inventoryObject?[0]["flat"] ??
+                          widget.bookingModel!.flat,
                     ),
                   ],
                 ),
@@ -1029,11 +1076,15 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Flat Type",
-                      value: widget.bookingModel!.flatType,
+                      value:
+                          widget.inventoryObject?[0]["flatType"] ??
+                          widget.bookingModel!.flatType,
                     ),
                     buildColumnTitleValue(
                       title: "Flat Configuration",
-                      value: widget.bookingModel!.flatConfiguration,
+                      value:
+                          widget.inventoryObject?[0]["flatConfiguration"] ??
+                          widget.bookingModel!.flatConfiguration,
                     ),
                   ],
                 ),
@@ -1042,7 +1093,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "RERA Carpet Area (SqFt)",
-                      value: widget.bookingModel!.reraCarpetAreaSqFt.toString(),
+                      value:
+                          widget.inventoryObject?[0]["reraCarpetAreaSqFt"]
+                              .toString() ??
+                          widget.bookingModel!.reraCarpetAreaSqFt.toString(),
                     ),
                   ],
                 ),
@@ -1050,111 +1104,114 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             ),
           ),
           // PARKING SECTION
-          Container(
-            height: 350,
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Parking Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Expanded(
-                  child:
-                      widget.bookingModel!.parkingData.isNotEmpty
-                          ? ListView.builder(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 2,
-                              vertical: 10,
-                            ),
-                            shrinkWrap: true,
-                            itemCount: widget.bookingModel!.parkingData.length,
-                            itemBuilder: (_, index) {
-                              final parking =
-                                  widget.bookingModel!.parkingData[index];
-                              return Container(
-                                margin: EdgeInsets.only(bottom: 10),
-                                padding: EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppColor.primary,
-                                    width: .3,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
+          !_isEditMode
+              ? SizedBox()
+              : Container(
+                height: 350,
+                margin: EdgeInsets.only(bottom: 10),
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Parking Details", style: AppTextStyle.ts16SB()),
+                    verticalSpacing(),
+                    Expanded(
+                      child:
+                          widget.bookingModel!.parkingData.isNotEmpty
+                              ? ListView.builder(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 2,
+                                  vertical: 10,
                                 ),
-                                child: Column(
-                                  spacing: 10,
-                                  children: [
-                                    Row(
-                                      spacing: 5,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                shrinkWrap: true,
+                                itemCount:
+                                    widget.bookingModel!.parkingData.length,
+                                itemBuilder: (_, index) {
+                                  final parking =
+                                      widget.bookingModel!.parkingData[index];
+                                  return Container(
+                                    margin: EdgeInsets.only(bottom: 10),
+                                    padding: EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: AppColor.primary,
+                                        width: .3,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Column(
+                                      spacing: 10,
                                       children: [
-                                        buildColumnTitleValue(
-                                          title: "Parking Number",
-                                          value: parking.parkingNumber,
+                                        Row(
+                                          spacing: 5,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            buildColumnTitleValue(
+                                              title: "Parking Number",
+                                              value: parking.parkingNumber,
+                                            ),
+                                            buildColumnTitleValue(
+                                              title: "Building",
+                                              value: parking.buildingNumber,
+                                            ),
+                                          ],
                                         ),
-                                        buildColumnTitleValue(
-                                          title: "Building",
-                                          value: parking.buildingNumber,
+                                        Row(
+                                          spacing: 5,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            buildColumnTitleValue(
+                                              title: "Wing",
+                                              value: parking.wing,
+                                            ),
+                                            buildColumnTitleValue(
+                                              title: "Floor",
+                                              value: parking.floor,
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          spacing: 5,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            buildColumnTitleValue(
+                                              title: "Category",
+                                              value: parking.parkingCategory,
+                                            ),
+                                            buildColumnTitleValue(
+                                              title: "Type",
+                                              value: parking.parkingType,
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          spacing: 5,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            buildColumnTitleValue(
+                                              title: "EV Charging",
+                                              value:
+                                                  parking.isEVChargingAvailable
+                                                      ? "Yes"
+                                                      : "No",
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                    Row(
-                                      spacing: 5,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Wing",
-                                          value: parking.wing,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Floor",
-                                          value: parking.floor,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      spacing: 5,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Category",
-                                          value: parking.parkingCategory,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Type",
-                                          value: parking.parkingType,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      spacing: 5,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "EV Charging",
-                                          value:
-                                              parking.isEVChargingAvailable
-                                                  ? "Yes"
-                                                  : "No",
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          )
-                          : Center(child: Text("No Parking")),
+                                  );
+                                },
+                              )
+                              : Center(child: Text("No Parking")),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
           // AGREEMENT DETAILS
           Container(
             decoration: commonCardDecoration(),
@@ -1391,59 +1448,75 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   Widget _buildOtherCharges() {
     return BlocBuilder<BookingCubit, BookingState>(
       builder: (context, state) {
-        final otherCharges = state.otherChargesList;
+        // Initialize local copy only once when cubit returns data
+        if (state.otherChargesList.isNotEmpty &&
+            _localOtherCharges.value.isEmpty) {
+          _localOtherCharges.value =
+              state.otherChargesList.map((e) => e).toList();
+        }
 
-        if (state.otherChargesList.isEmpty) {
+        if (_localOtherCharges.value.isEmpty) {
           return Center(child: Text("No Charges Available"));
         }
-        return ListView.builder(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          shrinkWrap: true,
-          itemCount: otherCharges.length,
-          itemBuilder: (_, index) {
-            return Container(
-              decoration: commonCardDecoration(),
-              margin: EdgeInsets.only(bottom: 10),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                spacing: 10,
-                children: [
-                  Row(
+
+        return ValueListenableBuilder<List<OtherChargeModel>>(
+          valueListenable: _localOtherCharges,
+          builder: (context, localList, child) {
+            return ListView.builder(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              shrinkWrap: true,
+              itemCount: localList.length,
+              itemBuilder: (_, index) {
+                final oc = localList[index];
+                return Container(
+                  decoration: commonCardDecoration(),
+                  margin: EdgeInsets.only(bottom: 10),
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    spacing: 10,
                     children: [
-                      Text(
-                        otherCharges[index].chargeName,
-                        style: AppTextStyle.ts14M(),
+                      Row(
+                        children: [
+                          Text(
+                            oc.chargeName,
+                            style: AppTextStyle.ts14M(),
+                          ),
+                          Spacer(),
+                          CustomIconButton.delete(onPressed: () {
+                            final updated = List<OtherChargeModel>.from(localList)
+                              ..removeAt(index);
+                            _localOtherCharges.value = updated;
+                          }),
+                        ],
                       ),
-                      Spacer(),
-                      CustomIconButton.delete(onPressed: () {}),
+                      Row(
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Calculated On",
+                            value: oc.calculatedOn,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Amount",
+                            value: "₹ ${oc.value}",
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          buildColumnTitleValue(
+                            title: "GST(%)",
+                            value: "${oc.gstPercentage} %",
+                          ),
+                          buildColumnTitleValue(
+                            title: "GST Value",
+                            value: "₹ ${oc.gstValue}",
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Calculated On",
-                        value: otherCharges[index].calculatedOn,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Amount",
-                        value: "₹ ${otherCharges[index].value}",
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "GST(%)",
-                        value: "${otherCharges[index].gstPercentage} %",
-                      ),
-                      buildColumnTitleValue(
-                        title: "GST Value",
-                        value: "₹ ${otherCharges[index].gstValue}",
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                );
+              },
             );
           },
         );
@@ -1453,7 +1526,65 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // BUILD PAYMENT SCHEDULE
   Widget _buildPaymentSchedule() {
-    return Container();
+    return Container(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                "Payment Schedule",
+                style: AppTextStyle.ts14M(color: AppColor.grey),
+              ),
+              Spacer(),
+              CustomIconButton(
+                icon: Icon(Icons.add, size: 16, color: AppColor.darkGreen),
+                onPressed: () {},
+                backgroundColor: AppColor.lightGreen,
+              ),
+            ],
+          ),
+          verticalSpacing(),
+          Expanded(
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: 5,
+              itemBuilder: (_, index) {
+                return Container(
+                  margin: EdgeInsets.only(bottom: 10),
+                  padding: EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    spacing: 10,
+                    children: [
+                      Row(
+                        children: [
+                          buildColumnTitleValue(title: "Ranking", value: "1"),
+                          buildColumnTitleValue(title: "Name", value: "FFFFF"),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Percentage (%)",
+                            value: "10",
+                          ),
+                          buildColumnTitleValue(
+                            title: "Cumulative (%)",
+                            value: "10",
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // BUILD REMARK
@@ -1626,7 +1757,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       dataList: const [],
                       onSelected: (value) {
                         _selectedBankNotifier.value =
-                            value.map((e) => Map<String, dynamic>.from(e)).toList();
+                            value
+                                .map((e) => Map<String, dynamic>.from(e))
+                                .toList();
                       },
                       dataFetchCallBack: _fetchBanks,
                     );

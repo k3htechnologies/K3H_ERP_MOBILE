@@ -94,9 +94,10 @@ class _AddInventorySpecificationScreenState
   List<Map<String, dynamic>> flatStatusList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Flat Status'},
     {'zAttributesId': 1, 'DisplayName': 'Available'},
+    {'zAttributesId': 2, 'DisplayName': 'Booked'},
     {'zAttributesId': 2, 'DisplayName': 'Blocked'},
     {'zAttributesId': 3, 'DisplayName': 'Hold'},
-    {'zAttributesId': 4, 'DisplayName': 'Member'},
+    {'zAttributesId': 4, 'DisplayName': 'Alloted'},
   ];
 
   // STATIC LISTS FOR FLAT FACING
@@ -210,22 +211,17 @@ class _AddInventorySpecificationScreenState
       }
     }
 
-    // Always bind specification list (for both adding with defaults and updating with existing)
     if (flat.specificationList.isNotEmpty) {
-      // Deduplicate specifications by uniquekey to prevent duplicates
       final Map<String, FlatSpecificationModel> specMap = {};
-      int defaultSpecIndex = 0; // For specs with empty uniquekey
+      int defaultSpecIndex = 0;
 
       for (final spec in flat.specificationList) {
-        // Use uniquekey if available, otherwise use layout + index for default specs
         String key;
         if (spec.uniquekey.isNotEmpty) {
           key = spec.uniquekey;
         } else if (spec.inventoryFlatSpecificationId > 0) {
-          // Existing spec with ID but no uniquekey (shouldn't happen, but handle it)
           key = 'id_${spec.inventoryFlatSpecificationId}_${spec.flatLayout}';
         } else {
-          // Default spec (new) - use layout + index
           key = '${spec.flatLayout}_default_$defaultSpecIndex';
           defaultSpecIndex++;
         }
@@ -496,7 +492,7 @@ class _AddInventorySpecificationScreenState
                         FilteringTextInputFormatter.digitsOnly,
                       ],
                       validator: (string) {
-                        if (string == null || string.trim().isEmpty) {
+                        if (string == null) {
                           return 'Unit is required';
                         }
                         return null;

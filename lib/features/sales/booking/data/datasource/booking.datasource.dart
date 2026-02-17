@@ -9,6 +9,11 @@ abstract interface class BookingDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Map<String, dynamic>> apiCallAddUpdateBooking({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
 }
 
 class BookingDatasourceImpl extends BookingDatasource {
@@ -58,6 +63,34 @@ class BookingDatasourceImpl extends BookingDatasource {
           projectId: projectId,
           queryParams: queryParams,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallAddUpdateBooking({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    String addUpdateBookingUrl = "Booking/AddUpdateBooking";
+
+    try {
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            addUpdateBookingUrl,
+            fileList,
+            body,
+          );
+      return {
+        'data': List<BookingModel>.from(
+          networkResponse["data"].map((e) => BookingModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallAddUpdateBooking(body: body, fileList: fileList);
       }
       rethrow;
     }

@@ -3,6 +3,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 class OtherChargeModel {
   int otherChargesId;
   String uniquekey;
+  int bookingOtherChargesId;
   String chargeName;
   String calculatedOn;
   double value;
@@ -20,6 +21,7 @@ class OtherChargeModel {
   OtherChargeModel({
     required this.otherChargesId,
     required this.uniquekey,
+    required this.bookingOtherChargesId,
     required this.chargeName,
     required this.calculatedOn,
     required this.value,
@@ -39,6 +41,7 @@ class OtherChargeModel {
       OtherChargeModel(
         otherChargesId: parseValue<int>(json, "OtherChargesId"),
         uniquekey: parseValue<String>(json, "Uniquekey"),
+        bookingOtherChargesId: parseValue<int>(json, "BookingOtherChargesId"),
         chargeName: parseValue<String>(json, "ChargeName"),
         calculatedOn: parseValue<String>(json, "CalculatedOn"),
         value: parseValue<double>(json, "Value"),
@@ -60,6 +63,7 @@ class OtherChargeModel {
   Map<String, dynamic> toJson() => {
     "OtherChargesId": otherChargesId,
     "Uniquekey": uniquekey,
+    "BookingOtherChargesId": bookingOtherChargesId,
     "ChargeName": chargeName,
     "CalculatedOn": calculatedOn,
     "Value": value,

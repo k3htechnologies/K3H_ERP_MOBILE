@@ -3764,6 +3764,8 @@ final GoRouter goRouter = GoRouter(
                   builder: (context, state) {
                     final queryParameterBooking =
                         state.uri.queryParameters['booking'];
+                    final queryParameterInventoryObject =
+                        state.uri.queryParameters['inventoryObject'];
                     final booking =
                         queryParameterBooking != null &&
                                 queryParameterBooking.isNotEmpty
@@ -3775,6 +3777,18 @@ final GoRouter goRouter = GoRouter(
                               ),
                             )
                             : null;
+                    final inventoryObject = queryParameterInventoryObject != null &&
+                            queryParameterInventoryObject.isNotEmpty
+                        ? (jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterInventoryObject),
+                                ),
+                              ) as List<dynamic>)
+                            .map<Map<String, dynamic>>(
+                              (e) => Map<String, dynamic>.from(e as Map<String, dynamic>),
+                            )
+                            .toList()
+                        : null;
 
                     final index =
                         int.tryParse(
@@ -3785,6 +3799,7 @@ final GoRouter goRouter = GoRouter(
                     return AddBookingScreen(
                       bookingModel: booking,
                       index: index,
+                      inventoryObject: inventoryObject,
                     );
                   },
                 ),

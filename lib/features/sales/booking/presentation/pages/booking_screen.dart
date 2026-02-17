@@ -95,9 +95,6 @@ class _BookingScreenState extends State<BookingScreen> {
         authorization: _routhAuthorizationModel,
         textController: _searchC,
         onSearchSubmit: (value) {},
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addBooking);
-        },
         onExportCallback: (value) {},
         onProjectChangeCallback: (value) {
           _project = value;
