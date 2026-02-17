@@ -110,9 +110,10 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
     BuildContext context,
   ) async {
     final state = _departmentMasterCubit.state;
-    String? selectedDirection = state.currentSortColumn == "Department Name"
-        ? state.currentSortDirection
-        : null;
+    String? selectedDirection =
+        state.currentSortColumn == "Department Name"
+            ? state.currentSortDirection
+            : null;
     final String? initialDirection = selectedDirection;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     DialogHelper.showCustomFilterBottomSheet(
@@ -123,7 +124,8 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
           void selectDirection(String direction) {
             innerState(() {
               selectedDirection = direction;
-              applyEnabled.value = selectedDirection != null &&
+              applyEnabled.value =
+                  selectedDirection != null &&
                   selectedDirection != initialDirection;
             });
           }
@@ -139,13 +141,16 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                   GestureDetector(
                     onTap: () => selectDirection("ASC"),
                     child: Container(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4),
-                        color: selectedDirection == "ASC"
-                            ? AppColor.lightBlue
-                            : Colors.transparent,
+                        color:
+                            selectedDirection == "ASC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
                         border: Border.all(color: AppColor.grey, width: .5),
                       ),
                       child: Text("A-Z", style: AppTextStyle.ts12R()),
@@ -155,13 +160,16 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                   GestureDetector(
                     onTap: () => selectDirection("DESC"),
                     child: Container(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4),
-                        color: selectedDirection == "DESC"
-                            ? AppColor.lightBlue
-                            : Colors.transparent,
+                        color:
+                            selectedDirection == "DESC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
                         border: Border.all(color: AppColor.grey, width: .5),
                       ),
                       child: Text("Z-A", style: AppTextStyle.ts12R()),
@@ -174,11 +182,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
         },
       ),
       onClear: () {
-        _departmentMasterCubit.sortDepartment(
-          context,
-          "Created Date",
-          "DESC",
-        );
+        _departmentMasterCubit.sortDepartment(context, "Created Date", "DESC");
       },
       onApply: () {
         if (selectedDirection != null &&
@@ -200,10 +204,10 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBar(
-        screenTitle: 'Department',
+        screenTitle: 'Department Master',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
-          if(_departmentMasterCubit.state.totalNumberOfRecord==0){
+          if (_departmentMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
@@ -215,6 +219,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
             _departmentMasterCubit.getDepartmentList(context, 1);
           }
         },
+        searchHintText: "Search by Department Name",
         onSearchSubmit: (value) {
           _departmentMasterCubit.searchDepartment(context, value);
         },
@@ -284,17 +289,19 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                                 );
                               },
                             ),
-                            horizontalSpacing(),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteDepartmentMaster(
-                                  context,
-                                  department,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
+                            if (department.numberOfEmployee == 0) ...[
+                              horizontalSpacing(),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteDepartmentMaster(
+                                    context,
+                                    department,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
                           ],
                         ),
                       ],
@@ -333,7 +340,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                         Row(
                           children: [
                             Text(
-                              "Employee Count: ",
+                              "No of Employee: ",
                               style: AppTextStyle.ts12R(color: AppColor.grey),
                             ),
                             Container(

@@ -124,7 +124,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                     CustomTextField(
                       title: "Designation",
                       isRequired: true,
-                      hint: "Enter Designation",
+                      hint: "Enter Designation Name",
                       inputFormatterList: [
                         LengthLimitingTextInputFormatter(50),
                       ],

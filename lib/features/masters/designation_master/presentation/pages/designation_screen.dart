@@ -124,7 +124,7 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Designation",
+      title: "Filter - Designation Master",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {
@@ -213,7 +213,7 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
     return Scaffold(
       backgroundColor: AppColor.greyBackground,
       appBar: CustomAppBar(
-        screenTitle: 'Designation',
+        screenTitle: 'Designation Master',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
           if(_designationMasterCubit.state.totalNumberOfRecord==0){
@@ -228,6 +228,7 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
             _designationMasterCubit.getDesignationList(context, 1);
           }
         },
+        searchHintText: "Search by Designation Name",
         onSearchSubmit: (value) {
           _designationMasterCubit.searchDesignation(context, value);
         },

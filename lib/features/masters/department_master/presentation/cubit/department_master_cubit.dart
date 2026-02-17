@@ -80,7 +80,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
         goRouter.pop();
         showSuccessMessage(
           context,
-          subTitle: 'Department Added Successfully!!!',
+          subTitle: 'Department Added Successfully',
         );
       },
     );
@@ -124,7 +124,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
 
         showSuccessMessage(
           context,
-          subTitle: 'Department Updated Successfully!!!',
+          subTitle: 'Department Updated Successfully',
         );
       },
     );
@@ -152,7 +152,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
       (response) {
         showSuccessMessage(
           context,
-          subTitle: 'Department Deleted Successfully!!!',
+          subTitle: 'Department Deleted Successfully',
         );
         if (index != null) {
           final updatedList = List<DepartmentModel>.from(state.departmentList);
@@ -216,9 +216,10 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "department_${DateTime.now()}.pdf"
-              : "department_${DateTime.now()}.xlsx",
+              ? "Department Master ${DateTime.now()}.pdf"
+              : "Department Master ${DateTime.now()}.xlsx",
         );
+        showSuccessMessage(context, subTitle: 'Exported as $exportType Successfully');
       },
     );
   }

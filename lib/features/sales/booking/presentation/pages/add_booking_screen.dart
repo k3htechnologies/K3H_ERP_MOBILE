@@ -24,6 +24,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/data/model/other_charges.model.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 class AddBookingScreen extends StatefulWidget {
   final List<Map<String, dynamic>>? inventoryObject;
@@ -102,6 +103,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // DATE PICKER
   DateTime? _selectedExpectedRegistrationDate;
+  // subscription to booking cubit stream
+  StreamSubscription<BookingState>? _bookingSubscription;
+  // fetching flag for enquiry API to avoid relying on global isLoading
+  final ValueNotifier<bool> _isFetchingEnquiry = ValueNotifier<bool>(false);
+  // track whether we've attempted to fetch for current code (so we don't show "Invalid" before any call)
+  final ValueNotifier<bool> _enquiryFetchTried = ValueNotifier<bool>(false);
   DateTime? _selectedChequeDate;
 
   // STATIC HAND OVER TYPE LIST
@@ -152,7 +159,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   // LOCAL COPY OF OTHER CHARGES (editable by UI, not tied to cubit)
   final ValueNotifier<List<OtherChargeModel>> _localOtherCharges =
       ValueNotifier<List<OtherChargeModel>>([]);
- 
+
   // BANK SELECTION
   final ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier =
       ValueNotifier([]);
@@ -172,13 +179,34 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _selectedModeOfPayment = modeOfPayment.first;
     _agreementValueNotifier.addListener(_calculateTds);
     if (_isEditMode) {
+      final bm = widget.bookingModel!;
+      _prefill(bm);
+
+      // subscribe to cubit to listen for enquiryListById results (to fill enquiry unique code)
+      _bookingSubscription = _bookingCubit.stream.listen((state) {
+        if (state.enquiryListById.isNotEmpty) {
+          final enquiry = state.enquiryListById.first;
+          _enquiryUniqueCodeC.text = enquiry.systemGeneratedCode;
+        }
+      });
+
+      // Still fetch server-side details for consistency
       _bookingCubit.getBookingListById(
         context,
         1,
         _project.projectId,
-        widget.bookingModel!.bookingId,
+        bm.bookingId,
       );
       _bookingCubit.getOtherChargesList(context, 1, _project.projectId);
+
+      // Fetch enquiry by id to get system generated code and populate enquiry field
+      if (bm.enquiryId != 0) {
+        _isFetchingEnquiry.value = true;
+        _enquiryFetchTried.value = true;
+        _bookingCubit
+            .getEnquiryListById(context, 1, _project.projectId, bm.enquiryId)
+            .whenComplete(() => _isFetchingEnquiry.value = false);
+      }
     }
   }
 
@@ -194,6 +222,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _stampDutyAmountNotifier.dispose();
     _registrationFeesNotifier.dispose();
     _localOtherCharges.dispose();
+    _bookingSubscription?.cancel();
+    _isFetchingEnquiry.dispose();
     super.dispose();
   }
 
@@ -221,6 +251,62 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _termsAndConditionDescriptionC = TextEditingController();
     _bookingAmountC = TextEditingController();
     _chequeNoC = TextEditingController();
+  }
+
+  // Prefill form from booking model
+  void _prefill(BookingModel bm) {
+    // Addresses
+    _permanentAddressC.text = bm.permanentAddress;
+    _communicationAddressC.text = bm.communicationAddress;
+
+    // Applicants
+    _applicants.value = List<BookingApplicantData>.from(
+      bm.bookingApplicantData,
+    );
+
+    // Agreement / financials
+    _agreementValueWithTdsC.text = bm.agreementValue.toString();
+    _agreementValueNotifier.value = bm.agreementValue;
+    _tdsC.text = bm.agreementValueTDS.toString();
+    _agreementGstPercentageC.text = bm.agreementValueGSTPercentage.toString();
+    _agreementGstAmountC.text = bm.agreementValueGSTAmount.toString();
+    _stampDutyPercentageC.text = bm.stampDutyPercentage.toString();
+    _stampDutyAmountC.text = bm.stampDutyAmount.toString();
+    _registrationFeesC.text = bm.registrationFees.toString();
+
+    // Remark / terms description
+    _remarkC.text = bm.flatAlterationRemark;
+    _termsAndConditionDescriptionC.text = bm.termsAndConditionsDescription;
+
+    // Other charges - initialize local editable copy
+    _localOtherCharges.value = List<OtherChargeModel>.from(
+      bm.bookingOtherChargesData,
+    );
+
+    // Parking - convert to select maps
+    if (bm.parkingData.isNotEmpty) {
+      _selectedParkingNotifier.value =
+          bm.parkingData
+              .map(
+                (p) => {
+                  "zAttributesId": p.parkingId,
+                  "DisplayName": p.parkingNumber,
+                },
+              )
+              .toList();
+    }
+
+    // Payment details
+    _bookingAmountC.text = bm.bookingAmount.toString();
+    _chequeNoC.text = bm.chequeRTGSNumber;
+    _selectedChequeDate = bm.chequeRTGSDate;
+
+    // Banks - set selected bank if present
+    if (bm.bankListMasterId != 0) {
+      _selectedBankNotifier.value = [
+        {"zAttributesId": bm.bankListMasterId, "DisplayName": bm.bankName},
+      ];
+    }
   }
 
   // DISPOSE TEXT CONTROLLERS
@@ -670,7 +756,42 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           height: 70,
           padding: EdgeInsets.all(16),
           color: AppColor.white,
-          child: CustomButton(text: "Save", onPressed: () {}),
+          child: CustomButton(
+            text: "Save",
+            onPressed: () async {
+              // show processing overlay
+              DialogHelper.showProcessingOverlay(context);
+              // simulate small processing delay (replace with real API call)
+              await Future.delayed(const Duration(milliseconds: 600));
+              // dismiss overlay
+              Navigator.of(context).pop();
+
+              // Print form values for debugging
+              final formValues = {
+                "enquiryUniqueCode": _enquiryUniqueCodeC.text,
+                "permanentAddress": _permanentAddressC.text,
+                "communicationAddress": _communicationAddressC.text,
+                "agreementValueWithTds": _agreementValueWithTdsC.text,
+                "tds": _tdsC.text,
+                "agreementValueWithoutTds": _agreementValueWithoutTdsC.text,
+                "agreementGstPercentage": _agreementGstPercentageC.text,
+                "agreementGstAmount": _agreementGstAmountC.text,
+                "stampDutyPercentage": _stampDutyPercentageC.text,
+                "stampDutyAmount": _stampDutyAmountC.text,
+                "registrationFees": _registrationFeesC.text,
+                "remark": _remarkC.text,
+                "selectedParking": _selectedParkingNotifier.value,
+                "selectedTerms": _selectedTermsNotifier.value,
+                "otherChargesLocal":
+                    _localOtherCharges.value.map((e) => e.toJson()).toList(),
+                "selectedBanks": _selectedBankNotifier.value,
+                "bookingAmount": _bookingAmountC.text,
+                "chequeNo": _chequeNoC.text,
+                "chequeDate": _selectedChequeDate?.toIso8601String(),
+              };
+              print("AddBooking form values: $formValues");
+            },
+          ),
         ),
       ),
     );
@@ -691,14 +812,25 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               children: [
                 BlocConsumer<BookingCubit, BookingState>(
                   listener: (context, state) {
-                    if (state.enquiryList.isNotEmpty) {
-                      final enquiry = state.enquiryList.first;
-
+                    final hasEnquiry =
+                        state.enquiryList.isNotEmpty ||
+                        state.enquiryListById.isNotEmpty;
+                    if (hasEnquiry) {
+                      final enquiry =
+                          state.enquiryList.isNotEmpty
+                              ? state.enquiryList.first
+                              : state.enquiryListById.first;
                       _permanentAddressC.text = enquiry.currentLocation;
                       _communicationAddressC.text = enquiry.currentLocation;
                     }
                   },
                   builder: (context, state) {
+                    final enquiry =
+                        state.enquiryList.isNotEmpty
+                            ? state.enquiryList.first
+                            : (state.enquiryListById.isNotEmpty
+                                ? state.enquiryListById.first
+                                : null);
                     return Column(
                       children: [
                         CustomTextField(
@@ -715,22 +847,28 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             }
 
                             if (value.length != 18) {
+                              // Clear any previous enquiry results and fetch flags
                               _bookingCubit.clearEnquiryList();
                               _permanentAddressC.clear();
                               _communicationAddressC.clear();
+                              _enquiryFetchTried.value = false;
+                              _isFetchingEnquiry.value = false;
                               return;
                             }
 
                             _debounce = Timer(
                               const Duration(milliseconds: 500),
-                              () {
+                              () async {
                                 if (value.length == 18) {
-                                  _bookingCubit.getEnquiryList(
+                                  _isFetchingEnquiry.value = true;
+                                  _enquiryFetchTried.value = true;
+                                  await _bookingCubit.getEnquiryList(
                                     context,
                                     1,
                                     _project.projectId,
                                     value,
                                   );
+                                  _isFetchingEnquiry.value = false;
                                 }
                               },
                             );
@@ -742,7 +880,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             return null;
                           },
                         ),
-                        if (state.enquiryList.isNotEmpty) ...[
+                        if (enquiry != null) ...[
                           Container(
                             padding: EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -762,15 +900,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                   children: [
                                     buildColumnTitleValue(
                                       title: 'Enquiry Code',
-                                      value:
-                                          state
-                                              .enquiryList
-                                              .first
-                                              .systemGeneratedCode,
+                                      value: enquiry.systemGeneratedCode,
                                     ),
                                     buildColumnTitleValue(
                                       title: 'Name',
-                                      value: state.enquiryList.first.name,
+                                      value: enquiry.name,
                                     ),
                                   ],
                                 ),
@@ -780,12 +914,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                   children: [
                                     buildColumnTitleValue(
                                       title: 'Mobile No',
-                                      value:
-                                          state.enquiryList.first.mobileNumber,
+                                      value: enquiry.mobileNumber,
                                     ),
                                     buildColumnTitleValue(
                                       title: 'Source',
-                                      value: state.enquiryList.first.source,
+                                      value: enquiry.source,
                                     ),
                                   ],
                                 ),
@@ -795,12 +928,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                   children: [
                                     buildColumnTitleValue(
                                       title: 'Sub Source',
-                                      value: state.enquiryList.first.subSource,
+                                      value: enquiry.subSource,
                                     ),
                                     buildColumnTitleValue(
                                       title: 'Sales Advisor',
-                                      value:
-                                          state.enquiryList.first.salesAdvisor,
+                                      value: enquiry.salesAdvisor,
                                     ),
                                   ],
                                 ),
@@ -810,12 +942,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                   children: [
                                     buildColumnTitleValue(
                                       title: 'Sub Source',
-                                      value: state.enquiryList.first.subSource,
+                                      value: enquiry.subSource,
                                     ),
                                     buildColumnTitleValue(
                                       title: 'Sales Advisor',
-                                      value:
-                                          state.enquiryList.first.salesAdvisor,
+                                      value: enquiry.salesAdvisor,
                                     ),
                                   ],
                                 ),
@@ -825,19 +956,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                   children: [
                                     buildColumnTitleValue(
                                       title: 'Sourcing Manager',
-                                      value:
-                                          state
-                                              .enquiryList
-                                              .first
-                                              .sourcingManager,
+                                      value: enquiry.sourcingManager,
                                     ),
                                     buildColumnTitleValue(
                                       title: 'Current Location',
-                                      value:
-                                          state
-                                              .enquiryList
-                                              .first
-                                              .currentLocation,
+                                      value: enquiry.currentLocation,
                                     ),
                                   ],
                                 ),
@@ -845,6 +968,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             ),
                           ),
                           verticalSpacing(),
+                        ] else if (_enquiryUniqueCodeC.text.trim().length ==
+                                18 &&
+                            (_isFetchingEnquiry.value ||
+                                (_debounce?.isActive ?? false) ||
+                                state.isLoading == true)) ...[
                           Container(
                             padding: EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -855,56 +983,49 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 width: .5,
                               ),
                             ),
-                            child: Column(
-                              spacing: 10,
+                            child: Row(
                               children: [
-                                Row(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: 'Channel Partner',
-                                      value:
-                                          state
-                                              .enquiryList
-                                              .first
-                                              .channelPartnerName,
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: 'CP Mobile',
-                                      value:
-                                          state
-                                              .enquiryList
-                                              .first
-                                              .channelPartnerMobileNumber,
-                                    ),
-                                  ],
+                                const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 ),
-                                Row(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: 'CP Team Member',
-                                      value:
-                                          state
-                                              .enquiryList
-                                              .first
-                                              .channelPartnerTeamMemberName,
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: 'CP Team Mobile',
-                                      value:
-                                          state
-                                              .enquiryList
-                                              .first
-                                              .channelPartnerTeamMemberMobileNumber,
-                                    ),
-                                  ],
+                                horizontalSpacing(width: 10),
+                                Text(
+                                  "Fetching enquiry...",
+                                  style: AppTextStyle.ts14M(),
                                 ),
                               ],
                             ),
                           ),
+                          verticalSpacing(),
+                        ] else if (_enquiryUniqueCodeC.text.trim().length ==
+                                18 &&
+                            _enquiryFetchTried.value &&
+                            enquiry == null &&
+                            !(_isFetchingEnquiry.value ||
+                                (_debounce?.isActive ?? false) ||
+                                state.isLoading == true)) ...[
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 16,vertical: 10),
+                            decoration: BoxDecoration(
+                              color: AppColor.lightRed,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColor.error,
+                                width: .5,
+                              ),
+                            ),
+                            child: Text(
+                              "Invalid Enquiry Unique Code",
+                              style: AppTextStyle.ts14M(color: AppColor.error),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ] else ...[
+                          SizedBox()
                         ],
                       ],
                     );
@@ -1022,10 +1143,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             decoration: BoxDecoration(
               color: AppColor.lightBlue.withValues(alpha: .5),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: AppColor.primary,
-                width: .3
-              )
+              border: Border.all(color: AppColor.primary, width: .3),
             ),
             margin: EdgeInsets.only(bottom: 10),
             padding: EdgeInsets.all(16),
@@ -1477,16 +1595,16 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     children: [
                       Row(
                         children: [
-                          Text(
-                            oc.chargeName,
-                            style: AppTextStyle.ts14M(),
-                          ),
+                          Text(oc.chargeName, style: AppTextStyle.ts14M()),
                           Spacer(),
-                          CustomIconButton.delete(onPressed: () {
-                            final updated = List<OtherChargeModel>.from(localList)
-                              ..removeAt(index);
-                            _localOtherCharges.value = updated;
-                          }),
+                          CustomIconButton.delete(
+                            onPressed: () {
+                              final updated = List<OtherChargeModel>.from(
+                                localList,
+                              )..removeAt(index);
+                              _localOtherCharges.value = updated;
+                            },
+                          ),
                         ],
                       ),
                       Row(

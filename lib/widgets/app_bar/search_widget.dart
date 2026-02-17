@@ -68,7 +68,7 @@ class _SearchWidgetState extends State<SearchWidget> {
             width: 24,
             height: 24,
             colorFilter: ColorFilter.mode(
-              AppColor.primary.withValues(alpha: .6),
+              AppColor.primary,
               BlendMode.srcIn,
             ),
           ),

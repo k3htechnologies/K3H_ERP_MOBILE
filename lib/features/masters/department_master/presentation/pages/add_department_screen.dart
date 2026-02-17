@@ -116,21 +116,6 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
                 child: Column(
                   children: [
                     CustomTextField(
-                      title: 'Department Name',
-                      isRequired: true,
-                      hint: "Enter Department Name",
-                      textController: _departmentNameC,
-                      inputFormatterList: [
-                        LengthLimitingTextInputFormatter(50),
-                      ],
-                      validator: (string) {
-                        if (string == null || string.trim().isEmpty) {
-                          return 'Department Name is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
                       title: 'Department Code',
                       isRequired: true,
                       hint: "Enter Department Code",
@@ -138,11 +123,28 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
                       inputFormatterList: [
                         UpperCaseTextFormatter(),
                         LengthLimitingTextInputFormatter(4),
-                        AlphaNumericWithoutSpacesFormatter(),
                       ],
                       validator: (string) {
                         if (string == null || string.trim().isEmpty) {
                           return 'Department Code is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: 'Department Name',
+                      isRequired: true,
+                      hint: "Enter Department Name",
+                      textController: _departmentNameC,
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(134),
+                      ],
+                      validator: (string) {
+                        if (string == null || string.trim().isEmpty) {
+                          return 'Department Name is required';
+                        }
+                        if (string.trim().length < 3) {
+                          return 'Must be at least 3 characters long';
                         }
                         return null;
                       },

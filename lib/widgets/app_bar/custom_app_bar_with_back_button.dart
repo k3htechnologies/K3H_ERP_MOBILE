@@ -247,7 +247,15 @@ class _CustomAppBarWithBackButtonState
         },
         child:
             widget.isMenuButton
-                ? Icon(Icons.menu)
+                ? Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.fromLTRB(7, 6, 6, 6),
+                margin: EdgeInsets.fromLTRB(16, 12, 10, 12),
+                decoration: BoxDecoration(
+                  color: AppColor.lightBlue,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Icon(Icons.menu,size: 14,color: AppColor.primary,))
                 : Container(
                   alignment: Alignment.center,
                   padding: EdgeInsets.fromLTRB(10, 6, 6, 6),

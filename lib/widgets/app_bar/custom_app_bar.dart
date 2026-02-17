@@ -256,13 +256,20 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
       title: Row(
         spacing: 10,
         children: [
-          InkWell(
+          GestureDetector(
             onTap: () {
               mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
             },
-            child: Icon(
-              Icons.menu,
-              color: isDarkMode ? AppColor.white : AppColor.black,
+            child: Container(
+              padding: EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: AppColor.lightBlue,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Icon(
+                Icons.menu,
+                color: isDarkMode ? AppColor.white : AppColor.primary,size: 16,
+              ),
             ),
           ),
           Expanded(
@@ -356,14 +363,14 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                               items: [
                                 AddImportExportOverlayMenuItem(
                                   icon: Icons.file_download_outlined,
-                                  label: 'Export Excel',
+                                  label: 'Export as Excel',
                                   value: 'EXCEL',
                                   onTap: widget.onExportCallback!,
                                   iconColor: AppColor.primary,
                                 ),
                                 AddImportExportOverlayMenuItem(
                                   icon: Icons.file_download_outlined,
-                                  label: 'Export PDF',
+                                  label: 'Export as PDF',
                                   value: 'PDF',
                                   onTap: widget.onExportCallback!,
                                   iconColor: AppColor.primary,

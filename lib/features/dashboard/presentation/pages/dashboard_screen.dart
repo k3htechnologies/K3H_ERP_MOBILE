@@ -338,9 +338,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
           return Scaffold(
             appBar: AppBar(
               centerTitle: false,
-              leading: IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () {
+              leading: GestureDetector(
+                child:  Container(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.fromLTRB(7, 6, 6, 6),
+                    margin: EdgeInsets.fromLTRB(16, 12, 10, 12),
+                    decoration: BoxDecoration(
+                      color: AppColor.lightBlue,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Icon(Icons.menu,size: 14,color: AppColor.primary,)),
+                onTap: () {
                   mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
                 },
               ),

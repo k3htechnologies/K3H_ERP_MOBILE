@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CustomTextField extends StatelessWidget {
   final TextEditingController textController;
@@ -145,9 +146,16 @@ class CustomTextField extends StatelessWidget {
             hasError
                 ? Padding(
                   padding: const EdgeInsets.only(top: 2, left: 12),
-                  child: Text(
-                    formFieldState.errorText ?? "",
-                    style: AppTextStyle.ts12R(color: AppColor.error),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.info_outline,color: AppColor.error,size: 14,),
+                      horizontalSpacing(width: 5),
+                      Text(
+                        formFieldState.errorText ?? "",
+                        style: AppTextStyle.ts12R(color: AppColor.error),
+                      ),
+                    ],
                   ),
                 )
                 : const SizedBox(height: 18),
