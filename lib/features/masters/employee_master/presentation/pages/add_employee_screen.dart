@@ -61,16 +61,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
 
   //EDIT MODE
   bool get _isEditMode => widget.employee != null;
-  // DEPARTMENT NOTIFIER
-  final ValueNotifier<List<Map<String, dynamic>>> _selectedDepartmentNotifier =
-      ValueNotifier([]);
-
-  // COMPANY NAME NOTIFIER
-  final ValueNotifier<List<Map<String, dynamic>>> _selectedCompanyNameNotifier =
-      ValueNotifier([]);
-  // COMPANY NAME NOTIFIER
-  final ValueNotifier<List<Map<String, dynamic>>> _selectedDesignationNotifier =
-      ValueNotifier([]);
   // LISTS
   // BASIC EMPLOYEE DETAILS
   List<Map<String, dynamic>> genderList = [
@@ -129,6 +119,12 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   Map<String, dynamic>? selectedState;
   Map<String, dynamic>? selectedDistrict;
   Map<String, dynamic>? selectedCity;
+
+  // DROPDOWN SELECTIONS
+  List<Map<String, dynamic>> _selectedCompany = [];
+  List<Map<String, dynamic>> _selectedDepartment = [];
+  List<Map<String, dynamic>> _selectedBranch = [];
+  List<Map<String, dynamic>> _selectedDesignation = [];
 
   // BANK DETAILS
   Map<String, dynamic>? selectedBank;
@@ -225,11 +221,35 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     dateOfBirth = employee.dateOfBirth;
     joiningDate = employee.joiningDate;
     idCardIssueDateDate = employee.idCardIssuedDate;
+    if (employee.companyId > 0) {
+      _selectedCompany = [
+        {
+          "zAttributesId": employee.companyId,
+          "DisplayName": employee.companyName,
+        },
+      ];
+    }
     if (employee.departmentMasterId > 0) {
-      _selectedDepartmentNotifier.value = [
+      _selectedDepartment = [
         {
           "zAttributesId": employee.departmentMasterId,
           "DisplayName": employee.department,
+        },
+      ];
+    }
+    if (employee.branchMasterId > 0) {
+      _selectedBranch = [
+        {
+          "zAttributesId": employee.branchMasterId,
+          "DisplayName": employee.branch,
+        },
+      ];
+    }
+    if (employee.designationMasterId > 0) {
+      _selectedDesignation = [
+        {
+          "zAttributesId": employee.designationMasterId,
+          "DisplayName": employee.designation,
         },
       ];
     }
@@ -267,6 +287,12 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         _loadDesignations();
       }
     });
+    // Load designation initially
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _loadBranch();
+      }
+    });
   }
 
   @override
@@ -290,7 +316,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     for (var key in _formKeys) {
       key.currentState?.dispose();
     }
-    _selectedDepartmentNotifier.dispose();
   }
 
   void _initializeTextEditingController() {
@@ -522,6 +547,71 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       uniqueDepartments[dept.designationMasterId] = {
         "zAttributesId": dept.designationMasterId,
         "DisplayName": dept.designationName,
+      };
+    }
+
+    return {
+      "itemList": uniqueDepartments.values.toList(),
+      "totalNumberOfRecord":
+          totalCount > 0 ? totalCount : uniqueDepartments.length,
+    };
+  }
+
+  // LOAD BRANCH INITIALLY
+  Future<void> _loadBranch() async {
+    if (_employeeMasterCubit.state.branchList.isEmpty) {
+      await _employeeMasterCubit.getDesignationList(context, 1, 12);
+    }
+  }
+
+  Future<Map<String, dynamic>> _fetchBranch(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final totalCount = _employeeMasterCubit.state.branchTotalCount;
+    final pageSize = 15;
+
+    // SEARCH MODE
+    if (value != null && value.isNotEmpty) {
+      final departmentList = _employeeMasterCubit.state.branchList;
+      final filteredDepartments =
+          departmentList
+              .where(
+                (dept) =>
+                    dept.branchName.toLowerCase().contains(value.toLowerCase()),
+              )
+              .toList();
+
+      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
+
+      for (final dept in filteredDepartments) {
+        uniqueFiltered[dept.branchMasterId] = {
+          "zAttributesId": dept.branchMasterId,
+          "DisplayName": dept.branchName,
+        };
+      }
+
+      return {
+        "itemList": uniqueFiltered.values.toList(),
+        "totalNumberOfRecord": uniqueFiltered.length,
+      };
+    }
+
+    final currentLoadedCount = _employeeMasterCubit.state.branchList.length;
+
+    // Always call API if list is empty or if we need more data
+    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
+      await _employeeMasterCubit.getBranch(context, pageNumber, pageSize);
+    }
+
+    final departmentList = _employeeMasterCubit.state.branchList;
+
+    final Map<int, Map<String, dynamic>> uniqueDepartments = {};
+
+    for (final dept in departmentList) {
+      uniqueDepartments[dept.branchMasterId] = {
+        "zAttributesId": dept.branchMasterId,
+        "DisplayName": dept.branchName,
       };
     }
 
@@ -904,99 +994,78 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionHeader('Employee Info Sheet'),
-          ValueListenableBuilder<List<Map<String, dynamic>>>(
-            valueListenable: _selectedCompanyNameNotifier,
-            builder: (context, selectedCompany, child) {
-              return CustomMultipleSelectPopup(
-                title: "Company Name",
-                isRequired: true,
-                isMultiSelect: false,
-                initialValue: selectedCompany,
-                dataFetchCallBack: _fetchCompany,
-                onSelected: (value) {
-                  // Clear department list and selection first, before updating department
-                  _employeeMasterCubit.clearCompanyNameList();
-                  _selectedCompanyNameNotifier.value = [];
-                  // Then update department
-                  _selectedCompanyNameNotifier.value = value;
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Department is required';
-                  }
-                  return null;
-                },
-              );
-            },
-          ),
-          verticalSpacing(height: 12),
-          ValueListenableBuilder<List<Map<String, dynamic>>>(
-            valueListenable: _selectedDepartmentNotifier,
-            builder: (context, selectedDept, child) {
-              return CustomMultipleSelectPopup(
-                title: "Department",
-                isRequired: true,
-                isMultiSelect: false,
-                initialValue: selectedDept,
-                dataFetchCallBack: _fetchDepartment,
-                onSelected: (value) {
-                  // Clear department list and selection first, before updating department
-                  _employeeMasterCubit.clearDepartmentList();
-                  _selectedDepartmentNotifier.value = [];
-                  // Then update department
-                  _selectedDepartmentNotifier.value = value;
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Department is required';
-                  }
-                  return null;
-                },
-              );
-            },
-          ),
-          verticalSpacing(height: 12),
-          CustomPaginationDropDownWidget(
-            title: 'Branch',
+          CustomMultipleSelectPopup(
+            title: "Company Name",
             isRequired: true,
-            initialValue: selectedBranch,
-            dataFetchCallBack: _employeeMasterCubit.getBranch,
-            onSelected: (value) => selectedBranch = value,
+            isMultiSelect: false,
+            initialValue: _selectedCompany,
+            dataFetchCallBack: _fetchCompany,
             dataList: [],
+            onSelected: (value) {
+              // Clear department list and selection first, before updating department
+              _selectedCompany = value;
+            },
             validator: (value) {
-              if (value == null || value["zAttributesId"] == -1) {
+              if (value == null || value.isEmpty) {
+                return 'Company is required';
+              }
+              return null;
+            },
+          ),
+          verticalSpacing(height: 12),
+          CustomMultipleSelectPopup(
+            title: "Department",
+            isRequired: true,
+            isMultiSelect: false,
+            initialValue: _selectedDepartment,
+            dataList: [],
+            dataFetchCallBack: _fetchDepartment,
+            onSelected: (value) {
+              _selectedDepartment = value;
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Department is required';
+              }
+              return null;
+            },
+          ),
+          verticalSpacing(height: 12),
+          CustomMultipleSelectPopup(
+            title: "Branch",
+            isRequired: true,
+            isMultiSelect: false,
+            initialValue: _selectedBranch,
+            dataFetchCallBack: _fetchBranch,
+            dataList: [],
+            onSelected: (value) {
+              _selectedBranch = value;
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
                 return 'Branch is required';
               }
               return null;
             },
           ),
           verticalSpacing(height: 12),
-          ValueListenableBuilder<List<Map<String, dynamic>>>(
-            valueListenable: _selectedDesignationNotifier,
-            builder: (context, selectedDesignation, child) {
-              return CustomMultipleSelectPopup(
-                title: "Designation",
-                isRequired: true,
-                isMultiSelect: false,
-                initialValue: selectedDesignation,
-                dataFetchCallBack: _fetchDesignations,
-                onSelected: (value) {
-                  // Clear department list and selection first, before updating department
-                  _employeeMasterCubit.clearDesignationList();
-                  _selectedDesignationNotifier.value = [];
-                  // Then update department
-                  _selectedDesignationNotifier.value = value;
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Designation is required';
-                  }
-                  return null;
-                },
-              );
+          CustomMultipleSelectPopup(
+            title: "Designation",
+            isRequired: true,
+            isMultiSelect: false,
+            initialValue: _selectedDesignation,
+            dataList: [],
+            dataFetchCallBack: _fetchDesignations,
+            onSelected: (value) {
+              _selectedDesignation = value;
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Designation is required';
+              }
+              return null;
             },
           ),
-
           verticalSpacing(height: 12),
           CustomDatePicker(
             title: 'Joining Date',

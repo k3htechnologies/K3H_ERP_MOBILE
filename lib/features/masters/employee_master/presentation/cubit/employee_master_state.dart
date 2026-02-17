@@ -6,6 +6,7 @@ class EmployeeMasterState extends BaseState {
   final List<DepartmentModel> departmentList;
   final List<CompanyModel> companyNameList;
   final List<DesignationMasterModel> designationList;
+  final List<BranchModel> branchList;
   final List<AssetMappingModel> assetMappingList;
   final List<ShiftMappingModel> shiftManagementList;
   final List<WeekOffMappingModel> weekOffMappingList;
@@ -18,6 +19,7 @@ class EmployeeMasterState extends BaseState {
   final int departmentTotalCount;
   final int companyNameTotalCount;
   final int designationTotalCount;
+  final int branchTotalCount;
   final int currentPage;
   final String searchText;
   final String currentSortColumn;
@@ -46,6 +48,7 @@ class EmployeeMasterState extends BaseState {
     required this.departmentList,
     required this.companyNameList,
     required this.designationList,
+    required this.branchList,
     required this.assetMappingList,
     required this.shiftManagementList,
     required this.weekOffMappingList,
@@ -58,6 +61,7 @@ class EmployeeMasterState extends BaseState {
     required this.departmentTotalCount,
     required this.companyNameTotalCount,
     required this.designationTotalCount,
+    required this.branchTotalCount,
     required this.currentPage,
     required this.searchText,
     required this.currentSortColumn,
@@ -85,6 +89,7 @@ class EmployeeMasterState extends BaseState {
     departmentList: [],
     companyNameList: [],
     designationList: [],
+    branchList: [],
     assetMappingList: [],
     shiftManagementList: [],
     weekOffMappingList: [],
@@ -97,6 +102,7 @@ class EmployeeMasterState extends BaseState {
     departmentTotalCount: 0,
     companyNameTotalCount: 0,
     designationTotalCount: 0,
+    branchTotalCount: 0,
     currentPage: 1,
     searchText: "",
     currentSortColumn: "Created Date",
@@ -127,6 +133,7 @@ class EmployeeMasterState extends BaseState {
     List<DepartmentModel>? departmentList,
     List<CompanyModel>? companyNameList,
     List<DesignationMasterModel>? designationList,
+    List<BranchModel>? branchList,
     List<AssetMappingModel>? assetMappingList,
     List<ShiftMappingModel>? shiftManagementList,
     List<WeekOffMappingModel>? weekOffMappingList,
@@ -140,6 +147,7 @@ class EmployeeMasterState extends BaseState {
     int? departmentTotalCount,
     int? companyNameTotalCount,
     int? designationTotalCount,
+    int? branchTotalCount,
     int? currentPage,
     String? searchText,
     String? currentSortColumn,
@@ -170,6 +178,7 @@ class EmployeeMasterState extends BaseState {
       departmentList: departmentList ?? this.departmentList,
       companyNameList: companyNameList ?? this.companyNameList,
       designationList: designationList ?? this.designationList,
+      branchList: branchList ?? this.branchList,
       assetMappingList: assetMappingList ?? this.assetMappingList,
       shiftManagementList: shiftManagementList ?? this.shiftManagementList,
       weekOffMappingList: weekOffMappingList ?? this.weekOffMappingList,
@@ -184,6 +193,7 @@ class EmployeeMasterState extends BaseState {
           companyNameTotalCount ?? this.companyNameTotalCount,
       designationTotalCount:
           designationTotalCount ?? this.designationTotalCount,
+      branchTotalCount: branchTotalCount ?? this.branchTotalCount,
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
@@ -218,6 +228,7 @@ class EmployeeMasterState extends BaseState {
     departmentList,
     companyNameList,
     designationList,
+    branchList,
     assetMappingList,
     shiftManagementList,
     weekOffMappingList,
@@ -230,6 +241,7 @@ class EmployeeMasterState extends BaseState {
     departmentTotalCount,
     companyNameTotalCount,
     designationTotalCount,
+    branchTotalCount,
     currentPage,
     searchText,
     currentSortColumn,

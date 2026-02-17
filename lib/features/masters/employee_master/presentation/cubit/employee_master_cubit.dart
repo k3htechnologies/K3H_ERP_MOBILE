@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
@@ -100,6 +99,11 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
 
   // <---- CLEAR DESIGNATION LIST ---->
   void clearDesignationList() {
+    emit(state.copyWith(departmentList: [], departmentTotalCount: 0));
+  }
+
+  // <---- CLEAR BRANCH LIST ---->
+  void clearBranchList() {
     emit(state.copyWith(departmentList: [], departmentTotalCount: 0));
   }
 
@@ -701,35 +705,38 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   }
 
   // <---- BRANCH MASTER DROPDOWN ---->
-  Future<Map<String, dynamic>> getBranch(
-    int pageNumber, {
-    String? value,
-  }) async {
-    var result = await employeeMasterRepository.getBranchList(
+  Future<void> getBranch(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await employeeMasterRepository.getBranchList(
       pageNumber: pageNumber,
-      pageSize: 10,
-      query: {"BranchName": value ?? ''},
+      pageSize: pageSize,
     );
 
-    return result.fold(
+    result.fold(
       (failure) {
-        return {"itemList": [], "totalNumberOfRecord": 0};
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error Message", failure.message);
       },
-      (response) async {
-        return {
-          "itemList": List<Map<String, dynamic>>.from(
-            await compute(
-              (_) => (response['data'] as List<BranchModel>).map(
-                (e) => {
-                  "zAttributesId": e.branchMasterId,
-                  "DisplayName": e.branchName,
-                },
-              ),
-              '',
-            ),
+      (response) {
+        final newData = List<BranchModel>.from(response['data']);
+
+        final List<BranchModel> updatedList =
+            pageNumber == 1 ? newData : [...state.branchList, ...newData];
+
+        final totalCount = response['totalNumberOfRecord'] ?? 0;
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            branchList: updatedList,
+            branchTotalCount: totalCount,
           ),
-          "totalNumberOfRecord": response["totalNumberOfRecord"],
-        };
+        );
       },
     );
   }
