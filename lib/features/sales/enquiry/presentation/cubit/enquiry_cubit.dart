@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/models/village.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -17,6 +16,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 
 class EnquiryCubit extends Cubit<EnquiryState> {
+  // INITIAL STATE
   EnquiryCubit() : super(EnquiryState.initial());
 
   // REPOSITORIES
@@ -35,7 +35,10 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {"Name": state.searchText};
+    Map<String, dynamic> queryParams = {
+      "Name": state.searchText.trim(),
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+    };
     var result = await _enquiryRepository.getEnquiryList(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -67,6 +70,8 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
+  // <---- ADD / UPDATE ENQUIRY ---->
+
   Future addUpdateEnquiry({
     required BuildContext context,
 
@@ -85,23 +90,18 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         return;
       },
       (response) {
-        goRouter.pop();
-
         final newItem = response['data'][0] as EnquiryModel;
 
         List<EnquiryModel> updatedList = List.from(state.enquiryList);
 
         if (index != null) {
           updatedList[index] = newItem;
+        } else {
+          getEnquiryList(context, 1, getProject().projectId);
         }
 
-        emit(
-          state.copyWith(
-            enquiryList: updatedList,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
-          ),
-        );
-
+        emit(state.copyWith(enquiryList: updatedList));
+        goRouter.pop();
         showSuccessMessage(
           context,
           subTitle:
@@ -113,17 +113,16 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
+  // <---- CLEAR CHANNEL PARTNER MODEL ---->
+
   void clearChannelPartner() {
     emit(state.copyWith(clearChannelPartner: true));
   }
 
+  // <---- CLEAR ENQUIRY FOLLOWUP ---->
+
   void clearEnquiryFollowUp() {
-    emit(
-      state.copyWith(
-        enquiryFollowUpList: [], // ✅ empty list
-        isLoading: true, // ✅ show loader immediately
-      ),
-    );
+    emit(state.copyWith(enquiryFollowUpList: [], isLoading: true));
   }
 
   // FETCH CHANNEL PARTNER LIST FOR DROPDOWN
@@ -186,6 +185,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
+  // FETCH VILLAGES LIST FOR DROPDOWN
   Future<Map<String, dynamic>> fetchVillages(
     int pageNumber, {
     String? value,
@@ -219,11 +219,13 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
+  // SEARCH
   void search(BuildContext context, String searchText) {
     emit(state.copyWith(searchText: searchText.trim()));
     getEnquiryList(context, 1, getProject().projectId);
   }
 
+  // NATIONALITY SELECTION FOR RADIO BUTTONS
   void onSelectedOptionChanged(String value) {
     emit(state.copyWith(selectedNationality: value));
   }
@@ -259,6 +261,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
+  // <---- GET ENQUIRY FOLLOWUPS ---->
   Future<void> fetchEnquiryFollowUps({
     required int enquiryId,
 
@@ -271,7 +274,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
       pageSize: 100,
       enquiryId: enquiryId,
       projectId: projectId,
-      queryParams: {"SortBy": "CreatedDate DESC"},
     );
 
     result.fold(
@@ -286,6 +288,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
+  // <---- ADD / UPDATE ENQUIRY FOLLOWUPS ---->
   Future addUpdateEnquiryFollowUp({
     required BuildContext context,
     int? index,
@@ -333,6 +336,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     );
   }
 
+  // <---- DELETE ENQUIRY FOLLOWUP ---->
   Future<void> deleteFollowUp({
     required int index,
     required EnquiryFollowUpModel followUpModel,

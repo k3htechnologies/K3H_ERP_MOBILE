@@ -10,10 +10,12 @@ Widget buildRowTitleValue({
   double fixesWidth = 140,
   TextStyle? valueTextStyle,
   Widget? customValueWidget,
+  bool singleLine = true,
 }) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 6),
     child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // TITLE
         SizedBox(
@@ -37,9 +39,10 @@ Widget buildRowTitleValue({
               customValueWidget ??
               Text(
                 value.isNotEmpty ? value : "-",
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: valueTextStyle ?? AppTextStyle.ts14R(),
+                maxLines: singleLine ? 1 : null,
+                overflow:
+                    singleLine ? TextOverflow.ellipsis : TextOverflow.visible,
+                style: valueTextStyle ?? AppTextStyle.ts14M(),
               ),
         ),
       ],

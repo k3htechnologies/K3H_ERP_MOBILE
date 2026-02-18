@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class DepartmentMasterScreen extends StatefulWidget {
@@ -110,9 +111,10 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
     BuildContext context,
   ) async {
     final state = _departmentMasterCubit.state;
-    String? selectedDirection = state.currentSortColumn == "Department Name"
-        ? state.currentSortDirection
-        : null;
+    String? selectedDirection =
+        state.currentSortColumn == "Department Name"
+            ? state.currentSortDirection
+            : null;
     final String? initialDirection = selectedDirection;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     DialogHelper.showCustomFilterBottomSheet(
@@ -123,7 +125,8 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
           void selectDirection(String direction) {
             innerState(() {
               selectedDirection = direction;
-              applyEnabled.value = selectedDirection != null &&
+              applyEnabled.value =
+                  selectedDirection != null &&
                   selectedDirection != initialDirection;
             });
           }
@@ -139,13 +142,16 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                   GestureDetector(
                     onTap: () => selectDirection("ASC"),
                     child: Container(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4),
-                        color: selectedDirection == "ASC"
-                            ? AppColor.lightBlue
-                            : Colors.transparent,
+                        color:
+                            selectedDirection == "ASC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
                         border: Border.all(color: AppColor.grey, width: .5),
                       ),
                       child: Text("A-Z", style: AppTextStyle.ts12R()),
@@ -155,13 +161,16 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                   GestureDetector(
                     onTap: () => selectDirection("DESC"),
                     child: Container(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4),
-                        color: selectedDirection == "DESC"
-                            ? AppColor.lightBlue
-                            : Colors.transparent,
+                        color:
+                            selectedDirection == "DESC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
                         border: Border.all(color: AppColor.grey, width: .5),
                       ),
                       child: Text("Z-A", style: AppTextStyle.ts12R()),
@@ -174,11 +183,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
         },
       ),
       onClear: () {
-        _departmentMasterCubit.sortDepartment(
-          context,
-          "Created Date",
-          "DESC",
-        );
+        _departmentMasterCubit.sortDepartment(context, "Created Date", "DESC");
       },
       onApply: () {
         if (selectedDirection != null &&
@@ -203,7 +208,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
         screenTitle: 'Department',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
-          if(_departmentMasterCubit.state.totalNumberOfRecord==0){
+          if (_departmentMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
@@ -259,6 +264,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                   children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(
                           child: Text(
@@ -300,58 +306,89 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                       ],
                     ),
                     verticalSpacing(),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 6,
-                        horizontal: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColor.grey10,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "Code: ",
-                            style: AppTextStyle.ts12R(color: AppColor.grey),
-                          ),
-                          Text(
-                            department.departmentCode,
-                            style: AppTextStyle.ts14R(),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Divider(
-                      color: AppColor.primary.withValues(alpha: .5),
-                      thickness: .5,
-                      height: 25,
-                    ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColor.grey10,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                "Code: ",
+                                style: AppTextStyle.ts12R(color: AppColor.grey),
+                              ),
+                              Text(
+                                department.departmentCode,
+                                style: AppTextStyle.ts14R(),
+                              ),
+                            ],
+                          ),
+                        ),
                         Row(
                           children: [
-                            Text(
-                              "Employee Count: ",
-                              style: AppTextStyle.ts12R(color: AppColor.grey),
-                            ),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 6),
-                              decoration: BoxDecoration(
-                                color: AppColor.purple.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                department.numberOfEmployee.toString(),
-                                style: AppTextStyle.ts14R(
-                                  color: AppColor.purple,
+                            Row(
+                              children: [
+                                Text(
+                                  "Employee Count: ",
+                                  style: AppTextStyle.ts12R(
+                                    color: AppColor.grey,
+                                  ),
                                 ),
-                              ),
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 6),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.purple.withValues(
+                                      alpha: 0.12,
+                                    ),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    department.numberOfEmployee.toString(),
+                                    style: AppTextStyle.ts14R(
+                                      color: AppColor.purple,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ],
+                    ),
+                    verticalSpacing(height: 5),
+                    buildRowTitleValue(
+                      title: "Created By",
+                      value: department.createdBy,
+                      singleLine: false,
+                    ),
+                    buildRowTitleValue(
+                      title: "Created Date",
+                      value: formatDateTimeAsDDMMMYYYY(department.createdDate),
+                    ),
+                    buildRowTitleValue(
+                      title: "Modified By",
+                      singleLine: false,
+                      value:
+                          department.modifiedBy.isEmpty
+                              ? department.createdBy
+                              : department.modifiedBy,
+                    ),
+                    buildRowTitleValue(
+                      title: "Modified Date",
+                      value:
+                          department.modifiedDate == null
+                              ? '-'
+                              : formatDateTimeAsDDMMMYYYY(
+                                department.modifiedDate!,
+                              ),
                     ),
                   ],
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry_followup.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
@@ -9,6 +10,8 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -16,7 +19,6 @@ import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:timelines_plus/timelines_plus.dart';
 
 class ViewEnquiryScreen extends StatefulWidget {
   final EnquiryModel enquiryModel;
@@ -34,8 +36,9 @@ class ViewEnquiryScreen extends StatefulWidget {
 
 class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     with TickerProviderStateMixin {
-  late TabController _tabController;
+  // CUBIT
   late EnquiryCubit _enquiryCubit;
+  late TabController _tabController;
   final GlobalKey<FormState> _statusFormKey = GlobalKey<FormState>();
 
   Map<String, dynamic>? _selectedStatus;
@@ -44,18 +47,17 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
   final TextEditingController _remarkC = TextEditingController();
   final ValueNotifier<int> _tabIndexNotifier = ValueNotifier(0);
-
   final List<Map<String, dynamic>> _statusList = [
-    {'zAttributesId': 1, 'DisplayName': 'Site Visit'},
-    {'zAttributesId': 2, 'DisplayName': 'Re-Visit Proposed'},
-    {'zAttributesId': 3, 'DisplayName': 'Re-Visit Scheduled'},
+    {'zAttributesId': 1, 'DisplayName': 'Booking Done'},
+    {'zAttributesId': 2, 'DisplayName': 'Blocked'},
+    {'zAttributesId': 3, 'DisplayName': 'Cancelled'},
     {'zAttributesId': 4, 'DisplayName': 'Negotiation'},
-    {'zAttributesId': 5, 'DisplayName': 'Unit Selection / Blocked'},
-    {'zAttributesId': 6, 'DisplayName': 'Blocked'},
-    {'zAttributesId': 7, 'DisplayName': 'Booking Done'},
-    {'zAttributesId': 8, 'DisplayName': 'Retention'},
-    {'zAttributesId': 9, 'DisplayName': 'Lost'},
-    {'zAttributesId': 10, 'DisplayName': 'Cancelled'},
+    {'zAttributesId': 5, 'DisplayName': 'Lost'},
+    {'zAttributesId': 6, 'DisplayName': 'Retention'},
+    {'zAttributesId': 7, 'DisplayName': 'Re-Visit Scheduled'},
+    {'zAttributesId': 8, 'DisplayName': 'Re-Visit Proposed'},
+    {'zAttributesId': 9, 'DisplayName': 'Site Visit'},
+    {'zAttributesId': 10, 'DisplayName': 'Unit Selection / Blocked'},
   ];
 
   final List<Map<String, dynamic>> _lostReasonList = [
@@ -99,7 +101,10 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("View Enquiry")),
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: "Enquiry",
+        authorization: AuthorizationModel(),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -127,7 +132,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
               child: CustomButton(
                 text: "Set Next Activity",
                 onPressed: () {
-                  _showStatusBottomSheet(context);
+                  _showAddUpdateEnquiryFollowUpBottomSheet(context);
                 },
               ),
             ),
@@ -287,6 +292,21 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                     ),
                   ],
                 ),
+                Visibility(
+                  visible: enquiry.nationality.toLowerCase() == 'nri',
+                  child: Row(
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Country Of Residence",
+                        value: enquiry.countryOfResidence,
+                      ),
+                      buildColumnTitleValue(
+                        title: "City Of Residence",
+                        value: enquiry.cityOfResidence,
+                      ),
+                    ],
+                  ),
+                ),
 
                 Row(
                   children: [
@@ -424,23 +444,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     );
   }
 
-  // ── Shared card wrapper ───────────────────────────────────────────
-  Widget _buildCard({required Widget child}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: commonCardDecoration(),
-      child: child,
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 8),
-      child: Text(title, style: AppTextStyle.ts14SB(color: AppColor.black)),
-    );
-  }
-
+  // ===================== Remark And Activity TAB =====================
   Widget buildRemarkActivityTimeline() {
     return BlocBuilder<EnquiryCubit, EnquiryState>(
       builder: (context, state) {
@@ -464,163 +468,186 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.enquiryModel.systemGeneratedCode),
+                    Text(
+                      widget.enquiryModel.systemGeneratedCode,
+                      style: AppTextStyle.ts16SB(color: AppColor.primary),
+                    ),
                     verticalSpacing(),
-                    FixedTimeline.tileBuilder(
-                      theme: TimelineThemeData(nodePosition: 0),
-                      builder: TimelineTileBuilder.connected(
-                        itemCount: items.length + 1,
-                        connectionDirection: ConnectionDirection.before,
 
-                        indicatorPositionBuilder: (context, index) => 0.0,
+                    // ===================== CUSTOM TIMELINE =====================
+                    ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: items.length + 1, // +1 for "Next Follow-up"
+                      itemBuilder: (context, index) {
+                        final isExtraDot = index == items.length; // Last dot
+                        final isLastItem = index == items.length - 1;
 
-                        /// 🔵 / ⚪ Indicator
-                        indicatorBuilder: (context, index) {
-                          final isLastExtra = index == items.length;
+                        // Normal follow-up item
+                        final item = !isExtraDot ? items[index] : items[0];
 
-                          return DotIndicator(
-                            color:
-                                isLastExtra
-                                    ? AppColor.lightBlue
-                                    : AppColor.primary,
-                            size: 16,
-                          );
-                        },
-
-                        /// 🔵 / ⚪ Connector
-                        connectorBuilder: (context, index, type) {
-                          final isBeforeLast = index == items.length;
-
-                          return SolidLineConnector(
-                            color:
-                                isBeforeLast
-                                    ? AppColor.lightBlue
-                                    : AppColor.primary,
-                            thickness: 2,
-                          );
-                        },
-
-                        // Content
-                        contentsBuilder: (context, index) {
-                          // EXTRA LAST DOT
-                          if (index == items.length) {
-                            final firstFollowUp = items[0];
-
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                left: 12,
-                                bottom: 24,
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                        return IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Timeline Dot + Connector
+                              Column(
                                 children: [
-                                  Text(
-                                    dateFormatterDDMMYYYYDAY(
-                                      firstFollowUp.nextFollowUpDate!,
-                                      isDayNotRequired: true,
-                                    ),
-                                    style: AppTextStyle.ts12M(
-                                      color: AppColor.grey,
-                                    ),
-                                  ),
-                                  Text(
-                                    "Next Follow-up",
-                                    style: AppTextStyle.ts12M(
-                                      color: AppColor.grey,
+                                  // Dot
+                                  Container(
+                                    width: 16,
+                                    height: 16,
+                                    margin: const EdgeInsets.only(top: 2),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          isExtraDot
+                                              ? AppColor.lightBlue
+                                              : AppColor.primary,
+                                      shape: BoxShape.circle,
                                     ),
                                   ),
+
+                                  // Connector
+                                  if (!isExtraDot)
+                                    Expanded(
+                                      child: Container(
+                                        width: 2,
+                                        margin: const EdgeInsets.symmetric(
+                                          vertical: 2,
+                                        ),
+                                        color:
+                                            isLastItem
+                                                ? AppColor.lightBlue
+                                                : AppColor.primary,
+                                      ),
+                                    ),
                                 ],
                               ),
-                            );
-                          }
-
-                          // NORMAL FOLLOWUPS
-                          final followUp = items[index];
-
-                          return Padding(
-                            padding: const EdgeInsets.only(
-                              left: 12,
-                              bottom: 24,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      child: RichText(
-                                        text: TextSpan(
-                                          text: dateFormatterDDMMYYYYDAY(
-                                            followUp.createdDate!,
-                                          ),
-                                          style: AppTextStyle.ts12M(
-                                            color: AppColor.black,
-                                          ),
-                                          children: [
-                                            const TextSpan(text: "  "),
-                                            TextSpan(
-                                              text: dateFormatterHhMmAm(
-                                                followUp.createdDate!,
+                              horizontalSpacing(),
+                              // Timeline Content
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(bottom: 24),
+                                  child:
+                                      isExtraDot
+                                          ? Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                dateFormatterDDMMYYYYDAY(
+                                                  item.nextFollowUpDate!,
+                                                  isDayNotRequired: true,
+                                                ),
+                                                style: AppTextStyle.ts12M(
+                                                  color: AppColor.grey,
+                                                ),
                                               ),
-                                              style: AppTextStyle.ts12M(
-                                                color: AppColor.grey,
+                                              Text(
+                                                "Next Follow-up",
+                                                style: AppTextStyle.ts12M(
+                                                  color: AppColor.grey,
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    if (index == 0 &&
-                                        followUp.status.toLowerCase() !=
-                                            'booking done' &&
-                                        followUp.status.toLowerCase() !=
-                                            'cancelled')
-                                      Row(
-                                        spacing: 5,
-                                        children: [
-                                          CustomIconButton.edit(
-                                            onPressed: () {
-                                              _showStatusBottomSheet(
-                                                context,
-                                                followUpModel: followUp,
-                                                index: index,
-                                              );
-                                            },
+                                            ],
+                                          )
+                                          : Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              // DATE + TIME
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Flexible(
+                                                    child: RichText(
+                                                      text: TextSpan(
+                                                        text:
+                                                            dateFormatterDDMMYYYYDAY(
+                                                              item.createdDate!,
+                                                            ),
+                                                        style:
+                                                            AppTextStyle.ts12M(
+                                                              color:
+                                                                  AppColor
+                                                                      .black,
+                                                            ),
+                                                        children: [
+                                                          const TextSpan(
+                                                            text: "  ",
+                                                          ),
+                                                          TextSpan(
+                                                            text: dateFormatterHhMmAm(
+                                                              item.createdDate!,
+                                                            ),
+                                                            style:
+                                                                AppTextStyle.ts12M(
+                                                                  color:
+                                                                      AppColor
+                                                                          .grey,
+                                                                ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  // Edit/Delete buttons for first item if allowed
+                                                  if (index == 0 &&
+                                                      ![
+                                                        'booking done',
+                                                        'cancelled',
+                                                        'lost',
+                                                      ].contains(
+                                                        item.status
+                                                            .toLowerCase(),
+                                                      ))
+                                                    Row(
+                                                      spacing: 5,
+                                                      children: [
+                                                        CustomIconButton.edit(
+                                                          onPressed: () {
+                                                            _showAddUpdateEnquiryFollowUpBottomSheet(
+                                                              context,
+                                                              followUpModel:
+                                                                  item,
+                                                              index: index,
+                                                            );
+                                                          },
+                                                        ),
+                                                        CustomIconButton.delete(
+                                                          onPressed: () {
+                                                            _showPopupToDeleteFollowUp(
+                                                              index: index,
+                                                              followUpModel:
+                                                                  item,
+                                                              enquiryId:
+                                                                  widget
+                                                                      .enquiryModel
+                                                                      .enquiryId,
+                                                              context: context,
+                                                            );
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                ],
+                                              ),
+                                              verticalSpacing(height: 4),
+                                              statusWidget(item.status),
+                                              Text(
+                                                item.remark,
+                                                style: AppTextStyle.ts14R(),
+                                              ),
+                                            ],
                                           ),
-                                          CustomIconButton.delete(
-                                            onPressed: () {
-                                              _showPopupToDeleteFollowUp(
-                                                index: index,
-                                                followUpModel: followUp,
-                                                enquiryId:
-                                                    widget
-                                                        .enquiryModel
-                                                        .enquiryId,
-                                                context: context,
-                                              );
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                  ],
                                 ),
-                                verticalSpacing(height: 4),
-
-                                // Status chip
-                                statusWidget(followUp.status),
-
-                                Text(
-                                  followUp.remark,
-                                  style: AppTextStyle.ts14R(),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -632,6 +659,24 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     );
   }
 
+  // ── Shared card wrapper ───────────────────────────────────────────
+  Widget _buildCard({required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: commonCardDecoration(),
+      child: child,
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: Text(title, style: AppTextStyle.ts14SB(color: AppColor.black)),
+    );
+  }
+
+  // ── Status Helper Widgets ───────────────────────────────────────────
   Widget statusWidget(String status) {
     final trimmed = status.trim();
 
@@ -686,7 +731,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     }
   }
 
-  Future<void> _showStatusBottomSheet(
+  Future<void> _showAddUpdateEnquiryFollowUpBottomSheet(
     BuildContext context, {
     EnquiryFollowUpModel? followUpModel,
     int? index,
@@ -699,33 +744,33 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       );
 
       _selectedLostReason =
-          (followUpModel.lostReason != null)
+          (followUpModel.lostReason.isEmpty)
               ? _lostReasonList.firstWhere(
                 (e) => e['DisplayName'] == followUpModel.lostReason,
                 orElse: () => {},
               )
               : null;
 
-      _remarkC.text = followUpModel.remark ?? "";
+      _remarkC.text = followUpModel.remark;
       _nextFollowupDate = followUpModel.nextFollowUpDate;
     }
 
     // ===================== STATUS IDs THAT REQUIRE NEXT FOLLOWUP DATE =====================
     final followUpStatusIds = [
-      1, // Site Visit
-      2, // Re-Visit Proposed
-      3, // Re-Visit Scheduled
+      2, // Blocked
       4, // Negotiation
-      5, // Unit Selection / Blocked
-      6, // Blocked
-      8, // Retention
+      6, // Retention
+      7, // Re-Visit Scheduled
+      8, // Re-Visit Proposed
+      9, // Site Visit
+      10, // Unit Selection / Blocked
     ];
 
     await DialogHelper.showCustomBottomSheet(
       context,
       index != null ? "Update Follow Up" : "Add Follow Up",
       StatefulBuilder(
-        builder: (context, setState) {
+        builder: (context, innerBottomsheetState) {
           final statusId = _selectedStatus?['zAttributesId'];
           final statusName = _selectedStatus?['DisplayName'];
 
@@ -735,11 +780,17 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                   ? CustomDatePicker(
                     title: "Next Followup Date",
                     initialDate: _nextFollowupDate,
+                    isRequired: true,
+
                     setValue:
-                        (date) => setState(() => _nextFollowupDate = date),
+                        (date) => innerBottomsheetState(
+                          () => _nextFollowupDate = date,
+                        ),
                     validator:
                         (value) =>
-                            value == null ? "Next Followup Date is req" : null,
+                            value == null
+                                ? "Next Followup Date is required"
+                                : null,
                   )
                   : const SizedBox.shrink();
 
@@ -751,7 +802,9 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                     dataList: _lostReasonList,
                     initialValue: _selectedLostReason,
                     onSelected:
-                        (val) => setState(() => _selectedLostReason = val),
+                        (val) => innerBottomsheetState(
+                          () => _selectedLostReason = val,
+                        ),
                     validator:
                         (val) => val == null ? "Lost reason is required" : null,
                   )
@@ -772,7 +825,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                     dataList: _statusList,
                     initialValue: _selectedStatus,
                     onSelected:
-                        (val) => setState(() {
+                        (val) => innerBottomsheetState(() {
                           _selectedStatus = val;
                           _selectedLostReason = null;
                           _nextFollowupDate = null;
@@ -789,6 +842,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                   CustomTextField(
                     title: 'Remark',
                     hint: "Enter remark",
+                    isRequired: true,
+
                     textController: _remarkC,
                     maxLines: 3,
                     validator:
@@ -835,7 +890,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       "EnquiryFollowUpId":
           (index != null) ? followUpModel!.enquiryFollowUpId : 0,
 
-      if (index != null) "Uniquekey": followUpModel!.uniquekey ?? "",
+      if (index != null) "Uniquekey": followUpModel!.uniquekey,
 
       "EnquiryId": widget.enquiryModel.enquiryId,
       "ProjectId": getProject().projectId,
@@ -856,7 +911,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     );
   }
 
-  Future<void> _showPopupToDeleteFollowUp({
+  void _showPopupToDeleteFollowUp({
     required int index,
     required EnquiryFollowUpModel followUpModel,
     required int enquiryId,
