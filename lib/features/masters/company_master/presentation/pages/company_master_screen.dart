@@ -149,7 +149,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
 
     DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Company",
+      title: "Filter - Company Master",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {
@@ -292,7 +292,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: 'Company',
+        screenTitle: 'Company Master',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
           if (_companyMasterCubit.state.totalNumberOfRecord == 0) {
@@ -301,6 +301,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
           }
           _companyMasterCubit.exportExcelPdf(context, value);
         },
+        searchHintText: "Search by Company Name",
         onSearchSubmit: (value) {
           _companyMasterCubit.searchCompany(context, value);
         },
@@ -349,7 +350,6 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                 margin: EdgeInsets.only(bottom: 10),
                 decoration: commonCardDecoration(),
                 child: Column(
-                  spacing: 10.0,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -369,29 +369,11 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                                 },
                               );
                             },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    company.companyName,
-                                    style: AppTextStyle.ts16M(
-                                      color: AppColor.primary,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
+                            child:   Text(
+                              company.companyName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                             ),
                           ),
                         ),
@@ -431,13 +413,21 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                         ),
                       ],
                     ),
+                    verticalSpacing(height: 5),
+                    buildRowTitleValue(
+                      title: "Contact Person",
+                      value: company.contactPerson,
+                    ),
                     buildRowTitleValue(
                       title: "Company Type",
                       value: company.firmsType,
                     ),
                     buildRowTitleValue(
-                      title: "Contact Person",
-                      value: company.contactPerson,
+                      title: "Mobile Number",
+                      value: company.mobileNumber,
+                      customValueWidget: CustomClickToContactText(
+                        value: company.mobileNumber,
+                      ),
                     ),
                     buildRowTitleValue(
                       title: "Email ID",

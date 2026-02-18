@@ -231,10 +231,17 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                 hasError
                     ? Padding(
                   padding: const EdgeInsets.only(left: 12, top: 4),
-                  child: Text(
-                    formFieldState.errorText ?? "",
-                    style:
-                    AppTextStyle.ts12R(color: AppColor.error),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.info_outline,color: AppColor.error,size: 14,),
+                      horizontalSpacing(width: 5),
+                      Text(
+                        formFieldState.errorText ?? "",
+                        style:
+                        AppTextStyle.ts12R(color: AppColor.error),
+                      ),
+                    ],
                   ),
                 )
                     : const SizedBox(height: 18),

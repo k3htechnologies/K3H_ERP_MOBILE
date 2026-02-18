@@ -337,7 +337,7 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                                   ),
                                   backgroundColor: AppColor.grey10,
                                 ),
-                                if(designation.numberOfEmployee>0)...[
+                                if(designation.numberOfEmployee==0)...[
                                   horizontalSpacing(width: 5),
                                   CustomIconButton(
                                     onPressed: () {

@@ -409,9 +409,16 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                               left: 12.0,
                               top: 4.0,
                             ),
-                            child: Text(
-                              formFieldState.errorText ?? '',
-                              style: AppTextStyle.ts14R(color: AppColor.error),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.info_outline,color: AppColor.error,size: 14,),
+                                horizontalSpacing(width: 5),
+                                Text(
+                                  formFieldState.errorText ?? '',
+                                  style: AppTextStyle.ts14R(color: AppColor.error),
+                                ),
+                              ],
                             ),
                           )
                           : const SizedBox(height: 18),

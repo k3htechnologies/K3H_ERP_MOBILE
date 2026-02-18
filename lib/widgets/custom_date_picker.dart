@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CustomDatePicker extends StatefulWidget {
   final Function(DateTime) setValue;
@@ -175,9 +176,16 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                 hasError
                     ? Padding(
                   padding: const EdgeInsets.only(left: 12.0, top: 4.0),
-                  child: Text(
-                    formFieldState.errorText ?? '',
-                    style: AppTextStyle.ts12R(color: AppColor.error),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.info_outline,color: AppColor.error,size: 14,),
+                      horizontalSpacing(width: 5),
+                      Text(
+                        formFieldState.errorText ?? '',
+                        style: AppTextStyle.ts12R(color: AppColor.error),
+                      ),
+                    ],
                   ),
                 )
                     : const SizedBox(height: 18),

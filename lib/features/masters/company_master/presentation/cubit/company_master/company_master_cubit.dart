@@ -17,6 +17,28 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
   final CompanyMasterRepository _companyMasterRepository =
       serviceLocator<CompanyMasterRepository>();
 
+  // <---- SEARCH COMPANY ---->
+  Future searchCompany(BuildContext context, String value) async {
+    emit(state.copyWith(searchText: value, companyList: []));
+    await getCompanyMaster(context, 1);
+  }
+
+  // <---- SORT COMPANY ---->
+  Future sortCompany(
+    BuildContext context,
+    String value,
+    String direction,
+  ) async {
+    emit(
+      state.copyWith(
+        currentSortColumn: value,
+        currentSortDirection: direction,
+        companyList: [],
+      ),
+    );
+    await getCompanyMaster(context, 1);
+  }
+
   // <---- FILTER COMPANY ---->
   Future applyCompanyFilterAndSort({
     required BuildContext context,
@@ -404,28 +426,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     );
   }
 
-  // <---- SEARCH COMPANY ---->
-  Future searchCompany(BuildContext context, String value) async {
-    emit(state.copyWith(searchText: value, companyList: []));
-    await getCompanyMaster(context, 1);
-  }
-
-  // <---- SORT COMPANY ---->
-  Future sortCompany(
-    BuildContext context,
-    String value,
-    String direction,
-  ) async {
-    emit(
-      state.copyWith(
-        currentSortColumn: value,
-        currentSortDirection: direction,
-        companyList: [],
-      ),
-    );
-    await getCompanyMaster(context, 1);
-  }
-
   // <---- EXPORT EXCEL OR PDF ---->
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
@@ -446,8 +446,13 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "company_${DateTime.now()}.pdf"
-              : "company_${DateTime.now()}.xlsx",
+              ? "Company Master ${DateTime.now()}.pdf"
+              : "Company Master ${DateTime.now()}.xlsx",
+        );
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );

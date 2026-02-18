@@ -360,7 +360,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
-          height: 77,
+          height: 70,
           padding: EdgeInsets.all(16),
           child: Row(
             spacing: 12,
@@ -449,7 +449,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
               validator: (_) {
                 // Validate against selectedFirmType (source of truth used on submit)
                 if (selectedFirmType['zAttributesId'] == -1) {
-                  return 'Company Type is required';
+                  return 'Firm Type is required';
                 }
                 return null;
               },

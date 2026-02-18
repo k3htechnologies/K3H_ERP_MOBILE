@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CustomDropDownWidget extends StatelessWidget {
   final List<Map<String, dynamic>> dataList;
@@ -101,9 +102,16 @@ class CustomDropDownWidget extends StatelessWidget {
                 hasError
                     ? Padding(
                   padding: const EdgeInsets.only(left: 12.0, top: 2.0),
-                  child: Text(
-                    formFieldState.errorText ?? '',
-                    style: AppTextStyle.ts12R(color: AppColor.error),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.info_outline,color: AppColor.error,size: 14,),
+                      horizontalSpacing(width: 5),
+                      Text(
+                        formFieldState.errorText ?? '',
+                        style: AppTextStyle.ts12R(color: AppColor.error),
+                      ),
+                    ],
                   ),
                 )
                     : const SizedBox(height: 18),

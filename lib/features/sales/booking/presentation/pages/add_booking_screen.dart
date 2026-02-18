@@ -122,20 +122,15 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   late Map<String, dynamic> _selectedHandOverType;
 
   // STATIC HAND OVER TYPE LIST
-  List<Map<String, dynamic>> modeOfPayment = [
-    {"zAttributesId": -1, "DisplayName": "Select Payment Mode"},
-    {"zAttributesId": 1, "DisplayName": "Cash"},
-    {"zAttributesId": 2, "DisplayName": "Cheque"},
-    {"zAttributesId": 3, "DisplayName": "Demand Draft"},
-    {"zAttributesId": 4, "DisplayName": "IMPS"},
-    {"zAttributesId": 5, "DisplayName": "NEFT"},
-    {"zAttributesId": 6, "DisplayName": "Online Transfer"},
-    {"zAttributesId": 7, "DisplayName": "RTGS"},
-    {"zAttributesId": 8, "DisplayName": "UPI"},
+  final List<Map<String, dynamic>> fundingSourceList = [
+    {'zAttributesId': -1, 'DisplayName': 'Select Funding Source'},
+    {'zAttributesId': 1, 'DisplayName': 'Loan'},
+    {'zAttributesId': 2, 'DisplayName': 'Self-funded'},
+    {'zAttributesId': 3, 'DisplayName': 'Sale Of Property Funding'},
   ];
 
-  // SELECTED MODE OF PAYMENT
-  late Map<String, dynamic> _selectedModeOfPayment;
+  // SELECTED SOURCE OF FUNDING
+  late Map<String, dynamic> _selectedFundingSource;
 
   // METHODS TO CHECK IF APPLICANT TYPE IS PRIMARY
   bool _isApplicantType(String type) =>
@@ -176,7 +171,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(_handleTabChange);
     _selectedHandOverType = handOverTypeList.first;
-    _selectedModeOfPayment = modeOfPayment.first;
+    _selectedFundingSource = fundingSourceList.first;
     _agreementValueNotifier.addListener(_calculateTds);
     if (_isEditMode) {
       final bm = widget.bookingModel!;
@@ -1539,17 +1534,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   },
                 ),
                 CustomDropDownWidget(
-                  title: "Mode of Payment",
+                  title: "Source Of Funding",
                   isRequired: true,
-                  dataList: modeOfPayment,
+                  dataList: fundingSourceList,
                   onSelected: (value) {
-                    _selectedModeOfPayment = value;
+                    _selectedFundingSource = value;
                   },
                   validator: (value) {
                     if (value == null ||
                         value.isEmpty ||
                         value["zAttributesId"] == -1) {
-                      return "Payment Mode is required";
+                      return "Funding Source is required";
                     }
                     return null;
                   },
