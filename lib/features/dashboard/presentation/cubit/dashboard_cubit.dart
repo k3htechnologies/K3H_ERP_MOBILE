@@ -62,14 +62,12 @@ class DashboardCubit extends Cubit<DashboardState> {
   // ADD ATTENDACE
   Future addAttendance(
     BuildContext context, {
-    required int attendanceId,
-    required String uniquekey,
     required String punchAddress,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-    Map<String, dynamic> requestBody = {
-      "AttendanceId": attendanceId,
-      "Uniquekey": uniquekey,
+
+    final Map<String, dynamic> requestBody = {
+      "AttendanceId": 0, // 🔥 ONLY for FIRST punch-in
       "PunchAddress": punchAddress,
     };
 
@@ -77,7 +75,6 @@ class DashboardCubit extends Cubit<DashboardState> {
       requestBody: requestBody,
     );
 
-    // close loader
     goRouter.pop();
 
     addResult.fold(
@@ -115,7 +112,7 @@ class DashboardCubit extends Cubit<DashboardState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        showSuccessMessage(context, subTitle: "Punched In Successfully");
+        showSuccessMessage(context, subTitle: "Punched Out Successfully");
       },
     );
   }
@@ -123,6 +120,7 @@ class DashboardCubit extends Cubit<DashboardState> {
   // <---- GET Dashboard LIST ---->
   Future getDashboardList(BuildContext context) async {
     emit(state.copyWith(isLoading: true));
+
     var result = await _dashboardRepository.getDashboardList();
 
     result.fold(
@@ -131,14 +129,12 @@ class DashboardCubit extends Cubit<DashboardState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        final List<UserDashboardModel> newData = List<UserDashboardModel>.from(
-          response['data'] ?? [],
-        );
+        final UserDashboardModel? model = response['data'];
 
         emit(
           state.copyWith(
-            userDashboardModelList: newData,
-            userData: newData.isNotEmpty ? newData.first : null,
+            userData: model,
+            userDashboardModelList: model != null ? [model] : [],
             isLoading: false,
           ),
         );

@@ -1,71 +1,18 @@
-// To parse this JSON data, do
-//
-//     final userDashboardModel = userDashboardModelFromJson(jsonString);
-
-import 'dart:convert';
-
-UserDashboardModel userDashboardModelFromJson(String str) =>
-    UserDashboardModel.fromJson(json.decode(str));
-
-String userDashboardModelToJson(UserDashboardModel data) =>
-    json.encode(data.toJson());
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 class UserDashboardModel {
-  final List<String> successMessage;
-  final List<dynamic> errorMessage;
-  final List<dynamic> warningMessage;
-  final Data data;
-  final bool isSuccess;
-  final int totalNumberOfRecord;
-  final int httpStatusCode;
-
-  UserDashboardModel({
-    required this.successMessage,
-    required this.errorMessage,
-    required this.warningMessage,
-    required this.data,
-    required this.isSuccess,
-    required this.totalNumberOfRecord,
-    required this.httpStatusCode,
-  });
-
-  factory UserDashboardModel.fromJson(Map<String, dynamic> json) =>
-      UserDashboardModel(
-        successMessage: List<String>.from(json["SuccessMessage"].map((x) => x)),
-        errorMessage: List<dynamic>.from(json["ErrorMessage"].map((x) => x)),
-        warningMessage: List<dynamic>.from(
-          json["WarningMessage"].map((x) => x),
-        ),
-        data: Data.fromJson(json["Data"]),
-        isSuccess: json["IsSuccess"],
-        totalNumberOfRecord: json["TotalNumberOfRecord"],
-        httpStatusCode: json["HttpStatusCode"],
-      );
-
-  Map<String, dynamic> toJson() => {
-    "SuccessMessage": List<dynamic>.from(successMessage.map((x) => x)),
-    "ErrorMessage": List<dynamic>.from(errorMessage.map((x) => x)),
-    "WarningMessage": List<dynamic>.from(warningMessage.map((x) => x)),
-    "Data": data.toJson(),
-    "IsSuccess": isSuccess,
-    "TotalNumberOfRecord": totalNumberOfRecord,
-    "HttpStatusCode": httpStatusCode,
-  };
-}
-
-class Data {
   final List<Table0> table0;
   final List<Table1> table1;
   final List<Table2> table2;
   final List<Table3> table3;
   final List<Table4> table4;
-  final List<dynamic> table5;
+  final List<Table5> table5;
   final List<Table6> table6;
-  final List<dynamic> table7;
-  final List<dynamic> table8;
-  final List<Table9> table9;
-
-  Data({
+  final List<Table7> table7;
+  final List<Table8> table8;
+  final List<dynamic> table9;
+  final List<Table10> table10;
+  UserDashboardModel({
     required this.table0,
     required this.table1,
     required this.table2,
@@ -76,19 +23,25 @@ class Data {
     required this.table7,
     required this.table8,
     required this.table9,
+    required this.table10,
   });
 
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
+  factory UserDashboardModel.fromJson(
+    Map<String, dynamic> json,
+  ) => UserDashboardModel(
     table0: List<Table0>.from(json["Table0"].map((x) => Table0.fromJson(x))),
     table1: List<Table1>.from(json["Table1"].map((x) => Table1.fromJson(x))),
     table2: List<Table2>.from(json["Table2"].map((x) => Table2.fromJson(x))),
     table3: List<Table3>.from(json["Table3"].map((x) => Table3.fromJson(x))),
     table4: List<Table4>.from(json["Table4"].map((x) => Table4.fromJson(x))),
-    table5: List<dynamic>.from(json["Table5"].map((x) => x)),
+    table5: List<Table5>.from(json["Table5"].map((x) => Table5.fromJson(x))),
     table6: List<Table6>.from(json["Table6"].map((x) => Table6.fromJson(x))),
-    table7: List<dynamic>.from(json["Table7"].map((x) => x)),
-    table8: List<dynamic>.from(json["Table8"].map((x) => x)),
-    table9: List<Table9>.from(json["Table9"].map((x) => Table9.fromJson(x))),
+    table7: List<Table7>.from(json["Table7"].map((x) => Table7.fromJson(x))),
+    table8: List<Table8>.from(json["Table8"].map((x) => Table8.fromJson(x))),
+    table9: List<dynamic>.from(json["Table9"].map((x) => x)),
+    table10: List<Table10>.from(
+      json["Table10"].map((x) => Table10.fromJson(x)),
+    ),
   );
 
   Map<String, dynamic> toJson() => {
@@ -97,73 +50,100 @@ class Data {
     "Table2": List<dynamic>.from(table2.map((x) => x.toJson())),
     "Table3": List<dynamic>.from(table3.map((x) => x.toJson())),
     "Table4": List<dynamic>.from(table4.map((x) => x.toJson())),
-    "Table5": List<dynamic>.from(table5.map((x) => x)),
+    "Table5": List<dynamic>.from(table5.map((x) => x.toJson())),
     "Table6": List<dynamic>.from(table6.map((x) => x.toJson())),
-    "Table7": List<dynamic>.from(table7.map((x) => x)),
-    "Table8": List<dynamic>.from(table8.map((x) => x)),
-    "Table9": List<dynamic>.from(table9.map((x) => x.toJson())),
+    "Table7": List<dynamic>.from(table7.map((x) => x.toJson())),
+    "Table8": List<dynamic>.from(table8.map((x) => x.toJson())),
+    "Table9": List<dynamic>.from(table9.map((x) => x)),
+    "Table10": List<dynamic>.from(table10.map((x) => x.toJson())),
   };
 }
 
 class Table0 {
-  final String attendanceDate;
-  final String fullName;
-  final String attendanceStatus;
+  final String name;
+  final String department;
+  final String employeeCode;
+  final String status;
+  final dynamic punchIn;
+  final dynamic punchOut;
+  final String message;
 
   Table0({
-    required this.attendanceDate,
-    required this.fullName,
-    required this.attendanceStatus,
+    required this.name,
+    required this.department,
+    required this.employeeCode,
+    required this.status,
+    required this.punchIn,
+    required this.punchOut,
+    required this.message,
   });
 
   factory Table0.fromJson(Map<String, dynamic> json) => Table0(
-    attendanceDate: json["AttendanceDate"],
-    fullName: json["FullName"],
-    attendanceStatus: json["AttendanceStatus"],
+    name: parseValue<String>(json, "Name"),
+    department: parseValue<String>(json, "Department"),
+    employeeCode: parseValue<String>(json, "EmployeeCode"),
+    status: parseValue<String>(json, "Status"),
+    punchIn: parseValue<String>(json, "PunchIn"),
+    punchOut: parseValue<String>(json, "PunchOut"),
+    message: parseValue<String>(json, "Message"),
   );
 
   Map<String, dynamic> toJson() => {
-    "AttendanceDate": attendanceDate,
-    "FullName": fullName,
-    "AttendanceStatus": attendanceStatus,
+    "Name": name,
+    "Department": department,
+    "EmployeeCode": employeeCode,
+    "Status": status,
+    "PunchIn": punchIn,
+    "PunchOut": punchOut,
+    "Message": message,
   };
 }
 
 class Table1 {
-  final String shift;
-  final String shiftBeginTime;
+  final num presentDays;
+  final String avgLoginTime;
+  final String shiftStartTime;
   final String shiftEndTime;
-  final String avgWorkingHours;
+  final String shiftPattern;
+  final String message;
 
   Table1({
-    required this.shift,
-    required this.shiftBeginTime,
+    required this.presentDays,
+    required this.avgLoginTime,
+    required this.shiftStartTime,
     required this.shiftEndTime,
-    required this.avgWorkingHours,
+    required this.shiftPattern,
+    required this.message,
   });
 
   factory Table1.fromJson(Map<String, dynamic> json) => Table1(
-    shift: json["Shift"],
-    shiftBeginTime: json["ShiftBeginTime"],
-    shiftEndTime: json["ShiftEndTime"],
-    avgWorkingHours: json["AvgWorkingHours"],
+    presentDays: parseValue<num>(json, "PresentDays"),
+    avgLoginTime: parseValue<String>(json, "AvgLoginTime"),
+    shiftStartTime: parseValue<String>(json, "ShiftStartTime"),
+    shiftEndTime: parseValue<String>(json, "ShiftEndTime"),
+    shiftPattern: parseValue<String>(json, "ShiftPattern"),
+    message: parseValue<String>(json, "Message"),
   );
 
   Map<String, dynamic> toJson() => {
-    "Shift": shift,
-    "ShiftBeginTime": shiftBeginTime,
+    "PresentDays": presentDays,
+    "AvgLoginTime": avgLoginTime,
+    "ShiftStartTime": shiftStartTime,
     "ShiftEndTime": shiftEndTime,
-    "AvgWorkingHours": avgWorkingHours,
+    "ShiftPattern": shiftPattern,
+    "Message": message,
   };
 }
 
 class Table2 {
-  final AvgDailyHours thisWeekHours;
-  final AvgDailyHours overtimeHours;
-  final AvgDailyHours avgDailyHours;
+  final double thisMonthHours;
+  final double thisWeekHours;
+  final double overtimeHours;
+  final double avgDailyHours;
   final String message;
 
   Table2({
+    required this.thisMonthHours,
     required this.thisWeekHours,
     required this.overtimeHours,
     required this.avgDailyHours,
@@ -171,37 +151,79 @@ class Table2 {
   });
 
   factory Table2.fromJson(Map<String, dynamic> json) => Table2(
-    thisWeekHours: AvgDailyHours.fromJson(json["ThisWeekHours"]),
-    overtimeHours: AvgDailyHours.fromJson(json["OvertimeHours"]),
-    avgDailyHours: AvgDailyHours.fromJson(json["AvgDailyHours"]),
-    message: json["Message"],
+    thisMonthHours: parseValue<double>(json, "ThisMonthHours").toDouble(),
+    thisWeekHours: parseValue<double>(json, "ThisWeekHours").toDouble(),
+    overtimeHours: parseValue<double>(json, "OvertimeHours").toDouble(),
+    avgDailyHours: parseValue<double>(json, "AvgDailyHours").toDouble(),
+    message: parseValue<String>(json, "Message"),
   );
 
   Map<String, dynamic> toJson() => {
-    "ThisWeekHours": thisWeekHours.toJson(),
-    "OvertimeHours": overtimeHours.toJson(),
-    "AvgDailyHours": avgDailyHours.toJson(),
+    "ThisMonthHours": thisMonthHours,
+    "ThisWeekHours": thisWeekHours,
+    "OvertimeHours": overtimeHours,
+    "AvgDailyHours": avgDailyHours,
     "Message": message,
   };
 }
 
-class AvgDailyHours {
-  AvgDailyHours();
+class Table3 {
+  final DateTime date;
+  final String dayName;
+  final DateTime punchIn;
+  final DateTime punchOut;
+  final String workingHours;
+  final String status;
+  final String hoursWorked;
+  final int requiredHours;
+  final String message;
 
-  factory AvgDailyHours.fromJson(Map<String, dynamic> json) => AvgDailyHours();
+  Table3({
+    required this.date,
+    required this.dayName,
+    required this.punchIn,
+    required this.punchOut,
+    required this.workingHours,
+    required this.status,
+    required this.hoursWorked,
+    required this.requiredHours,
+    required this.message,
+  });
 
-  Map<String, dynamic> toJson() => {};
+  factory Table3.fromJson(Map<String, dynamic> json) => Table3(
+    date: parseValue<DateTime>(json, "Date"),
+    dayName: parseValue<String>(json, "DayName"),
+    punchIn: parseValue<DateTime>(json, "PunchIn"),
+    punchOut: parseValue<DateTime>(json, "PunchOut"),
+    workingHours: parseValue<String>(json, "WorkingHours"),
+    status: parseValue<String>(json, "Status"),
+    hoursWorked: parseValue<String>(json, "HoursWorked"),
+    requiredHours: 9,
+    message: parseValue(json, "Message"),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "Date": date.toIso8601String(),
+    "DayName": dayName,
+    "PunchIn": punchIn.toIso8601String(),
+    "PunchOut": punchOut.toIso8601String(),
+    "WorkingHours": workingHours,
+    "Status": status,
+    "HoursWorked": hoursWorked,
+    "RequiredHours": requiredHours,
+    "Message": message,
+  };
 }
 
-class Table3 {
+class Table4 {
   final double totalLeaves;
   final double usedLeaves;
-  final int pendingLeaves;
+  final double pendingLeaves;
   final String leaveTypeName;
   final int leaveTypeMasterId;
   final String message;
 
-  Table3({
+  Table4({
     required this.totalLeaves,
     required this.usedLeaves,
     required this.pendingLeaves,
@@ -210,13 +232,13 @@ class Table3 {
     required this.message,
   });
 
-  factory Table3.fromJson(Map<String, dynamic> json) => Table3(
-    totalLeaves: json["TotalLeaves"]?.toDouble(),
-    usedLeaves: json["UsedLeaves"]?.toDouble(),
-    pendingLeaves: json["PendingLeaves"],
-    leaveTypeName: json["LeaveTypeName"],
-    leaveTypeMasterId: json["LeaveTypeMasterId"],
-    message: json["Message"],
+  factory Table4.fromJson(Map<String, dynamic> json) => Table4(
+    totalLeaves: parseValue<double>(json, "TotalLeaves").toDouble(),
+    usedLeaves: parseValue<double>(json, "UsedLeaves").toDouble(),
+    pendingLeaves: parseValue<double>(json, "PendingLeaves").toDouble(),
+    leaveTypeName: parseValue<String>(json, "LeaveTypeName"),
+    leaveTypeMasterId: parseValue<int>(json, "LeaveTypeMasterId"),
+    message: parseValue<String>(json, "Message"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -229,16 +251,16 @@ class Table3 {
   };
 }
 
-class Table4 {
+class Table5 {
   final int leaveId;
-  final String startDate;
-  final String endDate;
+  final DateTime startDate;
+  final DateTime endDate;
   final double noOfDays;
   final String leaveTypeName;
   final String reason;
   final String message;
 
-  Table4({
+  Table5({
     required this.leaveId,
     required this.startDate,
     required this.endDate,
@@ -248,20 +270,20 @@ class Table4 {
     required this.message,
   });
 
-  factory Table4.fromJson(Map<String, dynamic> json) => Table4(
-    leaveId: json["LeaveId"],
-    startDate: json["StartDate"],
-    endDate: json["EndDate"],
-    noOfDays: json["NoOfDays"]?.toDouble(),
-    leaveTypeName: json["LeaveTypeName"],
-    reason: json["Reason"],
-    message: json["Message"],
+  factory Table5.fromJson(Map<String, dynamic> json) => Table5(
+    leaveId: parseValue<int>(json, "LeaveId"),
+    startDate: parseValue<DateTime>(json, "StartDate"),
+    endDate: parseValue<DateTime>(json, "EndDate"),
+    noOfDays: parseValue<double>(json, "NoOfDays").toDouble(),
+    leaveTypeName: parseValue<String>(json, "LeaveTypeName"),
+    reason: parseValue<String>(json, "Reason"),
+    message: parseValue<String>(json, "Message"),
   );
 
   Map<String, dynamic> toJson() => {
     "LeaveId": leaveId,
-    "StartDate": startDate,
-    "EndDate": endDate,
+    "StartDate": startDate.toIso8601String(),
+    "EndDate": endDate.toIso8601String(),
     "NoOfDays": noOfDays,
     "LeaveTypeName": leaveTypeName,
     "Reason": reason,
@@ -270,13 +292,45 @@ class Table4 {
 }
 
 class Table6 {
+  final int holidayMasterId;
+  final String holidayName;
+  final DateTime holidayDate;
+  final int daysRemaining;
+  final String dayName;
+
+  Table6({
+    required this.holidayMasterId,
+    required this.holidayName,
+    required this.holidayDate,
+    required this.daysRemaining,
+    required this.dayName,
+  });
+
+  factory Table6.fromJson(Map<String, dynamic> json) => Table6(
+    holidayMasterId: parseValue<int>(json, "HolidayMasterId"),
+    holidayName: parseValue<String>(json, "HolidayName"),
+    holidayDate: parseValue<DateTime>(json, "HolidayDate"),
+    daysRemaining: parseValue<int>(json, "DaysRemaining"),
+    dayName: json["DayName"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "HolidayMasterId": holidayMasterId,
+    "HolidayName": holidayName,
+    "HolidayDate": holidayDate.toIso8601String(),
+    "DaysRemaining": daysRemaining,
+    "DayName": dayName,
+  };
+}
+
+class Table7 {
   final int totalEmployees;
   final int presentCount;
   final int onLeaveCount;
   final int absentCount;
   final String message;
 
-  Table6({
+  Table7({
     required this.totalEmployees,
     required this.presentCount,
     required this.onLeaveCount,
@@ -284,12 +338,12 @@ class Table6 {
     required this.message,
   });
 
-  factory Table6.fromJson(Map<String, dynamic> json) => Table6(
-    totalEmployees: json["TotalEmployees"],
-    presentCount: json["PresentCount"],
-    onLeaveCount: json["OnLeaveCount"],
-    absentCount: json["AbsentCount"],
-    message: json["Message"],
+  factory Table7.fromJson(Map<String, dynamic> json) => Table7(
+    totalEmployees: parseValue<int>(json, "TotalEmployees"),
+    presentCount: parseValue<int>(json, "PresentCount"),
+    onLeaveCount: parseValue<int>(json, "OnLeaveCount"),
+    absentCount: parseValue<int>(json, "AbsentCount"),
+    message: parseValue(json, "Message"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -301,42 +355,78 @@ class Table6 {
   };
 }
 
-class Table9 {
-  final AvgDailyHours managerId;
-  final AvgDailyHours managerName;
-  final AvgDailyHours managerEmail;
-  final AvgDailyHours managerPhone;
-  final AvgDailyHours departmentName;
-  final AvgDailyHours designationName;
-  final String message;
+class Table8 {
+  final int employeeId;
+  final String fullName;
+  final DateTime dateOfBirth;
+  final String departmentName;
+  final int birthDay;
+  final int birthMonth;
+  final int daysUntilBirthday;
 
-  Table9({
+  Table8({
+    required this.employeeId,
+    required this.fullName,
+    required this.dateOfBirth,
+    required this.departmentName,
+    required this.birthDay,
+    required this.birthMonth,
+    required this.daysUntilBirthday,
+  });
+
+  factory Table8.fromJson(Map<String, dynamic> json) => Table8(
+    employeeId: parseValue<int>(json, "EmployeeId"),
+    fullName: parseValue<String>(json, "FullName"),
+    dateOfBirth: parseValue<DateTime>(json, "DateOfBirth"),
+    departmentName: parseValue<String>(json, "DepartmentName"),
+    birthDay: parseValue<int>(json, "BirthDay"),
+    birthMonth: parseValue<int>(json, "BirthMonth"),
+    daysUntilBirthday: parseValue<int>(json, "DaysUntilBirthday"),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "EmployeeId": employeeId,
+    "FullName": fullName,
+    "DateOfBirth": dateOfBirth.toIso8601String(),
+    "DepartmentName": departmentName,
+    "BirthDay": birthDay,
+    "BirthMonth": birthMonth,
+    "DaysUntilBirthday": daysUntilBirthday,
+  };
+}
+
+class Table10 {
+  final int managerId;
+  final String managerName;
+  final String managerEmail;
+  final String managerPhone;
+  final String departmentName;
+  final String designationName;
+
+  Table10({
     required this.managerId,
     required this.managerName,
     required this.managerEmail,
     required this.managerPhone,
     required this.departmentName,
     required this.designationName,
-    required this.message,
   });
 
-  factory Table9.fromJson(Map<String, dynamic> json) => Table9(
-    managerId: AvgDailyHours.fromJson(json["ManagerId"]),
-    managerName: AvgDailyHours.fromJson(json["ManagerName"]),
-    managerEmail: AvgDailyHours.fromJson(json["ManagerEmail"]),
-    managerPhone: AvgDailyHours.fromJson(json["ManagerPhone"]),
-    departmentName: AvgDailyHours.fromJson(json["DepartmentName"]),
-    designationName: AvgDailyHours.fromJson(json["DesignationName"]),
-    message: json["Message"],
+  factory Table10.fromJson(Map<String, dynamic> json) => Table10(
+    managerId: parseValue<int>(json, "ManagerId"),
+    managerName: parseValue<String>(json, "ManagerName"),
+    managerEmail: parseValue<String>(json, "ManagerEmail"),
+    managerPhone: parseValue<String>(json, "ManagerPhone"),
+    departmentName: parseValue<String>(json, "DepartmentName"),
+    designationName: parseValue<String>(json, "DesignationName"),
   );
 
   Map<String, dynamic> toJson() => {
-    "ManagerId": managerId.toJson(),
-    "ManagerName": managerName.toJson(),
-    "ManagerEmail": managerEmail.toJson(),
-    "ManagerPhone": managerPhone.toJson(),
-    "DepartmentName": departmentName.toJson(),
-    "DesignationName": designationName.toJson(),
-    "Message": message,
+    "ManagerId": managerId,
+    "ManagerName": managerName,
+    "ManagerEmail": managerEmail,
+    "ManagerPhone": managerPhone,
+    "DepartmentName": departmentName,
+    "DesignationName": designationName,
   };
 }

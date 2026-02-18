@@ -42,6 +42,56 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     emit(state.copyWith(searchText: value.trim()));
   }
 
+  // <---- SEARCH PAYROLL REPORT ---->
+  Future searchPayrollReport(BuildContext context, String value) async {
+    emit(state.copyWith(searchText: value, attendanceList: []));
+    await getPayrollReportList(context, 1);
+  }
+
+  // <---- GET COMP OFF LIST ---->
+  Future getPayrollReportList(BuildContext context, int pageNumber) async {
+    emit(state.copyWith(isLoading: true));
+    Map<String, dynamic> queryParams = {};
+    if (state.filterStartDate != null) {
+      queryParams["StartDate"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.filterStartDate!);
+    }
+    if (state.filterEndDate != null) {
+      queryParams["EndDate"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.filterEndDate!);
+    }
+    var result = await _attendanceRepository.getAttendanceList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      queryParams: queryParams.isNotEmpty ? queryParams : null,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<AttendanceModel> newData = List<AttendanceModel>.from(
+          response['data'] ?? [],
+        );
+
+        final List<AttendanceModel> updatedList =
+            pageNumber == 1 ? newData : [...state.attendanceList, ...newData];
+        emit(
+          state.copyWith(
+            attendanceList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord: response["totalNumberOfRecord"],
+            currentPage: pageNumber,
+          ),
+        );
+      },
+    );
+  }
+
   // <---- GET ATTENDANCE LIST ---->
   Future getAttendanceList(
     BuildContext context,
@@ -296,5 +346,34 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
         );
       },
     );
+  }
+
+  // <---- CLEAR FILTER ON COMP OFF ---->
+  void clearFilterOnPayrollReport(BuildContext context) {
+    emit(
+      state.copyWith(
+        clearFilters: true,
+        attendanceList: [],
+        currentPageAttendance: 1,
+      ),
+    );
+    getPayrollReportList(context, 1);
+  }
+
+  // <---- APPLY FILTER ON COMP OFF ---->
+  void applyFilterOnCompOff({
+    required BuildContext context,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) {
+    emit(
+      state.copyWith(
+        filterStartDate: startDate,
+        filterEndDate: endDate,
+        compOffList: [],
+        currentPageAttendance: 1,
+      ),
+    );
+    getPayrollReportList(context, 1);
   }
 }

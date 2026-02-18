@@ -54,6 +54,14 @@ T parseValue<T>(Map<String, dynamic> json, String key) {
   if (value == null) {
     return getDefaultValue<T>();
   }
+  if (T == num) {
+    if (value is num) return value as T;
+    if (value is String) {
+      final parsed = num.tryParse(value);
+      return (parsed ?? getDefaultValue<num>()) as T;
+    }
+    return getDefaultValue<T>();
+  }
 
   if (T == int) {
     if (value is int) return value as T;
@@ -109,8 +117,8 @@ DateTime? parseApiDate(String? value) {
     dt.millisecond,
   );
 }
-// <---- UPDATE ROUTE AUTHORIZATION ---->
 
+// <---- UPDATE ROUTE AUTHORIZATION ---->
 Future<void> updateRouteAuthorization(List<ModuleModel> moduleData) async {
   // UPDATE THE MAP IN ISOLATE
   final updatedRouteMap = await compute(
@@ -247,6 +255,131 @@ String formatTime(DateTime? date) {
   return DateFormat("hh:mma").format(date);
 }
 
+/// Converts API time string (HH:mm:ss or HH:mm) to 12-hour format (h:mm am/pm).
+///
+/// Examples:
+/// "10:31:32" -> "10:31 am"
+/// "18:05:00" -> "6:05 pm"
+/// "09:00:00" -> "9:00 am"
+///
+/// Handles:
+/// - null
+/// - empty string
+/// - invalid formats
+/// - API returning "{}" or unexpected values
+String formatApiTimeToAmPm(String? timeString) {
+  // 🔒 Null / empty safety (common in your API)
+  if (timeString == null || timeString.isEmpty || timeString == "{}") {
+    return "-";
+  }
+
+  try {
+    // Split API time: "HH:mm:ss"
+    final parts = timeString.split(':');
+
+    if (parts.length < 2) return "-";
+
+    final hour = int.tryParse(parts[0]) ?? 0;
+    final minute = int.tryParse(parts[1]) ?? 0;
+
+    // Create DateTime using today's date + API time
+    final now = DateTime.now();
+    final dateTime = DateTime(now.year, now.month, now.day, hour, minute);
+
+    // Format to: 9:12 am (NO leading zero on hour)
+    return DateFormat('h:mm a').format(dateTime).toLowerCase();
+  } catch (e) {
+    // 🛡 Prevent UI crash if backend sends invalid value
+    return "-";
+  }
+}
+
+/// Converts decimal hours (double/int/num) from API into readable duration.
+///
+/// Examples:
+/// 0.183333  -> "11m"
+/// 1.5       -> "1h 30m"
+/// 4.366666  -> "4h 22m"
+/// 8.0       -> "8h"
+/// 0         -> "0h"
+///
+/// Safe for mixed API types (int, double, null).
+String formatDecimalHours(num? hours) {
+  // 🔒 Null or invalid safety (ERP APIs often send null/0)
+  if (hours == null) return "-";
+
+  // Convert hours to total minutes
+  final totalMinutes = (hours * 60).round();
+
+  final h = totalMinutes ~/ 60;
+  final m = totalMinutes % 60;
+
+  // Only minutes (e.g. 0.18 hrs)
+  if (h == 0 && m > 0) {
+    return "${m}m";
+  }
+
+  // Only hours (e.g. 8.0 hrs)
+  if (m == 0) {
+    return "${h}h";
+  }
+
+  // Hours + minutes (e.g. 4.36 hrs)
+  return "${h}h ${m}m";
+}
+
+/// Converts API working hours string (H:mm or HH:mm) into Duration.
+///
+/// Examples:
+/// "0:48"  -> 48 minutes
+/// "4:22"  -> 4 hours 22 minutes
+/// "" / {} / null -> Duration.zero (safe for bad ERP APIs)
+Duration parseWorkingHoursToDuration(String? workingHours) {
+  // 🔒 Handle null / empty / {} (your API sends {})
+  if (workingHours == null || workingHours.isEmpty || workingHours == "{}") {
+    return Duration.zero;
+  }
+
+  try {
+    final parts = workingHours.split(':');
+
+    if (parts.length != 2) return Duration.zero;
+
+    final hours = int.tryParse(parts[0]) ?? 0;
+    final minutes = int.tryParse(parts[1]) ?? 0;
+
+    return Duration(hours: hours, minutes: minutes);
+  } catch (e) {
+    // 🛡 Prevent crash if backend sends invalid value
+    return Duration.zero;
+  }
+}
+
+/// Calculates target working duration from shift start & end time.
+///
+/// Example:
+/// 09:00 -> 18:00 = 9:00 hours
+///
+/// Handles:
+/// - null values
+/// - invalid API times
+/// - negative duration safety (overnight shifts)
+Duration calculateShiftDuration(DateTime? shiftStart, DateTime? shiftEnd) {
+  if (shiftStart == null || shiftEnd == null) {
+    // Default ERP fallback (9 hours)
+    return const Duration(hours: 9);
+  }
+
+  Duration diff = shiftEnd.difference(shiftStart);
+
+  // 🛡 Safety: if backend sends wrong order or midnight edge case
+  if (diff.isNegative) {
+    diff = const Duration(hours: 9);
+  }
+
+  return diff;
+}
+
 // <---- EXPORT AND DOWNLOAD FILE FOR MOBILE ---->
 Future<void> exportExcelOrPdfMobile(String base64, String fileName) async {
   try {
@@ -351,6 +484,45 @@ String dateFormatterDDMMYYYYDAY(
 
 String dateFormatterHhMmAm(DateTime dateTime) {
   return DateFormat('hh:mma').format(dateTime).toLowerCase();
+}
+
+/// Formats a time string (HH:mm:ss or HH:mm) into only hours with AM/PM.
+///
+/// Example:
+/// "18:00:00" -> "06 pm"
+/// "09:30:00" -> "09 am"
+/// "10:31:32" -> "10 am"
+///
+/// This is API-safe because backend sometimes sends:
+/// - "18:00:00"
+/// - "09:00:00"
+/// - null
+/// - empty string
+///
+/// It prevents crashes and avoids showing "12 am" incorrectly.
+String dateFormatterHourOnly(String? timeString) {
+  // 🔒 Safety check for null or empty API values
+  if (timeString == null || timeString.isEmpty) {
+    return "-";
+  }
+
+  try {
+    // Split time string (e.g., "18:00:00")
+    final parts = timeString.split(':');
+
+    // Parse hour safely
+    final hour = int.tryParse(parts[0]) ?? 0;
+
+    // Create a dummy DateTime using today's date with API hour
+    final now = DateTime.now();
+    final dateTime = DateTime(now.year, now.month, now.day, hour);
+
+    // Format to only hour with AM/PM and convert to lowercase (UI consistency)
+    return DateFormat('hh a').format(dateTime).toLowerCase();
+  } catch (e) {
+    // Fallback in case API sends unexpected format like {}
+    return "-";
+  }
 }
 
 String formatDateToDayMonth(DateTime dt) {

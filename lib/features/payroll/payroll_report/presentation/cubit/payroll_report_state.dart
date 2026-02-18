@@ -1,6 +1,8 @@
 part of 'payroll_report_cubit.dart';
 
 class PayrollReportState extends BaseState {
+  final int totalNumberOfRecord;
+  final int currentPage;
   final List<AttendanceModel> attendanceList;
   final int totalNumberOfRecordAttendance;
   final int currentPageAttendance;
@@ -32,6 +34,8 @@ class PayrollReportState extends BaseState {
 
   const PayrollReportState({
     super.isLoading,
+    required this.totalNumberOfRecord,
+    required this.currentPage,
     required this.attendanceList,
     required this.currentPageAttendance,
     required this.totalNumberOfRecordAttendance,
@@ -58,6 +62,8 @@ class PayrollReportState extends BaseState {
 
   factory PayrollReportState.initial() => PayrollReportState(
     isLoading: true,
+    totalNumberOfRecord: 0,
+    currentPage: 1,
     attendanceList: [],
     currentPageAttendance: 1,
     totalNumberOfRecordAttendance: 0,
@@ -84,6 +90,8 @@ class PayrollReportState extends BaseState {
 
   PayrollReportState copyWith({
     bool? isLoading,
+    int? totalNumberOfRecord,
+    int? currentPage,
     List<AttendanceModel>? attendanceList,
     int? currentPageAttendance,
     int? totalNumberOfRecordAttendance,
@@ -106,9 +114,12 @@ class PayrollReportState extends BaseState {
     String? searchText,
     DateTime? filterStartDate,
     DateTime? filterEndDate,
+    bool clearFilters = false,
   }) {
     return PayrollReportState(
       isLoading: isLoading ?? this.isLoading,
+      totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
+      currentPage: currentPage ?? this.currentPage,
       attendanceList: attendanceList ?? this.attendanceList,
       currentPageAttendance:
           currentPageAttendance ?? this.currentPageAttendance,
@@ -139,14 +150,18 @@ class PayrollReportState extends BaseState {
           this.totalNumberOfRecordRegurization,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       searchText: searchText ?? this.searchText,
-      filterStartDate: filterStartDate ?? this.filterStartDate,
-      filterEndDate: filterEndDate ?? this.filterEndDate,
+      filterStartDate:
+          clearFilters ? null : (filterStartDate ?? this.filterStartDate),
+      filterEndDate:
+          clearFilters ? null : (filterEndDate ?? this.filterEndDate),
     );
   }
 
   @override
   List<Object?> get props => [
     isLoading,
+    totalNumberOfRecord,
+    currentPage,
     attendanceList,
     currentPageAttendance,
     totalNumberOfRecordAttendance,

@@ -100,11 +100,16 @@ class DashboardDatasourceImpl implements DashboardDatasource {
       var networkResponse = await baseClient.getRequestWithAuthentication(
         pullDashboardUrl(queryParams: queryParams),
       );
+      final rawData = networkResponse["data"] ?? networkResponse["Data"];
+
+      if (rawData == null) {
+        return {'data': null, 'totalNumberOfRecord': 0};
+      }
+      final UserDashboardModel model = UserDashboardModel.fromJson(rawData);
+
       return {
-        'data': List<UserDashboardModel>.from(
-          networkResponse["data"].map((e) => UserDashboardModel.fromJson(e)),
-        ),
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'data': model,
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
       };
     } catch (error) {
       if (error is TokenExpiredException) {
