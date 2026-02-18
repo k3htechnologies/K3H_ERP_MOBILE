@@ -289,7 +289,6 @@ class EnquiryModel {
     "Remark": remark,
     "VillageMasterId": villageMasterId,
     "ChannelPartnerMobileNumber": channelPartnerMobileNumber,
-
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

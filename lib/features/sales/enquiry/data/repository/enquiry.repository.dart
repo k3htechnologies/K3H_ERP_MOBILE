@@ -1,4 +1,3 @@
-
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
@@ -50,6 +49,7 @@ class EnquiryRepositoryImpl extends EnquiryRepository {
   EnquiryDatasource enquiryDatasource;
   EnquiryRepositoryImpl({required this.enquiryDatasource});
 
+  /// FETCH ENQUIRY LIST
   @override
   Future<Either<Failure, Map<String, dynamic>>> getEnquiryList({
     required int pageNumber,
@@ -70,6 +70,7 @@ class EnquiryRepositoryImpl extends EnquiryRepository {
     }
   }
 
+  /// ADD OR UPDATE ENQUIRY
   @override
   Future<Either<Failure, Map<String, dynamic>>> addUpdateEnquiry({
     required Map<String, dynamic> body,
@@ -82,6 +83,7 @@ class EnquiryRepositoryImpl extends EnquiryRepository {
     }
   }
 
+  /// FETCH VILLAGE LIST
   @override
   Future<Either<Failure, Map<String, dynamic>>> getVillageList({
     required int pageNumber,
@@ -100,6 +102,7 @@ class EnquiryRepositoryImpl extends EnquiryRepository {
     }
   }
 
+  /// EXPORT ENQUIRY DATA
   @override
   Future<Either<Failure, Map<String, dynamic>>> exportEnquiry({
     required int pageNumber,
@@ -120,6 +123,7 @@ class EnquiryRepositoryImpl extends EnquiryRepository {
     }
   }
 
+  /// FETCH ENQUIRY FOLLOW-UP LIST
   @override
   Future<Either<Failure, Map<String, dynamic>>> getEnquiryFollowUpList({
     required int pageNumber,
@@ -143,6 +147,7 @@ class EnquiryRepositoryImpl extends EnquiryRepository {
     }
   }
 
+  /// ADD OR UPDATE ENQUIRY FOLLOW-UP
   @override
   Future<Either<Failure, Map<String, dynamic>>> addUpdateEnquiryFollowUp({
     required Map<String, dynamic> body,
@@ -157,8 +162,8 @@ class EnquiryRepositoryImpl extends EnquiryRepository {
     }
   }
 
+  /// DELETE ENQUIRY FOLLOW-UP
   @override
-  // Repository method for deleting an Enquiry Follow-Up
   Future<Either<Failure, Map<String, dynamic>>> deleteEnquiryFollowUp({
     required int followUpId,
     required String uniqueKey,

@@ -114,13 +114,11 @@ class EnquiryCubit extends Cubit<EnquiryState> {
   }
 
   // <---- CLEAR CHANNEL PARTNER MODEL ---->
-
   void clearChannelPartner() {
-    emit(state.copyWith(clearChannelPartner: true));
+    emit(state.copyWith(clearChannelPartner: true, selectedNationality: null));
   }
 
   // <---- CLEAR ENQUIRY FOLLOWUP ---->
-
   void clearEnquiryFollowUp() {
     emit(state.copyWith(enquiryFollowUpList: [], isLoading: true));
   }
@@ -152,14 +150,23 @@ class EnquiryCubit extends Cubit<EnquiryState> {
   Future<Map<String, dynamic>> fetchEmployees(
     int pageNumber, {
     String? value,
+    int? employeeId,
   }) async {
+    final Map<String, dynamic> queryParams = {};
+
+    if (employeeId != null && employeeId != 0) {
+      // FETCH BY
+      queryParams["EmployeeId"] = employeeId;
+    } else if (value != null && value.isNotEmpty) {
+      // FETCH BY NAME (SEARCH)
+      queryParams["EmployeeName"] = value;
+      queryParams["DepartmentName"] = "Sale";
+    }
+
     final result = await _employeeMasterRepository.getEmployeeMasterList(
       pageNumber: pageNumber,
       pageSize: 15,
-      queryParams:
-          value != null && value.isNotEmpty
-              ? {"EmployeeName": value, "DepartmentName": "Sale"}
-              : {},
+      queryParams: queryParams,
     );
 
     return result.fold(
@@ -169,14 +176,13 @@ class EnquiryCubit extends Cubit<EnquiryState> {
       },
       (response) {
         final employees = response['data'] as List<UserModel>;
-
         return {
           "itemList":
               employees.map((employee) {
                 return {
                   "zAttributesId": employee.employeeId,
                   "DisplayName": employee.fullName,
-                  "MobileNo": employee.officeMobileNumber,
+                  "MobileNo": employee.personalMobileNumber,
                 };
               }).toList(),
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
@@ -281,7 +287,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         emit(state.copyWith(isLoading: false, enquiryFollowUpList: []));
       },
       (response) {
-        // Extract the data list from the map, just like getEnquiryList
         final followUps = response['data'] as List<EnquiryFollowUpModel>;
         emit(state.copyWith(isLoading: false, enquiryFollowUpList: followUps));
       },
@@ -360,7 +365,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
-        // Remove deleted item from list
         final updatedList = List<EnquiryFollowUpModel>.from(
           state.enquiryFollowUpList,
         );

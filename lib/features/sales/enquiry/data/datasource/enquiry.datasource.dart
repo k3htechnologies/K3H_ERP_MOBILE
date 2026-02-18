@@ -51,6 +51,7 @@ abstract interface class EnquiryDatasource {
 class EnquiryDatasourceImpl extends EnquiryDatasource {
   final BaseClient baseClient = BaseClient();
 
+  /// FETCH ENQUIRY LIST
   @override
   Future<Map<String, dynamic>> apiCallPullEnquiry({
     required int pageNumber,
@@ -98,6 +99,7 @@ class EnquiryDatasourceImpl extends EnquiryDatasource {
     }
   }
 
+  /// ADD OR UPDATE ENQUIRY
   @override
   Future<Map<String, dynamic>> apicallAddUpdateEnquiry({
     required Map<String, dynamic> body,
@@ -123,6 +125,7 @@ class EnquiryDatasourceImpl extends EnquiryDatasource {
     }
   }
 
+  /// FETCH VILLAGE LIST
   @override
   Future<Map<String, dynamic>> apiCallPullVillage({
     required int pageNumber,
@@ -166,6 +169,7 @@ class EnquiryDatasourceImpl extends EnquiryDatasource {
     }
   }
 
+  /// EXPORT ENQUIRY DATA
   @override
   Future<Map<String, dynamic>> apiCallPullEnquiryForExport({
     required int pageNumber,
@@ -212,6 +216,7 @@ class EnquiryDatasourceImpl extends EnquiryDatasource {
     }
   }
 
+  /// FETCH ENQUIRY FOLLOW-UP LIST
   @override
   Future<Map<String, dynamic>> apiCallPullEnquiryFollowUp({
     required int pageNumber,
@@ -263,6 +268,7 @@ class EnquiryDatasourceImpl extends EnquiryDatasource {
     }
   }
 
+  /// ADD OR UPDATE ENQUIRY FOLLOW-UP
   @override
   Future<Map<String, dynamic>> apicallAddUpdateEnquiryFollowUp({
     required Map<String, dynamic> body,
@@ -289,8 +295,8 @@ class EnquiryDatasourceImpl extends EnquiryDatasource {
     }
   }
 
+  /// DELETE ENQUIRY FOLLOW-UP
   @override
-  /// API call to delete an Enquiry Follow-Up
   Future<Map<String, dynamic>> apicallDeleteEnquiryFollowUp({
     required int followUpId,
     required int enquiryId,
