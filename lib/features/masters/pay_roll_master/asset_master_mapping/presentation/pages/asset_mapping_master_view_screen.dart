@@ -94,7 +94,6 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                           title: "Branch",
                           value: assetMapping.branch,
                         ),
-
                       ],
                     ),
                     Row(
@@ -108,7 +107,6 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                           title: "Designation",
                           value: assetMapping.designation,
                         ),
-
                       ],
                     ),
                     Row(
@@ -217,9 +215,12 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                       children: [
                         buildColumnTitleValue(
                           title: "Return Date",
-                          value:assetMapping.returnDate!=null? formatDateTimeAsDDMMMYYYY(
-                            assetMapping.returnDate!,
-                          ):"-",
+                          value:
+                              assetMapping.returnDate != null
+                                  ? formatDateTimeAsDDMMMYYYY(
+                                    assetMapping.returnDate!,
+                                  )
+                                  : "-",
                         ),
                       ],
                     ),

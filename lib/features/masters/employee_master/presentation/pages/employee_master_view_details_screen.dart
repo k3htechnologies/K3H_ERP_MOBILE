@@ -425,6 +425,25 @@ class _EmployeeMasterViewDetailsScreenState
                 {'label': 'Account Number', 'value': user.accountNo},
               ],
             ),
+          _buildInfoCard(
+            title: 'Action Details',
+            items: [
+              {'label': 'Created By', 'value': user.createdBy},
+              {
+                'label': 'Created Date',
+                'value': formatDateTimeAsDDMMMYYYY(user.createdDate),
+              },
+              {'label': 'Modified By', 'value': user.modifiedBy},
+
+              {
+                'label': 'Modified Date',
+                'value':
+                    user.modifiedDate != null
+                        ? formatDateTimeAsDDMMMYYYY(user.modifiedDate!)
+                        : '-',
+              },
+            ],
+          ),
           if (_hasBankDetails(user)) verticalSpacing(),
           verticalSpacing(height: 20),
         ],
@@ -624,7 +643,10 @@ class _EmployeeMasterViewDetailsScreenState
                             Expanded(
                               child: Align(
                                 alignment: Alignment.centerLeft,
-                                child: _buildInfoItem("Assigned Date", formatDateTimeAsDDMMMYYYY(asset.assignedDate)),
+                                child: _buildInfoItem(
+                                  "Assigned Date",
+                                  formatDateTimeAsDDMMMYYYY(asset.assignedDate),
+                                ),
                               ),
                             ),
                           ],
@@ -641,9 +663,7 @@ class _EmployeeMasterViewDetailsScreenState
                                 ),
                               ),
                             ),
-                            Expanded(
-                              child: Container()
-                            ),
+                            Expanded(child: Container()),
                           ],
                         ),
                       ],

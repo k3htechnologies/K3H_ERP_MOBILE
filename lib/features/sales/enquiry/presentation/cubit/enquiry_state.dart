@@ -24,8 +24,8 @@ class EnquiryState extends BaseState {
     this.selectedNationality = 'Indian',
     this.channelPartnerModel,
     this.enquiryFollowUpList = const [],
-    required this.currentSortColumn,
-    required this.currentSortDirection,
+    this.currentSortColumn = "Created Date",
+    this.currentSortDirection = "DESC",
   });
 
   factory EnquiryState.initial() => const EnquiryState(
@@ -37,8 +37,8 @@ class EnquiryState extends BaseState {
     selectedNationality: 'Indian',
     channelPartnerModel: null,
     enquiryFollowUpList: [],
-    currentSortColumn: "",
-    currentSortDirection: "",
+    currentSortColumn: "Created Date",
+    currentSortDirection: "DESC",
   );
 
   EnquiryState copyWith({

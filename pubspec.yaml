@@ -95,7 +95,6 @@ dependencies:
   # GEO CODING
   geocoding: ^4.0.0
   syncfusion_flutter_sliders: ^32.2.4
-  timelines_plus: ^1.0.8
 
 # DEV DEPENDENCIES
 dev_dependencies:

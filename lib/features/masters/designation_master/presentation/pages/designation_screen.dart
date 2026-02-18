@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class DesignationMasterScreen extends StatefulWidget {
@@ -131,7 +132,8 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
             innerState(() {
               selectedDirection = direction;
             });
-            applyEnabled.value = selectedDirection != null &&
+            applyEnabled.value =
+                selectedDirection != null &&
                 selectedDirection != initialDirection;
           }
 
@@ -216,7 +218,7 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
         screenTitle: 'Designation Master',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
-          if(_designationMasterCubit.state.totalNumberOfRecord==0){
+          if (_designationMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
@@ -272,13 +274,13 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+
                       children: [
                         Flexible(
                           child: Text(
                             designation.designationName,
                             style: AppTextStyle.ts14R(),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         horizontalSpacing(),
@@ -386,11 +388,8 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                         ],
                       ),
                     ),
-                    Divider(
-                      color: AppColor.primary.withValues(alpha: .5),
-                      thickness: .5,
-                      height: 25,
-                    ),
+                    verticalSpacing(),
+
                     Row(
                       children: [
                         Row(
@@ -437,6 +436,31 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                           ],
                         ),
                       ],
+                    ),
+                    verticalSpacing(height: 5),
+                    buildRowTitleValue(
+                      title: "Created By",
+                      singleLine: false,
+
+                      value: designation.createdBy,
+                    ),
+                    buildRowTitleValue(
+                      title: "Created Date",
+                      value: formatDateTimeAsDDMMMYYYY(designation.createdDate),
+                    ),
+                    buildRowTitleValue(
+                      title: "Modified By",
+                      singleLine: false,
+                      value: designation.modifiedBy,
+                    ),
+                    buildRowTitleValue(
+                      title: "Modified Date",
+                      value:
+                          designation.modifiedDate == null
+                              ? '-'
+                              : formatDateTimeAsDDMMMYYYY(
+                                designation.modifiedDate!,
+                              ),
                     ),
                   ],
                 ),

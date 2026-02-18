@@ -37,10 +37,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
   final _formKey = GlobalKey<FormState>();
   String? _timeInC;
-  String? _timeOutC;
   final List<int> budgetOptions = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25];
 
-  // ValueNotifiers for reactive state
+  // VALUE NOTIFIERS FOR REACTIVE STATE
   final ValueNotifier<int> _budgetValueNotifier = ValueNotifier<int>(1);
   final ValueNotifier<Map<String, dynamic>?> _selectedAccommodationNotifier =
       ValueNotifier(null);
@@ -81,10 +80,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   final ValueNotifier<List<Map<String, dynamic>>>
   _selectedSourcingManagerNotifier = ValueNotifier([]);
   final ValueNotifier<DateTime?> _dateOfBirthNotifier = ValueNotifier(null);
-  final ValueNotifier<DateTime?> _enquiryDateNotifier = ValueNotifier(null);
-  final ValueNotifier<DateTime?> _nextFollowUpDateNotifier = ValueNotifier(
-    null,
-  );
+  DateTime? _enquiryDate;
+  DateTime? _nextFollowUpDate;
   final ValueNotifier<List<Map<String, dynamic>>> _selectedTeamMemberNotifier =
       ValueNotifier([]);
   final ValueNotifier<String> _channelPartnerMobileNotifier = ValueNotifier('');
@@ -97,8 +94,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       _areaPrefC,
       _budgetC,
       // NRI Fields
-      _countryOfResidenceC, // ADD THIS
-      _cityOfResidenceC, // ADD THIS
+      _countryOfResidenceC,
+      _cityOfResidenceC,
       // Channel Partner
       _channelPartnerMobileC,
       _teamMemberNameC,
@@ -260,13 +257,12 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     super.initState();
     _enquiryCubit = context.read<EnquiryCubit>();
     _initControllers();
-    // _initializeDefaultValues();
-
+    _enquiryCubit.clearChannelPartner();
     if (_isEditMode) {
       _populateForm(widget.enquiryModel!);
     } else {
-      _timeInC = DateTime.now().toIso8601String().split("T")[1];
-      _enquiryDateNotifier.value = DateTime.now();
+      _timeInC = DateTime.now().toIso8601String().split("T")[1].split(".")[0];
+      _enquiryDate = DateTime.now();
     }
   }
 
@@ -334,16 +330,15 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
     // TIME
     _timeInC = model.enquiryTimeIn;
-    _timeOutC = model.enquiryTimeOut;
 
     // DATES
     _dateOfBirthNotifier.value = model.dateOfBirth;
-    _enquiryDateNotifier.value = model.enquiryDate;
-    _nextFollowUpDateNotifier.value = model.nextFollowUpDate;
+    _enquiryDate = model.enquiryDate;
+    _nextFollowUpDate = model.nextFollowUpDate;
 
     // NRI FIELDS
-    _countryOfResidenceC.text = model.countryOfResidence ?? '';
-    _cityOfResidenceC.text = model.cityOfResidence ?? '';
+    _countryOfResidenceC.text = model.countryOfResidence;
+    _cityOfResidenceC.text = model.cityOfResidence;
 
     // TEAM MEMBER SELECTION
     if (model.source == "Channel Partner" &&
@@ -504,8 +499,11 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     // Source & SubSubSource
     final source = _selectedSourceNotifier.value?["DisplayName"] ?? "";
     final subSubSource =
-        _selectedSubSubSourceNotifier.value?["DisplayName"] ?? "";
-
+        source == "Channel Partner"
+            ? (_selectedSubSubSourceNotifier.value?["zAttributesId"]
+                    ?.toString() ??
+                "")
+            : (_selectedSubSubSourceNotifier.value?["DisplayName"] ?? "");
     // Count selected fields (Possession, Requirement, Location, Budget)
     int selectedCount = 0;
     if ((_selectedPossessionTypeNotifier.value?["DisplayName"] ?? "")
@@ -555,7 +553,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       if (_isEditMode) "Uniquekey": widget.enquiryModel!.uniquekey,
       "ProjectId": getProject().projectId,
       "EnquiryTimeIn": _timeInC,
-      "EnquiryTimeOut": _timeOutC,
+      "EnquiryTimeOut":
+          DateTime.now().toIso8601String().split("T")[1].split(".")[0],
       "Name": _nameC.text.trim(),
       "MobileNumber": _mobileC.text.trim(),
       "EmailId": _emailC.text.trim(),
@@ -581,7 +580,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               : 0,
       "ChannelPartnerTeamMemberName": _teamMemberNameC.text.trim(),
       "ChannelPartnerTeamMemberMobileNumber": _teamMemberMobileC.text.trim(),
-      "Nationality": _enquiryCubit.state.selectedNationality ?? "",
+      "Nationality": _enquiryCubit.state.selectedNationality,
       "CountryOfResidence": _countryOfResidenceC.text.trim(),
       "CityOfResidence": _cityOfResidenceC.text.trim(),
       "CurrentLocation": _locationC.text.trim(),
@@ -599,8 +598,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       "Ethnicity": _selectedEthnicityNotifier.value?["DisplayName"] ?? "",
       "FinalStage": _selectedFinalStageNotifier.value?["DisplayName"] ?? "",
       "FinalStageDetail": "",
-      "EnquiryDate": _enquiryDateNotifier.value?.toIso8601String(),
-      "NextFollowUpDate": _nextFollowUpDateNotifier.value?.toIso8601String(),
+      "EnquiryDate": _enquiryDate?.toIso8601String(),
+      "NextFollowUpDate": _nextFollowUpDate?.toIso8601String(),
       "SalesAdvisorId":
           _selectedSaleAdvisorNotifier.value.isNotEmpty
               ? _selectedSaleAdvisorNotifier.value.first["zAttributesId"]
@@ -675,8 +674,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     // Value Notifiers - Budget & Dates
     _budgetValueNotifier.dispose();
     _dateOfBirthNotifier.dispose();
-    _enquiryDateNotifier.dispose();
-    _nextFollowUpDateNotifier.dispose();
+    _enquiryDate = null;
+    _nextFollowUpDate = null;
 
     // Value Notifiers - Dropdowns
     _selectedAccommodationNotifier.dispose();
@@ -796,6 +795,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             title: "Mobile Number",
             textController: _mobileC,
             hint: "Enter Mobile Number",
+            keyboardType: TextInputType.number,
             isRequired: true,
             inputFormatterList: InputValidator.digit(10),
             validator: (val) {
@@ -808,6 +808,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
           CustomTextField(
             title: "E-mail ID",
             textController: _emailC,
+            keyboardType: TextInputType.emailAddress,
             hint: "Enter Email",
           ),
           ValueListenableBuilder<DateTime?>(
@@ -819,8 +820,18 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 initialDate: dateOfBirth,
                 validator: (value) {
                   if (value == null) return "DOB is required";
+
+                  final today = DateTime.now();
+                  int age = today.year - value.year;
+                  if (today.month < value.month ||
+                      (today.month == value.month && today.day < value.day)) {
+                    age--;
+                  }
+
+                  if (age < 18) return "Age must be 18 or above";
                   return null;
                 },
+
                 setValue: (v) {
                   _dateOfBirthNotifier.value = v;
                   _updateAge();
@@ -828,6 +839,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               );
             },
           ),
+
           CustomTextField(
             isRequired: true,
             readOnly: true,
@@ -860,7 +872,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               return CustomDropDownWidget(
                 title: "Occupation Type",
                 isRequired: true,
-                initialValue: selectedOccupationType ?? occupationType.first,
+                initialValue: selectedOccupationType,
                 dataList: occupationType,
                 onSelected: (v) => _selectedOccupationTypeNotifier.value = v,
                 validator: (val) {
@@ -877,7 +889,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             children: [
               Radio<String>(
                 value: state.options[0],
+                // ignore: deprecated_member_use
                 groupValue: state.selectedNationality,
+                // ignore: deprecated_member_use
                 onChanged: (value) {
                   _enquiryCubit.onSelectedOptionChanged(value!);
                   // Clear NRI fields when switching to Indian
@@ -891,7 +905,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               horizontalSpacing(),
               Radio<String>(
                 value: state.options[1],
+                // ignore: deprecated_member_use
                 groupValue: state.selectedNationality,
+                // ignore: deprecated_member_use
                 onChanged: (value) {
                   _enquiryCubit.onSelectedOptionChanged(value!);
                 },
@@ -1193,6 +1209,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                               title: "Team Member Mobile Number",
                               hint: "Enter Mobile Number",
                               textController: _teamMemberMobileC,
+                              keyboardType: TextInputType.number,
                               isRequired: true,
                               inputFormatterList: InputValidator.digit(10),
                               validator: (val) {
@@ -1257,6 +1274,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   title: "Employee Mobile Number",
                   hint: "Enter Mobile Number",
                   textController: _employeeMobileNumber,
+                  keyboardType: TextInputType.number,
+
                   isRequired: true,
                   inputFormatterList: InputValidator.digit(10),
                   validator: (val) {
@@ -1289,6 +1308,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   title: "Existing Unit Number",
                   hint: "Enter Unit Number",
                   textController: _existingUnitNumber,
+                  keyboardType: TextInputType.number,
+
                   isRequired: true,
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) {
@@ -1317,6 +1338,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   title: "Referral Mobile Number",
                   hint: "Enter Referral Mobile Number",
                   isRequired: true,
+                  keyboardType: TextInputType.number,
+
                   textController: _referralMobile,
                   inputFormatterList: InputValidator.digit(10),
                   validator: (val) {
@@ -1345,6 +1368,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   title: "Referral Unit Number",
                   hint: "Enter Referral Unit Number",
                   isRequired: true,
+                  keyboardType: TextInputType.number,
+
                   textController: _referralUnitNumber,
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) {
@@ -1395,7 +1420,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               showLabels: true,
               enableTooltip: false,
               activeColor: AppColor.primary,
-              inactiveColor: AppColor.primary.withOpacity(0.25),
+              inactiveColor: AppColor.primary.withValues(alpha: 0.25),
               minorTicksPerInterval: 0,
               labelFormatterCallback: (actualValue, formattedText) {
                 int index = actualValue.round();
@@ -1544,6 +1569,12 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             hint: "Enter Area Preferred (SqFt)",
             textController: _areaPrefC,
           ),
+          CustomDropDownWidget(
+            title: "Desired Floor Band",
+            initialValue: _selectedFloorBandNotifier.value,
+            dataList: floorBrand,
+            onSelected: (v) => _selectedFloorBandNotifier.value = v,
+          ),
         ]);
       },
     );
@@ -1594,30 +1625,20 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
   Widget _followUpCard() {
     return _card("Follow Up Details", [
-      ValueListenableBuilder<DateTime?>(
-        valueListenable: _enquiryDateNotifier,
-        builder: (context, enquiryDate, child) {
-          return CustomDatePicker(
-            title: "Enquiry Date",
-            isRequired: true,
-            initialDate: enquiryDate,
-            setValue: (v) => _enquiryDateNotifier.value = v,
-          );
-        },
+      CustomDatePicker(
+        title: "Enquiry Date",
+        isRequired: true,
+        initialDate: _enquiryDate,
+        setValue: (v) => _enquiryDate = v,
       ),
-      ValueListenableBuilder<DateTime?>(
-        valueListenable: _nextFollowUpDateNotifier,
-        builder: (context, nextFollowUpDate, child) {
-          return CustomDatePicker(
-            title: "Next Follow-Up Date",
-            isRequired: true,
-            initialDate: nextFollowUpDate,
-            setValue: (v) => _nextFollowUpDateNotifier.value = v,
-            validator: (value) {
-              if (value == null) return "Next Follow-Up Date is required";
-              return null;
-            },
-          );
+      CustomDatePicker(
+        title: "Next Follow-Up Date",
+        isRequired: true,
+        initialDate: _nextFollowUpDate,
+        setValue: (v) => _nextFollowUpDate = v,
+        validator: (value) {
+          if (value == null) return "Next Follow-Up Date is required";
+          return null;
         },
       ),
     ]);
@@ -1654,11 +1675,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             },
           );
         },
-      ),
-      CustomTimePicker(
-        title: "Customer Time Out",
-        initialTime: parseTimeOfDayFromHHmm(_timeOutC),
-        setValue: (val) => _timeOutC = formatTimeOfDayHHmm(val),
       ),
       CustomTextField(
         title: "Remarks",
