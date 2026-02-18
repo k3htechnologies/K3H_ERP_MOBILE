@@ -39,27 +39,22 @@ class LoginCubit extends Cubit<LoginState> {
       DialogHelper.showProcessingOverlay(context);
       emit(state.copyWith(isLoading: true, stateType: StateType.sendOTP));
 
-      final result = await loginRepository.loginUser(mobileNumber: mobileNumber);
+      final result = await loginRepository.loginUser(
+        mobileNumber: mobileNumber,
+      );
 
       goRouter.pop();
 
       result.fold(
-            (failure) {
+        (failure) {
           showErrorMessage(context, "Login Failed", failure.message);
           emit(state.copyWith(isLoading: false, isSendOtp: false));
         },
-            (message) async {
-          emit(state.copyWith(isLoading: false, isSendOtp: true));
-          await showSuccessMessage(context, subTitle: message);
-
-          goRouter.pushNamed(
-            AppRoutes.otp,
-            queryParameters: {
-              "mobileNumber": Uri.encodeComponent(
-                EncryptionManager.encryptData(mobileNumber),
-              ),
-            },
+        (message) async {
+          emit(
+            state.copyWith(isLoading: false, isSendOtp: true, message: message),
           );
+          await showSuccessMessage(context, subTitle: message);
         },
       );
     } catch (e) {
@@ -74,10 +69,10 @@ class LoginCubit extends Cubit<LoginState> {
   // ------------------------------ VALIDATE OTP ------------------------------
 
   Future<void> validateOtp(
-      BuildContext context,
-      String mobileNumber,
-      String otp,
-      ) async {
+    BuildContext context,
+    String mobileNumber,
+    String otp,
+  ) async {
     DialogHelper.showProcessingOverlay(context);
 
     final result = await loginRepository.validateOTP(
@@ -86,11 +81,11 @@ class LoginCubit extends Cubit<LoginState> {
     );
 
     result.fold(
-          (failure) {
+      (failure) {
         goRouter.pop();
         showErrorMessage(context, "Login Failed", failure.message);
       },
-          (user) async {
+      (user) async {
         goRouter.pop();
         emit(state.copyWith(user: user));
 
@@ -101,13 +96,10 @@ class LoginCubit extends Cubit<LoginState> {
         // Fetch complete employee data with all fields (bank details, reporting cycle, etc.)
         await _fetchAndStoreCompleteEmployeeData(user);
 
-
         // ROUTING DECISION
         if (user.projectData.isNotEmpty) {
           goRouter.go(
-            "${AppRoutes.projectList}?projects=${Uri.encodeComponent(
-              EncryptionManager.encryptData(jsonEncode(user.projectData)),
-            )}",
+            "${AppRoutes.projectList}?projects=${Uri.encodeComponent(EncryptionManager.encryptData(jsonEncode(user.projectData)))}",
           );
         } else {
           // SAVE MENU
@@ -122,6 +114,40 @@ class LoginCubit extends Cubit<LoginState> {
     );
   }
 
+  // ------------------------------ SET MPIN ------------------------------
+
+  Future<void> sepMpin({
+    required BuildContext context,
+    required String pin,
+    required int employeeId,
+    required String uniqueKey,
+  }) async {
+    try {
+      Map<String, dynamic> body = {
+        "EmployeeId": employeeId,
+        "UniqueKey": uniqueKey,
+        "MPIN": pin,
+      };
+
+      final result = await loginRepository.setMpin(body: body);
+
+      result.fold(
+        (failure) {
+          goRouter.pop();
+          showErrorMessage(context, "Error", failure.message);
+        },
+        (message) async {
+          showSuccessMessage(context, subTitle: message);
+
+          await LocalStorageManager().removeAll();
+          goRouter.replace(AppRoutes.splashScreen);
+        },
+      );
+    } catch (e) {
+      debugPrint("Jay Shree Ram!!!");
+    }
+  }
+
   // ------------------------------ FETCH COMPLETE EMPLOYEE DATA ------------------------------
 
   Future<void> _fetchAndStoreCompleteEmployeeData(UserModel loginUser) async {
@@ -130,9 +156,7 @@ class LoginCubit extends Cubit<LoginState> {
       final result = await employeeMasterRepository.getEmployeeMasterList(
         pageNumber: 1,
         pageSize: 1,
-        queryParams: {
-          "EmployeeId": loginUser.employeeId.toString(),
-        },
+        queryParams: {"EmployeeId": loginUser.employeeId.toString()},
       );
 
       result.fold(
@@ -144,17 +168,29 @@ class LoginCubit extends Cubit<LoginState> {
           final employeeList = response['data'] as List<UserModel>;
           if (employeeList.isNotEmpty) {
             final completeEmployee = employeeList.first;
-            
+
             final mergedUserData = {
               ...completeEmployee.toJson(),
               "Token": loginUser.token, // Preserve token from login
-              "ModuleData": loginUser.moduleData.map((e) => e.toJson()).toList(), // Preserve module data
-              "ProjectData": loginUser.projectData.map((e) => e.toJson()).toList(), // Preserve project data
+              "ModuleData":
+                  loginUser.moduleData
+                      .map((e) => e.toJson())
+                      .toList(), // Preserve module data
+              "ProjectData":
+                  loginUser.projectData
+                      .map((e) => e.toJson())
+                      .toList(), // Preserve project data
             };
-            
-            localStorage.setString(StorageKey.currentUser, jsonEncode(mergedUserData));
+
+            localStorage.setString(
+              StorageKey.currentUser,
+              jsonEncode(mergedUserData),
+            );
           } else {
-            localStorage.setString(StorageKey.currentUser, jsonEncode(loginUser));
+            localStorage.setString(
+              StorageKey.currentUser,
+              jsonEncode(loginUser),
+            );
           }
         },
       );
@@ -168,9 +204,6 @@ class LoginCubit extends Cubit<LoginState> {
   Future<UserModel?> getEmployeeWithMenuList() async {
     final result = await utilsRepository.pullEmployeeWithMenuList();
 
-    return result.fold(
-          (failure) => null,
-          (res) => res,
-    );
+    return result.fold((failure) => null, (res) => res);
   }
 }

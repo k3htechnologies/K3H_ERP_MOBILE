@@ -16,6 +16,8 @@ abstract interface class LoginRepository {
     required String mobileNumber,
     required String otp,
   });
+
+  Future<Either<Failure, String>> setMpin({required Map<String, dynamic> body});
 }
 
 class LoginRepositoryImpl implements LoginRepository {
@@ -63,6 +65,18 @@ class LoginRepositoryImpl implements LoginRepository {
         mobileNumber: mobileNumber,
         otp: otp,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> setMpin({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await loginDatasource.apicallToSetMPIN(body: body);
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

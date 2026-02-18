@@ -31,7 +31,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
   late DesignationMasterCubit _designationMasterCubit;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _designationNameC, _noticePeriodC;
+  late TextEditingController _designationNameC, _noticePeriodC,_probationPeriodC;
 
   // FORM KEY
   final GlobalKey<FormState> _designationMasterAddUpdateKey =
@@ -53,6 +53,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
   void _initializeTextEditingController() {
     _designationNameC = TextEditingController();
     _noticePeriodC = TextEditingController();
+    _probationPeriodC = TextEditingController();
   }
 
   // <---- PREFILL DESIGNATION ---->
@@ -61,6 +62,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
   ) {
     _designationNameC.text = designationModel.designationName;
     _noticePeriodC.text = designationModel.noticePeriod.toString();
+    _probationPeriodC.text = designationModel.probationPeriod.toString();
   }
 
   // <---- API CALLS TO ADD/UPDATE DESIGNATION ---->
@@ -76,6 +78,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
             context: context,
             designationName: _designationNameC.text,
             noticePeriod: _noticePeriodC.text,
+            probationPeriod: _probationPeriodC.text,
             uniqueKey: designationModel.uniquekey,
             designationMasterId: designationModel.designationMasterId,
             index: index,
@@ -84,6 +87,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
             context: context,
             designationName: _designationNameC.text,
             noticePeriod: _noticePeriodC.text,
+            probationPeriod: _probationPeriodC.text,
           );
     }
   }
@@ -93,6 +97,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
     super.dispose();
     _designationNameC.dispose();
     _noticePeriodC.dispose();
+    _probationPeriodC.dispose();
   }
 
   @override
@@ -122,16 +127,19 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                 child: Column(
                   children: [
                     CustomTextField(
-                      title: "Designation",
+                      title: "Designation Name",
                       isRequired: true,
                       hint: "Enter Designation Name",
                       inputFormatterList: [
-                        LengthLimitingTextInputFormatter(50),
+                        LengthLimitingTextInputFormatter(100),
                       ],
                       textController: _designationNameC,
                       validator: (value) {
                         if ((value == null || value.isEmpty)) {
-                          return 'Designation is required';
+                          return 'Designation Name is required';
+                        }
+                        if(value.trim().length<3){
+                          return "Must be at least 3 characters";
                         }
                         return null;
                       },
@@ -142,7 +150,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                       hint: "Enter Notice Period",
                       textController: _noticePeriodC,
                       keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(3),
+                      inputFormatterList: InputValidator.digit(2),
                       validator: (value) {
                         if ((value == null || value.trim().isEmpty)) {
                           return 'Notice Period is required';
@@ -150,8 +158,28 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                         final numValue = int.tryParse(value);
                         if (numValue == null ||
                             numValue < 1 ||
-                            numValue > 365) {
-                          return 'Enter a valid number (1 to 365)';
+                            numValue > 99) {
+                          return 'Enter a valid number (1 to 99)';
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: "Probation Period (in days)",
+                      isRequired: true,
+                      hint: "Enter Probation Period",
+                      textController: _probationPeriodC,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digit(2),
+                      validator: (value) {
+                        if ((value == null || value.trim().isEmpty)) {
+                          return 'Probation Period is required';
+                        }
+                        final numValue = int.tryParse(value);
+                        if (numValue == null ||
+                            numValue < 1 ||
+                            numValue > 99) {
+                          return 'Enter a valid number (1 to 99)';
                         }
                         return null;
                       },

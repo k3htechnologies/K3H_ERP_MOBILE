@@ -3,7 +3,6 @@ class AppRoutes {
   static String splashScreen = "/splash";
   static String notAuthorized = "/notAuthorized";
   static String login = "/login";
-  static String otp = "/otp";
   static String projectList = "/projectList";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>

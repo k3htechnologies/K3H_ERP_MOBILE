@@ -69,11 +69,13 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     required BuildContext context,
     required String designationName,
     required String noticePeriod,
+    required String probationPeriod,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       'DesignationName': designationName,
       'NoticePeriod': noticePeriod,
+      'ProbationPeriod': probationPeriod,
     };
     var addResult = await _designationMasterRepository.addUpdateDesignation(
       requestBody: requestBody,
@@ -93,7 +95,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
         goRouter.pop();
         showSuccessMessage(
           context,
-          subTitle: 'Designation Added Successfully!!!',
+          subTitle: 'Designation Added Successfully',
         );
       },
     );
@@ -106,6 +108,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     required String uniqueKey,
     required String designationName,
     required String noticePeriod,
+    required String probationPeriod,
     required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -114,6 +117,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
       'UniqueKey': uniqueKey,
       'DesignationName': designationName,
       'NoticePeriod': noticePeriod,
+      'ProbationPeriod': probationPeriod,
     };
 
     var updateResult = await _designationMasterRepository.addUpdateDesignation(
@@ -149,7 +153,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
 
         showSuccessMessage(
           context,
-          subTitle: 'Designation Updated Successfully!!!',
+          subTitle: 'Designation Updated Successfully',
         );
       },
     );
@@ -184,7 +188,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
       (response) {
         showSuccessMessage(
           context,
-          subTitle: 'Designation Deleted Successfully!!!',
+          subTitle: 'Designation Deleted Successfully',
         );
         if (index != null) {
           final updatedList = List<DesignationMasterModel>.from(
@@ -254,9 +258,10 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "designation_${DateTime.now()}.pdf"
-              : "designation_${DateTime.now()}.xlsx",
+              ? "Designation Master ${DateTime.now()}.pdf"
+              : "Designation Master ${DateTime.now()}.xlsx",
         );
+        showSuccessMessage(context, subTitle: 'Exported as $exportType Successfully');
       },
     );
   }
@@ -666,9 +671,6 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
           break;
       }
 
-      // For submodules with sub-submodules, derive submodule's checkbox state
-      // from its sub-submodules: if ALL sub-submodules have a permission checked,
-      // then the submodule's checkbox is checked; if ANY is unchecked, submodule is unchecked
       if (subModuleModel.subSubModuleData.isNotEmpty) {
         subModuleModel.isAction = subModuleModel.subSubModuleData.every(
           (subSubModule) => subSubModule.isAction,
@@ -679,37 +681,30 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
         subModuleModel.isExport = subModuleModel.subSubModuleData.every(
           (subSubModule) => subSubModule.isExport,
         );
-        // If action or export is checked, automatically check view as well
         if (subModuleModel.isAction || subModuleModel.isExport) {
           subModuleModel.isView = true;
         }
       }
 
-      // Update the subModule isSelected based on ALL subSubModules
       subModuleModel.isSelected = subModuleModel.subSubModuleData.every(
         (e) => e.isView && e.isAction && e.isExport,
       );
 
-      // Update the module isSelected based on ALL subModules
       moduleModel.isSelected = moduleModel.subModuleData.every(
         (e) => e.isSelected,
       );
     }
-    // CASE 2: Updating SubModule permissions directly
     else if (subModuleIndex != null) {
       ModuleModel moduleModel = list[moduleIndex!];
       SubModuleModel subModuleModel = moduleModel.subModuleData[subModuleIndex];
 
       if (type != null) {
-        // Update specific permission on sub-module
         switch (type) {
           case "action":
             subModuleModel.isAction = value;
-            // If action is checked, automatically check view as well
             if (value) {
               subModuleModel.isView = true;
             }
-            // Also update all sub-sub-modules' action checkboxes
             for (var subSubModule in subModuleModel.subSubModuleData) {
               subSubModule.isAction = value;
               // If action is checked, automatically check view as well
@@ -720,14 +715,11 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
             break;
           case "export":
             subModuleModel.isExport = value;
-            // If export is checked, automatically check view as well
             if (value) {
               subModuleModel.isView = true;
             }
-            // Also update all sub-sub-modules' export checkboxes
             for (var subSubModule in subModuleModel.subSubModuleData) {
               subSubModule.isExport = value;
-              // If export is checked, automatically check view as well
               if (value) {
                 subSubModule.isView = true;
               }
@@ -735,22 +727,17 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
             break;
           case "view":
             subModuleModel.isView = value;
-            // Also update all sub-sub-modules' view checkboxes
             for (var subSubModule in subModuleModel.subSubModuleData) {
               subSubModule.isView = value;
             }
             break;
         }
-        // Update subModule isSelected based on all permissions and sub-sub-modules
         if (subModuleModel.subSubModuleData.isEmpty) {
-          // No sub-sub-modules, check if all permissions are true
           subModuleModel.isSelected =
               subModuleModel.isView &&
               subModuleModel.isAction &&
               subModuleModel.isExport;
         } else {
-          // Has sub-sub-modules, derive submodule's checkbox state from sub-submodules
-          // and ensure isView is true if isAction or isExport is true
           subModuleModel.isAction = subModuleModel.subSubModuleData.every(
             (e) => e.isAction,
           );
@@ -760,24 +747,20 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
           subModuleModel.isExport = subModuleModel.subSubModuleData.every(
             (e) => e.isExport,
           );
-          // If action or export is checked, automatically check view as well
           if (subModuleModel.isAction || subModuleModel.isExport) {
             subModuleModel.isView = true;
           }
-          // isSelected depends on whether all sub-sub-modules have all permissions
           subModuleModel.isSelected = subModuleModel.subSubModuleData.every(
             (e) => e.isView && e.isAction && e.isExport,
           );
         }
       } else {
         if (subModuleModel.subSubModuleData.isEmpty) {
-          // Update all permissions
           subModuleModel.isAction = value;
           subModuleModel.isExport = value;
           subModuleModel.isView = value;
           subModuleModel.isSelected = value;
         } else {
-          // Update all subSubModules
           for (var subSubModule in subModuleModel.subSubModuleData) {
             subSubModule.isAction = value;
             subSubModule.isExport = value;
@@ -793,24 +776,19 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
         }
       }
 
-      // Update module selection
       moduleModel.isSelected = moduleModel.subModuleData.every(
         (e) => e.isSelected,
       );
     } else
-    // CASE 3: Updating Module permissions
     if (moduleIndex != null) {
       ModuleModel moduleModel = list[moduleIndex];
-      // Toggle entire module (all submodules and sub-submodules)
       for (var subModule in moduleModel.subModuleData) {
         if (subModule.subSubModuleData.isEmpty) {
-          // SubModule has no subSubModules → update directly
           subModule.isAction = value;
           subModule.isExport = value;
           subModule.isView = value;
           subModule.isSelected = value;
         } else {
-          // SubModule has subSubModules → update each subSubModule
           for (var subSubModule in subModule.subSubModuleData) {
             subSubModule.isAction = value;
             subSubModule.isExport = value;
@@ -821,19 +799,16 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
       }
       moduleModel.isSelected = value;
     }
-    // CASE 4: Updating all modules
     else {
       for (var module in list) {
         module.isSelected = value;
         for (var subModule in module.subModuleData) {
           if (subModule.subSubModuleData.isEmpty) {
-            // No subSubModules, apply directly to subModule
             subModule.isAction = value;
             subModule.isExport = value;
             subModule.isView = value;
             subModule.isSelected = value;
           } else {
-            // Has subSubModules — apply to all of them AND to the sub-module itself
             subModule.isAction = value;
             subModule.isExport = value;
             subModule.isView = value;
@@ -842,13 +817,11 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
               subSubModule.isExport = value;
               subSubModule.isView = value;
             }
-            // Mark subModule as selected
             subModule.isSelected = value;
           }
         }
       }
     }
-    // Process directly (no need for compute as this is simple boolean logic)
     return [list, list.every((e) => e.isSelected)];
   }
 
@@ -857,23 +830,19 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     required List<ModuleModel> existingList,
     required List<ModuleModel> apiList,
   }) {
-    // Create a map of existing modules by ID for quick lookup
     final Map<int, ModuleModel> existingModulesMap = {};
     for (var module in existingList) {
       existingModulesMap[module.modulesMasterId] = module;
     }
 
-    // Merge API data with existing local state
     List<ModuleModel> mergedList =
         apiList.map((apiModule) {
           final existingModule = existingModulesMap[apiModule.modulesMasterId];
 
-          // If module doesn't exist in local state, use API data
           if (existingModule == null) {
             return apiModule;
           }
 
-          // Merge submodules
           final Map<int, SubModuleModel> existingSubModulesMap = {};
           for (var subModule in existingModule.subModuleData) {
             existingSubModulesMap[subModule.subModulesMasterId] = subModule;
@@ -884,12 +853,10 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
                 final existingSubModule =
                     existingSubModulesMap[apiSubModule.subModulesMasterId];
 
-                // If submodule doesn't exist in local state, use API data
                 if (existingSubModule == null) {
                   return apiSubModule;
                 }
 
-                // Merge sub-submodules first
                 final Map<int, SubSubModuleModel> existingSubSubModulesMap = {};
                 for (var subSubModule in existingSubModule.subSubModuleData) {
                   existingSubSubModulesMap[subSubModule.subSubModulesMasterId] =
@@ -902,13 +869,10 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
                           existingSubSubModulesMap[apiSubSubModule
                               .subSubModulesMasterId];
 
-                      // If sub-submodule doesn't exist in local state, use API data
                       if (existingSubSubModule == null) {
                         return apiSubSubModule;
                       }
 
-                      // Always preserve local changes to sub-submodule permissions
-                      // This ensures unsaved user changes are not lost when API is called
                       apiSubSubModule.isAction = existingSubSubModule.isAction;
                       apiSubSubModule.isView = existingSubSubModule.isView;
                       apiSubSubModule.isExport = existingSubSubModule.isExport;
@@ -919,10 +883,6 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
                 // Update sub-submodules list
                 apiSubModule.subSubModuleData = mergedSubSubModules;
 
-                // For submodules with sub-submodules, ALWAYS derive submodule's checkbox state
-                // from its sub-submodules (don't preserve submodule's local state)
-                // If ALL sub-submodules have a permission checked, then submodule's checkbox is checked
-                // If ANY sub-submodule has a permission unchecked, then submodule's checkbox is unchecked
                 if (apiSubModule.subSubModuleData.isNotEmpty) {
                   apiSubModule.isAction = apiSubModule.subSubModuleData.every(
                     (subSubModule) => subSubModule.isAction,

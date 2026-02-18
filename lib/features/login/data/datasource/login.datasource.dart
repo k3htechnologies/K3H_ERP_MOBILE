@@ -13,10 +13,13 @@ abstract interface class LoginDatasource {
     required String mobileNumber,
     required String otp,
   });
+
+  Future<String> apicallToSetMPIN({
+    required Map<String, dynamic> body,
+  });
 }
 
 class LoginDatasourceImpl implements LoginDatasource {
-
   final baseClient = BaseClient();
 
   @override
@@ -24,7 +27,6 @@ class LoginDatasourceImpl implements LoginDatasource {
     required String mobileNumber,
   }) async {
     try {
-
       String isValidMobileNumber({required String mobileNumber}) {
         return "Authentication/IsValidMobileNumber?MobileNumber=$mobileNumber";
       }
@@ -44,11 +46,7 @@ class LoginDatasourceImpl implements LoginDatasource {
     required String otp,
   }) async {
     try {
-
-      String isValidOTP({
-        required String mobileNumber,
-        required String otp,
-      }) {
+      String isValidOTP({required String mobileNumber, required String otp}) {
         return "Authentication/IsValidOTP?MobileNumber=$mobileNumber&OTP=$otp";
       }
 
@@ -68,10 +66,7 @@ class LoginDatasourceImpl implements LoginDatasource {
     required String otp,
   }) async {
     try {
-      String isValidOTP({
-        required String mobileNumber,
-        required String otp,
-      }) {
+      String isValidOTP({required String mobileNumber, required String otp}) {
         return "Authentication/IsValidOTP?MobileNumber=$mobileNumber&OTP=$otp";
       }
 
@@ -80,8 +75,26 @@ class LoginDatasourceImpl implements LoginDatasource {
       );
 
       final rawData = networkResponse["data"][0] as Map<String, dynamic>;
-      
+
       return rawData;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<String> apicallToSetMPIN({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      String setMpinUrl = "Employee/SetEmployeeMPIN";
+
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        setMpinUrl,
+        body,
+      );
+
+      return networkResponse["message"];
     } catch (error) {
       rethrow;
     }

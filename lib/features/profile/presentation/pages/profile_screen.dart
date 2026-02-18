@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
@@ -33,12 +34,16 @@ class _ProfileScreenState extends State<ProfileScreen>
   late ProfileCubit _profileCubit;
 
   // TEXT EDITING CONTROLLER
-  late TextEditingController _qualificationC, _collageNameC, _passingC;
+  late TextEditingController _qualificationC,
+      _collageNameC,
+      _passingC,
+      _setMPIN;
   late TextEditingController _companyNameC, _roleC, _tenureC;
 
   // FORM KEY FOR BOTTOM SHEETS
   final _educationFormKey = GlobalKey<FormState>();
   final _experienceFormKey = GlobalKey<FormState>();
+  final _mpinFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -58,6 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     _companyNameC.dispose();
     _roleC.dispose();
     _tenureC.dispose();
+    _setMPIN.dispose();
     super.dispose();
   }
 
@@ -69,6 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     _companyNameC = TextEditingController();
     _roleC = TextEditingController();
     _tenureC = TextEditingController();
+    _setMPIN = TextEditingController();
   }
 
   // HANDLE TAB CHANGE
@@ -368,6 +375,49 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
+  // <---- DELETE EMPLOYEE EXPERIENCE DETAILS ---->
+  Future<void> _showPopupToSetMpin(UserModel user) async {
+    DialogHelper.showCustomDialogue(
+      context,
+      title: "Set MPIN",
+      childContent: Column(
+        children: [
+          Form(
+            key: _mpinFormKey,
+            child: CustomTextField(
+              title: "For your security, please enter your 4-digit MPIN",
+              hint: "Enter MPIN",
+              textController: _setMPIN,
+              keyboardType: TextInputType.number,
+              inputFormatterList: [LengthLimitingTextInputFormatter(4)],
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter MPIN';
+                }
+                return null;
+              },
+            ),
+          ),
+          verticalSpacing(),
+          CustomButton(
+            text: "Set",
+            onPressed: () {
+              if (_mpinFormKey.currentState?.validate() == true) {
+                _profileCubit.sepMpin(
+                  context: context,
+                  pin: _setMPIN.text,
+                  employeeId: user.employeeId,
+                  uniqueKey: user.uniqueKey,
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+    _setMPIN.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ProfileCubit, ProfileState>(
@@ -477,13 +527,46 @@ class _ProfileScreenState extends State<ProfileScreen>
       decoration: commonCardDecoration(),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 35,
-            backgroundColor: AppColor.primary,
-            child: Text(
-              user.fullName.isNotEmpty ? user.fullName[0].toUpperCase() : 'U',
-              style: AppTextStyle.ts24B(color: AppColor.white),
-            ),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // AVATAR
+              CircleAvatar(
+                radius: 35,
+                backgroundColor: AppColor.primary,
+                child: Text(
+                  user.fullName.isNotEmpty
+                      ? user.fullName[0].toUpperCase()
+                      : 'U',
+                  style: AppTextStyle.ts24B(color: AppColor.white),
+                ),
+              ),
+
+              // LIGHT BLACK OVERLAY
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColor.black.withValues(alpha: 0.25),
+                  ),
+                ),
+              ),
+
+              // EDIT ICON
+              Positioned(
+                bottom: -2,
+                right: -2,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColor.lightBlue,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: Icon(Icons.edit, size: 14, color: AppColor.primary),
+                ),
+              ),
+            ],
           ),
           horizontalSpacing(width: 16),
           Expanded(
@@ -496,30 +579,38 @@ class _ProfileScreenState extends State<ProfileScreen>
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (user.designation.isNotEmpty) ...[
-                  verticalSpacing(height: 4),
-                  Text(
-                    user.designation,
-                    style: AppTextStyle.ts14M(color: AppColor.grey),
-                  ),
-                ],
-                if (project != null) ...[
-                  verticalSpacing(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.business, size: 14, color: AppColor.grey),
-                      horizontalSpacing(width: 4),
-                      Expanded(
-                        child: Text(
-                          project.projectName,
-                          style: AppTextStyle.ts12R(color: AppColor.grey),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                verticalSpacing(height: 4),
+                Text(
+                  user.designation.isNotEmpty ? user.designation : '-',
+                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                ),
+                verticalSpacing(height: 4),
+                Row(
+                  children: [
+                    Icon(Icons.business, size: 14, color: AppColor.grey),
+                    horizontalSpacing(width: 4),
+                    Expanded(
+                      child: Text(
+                        project!.projectName.toLowerCase() == "default"
+                            ? "-"
+                            : project.projectName,
+                        style: AppTextStyle.ts12R(color: AppColor.grey),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  width: 140,
+                  child: CustomButton(
+                    text: "Set MPIN",
+                    onPressed: () {
+                      _showPopupToSetMpin(user);
+                    },
+                    backgroundColor: AppColor.primary,
                   ),
-                ],
+                ),
               ],
             ),
           ),

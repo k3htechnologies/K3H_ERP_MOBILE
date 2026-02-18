@@ -163,7 +163,6 @@ import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.d
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_screen.dart';
 import 'package:k3h_erp_app/features/login/presentation/pages/login_screen.dart';
-import 'package:k3h_erp_app/features/login/presentation/pages/otp_screen.dart';
 import 'package:k3h_erp_app/features/login/presentation/pages/project_list_screen.dart';
 import 'package:k3h_erp_app/features/login/presentation/pages/splash_screen.dart';
 import 'package:k3h_erp_app/features/marketing/content/presentation/cubit/content_document/content_document_cubit.dart';
@@ -298,7 +297,6 @@ String? authenticateAndAuthorizeRoute(GoRouterState state) {
   // SPLASH || LOGIN
   if (state.uri.path == AppRoutes.splashScreen ||
       state.uri.path == AppRoutes.login ||
-      state.uri.path == AppRoutes.otp ||
       state.uri.path == AppRoutes.projectList) {
     return null;
   }
@@ -391,23 +389,6 @@ final GoRouter goRouter = GoRouter(
       name: AppRoutes.login,
       builder: (context, state) {
         return const LoginScreen();
-        // return const TestScreen();
-      },
-    ),
-    // OTP SCREEN
-    GoRoute(
-      path: AppRoutes.otp,
-      name: AppRoutes.otp,
-      builder: (context, state) {
-        final queryParameterMobileNumber =
-            state.uri.queryParameters['mobileNumber'];
-        if (queryParameterMobileNumber != null) {
-          final mobileNumber = EncryptionManager.decryptData(
-            Uri.decodeComponent(queryParameterMobileNumber),
-          );
-          return OTPMobileScreen(mobileNumber: mobileNumber);
-        }
-        return Scaffold();
       },
     ),
     // PROJECT LIST SCREEN
@@ -3777,18 +3758,24 @@ final GoRouter goRouter = GoRouter(
                               ),
                             )
                             : null;
-                    final inventoryObject = queryParameterInventoryObject != null &&
-                            queryParameterInventoryObject.isNotEmpty
-                        ? (jsonDecode(
-                                EncryptionManager.decryptData(
-                                  Uri.decodeComponent(queryParameterInventoryObject),
-                                ),
-                              ) as List<dynamic>)
-                            .map<Map<String, dynamic>>(
-                              (e) => Map<String, dynamic>.from(e as Map<String, dynamic>),
-                            )
-                            .toList()
-                        : null;
+                    final inventoryObject =
+                        queryParameterInventoryObject != null &&
+                                queryParameterInventoryObject.isNotEmpty
+                            ? (jsonDecode(
+                                      EncryptionManager.decryptData(
+                                        Uri.decodeComponent(
+                                          queryParameterInventoryObject,
+                                        ),
+                                      ),
+                                    )
+                                    as List<dynamic>)
+                                .map<Map<String, dynamic>>(
+                                  (e) => Map<String, dynamic>.from(
+                                    e as Map<String, dynamic>,
+                                  ),
+                                )
+                                .toList()
+                            : null;
 
                     final index =
                         int.tryParse(

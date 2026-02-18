@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/login/data/repository/login.repository.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_education_details.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_experience_details.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
@@ -17,6 +18,7 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_ma
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -30,10 +32,15 @@ class ProfileCubit extends Cubit<ProfileState> {
     _loadUserData();
   }
 
+  // REPOSITORY
+  final LoginRepository _loginRepository = serviceLocator<LoginRepository>();
+
   final ProjectMasterRepository _projectMasterRepository =
       serviceLocator<ProjectMasterRepository>();
+
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
+
   final BranchAssociationMasterRepository _branchAssociationMasterRepository =
       serviceLocator<BranchAssociationMasterRepository>();
 
@@ -692,5 +699,42 @@ class ProfileCubit extends Cubit<ProfileState> {
         emit(state.copyWith(isLoading: false, branchAssociationList: newList));
       },
     );
+  }
+
+  Future<void> sepMpin({
+    required BuildContext context,
+    required String pin,
+    required int employeeId,
+    required String uniqueKey,
+  }) async {
+    try {
+      Map<String, dynamic> body = {
+        "EmployeeId": employeeId,
+        "UniqueKey": uniqueKey,
+        "MPIN": pin,
+      };
+
+      final result = await _loginRepository.setMpin(body: body);
+
+      result.fold(
+        (failure) {
+          goRouter.pop();
+          showErrorMessage(context, "Error", failure.message);
+        },
+        (message) async {
+          goRouter.pop();
+          if (context.mounted) {
+            showSuccessMessage(context, subTitle: message);
+          }
+
+          Future.delayed(Duration(seconds: 1), () async {
+            await LocalStorageManager().removeAll();
+            goRouter.replace(AppRoutes.splashScreen);
+          });
+        },
+      );
+    } catch (e) {
+      debugPrint("Jay Shree Ram!!!");
+    }
   }
 }
