@@ -2,6 +2,21 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs location access to track your route.</string>
+
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs location access to track your route even in background.</string>
+
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs location access to track your route.</string>
+
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<dict>
+		<key>TemporaryLocation</key>
+		<string>Location is required to show your movement on the map.</string>
+	</dict>
 	<key>UIBackgroundModes</key>
 	<array>
 	<string>location</string>
@@ -11,6 +26,13 @@
 
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app needs your location to record punch in and punch out attendance.</string>
+
+	
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app tracks your movement for attendance and outdoor tracking.</string>
+
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
 
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>

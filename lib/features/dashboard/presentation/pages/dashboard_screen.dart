@@ -25,7 +25,6 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -61,6 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Timer? _timer;
   int? currentAttendanceId;
+  bool todayHasPunchIn = false;
   @override
   void initState() {
     super.initState();
@@ -69,12 +69,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final now = DateTime.now();
-      final start = DateTime(now.year, now.month, now.day);
-      final end = start.add(const Duration(days: 1));
+      final today = DateTime(now.year, now.month, now.day);
 
-      _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
+      _dashboardCubit.getAttendanceList(context, 1, today, today, 0);
     });
-    // _dashboardCubit.getDashboardList(context);
+    _dashboardCubit.getDashboardList(context);
   }
 
   @override
@@ -176,24 +175,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return "${two(d.inHours)}:${two(d.inMinutes.remainder(60))}:${two(d.inSeconds.remainder(60))}";
   }
 
-  void handleAddUpdateAttendance() {
-    if (widget.data == null) {
-      _dashboardCubit.addAttendance(
-        context,
-        attendanceId: 0,
-        uniquekey: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        punchAddress: widget.data!.punchInAddress,
-      );
-    } else {
-      _dashboardCubit.updateAttendance(
-        context,
-        attendanceId: widget.data!.attendanceId,
-        uniquekey: widget.data!.uniquekey,
-        punchAddress: widget.data!.punchOutAddress,
-      );
-    }
-  }
-
   Future<String> _getAddressFromGPS() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -232,50 +213,80 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool isDraggingRight = true;
 
   void _handleDragEnd() async {
-    if (!isPunchedIn && dragPosition > maxWidth * 0.75) {
-      // PUNCH IN
-      final address = await _getAddressFromGPS();
+    final state = context.read<DashboardCubit>().state;
 
-      await _dashboardCubit.addAttendance(
-        context,
-        attendanceId: 0,
-        uniquekey: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        punchAddress: address,
-      );
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
 
-      // start timer NOW
-      final now = DateTime.now();
-      final start = DateTime(now.year, now.month, now.day);
-      final end = start.add(const Duration(days: 1));
+    final todayRecords =
+        state.dashboardModelList.where((e) {
+          final date = e.attendanceDate;
+          return date.year == today.year &&
+              date.month == today.month &&
+              date.day == today.day;
+        }).toList();
 
-      await _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
-      // isPunchedIn = true;
-      dragPosition = maxWidth;
-    } else if (isPunchedIn && dragPosition < maxWidth * 0.25) {
-      // PUNCH OUT
-      final address = await _getAddressFromGPS();
+    // 🟢 FIRST PUNCH IN (NO RECORD TODAY)
+    if (todayRecords.isEmpty) {
+      if (dragPosition > maxWidth * 0.7) {
+        final address = await _getAddressFromGPS();
 
-      await _dashboardCubit.updateAttendance(
-        context,
-        attendanceId: currentAttendanceId!,
-        uniquekey: context.read<DashboardCubit>().state.data!.uniquekey,
-        punchAddress: address,
-      );
+        await _dashboardCubit.addAttendance(context, punchAddress: address);
 
-      // stop timer
-      _timer?.cancel();
-      final now = DateTime.now();
-      final start = DateTime(now.year, now.month, now.day);
-      final end = start.add(const Duration(days: 1));
+        await _dashboardCubit.getAttendanceList(context, 1, today, today, 0);
 
-      await _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
-      // isPunchedIn = false;
-      dragPosition = 0;
-    } else {
-      dragPosition = isPunchedIn ? maxWidth : 0;
+        dragPosition = maxWidth;
+        setState(() {});
+      } else {
+        dragPosition = 0;
+        setState(() {});
+      }
+      return;
     }
 
-    setState(() {});
+    // 🔥 ALWAYS USE LATEST RECORD (VERY IMPORTANT)
+    todayRecords.sort((a, b) => a.createdDate!.compareTo(b.createdDate!));
+    final latestRecord = todayRecords.last;
+
+    // 🟢 CASE 1: USER IS CURRENTLY PUNCHED IN → PUNCH OUT
+    if (latestRecord.punchOut == null) {
+      if (dragPosition < maxWidth * 0.3) {
+        final address = await _getAddressFromGPS();
+
+        await _dashboardCubit.updateAttendance(
+          context,
+          attendanceId: latestRecord.attendanceId,
+          uniquekey: latestRecord.uniquekey,
+          punchAddress: address,
+        );
+
+        await _dashboardCubit.getAttendanceList(context, 1, today, today, 0);
+
+        dragPosition = 0;
+        setState(() {});
+      } else {
+        dragPosition = maxWidth;
+        setState(() {});
+      }
+      return;
+    }
+
+    // 🟡 CASE 2: LAST SESSION CLOSED → ALLOW NEW PUNCH IN (THIS WAS MISSING)
+    if (latestRecord.punchOut != null) {
+      if (dragPosition > maxWidth * 0.7) {
+        final address = await _getAddressFromGPS();
+
+        await _dashboardCubit.addAttendance(context, punchAddress: address);
+
+        await _dashboardCubit.getAttendanceList(context, 1, today, today, 0);
+
+        dragPosition = maxWidth;
+        setState(() {});
+      } else {
+        dragPosition = 0;
+        setState(() {});
+      }
+    }
   }
 
   Future<void> _openEmail(String email) async {
@@ -302,32 +313,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final today = DateTime.now();
 
         final todayRecords =
-            state.dashboardModelList
-                .where(
-                  (e) =>
-                      e.punchIn != null &&
-                      e.punchIn!.year == today.year &&
-                      e.punchIn!.month == today.month &&
-                      e.punchIn!.day == today.day,
-                )
-                .toList();
+            state.dashboardModelList.where((e) {
+              final date = e.attendanceDate;
+              return date.year == today.year &&
+                  date.month == today.month &&
+                  date.day == today.day;
+            }).toList();
 
-        if (todayRecords.isEmpty) return;
+        // 🔥 ONLY open sessions (no punch out)
+        final openRecords =
+            todayRecords.where((e) => e.punchOut == null).toList();
+        final hasClosedRecord = todayRecords.any((e) => e.punchOut != null);
 
-        final record = todayRecords.first;
-
-        currentAttendanceId = record.attendanceId;
-        if (record.punchOut == null) {
-          isPunchedIn = true;
-          dragPosition = maxWidth;
-          _startTimerFrom(record.punchIn!);
+        if (openRecords.isNotEmpty) {
+          todayHasPunchIn = true; // show "Update Punch Out"
+        } else if (hasClosedRecord) {
+          todayHasPunchIn = false; // show "Day Completed" / disable punch
         } else {
-          _timer?.cancel();
-          isPunchedIn = false;
-          dragPosition = 0;
-          workedDuration.value = record.punchOut!.difference(record.punchIn!);
+          todayHasPunchIn = false; // show "Punch In"
         }
 
+        if (todayRecords.isEmpty) {
+          // No punch in today
+          isPunchedIn = false;
+          dragPosition = 0;
+          currentAttendanceId = null; // 👈 ADD THIS (important)
+          _timer?.cancel();
+          workedDuration.value = Duration.zero;
+          setState(() {});
+          return;
+        }
+
+        // 🔥 ALWAYS pick LATEST record (VERY IMPORTANT)
+        final latestRecord = todayRecords.last;
+
+        currentAttendanceId = latestRecord.attendanceId;
+
+        if (openRecords.isNotEmpty) {
+          final latestOpen = openRecords.last;
+
+          currentAttendanceId = latestOpen.attendanceId;
+          isPunchedIn = true;
+          dragPosition = maxWidth;
+          _startTimerFrom(latestOpen.punchIn!);
+        } else {
+          isPunchedIn = false;
+          dragPosition = 0;
+          currentAttendanceId = null;
+          _timer?.cancel();
+        }
         setState(() {});
       },
       child: BlocBuilder<DashboardCubit, DashboardState>(
@@ -535,8 +569,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       Center(
                         child: Text(
-                          isPunchedIn
-                              ? "Swipe to Punch Out"
+                          todayHasPunchIn
+                              ? "Swipe to Update Punch Out"
                               : "Swipe to Punch In",
                           style: AppTextStyle.ts12M(),
                         ),
@@ -836,108 +870,154 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildAttendanceSummaryWidget(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        if (state.isLoading == true) {
+          return Center(child: loader());
+        }
+
+        final userData = state.userData;
+        if (userData == null || userData.table1.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 20.0,
+            ),
+            decoration: commonCardDecoration(),
+            child: const Center(child: Text("No Attendance Data Available")),
+          );
+        }
+
+        final table1 = userData.table1.first;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  "Attendance Summary",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.50),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Attendance Summary",
+                      style: AppTextStyle.ts14M(
+                        color: AppColor.black.withValues(alpha: 0.50),
+                      ),
+                    ),
                   ),
-                ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Column(
+                children: [
+                  AttendanceStatCard(
+                    title: "Present Days",
+                    value: table1.presentDays,
+                    subtitle: "This Month",
+                    bgColor: Color(0xFFEFFAF3),
+                    borderColor: Color(0xFFB7E4C7),
+                    valueColor: Color(0xFF2E7D32),
+                  ),
+                  verticalSpacing(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: AttendanceStatCard(
+                          title: "Avg Login Time",
+                          value: formatApiTimeToAmPm(table1.avgLoginTime),
+                          bgColor: Color(0xFFFFF6ED),
+                          borderColor: Color(0xFFFFD8B5),
+                          valueColor: Color(0xFFE65100),
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      Expanded(
+                        child: AttendanceStatCard(
+                          title: "Shift Pattern",
+                          value:
+                              "${dateFormatterHourOnly(table1.shiftStartTime)} - ${dateFormatterHourOnly(table1.shiftEndTime)}",
+                          bgColor: Color(0xFFF4F0FF),
+                          borderColor: Color(0xFFD9CCFF),
+                          valueColor: Color(0xFF6A1B9A),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 13,
-            crossAxisSpacing: 16,
-            childAspectRatio: 1.95,
-            children: const [
-              AttendanceStatCard(
-                title: "Present Days",
-                value: "22",
-                subtitle: "This Month",
-                bgColor: Color(0xFFEFFAF3),
-                borderColor: Color(0xFFB7E4C7),
-                valueColor: Color(0xFF2E7D32),
-              ),
-              AttendanceStatCard(
-                title: "Avg Login Time",
-                value: "9:12 am",
-                bgColor: Color(0xFFFFF6ED),
-                borderColor: Color(0xFFFFD8B5),
-                valueColor: Color(0xFFE65100),
-              ),
-              AttendanceStatCard(
-                title: "WFH Days",
-                value: "03",
-                subtitle: "This Month",
-                bgColor: Color(0xFFEFF5FF),
-                borderColor: Color(0xFFCFE0FF),
-                valueColor: Color(0xFF1565C0),
-              ),
-              AttendanceStatCard(
-                title: "Shift Pattern",
-                value: "9 am - 6 pm",
-                bgColor: Color(0xFFF4F0FF),
-                borderColor: Color(0xFFD9CCFF),
-                valueColor: Color(0xFF6A1B9A),
-              ),
-            ],
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildWorkingHourSummaryWidget(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        if (state.isLoading == true) {
+          return Center(child: loader());
+        }
+
+        final userData = state.userData;
+        if (userData == null || userData.table2.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 20.0,
+            ),
+            decoration: commonCardDecoration(),
+            child: const Center(child: Text("No Attendance Data Available")),
+          );
+        }
+
+        final table2 = userData.table2.first;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  "Working Hour Summary",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.50),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Working Hour Summary",
+                      style: AppTextStyle.ts14M(
+                        color: AppColor.black.withValues(alpha: 0.50),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  summaryOverallWidget(
+                    title: "This Week",
+                    subTitle: formatDecimalHours(table2.thisWeekHours),
+                  ),
+                  summaryOverallWidget(
+                    title: "Overtime",
+                    subTitle: formatDecimalHours(table2.overtimeHours),
+                    color: AppColor.yellow,
+                  ),
+                  summaryOverallWidget(
+                    title: "Avg Daily",
+                    subTitle: formatDecimalHours(table2.avgDailyHours),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              _buildDayWiseProgress(),
             ],
           ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              summaryOverallWidget(title: "This Week", subTitle: "42h"),
-              summaryOverallWidget(
-                title: "Overtime",
-                subTitle: "8h",
-                color: AppColor.yellow,
-              ),
-              summaryOverallWidget(title: "Avg Daily", subTitle: "8.2h"),
-            ],
-          ),
-          const SizedBox(height: 30),
-          _buildDayWiseProgress(),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -972,46 +1052,72 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildLeaveBalanceSummaryWidget(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        if (state.isLoading == true) {
+          return Center(child: loader());
+        }
+
+        final userData = state.userData;
+
+        if (userData == null || userData.table3.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 20.0,
+            ),
+            decoration: commonCardDecoration(),
+            child: const Center(child: Text("No Daily Attendance Data")),
+          );
+        }
+
+        final table4List = userData.table4;
+        var totalLeaves = table4List.first.totalLeaves;
+        var usedLeaves = table4List.first.usedLeaves;
+        var pendingLeaves = table4List.first.pendingLeaves;
+        var leaveName = table4List.first.leaveTypeName;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  "Leave Balance",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.50),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Leave Balance",
+                      style: AppTextStyle.ts14M(
+                        color: AppColor.black.withValues(alpha: 0.50),
+                      ),
+                    ),
                   ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              _leaveRow(title: "Total Leaves", value: "$totalLeaves"),
+              _leaveRow(title: "Used Leaves", value: "$usedLeaves"),
+              _leaveRow(title: "Pending Leaves", value: "$pendingLeaves"),
+              const SizedBox(height: 20),
+              Text(
+                "Upcoming Approved",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.black.withValues(alpha: 0.5),
                 ),
+              ),
+              const SizedBox(height: 10),
+              _buildUpcomingAttendanceWidget(
+                title: leaveName,
+                value: "",
+                subtitle: "Feb 14-16, 2024 (3 days)",
+                bgColor: Color(0xFFEFFAF3),
+                borderColor: Color(0xFFB7E4C7),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          _leaveRow(title: "Total Leaves", value: "24"),
-          _leaveRow(title: "Used Leaves", value: "20"),
-          _leaveRow(title: "Pending Leaves", value: "04"),
-          const SizedBox(height: 20),
-          Text(
-            "Upcoming Approved",
-            style: AppTextStyle.ts14M(
-              color: AppColor.black.withValues(alpha: 0.5),
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildUpcomingAttendanceWidget(
-            title: "Casual Leave",
-            value: "",
-            subtitle: "Feb 14-16, 2024 (3 days)",
-            bgColor: Color(0xFFEFFAF3),
-            borderColor: Color(0xFFB7E4C7),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -1079,119 +1185,301 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildHolidaySummaryWidget(BuildContext context) {
-    return Container(
-      height: 300.0,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        if (state.isLoading == true) {
+          return Center(child: loader());
+        }
+
+        final userData = state.userData;
+
+        if (userData == null || userData.table6.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 20.0,
+            ),
+            decoration: commonCardDecoration(),
+            child: const Center(child: Text("No Daily Attendance Data")),
+          );
+        }
+
+        final table6List = userData.table6;
+        return Container(
+          height: 300.0,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  "Holiday",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.50),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Holiday",
+                      style: AppTextStyle.ts14M(
+                        color: AppColor.black.withValues(alpha: 0.50),
+                      ),
+                    ),
                   ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: table6List.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, int index) {
+                    final holiday = table6List[index];
+                    return Container(
+                      margin: EdgeInsets.only(bottom: 8.0),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.0,
+                        vertical: 12.0,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4.0),
+                        color: AppColor.lightPurple.withValues(alpha: 0.50),
+                        border: Border.all(
+                          width: 1,
+                          color: AppColor.lightPurple,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            holiday.holidayName,
+                            style: AppTextStyle.ts14M(),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "${formatDateToDayMonth(holiday.holidayDate)}, ${holiday.dayName}",
+                                style: AppTextStyle.ts12R(
+                                  color: AppColor.black.withValues(alpha: 0.50),
+                                ),
+                              ),
+                              Text(
+                                "In ${holiday.daysRemaining} days",
+                                style: AppTextStyle.ts10M().copyWith(
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: ListView.builder(
-              itemCount: 10,
-              shrinkWrap: true,
-              itemBuilder: (context, int index) {
-                return Container(
-                  margin: EdgeInsets.only(bottom: 8.0),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.0,
-                    vertical: 12.0,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4.0),
-                    color: AppColor.lightPurple.withValues(alpha: 0.50),
-                    border: Border.all(width: 1, color: AppColor.lightPurple),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Labour’s Day", style: AppTextStyle.ts14M()),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Feb 22 , Monday",
-                            style: AppTextStyle.ts12R(
-                              color: AppColor.black.withValues(alpha: 0.50),
-                            ),
-                          ),
-                          Text(
-                            "In 26 days",
-                            style: AppTextStyle.ts10M().copyWith(
-                              color: AppColor.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildEventsAndMoreWidget(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        if (state.isLoading == true) {
+          return Center(child: loader());
+        }
+
+        final userData = state.userData;
+
+        if (userData == null || userData.table8.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 20.0,
+            ),
+            decoration: commonCardDecoration(),
+            child: const Center(child: Text("No Daily Attendance Data")),
+          );
+        }
+
+        final table8List = userData.table8;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  "Events & More",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.50),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Events & More",
+                      style: AppTextStyle.ts14M(
+                        color: AppColor.black.withValues(alpha: 0.50),
+                      ),
+                    ),
                   ),
-                ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Divider(
+                thickness: 0.3,
+                color: AppColor.black.withValues(alpha: 0.50),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Upcoming Birthday",
+                      style: AppTextStyle.ts14SB(color: AppColor.black),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ListView.builder(
+                itemCount: table8List.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, int index) {
+                  var upcomingBirthday = table8List[index];
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Container(
+                      clipBehavior: Clip.hardEdge,
+                      decoration: BoxDecoration(shape: BoxShape.circle),
+                      child: NetworkImageWidget(
+                        borderRadius: BorderRadius.circular(100.0),
+                        imageUrl:
+                            'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
+                        width: 45,
+                        height: 45,
+                        fit: BoxFit.cover,
+                        errorWidget: Container(
+                          color: AppColor.white,
+                          width: 45,
+                          height: 45,
+                          child: Icon(
+                            Icons.image_not_supported,
+                            size: 20,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    title: Text(
+                      upcomingBirthday.fullName,
+                      style: AppTextStyle.ts14M(),
+                    ),
+                    subtitle: Text(
+                      upcomingBirthday.departmentName,
+                      style: AppTextStyle.ts14R(
+                        color: AppColor.black.withValues(alpha: 0.50),
+                      ),
+                    ),
+                    trailing: Text(
+                      formatDateTimeAsDDMMMYYYY(upcomingBirthday.dateOfBirth),
+                      style: AppTextStyle.ts14R(),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+              Divider(
+                thickness: 0.3,
+                color: AppColor.black.withValues(alpha: 0.50),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Upcoming Events",
+                      style: AppTextStyle.ts14SB(color: AppColor.black),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ListView.builder(
+                itemCount: 5,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, int index) {
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      "Diwali Celebration",
+                      style: AppTextStyle.ts14M(),
+                    ),
+                    subtitle: Text(
+                      "Andheri",
+                      style: AppTextStyle.ts16R(
+                        color: AppColor.black.withValues(alpha: 0.50),
+                      ),
+                    ),
+                    trailing: Text(
+                      formatDateTimeAsDDMMMYYYY(DateTime.now()),
+                      style: AppTextStyle.ts14R(),
+                    ),
+                  );
+                },
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Divider(
-            thickness: 0.3,
-            color: AppColor.black.withValues(alpha: 0.50),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+        );
+      },
+    );
+  }
+
+  Widget _buildReportingManagerWidget(BuildContext context) {
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        if (state.isLoading == true) {
+          return Center(child: loader());
+        }
+
+        final userData = state.userData;
+
+        if (userData == null || userData.table10.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 20.0,
+            ),
+            decoration: commonCardDecoration(),
+            child: const Center(child: Text("No Daily Attendance Data")),
+          );
+        }
+
+        final table10List = userData.table10;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  "Upcoming Birthday",
-                  style: AppTextStyle.ts14SB(color: AppColor.black),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Reporting Manager",
+                      style: AppTextStyle.ts14M(
+                        color: AppColor.black.withValues(alpha: 0.50),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ListView.builder(
-            itemCount: 5,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (context, int index) {
-              return ListTile(
+              const SizedBox(height: 12),
+              ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: Container(
                   clipBehavior: Clip.hardEdge,
@@ -1215,184 +1503,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                 ),
-
-                title: Text("Neha Sawant", style: AppTextStyle.ts14M()),
+                title: Text(
+                  table10List.first.managerName,
+                  style: AppTextStyle.ts14B(),
+                ),
                 subtitle: Text(
-                  "Sales",
+                  table10List.first.designationName,
                   style: AppTextStyle.ts14R(
                     color: AppColor.black.withValues(alpha: 0.50),
                   ),
                 ),
                 trailing: Text(
-                  formatDateTimeAsDDMMMYYYY(DateTime.now()),
+                  table10List.first.departmentName,
                   style: AppTextStyle.ts14R(),
                 ),
-              );
-            },
-          ),
-          const SizedBox(height: 12),
-          Divider(
-            thickness: 0.3,
-            color: AppColor.black.withValues(alpha: 0.50),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  "Upcoming Events",
-                  style: AppTextStyle.ts14SB(color: AppColor.black),
+              ),
+              const SizedBox(height: 12),
+              InkWell(
+                onTap: () {
+                  _openEmail(table10List.first.managerEmail);
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SvgPicture.asset(
+                            AppAssets.mailIcon,
+                            height: 16.0,
+                            width: 16.0,
+                          ),
+                          const SizedBox(width: 6.0),
+                          Text(
+                            table10List.first.managerEmail,
+                            style: AppTextStyle.ts14M(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        _openDialer(table10List.first.managerPhone);
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SvgPicture.asset(
+                            AppAssets.phoneIcon,
+                            height: 16.0,
+                            width: 16.0,
+                          ),
+                          const SizedBox(width: 6.0),
+                          Text(
+                            table10List.first.managerPhone,
+                            style: AppTextStyle.ts14M(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          ListView.builder(
-            itemCount: 5,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (context, int index) {
-              return ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text("Diwali Celebration", style: AppTextStyle.ts14M()),
-                subtitle: Text(
-                  "Andheri",
-                  style: AppTextStyle.ts16R(
-                    color: AppColor.black.withValues(alpha: 0.50),
-                  ),
-                ),
-                trailing: Text(
-                  formatDateTimeAsDDMMMYYYY(DateTime.now()),
-                  style: AppTextStyle.ts14R(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReportingManagerWidget(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  "Reporting Manager",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.50),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: Container(
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(shape: BoxShape.circle),
-              child: NetworkImageWidget(
-                borderRadius: BorderRadius.circular(100.0),
-                imageUrl:
-                    'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                width: 45,
-                height: 45,
-                fit: BoxFit.cover,
-                errorWidget: Container(
-                  color: AppColor.white,
-                  width: 45,
-                  height: 45,
-                  child: Icon(
-                    Icons.image_not_supported,
-                    size: 20,
-                    color: Colors.grey[700],
-                  ),
-                ),
-              ),
-            ),
-            title: Text("Prachin Bari", style: AppTextStyle.ts14B()),
-            subtitle: Text(
-              "HOD",
-              style: AppTextStyle.ts14R(
-                color: AppColor.black.withValues(alpha: 0.50),
-              ),
-            ),
-            trailing: Text("IT Department", style: AppTextStyle.ts14R()),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: CustomButton(text: "Send Mail", onPressed: () {}),
-              ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                child: CustomButton(
-                  textColor: AppColor.primary,
-                  backgroundColor: AppColor.white,
-                  borderColor: AppColor.primary,
-                  text: "Request Meeting",
-                  onPressed: () {},
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          InkWell(
-            onTap: () {
-              _openEmail("prachinbari@gmail.com");
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SvgPicture.asset(
-                        AppAssets.mailIcon,
-                        height: 16.0,
-                        width: 16.0,
-                      ),
-                      const SizedBox(width: 6.0),
-                      Text(
-                        "prachinbari@gmail.com",
-                        style: AppTextStyle.ts14M(),
-                      ),
-                    ],
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    _openDialer("9975535595");
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SvgPicture.asset(
-                        AppAssets.phoneIcon,
-                        height: 16.0,
-                        width: 16.0,
-                      ),
-                      const SizedBox(width: 6.0),
-                      Text("9975535595", style: AppTextStyle.ts14M()),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -1407,34 +1584,92 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildDayWiseProgress() {
-    return Column(
-      children: const [
-        DayWorkProgress(
-          day: "Monday",
-          worked: Duration(hours: 8, minutes: 53),
-          target: Duration(hours: 9),
-        ),
-        DayWorkProgress(
-          day: "Tuesday",
-          worked: Duration(hours: 9, minutes: 10),
-          target: Duration(hours: 9),
-        ),
-        DayWorkProgress(
-          day: "Wednesday",
-          worked: Duration(hours: 6, minutes: 10),
-          target: Duration(hours: 9),
-        ),
-        DayWorkProgress(
-          day: "Thursday",
-          worked: Duration(hours: 9, minutes: 10),
-          target: Duration(hours: 9),
-        ),
-        DayWorkProgress(
-          day: "Friday",
-          worked: Duration(hours: 9, minutes: 10),
-          target: Duration(hours: 9),
-        ),
-      ],
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        if (state.isLoading == true) {
+          return Center(child: loader());
+        }
+
+        final userData = state.userData;
+
+        if (userData == null || userData.table3.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 20.0,
+            ),
+            decoration: commonCardDecoration(),
+            child: const Center(child: Text("No Daily Attendance Data")),
+          );
+        }
+
+        final table3List = userData.table3;
+        final table1 =
+            userData.table1.isNotEmpty ? userData.table1.first : null;
+
+        // 🔥 Calculate target = ShiftEndTime - ShiftStartTime (INLINE, no new function)
+        Duration targetDuration = const Duration(hours: 9); // fallback
+
+        if (table1 != null &&
+            table1.shiftStartTime.isNotEmpty &&
+            table1.shiftEndTime.isNotEmpty &&
+            table1.shiftStartTime != "{}" &&
+            table1.shiftEndTime != "{}") {
+          try {
+            final startParts = table1.shiftStartTime.split(':');
+            final endParts = table1.shiftEndTime.split(':');
+
+            final startHour = int.tryParse(startParts[0]) ?? 0;
+            final startMin =
+                startParts.length > 1 ? int.tryParse(startParts[1]) ?? 0 : 0;
+
+            final endHour = int.tryParse(endParts[0]) ?? 0;
+            final endMin =
+                endParts.length > 1 ? int.tryParse(endParts[1]) ?? 0 : 0;
+
+            final now = DateTime.now();
+
+            final startDateTime = DateTime(
+              now.year,
+              now.month,
+              now.day,
+              startHour,
+              startMin,
+            );
+
+            final endDateTime = DateTime(
+              now.year,
+              now.month,
+              now.day,
+              endHour,
+              endMin,
+            );
+
+            final diff = endDateTime.difference(startDateTime);
+
+            if (!diff.isNegative && diff.inSeconds > 0) {
+              targetDuration = diff;
+            }
+          } catch (_) {
+            // keep fallback 9 hours (ERP safe)
+          }
+        }
+
+        return Column(
+          children:
+              table3List.map((dayData) {
+                final workedDuration = parseWorkingHoursToDuration(
+                  dayData.workingHours,
+                );
+
+                return DayWorkProgress(
+                  day: dayData.dayName,
+                  worked: workedDuration,
+                  target: targetDuration, // ✅ Correct dynamic target
+                );
+              }).toList(),
+        );
+      },
     );
   }
 
@@ -1486,7 +1721,7 @@ class QuickActionTile extends StatelessWidget {
 
 class AttendanceStatCard extends StatelessWidget {
   final String title;
-  final String value;
+  final dynamic value; // 🔥 CHANGE HERE
   final String? subtitle;
   final Color bgColor;
   final Color borderColor;
@@ -1502,8 +1737,42 @@ class AttendanceStatCard extends StatelessWidget {
     required this.valueColor,
   });
 
+  String _formatValue(dynamic val) {
+    if (val == null) return "-";
+
+    // Handle empty map {} coming from API
+    if (val is Map && val.isEmpty) return "-";
+
+    // Handle double like 5.0 -> 5
+    if (val is double) {
+      if (val == val.toInt()) {
+        return val.toInt().toString();
+      }
+      return val.toStringAsFixed(2);
+    }
+
+    // Handle int
+    if (val is int) return val.toString();
+
+    // Handle DateTime
+    if (val is DateTime) {
+      return "${val.hour.toString().padLeft(2, '0')}:${val.minute.toString().padLeft(2, '0')}";
+    }
+
+    // Handle string like "09:00:00"
+    if (val is String) {
+      if (val.isEmpty || val == "{}") return "-";
+      return val;
+    }
+
+    // Fallback (safe for ERP unpredictable APIs)
+    return val.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final formattedValue = _formatValue(value);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       decoration: BoxDecoration(
@@ -1524,7 +1793,13 @@ class AttendanceStatCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(value, style: AppTextStyle.ts16SB(color: valueColor)),
+              Expanded(
+                child: Text(
+                  formattedValue,
+                  style: AppTextStyle.ts16SB(color: valueColor),
+                  maxLines: 2,
+                ),
+              ),
               if (subtitle != null) ...[
                 const SizedBox(width: 10),
                 Padding(
@@ -1557,10 +1832,20 @@ class DayWorkProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress = (worked.inSeconds / target.inSeconds).clamp(0.0, 1.0);
+    final progress =
+        target.inSeconds == 0
+            ? 0.0
+            : (worked.inSeconds / target.inSeconds).clamp(0.0, 1.0);
 
-    String format(Duration d) =>
-        "${d.inHours}:${(d.inMinutes % 60).toString().padLeft(2, '0')}:00";
+    String format(Duration d) {
+      final hours = d.inHours;
+      final minutes = d.inMinutes % 60;
+      final seconds = d.inSeconds % 60;
+
+      return "${hours.toString().padLeft(2, '0')}:"
+          "${minutes.toString().padLeft(2, '0')}:"
+          "${seconds.toString().padLeft(2, '0')}";
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1571,7 +1856,6 @@ class DayWorkProgress extends StatelessWidget {
           builder: (context, constraints) {
             return Stack(
               children: [
-                // Grey track
                 Container(
                   height: 22,
                   width: double.infinity,
@@ -1580,7 +1864,6 @@ class DayWorkProgress extends StatelessWidget {
                     borderRadius: BorderRadius.circular(50),
                   ),
                 ),
-                // Blue progress
                 Container(
                   height: 22,
                   width: constraints.maxWidth * progress,
@@ -1606,7 +1889,6 @@ class DayWorkProgress extends StatelessWidget {
             color: AppColor.black.withValues(alpha: 0.5),
           ),
         ),
-
         const SizedBox(height: 22),
       ],
     );
@@ -1629,65 +1911,91 @@ class AttendanceRadialChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(
-              height: 110,
-              width: 110,
-              child: CustomPaint(
-                painter: RadialPainter(
-                  present: present,
-                  absent: absent,
-                  leave: leave,
-                ),
-                child: Center(
-                  child: Text("$total", style: AppTextStyle.ts16SB()),
-                ),
-              ),
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        if (state.isLoading == true) {
+          return Center(child: loader());
+        }
+
+        final userData = state.userData;
+
+        if (userData == null || userData.table3.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 20.0,
             ),
-            const SizedBox(width: 30),
-            // Legend
-            SizedBox(
-              height: 110, // SAME as chart
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: _legend(AppColor.primary, present, "Present"),
+            decoration: commonCardDecoration(),
+            child: const Center(child: Text("No Daily Attendance Data")),
+          );
+        }
+
+        final table7List = userData.table7;
+        var total = table7List.first.totalEmployees;
+        var present = table7List.first.presentCount;
+        var absent = table7List.first.absentCount;
+        var leave = table7List.first.onLeaveCount;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  height: 110,
+                  width: 110,
+                  child: CustomPaint(
+                    painter: RadialPainter(
+                      present: present,
+                      absent: present,
+                      leave: present,
+                    ),
+                    child: Center(
+                      child: Text("$total", style: AppTextStyle.ts16SB()),
                     ),
                   ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: _legend(AppColor.blue, absent, "Absent"),
-                    ),
+                ),
+                const SizedBox(width: 30),
+                // Legend
+                SizedBox(
+                  height: 110, // SAME as chart
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: _legend(AppColor.primary, present, "Present"),
+                        ),
+                      ),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: _legend(AppColor.blue, absent, "Absent"),
+                        ),
+                      ),
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.bottomLeft,
+                          child: _legend(AppColor.grey50, leave, "On Leave"),
+                        ),
+                      ),
+                    ],
                   ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: _legend(AppColor.grey50, leave, "On Leave"),
-                    ),
-                  ),
-                ],
+                ),
+              ],
+            ),
+            verticalSpacing(height: 20.0),
+            Text(
+              "$total Total Employee",
+              style: AppTextStyle.ts12SB(
+                color: AppColor.black.withValues(alpha: 0.50),
               ),
             ),
           ],
-        ),
-        verticalSpacing(height: 20.0),
-        Text(
-          "$total Total Employee",
-          style: AppTextStyle.ts12SB(
-            color: AppColor.black.withValues(alpha: 0.50),
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 

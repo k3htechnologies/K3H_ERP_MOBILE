@@ -1,16 +1,18 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/cubit/payroll_report_cubit.dart';
+import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/route_map_screen.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -59,6 +61,14 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   late ScrollController _resignationScrollController;
   Timer? _resignationDebounce;
 
+  // FILTER
+  final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
+  final ValueNotifier<DateTime?> _endDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
+
   @override
   void initState() {
     super.initState();
@@ -98,6 +108,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     _outdoorScrollController.dispose();
     _resignationScrollController.dispose();
     super.dispose();
+    _startDateNotifier.dispose();
+    _endDateNotifier.dispose();
   }
 
   // HANDLE TAB CHANGE
@@ -389,13 +401,145 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     });
   }
 
+  void _prefillFilterFromState() {
+    final s = _payrollReportCubit.state;
+    _startDateNotifier.value = s.filterStartDate;
+    _endDateNotifier.value = s.filterEndDate;
+  }
+
+  // PAYROLL REPORT FILTER
+  Future<void> _showBottomSheetToFilterPayrollReport(
+    BuildContext context,
+  ) async {
+    _prefillFilterFromState();
+    final state = _payrollReportCubit.state;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(
+      state.filterStartDate != null || state.filterEndDate != null,
+    );
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Payroll Master",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              verticalSpacing(),
+              Row(
+                children: [
+                  Expanded(
+                    child: ValueListenableBuilder<DateTime?>(
+                      valueListenable: _startDateNotifier,
+                      builder: (context, startDate, child) {
+                        return CustomDatePicker(
+                          title: "Start Date",
+                          initialDate: startDate,
+                          setValue: (value) {
+                            _startDateNotifier.value = value;
+                            applyEnabled.value = true;
+                          },
+                          validator: (value) => null,
+                        );
+                      },
+                    ),
+                  ),
+                  horizontalSpacing(),
+                  Expanded(
+                    child: ValueListenableBuilder<DateTime?>(
+                      valueListenable: _endDateNotifier,
+                      builder: (context, endDate, child) {
+                        return ValueListenableBuilder<DateTime?>(
+                          valueListenable: _startDateNotifier,
+                          builder: (context, startDate, child) {
+                            return CustomDatePicker(
+                              title: "End Date",
+                              isRequired: false,
+                              initialDate: endDate,
+                              setValue: (value) {
+                                _endDateNotifier.value = value;
+                                applyEnabled.value = true;
+                              },
+                              validator: (value) {
+                                if (value == null) return null;
+                                if (startDate != null) {
+                                  final startDateOnly = DateTime(
+                                    startDate.year,
+                                    startDate.month,
+                                    startDate.day,
+                                  );
+                                  final endDateOnly = DateTime(
+                                    value.year,
+                                    value.month,
+                                    value.day,
+                                  );
+                                  if (endDateOnly.isBefore(startDateOnly)) {
+                                    return 'End Date cannot be before Start Date';
+                                  }
+                                }
+                                return null;
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+      onClear: () {
+        _startDateNotifier.value = null;
+        _endDateNotifier.value = null;
+        _payrollReportCubit.clearFilterOnPayrollReport(context);
+      },
+      onApply: () {
+        final startDate = _startDateNotifier.value;
+        final endDate = _endDateNotifier.value;
+        if (startDate != null && endDate != null) {
+          final startOnly = DateTime(
+            startDate.year,
+            startDate.month,
+            startDate.day,
+          );
+          final endOnly = DateTime(endDate.year, endDate.month, endDate.day);
+          if (endOnly.isBefore(startOnly)) {
+            showErrorMessage(
+              context,
+              "Invalid dates",
+              "End Date cannot be before Start Date",
+            );
+            return;
+          }
+        }
+        _payrollReportCubit.applyFilterOnCompOff(
+          context: context,
+          startDate: startDate,
+          endDate: endDate,
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBarWithBackButton(
+      backgroundColor: AppColor.white,
+      appBar: CustomAppBar(
         screenTitle: "Report",
         authorization: AuthorizationModel(),
-        isMenuButton: true,
+        onSearchSubmit: (value) {
+          _payrollReportCubit.searchPayrollReport(context, value);
+        },
+        textController: _searchC,
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterPayrollReport(context);
+        },
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -638,6 +782,27 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                   buildRowTitleValue(
                     title: "Working Hours",
                     value: attendance.workingHours,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => MapScreen()),
+                      );
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          "View Location",
+                          style: AppTextStyle.ts12M().copyWith(
+                            color: AppColor.primary,
+                            decoration: TextDecoration.underline,
+                            decorationColor: AppColor.primary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

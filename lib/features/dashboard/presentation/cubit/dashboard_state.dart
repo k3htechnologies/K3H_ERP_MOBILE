@@ -26,6 +26,7 @@ final class DashboardState extends BaseState {
     List<DashboardModel>? dashboardModelList,
     List<UserDashboardModel>? userDashboardModelList,
     int? currentTabIndex,
+    bool todayHasPunchIn = false,
   }) {
     return DashboardState(
       isLoading: isLoading ?? this.isLoading,
