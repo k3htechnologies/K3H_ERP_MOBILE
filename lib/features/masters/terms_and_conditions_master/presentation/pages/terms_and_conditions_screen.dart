@@ -233,8 +233,10 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
     return Scaffold(
       appBar: CustomAppBar(
         key: ValueKey<int>(_tabController.index),
-        screenTitle: "Terms And Conditions",
+        screenTitle: "Terms And Conditions Master",
         authorization: _routeAuthorizationModel,
+        searchHintText: "Search by Title",
+        textController: _searchC,
         onSearchSubmit: (value) {
           if (_termsAndConditionsCubit.state.currentTabIndex == 0) {
             _termsAndConditionsCubit.searchMaterialRequisition(context, value);
@@ -242,7 +244,6 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
             _termsAndConditionsCubit.searchBooking(context, value);
           }
         },
-        textController: _searchC,
         onAddCallback: () async {
           await goRouter.pushNamed(
             AppRoutes.addTermsAndConditions,

@@ -706,6 +706,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                       buildRowTitleValue(
                         title: "Department",
                         value: employee.department,
+                        singleLine: false
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 6),
