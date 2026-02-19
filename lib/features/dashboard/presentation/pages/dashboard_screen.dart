@@ -60,7 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Timer? _timer;
   int? currentAttendanceId;
-  bool todayHasPunchIn = false;
+  String? currentUniquekey;
   @override
   void initState() {
     super.initState();
@@ -69,9 +69,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
+      final start = DateTime(now.year, now.month, now.day);
+      final end = start;
 
-      _dashboardCubit.getAttendanceList(context, 1, today, today, 0);
+      _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
     });
     _dashboardCubit.getDashboardList(context);
   }
@@ -213,80 +214,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool isDraggingRight = true;
 
   void _handleDragEnd() async {
-    final state = context.read<DashboardCubit>().state;
+    if (!isPunchedIn && dragPosition > maxWidth * 0.75) {
+      // PUNCH IN
+      final address = await _getAddressFromGPS();
 
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+      await _dashboardCubit.addAttendance(context, punchAddress: address);
 
-    final todayRecords =
-        state.dashboardModelList.where((e) {
-          final date = e.attendanceDate;
-          return date.year == today.year &&
-              date.month == today.month &&
-              date.day == today.day;
-        }).toList();
+      // start timer NOW
+      final now = DateTime.now();
+      final start = DateTime(now.year, now.month, now.day);
+      final end = start;
 
-    // 🟢 FIRST PUNCH IN (NO RECORD TODAY)
-    if (todayRecords.isEmpty) {
-      if (dragPosition > maxWidth * 0.7) {
-        final address = await _getAddressFromGPS();
+      await _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
+      // isPunchedIn = true;
+      dragPosition = maxWidth;
+    } else if (isPunchedIn && dragPosition < maxWidth * 0.25) {
+      // PUNCH OUT
+      final address = await _getAddressFromGPS();
 
-        await _dashboardCubit.addAttendance(context, punchAddress: address);
+      await _dashboardCubit.updateAttendance(
+        context,
+        attendanceId: currentAttendanceId!,
+        uniquekey: currentUniquekey!,
+        punchAddress: address,
+      );
 
-        await _dashboardCubit.getAttendanceList(context, 1, today, today, 0);
+      // stop timer
+      _timer?.cancel();
+      final now = DateTime.now();
+      final start = DateTime(now.year, now.month, now.day);
+      final end = start;
 
-        dragPosition = maxWidth;
-        setState(() {});
-      } else {
-        dragPosition = 0;
-        setState(() {});
-      }
-      return;
+      await _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
+      // isPunchedIn = false;
+      dragPosition = 0;
+    } else {
+      dragPosition = isPunchedIn ? maxWidth : 0;
     }
 
-    // 🔥 ALWAYS USE LATEST RECORD (VERY IMPORTANT)
-    todayRecords.sort((a, b) => a.createdDate!.compareTo(b.createdDate!));
-    final latestRecord = todayRecords.last;
-
-    // 🟢 CASE 1: USER IS CURRENTLY PUNCHED IN → PUNCH OUT
-    if (latestRecord.punchOut == null) {
-      if (dragPosition < maxWidth * 0.3) {
-        final address = await _getAddressFromGPS();
-
-        await _dashboardCubit.updateAttendance(
-          context,
-          attendanceId: latestRecord.attendanceId,
-          uniquekey: latestRecord.uniquekey,
-          punchAddress: address,
-        );
-
-        await _dashboardCubit.getAttendanceList(context, 1, today, today, 0);
-
-        dragPosition = 0;
-        setState(() {});
-      } else {
-        dragPosition = maxWidth;
-        setState(() {});
-      }
-      return;
-    }
-
-    // 🟡 CASE 2: LAST SESSION CLOSED → ALLOW NEW PUNCH IN (THIS WAS MISSING)
-    if (latestRecord.punchOut != null) {
-      if (dragPosition > maxWidth * 0.7) {
-        final address = await _getAddressFromGPS();
-
-        await _dashboardCubit.addAttendance(context, punchAddress: address);
-
-        await _dashboardCubit.getAttendanceList(context, 1, today, today, 0);
-
-        dragPosition = maxWidth;
-        setState(() {});
-      } else {
-        dragPosition = 0;
-        setState(() {});
-      }
-    }
+    setState(() {});
   }
 
   Future<void> _openEmail(String email) async {
@@ -310,58 +276,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return BlocListener<DashboardCubit, DashboardState>(
       listener: (context, state) {
-        final today = DateTime.now();
-
         final todayRecords =
-            state.dashboardModelList.where((e) {
-              final date = e.attendanceDate;
-              return date.year == today.year &&
-                  date.month == today.month &&
-                  date.day == today.day;
-            }).toList();
+            state.dashboardModelList.where((e) => e.punchOut != null).toList();
 
-        // 🔥 ONLY open sessions (no punch out)
-        final openRecords =
-            todayRecords.where((e) => e.punchOut == null).toList();
-        final hasClosedRecord = todayRecords.any((e) => e.punchOut != null);
+        if (todayRecords.isEmpty) return;
 
-        if (openRecords.isNotEmpty) {
-          todayHasPunchIn = true; // show "Update Punch Out"
-        } else if (hasClosedRecord) {
-          todayHasPunchIn = false; // show "Day Completed" / disable punch
-        } else {
-          todayHasPunchIn = false; // show "Punch In"
-        }
+        final record = todayRecords.first;
 
-        if (todayRecords.isEmpty) {
-          // No punch in today
-          isPunchedIn = false;
-          dragPosition = 0;
-          currentAttendanceId = null; // 👈 ADD THIS (important)
-          _timer?.cancel();
-          workedDuration.value = Duration.zero;
-          setState(() {});
-          return;
-        }
-
-        // 🔥 ALWAYS pick LATEST record (VERY IMPORTANT)
-        final latestRecord = todayRecords.last;
-
-        currentAttendanceId = latestRecord.attendanceId;
-
-        if (openRecords.isNotEmpty) {
-          final latestOpen = openRecords.last;
-
-          currentAttendanceId = latestOpen.attendanceId;
+        currentAttendanceId = record.attendanceId;
+        currentUniquekey = record.uniquekey;
+        if (record.punchOut == null) {
           isPunchedIn = true;
           dragPosition = maxWidth;
-          _startTimerFrom(latestOpen.punchIn!);
+          _startTimerFrom(record.punchIn!);
         } else {
+          _timer?.cancel();
           isPunchedIn = false;
           dragPosition = 0;
-          currentAttendanceId = null;
-          _timer?.cancel();
+          workedDuration.value = record.punchOut!.difference(record.punchIn!);
         }
+
         setState(() {});
       },
       child: BlocBuilder<DashboardCubit, DashboardState>(
@@ -372,17 +306,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           return Scaffold(
             appBar: AppBar(
               centerTitle: false,
-              leading: GestureDetector(
-                child:  Container(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.fromLTRB(7, 6, 6, 6),
-                    margin: EdgeInsets.fromLTRB(16, 12, 10, 12),
-                    decoration: BoxDecoration(
-                      color: AppColor.lightBlue,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Icon(Icons.menu,size: 14,color: AppColor.primary,)),
-                onTap: () {
+              leading: IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
                   mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
                 },
               ),
@@ -577,8 +503,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       Center(
                         child: Text(
-                          todayHasPunchIn
-                              ? "Swipe to Update Punch Out"
+                          isPunchedIn
+                              ? "Swipe to Punch Out"
                               : "Swipe to Punch In",
                           style: AppTextStyle.ts12M(),
                         ),
