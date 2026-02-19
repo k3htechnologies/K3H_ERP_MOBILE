@@ -15,11 +15,14 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -45,7 +48,16 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
   late ProjectModel _project;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC;
+  late TextEditingController _searchC,
+      _systemCodeC,
+      _mobileNumberC,
+      _followUpDaysC,
+      _requirementC,
+      _stageC;
+
+  // DATE VARIABLES
+  final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier(null);
+  final ValueNotifier<DateTime?> _endDateNotifier = ValueNotifier(null);
 
   Future<void> openWhatsApp({
     required String phoneNumber,
@@ -89,13 +101,30 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
 
   @override
   void dispose() {
-    super.dispose();
+    // Dispose text controllers
     _searchC.dispose();
+    _systemCodeC.dispose();
+    _mobileNumberC.dispose();
+    _followUpDaysC.dispose();
+    _requirementC.dispose();
+    _stageC.dispose();
+
+    // Dispose scroll controller
     scrollController.dispose();
+
+    // Cancel debounce timer if active
+    _debounce?.cancel();
+
+    super.dispose();
   }
 
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _systemCodeC = TextEditingController();
+    _mobileNumberC = TextEditingController();
+    _followUpDaysC = TextEditingController();
+    _requirementC = TextEditingController();
+    _stageC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -120,6 +149,289 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     });
   }
 
+  Future<void> _showBottomSheetToFilterEnquiry(BuildContext context) async {
+    final state = _enquiryCubit.state;
+
+    // Initialize notifiers with current state values
+    _startDateNotifier.value = state.filterStartDate;
+    _endDateNotifier.value = state.filterEndDate;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Name" ? state.currentSortDirection : null;
+
+    final String? initialDirection = selectedDirection;
+    final DateTime? initialStartDate = state.filterStartDate;
+    final DateTime? initialEndDate = state.filterEndDate;
+
+    bool applied = false;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState() {
+      final bool manualChange =
+          (_startDateNotifier.value != initialStartDate) ||
+          (_endDateNotifier.value != initialEndDate) ||
+          (_systemCodeC.text.trim() != (state.filterSystemCode)) ||
+          (_mobileNumberC.text.trim() != (state.filterMobileNumber)) ||
+          (_followUpDaysC.text.trim() != (state.filterFollowUpDays)) ||
+          (_requirementC.text.trim() != (state.filterRequirement)) ||
+          (_stageC.text.trim() != (state.filterStage)) ||
+          (selectedDirection != initialDirection);
+
+      // Disable Apply if only one date is set
+      final bool onlyOneDateSet =
+          (_startDateNotifier.value != null &&
+              _endDateNotifier.value == null) ||
+          (_endDateNotifier.value != null && _startDateNotifier.value == null);
+
+      // Disable Apply if From > To
+      final bool invalidRange =
+          (_startDateNotifier.value != null &&
+              _endDateNotifier.value != null &&
+              _startDateNotifier.value!.isAfter(_endDateNotifier.value!));
+
+      applyEnabled.value = manualChange && !onlyOneDateSet && !invalidRange;
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Enquiry",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+              updateApplyState();
+            });
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(right: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // SORT OPTIONS
+                Text("Sort By Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: 0.5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: 0.5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20),
+
+                // DATE PICKERS
+                Row(
+                  children: [
+                    Expanded(
+                      child: ValueListenableBuilder<DateTime?>(
+                        valueListenable: _startDateNotifier,
+                        builder: (context, startDate, _) {
+                          return CustomDatePicker(
+                            title: "Start Date",
+                            initialDate: startDate,
+                            setValue: (value) {
+                              _startDateNotifier.value = value;
+                              updateApplyState();
+                            },
+                            validator: (_) => null,
+                          );
+                        },
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    Expanded(
+                      child: ValueListenableBuilder<DateTime?>(
+                        valueListenable: _endDateNotifier,
+                        builder: (context, endDate, _) {
+                          return CustomDatePicker(
+                            title: "End Date",
+                            initialDate: endDate,
+                            setValue: (value) {
+                              _endDateNotifier.value = value;
+                              updateApplyState();
+                            },
+                            validator: (value) {
+                              final start = _startDateNotifier.value;
+                              if (start != null && value == null) {
+                                return 'End Date required';
+                              }
+                              if (start != null &&
+                                  value != null &&
+                                  start.isAfter(value)) {
+                                return 'End Date cannot be before Start Date';
+                              }
+                              return null;
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+
+                // TEXT FIELDS
+                CustomTextField(
+                  textController: _systemCodeC,
+                  title: "System Generated Code",
+                  hint: "Enter System Generated Code",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+                CustomTextField(
+                  textController: _mobileNumberC,
+                  title: "Mobile Number",
+                  hint: "Enter Mobile Number",
+                  keyboardType: TextInputType.phone,
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+                CustomTextField(
+                  textController: _followUpDaysC,
+                  title: "Follow Up Days",
+                  hint: "Enter Follow Up Days",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+                CustomTextField(
+                  textController: _requirementC,
+                  title: "Requirement",
+                  hint: "Enter Requirement",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+                CustomTextField(
+                  textController: _stageC,
+                  title: "Stage",
+                  hint: "Enter Stage",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+
+      /// CLEAR BUTTON
+      onClear: () {
+        _startDateNotifier.value = null;
+        _endDateNotifier.value = null;
+        _systemCodeC.clear();
+        _mobileNumberC.clear();
+        _followUpDaysC.clear();
+        _requirementC.clear();
+        _stageC.clear();
+        selectedDirection = null;
+
+        _enquiryCubit.applyEnquiryFilterAndSort(
+          context: context,
+          filterStartDate: null,
+          filterEndDate: null,
+          filterSystemCode: '',
+          filterMobileNumber: '',
+          filterFollowUpDays: '',
+          filterRequirement: '',
+          filterStage: '',
+          sortColumn: "Created Date",
+          sortDirection: "DESC",
+        );
+      },
+
+      /// APPLY BUTTON
+      onApply: () {
+        applied = true;
+        _enquiryCubit.applyEnquiryFilterAndSort(
+          context: context,
+          filterStartDate: _startDateNotifier.value,
+          filterEndDate: _endDateNotifier.value,
+          filterSystemCode:
+              _systemCodeC.text.trim().isEmpty ? '' : _systemCodeC.text.trim(),
+          filterMobileNumber:
+              _mobileNumberC.text.trim().isEmpty
+                  ? ''
+                  : _mobileNumberC.text.trim(),
+          filterFollowUpDays:
+              _followUpDaysC.text.trim().isEmpty
+                  ? ''
+                  : _followUpDaysC.text.trim(),
+          filterRequirement:
+              _requirementC.text.trim().isEmpty
+                  ? ''
+                  : _requirementC.text.trim(),
+          filterStage: _stageC.text.trim().isEmpty ? '' : _stageC.text.trim(),
+          sortColumn: selectedDirection != null ? "Name" : "Created Date",
+          sortDirection: selectedDirection ?? "DESC",
+        );
+      },
+
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // Reset bottom sheet fields if closed manually
+    if (!applied) {
+      _startDateNotifier.value = initialStartDate;
+      _endDateNotifier.value = initialEndDate;
+      selectedDirection = initialDirection;
+    }
+  }
+
+  String getFollowUpStatus(DateTime? nextFollowUpDate) {
+    if (nextFollowUpDate == null) return "-";
+
+    final DateTime today = DateTime.now();
+
+    // Remove time part for accurate day comparison
+    final DateTime currentDate = DateTime(today.year, today.month, today.day);
+    final DateTime followUpDate = DateTime(
+      nextFollowUpDate.year,
+      nextFollowUpDate.month,
+      nextFollowUpDate.day,
+    );
+
+    final int difference = followUpDate.difference(currentDate).inDays;
+
+    if (difference == 0) {
+      return "Today follow up";
+    } else if (difference > 0) {
+      return "Follow up in $difference day(s)";
+    } else {
+      return "Follow up overdue by ${difference.abs()} day(s)";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,6 +439,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         screenTitle: "Enquiry",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
+        searchHintText: "Search by Name",
         onSearchSubmit: (value) {
           _enquiryCubit.search(context, value);
         },
@@ -136,6 +449,10 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         onProjectChangeCallback: (value) {
           _project = value;
           _enquiryCubit.getEnquiryList(context, 1, value.projectId);
+        },
+        isFilterOn: true,
+        onFilterTap: () {
+          _showBottomSheetToFilterEnquiry(context);
         },
       ),
       body: BlocBuilder<EnquiryCubit, EnquiryState>(
@@ -236,8 +553,8 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                       ),
                     ),
                     buildRowTitleValue(
-                      title: "Location",
-                      value: enquiry.currentLocation,
+                      title: "Enquiry Follow Up Days",
+                      value: getFollowUpStatus(enquiry.nextFollowUpDate),
                     ),
                     buildRowTitleValue(
                       title: "Requirement",

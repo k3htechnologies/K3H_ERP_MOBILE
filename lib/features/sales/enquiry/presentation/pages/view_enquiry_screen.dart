@@ -21,6 +21,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewEnquiryScreen extends StatefulWidget {
   final EnquiryModel enquiryModel;
+
   final int index;
 
   const ViewEnquiryScreen({
@@ -155,10 +156,23 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
           ],
         ),
       ),
-      bottomNavigationBar: ValueListenableBuilder<int>(
-        valueListenable: _tabIndexNotifier,
-        builder: (context, index, _) {
-          if (index != 1) return const SizedBox.shrink();
+      bottomNavigationBar: BlocBuilder<EnquiryCubit, EnquiryState>(
+        builder: (context, state) {
+          // Hide if not on tab 1 OR final enquiry is in closed states
+          if (_tabIndexNotifier.value != 1) return const SizedBox.shrink();
+
+          if (state.enquiryList.isEmpty ||
+              widget.index >= state.enquiryList.length) {
+            return const SizedBox.shrink();
+          }
+
+          final enquiry = state.enquiryList[widget.index];
+          final closedStatuses = ['booking done', 'cancelled', 'lost'];
+
+          // Hide button if enquiry is in closed state
+          if (closedStatuses.contains(enquiry.finalStage.toLowerCase())) {
+            return const SizedBox.shrink();
+          }
 
           return SafeArea(
             child: Container(
@@ -166,9 +180,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
               padding: const EdgeInsets.all(16),
               child: CustomButton(
                 text: "Set Next Activity",
-                onPressed: () {
-                  _showAddUpdateEnquiryFollowUpBottomSheet(context);
-                },
+                onPressed:
+                    () => _showAddUpdateEnquiryFollowUpBottomSheet(context),
               ),
             ),
           );
@@ -214,597 +227,661 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
   // ===================== OVERVIEW TAB =====================
   Widget buildOverviewTab() {
-    final enquiry = widget.enquiryModel;
-    final bool isChannelPartner = enquiry.source == "Channel Partner";
-    final bool isDirectWalking = enquiry.source == "Direct Walking";
-    final bool isNRI = enquiry.nationality.toLowerCase() == 'nri';
-    final bool isAdvertisement = enquiry.subSource == "Advertisement";
-    final bool isEmployeeReference = enquiry.subSource == "Employee Reference";
-    final bool isLoyalty = enquiry.subSource == "Loyalty";
-    final bool isReference = enquiry.subSource == "Reference";
+    return BlocBuilder<EnquiryCubit, EnquiryState>(
+      builder: (context, state) {
+        if (state.enquiryList.isEmpty ||
+            widget.index >= state.enquiryList.length) {
+          return const SizedBox.shrink();
+        }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        spacing: 10,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        final enquiry = state.enquiryList[widget.index];
+        final bool isChannelPartner = enquiry.source == "Channel Partner";
+        final bool isDirectWalking = enquiry.source == "Direct Walking";
+        final bool isNRI = enquiry.nationality.toLowerCase() == 'nri';
+        final bool isAdvertisement = enquiry.subSource == "Advertisement";
+        final bool isEmployeeReference =
+            enquiry.subSource == "Employee Reference";
+        final bool isLoyalty = enquiry.subSource == "Loyalty";
+        final bool isReference = enquiry.subSource == "Reference";
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            spacing: 10,
             children: [
-              Text(
-                enquiry.systemGeneratedCode,
-                style: AppTextStyle.ts16SB(color: AppColor.primary),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    enquiry.systemGeneratedCode,
+                    style: AppTextStyle.ts16SB(color: AppColor.primary),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColor.lightBlue,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      "Enquiry",
+                      style: AppTextStyle.ts12SB(color: AppColor.primary),
+                    ),
+                  ),
+                ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColor.lightBlue,
-                  borderRadius: BorderRadius.circular(12),
+
+              /// LEAD INFO
+              _buildCard(
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle("Lead Information"),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Enquiry Date",
+                          value:
+                              enquiry.enquiryDate != null
+                                  ? formatDateTimeAsDDMMMYYYY(
+                                    enquiry.enquiryDate!,
+                                  )
+                                  : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Next Follow-Up Date",
+                          value:
+                              enquiry.nextFollowUpDate != null
+                                  ? formatDateTimeAsDDMMMYYYY(
+                                    enquiry.nextFollowUpDate!,
+                                  )
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Full Name",
+                          value: enquiry.name.isNotEmpty ? enquiry.name : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Contact No.",
+                          value:
+                              enquiry.mobileNumber.isNotEmpty
+                                  ? enquiry.mobileNumber
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+
+                      children: [
+                        buildColumnTitleValue(
+                          title: "E-Mail ID",
+                          value:
+                              enquiry.emailId.isNotEmpty
+                                  ? enquiry.emailId
+                                  : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Date of Birth",
+                          value:
+                              enquiry.dateOfBirth != null
+                                  ? formatDateTimeAsDDMMMYYYY(
+                                    enquiry.dateOfBirth!,
+                                  )
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Age",
+                          value: calculateAge(enquiry.dateOfBirth),
+                        ),
+                        buildColumnTitleValue(
+                          title: "Accommodation",
+                          value:
+                              enquiry.accommodation.isNotEmpty
+                                  ? enquiry.accommodation
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Occupation Type",
+                          value:
+                              enquiry.occupationType.isNotEmpty
+                                  ? enquiry.occupationType
+                                  : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Nationality",
+                          value:
+                              enquiry.nationality.isNotEmpty
+                                  ? enquiry.nationality
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                    if (isNRI)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Country Of Residence",
+                            value:
+                                enquiry.countryOfResidence.isNotEmpty
+                                    ? enquiry.countryOfResidence
+                                    : "-",
+                          ),
+                          buildColumnTitleValue(
+                            title: "City Of Residence",
+                            value:
+                                enquiry.cityOfResidence.isNotEmpty
+                                    ? enquiry.cityOfResidence
+                                    : "-",
+                          ),
+                        ],
+                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Customer Time In",
+                          value:
+                              enquiry.enquiryTimeIn.isNotEmpty
+                                  ? enquiry.enquiryTimeIn
+                                  : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Customer Time Out",
+                          value:
+                              enquiry.enquiryTimeOut.isNotEmpty
+                                  ? enquiry.enquiryTimeOut
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                child: Text(
-                  "Enquiry",
-                  style: AppTextStyle.ts12SB(color: AppColor.primary),
+              ),
+
+              /// SOURCE INFO
+              _buildCard(
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle("Source"),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Source",
+                          value:
+                              enquiry.source.isNotEmpty ? enquiry.source : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Sub Source",
+                          value:
+                              enquiry.subSource.isNotEmpty
+                                  ? enquiry.subSource
+                                  : "-",
+                        ),
+                      ],
+                    ),
+
+                    // CHANNEL PARTNER
+                    if (isChannelPartner) ...[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Channel Partner",
+                            value:
+                                enquiry.channelPartnerName.isNotEmpty
+                                    ? enquiry.channelPartnerName
+                                    : "-",
+                          ),
+                          buildColumnTitleValue(
+                            title: "Channel Partner No.",
+                            value:
+                                enquiry.channelPartnerMobileNumber.isNotEmpty
+                                    ? enquiry.channelPartnerMobileNumber
+                                    : "-",
+                          ),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Team Member Name",
+                            value:
+                                _teamMemberName.isNotEmpty
+                                    ? _teamMemberName
+                                    : "-",
+                          ),
+                          buildColumnTitleValue(
+                            title: "Team Member Mobile",
+                            value:
+                                _teamMemberMobile.isNotEmpty
+                                    ? _teamMemberMobile
+                                    : "-",
+                          ),
+                        ],
+                      ),
+                    ],
+
+                    // ADVERTISEMENT
+                    if (isDirectWalking && isAdvertisement)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Sub Sub Source",
+                            value:
+                                enquiry.subSubSource.isNotEmpty
+                                    ? enquiry.subSubSource
+                                    : "-",
+                          ),
+                          const Expanded(child: SizedBox()),
+                        ],
+                      ),
+
+                    // EMPLOYEE REFERENCE
+                    if (isDirectWalking && isEmployeeReference)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Employee Name",
+                            value:
+                                enquiry.employeeReferenceName.isNotEmpty
+                                    ? enquiry.employeeReferenceName
+                                    : "-",
+                          ),
+                          buildColumnTitleValue(
+                            title: "Employee Mobile",
+                            value:
+                                enquiry.employeeReferenceMobileNumber.isNotEmpty
+                                    ? enquiry.employeeReferenceMobileNumber
+                                    : "-",
+                          ),
+                        ],
+                      ),
+
+                    // LOYALTY
+                    if (isDirectWalking && isLoyalty)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Existing Project Name",
+                            value:
+                                enquiry.loyaltyExistingProjectName.isNotEmpty
+                                    ? enquiry.loyaltyExistingProjectName
+                                    : "-",
+                          ),
+                          buildColumnTitleValue(
+                            title: "Existing Unit Number",
+                            value:
+                                enquiry.loyaltyExistingUnitNumber.isNotEmpty
+                                    ? enquiry.loyaltyExistingUnitNumber
+                                    : "-",
+                          ),
+                        ],
+                      ),
+
+                    // REFERENCE
+                    if (isDirectWalking && isReference) ...[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Referral Name",
+                            value:
+                                enquiry.referelName.isNotEmpty
+                                    ? enquiry.referelName
+                                    : "-",
+                          ),
+                          buildColumnTitleValue(
+                            title: "Referral Mobile",
+                            value:
+                                enquiry.referelMobileNumber.isNotEmpty
+                                    ? enquiry.referelMobileNumber
+                                    : "-",
+                          ),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Referral Project Name",
+                            value:
+                                enquiry.referelProjectName.isNotEmpty
+                                    ? enquiry.referelProjectName
+                                    : "-",
+                          ),
+                          buildColumnTitleValue(
+                            title: "Referral Unit Number",
+                            value:
+                                enquiry.referelUnitNumber.isNotEmpty
+                                    ? enquiry.referelUnitNumber
+                                    : "-",
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+              /// ADDRESS
+              _buildCard(
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle("Address"),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Current Location",
+                          value:
+                              enquiry.currentLocation.isNotEmpty
+                                  ? enquiry.currentLocation
+                                  : "-",
+                        ),
+                        const Expanded(child: SizedBox()),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              /// PROPERTY PREFERENCES
+              _buildCard(
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle("Property Preferences"),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Budget (In CR)",
+                          value:
+                              enquiry.budget.isNotEmpty ? enquiry.budget : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Possession Type",
+                          value:
+                              enquiry.possessionType.isNotEmpty
+                                  ? enquiry.possessionType
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Requirement",
+                          value:
+                              enquiry.requirement.isNotEmpty
+                                  ? enquiry.requirement
+                                  : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Type",
+                          value:
+                              enquiry.requirementType.isNotEmpty
+                                  ? enquiry.requirementType
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Location",
+                          value:
+                              enquiry.currentLocation.isNotEmpty
+                                  ? enquiry.currentLocation
+                                  : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Timeline",
+                          value:
+                              enquiry.timeline.isNotEmpty
+                                  ? enquiry.timeline
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Area Preferred (SqFt)",
+                          value:
+                              enquiry.areaPreferred != 0
+                                  ? enquiry.areaPreferred.toString()
+                                  : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Desired Floor Band",
+                          value:
+                              enquiry.desiredFloorBand.isNotEmpty
+                                  ? enquiry.desiredFloorBand
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              /// CUSTOMER DETAILS
+              _buildCard(
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle("Customer Details"),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Customer Classification",
+                          value:
+                              enquiry.customerClassification.isNotEmpty
+                                  ? enquiry.customerClassification
+                                  : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Source Of Funding",
+                          value:
+                              enquiry.sourceOfFunding.isNotEmpty
+                                  ? enquiry.sourceOfFunding
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Ethnicity",
+                          value:
+                              enquiry.ethnicity.isNotEmpty
+                                  ? enquiry.ethnicity
+                                  : "-",
+                        ),
+                        const Expanded(child: SizedBox()),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              /// ENQUIRY INFORMATION
+              _buildCard(
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle("Enquiry Information"),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Stage",
+                          value:
+                              enquiry.finalStage.isNotEmpty
+                                  ? enquiry.finalStage
+                                  : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Final Stage Detail",
+                          value:
+                              enquiry.finalStageDetail.isNotEmpty
+                                  ? enquiry.finalStageDetail
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              /// SALES DETAILS
+              _buildCard(
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle("Sales Details"),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Sales Advisor",
+                          value:
+                              enquiry.salesAdvisor.isNotEmpty
+                                  ? enquiry.salesAdvisor
+                                  : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Sourcing Manager",
+                          value:
+                              enquiry.sourcingManager.isNotEmpty
+                                  ? enquiry.sourcingManager
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              /// ENQUIRY REMARK
+              _buildCard(
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle("Enquiry Remark"),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Remark",
+                          value:
+                              enquiry.remark.isNotEmpty ? enquiry.remark : "-",
+                        ),
+                        const Expanded(child: SizedBox()),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              /// ACTION DETAILS
+              _buildCard(
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle("Action Details"),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Created By",
+                          value:
+                              enquiry.createdBy.isNotEmpty
+                                  ? enquiry.createdBy
+                                  : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Created Date",
+                          value: formatDateTimeAsDDMMMYYYY(enquiry.createdDate),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Modified By",
+                          value:
+                              enquiry.modifiedBy.isNotEmpty
+                                  ? enquiry.modifiedBy
+                                  : "-",
+                        ),
+                        buildColumnTitleValue(
+                          title: "Modified Date",
+                          value:
+                              enquiry.modifiedDate != null
+                                  ? formatDateTimeAsDDMMMYYYY(
+                                    enquiry.modifiedDate!,
+                                  )
+                                  : "-",
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-
-          /// LEAD INFO
-          _buildCard(
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle("Lead Information"),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Enquiry Date",
-                      value:
-                          enquiry.enquiryDate != null
-                              ? formatDateTimeAsDDMMMYYYY(enquiry.enquiryDate!)
-                              : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Next Follow-Up Date",
-                      value:
-                          enquiry.nextFollowUpDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                enquiry.nextFollowUpDate!,
-                              )
-                              : "-",
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Full Name",
-                      value: enquiry.name.isNotEmpty ? enquiry.name : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Contact No.",
-                      value:
-                          enquiry.mobileNumber.isNotEmpty
-                              ? enquiry.mobileNumber
-                              : "-",
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "E-Mail ID",
-                      value: enquiry.emailId.isNotEmpty ? enquiry.emailId : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Date of Birth",
-                      value:
-                          enquiry.dateOfBirth != null
-                              ? formatDateTimeAsDDMMMYYYY(enquiry.dateOfBirth!)
-                              : "-",
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Age",
-                      value: enquiry.age != 0 ? enquiry.age.toString() : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Accommodation",
-                      value:
-                          enquiry.accommodation.isNotEmpty
-                              ? enquiry.accommodation
-                              : "-",
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Occupation Type",
-                      value:
-                          enquiry.occupationType.isNotEmpty
-                              ? enquiry.occupationType
-                              : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Nationality",
-                      value:
-                          enquiry.nationality.isNotEmpty
-                              ? enquiry.nationality
-                              : "-",
-                    ),
-                  ],
-                ),
-                if (isNRI)
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Country Of Residence",
-                        value:
-                            enquiry.countryOfResidence.isNotEmpty
-                                ? enquiry.countryOfResidence
-                                : "-",
-                      ),
-                      buildColumnTitleValue(
-                        title: "City Of Residence",
-                        value:
-                            enquiry.cityOfResidence.isNotEmpty
-                                ? enquiry.cityOfResidence
-                                : "-",
-                      ),
-                    ],
-                  ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Customer Time In",
-                      value:
-                          enquiry.enquiryTimeIn.isNotEmpty
-                              ? enquiry.enquiryTimeIn
-                              : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Customer Time Out",
-                      value:
-                          enquiry.enquiryTimeOut.isNotEmpty
-                              ? enquiry.enquiryTimeOut
-                              : "-",
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          /// SOURCE INFO
-          _buildCard(
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle("Source"),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Source",
-                      value: enquiry.source.isNotEmpty ? enquiry.source : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Sub Source",
-                      value:
-                          enquiry.subSource.isNotEmpty
-                              ? enquiry.subSource
-                              : "-",
-                    ),
-                  ],
-                ),
-
-                // CHANNEL PARTNER
-                if (isChannelPartner) ...[
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Channel Partner",
-                        value:
-                            enquiry.channelPartnerName.isNotEmpty
-                                ? enquiry.channelPartnerName
-                                : "-",
-                      ),
-                      buildColumnTitleValue(
-                        title: "Channel Partner Number",
-                        value:
-                            enquiry.channelPartnerMobileNumber.isNotEmpty
-                                ? enquiry.channelPartnerMobileNumber
-                                : "-",
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Team Member Name",
-                        value:
-                            _teamMemberName.isNotEmpty ? _teamMemberName : "-",
-                      ),
-                      buildColumnTitleValue(
-                        title: "Team Member Mobile",
-                        value:
-                            _teamMemberMobile.isNotEmpty
-                                ? _teamMemberMobile
-                                : "-",
-                      ),
-                    ],
-                  ),
-                ],
-                // ADVERTISEMENT
-                if (isDirectWalking && isAdvertisement)
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Sub Sub Source",
-                        value:
-                            enquiry.subSubSource.isNotEmpty
-                                ? enquiry.subSubSource
-                                : "-",
-                      ),
-                      const Expanded(child: SizedBox()),
-                    ],
-                  ),
-
-                // EMPLOYEE REFERENCE
-                if (isDirectWalking && isEmployeeReference)
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Employee Name",
-                        value:
-                            enquiry.employeeReferenceName.isNotEmpty
-                                ? enquiry.employeeReferenceName
-                                : "-",
-                      ),
-                      buildColumnTitleValue(
-                        title: "Employee Mobile",
-                        value:
-                            enquiry.employeeReferenceMobileNumber.isNotEmpty
-                                ? enquiry.employeeReferenceMobileNumber
-                                : "-",
-                      ),
-                    ],
-                  ),
-
-                // LOYALTY
-                if (isDirectWalking && isLoyalty)
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Existing Project Name",
-                        value:
-                            enquiry.loyaltyExistingProjectName.isNotEmpty
-                                ? enquiry.loyaltyExistingProjectName
-                                : "-",
-                      ),
-                      buildColumnTitleValue(
-                        title: "Existing Unit Number",
-                        value:
-                            enquiry.loyaltyExistingUnitNumber.isNotEmpty
-                                ? enquiry.loyaltyExistingUnitNumber
-                                : "-",
-                      ),
-                    ],
-                  ),
-
-                // REFERENCE
-                if (isDirectWalking && isReference) ...[
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Referral Name",
-                        value:
-                            enquiry.referelName.isNotEmpty
-                                ? enquiry.referelName
-                                : "-",
-                      ),
-                      buildColumnTitleValue(
-                        title: "Referral Mobile",
-                        value:
-                            enquiry.referelMobileNumber.isNotEmpty
-                                ? enquiry.referelMobileNumber
-                                : "-",
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Referral Project Name",
-                        value:
-                            enquiry.referelProjectName.isNotEmpty
-                                ? enquiry.referelProjectName
-                                : "-",
-                      ),
-                      buildColumnTitleValue(
-                        title: "Referral Unit Number",
-                        value:
-                            enquiry.referelUnitNumber.isNotEmpty
-                                ? enquiry.referelUnitNumber
-                                : "-",
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-
-          /// ADDRESS
-          _buildCard(
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle("Address"),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Current Location",
-                      value:
-                          enquiry.currentLocation.isNotEmpty
-                              ? enquiry.currentLocation
-                              : "-",
-                    ),
-                    const Expanded(child: SizedBox()),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          /// PROPERTY PREFERENCES
-          _buildCard(
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle("Property Preferences"),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Budget (In CR)",
-                      value: enquiry.budget.isNotEmpty ? enquiry.budget : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Possession Type",
-                      value:
-                          enquiry.possessionType.isNotEmpty
-                              ? enquiry.possessionType
-                              : "-",
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Requirement",
-                      value:
-                          enquiry.requirement.isNotEmpty
-                              ? enquiry.requirement
-                              : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Type",
-                      value:
-                          enquiry.requirementType.isNotEmpty
-                              ? enquiry.requirementType
-                              : "-",
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Location",
-                      value:
-                          enquiry.currentLocation.isNotEmpty
-                              ? enquiry.currentLocation
-                              : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Timeline",
-                      value:
-                          enquiry.timeline.isNotEmpty ? enquiry.timeline : "-",
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Area Preferred (SqFt)",
-                      value:
-                          enquiry.areaPreferred != 0
-                              ? enquiry.areaPreferred.toString()
-                              : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Desired Floor Band",
-                      value:
-                          enquiry.desiredFloorBand.isNotEmpty
-                              ? enquiry.desiredFloorBand
-                              : "-",
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          /// CUSTOMER DETAILS
-          _buildCard(
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle("Customer Details"),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Customer Classification",
-                      value:
-                          enquiry.customerClassification.isNotEmpty
-                              ? enquiry.customerClassification
-                              : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Source Of Funding",
-                      value:
-                          enquiry.sourceOfFunding.isNotEmpty
-                              ? enquiry.sourceOfFunding
-                              : "-",
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Ethnicity",
-                      value:
-                          enquiry.ethnicity.isNotEmpty
-                              ? enquiry.ethnicity
-                              : "-",
-                    ),
-                    const Expanded(child: SizedBox()),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          /// ENQUIRY INFORMATION
-          _buildCard(
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle("Enquiry Information"),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Stage",
-                      value:
-                          enquiry.finalStage.isNotEmpty
-                              ? enquiry.finalStage
-                              : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Final Stage Detail",
-                      value:
-                          enquiry.finalStageDetail.isNotEmpty
-                              ? enquiry.finalStageDetail
-                              : "-",
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          /// SALES DETAILS
-          _buildCard(
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle("Sales Details"),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Sales Advisor",
-                      value:
-                          enquiry.salesAdvisor.isNotEmpty
-                              ? enquiry.salesAdvisor
-                              : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Sourcing Manager",
-                      value:
-                          enquiry.sourcingManager.isNotEmpty
-                              ? enquiry.sourcingManager
-                              : "-",
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          /// ENQUIRY REMARK
-          _buildCard(
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle("Enquiry Remark"),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Remark",
-                      value: enquiry.remark.isNotEmpty ? enquiry.remark : "-",
-                    ),
-                    const Expanded(child: SizedBox()),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          /// ACTION DETAILS
-          _buildCard(
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle("Action Details"),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Created By",
-                      value:
-                          enquiry.createdBy.isNotEmpty
-                              ? enquiry.createdBy
-                              : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Created Date",
-                      value: formatDateTimeAsDDMMMYYYY(enquiry.createdDate),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Modified By",
-                      value:
-                          enquiry.modifiedBy.isNotEmpty
-                              ? enquiry.modifiedBy
-                              : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Modified Date",
-                      value:
-                          enquiry.modifiedDate != null
-                              ? formatDateTimeAsDDMMMYYYY(enquiry.modifiedDate!)
-                              : "-",
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -898,13 +975,23 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text(
-                                                dateFormatterDDMMYYYYDAY(
-                                                  item.nextFollowUpDate!,
-                                                  isDayNotRequired: true,
-                                                ),
-                                                style: AppTextStyle.ts12M(
-                                                  color: AppColor.grey,
+                                              Visibility(
+                                                visible:
+                                                    ![
+                                                      'booking done',
+                                                      'cancelled',
+                                                      'lost',
+                                                    ].contains(
+                                                      item.status.toLowerCase(),
+                                                    ),
+                                                child: Text(
+                                                  dateFormatterDDMMYYYYDAY(
+                                                    item.nextFollowUpDate!,
+                                                    isDayNotRequired: true,
+                                                  ),
+                                                  style: AppTextStyle.ts12M(
+                                                    color: AppColor.grey,
+                                                  ),
                                                 ),
                                               ),
                                               Text(
@@ -998,8 +1085,10 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                                     ),
                                                 ],
                                               ),
-                                              verticalSpacing(height: 4),
+                                              verticalSpacing(),
                                               statusWidget(item.status),
+                                              verticalSpacing(),
+
                                               Text(
                                                 item.remark,
                                                 style: AppTextStyle.ts14R(),
@@ -1273,6 +1362,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       context: context,
       body: payload,
       index: index,
+      enquiryIndex: widget.index,
     );
   }
 
@@ -1297,6 +1387,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
         followUpModel: followUpModel,
         enquiryId: enquiryId,
         context: context,
+        enquireIndex: index,
       );
     }
   }

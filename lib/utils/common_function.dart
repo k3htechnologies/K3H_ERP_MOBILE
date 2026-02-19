@@ -385,3 +385,18 @@ String formatDateToDayMonth(DateTime dt) {
   ans += monthMap[dt.month]!;
   return ans;
 }
+
+// FOR AGE CALCULATION
+String calculateAge(DateTime? dateOfBirth) {
+  if (dateOfBirth == null) return '';
+
+  final now = DateTime.now();
+  int age = now.year - dateOfBirth.year;
+
+  if (now.month < dateOfBirth.month ||
+      (now.month == dateOfBirth.month && now.day < dateOfBirth.day)) {
+    age--;
+  }
+
+  return age.toString();
+}
