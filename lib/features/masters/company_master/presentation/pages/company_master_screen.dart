@@ -59,6 +59,19 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     scrollController.addListener(_onScroll);
   }
 
+  @override
+  void dispose() {
+    _searchC.dispose();
+    _filterFirmsTypeC.dispose();
+    _filterContactPersonC.dispose();
+    _filterMobileNumberC.dispose();
+    _filterCityNameC.dispose();
+    scrollController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  // INITIALISE TEXT EDITING CONTROLLERS
   void initialiseControllers() {
     _searchC = TextEditingController();
     scrollController = ScrollController();
@@ -277,18 +290,6 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
   }
 
   @override
-  void dispose() {
-    _searchC.dispose();
-    _filterFirmsTypeC.dispose();
-    _filterContactPersonC.dispose();
-    _filterMobileNumberC.dispose();
-    _filterCityNameC.dispose();
-    scrollController.dispose();
-    _debounce?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
@@ -308,7 +309,6 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addCompany);
           if (context.mounted) {
-            // After add, reload from first page to avoid duplicate rows
             _companyMasterCubit.getCompanyMaster(context, 1);
           }
         },
@@ -369,11 +369,14 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                                 },
                               );
                             },
-                            child:   Text(
+                            child: Text(
                               company.companyName,
                               style: AppTextStyle.ts16M(
                                 color: AppColor.primary,
-                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
+                              ),
                             ),
                           ),
                         ),

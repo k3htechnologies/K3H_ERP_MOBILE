@@ -32,7 +32,7 @@ class _CompanyMasterViewMobileScreenState
     return Scaffold(
       backgroundColor: AppColor.greyBackground,
       appBar: CustomAppBarWithBackButton(
-        screenTitle: 'Company',
+        screenTitle: 'Company Master',
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(

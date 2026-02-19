@@ -93,7 +93,7 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Department",
+        screenTitle: "Department Master",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(

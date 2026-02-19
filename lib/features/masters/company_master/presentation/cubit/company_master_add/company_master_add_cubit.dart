@@ -34,6 +34,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     required MultiFilePickerModel cinFile,
     required String panNumber,
     required String tanNumber,
+    required MultiFilePickerModel tanFile,
     required MultiFilePickerModel companyLetterheadHeaderFile,
     required MultiFilePickerModel companyLetterheadFooterFile,
     required int countryId,
@@ -215,6 +216,16 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         "fileName": companyLetterheadFooterFile.fileNameList[i],
       });
     }
+    for (int i = 0; i < tanFile.fileNameList.length; i++) {
+      if (tanFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "TANURL",
+        "value": tanFile.fileBytesList[i],
+        "fileName": tanFile.fileNameList[i],
+      });
+    }
     var addResult = await _companyMasterRepository.addUpdateCompanyList(
       body: requestBody,
       fileList: fileList,
@@ -315,6 +326,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     required MultiFilePickerModel cinFile,
     required String panNumber,
     required String tanNumber,
+    required MultiFilePickerModel tanFile,
     required MultiFilePickerModel companyLetterheadHeaderFile,
     required MultiFilePickerModel companyLetterheadFooterFile,
     required int countryId,
@@ -345,6 +357,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
       "RemoveGSTCertificateURL": gstCertificateFile.deletedFileList,
       "RemovePanCardURL": panCardFile.deletedFileList,
       "RemoveCINURL": cinFile.deletedFileList,
+      "RemoveTANURL": tanFile.deletedFileList,
       "RemoveCompanyLetterheadHeaderURL":
           companyLetterheadHeaderFile.deletedFileList,
       "RemoveCompanyLetterheadFooterURL":
@@ -511,6 +524,17 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
           });
         }
       }
+    }
+
+    for (int i = 0; i < tanFile.fileNameList.length; i++) {
+      if (tanFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "TANURL",
+        "value": tanFile.fileBytesList[i],
+        "fileName": tanFile.fileNameList[i],
+      });
     }
 
     var addResult = await _companyMasterRepository.addUpdateCompanyList(

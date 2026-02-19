@@ -104,7 +104,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Designation",
+        screenTitle: "Designation Master",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(

@@ -39,6 +39,13 @@ class _EmployeeMasterViewDetailsScreenState
     _tabController.addListener(_handleTabChange);
   }
 
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  // HANDLE TAB CHANGES
   void _handleTabChange() {
     final index = _tabController.index;
     if (index == _lastTabIndex) return;
@@ -53,18 +60,12 @@ class _EmployeeMasterViewDetailsScreenState
   }
 
   @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
       builder: (context, state) {
         return Scaffold(
           appBar: CustomAppBarWithBackButton(
-            screenTitle: "Employee",
+            screenTitle: "Employee Master",
             authorization: AuthorizationModel(),
           ),
           body: SafeArea(
@@ -183,6 +184,7 @@ class _EmployeeMasterViewDetailsScreenState
     );
   }
 
+  // OVERVIEW TAB
   Widget _buildOverviewTab(UserModel user) {
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -642,7 +644,8 @@ class _EmployeeMasterViewDetailsScreenState
     );
   }
 
-  Widget _buildEducationTab(){
+  // BUILD EDUCATION TAB
+  Widget _buildEducationTab() {
     return BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
       builder: (context, state) {
         if (state.isLoading == true &&
@@ -710,7 +713,8 @@ class _EmployeeMasterViewDetailsScreenState
     );
   }
 
-  Widget _buildExperienceTab(){
+  // BUILD EXPERIENCE TAB
+  Widget _buildExperienceTab() {
     return BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
       builder: (context, state) {
         if (state.isLoading == true &&
@@ -735,12 +739,11 @@ class _EmployeeMasterViewDetailsScreenState
           );
         }
         return ListView.builder(
-          padding: EdgeInsets.symmetric(horizontal: 16,vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           shrinkWrap: true,
           itemCount: state.employeeExperienceDetailsList.length,
           itemBuilder: (_, index) {
-            final experience =
-            state.employeeExperienceDetailsList[index];
+            final experience = state.employeeExperienceDetailsList[index];
             return Container(
               margin: EdgeInsets.only(bottom: 10),
               padding: EdgeInsets.all(16),
@@ -779,7 +782,8 @@ class _EmployeeMasterViewDetailsScreenState
     );
   }
 
-  Widget _buildBankAssociationTab(){
+  // BUILD BANK ASSOCIATION TAB
+  Widget _buildBankAssociationTab() {
     return BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
       builder: (_, state) {
         if (state.isLoading == true && state.branchAssociationList.isEmpty) {
@@ -803,7 +807,7 @@ class _EmployeeMasterViewDetailsScreenState
           );
         }
         return ListView.builder(
-          padding: EdgeInsets.symmetric(horizontal: 16,vertical: 10),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           shrinkWrap: true,
           itemCount: state.branchAssociationList.length,
           itemBuilder: (_, index) {
@@ -820,6 +824,7 @@ class _EmployeeMasterViewDetailsScreenState
     );
   }
 
+  // BUILD DOCUMENT TAB
   Widget _buildDocumentTab() {
     return SingleChildScrollView(
       child: BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
@@ -891,7 +896,7 @@ class _EmployeeMasterViewDetailsScreenState
                                   final files = MultiFilePickerModel(
                                     fileNameList: [],
                                     fileBytesList: [],
-                                    deletedFileList: removeUrl, // ✅ FIXED
+                                    deletedFileList: removeUrl,
                                   );
 
                                   await context
@@ -928,6 +933,7 @@ class _EmployeeMasterViewDetailsScreenState
     );
   }
 
+  // BUILD ASSETS TAB
   Widget _buildAssetTab() {
     return SingleChildScrollView(
       child: BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
@@ -1060,6 +1066,7 @@ class _EmployeeMasterViewDetailsScreenState
     );
   }
 
+  // BUILD SHIFT POLICY TAB
   Widget _buildShiftPolicyTab() {
     return SingleChildScrollView(
       child: BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
@@ -1217,6 +1224,7 @@ class _EmployeeMasterViewDetailsScreenState
     );
   }
 
+  // BUILD WEEK OFF POLICY TAB
   Widget _buildWeekOffPolicyTab() {
     return SingleChildScrollView(
       child: BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
@@ -1385,6 +1393,7 @@ class _EmployeeMasterViewDetailsScreenState
     );
   }
 
+  // BUILD PROJECT TAB
   Widget _buildProjectTab(
     List<ProjectModel> projectList,
     bool isLoadingProjects,

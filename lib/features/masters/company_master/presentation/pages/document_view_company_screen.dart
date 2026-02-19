@@ -31,6 +31,7 @@ class DocumentsViewCompanyScreen extends StatelessWidget {
             verticalSpacing(),
             _buildContainer(
               title: "PAN Card",
+              value: companyModel.panCardURL,
               onTap: () {
                 if (companyModel.panCardURL.isEmpty) {
                   showErrorMessage(context, "Image Error", "No Image Found");
@@ -44,6 +45,7 @@ class DocumentsViewCompanyScreen extends StatelessWidget {
             ),
             _buildContainer(
               title: "GST Certificate",
+              value: companyModel.gstCertificateURL,
               onTap: () {
                 if (companyModel.gstCertificateURL.isEmpty) {
                   showErrorMessage(context, "Image Error", "No Image Found");
@@ -57,6 +59,7 @@ class DocumentsViewCompanyScreen extends StatelessWidget {
             ),
             _buildContainer(
               title: "CIN",
+              value: companyModel.cinURL,
               onTap: () {
                 if (companyModel.cinURL.isEmpty) {
                   showErrorMessage(context, "Image Error", "No Image Found");
@@ -67,6 +70,7 @@ class DocumentsViewCompanyScreen extends StatelessWidget {
             ),
             _buildContainer(
               title: "Company Letterhead Header",
+              value: companyModel.companyLetterheadHeaderURL,
               onTap: () {
                 if (companyModel.companyLetterheadHeaderURL.isEmpty) {
                   showErrorMessage(context, "Image Error", "No Image Found");
@@ -80,6 +84,7 @@ class DocumentsViewCompanyScreen extends StatelessWidget {
             ),
             _buildContainer(
               title: "Company Letterhead Footer",
+              value: companyModel.companyLetterheadFooterURL,
               onTap: () {
                 if (companyModel.companyLetterheadFooterURL.isEmpty) {
                   showErrorMessage(context, "Image Error", "No Image Found");
@@ -98,7 +103,7 @@ class DocumentsViewCompanyScreen extends StatelessWidget {
   }
 
   // BUILD COMMON CONTAINER
-  Widget _buildContainer({required String title, required VoidCallback onTap}) {
+  Widget _buildContainer({required String title,required String value ,required VoidCallback onTap}) {
     return Row(
       children: [
         Expanded(
@@ -133,11 +138,11 @@ class DocumentsViewCompanyScreen extends StatelessWidget {
               children: [
                 Text(title, style: AppTextStyle.ts16M(color: AppColor.black)),
                 CustomIconButton(
-                  backgroundColor: AppColor.lightBlue,
+                  backgroundColor:value.isEmpty?AppColor.grey30: AppColor.lightBlue,
                   icon: Icon(
                     Icons.remove_red_eye_outlined,
                     size: 16,
-                    color: AppColor.primary,
+                    color:value.isEmpty?AppColor.grey: AppColor.primary,
                   ),
                   onPressed: onTap,
                 ),

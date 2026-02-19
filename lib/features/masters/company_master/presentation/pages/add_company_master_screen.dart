@@ -45,7 +45,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       _panNumberC,
       _cinNumberC,
       _tanNumberC,
-      _addressC,
       // COMPANY PARTNER TEXT CONTROLLER
       _companyPartnerFirstNameC,
       _companyPartnerMiddleNameC,
@@ -135,6 +134,11 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
+  MultiFilePickerModel selectedTANFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
 
   @override
   void initState() {
@@ -165,7 +169,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     _cinNumberC = TextEditingController(text: company?.cinNumber);
     _panNumberC = TextEditingController(text: company?.panNumber);
     _tanNumberC = TextEditingController(text: company?.tanNumber);
-    _addressC = TextEditingController(text: "");
     // COMPANY PARTNER DETAILS
     _companyPartnerFirstNameC = TextEditingController();
     _companyPartnerMiddleNameC = TextEditingController();
@@ -190,7 +193,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     _cinNumberC.dispose();
     _panNumberC.dispose();
     _tanNumberC.dispose();
-    _addressC.dispose();
     // COMPANY PARTNER DETAILS
     _companyPartnerFirstNameC.dispose();
     _companyPartnerMiddleNameC.dispose();
@@ -312,7 +314,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Company",
+        screenTitle: "Company Master",
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(
@@ -414,6 +416,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     );
   }
 
+  // BUILD BASIC DETAILS SECTION
   Widget _buildBasicDetailsSection() {
     return Form(
       key: _formKeys[0],
@@ -434,27 +437,28 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
               return null;
             },
           ),
-          StatefulBuilder(builder: (_,innerState){
-            return CustomDropDownWidget(
-              title: "Firm Type",
-              initialValue: selectedFirmType,
-              dataList: firmTypeList,
-              isRequired: true,
-              onSelected: (value) {
-                innerState(() {
-                  selectedFirmType = value;
-
-                });
-              },
-              validator: (_) {
-                // Validate against selectedFirmType (source of truth used on submit)
-                if (selectedFirmType['zAttributesId'] == -1) {
-                  return 'Firm Type is required';
-                }
-                return null;
-              },
-            );
-          }),
+          StatefulBuilder(
+            builder: (_, innerState) {
+              return CustomDropDownWidget(
+                title: "Firm Type",
+                initialValue: selectedFirmType,
+                dataList: firmTypeList,
+                isRequired: true,
+                onSelected: (value) {
+                  innerState(() {
+                    selectedFirmType = value;
+                  });
+                },
+                validator: (_) {
+                  // Validate against selectedFirmType (source of truth used on submit)
+                  if (selectedFirmType['zAttributesId'] == -1) {
+                    return 'Firm Type is required';
+                  }
+                  return null;
+                },
+              );
+            },
+          ),
           CustomTextField(
             title: 'Contact Person',
             textController: _contactPersonC,
@@ -527,6 +531,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     );
   }
 
+  // BUILD GOVERNMENT IDENTIFIERS SECTION
   Widget _buildGovernmentIdentifiersSection() {
     return Form(
       key: _formKeys[1],
@@ -598,11 +603,25 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             textController: _tanNumberC,
             inputFormatterList: InputValidator.reraInputFormatters(),
           ),
+          CustomMultiFilePicker(
+            title: 'Upload TAN',
+            initialFileList: selectedTANFile.fileNameList,
+            onFilePickedCallback: (bytesList, fileNameList) {
+              selectedTANFile.fileNameList = fileNameList;
+              selectedTANFile.fileBytesList = bytesList;
+            },
+            onFileDeleteCallback: (fileBytesList, fileNameList, deletedFile) {
+              selectedTANFile.fileNameList = fileNameList;
+              selectedTANFile.fileBytesList = fileBytesList;
+              selectedTANFile.deletedFileList = deletedFile;
+            },
+          ),
         ],
       ),
     );
   }
 
+  // BUILD COMPANY VERIFICATION DOCUMENTS SECTION
   Widget _buildCompanyVerificationDocumentSection() {
     return Form(
       key: _formKeys[3],
@@ -655,6 +674,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     );
   }
 
+  // BUILD ADDRESS SECTION
   Widget _buildAddressSection() {
     return Form(
       key: _formKeys[2],
@@ -662,19 +682,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionHeader('Address Details'),
-          CustomTextField(
-            textController: _addressC,
-            title: "Address",
-            hint: "Enter Full Address",
-            isRequired: true,
-            inputFormatterList: [LengthLimitingTextInputFormatter(500)],
-            // validator: (value) {
-            //   if (value == null || value.trim().isEmpty) {
-            //     return "Address is required";
-            //   }
-            //   return null;
-            // },
-          ),
           AddressWidget(
             formKey: _formKeys[2],
             incomingStateId: widget.company?.stateMasterId,
@@ -695,6 +702,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     );
   }
 
+  // BUILD COMPANY PARTNER SECTION
   Widget _buildCompanyPartnerSection() {
     return BlocBuilder<CompanyMasterAddCubit, CompanyMasterAddState>(
       builder: (context, state) {
@@ -732,6 +740,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
 
   // --------------------------- SUBMIT HANDLER --------------------------- //
 
+  // SUBMIT HANDLER
   void _handleSubmit() {
     final isBasicValid = _formKeys[0].currentState?.validate() ?? false;
     final isGovValid = _formKeys[1].currentState?.validate() ?? false;
@@ -767,6 +776,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
         stateId: stateMasterId,
         districtId: districtMasterId,
         cityId: cityMasterId,
+        tanFile: selectedTANFile,
         pageNumber: 1,
         pageSize: 10,
       );
@@ -796,10 +806,12 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
         stateId: stateMasterId,
         districtId: districtMasterId,
         cityId: cityMasterId,
+        tanFile: selectedTANFile,
       );
     }
   }
 
+  // BUILD COMPANY PARTNER CARD
   Widget _buildCompanyPartnerCard({
     Key? key,
     required CompanyPartnerModel companyPartnerModel,
@@ -876,6 +888,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     );
   }
 
+  // BUILD PARTNER FIELD
   Widget _buildPartnerField(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),

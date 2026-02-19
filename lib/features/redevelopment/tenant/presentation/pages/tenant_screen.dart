@@ -134,8 +134,8 @@ class _TenantScreenState extends State<TenantScreen> {
   }) async {
     const pageSize = 12;
 
-    // 🔍 SEARCH MODE: call API with search term so backend returns filtered buildings
-    if (value != null && value.isNotEmpty) {
+    //  SEARCH MODE
+    if (value != null) {
       await _tenantCubit.getBuildingList(
         context,
         pageNumber,

@@ -604,13 +604,17 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   Future<void> getCompanies(
     BuildContext context,
     int pageNumber,
-    int pageSize,
-  ) async {
+    int pageSize, {
+    String? searchQuery,
+  }) async {
     emit(state.copyWith(isLoading: true));
+
+    var queryParams = {"CompanyName": searchQuery ?? ""};
 
     final result = await companyMasterRepository.getCompanyList(
       pageNumber: pageNumber,
       pageSize: pageSize,
+      queryParams: queryParams,
     );
 
     result.fold(
@@ -641,13 +645,17 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   Future<void> getDepartmentList(
     BuildContext context,
     int pageNumber,
-    int pageSize,
-  ) async {
+    int pageSize, {
+    String? searchQuery,
+  }) async {
+    var queryParams = {"DepartmentName": searchQuery ?? ""};
+
     emit(state.copyWith(isLoading: true));
 
     final result = await departmentMasterRepository.getDepartmentList(
       pageNumber: pageNumber,
       pageSize: pageSize,
+      queryParams: queryParams,
     );
 
     result.fold(
@@ -678,13 +686,17 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   Future<void> getDesignationList(
     BuildContext context,
     int pageNumber,
-    int pageSize,
-  ) async {
+    int pageSize, {
+    String? searchQuery,
+  }) async {
     emit(state.copyWith(isLoading: true));
+
+    var queryParams = {"DesignationName": searchQuery ?? ""};
 
     final result = await designationRepository.getDesignationList(
       pageNumber: pageNumber,
       pageSize: pageSize,
+      queryParams: queryParams,
     );
 
     result.fold(
@@ -743,13 +755,19 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   Future<void> getBranch(
     BuildContext context,
     int pageNumber,
-    int pageSize,
+    int pageSize,{
+        String? searchQuery,
+      }
   ) async {
+
+    var queryParams = {"BranchName": searchQuery ?? ""};
+
     emit(state.copyWith(isLoading: true));
 
     final result = await employeeMasterRepository.getBranchList(
       pageNumber: pageNumber,
       pageSize: pageSize,
+      query: queryParams
     );
 
     result.fold(
@@ -796,8 +814,13 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "employee_${DateTime.now()}.pdf"
-              : "employee_${DateTime.now()}.xlsx",
+              ? "Employee Master ${DateTime.now()}.pdf"
+              : "Employee Master ${DateTime.now()}.xlsx",
+        );
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );

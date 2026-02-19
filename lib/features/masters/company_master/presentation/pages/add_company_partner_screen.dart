@@ -72,12 +72,12 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
   );
 
   // CUBIT
-  late CompanyMasterAddCubit _cubit;
+  late CompanyMasterAddCubit _companyMasterAddCubit;
 
   @override
   void initState() {
     super.initState();
-    _cubit = context.read<CompanyMasterAddCubit>();
+    _companyMasterAddCubit = context.read<CompanyMasterAddCubit>();
     _initControllers(widget.companyPartner);
     _prefill(widget.companyPartner);
   }
@@ -178,7 +178,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
       photoFile: photoFile,
     );
 
-    _cubit.addUpdateCompanyPartnerData(
+    _companyMasterAddCubit.addUpdateCompanyPartnerData(
       context: context,
       partner,
       index: widget.index,
@@ -326,8 +326,8 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                         return "Enter a valid percentage between 1 and 100";
                       }
 
-                      // ensure total allocation does not exceed 100
-                      final existingPartners = _cubit.state.companyPartner;
+                      final existingPartners =
+                          _companyMasterAddCubit.state.companyPartner;
                       double currentEditingValue = 0;
                       if (widget.index != null &&
                           widget.index! < existingPartners.length) {

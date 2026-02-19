@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -736,5 +737,56 @@ class ProfileCubit extends Cubit<ProfileState> {
     } catch (e) {
       debugPrint("Jay Shree Ram!!!");
     }
+  }
+
+  // <---- UPDATE EMPLOYEE DOCUMENT ---->
+  Future updateEmployeeDocument({
+    required BuildContext context,
+    required int employeeDocumentId,
+    required String uniqueKey,
+    required String employeeId,
+    required String documentName,
+    required String removeDocumentURL,
+    required MultiFilePickerModel files,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> requestBody = {
+      'EmployeeDocumentId': employeeDocumentId.toString(),
+      'UniqueKey': uniqueKey,
+      "EmployeeId": employeeId,
+      "DocumentName": documentName,
+      "RemoveDocumentURL": removeDocumentURL,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < files.fileNameList.length; i++) {
+      if (files.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "DocumentURL",
+        "value": files.fileBytesList[i],
+        "fileName": files.fileNameList[i],
+      });
+    }
+
+    var updateResult = await _employeeMasterRepository
+        .addUpdateEmployeeDocument(
+          requestBody: requestBody,
+          fileList: fileList,
+        );
+    goRouter.pop();
+    updateResult.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) async {
+        showSuccessMessage(context, subTitle: response["successMessage"]);
+        await getEmployeeDocumentList(context, 1, 100, int.parse(employeeId));
+      },
+    );
   }
 }

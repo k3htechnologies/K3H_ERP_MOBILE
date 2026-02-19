@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_education_details.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_experience_details.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/presentation/widgets/employee_document_dialog.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -1787,31 +1789,10 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildDocumentTab() {
-    return BlocBuilder<ProfileCubit, ProfileState>(
-      builder: (context, state) {
-        if (state.isLoading == true && state.employeeDocumentList.isEmpty) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24.0),
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-
-        if (state.employeeDocumentList.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Text(
-                "No documents found",
-                style: AppTextStyle.ts16M(color: AppColor.grey),
-              ),
-            ),
-          );
-        }
-
-        return SingleChildScrollView(
-          child: ListView.builder(
+    return SingleChildScrollView(
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) {
+          return ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -1819,7 +1800,12 @@ class _ProfileScreenState extends State<ProfileScreen>
             itemBuilder: (context, index) {
               final doc = state.employeeDocumentList[index];
 
-              final hasDocument = doc.documentUrl.isNotEmpty;
+              final urls =
+              doc.documentUrl.isEmpty
+                  ? <String>[]
+                  : doc.documentUrl.split(',');
+
+              final isFresh = urls.isEmpty;
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 10),
@@ -1829,37 +1815,82 @@ class _ProfileScreenState extends State<ProfileScreen>
                   children: [
                     Text(doc.documentName, style: AppTextStyle.ts14SB()),
                     const Spacer(),
+
                     CustomIconButton(
                       onPressed: () {
-                        if (!hasDocument) {
-                          CustomSnackBar.showTopSnackBar(
-                            context,
-                            title: "Document not available",
-                            subtitle: "${doc.documentName} is not available",
-                            isError: true,
-                          );
-                        } else {
-                          showFilePreviewDialog(
-                            context,
-                            doc.documentUrl.split(","),
-                          );
-                        }
+                        showDialog(
+                          context: context,
+                          barrierDismissible: true,
+                          builder:
+                              (_) => EmployeeDocumentDialog(
+                            title: doc.documentName,
+                            urls: urls,
+                            isFreshAdd: isFresh,
+
+                            // ➕ ADD / UPLOAD
+                            addDocument: (pickedFiles) async {
+                              final files = MultiFilePickerModel(
+                                fileNameList:
+                                pickedFiles.map((e) => e.name).toList(),
+                                fileBytesList:
+                                pickedFiles
+                                    .where((e) => e.bytes != null)
+                                    .map((e) => e.bytes!)
+                                    .toList(),
+                                deletedFileList: "",
+                              );
+
+                              await _profileCubit
+                                  .updateEmployeeDocument(
+                                context: context,
+                                employeeDocumentId:
+                                doc.employeeDocumentId,
+                                uniqueKey: doc.uniquekey,
+                                employeeId: doc.employeeId.toString(),
+                                documentName: doc.documentName,
+                                removeDocumentURL: "",
+                                files: files,
+                              );
+                            },
+
+                            // 🗑 DELETE
+                            deleteDocument: (removeUrl) async {
+                              final files = MultiFilePickerModel(
+                                fileNameList: [],
+                                fileBytesList: [],
+                                deletedFileList: removeUrl,
+                              );
+
+                              await _profileCubit
+                                  .updateEmployeeDocument(
+                                context: context,
+                                employeeDocumentId:
+                                doc.employeeDocumentId,
+                                uniqueKey: doc.uniquekey,
+                                employeeId: doc.employeeId.toString(),
+                                documentName: doc.documentName,
+                                removeDocumentURL: removeUrl,
+                                files: files,
+                              );
+                            },
+                          ),
+                        );
                       },
                       icon: Icon(
                         Icons.remove_red_eye,
                         size: 16,
-                        color: hasDocument ? AppColor.primary : AppColor.grey,
+                        color: isFresh ? AppColor.grey : AppColor.primary,
                       ),
                       backgroundColor:
-                          hasDocument ? AppColor.lightBlue : AppColor.lightGrey,
+                      isFresh ? AppColor.lightGrey : AppColor.lightBlue,
                     ),
                   ],
                 ),
               );
             },
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

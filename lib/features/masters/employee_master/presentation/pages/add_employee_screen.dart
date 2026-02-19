@@ -137,6 +137,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   DateTime? joiningDate;
   DateTime? idCardIssueDateDate;
 
+  // PREFILL DETAILS TO EDIT MODE
   Future<void> _prefillDetailsToAddUpdateEmployeeMaster(
     UserModel employee,
   ) async {
@@ -199,7 +200,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           item['DisplayName'] == employee.emergencyContactPersonRelationship,
       orElse: () => relationToEmployeeList.first,
     );
-    // Bank Details
+    // BANK DETAILS
     selectedBank = {
       'zAttributesId': employee.bankListMasterId,
       'DisplayName': employee.bankName,
@@ -217,7 +218,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       'zAttributesId': employee.cityMasterId,
       'DisplayName': employee.cityName,
     };
-    // Dates
+    // DATES
     dateOfBirth = employee.dateOfBirth;
     joiningDate = employee.joiningDate;
     idCardIssueDateDate = employee.idCardIssuedDate;
@@ -268,31 +269,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         if (mounted) setState(() {});
       });
     }
-
-    // Load departments initially
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _loadDepartments();
-      }
-    });
-    // Load company name initially
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _loadCompanies();
-      }
-    });
-    // Load designation initially
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _loadDesignations();
-      }
-    });
-    // Load designation initially
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _loadBranch();
-      }
-    });
   }
 
   @override
@@ -318,6 +294,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     }
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     // BASIC EMPLOYEE DETAILS
     _firstNameC = TextEditingController();
@@ -337,6 +314,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     _ifscC = TextEditingController();
   }
 
+  // INITIALIZE DROPDOWNS
   void _initializeDropdowns() {
     // BASIC EMPLOYEE DETAILS
     selectedGender = genderList.first;
@@ -345,35 +323,29 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     selectedEmploymentType = employmentTypeList.first;
   }
 
-  // LOAD DEPARTMENTS INITIALLY
-  Future<void> _loadDepartments() async {
-    if (_employeeMasterCubit.state.departmentList.isEmpty) {
-      await _employeeMasterCubit.getDepartmentList(context, 1, 12);
-    }
-  }
-
+  // FETCH DEPARTMENTS
   Future<Map<String, dynamic>> _fetchDepartment(
     int pageNumber, {
     String? value,
   }) async {
-    final totalCount = _employeeMasterCubit.state.departmentTotalCount;
-    final pageSize = 15;
+    const pageSize = 15;
 
-    // SEARCH MODE
-    if (value != null && value.isNotEmpty) {
+    //  SEARCH MODE
+    if (value != null) {
+      await _employeeMasterCubit.getDepartmentList(
+        context,
+        pageNumber,
+        pageSize,
+        searchQuery: value,
+      );
+
       final departmentList = _employeeMasterCubit.state.departmentList;
-      final filteredDepartments =
-          departmentList
-              .where(
-                (dept) => dept.departmentName.toLowerCase().contains(
-                  value.toLowerCase(),
-                ),
-              )
-              .toList();
+
+      final totalCount = _employeeMasterCubit.state.departmentTotalCount;
 
       final Map<int, Map<String, dynamic>> uniqueFiltered = {};
 
-      for (final dept in filteredDepartments) {
+      for (final dept in departmentList) {
         uniqueFiltered[dept.departmentMasterId] = {
           "zAttributesId": dept.departmentMasterId,
           "DisplayName": dept.departmentName,
@@ -382,14 +354,17 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
 
       return {
         "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord": uniqueFiltered.length,
+        "totalNumberOfRecord":
+            totalCount > 0 ? totalCount : uniqueFiltered.length,
       };
     }
 
+    // 📄 NORMAL PAGINATION MODE
+    final totalCount = _employeeMasterCubit.state.departmentTotalCount;
+
     final currentLoadedCount = _employeeMasterCubit.state.departmentList.length;
 
-    // Always call API if list is empty or if we need more data
-    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
+    if (currentLoadedCount < totalCount) {
       await _employeeMasterCubit.getDepartmentList(
         context,
         pageNumber,
@@ -397,11 +372,11 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       );
     }
 
-    final departmentList = _employeeMasterCubit.state.departmentList;
+    final updatedList = _employeeMasterCubit.state.departmentList;
 
     final Map<int, Map<String, dynamic>> uniqueDepartments = {};
 
-    for (final dept in departmentList) {
+    for (final dept in updatedList) {
       uniqueDepartments[dept.departmentMasterId] = {
         "zAttributesId": dept.departmentMasterId,
         "DisplayName": dept.departmentName,
@@ -415,106 +390,91 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     };
   }
 
-  // LOAD COMPANY NAMES INITIALLY
-  Future<void> _loadCompanies() async {
-    if (_employeeMasterCubit.state.companyNameList.isEmpty) {
-      await _employeeMasterCubit.getCompanies(context, 1, 12);
-    }
-  }
-
+  // FETCH COMPANIES
   Future<Map<String, dynamic>> _fetchCompany(
     int pageNumber, {
     String? value,
   }) async {
-    final totalCount = _employeeMasterCubit.state.companyNameTotalCount;
-    final pageSize = 15;
+    const pageSize = 15;
 
-    // SEARCH MODE
-    if (value != null && value.isNotEmpty) {
-      final departmentList = _employeeMasterCubit.state.companyNameList;
-      final filteredDepartments =
-          departmentList
-              .where(
-                (dept) => dept.companyName.toLowerCase().contains(
-                  value.toLowerCase(),
-                ),
-              )
-              .toList();
+    //  SEARCH MODE
+    if (value != null) {
+      await _employeeMasterCubit.getCompanies(
+        context,
+        pageNumber,
+        pageSize,
+        searchQuery: value,
+      );
+
+      final companyList = _employeeMasterCubit.state.companyNameList;
+      final totalCount = _employeeMasterCubit.state.companyNameTotalCount;
 
       final Map<int, Map<String, dynamic>> uniqueFiltered = {};
 
-      for (final dept in filteredDepartments) {
-        uniqueFiltered[dept.companyId] = {
-          "zAttributesId": dept.companyId,
-          "DisplayName": dept.companyName,
+      for (final comp in companyList) {
+        uniqueFiltered[comp.companyId] = {
+          "zAttributesId": comp.companyId,
+          "DisplayName": comp.companyName,
         };
       }
 
       return {
         "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord": uniqueFiltered.length,
+        "totalNumberOfRecord":
+            totalCount > 0 ? totalCount : uniqueFiltered.length,
       };
     }
 
+    //  NORMAL PAGINATION MODE
+    final totalCount = _employeeMasterCubit.state.companyNameTotalCount;
     final currentLoadedCount =
         _employeeMasterCubit.state.companyNameList.length;
 
-    // Always call API if list is empty or if we need more data
-    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
-      await _employeeMasterCubit.getDepartmentList(
-        context,
-        pageNumber,
-        pageSize,
-      );
+    // Load NEXT PAGE
+    if (currentLoadedCount < totalCount) {
+      await _employeeMasterCubit.getCompanies(context, pageNumber, pageSize);
     }
 
-    final departmentList = _employeeMasterCubit.state.companyNameList;
+    final updatedList = _employeeMasterCubit.state.companyNameList;
 
-    final Map<int, Map<String, dynamic>> uniqueDepartments = {};
+    final Map<int, Map<String, dynamic>> uniqueCompanies = {};
 
-    for (final dept in departmentList) {
-      uniqueDepartments[dept.companyId] = {
-        "zAttributesId": dept.companyId,
-        "DisplayName": dept.companyName,
+    for (final comp in updatedList) {
+      uniqueCompanies[comp.companyId] = {
+        "zAttributesId": comp.companyId,
+        "DisplayName": comp.companyName,
       };
     }
 
     return {
-      "itemList": uniqueDepartments.values.toList(),
+      "itemList": uniqueCompanies.values.toList(),
       "totalNumberOfRecord":
-          totalCount > 0 ? totalCount : uniqueDepartments.length,
+          totalCount > 0 ? totalCount : uniqueCompanies.length,
     };
   }
 
-  // LOAD DESIGNATIONS INITIALLY
-  Future<void> _loadDesignations() async {
-    if (_employeeMasterCubit.state.companyNameList.isEmpty) {
-      await _employeeMasterCubit.getDesignationList(context, 1, 12);
-    }
-  }
-
+  // FETCH DESIGNATIONS
   Future<Map<String, dynamic>> _fetchDesignations(
     int pageNumber, {
     String? value,
   }) async {
-    final totalCount = _employeeMasterCubit.state.designationTotalCount;
-    final pageSize = 15;
+    const pageSize = 15;
 
-    // SEARCH MODE
-    if (value != null && value.isNotEmpty) {
-      final departmentList = _employeeMasterCubit.state.designationList;
-      final filteredDepartments =
-          departmentList
-              .where(
-                (dept) => dept.designationName.toLowerCase().contains(
-                  value.toLowerCase(),
-                ),
-              )
-              .toList();
+    //  SEARCH MODE
+    if (value != null) {
+      await _employeeMasterCubit.getDesignationList(
+        context,
+        pageNumber,
+        pageSize,
+        searchQuery: value,
+      );
+
+      final designationList = _employeeMasterCubit.state.designationList;
+      final totalCount = _employeeMasterCubit.state.designationTotalCount;
 
       final Map<int, Map<String, dynamic>> uniqueFiltered = {};
 
-      for (final dept in filteredDepartments) {
+      for (final dept in designationList) {
         uniqueFiltered[dept.designationMasterId] = {
           "zAttributesId": dept.designationMasterId,
           "DisplayName": dept.designationName,
@@ -523,15 +483,18 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
 
       return {
         "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord": uniqueFiltered.length,
+        "totalNumberOfRecord":
+            totalCount > 0 ? totalCount : uniqueFiltered.length,
       };
     }
+
+    //  NORMAL PAGINATION MODE
+    final totalCount = _employeeMasterCubit.state.designationTotalCount;
 
     final currentLoadedCount =
         _employeeMasterCubit.state.designationList.length;
 
-    // Always call API if list is empty or if we need more data
-    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
+    if (currentLoadedCount < totalCount) {
       await _employeeMasterCubit.getDesignationList(
         context,
         pageNumber,
@@ -539,86 +502,82 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       );
     }
 
-    final departmentList = _employeeMasterCubit.state.designationList;
+    final updatedList = _employeeMasterCubit.state.designationList;
 
-    final Map<int, Map<String, dynamic>> uniqueDepartments = {};
+    final Map<int, Map<String, dynamic>> uniqueDesignations = {};
 
-    for (final dept in departmentList) {
-      uniqueDepartments[dept.designationMasterId] = {
+    for (final dept in updatedList) {
+      uniqueDesignations[dept.designationMasterId] = {
         "zAttributesId": dept.designationMasterId,
         "DisplayName": dept.designationName,
       };
     }
 
     return {
-      "itemList": uniqueDepartments.values.toList(),
+      "itemList": uniqueDesignations.values.toList(),
       "totalNumberOfRecord":
-          totalCount > 0 ? totalCount : uniqueDepartments.length,
+          totalCount > 0 ? totalCount : uniqueDesignations.length,
     };
   }
 
-  // LOAD BRANCH INITIALLY
-  Future<void> _loadBranch() async {
-    if (_employeeMasterCubit.state.branchList.isEmpty) {
-      await _employeeMasterCubit.getDesignationList(context, 1, 12);
-    }
-  }
-
+  // FETCH BRANCH
   Future<Map<String, dynamic>> _fetchBranch(
     int pageNumber, {
     String? value,
   }) async {
-    final totalCount = _employeeMasterCubit.state.branchTotalCount;
-    final pageSize = 15;
+    const pageSize = 15;
 
-    // SEARCH MODE
-    if (value != null && value.isNotEmpty) {
-      final departmentList = _employeeMasterCubit.state.branchList;
-      final filteredDepartments =
-          departmentList
-              .where(
-                (dept) =>
-                    dept.branchName.toLowerCase().contains(value.toLowerCase()),
-              )
-              .toList();
+    //  SEARCH MODE
+    if (value != null) {
+      await _employeeMasterCubit.getBranch(
+        context,
+        pageNumber,
+        pageSize,
+        searchQuery: value,
+      );
+
+      final branchList = _employeeMasterCubit.state.branchList;
+      final totalCount = _employeeMasterCubit.state.branchTotalCount;
 
       final Map<int, Map<String, dynamic>> uniqueFiltered = {};
 
-      for (final dept in filteredDepartments) {
-        uniqueFiltered[dept.branchMasterId] = {
-          "zAttributesId": dept.branchMasterId,
-          "DisplayName": dept.branchName,
+      for (final branch in branchList) {
+        uniqueFiltered[branch.branchMasterId] = {
+          "zAttributesId": branch.branchMasterId,
+          "DisplayName": branch.branchName,
         };
       }
 
       return {
         "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord": uniqueFiltered.length,
+        "totalNumberOfRecord":
+            totalCount > 0 ? totalCount : uniqueFiltered.length,
       };
     }
 
+    //  NORMAL PAGINATION MODE
+    final totalCount = _employeeMasterCubit.state.branchTotalCount;
     final currentLoadedCount = _employeeMasterCubit.state.branchList.length;
 
-    // Always call API if list is empty or if we need more data
-    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
+    if (currentLoadedCount < totalCount) {
       await _employeeMasterCubit.getBranch(context, pageNumber, pageSize);
     }
 
-    final departmentList = _employeeMasterCubit.state.branchList;
+    final updatedList = _employeeMasterCubit.state.branchList;
 
-    final Map<int, Map<String, dynamic>> uniqueDepartments = {};
+    final Map<int, Map<String, dynamic>> uniqueBranches = {};
 
-    for (final dept in departmentList) {
-      uniqueDepartments[dept.branchMasterId] = {
-        "zAttributesId": dept.branchMasterId,
-        "DisplayName": dept.branchName,
+    for (final branch in updatedList) {
+      uniqueBranches[branch.branchMasterId] = {
+        "zAttributesId": branch.branchMasterId,
+        "DisplayName": branch.branchName,
       };
     }
 
     return {
-      "itemList": uniqueDepartments.values.toList(),
+      "itemList": uniqueBranches.values.toList(),
       "totalNumberOfRecord":
-          totalCount > 0 ? totalCount : uniqueDepartments.length,
+          totalCount > 0 ? totalCount : uniqueBranches.length,
     };
   }
 
@@ -628,7 +587,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       return;
     }
 
-    // Validate all forms
+    // VALIDATE ALL FORMS
     bool allValid = true;
     for (var formKey in _formKeys) {
       if (!formKey.currentState!.validate()) {
@@ -643,6 +602,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     await _addUpdateEmployee(widget.employee, index: widget.index);
   }
 
+  // ADD UPDATE EMPLOYEE
   Future<void> _addUpdateEmployee(UserModel? employee, {int index = 0}) async {
     if (!mounted) {
       return;
@@ -748,6 +708,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     );
   }
 
+  // <---- BASIC DETAILS SECTION ---->
   Widget _buildBasicDetailsSection() {
     return Form(
       key: _formKeys[0],
@@ -987,6 +948,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     );
   }
 
+  // <---- EMPLOYEE INFO SECTION ---->
   Widget _buildEmployeeInfoSection() {
     return Form(
       key: _formKeys[1],
@@ -1104,6 +1066,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     );
   }
 
+  // <---- ADDRESS SECTION ---->
   Widget _buildAddressSection() {
     return Form(
       key: _formKeys[2],
@@ -1159,6 +1122,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     );
   }
 
+  // <---- BANK DETAILS SECTION ---->
   Widget _buildBankDetailsSection() {
     return Form(
       key: _formKeys[3],
@@ -1238,7 +1202,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Employee",
+        screenTitle: "Employee Master",
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(

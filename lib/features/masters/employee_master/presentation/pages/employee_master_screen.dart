@@ -81,6 +81,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
     super.didChangeDependencies();
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _filterReportPersonName = TextEditingController();
@@ -171,11 +172,9 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
             (selectedIdCardIssued != initialIdCardIssued) ||
             (filterDOBFromDate != initialDOBFrom) ||
             (filterDOBToDate != initialDOBTo);
-        // Disable Apply when only one of From/To is set (both or neither required)
         final bool onlyOneSet =
             (filterDOBFromDate != null && filterDOBToDate == null) ||
             (filterDOBToDate != null && filterDOBFromDate == null);
-        // Disable Apply when From > To (invalid range)
         final bool invalidRange =
             filterDOBFromDate != null &&
             filterDOBToDate != null &&
@@ -620,31 +619,18 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                                   },
                                 );
                               },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(color: AppColor.primary),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        employee.fullName,
-                                        style: AppTextStyle.ts16M(
-                                          color: AppColor.primary,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      employee.fullName,
+                                      style: AppTextStyle.ts16M(
+                                        color: AppColor.primary,
+                                      ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
