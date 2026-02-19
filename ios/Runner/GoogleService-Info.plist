@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyCKsUHpNWPLd3yhoD8Vadqaf4fFobK__z8</string>
+	<string>AIzaSyBimNpnFGJ_dCM_d6g2JBoF8Dxa5BWC5B8</string>
 	<key>GCM_SENDER_ID</key>
-	<string>516946112366</string>
+	<string>130263255773</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.k3h.strava-maps</string>
+	<string>com.example.k3hErpApp</string>
 	<key>PROJECT_ID</key>
-	<string>strava-maps-2d892</string>
+	<string>k3h-erp</string>
 	<key>STORAGE_BUCKET</key>
-	<string>strava-maps-2d892.firebasestorage.app</string>
+	<string>k3h-erp.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:516946112366:ios:940c347b588e743e1f9b7f</string>
+	<string>1:130263255773:ios:3615a1240f4f4cdd9d2934</string>
 </dict>
 </plist>

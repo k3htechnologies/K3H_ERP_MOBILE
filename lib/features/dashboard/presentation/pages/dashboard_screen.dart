@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -19,6 +20,7 @@ import 'package:k3h_erp_app/features/dashboard/data/model/dashboard.model.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/widget/project_selector_overlay.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
+import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/route_map_screen.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
@@ -61,6 +63,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Timer? _timer;
   int? currentAttendanceId;
   String? currentUniquekey;
+
   @override
   void initState() {
     super.initState();
@@ -213,12 +216,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool isPunchedIn = false;
   bool isDraggingRight = true;
 
+  StreamSubscription<Position>? positionStream;
+  List<LatLng> routePoints = [];
+
   void _handleDragEnd() async {
     if (!isPunchedIn && dragPosition > maxWidth * 0.75) {
       // PUNCH IN
       final address = await _getAddressFromGPS();
 
-      await _dashboardCubit.addAttendance(context, punchAddress: address);
+      await _dashboardCubit.addAttendance(
+        context,
+        punchAddress: address,
+        startLatitude: 0,
+        startLongitude: 0,
+        endLatitude: 0,
+        endLongitude: 0,
+        polyline: "",
+        distance: 0,
+      );
+      _startLocationTracking();
 
       // start timer NOW
       final now = DateTime.now();
@@ -232,27 +248,103 @@ class _DashboardScreenState extends State<DashboardScreen> {
       // PUNCH OUT
       final address = await _getAddressFromGPS();
 
+      // STOP GPS TRACKING (VERY IMPORTANT)
+      await positionStream?.cancel();
+
+      // 🔥 SAFE FALLBACK: get current GPS if route is empty
+      Position currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      final fallbackPoint = LatLng(
+        currentPosition.latitude,
+        currentPosition.longitude,
+      );
+
+      // If GPS stream didn't capture points, use fallback
+      final startPoint = _startLatLng ?? fallbackPoint;
+      final endPoint =
+          _routePoints.isNotEmpty ? _routePoints.last : fallbackPoint;
+
+      final distance =
+          _routePoints.length > 1 ? _calculateDistance(_routePoints) : 0.0;
+
+      final polyline =
+          _routePoints.length > 1 ? PolylineEncoder.encode(_routePoints) : "";
+
+      print("Start Point: $startPoint");
+      print("End Point: $endPoint");
+      print("Route Points Count: ${_routePoints.length}");
+
       await _dashboardCubit.updateAttendance(
         context,
         attendanceId: currentAttendanceId!,
         uniquekey: currentUniquekey!,
         punchAddress: address,
+        startLatitude: startPoint.latitude,
+        startLongitude: startPoint.longitude,
+        endLatitude: endPoint.latitude,
+        endLongitude: endPoint.longitude,
+        polyline: polyline,
+        distance: distance,
       );
 
       // stop timer
       _timer?.cancel();
+
       final now = DateTime.now();
       final start = DateTime(now.year, now.month, now.day);
       final end = start;
 
       await _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
-      // isPunchedIn = false;
+
       dragPosition = 0;
     } else {
       dragPosition = isPunchedIn ? maxWidth : 0;
     }
 
     setState(() {});
+  }
+
+  List<LatLng> _routePoints = [];
+  LatLng? _startLatLng;
+
+  double _calculateDistance(List<LatLng> points) {
+    double total = 0;
+
+    for (int i = 0; i < points.length - 1; i++) {
+      total += Geolocator.distanceBetween(
+        points[i].latitude,
+        points[i].longitude,
+        points[i + 1].latitude,
+        points[i + 1].longitude,
+      );
+    }
+
+    return total / 1000; // KM
+  }
+
+  void _startLocationTracking() async {
+    LocationPermission permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever)
+      return;
+
+    _routePoints.clear();
+    _startLatLng = null;
+
+    positionStream = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        distanceFilter: 10, // every 10 meters
+      ),
+    ).listen((position) {
+      final point = LatLng(position.latitude, position.longitude);
+
+      _routePoints.add(point);
+
+      _startLatLng ??= point; // first point = start location
+    });
   }
 
   Future<void> _openEmail(String email) async {
@@ -276,8 +368,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return BlocListener<DashboardCubit, DashboardState>(
       listener: (context, state) {
+        final today = DateTime.now();
+
         final todayRecords =
-            state.dashboardModelList.where((e) => e.punchOut != null).toList();
+            state.dashboardModelList
+                .where(
+                  (e) =>
+                      e.punchIn != null &&
+                      e.punchIn!.year == today.year &&
+                      e.punchIn!.month == today.month &&
+                      e.punchIn!.day == today.day,
+                )
+                .toList();
 
         if (todayRecords.isEmpty) return;
 

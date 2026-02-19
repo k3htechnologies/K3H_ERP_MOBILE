@@ -5,7 +5,21 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+  final double startLatitude;
+  final double startLongitude;
+  final double endLatitude;
+  final double endLongitude;
+  final String polyline;
+  final double distance;
+  const MapScreen({
+    super.key,
+    required this.startLatitude,
+    required this.startLongitude,
+    required this.endLatitude,
+    required this.endLongitude,
+    required this.polyline,
+    required this.distance,
+  });
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -24,6 +38,23 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     initialize();
+    loadRouteFromApi();
+  }
+
+  void loadRouteFromApi() {
+    if (widget.polyline.isNotEmpty) {
+      routePoints = decodePolyline(widget.polyline);
+    } else {
+      // fallback if polyline empty
+      routePoints = [
+        LatLng(widget.startLatitude, widget.startLongitude),
+        LatLng(widget.endLatitude, widget.endLongitude),
+      ];
+    }
+
+    initialCameraPoint = LatLng(widget.startLatitude, widget.startLongitude);
+
+    setState(() {});
   }
 
   Future<void> setInitialCamera() async {
@@ -44,15 +75,21 @@ class _MapScreenState extends State<MapScreen> {
   void endTrip() {
     positionStream?.cancel();
 
-    String encoded = encodeRoute(routePoints);
+    if (routePoints.isEmpty) return;
 
-    print("---- TRIP SUMMARY ----");
-    print("Start: ${routePoints.first}");
-    print("End: ${routePoints.last}");
-    print("Distance: ${calculateDistance()} KM");
-    print("Polyline: $encoded");
+    final start = routePoints.first;
+    final end = routePoints.last;
+    final distance = _calculateDistance(routePoints);
+    final polyline = encodeRoute(routePoints);
 
-    // send to backend here
+    Navigator.pop(context, {
+      "startLatitude": start.latitude,
+      "startLongitude": start.longitude,
+      "endLatitude": end.latitude,
+      "endLongitude": end.longitude,
+      "distance": distance,
+      "polyline": polyline,
+    });
   }
 
   Future<void> initialize() async {
@@ -79,8 +116,6 @@ class _MapScreenState extends State<MapScreen> {
 
   // 🔹 Load saved route from DB
   void loadTodayRoute() {
-    final today = DateTime.now();
-
     setState(() {});
   }
 
@@ -198,17 +233,19 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   // 🔹 Distance calculation
-  double calculateDistance() {
+  double _calculateDistance(List<LatLng> points) {
     double total = 0;
-    for (int i = 0; i < routePoints.length - 1; i++) {
+
+    for (int i = 0; i < points.length - 1; i++) {
       total += Geolocator.distanceBetween(
-        routePoints[i].latitude,
-        routePoints[i].longitude,
-        routePoints[i + 1].latitude,
-        routePoints[i + 1].longitude,
+        points[i].latitude,
+        points[i].longitude,
+        points[i + 1].latitude,
+        points[i + 1].longitude,
       );
     }
-    return total / 1000; // in KM
+
+    return total / 1000; // KM
   }
 
   String encodeRoute(List<LatLng> points) {
@@ -225,7 +262,7 @@ class _MapScreenState extends State<MapScreen> {
       "date": DateTime.now().toIso8601String(),
       "punchIn": routePoints.first,
       "punchOut": routePoints.last,
-      "totalDistance": calculateDistance(),
+      "totalDistance": _calculateDistance(routePoints),
       "polyline": encoded,
     };
 
@@ -271,19 +308,13 @@ class _MapScreenState extends State<MapScreen> {
     print("---- TRIP SUMMARY ----");
     print("Start: ${routePoints.first}");
     print("End: ${routePoints.last}");
-    print("Distance: ${calculateDistance()} KM");
+    print("Distance: ${_calculateDistance(routePoints)} KM");
     print("Encoded Polyline: $encoded");
   }
 
   @override
   Widget build(BuildContext context) {
-    LatLng? startPoint;
-
-    if (routePoints.isNotEmpty) {
-      startPoint = routePoints.first;
-    } else {
-      startPoint = initialCameraPoint;
-    }
+    final startPoint = LatLng(widget.startLatitude, widget.startLongitude);
     return Scaffold(
       appBar: AppBar(title: const Text("My Day Route")),
       body: Column(
@@ -302,14 +333,34 @@ class _MapScreenState extends State<MapScreen> {
                     : GoogleMap(
                       initialCameraPosition: CameraPosition(
                         target: startPoint,
-                        zoom: 16,
+                        zoom: 11.5,
                       ),
                       onMapCreated: (c) => mapController = c,
                       polylines: {
-                        Polyline(
-                          polylineId: const PolylineId("route"),
-                          points: routePoints,
-                          width: 5,
+                        if (routePoints.isNotEmpty)
+                          Polyline(
+                            polylineId: const PolylineId("route"),
+                            points: routePoints,
+                            width: 5,
+                            color: Colors.blue,
+                          ),
+                      },
+                      markers: {
+                        Marker(
+                          markerId: const MarkerId("start"),
+                          position: LatLng(
+                            widget.startLatitude,
+                            widget.startLongitude,
+                          ),
+                          infoWindow: const InfoWindow(title: "Punch In"),
+                        ),
+                        Marker(
+                          markerId: const MarkerId("end"),
+                          position: LatLng(
+                            widget.endLatitude,
+                            widget.endLongitude,
+                          ),
+                          infoWindow: const InfoWindow(title: "Punch Out"),
                         ),
                       },
                       myLocationEnabled: true,
@@ -318,7 +369,7 @@ class _MapScreenState extends State<MapScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             child: Text(
-              "Distance Today: ${calculateDistance().toStringAsFixed(2)} KM",
+              "Distance Today: ${_calculateDistance(routePoints).toStringAsFixed(2)} KM",
               style: const TextStyle(fontSize: 18),
             ),
           ),

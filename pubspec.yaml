@@ -99,6 +99,8 @@ dependencies:
   google_maps_flutter: ^2.14.2
   # TO DRAW A POLYLINE
   flutter_polyline_points: ^3.1.0
+  firebase_core: ^4.4.0
+  firebase_analytics: ^12.1.2
   
 # DEV DEPENDENCIES
 dev_dependencies:
