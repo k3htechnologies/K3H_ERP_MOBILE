@@ -1387,7 +1387,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
         followUpModel: followUpModel,
         enquiryId: enquiryId,
         context: context,
-        enquireIndex: index,
+        enquireIndex: widget.index,
       );
     }
   }
