@@ -379,6 +379,7 @@ class _VendorScreenState extends State<VendorScreen> {
                     buildRowTitleValue(
                       title: "Company Type",
                       value: vendor.companyType,
+                      singleLine: false
                     ),
                     buildRowTitleValue(title: "Mobile Number", value: vendor.mobileNumber,customValueWidget: CustomClickToContactText(value: vendor.mobileNumber)),
                     buildRowTitleValue(
