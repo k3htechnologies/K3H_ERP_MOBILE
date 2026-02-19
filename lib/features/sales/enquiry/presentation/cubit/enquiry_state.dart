@@ -8,6 +8,7 @@ class EnquiryState extends BaseState {
   final int totalNumberOfRecord;
   final int currentPage;
   final String searchText;
+
   final List<String> options = const ['Indian', 'NRI'];
   final String selectedNationality;
   final ChannelPartnerModel? channelPartnerModel;
@@ -15,6 +16,15 @@ class EnquiryState extends BaseState {
 
   final String currentSortColumn;
   final String currentSortDirection;
+
+  final DateTime? filterStartDate;
+  final DateTime? filterEndDate;
+  final String filterSystemCode;
+  final String filterMobileNumber;
+  final String filterFollowUpDays;
+  final String filterRequirement;
+  final String filterStage;
+
   const EnquiryState({
     super.isLoading,
     required this.enquiryList,
@@ -26,6 +36,13 @@ class EnquiryState extends BaseState {
     this.enquiryFollowUpList = const [],
     this.currentSortColumn = "Created Date",
     this.currentSortDirection = "DESC",
+    this.filterStartDate,
+    this.filterEndDate,
+    this.filterSystemCode = "",
+    this.filterMobileNumber = "",
+    this.filterFollowUpDays = "",
+    this.filterRequirement = "",
+    this.filterStage = "",
   });
 
   factory EnquiryState.initial() => const EnquiryState(
@@ -39,7 +56,16 @@ class EnquiryState extends BaseState {
     enquiryFollowUpList: [],
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
+    filterStartDate: null,
+    filterEndDate: null,
+    filterSystemCode: "",
+    filterMobileNumber: "",
+    filterFollowUpDays: "",
+    filterRequirement: "",
+    filterStage: "",
   );
+
+  static const _noChange = Object();
 
   EnquiryState copyWith({
     bool? isLoading,
@@ -51,9 +77,15 @@ class EnquiryState extends BaseState {
     ChannelPartnerModel? channelPartnerModel,
     bool clearChannelPartner = false,
     List<EnquiryFollowUpModel>? enquiryFollowUpList,
-
     String? currentSortColumn,
     String? currentSortDirection,
+    Object? filterStartDate = _noChange,
+    Object? filterEndDate = _noChange,
+    String? filterSystemCode,
+    String? filterMobileNumber,
+    String? filterFollowUpDays,
+    String? filterRequirement,
+    String? filterStage,
   }) {
     return EnquiryState(
       isLoading: isLoading ?? this.isLoading,
@@ -69,6 +101,23 @@ class EnquiryState extends BaseState {
       enquiryFollowUpList: enquiryFollowUpList ?? this.enquiryFollowUpList,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+
+      // ✅ THIS FIXES EVERYTHING
+      filterStartDate:
+          filterStartDate == _noChange
+              ? this.filterStartDate
+              : filterStartDate as DateTime?,
+
+      filterEndDate:
+          filterEndDate == _noChange
+              ? this.filterEndDate
+              : filterEndDate as DateTime?,
+
+      filterSystemCode: filterSystemCode ?? this.filterSystemCode,
+      filterMobileNumber: filterMobileNumber ?? this.filterMobileNumber,
+      filterFollowUpDays: filterFollowUpDays ?? this.filterFollowUpDays,
+      filterRequirement: filterRequirement ?? this.filterRequirement,
+      filterStage: filterStage ?? this.filterStage,
     );
   }
 
@@ -84,5 +133,12 @@ class EnquiryState extends BaseState {
     enquiryFollowUpList,
     currentSortColumn,
     currentSortDirection,
+    filterStartDate,
+    filterEndDate,
+    filterSystemCode,
+    filterMobileNumber,
+    filterFollowUpDays,
+    filterRequirement,
+    filterStage,
   ];
 }

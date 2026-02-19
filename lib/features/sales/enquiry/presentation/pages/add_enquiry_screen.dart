@@ -635,14 +635,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
   void _updateAge() {
     if (_dateOfBirthNotifier.value != null) {
-      final today = DateTime.now();
-      int age = today.year - _dateOfBirthNotifier.value!.year;
-      if (today.month < _dateOfBirthNotifier.value!.month ||
-          (today.month == _dateOfBirthNotifier.value!.month &&
-              today.day < _dateOfBirthNotifier.value!.day)) {
-        age--;
-      }
-      _ageC.text = age.toString();
+      _ageC.text = calculateAge(_dateOfBirthNotifier.value);
     }
   }
 
