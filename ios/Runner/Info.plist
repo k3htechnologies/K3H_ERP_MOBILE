@@ -82,5 +82,7 @@
 	  <string>mailto</string>
       <string>tel</string>
     </array>
+    <key>NSCameraUsageDescription</key>
+    <string>This app needs camera access to capture images.</string>
 </dict>
 </plist>

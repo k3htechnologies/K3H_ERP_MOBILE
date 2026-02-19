@@ -255,7 +255,7 @@ class _VendorScreenState extends State<VendorScreen> {
         screenTitle: 'Vendor Management',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
-          if(_vendorCubit.state.totalNumberOfRecord==0){
+          if (_vendorCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
@@ -267,6 +267,7 @@ class _VendorScreenState extends State<VendorScreen> {
             _vendorCubit.getVendors(context, 1);
           }
         },
+        searchHintText: "Search by Vendor Name",
         onSearchSubmit: (value) {
           _vendorCubit.searchVendor(context, value);
         },
@@ -303,7 +304,6 @@ class _VendorScreenState extends State<VendorScreen> {
                 margin: EdgeInsets.only(bottom: 10),
                 padding: EdgeInsets.all(16.0),
                 child: Column(
-                  spacing: 10.0,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -324,28 +324,13 @@ class _VendorScreenState extends State<VendorScreen> {
                                 },
                               );
                             },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    vendor.vendorName,
-                                    style: AppTextStyle.ts16M(
-                                      color: AppColor.primary,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
+                            child: Text(
+                              vendor.vendorName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
                               ),
                             ),
                           ),
@@ -389,43 +374,13 @@ class _VendorScreenState extends State<VendorScreen> {
                     buildRowTitleValue(
                       title: "Company Name",
                       value: vendor.companyName,
+                      singleLine: false
                     ),
                     buildRowTitleValue(
                       title: "Company Type",
                       value: vendor.companyType,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Row(
-                        children: [
-                          // TITLE
-                          SizedBox(
-                            width: 140,
-                            child: Text(
-                              "Mobile Number",
-                              style: AppTextStyle.ts14R(color: AppColor.grey),
-                            ),
-                          ),
-
-                          // COLON
-                          SizedBox(
-                            width: 20,
-                            child: Text(
-                              ":",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColor.grey),
-                            ),
-                          ),
-
-                          // VALUE
-                          Expanded(
-                            child: CustomClickToContactText(
-                              value: vendor.mobileNumber,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    buildRowTitleValue(title: "Mobile Number", value: vendor.mobileNumber,customValueWidget: CustomClickToContactText(value: vendor.mobileNumber)),
                     buildRowTitleValue(
                       title: "Email ID",
                       value: vendor.emailId,

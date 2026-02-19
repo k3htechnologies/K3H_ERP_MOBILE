@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
@@ -59,6 +60,80 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
   // OVERLAY ENTRY TO DISPLAY FILE NAMES IN A DROPDOWN
   OverlayEntry? _overlayEntry;
   final GlobalKey _fieldKey = GlobalKey();
+
+  // METHOD TO SHOW ATTACHMENT OPTIONS
+  void _showAttachmentOptions(
+    BuildContext context,
+    FormFieldState formFieldState,
+    BuildContext portalContext,
+  ) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Text("Select Option", style: AppTextStyle.ts16SB()),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.camera_alt,size: 16,),
+                title: Text("Camera"),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _captureFromCamera(formFieldState);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text("Gallery"),
+                onTap: () async {
+                  Navigator.pop(context);
+                  pickFile(context, formFieldState, portalContext);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // CAPTURING IMAGE FROM CAMERA
+  Future<void> _captureFromCamera(FormFieldState formFieldState) async {
+    final ImagePicker picker = ImagePicker();
+
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
+    );
+
+    if (image == null) return;
+
+    // MAX FILE CHECK
+    if (fileBytesList.length >= widget.maxFiles) {
+      if (mounted) {
+        showErrorMessage(
+          context,
+          "Images limit exceed",
+          "You can only upload up to ${widget.maxFiles} files.",
+        );
+      }
+      return;
+    }
+
+    final Uint8List bytes = await image.readAsBytes();
+
+    fileBytesList.add(bytes);
+    fileNamesList.add(image.name);
+
+    widget.onFilePickedCallback(fileBytesList, fileNamesList);
+    formFieldState.didChange(fileBytesList);
+
+    setState(() {});
+  }
 
   // METHOD TO SHOW FILE NAME OVERLAY
   _showFilePathOverlay(
@@ -124,19 +199,6 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                     Row(
                                       children: [
                                         InkWell(
-                                          /*  onTap: () {
-                                            _overlayEntry?.remove();
-                                            _overlayEntry = null;
-                                            CommonFileViewer(
-                                              urls:
-                                              [fileNamesList[index]],
-                                              fileBytes:
-                                                  !fileNamesList[index]
-                                                          .contains('http')
-                                                      ? fileBytesList[index]
-                                                      : null,
-                                            );
-                                          },*/
                                           onTap: () {
                                             _overlayEntry?.remove();
                                             _overlayEntry = null;
@@ -147,9 +209,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                               fileBytes:
                                                   !fileNamesList[index]
                                                           .contains('http')
-                                                      ? [
-                                                        fileBytesList[index],
-                                                      ] // wrap in list, since param expects List<Uint8List>
+                                                      ? [fileBytesList[index]]
                                                       : null,
                                             );
                                           },
@@ -386,7 +446,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                     onTap:
                                         widget.readOnly
                                             ? null
-                                            : () => pickFile(
+                                            : () => _showAttachmentOptions(
                                               context,
                                               formFieldState,
                                               portalContext,
@@ -412,11 +472,17 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.info_outline,color: AppColor.error,size: 14,),
+                                Icon(
+                                  Icons.info_outline,
+                                  color: AppColor.error,
+                                  size: 14,
+                                ),
                                 horizontalSpacing(width: 5),
                                 Text(
                                   formFieldState.errorText ?? '',
-                                  style: AppTextStyle.ts14R(color: AppColor.error),
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.error,
+                                  ),
                                 ),
                               ],
                             ),

@@ -7,8 +7,8 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 
 class CommonFileViewer extends StatefulWidget {
   final List<String> urls;
@@ -94,16 +94,32 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
 
   Future<void> downloadFile(String url, {Uint8List? bytes}) async {
     final fileName = getFileName(url);
-    if (bytes != null) {
-      // If we have file bytes (e.g., picked from local storage), write to temp and open
+
+    try {
+      Uint8List? fileData = bytes;
+
+      // If no bytes and it's a network URL → download it
+      if (fileData == null && url.startsWith("http")) {
+        final uri = Uri.parse(url);
+        final request = await HttpClient().getUrl(uri);
+        final response = await request.close();
+        fileData = await consolidateHttpClientResponseBytes(response);
+      }
+
+      if (fileData == null) {
+        return;
+      }
+
       final dir = await getTemporaryDirectory();
       final filePath = '${dir.path}/$fileName';
+
       final file = File(filePath);
-      await file.writeAsBytes(bytes, flush: true);
-      await OpenFile.open(filePath);
-    } else {
-      // No bytes: let OpenFile handle the path/URL directly
-      await OpenFile.open(url);
+      await file.writeAsBytes(fileData, flush: true);
+
+
+      await OpenFilex.open(filePath);
+    } catch (e) {
+      debugPrint("Download error: $e");
     }
   }
 

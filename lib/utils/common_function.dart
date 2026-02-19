@@ -15,7 +15,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/custom_file_preview_dialogue_content.dart';
 import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 
 // Function to return width
@@ -394,7 +394,7 @@ Future<void> exportExcelOrPdfMobile(String base64, String fileName) async {
     final filePath = '${dir.path}/$fileName';
     final file = File(filePath);
     await file.writeAsBytes(bytes);
-    await OpenFile.open(filePath);
+    await OpenFilex.open(filePath);
   } catch (e) {
     developer.log("Error saving file: $e");
   }

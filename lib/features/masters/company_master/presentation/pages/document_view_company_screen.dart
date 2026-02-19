@@ -16,7 +16,7 @@ class DocumentsViewCompanyScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Company",
+        screenTitle: "Company Master",
         authorization: AuthorizationModel(),
       ),
       body: Padding(
