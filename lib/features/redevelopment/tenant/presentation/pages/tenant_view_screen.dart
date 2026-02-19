@@ -676,13 +676,14 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                     ),
                   },
                 );
-                if (!context.mounted) return;
-                _tenantCubit.getTenantDocumentList(
+                if (mounted) {
+                  _tenantCubit.getTenantDocumentList(
                   context: context,
                   projectId: widget.tenant.projectId,
                   buildingId: widget.tenant.buildingId,
                   tenantId: widget.tenant.tenantId,
                 );
+                }
               },
             ),
           ),
