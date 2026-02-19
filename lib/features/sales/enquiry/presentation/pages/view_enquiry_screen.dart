@@ -1235,7 +1235,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                     title: "Next Followup Date",
                     initialDate: _nextFollowupDate,
                     isRequired: true,
-
+                    startDate: DateTime.now(),
                     setValue:
                         (date) => innerBottomsheetState(
                           () => _nextFollowupDate = date,
@@ -1349,12 +1349,9 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       "EnquiryId": widget.enquiryModel.enquiryId,
       "ProjectId": getProject().projectId,
 
-      "Status": statusName ?? "",
-      "LostReason": statusName == "Lost" ? lostReasonName ?? "" : "",
-
-      "NextFollowUpDate":
-          _nextFollowupDate != null ? _nextFollowupDate!.toIso8601String() : "",
-
+      "Status": statusName,
+      "LostReason": statusName == "Lost" ? lostReasonName : null,
+      "NextFollowUpDate": _nextFollowupDate?.toIso8601String(),
       "Remark": _remarkC.text,
     };
 

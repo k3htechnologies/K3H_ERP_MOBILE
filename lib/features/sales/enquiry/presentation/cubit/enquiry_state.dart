@@ -25,6 +25,10 @@ class EnquiryState extends BaseState {
   final String filterRequirement;
   final String filterStage;
 
+  // ✅ ENQUIRY DETAILS ONLY
+  final EnquiryModel? currentEnquiryDetails;
+  final bool isFetchingEnquiryDetails;
+
   const EnquiryState({
     super.isLoading,
     required this.enquiryList,
@@ -43,6 +47,10 @@ class EnquiryState extends BaseState {
     this.filterFollowUpDays = "",
     this.filterRequirement = "",
     this.filterStage = "",
+
+    // ✅ ENQUIRY DETAILS DEFAULTS
+    this.currentEnquiryDetails = null,
+    this.isFetchingEnquiryDetails = false,
   });
 
   factory EnquiryState.initial() => const EnquiryState(
@@ -63,6 +71,10 @@ class EnquiryState extends BaseState {
     filterFollowUpDays: "",
     filterRequirement: "",
     filterStage: "",
+
+    // ✅ ENQUIRY DETAILS DEFAULTS
+    currentEnquiryDetails: null,
+    isFetchingEnquiryDetails: false,
   );
 
   static const _noChange = Object();
@@ -86,6 +98,10 @@ class EnquiryState extends BaseState {
     String? filterFollowUpDays,
     String? filterRequirement,
     String? filterStage,
+
+    // ✅ ENQUIRY DETAILS IN COPYWITH
+    EnquiryModel? currentEnquiryDetails,
+    bool? isFetchingEnquiryDetails,
   }) {
     return EnquiryState(
       isLoading: isLoading ?? this.isLoading,
@@ -102,7 +118,6 @@ class EnquiryState extends BaseState {
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
 
-      // ✅ THIS FIXES EVERYTHING
       filterStartDate:
           filterStartDate == _noChange
               ? this.filterStartDate
@@ -118,6 +133,12 @@ class EnquiryState extends BaseState {
       filterFollowUpDays: filterFollowUpDays ?? this.filterFollowUpDays,
       filterRequirement: filterRequirement ?? this.filterRequirement,
       filterStage: filterStage ?? this.filterStage,
+
+      // ✅ ENQUIRY DETAILS
+      currentEnquiryDetails:
+          currentEnquiryDetails ?? this.currentEnquiryDetails,
+      isFetchingEnquiryDetails:
+          isFetchingEnquiryDetails ?? this.isFetchingEnquiryDetails,
     );
   }
 
@@ -140,5 +161,9 @@ class EnquiryState extends BaseState {
     filterFollowUpDays,
     filterRequirement,
     filterStage,
+
+    // ✅ ENQUIRY DETAILS IN PROPS
+    currentEnquiryDetails,
+    isFetchingEnquiryDetails,
   ];
 }

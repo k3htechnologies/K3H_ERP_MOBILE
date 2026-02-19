@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +8,7 @@ import 'package:k3h_erp_app/core/models/village.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
+import 'package:k3h_erp_app/features/login/data/repository/login.repository.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry_followup.model.dart';
@@ -28,6 +31,8 @@ class EnquiryCubit extends Cubit<EnquiryState> {
       serviceLocator<ChannelPartnerRepository>();
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
+  //  NEW: Login repository for OTP
+  final LoginRepository _loginRepository = serviceLocator<LoginRepository>();
 
   // <---- GET ENQUIRY LIST ---->
   Future getEnquiryList(
@@ -486,5 +491,76 @@ class EnquiryCubit extends Cubit<EnquiryState> {
 
     // Fetch new filtered list
     await getEnquiryList(context, 1, getProject().projectId);
+  }
+
+  // <---- GET SINGLE ENQUIRY BY ID ---->
+  Future<void> getEnquiryById({
+    required int enquiryId,
+    required int projectId,
+  }) async {
+    emit(state.copyWith(isFetchingEnquiryDetails: true));
+
+    final queryParams = {"EnquiryId": enquiryId};
+    final result = await _enquiryRepository.getEnquiryList(
+      pageNumber: 1,
+      pageSize: 1,
+      projectId: projectId,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(
+          state.copyWith(
+            isFetchingEnquiryDetails: false,
+            currentEnquiryDetails: null,
+          ),
+        );
+      },
+      (response) {
+        final List<dynamic> dataList = response['data'] ?? [];
+        if (dataList.isNotEmpty) {
+          final enquiryData = dataList.first;
+          final updatedEnquiry = EnquiryModel.fromJson(enquiryData);
+          emit(
+            state.copyWith(
+              currentEnquiryDetails: updatedEnquiry,
+              isFetchingEnquiryDetails: false,
+            ),
+          );
+        } else {
+          emit(
+            state.copyWith(
+              isFetchingEnquiryDetails: false,
+              currentEnquiryDetails: null,
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  // <---- SEND OTP FOR VERIFICATION ---->
+  Future<void> sendOTP({
+    required BuildContext context,
+    String? mobileNumber,
+    String? module,
+  }) async {
+    final result = await _loginRepository.sendOTP(
+      mobileNumber: mobileNumber,
+      module: module ?? "ENQUIRY",
+    );
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'OTP Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: response['message'] ?? 'OTP sent successfully',
+        );
+      },
+    );
   }
 }

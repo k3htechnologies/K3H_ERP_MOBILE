@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_st
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -112,7 +113,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       _referralMobile,
       _referralProjectName,
       _referralUnitNumber,
-      _remarkC;
+      _remarkC,
+      otpController;
 
   // STATIC DROPDOWN LISTS
   final List<Map<String, dynamic>> currentAccommodation = [
@@ -293,6 +295,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _referralProjectName = TextEditingController();
     _referralUnitNumber = TextEditingController();
     _remarkC = TextEditingController();
+    otpController = TextEditingController();
   }
 
   void _populateForm(EnquiryModel model) async {
@@ -492,6 +495,29 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
 
+    // ✅ Send OTP FIRST (shows loading + success)
+    _enquiryCubit.sendOTP(context: context, mobileNumber: _mobileC.text.trim());
+
+    // ✅ THEN show verification dialog
+    showCompleteVerificationDialog(
+      context,
+      otpController: otpController,
+      mobileNumber: _mobileC.text.trim(),
+      module: "Enquiry",
+      onResendOTP: () {
+        _enquiryCubit.sendOTP(
+          context: context,
+          mobileNumber: _mobileC.text.trim(),
+        );
+      },
+      onVerifyOTP: () {
+        // ✅ AFTER OTP → AUTO SUBMIT ENQUIRY
+        _submitEnquiryData();
+      },
+    );
+  }
+
+  void _submitEnquiryData() async {
     // SOURCE & SUB SUB SOURCE
     final source = _selectedSourceNotifier.value?["DisplayName"] ?? "";
     final subSubSource =
@@ -501,21 +527,18 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 "")
             : (_selectedSubSubSourceNotifier.value?["DisplayName"] ?? "");
 
-    // CUSTOMER CLASSIFICATION
+    // CUSTOMER CLASSIFICATION LOGIC
     int selectedCount = 0;
-    if ((_selectedPossessionType?["DisplayName"] ?? "").trim().isNotEmpty) {
+    if ((_selectedPossessionType?["DisplayName"] ?? "").trim().isNotEmpty)
       selectedCount++;
-    }
     if ((_selectedRequirementNotifier.value?["DisplayName"] ?? "")
         .trim()
-        .isNotEmpty) {
+        .isNotEmpty)
       selectedCount++;
-    }
     if (_locationC.text.trim().isNotEmpty) selectedCount++;
     if (_budgetC.text.trim().isNotEmpty) selectedCount++;
 
     final timeline = getDisplayOrEmpty(_selectedTimeline);
-
     String customerClassification;
     if (selectedCount >= 3 && timeline.contains("Within 1 Month")) {
       customerClassification = "Hot";
@@ -552,70 +575,58 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       "MobileNumber": _mobileC.text.trim(),
       "EmailId": _emailC.text.trim(),
       "DateOfBirth": _dateOfBirthNotifier.value?.toIso8601String(),
-
       "Accommodation": getDisplayOrEmpty(_selectedAccommodationNotifier.value),
       "OccupationType": getDisplayOrEmpty(_selectedOccupationType),
       "Source": source,
       "SubSource": getDisplayOrEmpty(_selectedSubSourceNotifier.value),
       "SubSubSource": subSubSource,
-
       "ReferelName": _referralName.text.trim(),
       "ReferelMobileNumber": _referralMobile.text.trim(),
       "ReferelProjectName": _referralProjectName.text.trim(),
       "ReferelUnitNumber": _referralUnitNumber.text.trim(),
-
       "LoyaltyExistingProjectName": _existingProjectName.text.trim(),
       "LoyaltyExistingUnitNumber": _existingUnitNumber.text.trim(),
-
       "EmployeeReferenceName": _employeeName.text.trim(),
       "EmployeeReferenceMobileNumber": _employeeMobileNumber.text.trim(),
-
       "ChannelPartnerTeamMemberId":
           _selectedTeamMemberNotifier.value.isNotEmpty
               ? _selectedTeamMemberNotifier.value.first["zAttributesId"]
               : 0,
       "ChannelPartnerTeamMemberName": _teamMemberNameC.text.trim(),
       "ChannelPartnerTeamMemberMobileNumber": _teamMemberMobileC.text.trim(),
-
       "Nationality": _enquiryCubit.state.selectedNationality,
       "CountryOfResidence": _countryOfResidenceC.text.trim(),
       "CityOfResidence": _cityOfResidenceC.text.trim(),
       "CurrentLocation": _locationC.text.trim(),
       "VillageMasterId": selectedVillages,
-
       "PossessionType": getDisplayOrEmpty(_selectedPossessionType),
       "AreaPreferred": int.tryParse(_areaPrefC.text.trim()) ?? 0,
       "DesiredFloorBand": getDisplayOrEmpty(_selectedFloorBand),
       "Budget": _budgetC.text.trim(),
-
       "Requirement": getDisplayOrEmpty(_selectedRequirementNotifier.value),
       "RequirementType": requirementTypeValue,
       "CustomerClassification": customerClassification,
-
       "SourceOfFunding": getDisplayOrEmpty(_selectedFunding),
       "Ethnicity": getDisplayOrEmpty(_selectedEthnicity),
       "FinalStage": getDisplayOrEmpty(_selectedFinalStage),
       "FinalStageDetail": "",
-
       "EnquiryDate": _enquiryDate?.toIso8601String(),
       "NextFollowUpDate": _nextFollowUpDate?.toIso8601String(),
-
       "SalesAdvisorId":
           _selectedSaleAdvisorNotifier.value.isNotEmpty
               ? _selectedSaleAdvisorNotifier.value.first["zAttributesId"]
               : 0,
-
       "SourcingManagerId":
           _selectedSourcingManager.isNotEmpty
               ? _selectedSourcingManager.first["zAttributesId"]
               : 0,
-
       "Remark": _remarkC.text.trim(),
       "Timeline": timeline,
+      "OTP": otpController.text.trim(),
     };
 
-    // SUBMIT
-    _enquiryCubit.addUpdateEnquiry(
+    // ✅ SUBMIT ENQUIRY AFTER OTP VERIFICATION
+    await _enquiryCubit.addUpdateEnquiry(
       context: context,
       body: payload,
       index: _isEditMode ? widget.index : null,
@@ -1514,6 +1525,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     return _card("Follow Up Details", [
       CustomDatePicker(
         title: "Enquiry Date",
+        startDate: DateTime.now().subtract(const Duration(days: 2)),
         isRequired: true,
         initialDate: _enquiryDate,
         setValue: (v) => _enquiryDate = v,
@@ -1521,6 +1533,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       CustomDatePicker(
         title: "Next Follow-Up Date",
         isRequired: true,
+        startDate: DateTime.now(),
         initialDate: _nextFollowUpDate,
         setValue: (v) => _nextFollowUpDate = v,
         validator: (value) {
@@ -1576,6 +1589,116 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
           Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
           verticalSpacing(),
           ...children,
+        ],
+      ),
+    );
+  }
+
+  // ✅ COMPLETE VERIFICATION DIALOG
+  static Future<void> showCompleteVerificationDialog(
+    BuildContext context, {
+    required TextEditingController otpController,
+    required VoidCallback onVerifyOTP,
+    required VoidCallback onResendOTP,
+    String? mobileNumber,
+    String? module = "Enquiry",
+  }) {
+    return DialogHelper.showCustomDialogue(
+      context,
+      title: "Complete Verification",
+      childContent: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Verify Details To Continue",
+            style: AppTextStyle.ts12R(color: AppColor.grey),
+          ),
+          verticalSpacing(height: 24),
+
+          // ✅ CHECKBOX STEPS
+          _buildVerificationStep("Basic Details", true),
+          _buildVerificationStep("Source Details", false),
+          _buildVerificationStep("Property Preferences", false),
+          _buildVerificationStep("Follow-up Details", true),
+
+          verticalSpacing(height: 24),
+
+          // ✅ OTP SECTION
+          Text("Verify OTP", style: AppTextStyle.ts14M()),
+          verticalSpacing(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: CustomTextField(
+                  textController: otpController,
+                  hint: "Enter OTP",
+                  keyboardType: TextInputType.number,
+                ),
+              ),
+              horizontalSpacing(width: 12),
+              CustomButton(
+                text: "Send OTP",
+                onPressed: onResendOTP, // ✅ Uses your EnquiryCubit.sendOTP()
+                titleTextStyle: AppTextStyle.ts12M(),
+              ),
+            ],
+          ),
+        ],
+      ),
+      bottomSection: CustomButton(
+        text: "Verify & Add Enquiry", // ✅ Clear action
+        onPressed: () {
+          if (otpController.text.length == 4) {
+            // ✅ AUTO TRIGGER ADD ENQUIRY AFTER OTP SUCCESS
+            onVerifyOTP(); // Calls _submitEnquiryData()
+          } else {
+            showErrorMessage(
+              context,
+              "Error",
+              "Please enter valid 6-digit OTP",
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  // ✅ HELPER: Verification Step Widget
+  static Widget _buildVerificationStep(String title, bool isCompleted) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Container(
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color:
+                    isCompleted
+                        ? AppColor.primary
+                        : AppColor.grey.withValues(alpha: 0.5),
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(4),
+              // ✅ Light blue background for active step
+              color:
+                  isCompleted
+                      ? AppColor.lightBlue.withValues(alpha: 0.2)
+                      : null,
+            ),
+            child:
+                isCompleted
+                    ? Icon(Icons.check, size: 14, color: AppColor.primary)
+                    : SizedBox.shrink(),
+          ),
+          horizontalSpacing(width: 12),
+          Text(
+            title,
+            style: AppTextStyle.ts14M(
+              color: isCompleted ? AppColor.primary : AppColor.black,
+            ),
+          ),
         ],
       ),
     );
