@@ -27,9 +27,16 @@ class DashboardCubit extends Cubit<DashboardState> {
     int attendanceId,
   ) async {
     emit(state.copyWith(isLoading: true));
+    String formatDate(DateTime d) =>
+        "${d.year.toString().padLeft(4, '0')}-"
+        "${d.month.toString().padLeft(2, '0')}-"
+        "${d.day.toString().padLeft(2, '0')}";
+    if (endDate.isBefore(startDate)) {
+      endDate = startDate;
+    }
     Map<String, dynamic> queryParams = {
-      "StartDate": startDate.toIso8601String(),
-      "EndDate": endDate.toIso8601String(),
+      "StartDate": formatDate(startDate),
+      "EndDate": formatDate(endDate),
       "AttendanceId": attendanceId,
     };
     var result = await _dashboardRepository.getAttendanceList(
@@ -67,7 +74,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     DialogHelper.showProcessingOverlay(context);
 
     final Map<String, dynamic> requestBody = {
-      "AttendanceId": 0, // 🔥 ONLY for FIRST punch-in
+      "AttendanceId": 0,
       "PunchAddress": punchAddress,
     };
 

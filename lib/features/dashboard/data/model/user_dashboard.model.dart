@@ -64,9 +64,8 @@ class Table0 {
   final String department;
   final String employeeCode;
   final String status;
-  final dynamic punchIn;
-  final dynamic punchOut;
-  final String message;
+  final String punchIn;
+  final String punchOut;
 
   Table0({
     required this.name,
@@ -75,7 +74,6 @@ class Table0 {
     required this.status,
     required this.punchIn,
     required this.punchOut,
-    required this.message,
   });
 
   factory Table0.fromJson(Map<String, dynamic> json) => Table0(
@@ -85,7 +83,6 @@ class Table0 {
     status: parseValue<String>(json, "Status"),
     punchIn: parseValue<String>(json, "PunchIn"),
     punchOut: parseValue<String>(json, "PunchOut"),
-    message: parseValue<String>(json, "Message"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -95,7 +92,6 @@ class Table0 {
     "Status": status,
     "PunchIn": punchIn,
     "PunchOut": punchOut,
-    "Message": message,
   };
 }
 
