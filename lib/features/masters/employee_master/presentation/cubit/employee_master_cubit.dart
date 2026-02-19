@@ -14,8 +14,12 @@ import 'package:k3h_erp_app/features/masters/department_master/data/model/depart
 import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/repository/designation_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_education_details.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_experience_details.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_document.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/data/model/branch_association_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/data/repository/branch_association_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
@@ -39,11 +43,42 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
       serviceLocator<DesignationMasterRepository>();
   final ProjectMasterRepository _projectMasterRepository =
       serviceLocator<ProjectMasterRepository>();
+  final BranchAssociationMasterRepository _branchAssociationMasterRepository =
+      serviceLocator<BranchAssociationMasterRepository>();
 
   // <---- SEARCH EMPLOYEE ---->
   Future searchEmployee(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, employeeMasterList: []));
     await getEmployeeMasterList(context, 1);
+  }
+
+  void onTabChanged(BuildContext context, int index, int employeeId) {
+    if (index == 1) {
+      getEmployeeEducationDetailsList(context, 1, 100, employeeId);
+    }
+    if (index == 2) {
+      getEmployeeExperienceDetailsList(context, 1, 100, employeeId);
+    }
+    if (index == 3) {
+      getBranchAssociationList(context, 1, 100, employeeId);
+    }
+    if (index == 4) {
+      getEmployeeDocumentList(context, 1, 100, employeeId);
+    }
+    if (index == 5) {
+      getEmployeeAssetList(context, 1, 100, employeeId);
+    }
+    if (index == 6) {
+      getEmployeeProjects(employeeId);
+    }
+    if (index == 7) {
+      getShiftManagementList(context, 1, 100, employeeId);
+    }
+    if (index == 8) {
+      getWeekOffMappingList(context, 1, 100, employeeId);
+    } else {
+      return;
+    }
   }
 
   Future applyFilterAndSort({
@@ -792,23 +827,121 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  void onTabChanged(BuildContext context, int index, int employeeId) {
-    if (index == 1) {
-      getEmployeeDocumentList(context, 1, 100, employeeId);
-    }
-    if (index == 2) {
-      getEmployeeAssetList(context, 1, 100, employeeId);
-    }
-    if (index == 3) {
-      getEmployeeProjects(employeeId);
-    }
-    if (index == 4) {
-      getShiftManagementList(context, 1, 100, employeeId);
-    }
-    if (index == 5) {
-      getWeekOffMappingList(context, 1, 100, employeeId);
-    } else {
-      return;
-    }
+  // <---- GET EMPLOYEE EXPERIENCE DETAILS LIST ---->
+  Future getEmployeeExperienceDetailsList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await employeeMasterRepository
+        .getEmployeeExperienceDetailsList(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: {"EmployeeId": employeeId},
+        );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final dataList = response['data'] as List;
+        List<EmployeeExperienceDetailsModel> newList =
+            pageNumber == 1
+                ? List<EmployeeExperienceDetailsModel>.from(dataList)
+                : [
+                  ...state.employeeExperienceDetailsList,
+                  ...List<EmployeeExperienceDetailsModel>.from(dataList),
+                ];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            employeeExperienceDetailsList: newList,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET EMPLOYEE EDUCATION DETAILS LIST ---->
+  Future getEmployeeEducationDetailsList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await employeeMasterRepository
+        .getEmployeeEducationDetailsList(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: {"EmployeeId": employeeId},
+        );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final dataList = response['data'] as List;
+        List<EmployeeEducationDetailsModel> newList =
+            pageNumber == 1
+                ? List<EmployeeEducationDetailsModel>.from(dataList)
+                : [
+                  ...state.employeeEducationDetailsList,
+                  ...List<EmployeeEducationDetailsModel>.from(dataList),
+                ];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            employeeEducationDetailsList: newList,
+          ),
+        );
+      },
+    );
+  }
+
+  // <---- GET BRANCH ASSOCIATION LIST ---->
+  Future getBranchAssociationList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await _branchAssociationMasterRepository
+        .getBranchAssociationList(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: {"EmployeeId": employeeId},
+        );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final dataList = response['data'] as List;
+        List<BranchAssociationModel> newList =
+            pageNumber == 1
+                ? List<BranchAssociationModel>.from(dataList)
+                : [
+                  ...state.branchAssociationList,
+                  ...List<BranchAssociationModel>.from(dataList),
+                ];
+
+        emit(state.copyWith(isLoading: false, branchAssociationList: newList));
+      },
+    );
   }
 }

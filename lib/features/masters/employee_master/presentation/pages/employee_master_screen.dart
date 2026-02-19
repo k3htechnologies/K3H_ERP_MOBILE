@@ -545,8 +545,9 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
         onSearchSubmit: (value) {
           _employeeMasterCubit.searchEmployee(context, value);
         },
+        searchHintText: "Search by Employee Name",
         textController: _searchC,
-        screenTitle: 'Employee',
+        screenTitle: 'Employee Master',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
           if(_employeeMasterCubit.state.totalNumberOfRecord==0){

@@ -486,7 +486,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
   }
 
-  // <---- GET EMPLOYEE EDUCATION DETAILS LIST ---->
+  // <---- GET EMPLOYEE EXPERIENCE DETAILS LIST ---->
   Future getEmployeeExperienceDetailsList(
     BuildContext context,
     int pageNumber,

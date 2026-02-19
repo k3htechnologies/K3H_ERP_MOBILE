@@ -1,6 +1,9 @@
 part of 'employee_master_cubit.dart';
 
 class EmployeeMasterState extends BaseState {
+  final List<EmployeeExperienceDetailsModel> employeeExperienceDetailsList;
+  final List<EmployeeEducationDetailsModel> employeeEducationDetailsList;
+  final List<BranchAssociationModel> branchAssociationList;
   final List<UserModel> employeeMasterList;
   final List<EmployeeDocumentModel> employeeDocumentList;
   final List<DepartmentModel> departmentList;
@@ -43,6 +46,9 @@ class EmployeeMasterState extends BaseState {
   const EmployeeMasterState({
     super.isLoading,
     super.stateType,
+    required this.employeeExperienceDetailsList,
+    required this.employeeEducationDetailsList,
+    required this.branchAssociationList,
     required this.employeeMasterList,
     required this.employeeDocumentList,
     required this.departmentList,
@@ -84,6 +90,9 @@ class EmployeeMasterState extends BaseState {
   });
 
   factory EmployeeMasterState.initial() => EmployeeMasterState(
+    employeeExperienceDetailsList: [],
+    employeeEducationDetailsList: [],
+    branchAssociationList: [],
     employeeMasterList: [],
     employeeDocumentList: [],
     departmentList: [],
@@ -128,6 +137,9 @@ class EmployeeMasterState extends BaseState {
   EmployeeMasterState copyWith({
     bool? isLoading,
     StateType? stateType,
+    List<EmployeeExperienceDetailsModel>? employeeExperienceDetailsList,
+    List<EmployeeEducationDetailsModel>? employeeEducationDetailsList,
+    List<BranchAssociationModel>? branchAssociationList,
     List<UserModel>? employeeMasterList,
     List<EmployeeDocumentModel>? employeeDocumentList,
     List<DepartmentModel>? departmentList,
@@ -173,6 +185,12 @@ class EmployeeMasterState extends BaseState {
     return EmployeeMasterState(
       isLoading: isLoading ?? this.isLoading,
       stateType: stateType ?? this.stateType,
+      employeeExperienceDetailsList:
+      employeeExperienceDetailsList ?? this.employeeExperienceDetailsList,
+      employeeEducationDetailsList:
+      employeeEducationDetailsList ?? this.employeeEducationDetailsList,
+      branchAssociationList:
+      branchAssociationList ?? this.branchAssociationList,
       employeeMasterList: employeeMasterList ?? this.employeeMasterList,
       employeeDocumentList: employeeDocumentList ?? this.employeeDocumentList,
       departmentList: departmentList ?? this.departmentList,
@@ -223,6 +241,9 @@ class EmployeeMasterState extends BaseState {
   List<Object?> get props => [
     isLoading,
     stateType,
+    employeeExperienceDetailsList,
+    employeeEducationDetailsList,
+    branchAssociationList,
     employeeMasterList,
     employeeDocumentList,
     departmentList,

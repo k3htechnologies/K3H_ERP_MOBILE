@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -34,7 +35,7 @@ class _EmployeeMasterViewDetailsScreenState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 9, vsync: this);
     _tabController.addListener(_handleTabChange);
   }
 
@@ -98,6 +99,9 @@ class _EmployeeMasterViewDetailsScreenState
                     padding: EdgeInsets.zero,
                     tabs: const [
                       Tab(text: 'Overview'),
+                      Tab(text: 'Education Details'),
+                      Tab(text: 'Experience Details'),
+                      Tab(text: 'Branch Associations'),
                       Tab(text: 'Document'),
                       Tab(text: 'Assets'),
                       Tab(text: 'Project'),
@@ -112,6 +116,9 @@ class _EmployeeMasterViewDetailsScreenState
                     controller: _tabController,
                     children: [
                       _buildOverviewTab(widget.employee),
+                      _buildEducationTab(),
+                      _buildExperienceTab(),
+                      _buildBankAssociationTab(),
                       _buildDocumentTab(),
                       _buildAssetTab(),
                       _buildProjectTab(
@@ -128,165 +135,6 @@ class _EmployeeMasterViewDetailsScreenState
           ),
         );
       },
-    );
-  }
-
-  Widget _buildInfoCard({
-    required String title,
-    required List<Map<String, String>> items,
-  }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts16SB()),
-          verticalSpacing(height: 12),
-          ..._buildInfoRows(items),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildInfoRows(List<Map<String, String>> items) {
-    List<Widget> rows = [];
-    int i = 0;
-
-    while (i < items.length) {
-      final item = items[i];
-      final label = item['label'] ?? '';
-      final value = item['value'] ?? '';
-      final isFullWidth = item['fullWidth'] == 'true';
-
-      if (isFullWidth) {
-        rows.add(_buildInfoItem(label, value, isFullWidth: true));
-        if (i < items.length - 1) {
-          rows.add(verticalSpacing(height: 12));
-        }
-        i++;
-      } else {
-        if (i + 1 < items.length && items[i + 1]['fullWidth'] != 'true') {
-          final nextItem = items[i + 1];
-          rows.add(
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _buildInfoItem(label, value)),
-                horizontalSpacing(width: 16),
-                Expanded(
-                  child: _buildInfoItem(
-                    nextItem['label'] ?? '',
-                    nextItem['value'] ?? '',
-                  ),
-                ),
-              ],
-            ),
-          );
-          if (i + 1 < items.length - 1) {
-            rows.add(verticalSpacing(height: 12));
-          }
-          i += 2;
-        } else {
-          rows.add(_buildInfoItem(label, value));
-          if (i < items.length - 1) {
-            rows.add(verticalSpacing(height: 12));
-          }
-          i++;
-        }
-      }
-    }
-
-    return rows;
-  }
-
-  Widget _buildContactInformationCard(UserModel user) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Contact Information', style: AppTextStyle.ts16SB()),
-          verticalSpacing(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: _buildInfoItem(
-                  'Personal Mobile',
-                  user.personalMobileNumber,
-                  customValueWidget:
-                      user.personalMobileNumber.isNotEmpty
-                          ? CustomClickToContactText(
-                            value: user.personalMobileNumber,
-                          )
-                          : null,
-                ),
-              ),
-              horizontalSpacing(width: 16),
-              Expanded(
-                child: _buildInfoItem(
-                  'Office Mobile',
-                  user.officeMobileNumber,
-                  customValueWidget:
-                      user.officeMobileNumber.isNotEmpty
-                          ? CustomClickToContactText(
-                            value: user.officeMobileNumber,
-                          )
-                          : null,
-                ),
-              ),
-            ],
-          ),
-          verticalSpacing(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: _buildInfoItem(
-                  'Email',
-                  user.emailId,
-                  customValueWidget:
-                      user.emailId.isNotEmpty
-                          ? CustomClickToContactText(
-                            value: user.emailId,
-                            type: ContactType.email,
-                          )
-                          : null,
-                ),
-              ),
-              horizontalSpacing(width: 16),
-              Expanded(
-                child: _buildInfoItem(
-                  'Office Email',
-                  user.officeEmailId,
-                  customValueWidget:
-                      user.officeEmailId.isNotEmpty
-                          ? CustomClickToContactText(
-                            value: user.officeEmailId,
-                            type: ContactType.email,
-                          )
-                          : null,
-                ),
-              ),
-            ],
-          ),
-          verticalSpacing(height: 12),
-          _buildInfoItem(
-            'Emergency Contact',
-            user.emergencyMobileNumber,
-            customValueWidget:
-                user.emergencyMobileNumber.isNotEmpty
-                    ? CustomClickToContactText(
-                      value: user.emergencyMobileNumber,
-                    )
-                    : null,
-          ),
-        ],
-      ),
     );
   }
 
@@ -337,117 +185,638 @@ class _EmployeeMasterViewDetailsScreenState
 
   Widget _buildOverviewTab(UserModel user) {
     return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           verticalSpacing(),
-          _buildInfoCard(
-            title: 'Basic Information',
-            items: [
-              {'label': 'Employee Code', 'value': user.employeeCode},
-              {'label': 'Full Name', 'value': user.fullName},
-              {
-                'label': 'Date of Birth',
-                'value':
-                    user.dateOfBirth != null
-                        ? formatDateTimeAsDDMMMYYYY(user.dateOfBirth!)
-                        : '-',
-              },
-              {'label': 'Gender', 'value': user.gender},
-              {'label': 'Marital Status', 'value': user.maritalStatus},
-              {'label': 'Blood Group', 'value': user.bloodGroup},
-              {
-                'label': 'Probation Date',
-                'value':
-                    user.probationDate != null
-                        ? formatDateTimeAsDDMMMYYYY(user.probationDate!)
-                        : "-",
-              },
-              {
-                'label': 'Id Card Issued Date',
-                'value':
-                    user.idCardIssuedDate != null
-                        ? formatDateTimeAsDDMMMYYYY(user.idCardIssuedDate!)
-                        : "-",
-              },
-              {
-                'label': 'Communication Address',
-                'value': user.communicationAddress,
-                'fullWidth': 'true',
-              },
-              {
-                'label': 'Permanent Address',
-                'value': user.permanentAddress,
-                'fullWidth': 'true',
-              },
-            ],
-          ),
-          verticalSpacing(),
-          _buildContactInformationCard(user),
-          verticalSpacing(),
-          _buildInfoCard(
-            title: 'Professional Information',
-            items: [
-              {'label': 'Company', 'value': user.companyName},
-              {'label': 'Department', 'value': user.department},
-              {'label': 'Designation', 'value': user.designation},
-              {'label': 'Branch', 'value': user.branch},
-              {'label': 'Employee Type', 'value': user.employeeType},
-              {'label': 'Reporting To', 'value': user.reportPersonName},
-              if (user.joiningDate != null)
-                {
-                  'label': 'Joining Date',
-                  'value': formatDateTimeAsDDMMMYYYY(user.joiningDate!),
-                },
-            ],
-          ),
-          verticalSpacing(),
-          if (user.employeeReportingCycleData.isNotEmpty)
-            _buildEmployeeReportingCycleCard(user.employeeReportingCycleData),
-          verticalSpacing(),
-          _buildInfoCard(
-            title: 'Address Information',
-            items: [
-              {'label': 'Country', 'value': user.countryName},
-              {'label': 'State', 'value': user.stateName},
-              {'label': 'District', 'value': user.districtName},
-              {'label': 'City', 'value': user.cityName},
-            ],
-          ),
-          verticalSpacing(),
-          if (_hasBankDetails(user))
-            _buildInfoCard(
-              title: 'Bank Details',
-              items: [
-                {'label': 'Bank Name', 'value': user.bankName},
-                {'label': 'Bank Branch', 'value': user.bankBranchName},
-                {'label': 'IFSC Code', 'value': user.ifscCode},
-                {'label': 'Account Number', 'value': user.accountNo},
+          // BASIC INFORMATION
+          Container(
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Basic Information', style: AppTextStyle.ts16SB()),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "First Name",
+                      value: user.firstName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Middle Name",
+                      value: user.middleName,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Last Name",
+                      value: user.lastName,
+                    ),
+                    buildColumnTitleValue(title: "Gender", value: user.gender),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Marital Status",
+                      value: user.maritalStatus,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Blood Group",
+                      value: user.bloodGroup,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "DOB",
+                      value:
+                          user.dateOfBirth != null
+                              ? formatDateTimeAsDDMMMYYYY(user.dateOfBirth!)
+                              : "-",
+                    ),
+                    buildColumnTitleValue(
+                      title: "Email ID",
+                      value: user.emailId,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Personal Mobile No.",
+                      value: user.personalMobileNumber,
+                      customValueWidget: CustomClickToContactText(
+                        value: user.personalMobileNumber,
+                        type: ContactType.phone,
+                      ),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Email ID",
+                      value: user.emailId,
+                      customValueWidget: CustomClickToContactText(
+                        value: user.emailId,
+                        type: ContactType.email,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Communication Address",
+                      value: user.communicationAddress,
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Permanent Address",
+                      value: user.permanentAddress,
+                    ),
+                  ],
+                ),
               ],
             ),
-          _buildInfoCard(
-            title: 'Action Details',
-            items: [
-              {'label': 'Created By', 'value': user.createdBy},
-              {
-                'label': 'Created Date',
-                'value': formatDateTimeAsDDMMMYYYY(user.createdDate),
-              },
-              {'label': 'Modified By', 'value': user.modifiedBy},
-
-              {
-                'label': 'Modified Date',
-                'value':
-                    user.modifiedDate != null
-                        ? formatDateTimeAsDDMMMYYYY(user.modifiedDate!)
-                        : '-',
-              },
-            ],
           ),
-          if (_hasBankDetails(user)) verticalSpacing(),
-          verticalSpacing(height: 20),
+          // ADDRESS
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            child: Column(
+              spacing: 5,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Address", style: AppTextStyle.ts16SB()),
+                verticalSpacing(height: 5),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Country",
+                      value: user.countryName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "State",
+                      value: user.stateName,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "District",
+                      value: user.districtName,
+                    ),
+                    buildColumnTitleValue(title: "City", value: user.cityName),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // EMPLOYEE INFORMATION
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Employee Information", style: AppTextStyle.ts16SB()),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Employee Code",
+                      value: user.employeeCode,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Company Name",
+                      value: user.companyName,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(title: "Branch", value: user.branch),
+                    buildColumnTitleValue(
+                      title: "Department",
+                      value: user.department,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Designation",
+                      value: user.designation,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Joining Date",
+                      value:
+                          user.joiningDate != null
+                              ? formatDateTimeAsDDMMMYYYY(user.joiningDate!)
+                              : "-",
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Reporting Person",
+                      value: user.reportPersonName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Employee Type",
+                      value: user.employeeType,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Office Number",
+                      value: user.officeMobileNumber,
+                      customValueWidget: CustomClickToContactText(
+                        value: user.officeMobileNumber,
+                      ),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Office E-mail ID",
+                      value: user.officeEmailId,
+                      customValueWidget: CustomClickToContactText(
+                        value: user.officeEmailId,
+                        type: ContactType.email,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Probation Date",
+                      value:
+                          user.probationDate != null
+                              ? formatDateTimeAsDDMMMYYYY(user.probationDate!)
+                              : "-",
+                    ),
+                    buildColumnTitleValue(
+                      title: "Id Card Issued Date",
+                      value:
+                          user.idCardIssuedDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                user.idCardIssuedDate!,
+                              )
+                              : "-",
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // BANK DETAILS
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Bank Details", style: AppTextStyle.ts16SB()),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Bank Name",
+                      value: user.bankName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Account Number",
+                      value: user.accountNo,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Bank Branch Name",
+                      value: user.bankBranchName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "IFSC Code",
+                      value: user.ifscCode,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // EMPLOYEE REPORTING CYCLE
+          if (user.employeeReportingCycleData.isNotEmpty) ...[
+            Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(16),
+              decoration: commonCardDecoration(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Reporting Structure', style: AppTextStyle.ts16SB()),
+                  verticalSpacing(height: 12),
+                  ...user.employeeReportingCycleData.map((employee) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              spacing: 10,
+                              children: [
+                                Container(
+                                  height: 50,
+                                  width: 50,
+                                  decoration: BoxDecoration(
+                                    color: AppColor.lightGrey,
+                                    border: Border.all(
+                                      color: AppColor.grey.withValues(
+                                        alpha: .5,
+                                      ),
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      employee["FullName"][0],
+                                      style: AppTextStyle.ts16SB(),
+                                    ),
+                                  ),
+                                ),
+                                Flexible(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        employee["FullName"],
+                                        style: AppTextStyle.ts14SB(),
+                                      ),
+                                      Text(
+                                        employee["Designation"],
+                                        style: AppTextStyle.ts12R(
+                                          color: AppColor.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: AppColor.purple.withValues(alpha: .3),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            child: Text(
+                              employee["EmployeeCode"],
+                              style: AppTextStyle.ts12R(color: AppColor.purple),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ],
+          // EMERGENCY CONTACT DETAILS
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            child: Column(
+              spacing: 5,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Emergency Contact Details", style: AppTextStyle.ts16SB()),
+                verticalSpacing(height: 5),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Relation to Emergency Contact",
+                      value: user.emergencyContactPersonRelationship,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Emergency Contact Number",
+                      value: user.emergencyMobileNumber,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // ACTION DETAILS
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Action Details", style: AppTextStyle.ts16SB()),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Created By",
+                      value: user.createdBy,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Created Date",
+                      value: formatDateTimeAsDDMMMYYYY(user.createdDate),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Modified By",
+                      value: user.modifiedBy.isNotEmpty ? user.modifiedBy : "-",
+                    ),
+                    buildColumnTitleValue(
+                      title: "Modified Date",
+                      value:
+                          user.modifiedDate != null
+                              ? formatDateTimeAsDDMMMYYYY(user.modifiedDate!)
+                              : "-",
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildEducationTab(){
+    return BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
+      builder: (context, state) {
+        if (state.isLoading == true &&
+            state.employeeEducationDetailsList.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (state.employeeEducationDetailsList.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Text(
+                "No education details found",
+                style: AppTextStyle.ts16M(color: AppColor.grey),
+              ),
+            ),
+          );
+        }
+        return ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          shrinkWrap: true,
+          itemCount: state.employeeEducationDetailsList.length,
+          itemBuilder: (_, index) {
+            final education = state.employeeEducationDetailsList[index];
+            return Container(
+              margin: EdgeInsets.only(bottom: 10),
+              padding: EdgeInsets.all(16),
+              decoration: commonCardDecoration(),
+              child: Column(
+                spacing: 10,
+                children: [
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Qualification",
+                        value: education.qualification,
+                      ),
+                      buildColumnTitleValue(
+                        title: "Passing Year",
+                        value: education.passing,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      buildColumnTitleValue(
+                        title: "College",
+                        value: education.collegeName,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildExperienceTab(){
+    return BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
+      builder: (context, state) {
+        if (state.isLoading == true &&
+            state.employeeExperienceDetailsList.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (state.employeeExperienceDetailsList.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Text(
+                "No experience details found",
+                style: AppTextStyle.ts16M(color: AppColor.grey),
+              ),
+            ),
+          );
+        }
+        return ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 16,vertical: 10),
+          shrinkWrap: true,
+          itemCount: state.employeeExperienceDetailsList.length,
+          itemBuilder: (_, index) {
+            final experience =
+            state.employeeExperienceDetailsList[index];
+            return Container(
+              margin: EdgeInsets.only(bottom: 10),
+              padding: EdgeInsets.all(16),
+              decoration: commonCardDecoration(),
+              child: Column(
+                spacing: 10,
+                children: [
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Company",
+                        value: experience.companyName,
+                      ),
+                      buildColumnTitleValue(
+                        title: "Role",
+                        value: experience.role,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Tenure",
+                        value: experience.tenure,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildBankAssociationTab(){
+    return BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
+      builder: (_, state) {
+        if (state.isLoading == true && state.branchAssociationList.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        if (state.branchAssociationList.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Text(
+                "No data found",
+                style: AppTextStyle.ts16M(color: AppColor.grey),
+              ),
+            ),
+          );
+        }
+        return ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 16,vertical: 10),
+          shrinkWrap: true,
+          itemCount: state.branchAssociationList.length,
+          itemBuilder: (_, index) {
+            final branch = state.branchAssociationList[index];
+            return Container(
+              decoration: commonCardDecoration(),
+              padding: EdgeInsets.all(16),
+              margin: EdgeInsets.only(bottom: 10),
+              child: Text(branch.branchName, style: AppTextStyle.ts14R()),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -1012,91 +1381,6 @@ class _EmployeeMasterViewDetailsScreenState
                 ),
               );
         },
-      ),
-    );
-  }
-
-  bool _hasBankDetails(UserModel user) {
-    return user.bankName.trim().isNotEmpty ||
-        user.bankBranchName.trim().isNotEmpty ||
-        user.ifscCode.trim().isNotEmpty ||
-        user.accountNo.trim().isNotEmpty;
-  }
-
-  Widget _buildEmployeeReportingCycleCard(
-    List<Map<String, dynamic>> employeeReportingCycleData,
-  ) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Reporting Structure', style: AppTextStyle.ts16SB()),
-          verticalSpacing(height: 12),
-          ...employeeReportingCycleData.map((employee) {
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Row(
-                      spacing: 10,
-                      children: [
-                        Container(
-                          height: 50,
-                          width: 50,
-                          decoration: BoxDecoration(
-                            color: AppColor.lightGrey,
-                            border: Border.all(
-                              color: AppColor.grey.withValues(alpha: .5),
-                              width: 1,
-                            ),
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          child: Center(
-                            child: Text(
-                              employee["FullName"][0],
-                              style: AppTextStyle.ts16SB(),
-                            ),
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              employee["FullName"],
-                              style: AppTextStyle.ts14SB(),
-                            ),
-                            Text(
-                              employee["Designation"],
-                              style: AppTextStyle.ts12R(color: AppColor.grey),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppColor.purple.withValues(alpha: .3),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    child: Text(
-                      employee["EmployeeCode"],
-                      style: AppTextStyle.ts12R(color: AppColor.purple),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ],
       ),
     );
   }

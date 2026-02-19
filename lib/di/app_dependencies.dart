@@ -77,6 +77,8 @@ void initDependencies() {
   registerDesignationMasterDependencies(serviceLocator);
   // PROJECT MASTER DEPENDENCIES (must be before PROFILE as ProfileCubit depends on it, and before calendar as calendar depends on it)
   registerProjectMasterDependencies(serviceLocator);
+  // BRANCH ASSOCIATION MASTER DEPENDENCIES
+  registerBranchAssociationMasterDependencies(serviceLocator);
   // EMPLOYEE MASTER DEPENDENCIES (must be before LOGIN as LoginCubit depends on it)
   registerEmployeeMasterDependencies(serviceLocator);
   // BANK LIST MASTER DEPENDENCIES (must be after EMPLOYEE MASTER as BankListMasterCubit depends on EmployeeMasterRepository)
@@ -89,8 +91,6 @@ void initDependencies() {
   registerAssetMasterDependencies(serviceLocator);
   // BRANCH MASTER DEPENDENCIES
   registerBranchMasterDependencies(serviceLocator);
-  // BRANCH ASSOCIATION MASTER DEPENDENCIES
-  registerBranchAssociationMasterDependencies(serviceLocator);
   // DEDUCTION MASTER DEPENDENCIES
   registerDeductionMasterDependencies(serviceLocator);
   // EARNING MASTER DEPENDENCIES
