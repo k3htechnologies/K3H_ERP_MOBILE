@@ -1225,6 +1225,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   ),
                   verticalSpacing(),
                   CustomTextField(
+                    key: const ValueKey("permanent_address"),
                     title: "Permanent Address",
                     isRequired: true,
                     hint: "Enter Permanent Address",
@@ -1238,6 +1239,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   ),
                   CustomTextField(
                     title: "Communication Address",
+                    key: const ValueKey("communication_address"),
                     isRequired: true,
                     hint: "Enter Communication Address",
                     textController: _communicationAddressC,
@@ -1517,6 +1519,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                           }
                           return null;
                         },
+                        onChangeFunction: (value) {
+                          _calculateGst();
+                        },
                       ),
                       ValueListenableBuilder<double>(
                         valueListenable: _agreementGstAmountNotifier,
@@ -1539,6 +1544,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             return "Stamp Duty Percentage is required";
                           }
                           return null;
+                        },
+                        onChangeFunction: (value) {
+                          _calculateStampDuty();
                         },
                       ),
                       ValueListenableBuilder<double>(

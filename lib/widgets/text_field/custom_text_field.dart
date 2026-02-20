@@ -46,8 +46,13 @@ class CustomTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return FormField<String>(
       validator: validator,
-      initialValue: textController.text,
       builder: (FormFieldState<String> formFieldState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (formFieldState.value != textController.text) {
+            formFieldState.didChange(textController.text);
+          }
+        });
+
         final hasError = formFieldState.hasError;
 
         return Column(
