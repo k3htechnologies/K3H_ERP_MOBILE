@@ -11,12 +11,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
 
     <application
-        android:label="kcom.k3hTechnologies.k3h_erp_app"
+        android:label="k3h_erp_app"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
          <meta-data
                 android:name="com.google.android.geo.API_KEY"
-                android:value="AIzaSyBimNpnFGJ_dCM_d6g2JBoF8Dxa5BWC5B8"/>
+                android:value="AIzaSyD41k9DaOoiR52wvxDw582I5ktkyL2CdY4"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

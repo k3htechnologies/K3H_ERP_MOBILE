@@ -795,7 +795,8 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                                 endLatitude: attendance.endLatitude,
                                 endLongitude: attendance.endLongitude,
                                 polyline: attendance.polyline,
-                                distance: attendance.distance,
+                                distance: attendance.distance.toDouble(),
+                                attendanceDataModel: attendance,
                               ),
                         ),
                       );

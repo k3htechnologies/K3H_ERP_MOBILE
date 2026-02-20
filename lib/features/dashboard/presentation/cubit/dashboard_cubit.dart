@@ -87,7 +87,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       "EndLatitude": endLatitude,
       "EndLongitude": endLongitude,
       "Polyline": polyline,
-      "Distance": 0,
+      "Distance": distance,
     };
 
     var addResult = await _dashboardRepository.addAttendace(

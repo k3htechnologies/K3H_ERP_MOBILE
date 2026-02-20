@@ -218,78 +218,113 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   StreamSubscription<Position>? positionStream;
   List<LatLng> routePoints = [];
+  LatLng? startLatLng;
+  LatLng? lastPoint;
+  double totalDistance = 0.0;
 
-  void _handleDragEnd() async {
-    if (!isPunchedIn && dragPosition > maxWidth * 0.75) {
-      // PUNCH IN
+  Future<void> punchIn(BuildContext context) async {
+    try {
+      // Get HIGH accuracy GPS (not cached)
+      Position pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.bestForNavigation,
+      );
+
       final address = await _getAddressFromGPS();
 
+      // 🔥 IMPORTANT: Save REAL start location immediately
+      startLatLng = LatLng(pos.latitude, pos.longitude);
+      routePoints.clear();
+      routePoints.add(startLatLng!);
+      lastPoint = startLatLng;
+      totalDistance = 0.0;
+
+      // Call API with REAL GPS (NOT 0,0)
       await _dashboardCubit.addAttendance(
         context,
         punchAddress: address,
-        startLatitude: 0,
-        startLongitude: 0,
+        startLatitude: pos.latitude, // ✅ REAL LAT
+        startLongitude: pos.longitude, // ✅ REAL LNG
         endLatitude: 0,
         endLongitude: 0,
         polyline: "",
         distance: 0,
       );
+      setState(() {
+        isPunchedIn = true;
+        dragPosition = maxWidth;
+      });
+      // Start live GPS tracking AFTER successful punch in
       _startLocationTracking();
+    } catch (e) {
+      debugPrint("Punch In GPS Error: $e");
+    }
+  }
 
-      // start timer NOW
-      final now = DateTime.now();
-      final start = DateTime(now.year, now.month, now.day);
-      final end = start;
+  void _handleDragEnd() async {
+    if (!isPunchedIn && dragPosition > maxWidth * 0.75) {
+      // // PUNCH IN
+      await punchIn(context);
 
-      await _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
       // isPunchedIn = true;
       dragPosition = maxWidth;
     } else if (isPunchedIn && dragPosition < maxWidth * 0.25) {
-      // PUNCH OUT
       final address = await _getAddressFromGPS();
 
-      // STOP GPS TRACKING (VERY IMPORTANT)
+      // 🔥 Stop GPS tracking FIRST
       await positionStream?.cancel();
 
-      // 🔥 SAFE FALLBACK: get current GPS if route is empty
-      Position currentPosition = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+      // Get latest GPS as end point
+      final currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.bestForNavigation,
       );
 
-      final fallbackPoint = LatLng(
+      final endPoint = LatLng(
         currentPosition.latitude,
         currentPosition.longitude,
       );
 
-      // If GPS stream didn't capture points, use fallback
-      final startPoint = _startLatLng ?? fallbackPoint;
-      final endPoint =
-          _routePoints.isNotEmpty ? _routePoints.last : fallbackPoint;
+      // 🔥 GUARANTEE minimum 2 points (VERY IMPORTANT)
+      if (routePoints.isEmpty && startLatLng != null) {
+        routePoints.add(startLatLng!);
+      }
 
-      final distance =
-          _routePoints.length > 1 ? _calculateDistance(_routePoints) : 0.0;
+      if (routePoints.length == 1) {
+        routePoints.add(endPoint);
+      } else {
+        routePoints.add(endPoint);
+      }
+      // 🔥 ENTERPRISE SAFETY: restore start if lost
+      if (startLatLng == null && routePoints.isNotEmpty) {
+        startLatLng = routePoints.first;
+      }
 
-      final polyline =
-          _routePoints.length > 1 ? PolylineEncoder.encode(_routePoints) : "";
+      // Ensure minimum valid trip
+      if (routePoints.length < 2) {
+        debugPrint("Not enough GPS points to calculate route");
+      }
+      // 🔥 FINAL DISTANCE (KM)
+      final finalDistance =
+          routePoints.length > 1 ? _calculateDistance(routePoints) : 0.0;
 
-      print("Start Point: $startPoint");
-      print("End Point: $endPoint");
-      print("Route Points Count: ${_routePoints.length}");
+      // 🔥 FINAL POLYLINE (THIS WAS MISSING PROPERLY)
+      final finalPolyline =
+          routePoints.length > 1 ? PolylineEncoder.encode(routePoints) : "";
 
       await _dashboardCubit.updateAttendance(
         context,
         attendanceId: currentAttendanceId!,
         uniquekey: currentUniquekey!,
         punchAddress: address,
-        startLatitude: startPoint.latitude,
-        startLongitude: startPoint.longitude,
+
+        startLatitude: startLatLng?.latitude ?? routePoints.first.latitude,
+        startLongitude: startLatLng?.longitude ?? routePoints.first.longitude,
+
         endLatitude: endPoint.latitude,
         endLongitude: endPoint.longitude,
-        polyline: polyline,
-        distance: distance,
+        polyline: finalPolyline,
+        distance: finalDistance,
       );
 
-      // stop timer
       _timer?.cancel();
 
       final now = DateTime.now();
@@ -305,9 +340,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     setState(() {});
   }
-
-  List<LatLng> _routePoints = [];
-  LatLng? _startLatLng;
 
   double _calculateDistance(List<LatLng> points) {
     double total = 0;
@@ -326,25 +358,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _startLocationTracking() async {
     LocationPermission permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever)
-      return;
 
-    _routePoints.clear();
-    _startLatLng = null;
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      debugPrint("Location permission denied");
+      return;
+    }
+
+    await positionStream?.cancel();
 
     positionStream = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.bestForNavigation,
-        distanceFilter: 10, // every 10 meters
+        distanceFilter: 5,
       ),
-    ).listen((position) {
-      final point = LatLng(position.latitude, position.longitude);
+    ).listen((Position position) {
+      final currentPoint = LatLng(position.latitude, position.longitude);
+      if (routePoints.isEmpty) {
+        if (startLatLng != null) {
+          routePoints.add(startLatLng!);
+          lastPoint = startLatLng;
+          totalDistance = 0.0;
+          return;
+        }
 
-      _routePoints.add(point);
+        // fallback
+        startLatLng = currentPoint;
+        routePoints.add(currentPoint);
+        lastPoint = currentPoint;
+        return;
+      }
+      if (lastPoint == null) {
+        lastPoint = currentPoint;
+        routePoints.add(currentPoint);
+        return;
+      }
 
-      _startLatLng ??= point; // first point = start location
-    });
+      final segmentDistance = Geolocator.distanceBetween(
+        lastPoint!.latitude,
+        lastPoint!.longitude,
+        currentPoint.latitude,
+        currentPoint.longitude,
+      );
+
+      if (segmentDistance < 5) return;
+
+      routePoints.add(currentPoint);
+      totalDistance += segmentDistance;
+      lastPoint = currentPoint;
+    }, onError: (e) {});
   }
 
   Future<void> _openEmail(String email) async {
@@ -391,6 +453,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
           isPunchedIn = true;
           dragPosition = maxWidth;
           _startTimerFrom(record.punchIn!);
+          if (startLatLng == null &&
+              record.startLatitude != 0 &&
+              record.startLongitude != 0) {
+            startLatLng = LatLng(record.startLatitude, record.startLongitude);
+            if (routePoints.isEmpty) {
+              routePoints.add(startLatLng!);
+              lastPoint = startLatLng;
+              totalDistance = 0.0;
+            }
+            if (positionStream == null) {
+              _startLocationTracking();
+            }
+          }
         } else {
           _timer?.cancel();
           isPunchedIn = false;
@@ -1642,9 +1717,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final table3List = userData.table3;
         final table1 =
             userData.table1.isNotEmpty ? userData.table1.first : null;
-
-        // 🔥 Calculate target = ShiftEndTime - ShiftStartTime (INLINE, no new function)
-        Duration targetDuration = const Duration(hours: 9); // fallback
+        Duration targetDuration = const Duration(hours: 9);
 
         if (table1 != null &&
             table1.shiftStartTime.isNotEmpty &&
@@ -1686,9 +1759,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             if (!diff.isNegative && diff.inSeconds > 0) {
               targetDuration = diff;
             }
-          } catch (_) {
-            // keep fallback 9 hours (ERP safe)
-          }
+          } catch (_) {}
         }
 
         return Column(
@@ -1701,7 +1772,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 return DayWorkProgress(
                   day: dayData.dayName,
                   worked: workedDuration,
-                  target: targetDuration, // ✅ Correct dynamic target
+                  target: targetDuration,
                 );
               }).toList(),
         );
@@ -1757,7 +1828,7 @@ class QuickActionTile extends StatelessWidget {
 
 class AttendanceStatCard extends StatelessWidget {
   final String title;
-  final dynamic value; // 🔥 CHANGE HERE
+  final dynamic value;
   final String? subtitle;
   final Color bgColor;
   final Color borderColor;
@@ -1775,33 +1846,21 @@ class AttendanceStatCard extends StatelessWidget {
 
   String _formatValue(dynamic val) {
     if (val == null) return "-";
-
-    // Handle empty map {} coming from API
     if (val is Map && val.isEmpty) return "-";
-
-    // Handle double like 5.0 -> 5
     if (val is double) {
       if (val == val.toInt()) {
         return val.toInt().toString();
       }
       return val.toStringAsFixed(2);
     }
-
-    // Handle int
     if (val is int) return val.toString();
-
-    // Handle DateTime
     if (val is DateTime) {
       return "${val.hour.toString().padLeft(2, '0')}:${val.minute.toString().padLeft(2, '0')}";
     }
-
-    // Handle string like "09:00:00"
     if (val is String) {
       if (val.isEmpty || val == "{}") return "-";
       return val;
     }
-
-    // Fallback (safe for ERP unpredictable APIs)
     return val.toString();
   }
 
@@ -1993,9 +2052,8 @@ class AttendanceRadialChart extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 30),
-                // Legend
                 SizedBox(
-                  height: 110, // SAME as chart
+                  height: 110,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
