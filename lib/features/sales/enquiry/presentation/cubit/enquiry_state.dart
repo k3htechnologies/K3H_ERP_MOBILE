@@ -49,7 +49,7 @@ class EnquiryState extends BaseState {
     this.filterStage = "",
 
     // ✅ ENQUIRY DETAILS DEFAULTS
-    this.currentEnquiryDetails = null,
+    this.currentEnquiryDetails,
     this.isFetchingEnquiryDetails = false,
   });
 
@@ -100,8 +100,8 @@ class EnquiryState extends BaseState {
     String? filterStage,
 
     // ✅ ENQUIRY DETAILS IN COPYWITH
-    EnquiryModel? currentEnquiryDetails,
-    bool? isFetchingEnquiryDetails,
+    Object? currentEnquiryDetails = _noChange,
+    Object? isFetchingEnquiryDetails = _noChange,
   }) {
     return EnquiryState(
       isLoading: isLoading ?? this.isLoading,
@@ -136,9 +136,13 @@ class EnquiryState extends BaseState {
 
       // ✅ ENQUIRY DETAILS
       currentEnquiryDetails:
-          currentEnquiryDetails ?? this.currentEnquiryDetails,
+          currentEnquiryDetails == _noChange
+              ? this.currentEnquiryDetails
+              : currentEnquiryDetails as EnquiryModel?,
       isFetchingEnquiryDetails:
-          isFetchingEnquiryDetails ?? this.isFetchingEnquiryDetails,
+          isFetchingEnquiryDetails == _noChange
+              ? this.isFetchingEnquiryDetails
+              : isFetchingEnquiryDetails as bool,
     );
   }
 

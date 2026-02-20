@@ -16,7 +16,6 @@ abstract interface class LoginDatasource {
 
   Future<String> apicallToSetMPIN({required Map<String, dynamic> body});
 
-  // ✅ NEW: Send OTP (query params only)
   Future<Map<String, dynamic>> apiCallSendOTP({
     String? mobileNumber,
     String? module,
@@ -111,7 +110,6 @@ class LoginDatasourceImpl implements LoginDatasource {
       String sendOTPUrl({String? mobileNumber, String? module}) {
         String url = "/Authentication/SendOTPMobileNumberAndModule";
 
-        // ✅ Dynamic query params (same style as others)
         if (mobileNumber != null && mobileNumber.isNotEmpty) {
           url += "?MobileNumber=$mobileNumber";
         }

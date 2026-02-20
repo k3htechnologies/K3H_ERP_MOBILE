@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -8,7 +6,6 @@ import 'package:k3h_erp_app/core/models/village.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
-import 'package:k3h_erp_app/features/login/data/repository/login.repository.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry_followup.model.dart';
@@ -31,8 +28,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
       serviceLocator<ChannelPartnerRepository>();
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
-  //  NEW: Login repository for OTP
-  final LoginRepository _loginRepository = serviceLocator<LoginRepository>();
 
   // <---- GET ENQUIRY LIST ---->
   Future getEnquiryList(
@@ -147,6 +142,15 @@ class EnquiryCubit extends Cubit<EnquiryState> {
   // <---- CLEAR ENQUIRY FOLLOWUP ---->
   void clearEnquiryFollowUp() {
     emit(state.copyWith(enquiryFollowUpList: [], isLoading: true));
+  }
+
+  void clearCurrentEnquiry() {
+    emit(
+      state.copyWith(
+        currentEnquiryDetails: null,
+        isFetchingEnquiryDetails: true,
+      ),
+    );
   }
 
   // FETCH CHANNEL PARTNER LIST FOR DROPDOWN
@@ -323,12 +327,12 @@ class EnquiryCubit extends Cubit<EnquiryState> {
   Future addUpdateEnquiryFollowUp({
     required BuildContext context,
     int? index,
-    required int enquiryIndex,
     required Map<String, dynamic> body,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
     var result = await _enquiryRepository.addUpdateEnquiryFollowUp(body: body);
+
     goRouter.pop();
 
     result.fold(
@@ -336,47 +340,25 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-      (response) async {
+      (response) {
         goRouter.pop();
 
-        // Get current enquiry from state and update it
-        final currentEnquiryList = state.enquiryList;
-        if (currentEnquiryList.isNotEmpty &&
-            enquiryIndex < currentEnquiryList.length) {
-          final currentEnquiry = currentEnquiryList[enquiryIndex];
-
-          // Update enquiry using copyWith
-          final updatedEnquiry = currentEnquiry.copyWith(
-            finalStage: body['Status'], // From your form payload
-            nextFollowUpDate:
-                body['NextFollowUpDate'] != null
-                    ? DateTime.parse(body['NextFollowUpDate'])
-                    : null,
-          );
-
-          // Replace in list
-          final updatedList = List<EnquiryModel>.from(currentEnquiryList);
-          updatedList[enquiryIndex] = updatedEnquiry;
-
-          emit(state.copyWith(enquiryList: updatedList));
-        }
-
         final newItem = response['data'][0] as EnquiryFollowUpModel;
-        List<EnquiryFollowUpModel> updatedFollowUpList = List.from(
+
+        List<EnquiryFollowUpModel> updatedList = List.from(
           state.enquiryFollowUpList,
         );
 
         if (index != null) {
-          updatedFollowUpList[index] = newItem;
-          emit(state.copyWith(enquiryFollowUpList: updatedFollowUpList));
+          updatedList[index] = newItem;
         } else {
-          // Refresh followups if new
-          await fetchEnquiryFollowUps(
+          fetchEnquiryFollowUps(
             enquiryId: newItem.enquiryId,
             projectId: getProject().projectId,
           );
-          return;
         }
+
+        emit(state.copyWith(enquiryFollowUpList: updatedList));
 
         showSuccessMessage(
           context,
@@ -394,7 +376,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     required int index,
     required EnquiryFollowUpModel followUpModel,
     required int enquiryId,
-    required int enquireIndex,
     required BuildContext context,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -419,41 +400,12 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         );
         updatedFollowUpList.removeAt(index);
 
-        // Update main enquiry - reset nextFollowUpDate or set default stage
-        final currentEnquiryList = state.enquiryList;
-        if (currentEnquiryList.isNotEmpty &&
-            enquireIndex < currentEnquiryList.length) {
-          final currentEnquiry = currentEnquiryList[enquireIndex];
-
-          // Reset follow-up related fields after deletion
-          final updatedEnquiry = currentEnquiry.copyWith(
-            nextFollowUpDate: null, // Clear next follow-up
-            // Optionally reset finalStage if needed:
-            // finalStage: "Follow-up Deleted",
-          );
-
-          // Replace in main enquiry list
-          final updatedEnquiryList = List<EnquiryModel>.from(
-            currentEnquiryList,
-          );
-          updatedEnquiryList[enquireIndex] = updatedEnquiry;
-
-          emit(
-            state.copyWith(
-              enquiryFollowUpList: updatedFollowUpList,
-              enquiryList: updatedEnquiryList,
-              isLoading: false,
-            ),
-          );
-        } else {
-          // Fallback - just update follow-ups
-          emit(
-            state.copyWith(
-              enquiryFollowUpList: updatedFollowUpList,
-              isLoading: false,
-            ),
-          );
-        }
+        emit(
+          state.copyWith(
+            enquiryFollowUpList: updatedFollowUpList,
+            isLoading: false,
+          ),
+        );
 
         showSuccessMessage(context, subTitle: "Follow-Up Deleted Successfully");
       },
@@ -501,6 +453,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     emit(state.copyWith(isFetchingEnquiryDetails: true));
 
     final queryParams = {"EnquiryId": enquiryId};
+
     final result = await _enquiryRepository.getEnquiryList(
       pageNumber: 1,
       pageSize: 1,
@@ -518,10 +471,13 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         );
       },
       (response) {
-        final List<dynamic> dataList = response['data'] ?? [];
+        /// IMPORTANT: Repository already returns List<EnquiryModel>
+        final List<EnquiryModel> dataList =
+            (response['data'] as List?)?.cast<EnquiryModel>() ?? [];
+
         if (dataList.isNotEmpty) {
-          final enquiryData = dataList.first;
-          final updatedEnquiry = EnquiryModel.fromJson(enquiryData);
+          final updatedEnquiry = dataList.first;
+
           emit(
             state.copyWith(
               currentEnquiryDetails: updatedEnquiry,
@@ -536,30 +492,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
             ),
           );
         }
-      },
-    );
-  }
-
-  // <---- SEND OTP FOR VERIFICATION ---->
-  Future<void> sendOTP({
-    required BuildContext context,
-    String? mobileNumber,
-    String? module,
-  }) async {
-    final result = await _loginRepository.sendOTP(
-      mobileNumber: mobileNumber,
-      module: module ?? "ENQUIRY",
-    );
-
-    result.fold(
-      (failure) {
-        showErrorMessage(context, 'OTP Error', failure.message);
-      },
-      (response) {
-        showSuccessMessage(
-          context,
-          subTitle: response['message'] ?? 'OTP sent successfully',
-        );
       },
     );
   }

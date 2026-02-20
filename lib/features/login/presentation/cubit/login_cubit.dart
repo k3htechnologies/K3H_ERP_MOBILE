@@ -206,4 +206,28 @@ class LoginCubit extends Cubit<LoginState> {
 
     return result.fold((failure) => null, (res) => res);
   }
+
+  // <---- SEND OTP FOR VERIFICATION ---->
+  Future<void> sendOTPModuleBased({
+    required BuildContext context,
+    String? mobileNumber,
+    required String module,
+  }) async {
+    final result = await loginRepository.sendOTP(
+      mobileNumber: mobileNumber,
+      module: module,
+    );
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'OTP Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: response['message'] ?? 'OTP sent successfully',
+        );
+      },
+    );
+  }
 }

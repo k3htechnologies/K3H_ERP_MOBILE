@@ -3861,29 +3861,18 @@ final GoRouter goRouter = GoRouter(
                   name: AppRoutes.viewEnquiry,
                   path: AppRoutes.viewEnquiry,
                   builder: (context, state) {
-                    final queryParameterEnquiry =
-                        state.uri.queryParameters['enquiry'];
-                    final enquiry =
-                        queryParameterEnquiry != null &&
-                                queryParameterEnquiry.isNotEmpty
-                            ? EnquiryModel.fromJson(
-                              jsonDecode(
-                                EncryptionManager.decryptData(
-                                  Uri.decodeComponent(queryParameterEnquiry),
-                                ),
+                    final encryptedId = state.uri.queryParameters['enquiryId'];
+
+                    final enquiryId =
+                        encryptedId != null
+                            ? int.tryParse(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(encryptedId),
                               ),
                             )
                             : null;
 
-                    final index =
-                        int.tryParse(
-                          state.uri.queryParameters['index'] ?? '',
-                        ) ??
-                        0;
-                    return ViewEnquiryScreen(
-                      enquiryModel: enquiry!,
-                      index: index,
-                    );
+                    return ViewEnquiryScreen(enquiryId: enquiryId ?? 0);
                   },
                 ),
               ],
