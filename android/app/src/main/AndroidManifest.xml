@@ -15,6 +15,9 @@
         android:label="k3h_erp_app"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
+         <meta-data
+                android:name="com.google.android.geo.API_KEY"
+                android:value="AIzaSyD41k9DaOoiR52wvxDw582I5ktkyL2CdY4"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -1,4 +1,4 @@
-package com.example.k3h_erp_app
+package com.k3hTechnologies.k3h_new_erp_app
 
 import io.flutter.embedding.android.FlutterActivity
 

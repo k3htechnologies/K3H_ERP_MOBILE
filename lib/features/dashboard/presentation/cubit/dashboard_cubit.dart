@@ -70,12 +70,24 @@ class DashboardCubit extends Cubit<DashboardState> {
   Future addAttendance(
     BuildContext context, {
     required String punchAddress,
+    required double startLatitude,
+    required double startLongitude,
+    required double endLatitude,
+    required double endLongitude,
+    required String polyline,
+    required double distance,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
     final Map<String, dynamic> requestBody = {
       "AttendanceId": 0,
       "PunchAddress": punchAddress,
+      "StartLatitude": startLatitude,
+      "StartLongitude": startLongitude,
+      "EndLatitude": endLatitude,
+      "EndLongitude": endLongitude,
+      "Polyline": polyline,
+      "Distance": distance,
     };
 
     var addResult = await _dashboardRepository.addAttendace(
@@ -100,12 +112,24 @@ class DashboardCubit extends Cubit<DashboardState> {
     required int attendanceId,
     required String uniquekey,
     required String punchAddress,
+    required double startLatitude,
+    required double startLongitude,
+    required double endLatitude,
+    required double endLongitude,
+    required String polyline,
+    required double distance,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       "AttendanceId": attendanceId,
       "Uniquekey": uniquekey,
       "PunchAddress": punchAddress,
+      "StartLatitude": startLatitude,
+      "StartLongitude": startLongitude,
+      "EndLatitude": endLatitude,
+      "EndLongitude": endLongitude,
+      "Polyline": polyline,
+      "Distance": distance,
     };
     var addResult = await _dashboardRepository.addAttendace(
       requestBody: requestBody,

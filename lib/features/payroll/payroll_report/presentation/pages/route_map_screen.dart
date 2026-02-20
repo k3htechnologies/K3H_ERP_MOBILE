@@ -1,11 +1,37 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+  final double startLatitude;
+  final double startLongitude;
+  final double endLatitude;
+  final double endLongitude;
+  final String polyline;
+  final double distance;
+  final AttendanceModel? attendanceDataModel;
+  const MapScreen({
+    super.key,
+    required this.startLatitude,
+    required this.startLongitude,
+    required this.endLatitude,
+    required this.endLongitude,
+    required this.polyline,
+    required this.distance,
+    this.attendanceDataModel,
+  });
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -13,124 +39,53 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   List<LatLng> routePoints = [];
-  StreamSubscription<Position>? positionStream;
 
   GoogleMapController? mapController;
-  bool cameraMoved = false;
-  LatLng? lastSavedPoint;
-  LatLng? initialCameraPoint;
+
+  final ValueNotifier<num> liveDistance = ValueNotifier(0.0);
 
   @override
   void initState() {
     super.initState();
-    initialize();
+    loadRouteFromApi();
   }
 
-  Future<void> setInitialCamera() async {
-    Position pos = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.best,
-    );
-
-    initialCameraPoint = LatLng(pos.latitude, pos.longitude);
-    setState(() {});
-  }
-
-  void startTrip() {
-    routePoints.clear();
-    lastSavedPoint = null;
-    startTracking();
-  }
-
-  void endTrip() {
-    positionStream?.cancel();
-
-    String encoded = encodeRoute(routePoints);
-
-    print("---- TRIP SUMMARY ----");
-    print("Start: ${routePoints.first}");
-    print("End: ${routePoints.last}");
-    print("Distance: ${calculateDistance()} KM");
-    print("Polyline: $encoded");
-
-    // send to backend here
-  }
-
-  Future<void> initialize() async {
-    loadTodayRoute();
-
-    LocationPermission permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      return;
+  void loadRouteFromApi() {
+    if (widget.polyline.isNotEmpty) {
+      routePoints = decodePolyline(widget.polyline);
+      liveDistance.value = widget.distance;
+    } else {
+      routePoints = [
+        LatLng(widget.startLatitude, widget.startLongitude),
+        LatLng(widget.endLatitude, widget.endLongitude),
+      ];
+      liveDistance.value = _calculateDistance(routePoints);
     }
 
-    // Step 1: get current location for camera
-    Position pos = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.best,
-    );
-
-    initialCameraPoint = LatLng(pos.latitude, pos.longitude);
-
-    setState(() {});
-
-    // Step 2: start tracking after camera is ready
-    startTracking();
-  }
-
-  // 🔹 Load saved route from DB
-  void loadTodayRoute() {
-    final today = DateTime.now();
-
     setState(() {});
   }
 
-  Future<void> setInitialLocation() async {
-    LocationPermission permission = await Geolocator.requestPermission();
+  void _fitMapToRoute() {
+    if (routePoints.isEmpty || mapController == null) return;
 
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      return;
+    double minLat = routePoints.first.latitude;
+    double maxLat = routePoints.first.latitude;
+    double minLng = routePoints.first.longitude;
+    double maxLng = routePoints.first.longitude;
+
+    for (final point in routePoints) {
+      if (point.latitude < minLat) minLat = point.latitude;
+      if (point.latitude > maxLat) maxLat = point.latitude;
+      if (point.longitude < minLng) minLng = point.longitude;
+      if (point.longitude > maxLng) maxLng = point.longitude;
     }
 
-    Position pos = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.best,
+    final bounds = LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
     );
 
-    initialCameraPoint = LatLng(pos.latitude, pos.longitude);
-
-    setState(() {});
-  }
-
-  // 🔹 Start GPS tracking
-  void startTracking() {
-    positionStream = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        timeLimit: Duration(hours: 9),
-        accuracy: LocationAccuracy.bestForNavigation,
-        distanceFilter: 10,
-      ),
-    ).listen((Position pos) async {
-      if (pos.speed < 1) return;
-
-      final current = LatLng(pos.latitude, pos.longitude);
-
-      if (lastSavedPoint != null) {
-        double distance = Geolocator.distanceBetween(
-          lastSavedPoint!.latitude,
-          lastSavedPoint!.longitude,
-          current.latitude,
-          current.longitude,
-        );
-
-        if (distance < 15) return;
-      }
-
-      lastSavedPoint = current;
-
-      routePoints.add(current);
-
-      setState(() {});
-    });
+    mapController!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 60));
   }
 
   double _perpendicularDistance(
@@ -188,27 +143,22 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   List<LatLng> smoothRoute(List<LatLng> points) {
-    return _douglasPeucker(points, 8); // 8–12 meters is sweet spot
+    return _douglasPeucker(points, 8);
   }
 
-  @override
-  void dispose() {
-    positionStream?.cancel();
-    super.dispose();
-  }
-
-  // 🔹 Distance calculation
-  double calculateDistance() {
+  double _calculateDistance(List<LatLng> points) {
     double total = 0;
-    for (int i = 0; i < routePoints.length - 1; i++) {
+
+    for (int i = 0; i < points.length - 1; i++) {
       total += Geolocator.distanceBetween(
-        routePoints[i].latitude,
-        routePoints[i].longitude,
-        routePoints[i + 1].latitude,
-        routePoints[i + 1].longitude,
+        points[i].latitude,
+        points[i].longitude,
+        points[i + 1].latitude,
+        points[i + 1].longitude,
       );
     }
-    return total / 1000; // in KM
+
+    return total / 1000; // KM
   }
 
   String encodeRoute(List<LatLng> points) {
@@ -225,11 +175,11 @@ class _MapScreenState extends State<MapScreen> {
       "date": DateTime.now().toIso8601String(),
       "punchIn": routePoints.first,
       "punchOut": routePoints.last,
-      "totalDistance": calculateDistance(),
+      "totalDistance": _calculateDistance(routePoints),
       "polyline": encoded,
     };
 
-    print(trip); // send this to API
+    log(trip.toString());
   }
 
   List<LatLng> decodePolyline(String encoded) {
@@ -265,65 +215,241 @@ class _MapScreenState extends State<MapScreen> {
     return points;
   }
 
-  void punchOut() {
-    String encoded = encodeRoute(routePoints);
+  void _showAddressBottomSheet({
+    required String title,
+    required String address,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(address),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
-    print("---- TRIP SUMMARY ----");
-    print("Start: ${routePoints.first}");
-    print("End: ${routePoints.last}");
-    print("Distance: ${calculateDistance()} KM");
-    print("Encoded Polyline: $encoded");
+  Future<String> _getAddressFromLatLng(LatLng latLng) async {
+    try {
+      final placemarks = await placemarkFromCoordinates(
+        latLng.latitude,
+        latLng.longitude,
+      );
+
+      if (placemarks.isEmpty) return "Address not found";
+
+      final place = placemarks.first;
+
+      return "${place.name}, ${place.street}, ${place.locality}, "
+          "${place.administrativeArea}, ${place.postalCode}, ${place.country}";
+    } catch (e) {
+      return "Unable to fetch address";
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    LatLng? startPoint;
-
-    if (routePoints.isNotEmpty) {
-      startPoint = routePoints.first;
-    } else {
-      startPoint = initialCameraPoint;
-    }
-    return Scaffold(
-      appBar: AppBar(title: const Text("My Day Route")),
-      body: Column(
-        children: [
-          ElevatedButton(
-            onPressed: () {
-              endTrip();
-              Navigator.pop(context);
-            },
-            child: const Text("Punch Out"),
-          ),
-          Expanded(
-            child:
-                startPoint == null
-                    ? const Center(child: CircularProgressIndicator())
-                    : GoogleMap(
-                      initialCameraPosition: CameraPosition(
-                        target: startPoint,
-                        zoom: 16,
-                      ),
-                      onMapCreated: (c) => mapController = c,
-                      polylines: {
-                        Polyline(
-                          polylineId: const PolylineId("route"),
-                          points: routePoints,
-                          width: 5,
-                        ),
-                      },
-                      myLocationEnabled: true,
+    final startPoint =
+        routePoints.isNotEmpty
+            ? routePoints.first
+            : LatLng(widget.startLatitude, widget.startLongitude);
+    return SafeArea(
+      child: Scaffold(
+        appBar: CustomAppBarWithBackButton(
+          screenTitle: "Location Tracker",
+          authorization: AuthorizationModel(),
+        ),
+        body: Stack(
+          children: [
+            GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: startPoint,
+                zoom: 11.5,
+              ),
+              zoomControlsEnabled: false,
+              onMapCreated: (c) {
+                mapController = c;
+                Future.delayed(const Duration(milliseconds: 300), () {
+                  _fitMapToRoute();
+                });
+              },
+              onTap: (LatLng latLng) async {
+                final address = await _getAddressFromLatLng(latLng);
+                _showAddressBottomSheet(
+                  title: "Selected Location",
+                  address: address,
+                );
+              },
+              polylines: {
+                if (routePoints.isNotEmpty)
+                  Polyline(
+                    polylineId: const PolylineId("route"),
+                    points: routePoints,
+                    width: 5,
+                    color: AppColor.primary,
+                  ),
+              },
+              markers: {
+                Marker(
+                  markerId: const MarkerId("start"),
+                  position: LatLng(widget.startLatitude, widget.startLongitude),
+                  infoWindow: InfoWindow(
+                    title: "Punch In",
+                    snippet: widget.attendanceDataModel!.punchInAddress,
+                  ),
+                ),
+                Marker(
+                  markerId: const MarkerId("end"),
+                  position: LatLng(widget.endLatitude, widget.endLongitude),
+                  infoWindow: InfoWindow(
+                    title: "Punch Out",
+                    snippet: widget.attendanceDataModel!.punchOutAddress,
+                  ),
+                ),
+              },
+              myLocationEnabled: false,
+              myLocationButtonEnabled: false,
+            ),
+            Positioned(
+              bottom: 160,
+              right: 16,
+              child: Column(
+                children: [
+                  _zoomButton(
+                    icon: Icons.add,
+                    onTap: () async {
+                      final zoom = await mapController?.getZoomLevel() ?? 11;
+                      mapController?.animateCamera(
+                        CameraUpdate.zoomTo(zoom + 1),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 6),
+                  _zoomButton(
+                    icon: Icons.remove,
+                    onTap: () async {
+                      final zoom = await mapController?.getZoomLevel() ?? 11;
+                      mapController?.animateCamera(
+                        CameraUpdate.zoomTo(zoom - 1),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              bottom: 20,
+              left: 20,
+              right: 20,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
                     ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              "Distance Today: ${calculateDistance().toStringAsFixed(2)} KM",
-              style: const TextStyle(fontSize: 18),
+                  ],
+                ),
+                child: ValueListenableBuilder<num>(
+                  valueListenable: liveDistance,
+                  builder: (context, distance, _) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _infoRow(
+                          title: "Distance Travelled",
+                          value: "${distance.toStringAsFixed(2)} Km",
+                        ),
+                        const SizedBox(height: 8),
+                        _infoRow(
+                          title: "Name",
+                          value: widget.attendanceDataModel?.fullName ?? "-",
+                        ),
+                        const SizedBox(height: 8),
+                        _infoRow(
+                          title: "Date",
+                          value:
+                              widget.attendanceDataModel?.attendanceDate != null
+                                  ? formatDateTimeAsDDMMMYYYY(
+                                    widget.attendanceDataModel!.attendanceDate,
+                                  )
+                                  : "-",
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _zoomButton({required IconData icon, required VoidCallback onTap}) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      elevation: 4,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          width: 44,
+          height: 44,
+          alignment: Alignment.center,
+          child: Icon(icon, color: Colors.black87, size: 22),
+        ),
+      ),
+    );
+  }
+
+  Widget _infoRow({required String title, required String value}) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 140,
+          child: Text(
+            title,
+            style: AppTextStyle.ts14M(
+              color: AppColor.black.withValues(alpha: 0.50),
             ),
           ),
-        ],
-      ),
+        ),
+        Text(
+          " : ",
+          style: AppTextStyle.ts14M(
+            color: AppColor.black.withValues(alpha: 0.50),
+          ),
+        ),
+        Expanded(
+          child: Text(value, style: AppTextStyle.ts14M(color: AppColor.black)),
+        ),
+      ],
     );
   }
 }

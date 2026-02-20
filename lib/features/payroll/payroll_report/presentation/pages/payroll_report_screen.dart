@@ -787,7 +787,18 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => MapScreen()),
+                        MaterialPageRoute(
+                          builder:
+                              (_) => MapScreen(
+                                startLatitude: attendance.startLatitude,
+                                startLongitude: attendance.startLongitude,
+                                endLatitude: attendance.endLatitude,
+                                endLongitude: attendance.endLongitude,
+                                polyline: attendance.polyline,
+                                distance: attendance.distance.toDouble(),
+                                attendanceDataModel: attendance,
+                              ),
+                        ),
                       );
                     },
                     child: Row(
