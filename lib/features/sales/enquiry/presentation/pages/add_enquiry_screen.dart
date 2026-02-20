@@ -520,8 +520,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
 
+    // VERIFY OTP ONLY IN FIRST ONBOARDING STAGE
     if (!_isEditMode) {
-      //  Send OTP FIRST
+      //  SEND OTP FIRST
       _loginCubit.sendOTPModuleBased(
         context: context,
         mobileNumber: _mobileC.text.trim(),
@@ -665,7 +666,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       "OTP": otpController.text.trim(),
     };
 
-    // ✅ SUBMIT ENQUIRY AFTER OTP VERIFICATION
+    //  SUBMIT ENQUIRY AFTER OTP VERIFICATION
     await _enquiryCubit.addUpdateEnquiry(
       context: context,
       body: payload,
@@ -1095,7 +1096,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
                         final bool hasEnteredMobile = mobile.length == 10;
 
-                        // 🔴 NO PARTNER FOUND
+                        //  NO PARTNER FOUND
                         if (hasEnteredMobile && partner == null) {
                           return Container(
                             padding: const EdgeInsets.all(16),
@@ -1115,7 +1116,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                           );
                         }
 
-                        // 🟢 PARTNER FOUND
+                        //  PARTNER FOUND
                         if (partner != null) {
                           return Container(
                             padding: const EdgeInsets.all(16),

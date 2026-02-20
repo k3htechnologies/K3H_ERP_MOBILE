@@ -98,7 +98,7 @@ Future<void> showCompleteVerificationDialog(
   );
 }
 
-// ✅ HELPER: Verification Step Widget
+//  HELPER: Verification Step Widget
 Widget _buildVerificationStep(String title, bool isCompleted) {
   return Padding(
     padding: const EdgeInsets.only(bottom: 12),

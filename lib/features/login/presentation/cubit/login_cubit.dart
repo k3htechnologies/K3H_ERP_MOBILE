@@ -207,7 +207,7 @@ class LoginCubit extends Cubit<LoginState> {
     return result.fold((failure) => null, (res) => res);
   }
 
-  // <---- SEND OTP FOR VERIFICATION ---->
+  // <---- SEND MODULE BASED OTP FOR VERIFICATION ---->
   Future<void> sendOTPModuleBased({
     required BuildContext context,
     String? mobileNumber,

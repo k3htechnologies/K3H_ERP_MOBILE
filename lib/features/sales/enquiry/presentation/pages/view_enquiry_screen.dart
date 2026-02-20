@@ -129,16 +129,16 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     final projectId = getProject().projectId;
 
     if (_tabController.index == 0) {
-      /// ✅ CLEAR PREVIOUS OVERVIEW DATA
+      /// CLEAR PREVIOUS OVERVIEW DATA
       _enquiryCubit.clearCurrentEnquiry();
 
-      /// ✅ FETCH FRESH DATA
+      /// FETCH FRESH DATA
       _enquiryCubit.getEnquiryById(enquiryId: enquiryId, projectId: projectId);
     } else if (_tabController.index == 1) {
-      /// ✅ CLEAR PREVIOUS FOLLOWUP DATA
+      ///  CLEAR PREVIOUS FOLLOWUP DATA
       _enquiryCubit.clearEnquiryFollowUp();
 
-      /// ✅ FETCH FRESH FOLLOWUPS
+      ///  FETCH FRESH FOLLOWUPS
       _enquiryCubit.fetchEnquiryFollowUps(
         enquiryId: enquiryId,
         projectId: projectId,
@@ -176,30 +176,29 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       ),
       bottomNavigationBar: BlocBuilder<EnquiryCubit, EnquiryState>(
         builder: (context, state) {
-          // 1️⃣ Show only on Timeline tab
+          // 1️. SHOW ONLY ON TIMELINE TAB
           if (_tabIndexNotifier.value != 1) {
             return const SizedBox.shrink();
           }
 
-          // 2️⃣ If loading → hide
+          // 2️. IF LOADING → HIDE
           if (state.isFetchingEnquiryDetails == true) {
             return const SizedBox.shrink();
           }
 
-          // 3️⃣ If no current enquiry → hide
+          // 3️. IF NO CURRENT ENQUIRY → HIDE
           final enquiry = state.currentEnquiryDetails;
           if (enquiry == null) {
             return const SizedBox.shrink();
           }
 
-          // 4️⃣ Closed status check
+          // 4️. CLOSED STATUS CHECK
           final closedStatuses = ['booking done', 'cancelled', 'lost'];
 
           if (closedStatuses.contains(enquiry.finalStage.toLowerCase())) {
             return const SizedBox.shrink();
           }
 
-          // 5️⃣ Show Button
           return SafeArea(
             child: Container(
               height: 70,
@@ -255,7 +254,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   Widget buildOverviewTab() {
     return BlocBuilder<EnquiryCubit, EnquiryState>(
       builder: (context, state) {
-        // 🔄 Show loader while fetching
         if (state.isFetchingEnquiryDetails == true) {
           return loader();
         }
