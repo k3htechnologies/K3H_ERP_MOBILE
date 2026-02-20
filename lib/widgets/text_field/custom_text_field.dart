@@ -97,6 +97,7 @@ class CustomTextField extends StatelessWidget {
                         : AppTextStyle.ts14R(),
                 onChanged: (value) {
                   formFieldState.didChange(value); // IMPORTANT
+                  formFieldState.validate();
                   onChangeFunction?.call(value);
                 },
                 onTapOutside: (_) => FocusScope.of(context).unfocus(),

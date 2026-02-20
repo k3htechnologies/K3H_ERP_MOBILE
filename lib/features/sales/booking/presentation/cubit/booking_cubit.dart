@@ -824,12 +824,14 @@ class BookingCubit extends Cubit<BookingState> {
     BuildContext context,
     int pageNumber,
     int projectId,
+    String wing,
   ) async {
     emit(state.copyWith(isLoading: true));
     var result = await _bookingRepository.getPaymentScheduleMasterList(
       pageNumber: pageNumber,
       pageSize: 100,
       projectId: projectId,
+      queryParams: {"Wing": wing},
     );
 
     result.fold(
