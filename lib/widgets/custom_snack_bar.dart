@@ -82,7 +82,6 @@ class _SnackBarSlideDownState extends State<_SnackBarSlideDown>
         child: SlideTransition(
           position: _offsetAnimation,
           child: _SnackBarContent(
-            title: widget.title,
             subtitle: widget.subtitle,
             isError: widget.isError,
           ),
@@ -93,12 +92,10 @@ class _SnackBarSlideDownState extends State<_SnackBarSlideDown>
 }
 
 class _SnackBarContent extends StatelessWidget {
-  final String title;
   final String? subtitle;
   final bool isError;
 
   const _SnackBarContent({
-    required this.title,
     required this.subtitle,
     required this.isError,
   });
@@ -146,12 +143,6 @@ class _SnackBarContent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    title,
-                    style: AppTextStyle.ts16SB(
-                      color: isError ? AppColor.error : AppColor.success,
-                    ),
-                  ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 4),
                     Text(

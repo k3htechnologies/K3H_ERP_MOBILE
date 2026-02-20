@@ -1,4 +1,6 @@
 // MOBILE VIEWER
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -7,6 +9,8 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:universal_html/html.dart' as html;
 
 class CommonFileViewerMobile extends StatefulWidget {
@@ -25,22 +29,22 @@ class CommonFileViewerMobile extends StatefulWidget {
   State<CommonFileViewerMobile> createState() => _CommonFileViewerMobileState();
 
   static Future<void> show(
-      BuildContext context, {
-        required List<String> urls,
-        List<Uint8List>? fileBytes,
-        String title = "View File",
-      }) async {
+    BuildContext context, {
+    required List<String> urls,
+    List<Uint8List>? fileBytes,
+    String title = "View File",
+  }) async {
     await showDialog(
       context: context,
       builder:
           (_) => Dialog(
-        insetPadding: const EdgeInsets.all(16),
-        child: CommonFileViewerMobile(
-          urls: urls,
-          fileBytes: fileBytes,
-          title: title,
-        ),
-      ),
+            insetPadding: const EdgeInsets.all(16),
+            child: CommonFileViewerMobile(
+              urls: urls,
+              fileBytes: fileBytes,
+              title: title,
+            ),
+          ),
     );
   }
 }
@@ -62,32 +66,42 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
     super.dispose();
   }
 
+  // CHECK IF ITS IMAGE OR NOT
   bool isImage(String url) {
     final imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
     return imageExtensions.any((ext) => url.toLowerCase().endsWith(ext));
   }
 
+  // GET FILE NAME
   String getFileName(String url) => Uri.parse(url).pathSegments.last;
 
-  void downloadFile(String url, {Uint8List? bytes}) {
+
+  Future<void> downloadFile(String url, {Uint8List? bytes}) async {
     final fileName = getFileName(url);
 
-    if (url.startsWith("http")) {
-      // ignore: unused_local_variable
-      final anchor =
-      html.AnchorElement(href: url)
-        ..setAttribute("download", fileName)
-        ..target = "blank"
-        ..click();
-    } else if (bytes != null) {
-      final blob = html.Blob([bytes], _getMimeType(fileName));
-      final blobUrl = html.Url.createObjectUrlFromBlob(blob);
-      // ignore: unused_local_variable
-      final anchor =
-      html.AnchorElement(href: blobUrl)
-        ..setAttribute("download", fileName)
-        ..click();
-      html.Url.revokeObjectUrl(blobUrl);
+    try {
+      Uint8List? fileData = bytes;
+
+      // If network file → download bytes
+      if (url.startsWith("http")) {
+        final response = await HttpClient().getUrl(Uri.parse(url));
+        final httpResponse = await response.close();
+        fileData = await consolidateHttpClientResponseBytes(httpResponse);
+      }
+
+      if (fileData == null) return;
+
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = "${directory.path}/$fileName";
+
+      final file = File(filePath);
+      await file.writeAsBytes(fileData);
+
+      // Open file after saving
+      await OpenFilex.open(filePath);
+
+    } catch (e) {
+      debugPrint("Download error: $e");
     }
   }
 
@@ -108,12 +122,38 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
     }
   }
 
+  Widget _buildImage(int index, String url) {
+    // If it's a network image
+    if (url.startsWith("http")) {
+      return NetworkImageWidget(
+        imageUrl: url,
+        fit: BoxFit.contain,
+        width: double.infinity,
+        height: double.infinity,
+      );
+    }
+
+    // If it's picked/captured image (memory)
+    if (widget.fileBytes != null &&
+        widget.fileBytes!.length > index &&
+        widget.fileBytes![index].isNotEmpty) {
+      return Image.memory(
+        widget.fileBytes![index],
+        fit: BoxFit.contain,
+        width: double.infinity,
+        height: double.infinity,
+      );
+    }
+
+    return const Center(child: Text("Unable to load image"));
+  }
+
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 800),
       child: Container(
-        height: getActualHeight(context)*0.6,
+        height: getActualHeight(context) * 0.6,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: AppColor.white,
@@ -147,30 +187,25 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
                   return Container(
                     padding: const EdgeInsets.all(16.0),
                     child:
-                    isImage(url)
-                        ? Column(
-                      children: [
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: NetworkImageWidget(
-                              imageUrl: url,
-                              fit: BoxFit.contain,
-                              width: double.infinity,
-                              height: double.infinity,
+                        isImage(url)
+                            ? Column(
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: _buildImage(index, url),
+                                  ),
+                                ),
+                                verticalSpacing(height: 8),
+                                Text(getFileName(url)),
+                              ],
+                            )
+                            : Center(
+                              child: Text(
+                                getFileName(url),
+                                style: AppTextStyle.ts16R(),
+                              ),
                             ),
-                          ),
-                        ),
-                        verticalSpacing(height: 8),
-                        Text(getFileName(url)),
-                      ],
-                    )
-                        : Center(
-                      child: Text(
-                        getFileName(url),
-                        style: AppTextStyle.ts16R(),
-                      ),
-                    ),
                   );
                 },
               ),
@@ -193,9 +228,9 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color:
-                        currentIndex == index
-                            ? AppColor.primary
-                            : AppColor.grey30,
+                            currentIndex == index
+                                ? AppColor.primary
+                                : AppColor.grey30,
                       ),
                     );
                   }),
@@ -207,23 +242,26 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
             Align(
               alignment: Alignment.centerRight,
               child: GestureDetector(
-                onTap: (){
+                onTap: () {
                   final url = widget.urls[_currentPageNotifier.value];
                   final bytes =
-                  widget.fileBytes != null &&
-                      widget.fileBytes!.length >
-                          _currentPageNotifier.value
-                      ? widget.fileBytes![_currentPageNotifier.value]
-                      : null;
+                      widget.fileBytes != null &&
+                              widget.fileBytes!.length >
+                                  _currentPageNotifier.value
+                          ? widget.fileBytes![_currentPageNotifier.value]
+                          : null;
                   downloadFile(url, bytes: bytes);
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     color: AppColor.primary,
                   ),
-                  child: Icon(Icons.download,color: AppColor.white,),
+                  child: Icon(Icons.download, color: AppColor.white),
                 ),
               ),
             ),

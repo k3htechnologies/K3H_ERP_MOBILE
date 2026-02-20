@@ -420,10 +420,12 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                     buildRowTitleValue(
                       title: "Contact Person",
                       value: company.contactPerson,
+                      singleLine: false
                     ),
                     buildRowTitleValue(
                       title: "Company Type",
                       value: company.firmsType,
+                      singleLine: false
                     ),
                     buildRowTitleValue(
                       title: "Mobile Number",

@@ -16,7 +16,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class AddTermsAndConditionsScreen extends StatefulWidget {
   final TermsAndConditionsModel? termsAndConditions;
   final int index;
-  final int? tabIndex; // 0 for Material Requisition, 1 for Booking
+  final int? tabIndex; // 0 FOR MATERIAL REQUISITION, 1 FOR BOOKING
   const AddTermsAndConditionsScreen({
     super.key,
     this.termsAndConditions,
@@ -41,14 +41,13 @@ class _AddTermsAndConditionsScreenState
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // Current tab index (0 = Material Requisition, 1 = Booking)
+  // CURRENT TAB INDEX (0 = MATERIAL REQUISITION, 1 = BOOKING)
   late int _currentTabIndex;
 
   @override
   void initState() {
     super.initState();
-    // Use the same cubit instance provided by BlocProvider in the screen tree
-    _termsAndConditionsCubit = BlocProvider.of<TermsAndConditionsCubit>(context);
+    _termsAndConditionsCubit = context.read<TermsAndConditionsCubit>();
     _initializeTextEditingControllers();
     _currentTabIndex = widget.tabIndex ?? 0;
     if (widget.termsAndConditions != null) {
@@ -91,7 +90,7 @@ class _AddTermsAndConditionsScreenState
       if (widget.termsAndConditions != null) {
         // UPDATE
         if (_currentTabIndex == 0) {
-          // Material Requisition
+          // MATERIAL REQUISITION
           await _termsAndConditionsCubit.updateMaterialRequisition(
             context: context,
             termsAndConditionId:
@@ -103,7 +102,7 @@ class _AddTermsAndConditionsScreenState
             index: widget.index,
           );
         } else {
-          // Booking
+          // BOOKING
           await _termsAndConditionsCubit.updateBooking(
             context: context,
             termsAndConditionId:
@@ -118,7 +117,7 @@ class _AddTermsAndConditionsScreenState
       } else {
         // ADD
         if (_currentTabIndex == 0) {
-          // Material Requisition
+          // MATERIAL REQUISITION
           await _termsAndConditionsCubit.addMaterialRequisition(
             context: context,
             name: _nameC.text.trim(),
@@ -126,7 +125,7 @@ class _AddTermsAndConditionsScreenState
             description: _descriptionC.text.trim(),
           );
         } else {
-          // Booking
+          // BOOKING
           await _termsAndConditionsCubit.addBooking(
             context: context,
             name: _nameC.text.trim(),
@@ -146,7 +145,7 @@ class _AddTermsAndConditionsScreenState
 
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Terms & Conditions",
+        screenTitle: "Terms & Conditions Master",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
@@ -169,7 +168,8 @@ class _AddTermsAndConditionsScreenState
                 child: Column(
                   children: [
                     CustomTextField(
-                      title: 'Name',
+                      title: 'Title',
+                      hint: "Enter title",
                       isRequired: true,
                       textController: _nameC,
                       inputFormatterList: [
@@ -177,7 +177,7 @@ class _AddTermsAndConditionsScreenState
                       ],
                       validator: (string) {
                         if (string == null || string.trim().isEmpty) {
-                          return 'Name is required';
+                          return 'Title is required';
                         }
                         return null;
                       },
@@ -187,7 +187,7 @@ class _AddTermsAndConditionsScreenState
                       initialText: _descriptionC.text,
                       label: "Description",
                       isRequired: true,
-                      hintText: 'Enter your text here...',
+                      hintText: 'Enter Description',
                       onFormattedTextChanged: (value) {
                         _descriptionC.text = value;
                       },

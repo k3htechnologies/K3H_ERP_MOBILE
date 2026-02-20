@@ -90,6 +90,7 @@ class _CompanyMasterViewMobileScreenState
           _buildTitle(title: "Basic Information"),
           verticalSpacing(height: 15),
           Row(
+            spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
@@ -104,6 +105,7 @@ class _CompanyMasterViewMobileScreenState
           ),
           verticalSpacing(),
           Row(
+            spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
@@ -122,6 +124,7 @@ class _CompanyMasterViewMobileScreenState
           ),
           verticalSpacing(),
           Row(
+            spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
@@ -163,6 +166,7 @@ class _CompanyMasterViewMobileScreenState
           _buildTitle(title: "Registration & Compliance"),
           verticalSpacing(height: 15),
           Row(
+            spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
@@ -183,6 +187,7 @@ class _CompanyMasterViewMobileScreenState
           ),
           verticalSpacing(),
           Row(
+            spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
@@ -220,6 +225,7 @@ class _CompanyMasterViewMobileScreenState
           Row(children: [buildColumnTitleValue(title: "Address", value: "")]),
           verticalSpacing(),
           Row(
+            spacing: 10,
             children: [
               buildColumnTitleValue(
                 title: "Country",
@@ -233,6 +239,7 @@ class _CompanyMasterViewMobileScreenState
           ),
           verticalSpacing(),
           Row(
+            spacing: 10,
             children: [
               buildColumnTitleValue(
                 title: "District",
@@ -290,6 +297,7 @@ class _CompanyMasterViewMobileScreenState
           _buildTitle(title: "Action Details"),
           verticalSpacing(height: 15),
           Row(
+            spacing: 10,
             children: [
               buildColumnTitleValue(
                 title: "Created By",
@@ -303,6 +311,7 @@ class _CompanyMasterViewMobileScreenState
           ),
           verticalSpacing(),
           Row(
+            spacing: 10,
             children: [
               buildColumnTitleValue(
                 title: "Modified By",
