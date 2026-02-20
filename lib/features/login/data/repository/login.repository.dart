@@ -7,6 +7,12 @@ import 'package:k3h_erp_app/features/login/data/datasource/login.datasource.dart
 abstract interface class LoginRepository {
   Future<Either<Failure, String>> loginUser({required String mobileNumber});
 
+  // ✅ NEW: Send OTP method
+  Future<Either<Failure, Map<String, dynamic>>> sendOTP({
+    String? mobileNumber,
+    String? module,
+  });
+
   Future<Either<Failure, UserModel>> validateOTP({
     required String mobileNumber,
     required String otp,
@@ -32,6 +38,22 @@ class LoginRepositoryImpl implements LoginRepository {
     try {
       var result = await loginDatasource.apicallIsValidMobileNumber(
         mobileNumber: mobileNumber,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> sendOTP({
+    String? mobileNumber,
+    String? module,
+  }) async {
+    try {
+      var result = await loginDatasource.apiCallSendOTP(
+        mobileNumber: mobileNumber,
+        module: module,
       );
       return right(result);
     } catch (error) {

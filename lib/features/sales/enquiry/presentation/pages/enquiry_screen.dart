@@ -493,12 +493,11 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                               await goRouter.pushNamed(
                                 AppRoutes.viewEnquiry,
                                 queryParameters: {
-                                  "enquiry": Uri.encodeQueryComponent(
+                                  "enquiryId": Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
-                                      jsonEncode(enquiry.toJson()),
+                                      enquiry.enquiryId.toString(),
                                     ),
                                   ),
-                                  'index': index.toString(),
                                 },
                               );
                             },

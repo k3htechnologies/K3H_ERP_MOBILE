@@ -103,8 +103,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Form(
                         key: _loginFormKey,
                         child: BlocListener<LoginCubit, LoginState>(
-                          listenWhen: (previous, current) =>
-                          previous.isSendOtp != current.isSendOtp,
+                          listenWhen:
+                              (previous, current) =>
+                                  previous.isSendOtp != current.isSendOtp,
                           listener: (context, state) {
                             if (state.isSendOtp) {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -115,8 +116,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             }
                           },
                           child: BlocBuilder<LoginCubit, LoginState>(
-                            buildWhen: (previous, current) =>
-                            current.stateType == StateType.sendOTP,
+                            buildWhen:
+                                (previous, current) =>
+                                    current.stateType == StateType.sendOTP,
                             builder: (context, state) {
                               return Column(
                                 children: [
@@ -126,11 +128,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                     title: "Mobile Number",
                                     hint: "Enter Mobile Number",
                                     readOnly: state.isSendOtp,
-                                    inputFormatterList: InputValidator.digit(10),
+                                    inputFormatterList: InputValidator.digit(
+                                      10,
+                                    ),
                                     keyboardType: TextInputType.phone,
                                     textController: _mobileNumberC,
                                     validator: (value) {
-                                      if (value == null || value.trim().isEmpty) {
+                                      if (value == null ||
+                                          value.trim().isEmpty) {
                                         return "Mobile number is required";
                                       } else if (!isValidMobileNumber(value)) {
                                         return "Mobile number is invalid";
@@ -138,7 +143,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                       return null;
                                     },
                                     onSubmitFunction: (value) {
-                                      if (_loginFormKey.currentState!.validate()) {
+                                      if (_loginFormKey.currentState!
+                                          .validate()) {
                                         _loginCubit.sendOTP(
                                           context,
                                           _mobileNumberC.text,
@@ -152,14 +158,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                     CustomTextField(
                                       // focusNode: _otpFocus,
                                       readOnly: !state.isSendOtp,
-                                      inputFormatterList: InputValidator.digit(4),
+                                      inputFormatterList: InputValidator.digit(
+                                        4,
+                                      ),
                                       keyboardType: TextInputType.number,
-                                      title: state.message
-                                          .trim()
-                                          .toLowerCase()
-                                          .contains('mpin')
-                                          ? "MPIN"
-                                          : "OTP",
+                                      title:
+                                          state.message
+                                                  .trim()
+                                                  .toLowerCase()
+                                                  .contains('mpin')
+                                              ? "MPIN"
+                                              : "OTP",
                                       hint: "- - - -",
                                       textController: _otpC,
                                       onSubmitFunction: (value) {
@@ -190,7 +199,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 30,
                             padding: EdgeInsets.symmetric(horizontal: 16),
                             child: CustomButton(
-                              text: !state.isSendOtp ? "Verify Mobile Number" : "Log In",
+                              text:
+                                  !state.isSendOtp
+                                      ? "Verify Mobile Number"
+                                      : "Log In",
                               // isDisable: state.isSendOtp,
                               elevation: 0,
                               padding: EdgeInsets.symmetric(horizontal: 40.0),

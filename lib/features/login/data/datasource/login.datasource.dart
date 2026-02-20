@@ -14,8 +14,11 @@ abstract interface class LoginDatasource {
     required String otp,
   });
 
-  Future<String> apicallToSetMPIN({
-    required Map<String, dynamic> body,
+  Future<String> apicallToSetMPIN({required Map<String, dynamic> body});
+
+  Future<Map<String, dynamic>> apiCallSendOTP({
+    String? mobileNumber,
+    String? module,
   });
 }
 
@@ -83,9 +86,7 @@ class LoginDatasourceImpl implements LoginDatasource {
   }
 
   @override
-  Future<String> apicallToSetMPIN({
-    required Map<String, dynamic> body,
-  }) async {
+  Future<String> apicallToSetMPIN({required Map<String, dynamic> body}) async {
     try {
       String setMpinUrl = "Employee/SetEmployeeMPIN";
 
@@ -95,6 +96,41 @@ class LoginDatasourceImpl implements LoginDatasource {
       );
 
       return networkResponse["message"];
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallSendOTP({
+    String? mobileNumber,
+    String? module,
+  }) async {
+    try {
+      String sendOTPUrl({String? mobileNumber, String? module}) {
+        String url = "/Authentication/SendOTPMobileNumberAndModule";
+
+        if (mobileNumber != null && mobileNumber.isNotEmpty) {
+          url += "?MobileNumber=$mobileNumber";
+        }
+        if (module != null && module.isNotEmpty) {
+          url +=
+              (mobileNumber != null && mobileNumber.isNotEmpty)
+                  ? "&Module=$module"
+                  : "?Module=$module";
+        }
+
+        return url;
+      }
+
+      var networkResponse = await baseClient.getRequestWithoutAuthentication(
+        sendOTPUrl(mobileNumber: mobileNumber, module: module),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse['message'] ?? 'OTP sent successfully',
+      };
     } catch (error) {
       rethrow;
     }

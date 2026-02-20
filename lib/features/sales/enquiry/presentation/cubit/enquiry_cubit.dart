@@ -144,6 +144,15 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     emit(state.copyWith(enquiryFollowUpList: [], isLoading: true));
   }
 
+  void clearCurrentEnquiry() {
+    emit(
+      state.copyWith(
+        currentEnquiryDetails: null,
+        isFetchingEnquiryDetails: true,
+      ),
+    );
+  }
+
   // FETCH CHANNEL PARTNER LIST FOR DROPDOWN
   Future<List<ChannelPartnerModel>> fetchChannelPartners(
     int pageNumber, {
@@ -318,12 +327,12 @@ class EnquiryCubit extends Cubit<EnquiryState> {
   Future addUpdateEnquiryFollowUp({
     required BuildContext context,
     int? index,
-    required int enquiryIndex,
     required Map<String, dynamic> body,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
     var result = await _enquiryRepository.addUpdateEnquiryFollowUp(body: body);
+
     goRouter.pop();
 
     result.fold(
@@ -331,47 +340,25 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-      (response) async {
+      (response) {
         goRouter.pop();
 
-        // Get current enquiry from state and update it
-        final currentEnquiryList = state.enquiryList;
-        if (currentEnquiryList.isNotEmpty &&
-            enquiryIndex < currentEnquiryList.length) {
-          final currentEnquiry = currentEnquiryList[enquiryIndex];
-
-          // Update enquiry using copyWith
-          final updatedEnquiry = currentEnquiry.copyWith(
-            finalStage: body['Status'], // From your form payload
-            nextFollowUpDate:
-                body['NextFollowUpDate'] != null
-                    ? DateTime.parse(body['NextFollowUpDate'])
-                    : null,
-          );
-
-          // Replace in list
-          final updatedList = List<EnquiryModel>.from(currentEnquiryList);
-          updatedList[enquiryIndex] = updatedEnquiry;
-
-          emit(state.copyWith(enquiryList: updatedList));
-        }
-
         final newItem = response['data'][0] as EnquiryFollowUpModel;
-        List<EnquiryFollowUpModel> updatedFollowUpList = List.from(
+
+        List<EnquiryFollowUpModel> updatedList = List.from(
           state.enquiryFollowUpList,
         );
 
         if (index != null) {
-          updatedFollowUpList[index] = newItem;
-          emit(state.copyWith(enquiryFollowUpList: updatedFollowUpList));
+          updatedList[index] = newItem;
         } else {
-          // Refresh followups if new
-          await fetchEnquiryFollowUps(
+          fetchEnquiryFollowUps(
             enquiryId: newItem.enquiryId,
             projectId: getProject().projectId,
           );
-          return;
         }
+
+        emit(state.copyWith(enquiryFollowUpList: updatedList));
 
         showSuccessMessage(
           context,
@@ -389,7 +376,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     required int index,
     required EnquiryFollowUpModel followUpModel,
     required int enquiryId,
-    required int enquireIndex,
     required BuildContext context,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -414,41 +400,12 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         );
         updatedFollowUpList.removeAt(index);
 
-        // Update main enquiry - reset nextFollowUpDate or set default stage
-        final currentEnquiryList = state.enquiryList;
-        if (currentEnquiryList.isNotEmpty &&
-            enquireIndex < currentEnquiryList.length) {
-          final currentEnquiry = currentEnquiryList[enquireIndex];
-
-          // Reset follow-up related fields after deletion
-          final updatedEnquiry = currentEnquiry.copyWith(
-            nextFollowUpDate: null, // Clear next follow-up
-            // Optionally reset finalStage if needed:
-            // finalStage: "Follow-up Deleted",
-          );
-
-          // Replace in main enquiry list
-          final updatedEnquiryList = List<EnquiryModel>.from(
-            currentEnquiryList,
-          );
-          updatedEnquiryList[enquireIndex] = updatedEnquiry;
-
-          emit(
-            state.copyWith(
-              enquiryFollowUpList: updatedFollowUpList,
-              enquiryList: updatedEnquiryList,
-              isLoading: false,
-            ),
-          );
-        } else {
-          // Fallback - just update follow-ups
-          emit(
-            state.copyWith(
-              enquiryFollowUpList: updatedFollowUpList,
-              isLoading: false,
-            ),
-          );
-        }
+        emit(
+          state.copyWith(
+            enquiryFollowUpList: updatedFollowUpList,
+            isLoading: false,
+          ),
+        );
 
         showSuccessMessage(context, subTitle: "Follow-Up Deleted Successfully");
       },
@@ -486,5 +443,56 @@ class EnquiryCubit extends Cubit<EnquiryState> {
 
     // Fetch new filtered list
     await getEnquiryList(context, 1, getProject().projectId);
+  }
+
+  // <---- GET SINGLE ENQUIRY BY ID ---->
+  Future<void> getEnquiryById({
+    required int enquiryId,
+    required int projectId,
+  }) async {
+    emit(state.copyWith(isFetchingEnquiryDetails: true));
+
+    final queryParams = {"EnquiryId": enquiryId};
+
+    final result = await _enquiryRepository.getEnquiryList(
+      pageNumber: 1,
+      pageSize: 1,
+      projectId: projectId,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(
+          state.copyWith(
+            isFetchingEnquiryDetails: false,
+            currentEnquiryDetails: null,
+          ),
+        );
+      },
+      (response) {
+        /// IMPORTANT: Repository already returns List<EnquiryModel>
+        final List<EnquiryModel> dataList =
+            (response['data'] as List?)?.cast<EnquiryModel>() ?? [];
+
+        if (dataList.isNotEmpty) {
+          final updatedEnquiry = dataList.first;
+
+          emit(
+            state.copyWith(
+              currentEnquiryDetails: updatedEnquiry,
+              isFetchingEnquiryDetails: false,
+            ),
+          );
+        } else {
+          emit(
+            state.copyWith(
+              isFetchingEnquiryDetails: false,
+              currentEnquiryDetails: null,
+            ),
+          );
+        }
+      },
+    );
   }
 }

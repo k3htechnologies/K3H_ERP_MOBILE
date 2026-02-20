@@ -2,9 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_state.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -15,6 +17,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_time_picker.dart';
+import 'package:k3h_erp_app/widgets/custom_verification_dialog.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -34,6 +37,7 @@ class AddEnquiryScreen extends StatefulWidget {
 class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   // CUBIT
   late EnquiryCubit _enquiryCubit;
+  late LoginCubit _loginCubit;
 
   // EDIT MODE
   bool get _isEditMode => widget.enquiryModel != null;
@@ -47,8 +51,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
   final List<int> budgetOptions = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25];
   // BUDGET INITIAL VALUE
-  int _budgetInitialVaue = 1;
-
+  late ValueNotifier<int> _budgetValueNotifier;
   // VALUE NOTIFIERS FOR REACTIVE STATE
   final ValueNotifier<Map<String, dynamic>?> _selectedAccommodationNotifier =
       ValueNotifier(null);
@@ -112,7 +115,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       _referralMobile,
       _referralProjectName,
       _referralUnitNumber,
-      _remarkC;
+      _remarkC,
+      otpController;
 
   // STATIC DROPDOWN LISTS
   final List<Map<String, dynamic>> currentAccommodation = [
@@ -258,8 +262,10 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   void initState() {
     super.initState();
     _enquiryCubit = context.read<EnquiryCubit>();
+    _loginCubit = context.read<LoginCubit>();
     _initControllers();
     _enquiryCubit.clearChannelPartner();
+    _budgetValueNotifier = ValueNotifier<int>(1);
     if (_isEditMode) {
       _populateForm(widget.enquiryModel!);
     } else {
@@ -293,6 +299,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _referralProjectName = TextEditingController();
     _referralUnitNumber = TextEditingController();
     _remarkC = TextEditingController();
+    otpController = TextEditingController();
   }
 
   void _populateForm(EnquiryModel model) async {
@@ -446,17 +453,38 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     }
 
     // PREFILL LOCATIONS
-    if (model.villageName.isNotEmpty) {
-      _selectedLocations =
-          model.villageName
+    if (model.villageMasterId != null &&
+        model.villageMasterId.toString().isNotEmpty) {
+      final villageIdsRaw = model.villageMasterId.toString();
+      final villageNamesRaw = model.villageName;
+
+      final villageIds =
+          villageIdsRaw
               .split(',')
-              .map(
-                (e) => {
-                  "DisplayName": e.trim(),
-                  "zAttributesId": model.villageMasterId,
-                },
-              )
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .map((e) => int.parse(e))
               .toList();
+
+      final villageNames =
+          villageNamesRaw
+              .split(',')
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList();
+
+      final maxLength =
+          villageIds.length < villageNames.length
+              ? villageIds.length
+              : villageNames.length;
+
+      _selectedLocations = List.generate(maxLength, (index) {
+        return {
+          "zAttributesId": villageIds[index],
+          "DisplayName": villageNames[index],
+          "VillageName": villageNames[index],
+        };
+      });
     }
 
     // PREFILL SALES ADVISOR
@@ -484,7 +512,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       final cleaned = model.budget.replaceAll("+", "").replaceAll(">", "");
       final value = int.tryParse(cleaned);
       if (value != null && budgetOptions.contains(value)) {
-        _budgetInitialVaue = value;
+        _budgetValueNotifier.value = value;
       }
     }
   }
@@ -492,6 +520,43 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
 
+    // VERIFY OTP ONLY IN FIRST ONBOARDING STAGE
+    if (!_isEditMode) {
+      //  SEND OTP FIRST
+      _loginCubit.sendOTPModuleBased(
+        context: context,
+        mobileNumber: _mobileC.text.trim(),
+        module: "ENQUIRY",
+      );
+
+      //  THEN SHOW VERIFICATION DIALOG
+      showCompleteVerificationDialog(
+        context,
+        otpController: otpController,
+        verificationSteps: {
+          "Basic Details": true,
+          "Source Details": true,
+          "Property Preferences": true,
+          "Follow-up Details": true,
+        },
+        onResendOTP: () {
+          _loginCubit.sendOTPModuleBased(
+            context: context,
+            mobileNumber: _mobileC.text.trim(),
+            module: "ENQUIRY",
+          );
+        },
+        onVerifyOTP: () {
+          _submitEnquiryData();
+          goRouter.pop();
+        },
+      );
+    } else {
+      _submitEnquiryData();
+    }
+  }
+
+  void _submitEnquiryData() async {
     // SOURCE & SUB SUB SOURCE
     final source = _selectedSourceNotifier.value?["DisplayName"] ?? "";
     final subSubSource =
@@ -501,7 +566,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                 "")
             : (_selectedSubSubSourceNotifier.value?["DisplayName"] ?? "");
 
-    // CUSTOMER CLASSIFICATION
+    // CUSTOMER CLASSIFICATION LOGIC
     int selectedCount = 0;
     if ((_selectedPossessionType?["DisplayName"] ?? "").trim().isNotEmpty) {
       selectedCount++;
@@ -515,7 +580,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     if (_budgetC.text.trim().isNotEmpty) selectedCount++;
 
     final timeline = getDisplayOrEmpty(_selectedTimeline);
-
     String customerClassification;
     if (selectedCount >= 3 && timeline.contains("Within 1 Month")) {
       customerClassification = "Hot";
@@ -552,70 +616,58 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       "MobileNumber": _mobileC.text.trim(),
       "EmailId": _emailC.text.trim(),
       "DateOfBirth": _dateOfBirthNotifier.value?.toIso8601String(),
-
       "Accommodation": getDisplayOrEmpty(_selectedAccommodationNotifier.value),
       "OccupationType": getDisplayOrEmpty(_selectedOccupationType),
       "Source": source,
       "SubSource": getDisplayOrEmpty(_selectedSubSourceNotifier.value),
       "SubSubSource": subSubSource,
-
       "ReferelName": _referralName.text.trim(),
       "ReferelMobileNumber": _referralMobile.text.trim(),
       "ReferelProjectName": _referralProjectName.text.trim(),
       "ReferelUnitNumber": _referralUnitNumber.text.trim(),
-
       "LoyaltyExistingProjectName": _existingProjectName.text.trim(),
       "LoyaltyExistingUnitNumber": _existingUnitNumber.text.trim(),
-
       "EmployeeReferenceName": _employeeName.text.trim(),
       "EmployeeReferenceMobileNumber": _employeeMobileNumber.text.trim(),
-
       "ChannelPartnerTeamMemberId":
           _selectedTeamMemberNotifier.value.isNotEmpty
               ? _selectedTeamMemberNotifier.value.first["zAttributesId"]
               : 0,
       "ChannelPartnerTeamMemberName": _teamMemberNameC.text.trim(),
       "ChannelPartnerTeamMemberMobileNumber": _teamMemberMobileC.text.trim(),
-
       "Nationality": _enquiryCubit.state.selectedNationality,
       "CountryOfResidence": _countryOfResidenceC.text.trim(),
       "CityOfResidence": _cityOfResidenceC.text.trim(),
       "CurrentLocation": _locationC.text.trim(),
       "VillageMasterId": selectedVillages,
-
       "PossessionType": getDisplayOrEmpty(_selectedPossessionType),
       "AreaPreferred": int.tryParse(_areaPrefC.text.trim()) ?? 0,
       "DesiredFloorBand": getDisplayOrEmpty(_selectedFloorBand),
       "Budget": _budgetC.text.trim(),
-
       "Requirement": getDisplayOrEmpty(_selectedRequirementNotifier.value),
       "RequirementType": requirementTypeValue,
       "CustomerClassification": customerClassification,
-
       "SourceOfFunding": getDisplayOrEmpty(_selectedFunding),
       "Ethnicity": getDisplayOrEmpty(_selectedEthnicity),
       "FinalStage": getDisplayOrEmpty(_selectedFinalStage),
       "FinalStageDetail": "",
-
       "EnquiryDate": _enquiryDate?.toIso8601String(),
       "NextFollowUpDate": _nextFollowUpDate?.toIso8601String(),
-
       "SalesAdvisorId":
           _selectedSaleAdvisorNotifier.value.isNotEmpty
               ? _selectedSaleAdvisorNotifier.value.first["zAttributesId"]
               : 0,
-
       "SourcingManagerId":
           _selectedSourcingManager.isNotEmpty
               ? _selectedSourcingManager.first["zAttributesId"]
               : 0,
-
       "Remark": _remarkC.text.trim(),
       "Timeline": timeline,
+      "OTP": otpController.text.trim(),
     };
 
-    // SUBMIT
-    _enquiryCubit.addUpdateEnquiry(
+    //  SUBMIT ENQUIRY AFTER OTP VERIFICATION
+    await _enquiryCubit.addUpdateEnquiry(
       context: context,
       body: payload,
       index: _isEditMode ? widget.index : null,
@@ -652,7 +704,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _budgetC.dispose();
     _countryOfResidenceC.dispose();
     _cityOfResidenceC.dispose();
-
+    _budgetValueNotifier.dispose();
     // CHANNEL PARTNER CONTROLLERS
     _channelPartnerMobileC.dispose();
     _teamMemberNameC.dispose();
@@ -777,7 +829,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             title: "Mobile Number",
             textController: _mobileC,
             hint: "Enter Mobile Number",
-            keyboardType: TextInputType.number,
+            keyboardType: TextInputType.phone,
             isRequired: true,
             inputFormatterList: InputValidator.digit(10),
             validator: (val) {
@@ -996,6 +1048,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   title: "Channel Partner",
                   hint: "Search by Channel Partner Mobile No.",
                   textController: _channelPartnerMobileC,
+                  keyboardType: TextInputType.phone,
                   isRequired: true,
                   inputFormatterList: InputValidator.digit(10),
                   validator: (val) {
@@ -1034,142 +1087,185 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                     }
                   },
                 ),
-                BlocBuilder<EnquiryCubit, EnquiryState>(
-                  builder: (context, state) {
-                    final partner = state.channelPartnerModel;
-                    if (partner == null) return const SizedBox.shrink();
-                    return Container(
-                      padding: const EdgeInsets.all(16),
-                      margin: const EdgeInsets.only(bottom: 10),
-                      decoration: BoxDecoration(
-                        color: AppColor.lightBlue,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(width: 0.5, color: AppColor.primary),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Full Name",
-                                value: partner.name,
+                ValueListenableBuilder<String>(
+                  valueListenable: _channelPartnerMobileNotifier,
+                  builder: (context, mobile, _) {
+                    return BlocBuilder<EnquiryCubit, EnquiryState>(
+                      builder: (context, state) {
+                        final partner = state.channelPartnerModel;
+
+                        final bool hasEnteredMobile = mobile.length == 10;
+
+                        //  NO PARTNER FOUND
+                        if (hasEnteredMobile && partner == null) {
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.only(bottom: 10),
+                            decoration: BoxDecoration(
+                              color: AppColor.lightRed,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                width: 0.5,
+                                color: AppColor.red,
                               ),
-                              buildColumnTitleValue(
-                                title: "Company Name",
-                                value: partner.companyName,
+                            ),
+                            child: Text(
+                              "No Channel Partner found for this mobile number",
+                              style: AppTextStyle.ts14R(color: AppColor.red),
+                            ),
+                          );
+                        }
+
+                        //  PARTNER FOUND
+                        if (partner != null) {
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.only(bottom: 10),
+                            decoration: BoxDecoration(
+                              color: AppColor.lightBlue,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                width: 0.5,
+                                color: AppColor.primary,
                               ),
-                            ],
-                          ),
-                          verticalSpacing(),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Firms Type",
-                                value: partner.firmsType,
-                              ),
-                              buildColumnTitleValue(
-                                title: "Mobile",
-                                value: partner.mobileNumber,
-                              ),
-                            ],
-                          ),
-                          verticalSpacing(),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Designation",
-                                value: partner.designation,
-                              ),
-                              buildColumnTitleValue(
-                                title: "Type",
-                                value: partner.type,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildColumnTitleValue(
+                                      title: "Full Name",
+                                      value: partner.name,
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "Company Name",
+                                      value: partner.companyName,
+                                    ),
+                                  ],
+                                ),
+                                verticalSpacing(),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildColumnTitleValue(
+                                      title: "Firms Type",
+                                      value: partner.firmsType,
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "Mobile",
+                                      value: partner.mobileNumber,
+                                    ),
+                                  ],
+                                ),
+                                verticalSpacing(),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildColumnTitleValue(
+                                      title: "Designation",
+                                      value: partner.designation,
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "Type",
+                                      value: partner.type,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return const SizedBox.shrink();
+                      },
                     );
                   },
                 ),
               ],
 
-              ValueListenableBuilder<String>(
-                valueListenable: _channelPartnerMobileNotifier,
-                builder: (context, mobileValue, child) {
-                  if (!isChannelPartner ||
-                      subSourceId == -1 ||
-                      mobileValue.length != 10) {
-                    return const SizedBox.shrink();
+              BlocBuilder<EnquiryCubit, EnquiryState>(
+                builder: (context, state) {
+                  if (state.channelPartnerModel == null) {
+                    return SizedBox.shrink();
                   }
-                  return ValueListenableBuilder<List<Map<String, dynamic>>>(
-                    valueListenable: _selectedTeamMemberNotifier,
-                    builder: (context, selectedTeamMember, child) {
-                      final bool hasTeamMemberSelected =
-                          selectedTeamMember.isNotEmpty;
-                      return Column(
-                        children: [
-                          CustomMultipleSelectPopup(
-                            key: ValueKey(
-                              selectedTeamMember.isNotEmpty
-                                  ? selectedTeamMember.first['zAttributesId']
-                                  : 'empty',
-                            ),
-                            title: 'Team Member',
-                            isRequired: false,
-                            isMultiSelect: false,
-                            initialValue: selectedTeamMember,
-                            dataList: const [],
-                            dataFetchCallBack: _enquiryCubit.fetchEmployees,
-                            onSelected: (value) {
-                              _teamMemberNameC.clear();
-                              _teamMemberMobileC.clear();
-                              _selectedTeamMemberNotifier.value = value;
-                              if (value.isNotEmpty) {
-                                final member = value.first;
-                                _teamMemberNameC.text =
-                                    member['DisplayName'] ?? '';
-                                _teamMemberMobileC.text =
-                                    member['MobileNo'] ?? '';
-                              }
-                            },
-                          ),
-                          // SHOW TEXT FIELDS ONLY IF NO TEAM MEMBER SELECTED FROM DROPDOWN
-                          if (!hasTeamMemberSelected) ...[
-                            CustomTextField(
-                              title: "Team Member Name",
-                              hint: "Enter Team Member Name",
-                              textController: _teamMemberNameC,
-                              isRequired: true,
-                              validator: (val) {
-                                if (val == null || val.trim().isEmpty) {
-                                  return "Team Member name is required";
-                                }
-                                return null;
-                              },
-                            ),
-                            CustomTextField(
-                              title: "Team Member Mobile Number",
-                              hint: "Enter Mobile Number",
-                              textController: _teamMemberMobileC,
-                              keyboardType: TextInputType.number,
-                              isRequired: true,
-                              inputFormatterList: InputValidator.digit(10),
-                              validator: (val) {
-                                if (val == null || val.trim().isEmpty) {
-                                  return "Team Member mobile number is required";
-                                }
-                                if (val.trim().length != 10) {
-                                  return "Mobile number must be 10 digits";
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
-                        ],
+                  return ValueListenableBuilder<String>(
+                    valueListenable: _channelPartnerMobileNotifier,
+                    builder: (context, mobileValue, child) {
+                      if (!isChannelPartner ||
+                          subSourceId == -1 ||
+                          mobileValue.length != 10) {
+                        return const SizedBox.shrink();
+                      }
+                      return ValueListenableBuilder<List<Map<String, dynamic>>>(
+                        valueListenable: _selectedTeamMemberNotifier,
+                        builder: (context, selectedTeamMember, child) {
+                          final bool hasTeamMemberSelected =
+                              selectedTeamMember.isNotEmpty;
+                          return Column(
+                            children: [
+                              CustomMultipleSelectPopup(
+                                key: ValueKey(
+                                  selectedTeamMember.isNotEmpty
+                                      ? selectedTeamMember
+                                          .first['zAttributesId']
+                                      : 'empty',
+                                ),
+                                title: 'Team Member',
+                                isRequired: false,
+                                isMultiSelect: false,
+                                initialValue: selectedTeamMember,
+                                dataList: const [],
+                                dataFetchCallBack: _enquiryCubit.fetchEmployees,
+                                onSelected: (value) {
+                                  _teamMemberNameC.clear();
+                                  _teamMemberMobileC.clear();
+                                  _selectedTeamMemberNotifier.value = value;
+                                  if (value.isNotEmpty) {
+                                    final member = value.first;
+                                    _teamMemberNameC.text =
+                                        member['DisplayName'] ?? '';
+                                    _teamMemberMobileC.text =
+                                        member['MobileNo'] ?? '';
+                                  }
+                                },
+                              ),
+                              // SHOW TEXT FIELDS ONLY IF NO TEAM MEMBER SELECTED FROM DROPDOWN
+                              if (!hasTeamMemberSelected) ...[
+                                CustomTextField(
+                                  title: "Team Member Name",
+                                  hint: "Enter Team Member Name",
+                                  textController: _teamMemberNameC,
+                                  isRequired: true,
+                                  validator: (val) {
+                                    if (val == null || val.trim().isEmpty) {
+                                      return "Team Member name is required";
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                CustomTextField(
+                                  title: "Team Member Mobile Number",
+                                  hint: "Enter Mobile Number",
+                                  textController: _teamMemberMobileC,
+                                  keyboardType: TextInputType.phone,
+                                  isRequired: true,
+                                  inputFormatterList: InputValidator.digit(10),
+                                  validator: (val) {
+                                    if (val == null || val.trim().isEmpty) {
+                                      return "Team Member mobile number is required";
+                                    }
+                                    if (val.trim().length != 10) {
+                                      return "Mobile number must be 10 digits";
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            ],
+                          );
+                        },
                       );
                     },
                   );
@@ -1214,7 +1310,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   title: "Employee Mobile Number",
                   hint: "Enter Mobile Number",
                   textController: _employeeMobileNumber,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.phone,
                   isRequired: true,
                   inputFormatterList: InputValidator.digit(10),
                   validator: (val) {
@@ -1274,7 +1370,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   title: "Referral Mobile Number",
                   hint: "Enter Referral Mobile Number",
                   isRequired: true,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.phone,
                   textController: _referralMobile,
                   inputFormatterList: InputValidator.digit(10),
                   validator: (val) {
@@ -1341,38 +1437,49 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   // PROPERTY PREFERENCE
   Widget _propertyPrefCard() {
     return _card("Property Preferences", [
-      const Text("Budget (In Cr)"),
+      Text("Budget (In Cr)", style: AppTextStyle.ts14R()),
+
       SizedBox(
         width: double.infinity,
-        child: SfSlider(
-          min: 0,
-          max: (budgetOptions.length - 1).toDouble(),
-          value: budgetOptions.indexOf(_budgetInitialVaue).toDouble(),
-          interval: 1,
-          showTicks: false,
-          showLabels: true,
-          enableTooltip: false,
-          activeColor: AppColor.primary,
-          inactiveColor: AppColor.primary.withValues(alpha: 0.25),
-          minorTicksPerInterval: 0,
-          labelFormatterCallback: (actualValue, formattedText) {
-            int index = actualValue.round();
-            int val = budgetOptions[index];
-            return val == 1
-                ? ">1"
-                : val == 25
-                ? "25+"
-                : "$val";
-          },
-          onChanged: (dynamic value) {
-            int index = value.round();
-            int val = budgetOptions[index];
-            _budgetC.text =
-                val == 1
+        child: ValueListenableBuilder<int>(
+          valueListenable: _budgetValueNotifier,
+          builder: (context, selectedValue, child) {
+            return SfSlider(
+              min: 0,
+              max: (budgetOptions.length - 1).toDouble(),
+              value: budgetOptions.indexOf(selectedValue).toDouble(),
+              interval: 1,
+              showTicks: false,
+              showLabels: true,
+              enableTooltip: false,
+              activeColor: AppColor.primary,
+              inactiveColor: AppColor.primary.withValues(alpha: 0.25),
+              minorTicksPerInterval: 0,
+
+              labelFormatterCallback: (actualValue, formattedText) {
+                int index = actualValue.round();
+                int val = budgetOptions[index];
+
+                return val == 1
                     ? ">1"
                     : val == 25
                     ? "25+"
-                    : val.toString();
+                    : "$val";
+              },
+
+              onChanged: (dynamic value) {
+                int index = value.round();
+                int val = budgetOptions[index];
+
+                _budgetValueNotifier.value = val;
+                _budgetC.text =
+                    val == 1
+                        ? ">1"
+                        : val == 25
+                        ? "25+"
+                        : val.toString();
+              },
+            );
           },
         ),
       ),
@@ -1451,8 +1558,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         },
       ),
       CustomMultipleSelectPopup(
-        title: 'Preferred Location',
-        isRequired: true,
+        title: 'Location',
         isMultiSelect: true,
         initialValue: _selectedLocations,
         dataList: const [],
@@ -1514,6 +1620,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     return _card("Follow Up Details", [
       CustomDatePicker(
         title: "Enquiry Date",
+        startDate: DateTime.now().subtract(const Duration(days: 2)),
         isRequired: true,
         initialDate: _enquiryDate,
         setValue: (v) => _enquiryDate = v,
@@ -1521,6 +1628,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       CustomDatePicker(
         title: "Next Follow-Up Date",
         isRequired: true,
+        startDate: DateTime.now(),
         initialDate: _nextFollowUpDate,
         setValue: (v) => _nextFollowUpDate = v,
         validator: (value) {

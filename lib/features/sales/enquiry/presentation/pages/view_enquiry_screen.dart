@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry_followup.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_state.dart';
@@ -20,15 +19,9 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewEnquiryScreen extends StatefulWidget {
-  final EnquiryModel enquiryModel;
+  final int enquiryId;
 
-  final int index;
-
-  const ViewEnquiryScreen({
-    super.key,
-    required this.enquiryModel,
-    this.index = 0,
-  });
+  const ViewEnquiryScreen({super.key, required this.enquiryId});
 
   @override
   State<ViewEnquiryScreen> createState() => _ViewEnquiryScreenState();
@@ -85,10 +78,16 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     _tabController = TabController(length: 2, vsync: this);
     _enquiryCubit = context.read<EnquiryCubit>();
     _enquiryCubit.clearEnquiryFollowUp();
+    // FOR OVERVIEW
+    _enquiryCubit.getEnquiryById(
+      enquiryId: widget.enquiryId,
+      projectId: getProject().projectId,
+    );
+
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         _tabIndexNotifier.value = _tabController.index;
-        _loadFollowUpsIfNeeded();
+        _onTabChange();
       }
     });
 
@@ -97,14 +96,19 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   }
 
   void _fetchTeamMemberIfNeeded() {
-    final enquiry = widget.enquiryModel;
+    final enquiry = _enquiryCubit.state.currentEnquiryDetails;
+
+    if (enquiry == null) return;
+
     if (enquiry.channelPartnerTeamMemberId != 0 &&
-        enquiry.channelPartnerTeamMemberName.isEmpty) {
+        (enquiry.channelPartnerTeamMemberName.isEmpty)) {
       _enquiryCubit
           .fetchEmployees(1, employeeId: enquiry.channelPartnerTeamMemberId)
           .then((result) {
             if (!mounted) return;
+
             final items = result["itemList"] as List<Map<String, dynamic>>;
+
             if (items.isNotEmpty) {
               setState(() {
                 _teamMemberName = items.first['DisplayName'] ?? '';
@@ -113,17 +117,31 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
             }
           });
     } else {
-      _teamMemberName = enquiry.channelPartnerTeamMemberName;
-      _teamMemberMobile = enquiry.channelPartnerTeamMemberMobileNumber;
+      setState(() {
+        _teamMemberName = enquiry.channelPartnerTeamMemberName;
+        _teamMemberMobile = enquiry.channelPartnerTeamMemberMobileNumber;
+      });
     }
   }
 
-  void _loadFollowUpsIfNeeded() {
-    if (_tabController.index == 1 && !_tabController.indexIsChanging) {
+  void _onTabChange() {
+    final enquiryId = widget.enquiryId;
+    final projectId = getProject().projectId;
+
+    if (_tabController.index == 0) {
+      /// CLEAR PREVIOUS OVERVIEW DATA
+      _enquiryCubit.clearCurrentEnquiry();
+
+      /// FETCH FRESH DATA
+      _enquiryCubit.getEnquiryById(enquiryId: enquiryId, projectId: projectId);
+    } else if (_tabController.index == 1) {
+      ///  CLEAR PREVIOUS FOLLOWUP DATA
       _enquiryCubit.clearEnquiryFollowUp();
+
+      ///  FETCH FRESH FOLLOWUPS
       _enquiryCubit.fetchEnquiryFollowUps(
-        enquiryId: widget.enquiryModel.enquiryId,
-        projectId: getProject().projectId,
+        enquiryId: enquiryId,
+        projectId: projectId,
       );
     }
   }
@@ -158,18 +176,25 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       ),
       bottomNavigationBar: BlocBuilder<EnquiryCubit, EnquiryState>(
         builder: (context, state) {
-          // Hide if not on tab 1 OR final enquiry is in closed states
-          if (_tabIndexNotifier.value != 1) return const SizedBox.shrink();
-
-          if (state.enquiryList.isEmpty ||
-              widget.index >= state.enquiryList.length) {
+          // 1️. SHOW ONLY ON TIMELINE TAB
+          if (_tabIndexNotifier.value != 1) {
             return const SizedBox.shrink();
           }
 
-          final enquiry = state.enquiryList[widget.index];
+          // 2️. IF LOADING → HIDE
+          if (state.isFetchingEnquiryDetails == true) {
+            return const SizedBox.shrink();
+          }
+
+          // 3️. IF NO CURRENT ENQUIRY → HIDE
+          final enquiry = state.currentEnquiryDetails;
+          if (enquiry == null) {
+            return const SizedBox.shrink();
+          }
+
+          // 4️. CLOSED STATUS CHECK
           final closedStatuses = ['booking done', 'cancelled', 'lost'];
 
-          // Hide button if enquiry is in closed state
           if (closedStatuses.contains(enquiry.finalStage.toLowerCase())) {
             return const SizedBox.shrink();
           }
@@ -229,12 +254,15 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   Widget buildOverviewTab() {
     return BlocBuilder<EnquiryCubit, EnquiryState>(
       builder: (context, state) {
-        if (state.enquiryList.isEmpty ||
-            widget.index >= state.enquiryList.length) {
-          return const SizedBox.shrink();
+        if (state.isFetchingEnquiryDetails == true) {
+          return loader();
         }
 
-        final enquiry = state.enquiryList[widget.index];
+        if (state.currentEnquiryDetails == null) {
+          return noDataWidget();
+        }
+
+        final enquiry = state.currentEnquiryDetails!;
         final bool isChannelPartner = enquiry.source == "Channel Partner";
         final bool isDirectWalking = enquiry.source == "Direct Walking";
         final bool isNRI = enquiry.nationality.toLowerCase() == 'nri';
@@ -910,7 +938,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.enquiryModel.systemGeneratedCode,
+                      state.currentEnquiryDetails!.systemGeneratedCode,
                       style: AppTextStyle.ts16SB(color: AppColor.primary),
                     ),
                     verticalSpacing(),
@@ -1075,7 +1103,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                                                   item,
                                                               enquiryId:
                                                                   widget
-                                                                      .enquiryModel
                                                                       .enquiryId,
                                                               context: context,
                                                             );
@@ -1235,7 +1262,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                     title: "Next Followup Date",
                     initialDate: _nextFollowupDate,
                     isRequired: true,
-
+                    startDate: DateTime.now(),
                     setValue:
                         (date) => innerBottomsheetState(
                           () => _nextFollowupDate = date,
@@ -1346,15 +1373,12 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
       if (index != null) "Uniquekey": followUpModel!.uniquekey,
 
-      "EnquiryId": widget.enquiryModel.enquiryId,
+      "EnquiryId": widget.enquiryId,
       "ProjectId": getProject().projectId,
 
-      "Status": statusName ?? "",
-      "LostReason": statusName == "Lost" ? lostReasonName ?? "" : "",
-
-      "NextFollowUpDate":
-          _nextFollowupDate != null ? _nextFollowupDate!.toIso8601String() : "",
-
+      "Status": statusName,
+      "LostReason": statusName == "Lost" ? lostReasonName : null,
+      "NextFollowUpDate": _nextFollowupDate?.toIso8601String(),
       "Remark": _remarkC.text,
     };
 
@@ -1362,7 +1386,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       context: context,
       body: payload,
       index: index,
-      enquiryIndex: widget.index,
     );
   }
 
@@ -1387,7 +1410,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
         followUpModel: followUpModel,
         enquiryId: enquiryId,
         context: context,
-        enquireIndex: widget.index,
       );
     }
   }
