@@ -101,6 +101,8 @@ dependencies:
   firebase_analytics: ^12.1.2
 #  OPEN FILE
   open_filex: ^4.7.0
+#  IMAGE PICKER
+  image_picker: ^1.2.1
   
 # DEV DEPENDENCIES
 dev_dependencies:
