@@ -122,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 children: [
                                   // Mobile Field
                                   CustomTextField(
-                                    focusNode: _mobileFocus,
+                                    // focusNode: _mobileFocus,
                                     title: "Mobile Number",
                                     hint: "Enter Mobile Number",
                                     readOnly: state.isSendOtp,
@@ -150,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   // OTP Field
                                   if (state.message.isNotEmpty)
                                     CustomTextField(
-                                      focusNode: _otpFocus,
+                                      // focusNode: _otpFocus,
                                       readOnly: !state.isSendOtp,
                                       inputFormatterList: InputValidator.digit(4),
                                       keyboardType: TextInputType.number,

@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/features/parking/data/repository/parking.repository.
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/repository/terms_and_conditions.repository.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_master.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
@@ -806,6 +807,45 @@ class BookingCubit extends Cubit<BookingState> {
       },
       (response) {
         showSuccessMessage(context);
+      },
+    );
+  }
+
+  void updateRanking(int index, int ranking) {
+    final updatedList = List.of(state.paymentScheduleMasterList);
+
+    updatedList[index].ranking = ranking;
+
+    emit(state.copyWith(paymentScheduleMasterList: updatedList));
+  }
+
+  // <---- GET PAYMENT SCHEDULE MASTER LIST ---->
+  Future getPaymentScheduleMasterList(
+    BuildContext context,
+    int pageNumber,
+    int projectId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+    var result = await _bookingRepository.getPaymentScheduleMasterList(
+      pageNumber: pageNumber,
+      pageSize: 100,
+      projectId: projectId,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            paymentScheduleMasterList: List<PaymentScheduleMasterModel>.from(
+              response['data'] ?? [],
+            ),
+            isLoading: false,
+          ),
+        );
       },
     );
   }

@@ -274,6 +274,8 @@ import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/view_enqui
 import 'package:k3h_erp_app/features/sales/other_charges/presentation/cubit/other_charges_cubit.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/presentation/pages/add_other_charges_screen.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/presentation/pages/other_charges_screen.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule_summary/presentation/cubit/payment_schedule_summary_cubit.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule_summary/presentation/pages/payment_schedule_summary_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/pages/sourcing_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/pages/sourcing_view_screen.dart';
@@ -3936,7 +3938,7 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
-            // OTHER CHARGES
+            // SALES OTHER CHARGES
             ShellRoute(
               builder: (context, state, child) {
                 return BlocProvider(
@@ -3987,6 +3989,24 @@ final GoRouter goRouter = GoRouter(
                       index: index,
                       projectId: projectId,
                     );
+                  },
+                ),
+              ],
+            ),
+            // PAYMENT SCHEDULE SUMMARY
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => PaymentScheduleSummaryCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.paymentMaster,
+                  path: AppRoutes.paymentMaster,
+                  builder: (context, state) {
+                    return const PaymentScheduleSummaryScreen();
                   },
                 ),
               ],

@@ -1,6 +1,7 @@
 part of 'booking_cubit.dart';
 
 class BookingState extends BaseState {
+  final List<PaymentScheduleMasterModel> paymentScheduleMasterList;
   final List<ParkingModel> parkingList;
   final List<TermsAndConditionsModel> termsList;
   final int totalNumberOfRecordParking;
@@ -20,6 +21,7 @@ class BookingState extends BaseState {
 
   const BookingState({
     super.isLoading,
+    required this.paymentScheduleMasterList,
     required this.parkingList,
     required this.termsList,
     required this.totalNumberOfRecordParking,
@@ -40,6 +42,7 @@ class BookingState extends BaseState {
 
   factory BookingState.initial() => BookingState(
     isLoading: true,
+    paymentScheduleMasterList: [],
     parkingList: [],
     termsList: [],
     totalNumberOfRecordParking: 0,
@@ -60,6 +63,7 @@ class BookingState extends BaseState {
 
   BookingState copyWith({
     bool? isLoading,
+    List<PaymentScheduleMasterModel>? paymentScheduleMasterList,
     List<ParkingModel>? parkingList,
     List<TermsAndConditionsModel>? termsList,
     int? totalNumberOfRecordParking,
@@ -79,6 +83,7 @@ class BookingState extends BaseState {
   }) {
     return BookingState(
       isLoading: isLoading ?? this.isLoading,
+      paymentScheduleMasterList: paymentScheduleMasterList ?? this.paymentScheduleMasterList,
       parkingList: parkingList ?? this.parkingList,
       termsList: termsList ?? this.termsList,
       totalNumberOfRecordParking: totalNumberOfRecordParking ?? this.totalNumberOfRecordParking,
@@ -101,6 +106,7 @@ class BookingState extends BaseState {
   @override
   List<Object?> get props => [
     isLoading,
+    paymentScheduleMasterList,
     parkingList,
     termsList,
     totalNumberOfRecordParking,

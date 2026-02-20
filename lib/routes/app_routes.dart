@@ -126,6 +126,9 @@ class AppRoutes {
   static String salesTarget = "/target";
   static String addSalesTarget = "/addSalesTarget";
 
+  // PAYMENT SCHEDULE SUMMARY
+  static String paymentMaster = "/paymentMaster";
+
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PAYROLL MASTER
 

@@ -50,6 +50,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   // TAB CONTROLLER
   late TabController _tabController;
 
+  int? _editingRankingIndex;
+  final Map<int, TextEditingController> _rankingControllers = {};
+
   // TEXT EDITING CONTROLLER
   late TextEditingController _enquiryUniqueCodeC,
       _permanentAddressC,
@@ -173,6 +176,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _selectedHandOverType = handOverTypeList.first;
     _selectedFundingSource = fundingSourceList.first;
     _agreementValueNotifier.addListener(_calculateTds);
+    // PULL PAYMENT SCHEDULE MASTER
+    _bookingCubit.getPaymentScheduleMasterList(
+      context,
+      1,
+      _project.projectId,
+    );
     if (_isEditMode) {
       final bm = widget.bookingModel!;
       _prefill(bm);
@@ -202,6 +211,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             .getEnquiryListById(context, 1, _project.projectId, bm.enquiryId)
             .whenComplete(() => _isFetchingEnquiry.value = false);
       }
+
     }
   }
 
@@ -1004,7 +1014,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 (_debounce?.isActive ?? false) ||
                                 state.isLoading == true)) ...[
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 16,vertical: 10),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColor.lightRed,
                               borderRadius: BorderRadius.circular(8),
@@ -1020,7 +1033,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             ),
                           ),
                         ] else ...[
-                          SizedBox()
+                          SizedBox(),
                         ],
                       ],
                     );
@@ -1641,61 +1654,151 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   Widget _buildPaymentSchedule() {
     return Container(
       padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                "Payment Schedule",
-                style: AppTextStyle.ts14M(color: AppColor.grey),
-              ),
-              Spacer(),
-              CustomIconButton(
-                icon: Icon(Icons.add, size: 16, color: AppColor.darkGreen),
-                onPressed: () {},
-                backgroundColor: AppColor.lightGreen,
-              ),
-            ],
-          ),
-          verticalSpacing(),
-          Expanded(
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: 5,
-              itemBuilder: (_, index) {
-                return Container(
-                  margin: EdgeInsets.only(bottom: 10),
-                  padding: EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    spacing: 10,
-                    children: [
-                      Row(
-                        children: [
-                          buildColumnTitleValue(title: "Ranking", value: "1"),
-                          buildColumnTitleValue(title: "Name", value: "FFFFF"),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Percentage (%)",
-                            value: "10",
-                          ),
-                          buildColumnTitleValue(
-                            title: "Cumulative (%)",
-                            value: "10",
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          FocusScope.of(context).unfocus();
+
+          if (_editingRankingIndex != null) {
+            final controller =
+            _rankingControllers[_editingRankingIndex!];
+
+            final value =
+                int.tryParse(controller?.text ?? "0") ?? 0;
+
+            _bookingCubit.updateRanking(_editingRankingIndex!, value);
+
+            setState(() {
+              _editingRankingIndex = null;
+            });
+          }
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  "Payment Schedule",
+                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                ),
+                Spacer(),
+                CustomIconButton(
+                  icon: Icon(Icons.add, size: 16, color: AppColor.darkGreen),
+                  onPressed: () {},
+                  backgroundColor: AppColor.lightGreen,
+                ),
+              ],
             ),
-          ),
-        ],
+            verticalSpacing(),
+            Expanded(
+              child: BlocBuilder<BookingCubit, BookingState>(
+                builder: (context, state) {
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _bookingCubit.state.paymentScheduleMasterList.length,
+                    itemBuilder: (_, index) {
+                      if(state.isLoading==true && state.paymentScheduleMasterList.isEmpty ){
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      if(state.paymentScheduleMasterList.isEmpty){
+                        return Center(child: Text("No Payment Schedule Available"));
+                      }
+                      final paymentScheduleMaster = _bookingCubit.state.paymentScheduleMasterList[index];
+                      return Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        padding: EdgeInsets.all(12),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          spacing: 10,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Ranking",
+                                        style: AppTextStyle.ts12R(color: AppColor.grey),
+                                      ),
+                                      SizedBox(height: 4),
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _editingRankingIndex = index;
+
+                                            _rankingControllers.putIfAbsent(
+                                              index,
+                                                  () => TextEditingController(
+                                                text: paymentScheduleMaster.ranking.toString(),
+                                              ),
+                                            );
+                                          });
+                                        },
+                                        child: _editingRankingIndex == index
+                                            ? SizedBox(
+                                          height: 35,
+                                          child: TextField(
+                                            controller: _rankingControllers[index],
+                                            keyboardType: TextInputType.number,
+                                            decoration: InputDecoration(
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                              border: OutlineInputBorder(),
+                                            ),
+                                            onEditingComplete: () {
+                                              FocusScope.of(context).unfocus();
+
+                                              final value =
+                                                  int.tryParse(_rankingControllers[index]?.text ?? "0") ?? 0;
+
+                                              _bookingCubit.updateRanking(index, value);
+
+                                              setState(() {
+                                                _editingRankingIndex = null;
+                                              });
+                                            },
+                                          ),
+                                        )
+                                            : Container(
+                                          padding: EdgeInsets.symmetric(vertical: 6),
+                                          child: Text(
+                                            paymentScheduleMaster.ranking.toString(),
+                                            style: AppTextStyle.ts14M(color: AppColor.primary),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Name",
+                                  value: paymentScheduleMaster.name,
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Percentage (%)",
+                                  value: "${paymentScheduleMaster.paymentSchedulePercentage}",
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Cumulative (%)",
+                                  value: "${paymentScheduleMaster.paymentScheduleCummulativePercentage}",
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
