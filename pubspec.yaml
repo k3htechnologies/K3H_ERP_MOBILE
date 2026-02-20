@@ -39,8 +39,6 @@ dependencies:
   # PATH PROVIDER
   path_provider: ^2.1.5
   path: ^1.9.1
-  # OPEN LOCAL FILES
-  open_file: ^3.5.10
   # LAUNCH URLS
   url_launcher: ^6.3.1
   # SHARE FUNCTIONALITY
@@ -101,6 +99,8 @@ dependencies:
   flutter_polyline_points: ^3.1.0
   firebase_core: ^4.4.0
   firebase_analytics: ^12.1.2
+#  OPEN FILE
+  open_filex: ^4.7.0
   
 # DEV DEPENDENCIES
 dev_dependencies:
