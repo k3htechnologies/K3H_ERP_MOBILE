@@ -52,6 +52,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   int? _editingRankingIndex;
   final Map<int, TextEditingController> _rankingControllers = {};
+  Set<int> _invalidRankingIndexes = {};
 
   // TEXT EDITING CONTROLLER
   late TextEditingController _enquiryUniqueCodeC,
@@ -161,6 +162,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   // BANK SELECTION
   final ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier =
       ValueNotifier([]);
+
+  // FORM KEY
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
 
   //EDIT MODE
   bool get _isEditMode => widget.bookingModel != null;
@@ -690,6 +695,24 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     );
   }
 
+  bool _validatePaymentScheduleRanking() {
+    final list = _bookingCubit.state.paymentScheduleMasterList;
+
+    Set<int> invalidIndexes = {};
+
+    for (int i = 0; i < list.length; i++) {
+      if (list[i].ranking == 0) {
+        invalidIndexes.add(i);
+      }
+    }
+
+    setState(() {
+      _invalidRankingIndexes = invalidIndexes;
+    });
+
+    return invalidIndexes.isEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -741,17 +764,20 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             ),
           ),
           Expanded(
-            child: TabBarView(
-              physics: NeverScrollableScrollPhysics(),
-              controller: _tabController,
-              children: [
-                _buildDetails(),
-                _buildOtherCharges(),
-                _buildPaymentSchedule(),
-                _buildRemark(),
-                _buildTermsAndCondition(),
-                _buildPaymentDetails(),
-              ],
+            child: Form(
+              key: _formKey,
+              child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
+                controller: _tabController,
+                children: [
+                  _buildDetails(),
+                  _buildOtherCharges(),
+                  _buildPaymentSchedule(),
+                  _buildRemark(),
+                  _buildTermsAndCondition(),
+                  _buildPaymentDetails(),
+                ],
+              ),
             ),
           ),
         ],
@@ -764,14 +790,20 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           child: CustomButton(
             text: "Save",
             onPressed: () async {
-              // show processing overlay
-              DialogHelper.showProcessingOverlay(context);
-              // simulate small processing delay (replace with real API call)
-              await Future.delayed(const Duration(milliseconds: 600));
-              // dismiss overlay
-              Navigator.of(context).pop();
 
-              // Print form values for debugging
+              if(_formKey.currentState!.validate()) {
+
+                final isRankingValid = _validatePaymentScheduleRanking();
+
+                if (!isRankingValid) {
+                  _tabController.animateTo(2);
+
+                  showErrorMessage(context, "", "Ranking cannot be 0");
+
+                  return;
+                }
+
+                // Print form values for debugging
               final formValues = {
                 "enquiryUniqueCode": _enquiryUniqueCodeC.text,
                 "permanentAddress": _permanentAddressC.text,
@@ -795,6 +827,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 "chequeDate": _selectedChequeDate?.toIso8601String(),
               };
               print("AddBooking form values: $formValues");
+              }
+
             },
           ),
         ),
@@ -1744,7 +1778,31 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                             keyboardType: TextInputType.number,
                                             decoration: InputDecoration(
                                               contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                              border: OutlineInputBorder(),
+
+                                              border: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                  color: _invalidRankingIndexes.contains(index)
+                                                      ? Colors.red
+                                                      : Colors.grey,
+                                                ),
+                                              ),
+
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                  color: _invalidRankingIndexes.contains(index)
+                                                      ? Colors.red
+                                                      : Colors.grey,
+                                                ),
+                                              ),
+
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                  color: _invalidRankingIndexes.contains(index)
+                                                      ? Colors.red
+                                                      : AppColor.primary, // normal focus color
+                                                  width: 1.5,
+                                                ),
+                                              ),
                                             ),
                                             onEditingComplete: () {
                                               FocusScope.of(context).unfocus();
@@ -1756,6 +1814,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
                                               setState(() {
                                                 _editingRankingIndex = null;
+                                                _invalidRankingIndexes.remove(index);
                                               });
                                             },
                                           ),
