@@ -154,32 +154,30 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
 
                                   // OTP Field
-                                  if (state.message.isNotEmpty)
-                                    CustomTextField(
-                                      // focusNode: _otpFocus,
-                                      readOnly: !state.isSendOtp,
-                                      inputFormatterList: InputValidator.digit(
-                                        4,
-                                      ),
-                                      keyboardType: TextInputType.number,
-                                      title:
-                                          state.message
-                                                  .trim()
-                                                  .toLowerCase()
-                                                  .contains('mpin')
-                                              ? "MPIN"
-                                              : "OTP",
-                                      hint: "- - - -",
-                                      textController: _otpC,
-                                      onSubmitFunction: (value) {
-                                        FocusScope.of(context).unfocus();
-                                        _loginCubit.validateOtp(
-                                          context,
-                                          _mobileNumberC.text,
-                                          value,
-                                        );
-                                      },
-                                    ),
+                                  // if (state.message.isNotEmpty)
+                                  CustomTextField(
+                                    // focusNode: _otpFocus,
+                                    readOnly: !state.isSendOtp,
+                                    inputFormatterList: InputValidator.digit(4),
+                                    keyboardType: TextInputType.number,
+                                    title:
+                                        state.message
+                                                .trim()
+                                                .toLowerCase()
+                                                .contains('mpin')
+                                            ? "MPIN"
+                                            : "OTP",
+                                    hint: "- - - -",
+                                    textController: _otpC,
+                                    onSubmitFunction: (value) {
+                                      FocusScope.of(context).unfocus();
+                                      _loginCubit.validateOtp(
+                                        context,
+                                        _mobileNumberC.text,
+                                        value,
+                                      );
+                                    },
+                                  ),
                                 ],
                               );
                             },

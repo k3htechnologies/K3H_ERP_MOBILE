@@ -355,13 +355,13 @@ class _AddAssetMappingMasterScreenState
                                     buildColumnTitleValue(
                                       title: "Asset Code",
                                       value:
-                                      selectedAsset.first["assetCode"] ??
+                                          selectedAsset.first["assetCode"] ??
                                           '',
                                     ),
                                     buildColumnTitleValue(
                                       title: "Asset Name",
                                       value:
-                                      selectedAsset.first["DisplayName"] ??
+                                          selectedAsset.first["DisplayName"] ??
                                           '',
                                     ),
                                   ],
@@ -373,13 +373,13 @@ class _AddAssetMappingMasterScreenState
                                     buildColumnTitleValue(
                                       title: "Asset Type",
                                       value:
-                                      selectedAsset.first["assetType"] ??
+                                          selectedAsset.first["assetType"] ??
                                           '',
                                     ),
                                     buildColumnTitleValue(
                                       title: "Asset Model",
                                       value:
-                                      selectedAsset.first["assetModel"] ??
+                                          selectedAsset.first["assetModel"] ??
                                           '',
                                     ),
                                   ],
@@ -391,13 +391,13 @@ class _AddAssetMappingMasterScreenState
                                     buildColumnTitleValue(
                                       title: "Asset Brand",
                                       value:
-                                      selectedAsset.first["assetBrand"] ??
+                                          selectedAsset.first["assetBrand"] ??
                                           '',
                                     ),
                                     buildColumnTitleValue(
                                       title: "Serial Number",
                                       value:
-                                      selectedAsset.first["serialNumber"] ??
+                                          selectedAsset.first["serialNumber"] ??
                                           '',
                                     ),
                                   ],
@@ -436,7 +436,7 @@ class _AddAssetMappingMasterScreenState
                         ),
                         if (selectedEmployee.isNotEmpty) ...[
                           Container(
-                            margin: const EdgeInsets.only( bottom: 10),
+                            margin: const EdgeInsets.only(bottom: 10),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(color: AppColor.lightBlue),
@@ -459,8 +459,8 @@ class _AddAssetMappingMasterScreenState
                                     buildColumnTitleValue(
                                       title: "Designation",
                                       value:
-                                      selectedEmployee
-                                          .first["designation"] ??
+                                          selectedEmployee
+                                              .first["designation"] ??
                                           '',
                                     ),
                                   ],
@@ -472,7 +472,7 @@ class _AddAssetMappingMasterScreenState
                                     buildColumnTitleValue(
                                       title: "Branch",
                                       value:
-                                      selectedEmployee.first["branch"] ??
+                                          selectedEmployee.first["branch"] ??
                                           '',
                                     ),
                                     buildColumnTitleValue(
@@ -491,14 +491,13 @@ class _AddAssetMappingMasterScreenState
                                     buildColumnTitleValue(
                                       title: "Email Id",
                                       value:
-                                      selectedEmployee.first["email"] ??
-                                          '',
+                                          selectedEmployee.first["email"] ?? '',
                                     ),
                                     buildColumnTitleValue(
                                       title: "Personal Mobile Number",
                                       value:
-                                      selectedEmployee
-                                          .first["personalNumber"] ??
+                                          selectedEmployee
+                                              .first["personalNumber"] ??
                                           '',
                                     ),
                                   ],
@@ -627,7 +626,11 @@ class _AddAssetMappingMasterScreenState
             children: [
               Expanded(
                 child: CustomButton(
-                  leading: Icon(_isEditMode?Icons.edit:Icons.add,size: 18,color: AppColor.white,),
+                  leading: Icon(
+                    _isEditMode ? Icons.edit : Icons.add,
+                    size: 18,
+                    color: AppColor.white,
+                  ),
                   text: _isEditMode ? "Update" : "Add",
                   onPressed: _submitForm,
                 ),
