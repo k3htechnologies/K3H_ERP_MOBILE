@@ -729,205 +729,192 @@ class _InventoryScreenState extends State<InventoryScreen>
                 color: _statusColor(flat.flatStatus),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Row(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Unit No. : ${flat.flat}",
-                          style: AppTextStyle.ts14M(),
-                        ),
-                        verticalSpacing(height: 5),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: buildColumnTitleValue(
-                                title: "Type",
-                                value:
-                                    flat.flatType != "" ? flat.flatType : "-",
-                              ),
-                            ),
-                            Expanded(
-                              child: buildColumnTitleValue(
-                                title: "Area(Sq.ft)",
-                                value:
-                                    flat.reraCarpetAreaSqFt.toString().isEmpty
-                                        ? "-"
-                                        : flat.reraCarpetAreaSqFt.toString(),
-                              ),
-                            ),
-                            Expanded(
-                              child: buildColumnTitleValue(
-                                title: "Configuration",
-                                value:
-                                    flat.flatConfiguration.toString().isEmpty
-                                        ? "-"
-                                        : flat.flatConfiguration,
-                              ),
-                            ),
-                          ],
-                        ),
-                        verticalSpacing(),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 5),
-                                decoration: BoxDecoration(
-                                  color: AppColor.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    flat.flatStatus,
-                                    style: AppTextStyle.ts14M(
-                                      color:
-                                          flat.flatStatus.toLowerCase() ==
-                                                  "booked"
-                                              ? AppColor.error
-                                              : flat.flatStatus.toLowerCase() ==
-                                                  "member"
-                                              ? AppColor.purple
-                                              : flat.flatStatus.toLowerCase() ==
-                                                  "hold"
-                                              ? AppColor.yellow
-                                              : flat.flatStatus.toLowerCase() ==
-                                                  "available"
-                                              ? AppColor.darkGreen
-                                              : flat.flatStatus.toLowerCase() ==
-                                                  "blocked"
-                                              ? AppColor.primary
-                                              : AppColor.black,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            horizontalSpacing(),
-                            flat.flatStatus.toLowerCase() == "booked"
-                                ? GestureDetector(
-                                  onTap: () {
-                                    goRouter.pushNamed(
-                                      AppRoutes.viewUnitSpecification,
-                                      queryParameters: {
-                                        "flatModel": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(flat),
-                                          ),
-                                        ),
-                                      },
-                                    );
-                                  },
-                                  child: Icon(
-                                    Icons.remove_red_eye_outlined,
-                                    size: 18,
-                                  ),
-                                )
-                                : Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  spacing: 15,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () async {
-                                        await goRouter.pushNamed(
-                                          AppRoutes.addInventorySpecification,
-                                          queryParameters: {
-                                            "flatModel":
-                                                Uri.encodeQueryComponent(
-                                                  EncryptionManager.encryptData(
-                                                    jsonEncode(flat),
-                                                  ),
-                                                ),
-                                            "floorModel":
-                                                Uri.encodeQueryComponent(
-                                                  EncryptionManager.encryptData(
-                                                    jsonEncode(floor),
-                                                  ),
-                                                ),
-                                          },
-                                        );
-                                        if (mounted) {
-                                          _inventoryCubit.getInventory(
-                                            context,
-                                            _project.projectId,
-                                          );
-                                        }
-                                      },
-                                      child: Icon(Icons.edit, size: 18),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        _showPopupToDeleteInventoryFlat(
-                                          context,
-                                          flat,
-                                          floorIndex,
-                                          wingIndex,
-                                          buildingIndex,
-                                          flatIndex,
-                                        );
-                                      },
-                                      child: SvgPicture.asset(
-                                        AppAssets.deleteIcon2,
-                                        height: 18,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                          ],
-                        ),
-                        if (flat.ownerName != "" && flat.flatStatus.toLowerCase()=="booked") ...[
-                          verticalSpacing(),
-                          Text(
-                            "Owner : ${flat.ownerName}",
-                            style: AppTextStyle.ts12R(color: AppColor.primary),
+                  Text(
+                    "Unit No. : ${flat.flat}",
+                    style: AppTextStyle.ts14M(),
+                  ),
+                  verticalSpacing(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Type",
+                        value:
+                            flat.flatType != "" ? flat.flatType : "-",
+                      ),
+                      buildColumnTitleValue(
+                        title: "Area(Sq.ft)",
+                        value:
+                            flat.reraCarpetAreaSqFt.toString().isEmpty
+                                ? "-"
+                                : flat.reraCarpetAreaSqFt.toString(),
+                      ),
+                      buildColumnTitleValue(
+                        title: "Configuration",
+                        value:
+                            flat.flatConfiguration.toString().isEmpty
+                                ? "-"
+                                : flat.flatConfiguration,
+                      ),
+                    ],
+                  ),
+                  verticalSpacing(),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 5),
+                          decoration: BoxDecoration(
+                            color: AppColor.white,
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        ],
-
-                        if (flat.flatStatus.toLowerCase() == "available" &&
-                            flat.reraCarpetAreaSqFt != 0 &&
-                            flat.flatType != "") ...[
-                          verticalSpacing(),
-                          CustomButton(
-                            leading: Icon(
-                              Icons.card_giftcard,
-                              size: 18,
-                              color: AppColor.white,
+                          child: Center(
+                            child: Text(
+                              flat.flatStatus,
+                              style: AppTextStyle.ts14M(
+                                color:
+                                    flat.flatStatus.toLowerCase() ==
+                                            "booked"
+                                        ? AppColor.error
+                                        : flat.flatStatus.toLowerCase() ==
+                                            "member"
+                                        ? AppColor.purple
+                                        : flat.flatStatus.toLowerCase() ==
+                                            "hold"
+                                        ? AppColor.yellow
+                                        : flat.flatStatus.toLowerCase() ==
+                                            "available"
+                                        ? AppColor.darkGreen
+                                        : flat.flatStatus.toLowerCase() ==
+                                            "blocked"
+                                        ? AppColor.primary
+                                        : AppColor.black,
+                              ),
                             ),
-                            text: "Book",
-                            onPressed: () {
-                              List<Map<String, dynamic>> list = [
-                                {
-                                  "buildingNumber": flat.buildingNumber,
-                                  "wing": flat.wing,
-                                  "floor": flat.floor,
-                                  "flat": flat.flat,
-                                  "flatType": flat.flatType,
-                                  "flatConfiguration": flat.flatConfiguration,
-                                  "reraCarpetAreaSqFt": flat.reraCarpetAreaSqFt,
-                                },
-                              ];
-
+                          ),
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      flat.flatStatus.toLowerCase() == "booked"
+                          ? GestureDetector(
+                            onTap: () {
                               goRouter.pushNamed(
-                                AppRoutes.addBooking,
+                                AppRoutes.viewUnitSpecification,
                                 queryParameters: {
-                                  "inventoryObject": Uri.encodeComponent(
+                                  "flatModel": Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
-                                      jsonEncode(list),
+                                      jsonEncode(flat),
                                     ),
                                   ),
                                 },
                               );
                             },
+                            child: Icon(
+                              Icons.remove_red_eye_outlined,
+                              size: 18,
+                            ),
+                          )
+                          : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            spacing: 15,
+                            children: [
+                              GestureDetector(
+                                onTap: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addInventorySpecification,
+                                    queryParameters: {
+                                      "flatModel":
+                                          Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(flat),
+                                            ),
+                                          ),
+                                      "floorModel":
+                                          Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(floor),
+                                            ),
+                                          ),
+                                    },
+                                  );
+                                  if (mounted) {
+                                    _inventoryCubit.getInventory(
+                                      context,
+                                      _project.projectId,
+                                    );
+                                  }
+                                },
+                                child: Icon(Icons.edit, size: 18),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  _showPopupToDeleteInventoryFlat(
+                                    context,
+                                    flat,
+                                    floorIndex,
+                                    wingIndex,
+                                    buildingIndex,
+                                    flatIndex,
+                                  );
+                                },
+                                child: SvgPicture.asset(
+                                  AppAssets.deleteIcon2,
+                                  height: 18,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ],
-                    ),
+                    ],
                   ),
+                  if (flat.ownerName != "" && flat.flatStatus.toLowerCase()=="booked") ...[
+                    verticalSpacing(),
+                    Text(
+                      "Owner : ${flat.ownerName}",
+                      style: AppTextStyle.ts12R(color: AppColor.primary),
+                    ),
+                  ],
+
+                  if (flat.flatStatus.toLowerCase() == "available" &&
+                      flat.reraCarpetAreaSqFt != 0 &&
+                      flat.flatType != "") ...[
+                    verticalSpacing(),
+                    CustomButton(
+                      leading: Icon(
+                        Icons.card_giftcard,
+                        size: 18,
+                        color: AppColor.white,
+                      ),
+                      text: "Book",
+                      onPressed: () {
+                        List<Map<String, dynamic>> list = [
+                          {
+                            "buildingNumber": flat.buildingNumber,
+                            "wing": flat.wing,
+                            "floor": flat.floor,
+                            "flat": flat.flat,
+                            "flatType": flat.flatType,
+                            "flatConfiguration": flat.flatConfiguration,
+                            "reraCarpetAreaSqFt": flat.reraCarpetAreaSqFt,
+                          },
+                        ];
+
+                        goRouter.pushNamed(
+                          AppRoutes.addBooking,
+                          queryParameters: {
+                            "inventoryObject": Uri.encodeComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(list),
+                              ),
+                            ),
+                          },
+                        );
+                      },
+                    ),
+                  ],
                 ],
               ),
             );

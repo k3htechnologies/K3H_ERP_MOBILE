@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
@@ -145,7 +146,9 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                     Expanded(child: Text(title, style: AppTextStyle.ts20M())),
                     GestureDetector(
                       onTap: () {
-                        Navigator.of(context).pop();
+                        if (mounted) {
+                          context.pop();
+                        }
                       },
                       child: const Icon(Icons.close),
                     ),
@@ -834,7 +837,8 @@ class _DropdownListState extends State<DropdownList> {
                 fixedSize: WidgetStateProperty.all(const Size(30, 40)),
                 backgroundColor: WidgetStateProperty.all(AppColor.primary),
               ),
-              onPressed: () {
+    /*
+    onPressed: () {
                 if (widget.isMultiSelect) {
                   // Use _localSelectedValues so all in-session selections are returned
                   if (widget.onSelectCallback != null) {
@@ -861,7 +865,40 @@ class _DropdownListState extends State<DropdownList> {
                       Navigator.of(context).pop([]);
                     }
                   }
-                }
+                }*/
+
+
+                onPressed: () {
+                  if (widget.isMultiSelect) {
+                    final result =
+                    List<Map<String, dynamic>>.from(_localSelectedValues);
+
+                    if (widget.onSelectCallback != null) {
+                      widget.onSelectCallback!(result);
+                    } else {
+                      Navigator.of(context).pop(result);
+                    }
+                  } else {
+                    final selectedItem = tempDataListForSearch.firstWhere(
+                          (e) => e['isChecked'] == true,
+                      orElse: () => <String, dynamic>{},
+                    );
+
+                    List<Map<String, dynamic>> result;
+
+                    if (selectedItem.isNotEmpty) {
+                      result = <Map<String, dynamic>>[selectedItem];
+                    } else {
+                      result = <Map<String, dynamic>>[];
+                    }
+
+                    if (widget.onSelectCallback != null) {
+                      widget.onSelectCallback!(result);
+                    } else {
+                      Navigator.of(context).pop(result);
+                    }
+                  }
+
               },
               child: Text(
                 'Select',
