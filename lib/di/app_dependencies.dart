@@ -21,6 +21,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/sales/booking/booking.depend
 import 'package:k3h_erp_app/di/feature_dependencies/sales/enquiry/enquiry.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/other_charges/other_charges.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/payment_schedule_summary/payment_schedule_summary.dependency.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/sales/sales_dashboard/sales_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
@@ -190,4 +191,6 @@ void initDependencies() {
   registerDashboardDependencies(serviceLocator);
   // PAYMENT SCHEDULE SUMMARY DEPENDENCIES
   registerPaymentScheduleSummaryDependencies(serviceLocator);
+  // SALES DASHBOARD
+  registerSalesDashboardDependencies(serviceLocator);
 }

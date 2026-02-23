@@ -555,25 +555,29 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
               ),
             ],
           ),
-          if (termsAndCondition.modifiedDate != null) ...[
-            verticalSpacing(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _buildInfoChip(
-                  label: "Modified By",
-                  value: termsAndCondition.modifiedBy,
-                ),
-                _buildInfoChip(
-                  label: "Modified Date",
-                  value: formatDateTimeAsDDMMMYYYY(
-                    termsAndCondition.modifiedDate!,
-                  ),
-                ),
-              ],
-            ),
-          ],
+          verticalSpacing(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildInfoChip(
+                label: "Modified By",
+                value:
+                    termsAndCondition.modifiedBy.isNotEmpty
+                        ? termsAndCondition.modifiedBy
+                        : "-",
+              ),
+              _buildInfoChip(
+                label: "Modified Date",
+                value:
+                    termsAndCondition.modifiedDate != null
+                        ? formatDateTimeAsDDMMMYYYY(
+                          termsAndCondition.modifiedDate!,
+                        )
+                        : "-",
+              ),
+            ],
+          ),
         ],
       ),
     );

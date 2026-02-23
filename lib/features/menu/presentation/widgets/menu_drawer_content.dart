@@ -230,6 +230,8 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
     final isRedevelopment =
         menu.moduleName.trim().toLowerCase() == 'redevelopment';
 
+    final isSalesDashboard = menu.moduleName.trim().toLowerCase() == 'sale';
+
     bool isCurrentModuleActive = menu.subModuleData.any(
       (sub) => _isActiveModule(sub),
     );
@@ -241,6 +243,11 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
             AppRoutes.redevelopmentDashboard,
           );
     }
+    if (isSalesDashboard) {
+      isCurrentModuleActive =
+          isCurrentModuleActive ||
+          _isRouteActive(_currentPathForBuild, AppRoutes.salesDashboard);
+    }
 
     final tile = CustomModuleTile(
       key: ValueKey('module-${menu.moduleName}-$isCurrentModuleActive'),
@@ -248,14 +255,13 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
       imagePath: menu.icon,
       isActive: isCurrentModuleActive,
       isExpanded: isCurrentModuleActive,
-      onTapCallback:
-          isRedevelopment
-              ? () async {
-                await _onItemTap(
-                  navigateToPath: AppRoutes.redevelopmentDashboard,
-                );
-              }
-              : null,
+      onTapCallback: () async {
+        if (isRedevelopment) {
+          await _onItemTap(navigateToPath: AppRoutes.redevelopmentDashboard);
+        } else if (isSalesDashboard) {
+          await _onItemTap(navigateToPath: AppRoutes.salesDashboard);
+        }
+      },
       items:
           menu.subModuleData
               .mapIndexed(

@@ -276,6 +276,8 @@ import 'package:k3h_erp_app/features/sales/other_charges/presentation/pages/add_
 import 'package:k3h_erp_app/features/sales/other_charges/presentation/pages/other_charges_screen.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_summary/presentation/cubit/payment_schedule_summary_cubit.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_summary/presentation/pages/payment_schedule_summary_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sales_dashboard_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/pages/sourcing_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/pages/sourcing_view_screen.dart';
@@ -3728,12 +3730,22 @@ final GoRouter goRouter = GoRouter(
             // SALES BOOKING
             ShellRoute(
               builder: (context, state, child) {
-                return BlocProvider(
-                  create: (_) => BookingCubit(),
+                return MultiBlocProvider(
+                  providers: [
+                    BlocProvider(create: (_) => SalesDashboardCubit()),
+                    BlocProvider(create: (_) => BookingCubit()),
+                  ],
                   child: child,
                 );
               },
               routes: [
+                GoRoute(
+                  name: AppRoutes.salesDashboard,
+                  path: AppRoutes.salesDashboard,
+                  builder: (context, state) {
+                    return const SalesDashboardScreen();
+                  },
+                ),
                 GoRoute(
                   name: AppRoutes.booking,
                   path: AppRoutes.booking,

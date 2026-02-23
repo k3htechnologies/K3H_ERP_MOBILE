@@ -230,15 +230,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
 
       final address = await _getAddressFromGPS();
-
-      // 🔥 IMPORTANT: Save REAL start location immediately
       startLatLng = LatLng(pos.latitude, pos.longitude);
       routePoints.clear();
       routePoints.add(startLatLng!);
       lastPoint = startLatLng;
       totalDistance = 0.0;
-
-      // Call API with REAL GPS (NOT 0,0)
       await _dashboardCubit.addAttendance(
         context,
         punchAddress: address,
