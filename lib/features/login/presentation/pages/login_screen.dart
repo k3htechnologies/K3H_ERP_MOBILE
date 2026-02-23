@@ -170,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     hint: "- - - -",
                                     textController: _otpC,
                                     onSubmitFunction: (value) {
-                                      FocusScope.of(context).unfocus();
+                                      // FocusScope.of(context).unfocus();
                                       _loginCubit.validateOtp(
                                         context,
                                         _mobileNumberC.text,
