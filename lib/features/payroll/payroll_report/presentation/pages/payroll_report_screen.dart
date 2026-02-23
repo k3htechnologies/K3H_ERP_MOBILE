@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/cubit/payroll_report_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/route_map_screen.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -10,7 +11,6 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
-import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
@@ -585,62 +585,65 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
               ),
             ),
           ),
-          verticalSpacing(),
-          BlocBuilder<PayrollReportCubit, PayrollReportState>(
-            builder: (context, state) {
-              if (state.currentTabIndex == 0) {
-                return SizedBox.shrink();
-              }
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: SearchWidget(
-                  onSubmit: (value) {},
-                  textController: _searchC,
-                ),
-              );
-            },
-          ),
-          verticalSpacing(height: 15),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                InkWell(
-                  onTap: () {
-                    _onBackArrowClicked();
-                  },
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    size: 18,
-                    color: AppColor.black.withValues(alpha: .5),
+            padding: const EdgeInsets.symmetric(vertical: 20.0),
+            child: BlocBuilder<PayrollReportCubit, PayrollReportState>(
+              builder: (context, state) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      InkWell(
+                        onTap: _onBackArrowClicked,
+                        child: Icon(
+                          Icons.arrow_back_ios,
+                          size: 18,
+                          color: AppColor.black.withValues(alpha: .5),
+                        ),
+                      ),
+                      horizontalSpacing(width: 20),
+                      ValueListenableBuilder<DateTime>(
+                        valueListenable: _selectedDateNotifier,
+                        builder: (context, date, _) {
+                          final startDate = state.filterStartDate;
+                          final endDate = state.filterEndDate;
+                          if (startDate != null && endDate != null) {
+                            return Text(
+                              "${formatDateTimeAsDDMMMYYYY(startDate)} - "
+                              "${formatDateTimeAsDDMMMYYYY(endDate)}",
+                              style: AppTextStyle.ts14M(),
+                            );
+                          }
+                          if (startDate != null && endDate == null) {
+                            return Text(
+                              formatDateTimeAsDDMMMYYYY(startDate),
+                              style: AppTextStyle.ts14M(),
+                            );
+                          }
+                          return Text(
+                            formatDateTimeAsDDMMMYYYY(date),
+                            style: AppTextStyle.ts14M(),
+                          );
+                        },
+                      ),
+
+                      horizontalSpacing(width: 20),
+
+                      InkWell(
+                        onTap: _onForwardArrowClicked,
+                        child: Icon(
+                          Icons.arrow_forward_ios,
+                          size: 18,
+                          color: AppColor.black.withValues(alpha: .5),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                horizontalSpacing(width: 20),
-                ValueListenableBuilder<DateTime>(
-                  valueListenable: _selectedDateNotifier,
-                  builder: (context, date, _) {
-                    return Text(
-                      formatDateTimeAsDDMMMYYYY(date),
-                      style: AppTextStyle.ts14M(),
-                    );
-                  },
-                ),
-                horizontalSpacing(width: 20),
-                InkWell(
-                  onTap: () {
-                    _onForwardArrowClicked();
-                  },
-                  child: Icon(
-                    Icons.arrow_forward_ios,
-                    size: 18,
-                    color: AppColor.black.withValues(alpha: .5),
-                  ),
-                ),
-              ],
+                );
+              },
             ),
           ),
-          verticalSpacing(height: 15),
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -673,12 +676,25 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           return Center(child: noDataWidget());
         }
 
+        final Map<String, List<AttendanceModel>> groupedData = {};
+
+        for (final item in state.attendanceList) {
+          final key = item.fullName;
+          if (!groupedData.containsKey(key)) {
+            groupedData[key] = [];
+          }
+          groupedData[key]!.add(item);
+        }
+
+        final employees = groupedData.keys.toList();
+
         return ListView.builder(
           controller: _attendanceScrollController,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          itemCount: state.attendanceList.length + 1,
+          itemCount: employees.length + 1,
           itemBuilder: (context, index) {
-            if (index == state.attendanceList.length) {
+            /// Pagination loader
+            if (index == employees.length) {
               return state.attendanceList.length <
                       state.totalNumberOfRecordAttendance
                   ? const Padding(
@@ -688,139 +704,352 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                   : const SizedBox.shrink();
             }
 
-            final attendance = state.attendanceList[index];
+            final employeeName = employees[index];
+            final employeeRecords = groupedData[employeeName]!;
 
-            return Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(12),
-              decoration: commonCardDecoration(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              attendance.fullName,
-                              style: AppTextStyle.ts16SB(),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  "Attendance Date: ",
-                                  style: AppTextStyle.ts12R(
-                                    color: AppColor.grey,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text(
-                                  formatDateTimeAsDDMMMYYYY(
-                                    attendance.attendanceDate,
-                                  ),
-                                  style: AppTextStyle.ts12R(),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      _statusButton(attendance.attendanceStatus),
-                    ],
-                  ),
-                  verticalSpacing(height: 2),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Punch In",
-                        value:
-                            attendance.punchIn != null
-                                ? DateFormat(
-                                  'hh:mm a',
-                                ).format(attendance.punchIn!)
-                                : "-",
-                      ),
-                      buildColumnTitleValue(
-                        title: "Punch In Address",
-                        value:
-                            attendance.punchInAddress.isEmpty
-                                ? "-"
-                                : attendance.punchInAddress,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Punch Out",
-                        value:
-                            attendance.punchOut != null
-                                ? DateFormat(
-                                  'hh:mm a',
-                                ).format(attendance.punchOut!)
-                                : "-",
-                      ),
-                      buildColumnTitleValue(
-                        title: "Punch Out Address",
-                        value:
-                            attendance.punchOutAddress.isEmpty
-                                ? "-"
-                                : attendance.punchOutAddress,
-                      ),
-                    ],
-                  ),
-                  buildRowTitleValue(
-                    title: "Working Hours",
-                    value: attendance.workingHours,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (_) => MapScreen(
-                                startLatitude: attendance.startLatitude,
-                                startLongitude: attendance.startLongitude,
-                                endLatitude: attendance.endLatitude,
-                                endLongitude: attendance.endLongitude,
-                                polyline: attendance.polyline,
-                                distance: attendance.distance.toDouble(),
-                                attendanceDataModel: attendance,
-                              ),
-                        ),
-                      );
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          "View Location",
-                          style: AppTextStyle.ts12M().copyWith(
-                            color: AppColor.primary,
-                            decoration: TextDecoration.underline,
-                            decorationColor: AppColor.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            employeeRecords.sort(
+              (a, b) => b.attendanceDate.compareTo(a.attendanceDate),
+            );
+
+            return _buildEmployeeExpansionTile(
+              employeeName: employeeName,
+              records: employeeRecords,
+              state: state,
             );
           },
         );
       },
+    );
+  }
+
+  Widget _buildEmployeeExpansionTile({
+    required String employeeName,
+    required List<AttendanceModel> records,
+    required PayrollReportState state,
+  }) {
+    final bool isFilterApplied =
+        state.filterStartDate != null || state.filterEndDate != null;
+
+    AttendanceModel? todayRecord;
+    if (!isFilterApplied) {
+      final today = DateTime.now();
+      try {
+        todayRecord = records.firstWhere(
+          (e) =>
+              e.attendanceDate.year == today.year &&
+              e.attendanceDate.month == today.month &&
+              e.attendanceDate.day == today.day,
+        );
+      } catch (_) {
+        todayRecord = records.first;
+      }
+    }
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: commonCardDecoration(),
+      child: ExpansionTile(
+        tilePadding: EdgeInsets.symmetric(horizontal: 6.0),
+        childrenPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        iconColor: AppColor.black.withValues(alpha: 0.50),
+        collapsedIconColor: AppColor.black.withValues(alpha: 0.50),
+        shape: const Border(),
+        collapsedShape: const Border(),
+        title: _buildEmployeeHeader(
+          employeeName: employeeName,
+          record: todayRecord ?? records.first,
+          isFilterApplied: isFilterApplied,
+        ),
+        children: [
+          ..._buildEmployeeAttendanceList(
+            isFilterApplied
+                ? records
+                : (todayRecord != null ? [todayRecord] : []),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmployeeHeader({
+    required String employeeName,
+    required AttendanceModel record,
+    required bool isFilterApplied,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Row(
+            children: [
+              CircleAvatar(radius: 18, child: Text(employeeName[0])),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      employeeName,
+                      style: AppTextStyle.ts16M(color: AppColor.primary),
+                    ),
+                    Text(
+                      "Software Developer",
+                      style: AppTextStyle.ts10R(
+                        color: AppColor.black.withValues(alpha: 0.50),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildEmployeeAttendanceList(List<AttendanceModel> list) {
+    return list.map((attendance) {
+      final bool hasLocation =
+          attendance.startLatitude != 0 &&
+          attendance.startLongitude != 0 &&
+          attendance.endLatitude != 0 &&
+          attendance.endLongitude != 0;
+
+      return Container(
+        decoration: BoxDecoration(
+          color: AppColor.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    formatDateTimeAsDDMMMYYYY(attendance.attendanceDate),
+                    style: AppTextStyle.ts14M().copyWith(color: AppColor.black),
+                  ),
+                ),
+                _statusChip(attendance.attendanceStatus),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _infoItem(
+                    "Punch In Time",
+                    attendance.punchIn != null
+                        ? DateFormat('hh:mm a').format(attendance.punchIn!)
+                        : "-",
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _infoItem(
+                    "Punch Out Time",
+                    attendance.punchOut != null
+                        ? DateFormat('hh:mm a').format(attendance.punchOut!)
+                        : "-",
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _infoItem(
+                    "Punch In Address",
+                    attendance.punchInAddress.isEmpty
+                        ? "-"
+                        : attendance.punchInAddress,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _infoItem(
+                    "Punch Out Address",
+                    attendance.punchOutAddress.isEmpty
+                        ? "-"
+                        : attendance.punchOutAddress,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: _infoItem(
+                    "Working Hours",
+                    attendance.workingHours.isEmpty
+                        ? "-"
+                        : attendance.workingHours,
+                  ),
+                ),
+                if (hasLocation) ...[
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (_) => MapScreen(
+                                  startLatitude: attendance.startLatitude,
+                                  startLongitude: attendance.startLongitude,
+                                  endLatitude: attendance.endLatitude,
+                                  endLongitude: attendance.endLongitude,
+                                  polyline: attendance.polyline,
+                                  distance: attendance.distance.toDouble(),
+                                  attendanceDataModel: attendance,
+                                ),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "View Location",
+                        style: AppTextStyle.ts12M().copyWith(
+                          color: AppColor.primary,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColor.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            Divider(color: AppColor.grey, thickness: 0.50),
+            verticalSpacing(),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _infoItem(String title, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: AppTextStyle.ts12R(
+            color: AppColor.grey.withValues(alpha: 0.8),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: AppTextStyle.ts12M().copyWith(color: AppColor.black),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  Widget _statusChip(String status) {
+    final normalized = status.toLowerCase().trim();
+
+    Color bg;
+    Color text;
+    Color border;
+
+    switch (normalized) {
+      case "late in":
+        text = const Color(0xFFE65100);
+        bg = text.withValues(alpha: 0.12);
+        border = text;
+        break;
+
+      case "early leave":
+        text = const Color(0xFFF0B357);
+        bg = text.withValues(alpha: 0.15);
+        border = text;
+        break;
+
+      case "present":
+        text = const Color(0xFF1B9E4B);
+        bg = text.withValues(alpha: 0.12);
+        border = text;
+        break;
+
+      case "absent":
+        text = const Color(0xFFFF2D2D);
+        bg = text.withValues(alpha: 0.12);
+        border = text;
+        break;
+
+      case "halfday":
+      case "half day":
+        text = const Color(0xFF1389A5);
+        bg = text.withValues(alpha: 0.12);
+        border = text;
+        break;
+
+      case "checkout missing":
+        text = const Color(0xFF8E3B52);
+        bg = text.withValues(alpha: 0.12);
+        border = text;
+        break;
+
+      case "week-off":
+      case "week off":
+      case "weekoff":
+        text = const Color(0xFF3F5067);
+        bg = text.withValues(alpha: 0.12);
+        border = text;
+        break;
+
+      case "comp-off":
+      case "comp off":
+        text = const Color(0xFF4B5BD3);
+        bg = text.withValues(alpha: 0.12);
+        border = text;
+        break;
+
+      case "leave":
+        text = const Color(0xFFD81B60);
+        bg = text.withValues(alpha: 0.12);
+        border = text;
+        break;
+
+      case "holiday":
+        text = const Color(0xFF7B1FA2);
+        bg = text.withValues(alpha: 0.12);
+        border = text;
+        break;
+
+      default:
+        text = AppColor.primary;
+        bg = AppColor.lightBlue;
+        border = AppColor.primary;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: border, width: 0.8),
+      ),
+      child: Text(
+        status.isEmpty ? "Pending" : status,
+        style: AppTextStyle.ts12SB(color: text),
+      ),
     );
   }
 
