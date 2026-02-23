@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/presentation/cubit/attendance_cubit.dart';
+import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/route_map_screen.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -129,6 +130,15 @@ class _AttendanceScreenState extends State<AttendanceScreen>
       1,
     );
     _loadMonthlyData();
+  }
+
+  bool _hasValidLocation(AttendanceModel attendance) {
+    return attendance.punchIn != null &&
+        attendance.punchOut != null &&
+        attendance.startLatitude != 0 &&
+        attendance.startLongitude != 0 &&
+        attendance.endLatitude != 0 &&
+        attendance.endLongitude != 0;
   }
 
   @override
@@ -437,9 +447,57 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                       item.punchOutAddress,
                                     ),
                                   if (item.workingHours.isNotEmpty)
-                                    _buildDetailRow(
-                                      "Working Hours",
-                                      item.workingHours,
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: _buildDetailRow(
+                                            "Working Hours",
+                                            item.workingHours,
+                                          ),
+                                        ),
+                                        if (_hasValidLocation(item)) ...[
+                                          InkWell(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder:
+                                                      (_) => MapScreen(
+                                                        startLatitude:
+                                                            item.startLatitude,
+                                                        startLongitude:
+                                                            item.startLongitude,
+                                                        endLatitude:
+                                                            item.endLatitude,
+                                                        endLongitude:
+                                                            item.endLongitude,
+                                                        polyline: item.polyline,
+                                                        distance:
+                                                            item.distance
+                                                                .toDouble(),
+                                                        attendanceDataModel:
+                                                            item,
+                                                      ),
+                                                ),
+                                              );
+                                            },
+                                            child: Text(
+                                              "View Location",
+                                              style: AppTextStyle.ts12M()
+                                                  .copyWith(
+                                                    color: AppColor.primary,
+                                                    decoration:
+                                                        TextDecoration
+                                                            .underline,
+                                                    decorationColor:
+                                                        AppColor.primary,
+                                                  ),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
                                     ),
                                   verticalSpacing(height: 8),
                                 ],
@@ -954,11 +1012,53 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                       "Punch Out Address",
                       selectedAttendance.punchOutAddress,
                     ),
-                  if (selectedAttendance.workingHours.isNotEmpty)
-                    _buildDetailRow(
-                      "Working Hours",
-                      selectedAttendance.workingHours,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (selectedAttendance.workingHours.isNotEmpty)
+                        Expanded(
+                          child: _buildDetailRow(
+                            "Working Hours",
+                            selectedAttendance.workingHours,
+                          ),
+                        ),
+                      if (_hasValidLocation(selectedAttendance)) ...[
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => MapScreen(
+                                      startLatitude:
+                                          selectedAttendance.startLatitude,
+                                      startLongitude:
+                                          selectedAttendance.startLongitude,
+                                      endLatitude:
+                                          selectedAttendance.endLatitude,
+                                      endLongitude:
+                                          selectedAttendance.endLongitude,
+                                      polyline: selectedAttendance.polyline,
+                                      distance:
+                                          selectedAttendance.distance
+                                              .toDouble(),
+                                      attendanceDataModel: selectedAttendance,
+                                    ),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            "View Location",
+                            style: AppTextStyle.ts12M().copyWith(
+                              color: AppColor.primary,
+                              decoration: TextDecoration.underline,
+                              decorationColor: AppColor.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ],
               ),
             ),
