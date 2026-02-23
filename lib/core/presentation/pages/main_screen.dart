@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/presentation/cubit/main_screen_cubit.dart';
 import 'package:k3h_erp_app/features/menu/presentation/widgets/menu_drawer_content.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
@@ -112,7 +113,10 @@ class _MainScreenState extends State<MainScreen>
                 child: CustomButton(
                   leading: Icon(Icons.login, size: 18, color: AppColor.white),
                   text: "Log out",
-                  onPressed: () {},
+                  onPressed: () async {
+                    await LocalStorageManager().removeAll();
+                    goRouter.replace(AppRoutes.splashScreen);
+                  },
                 ),
               ),
               SizedBox(height: 30),

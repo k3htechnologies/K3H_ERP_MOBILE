@@ -24,7 +24,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/data/model/other_charges.model.dart';
-import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 class AddBookingScreen extends StatefulWidget {
   final List<Map<String, dynamic>>? inventoryObject;
@@ -51,6 +50,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   late TabController _tabController;
 
   Set<int> _invalidRankingIndexes = {};
+
+  late List<TextEditingController> _rankingControllers;
 
   // TEXT EDITING CONTROLLER
   late TextEditingController _enquiryUniqueCodeC,
@@ -169,7 +170,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   final _termsFormKey = GlobalKey<FormState>();
   final _paymentDetailsFormKey = GlobalKey<FormState>();
 
-
   //EDIT MODE
   bool get _isEditMode => widget.bookingModel != null;
 
@@ -189,7 +189,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       context,
       1,
       _project.projectId,
-        widget.inventoryObject?[0]["wing"] ?? widget.bookingModel!.wing
+      widget.inventoryObject?[0]["wing"] ?? widget.bookingModel!.wing,
     );
     if (_isEditMode) {
       final bm = widget.bookingModel!;
@@ -220,7 +220,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             .getEnquiryListById(context, 1, _project.projectId, bm.enquiryId)
             .whenComplete(() => _isFetchingEnquiry.value = false);
       }
-
     }
   }
 
@@ -238,6 +237,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _localOtherCharges.dispose();
     _bookingSubscription?.cancel();
     _isFetchingEnquiry.dispose();
+    for (final controller in _rankingControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -718,48 +720,16 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     return invalidIndexes.isEmpty;
   }
 
-  /*Future<bool> _validateAllTabs() async {
-
-    bool detailsValid =
-        _detailsFormKey.currentState?.validate() ?? false;
-
-    bool rankingValid = _validatePaymentScheduleRanking();
-
-    // 🔥 Build payment details tab
-    _tabController.animateTo(5);
-    await Future.delayed(const Duration(milliseconds: 80));
-
-    bool paymentDetailsValid =
-        _paymentDetailsFormKey.currentState?.validate() ?? false;
-
-    if (!detailsValid) {
-      _tabController.animateTo(0);
-      return false;
-    }else
-
-    if (!rankingValid) {
-      _tabController.animateTo(2);
-      showErrorMessage(context, "", "Ranking cannot be 0");
-      return false;
-    }else
-
-    if (!paymentDetailsValid) {
-      _tabController.animateTo(5);
-      return false;
-    }
-
-    return true;
-  }*/
-
+  // VALIDATE ALL TABS
   Future<bool> _validateAllTabs() async {
-
-    bool detailsValid =
-        _detailsFormKey.currentState?.validate() ?? false;
+    bool detailsValid = _detailsFormKey.currentState?.validate() ?? false;
 
     bool rankingValid = _validatePaymentScheduleRanking();
 
-    // 🔥 Manual validation for Payment Details (NO TAB SWITCH)
+    // Manual validation for Payment Details (NO TAB SWITCH)
     bool paymentDetailsValid = true;
+
+    bool remarkValid = true;
 
     if (_bookingAmountC.text.trim().isEmpty) {
       paymentDetailsValid = false;
@@ -773,12 +743,20 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       paymentDetailsValid = false;
     }
 
-    // 🔥 Trigger rebuild so CustomTextField shows errors
+    // Trigger rebuild so CustomTextField shows errors
     if (!paymentDetailsValid) {
       _paymentDetailsFormKey.currentState?.validate();
     }
 
-    // 🔥 Now decide where to go
+    if (_remarkC.text.trim().isEmpty) {
+      remarkValid = false;
+    }
+
+    // Trigger rebuild so CustomTextField shows errors
+    if (!remarkValid) {
+      _remarkFormKey.currentState?.validate();
+    }
+    // Now decide where to go
 
     if (!detailsValid) {
       _tabController.animateTo(0);
@@ -790,6 +768,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       showErrorMessage(context, "", "Ranking cannot be 0");
       return false;
     }
+
+    if(!remarkValid){
+      _tabController.animateTo(3);
+      return false;
+    }
+
 
     if (!paymentDetailsValid) {
       _tabController.animateTo(5);
@@ -871,34 +855,33 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           color: AppColor.white,
           child: CustomButton(
             text: "Save",
-              onPressed: () async {
-
-                if (await _validateAllTabs()) {
-                  final formValues = {
-                    "enquiryUniqueCode": _enquiryUniqueCodeC.text,
-                    "permanentAddress": _permanentAddressC.text,
-                    "communicationAddress": _communicationAddressC.text,
-                    "agreementValueWithTds": _agreementValueWithTdsC.text,
-                    "tds": _tdsC.text,
-                    "agreementValueWithoutTds": _agreementValueWithoutTdsC.text,
-                    "agreementGstPercentage": _agreementGstPercentageC.text,
-                    "agreementGstAmount": _agreementGstAmountC.text,
-                    "stampDutyPercentage": _stampDutyPercentageC.text,
-                    "stampDutyAmount": _stampDutyAmountC.text,
-                    "registrationFees": _registrationFeesC.text,
-                    "remark": _remarkC.text,
-                    "selectedParking": _selectedParkingNotifier.value,
-                    "selectedTerms": _selectedTermsNotifier.value,
-                    "otherChargesLocal":
-                    _localOtherCharges.value.map((e) => e.toJson()).toList(),
-                    "selectedBanks": _selectedBankNotifier.value,
-                    "bookingAmount": _bookingAmountC.text,
-                    "chequeNo": _chequeNoC.text,
-                    "chequeDate": _selectedChequeDate?.toIso8601String(),
-                  };
-                  print("AddBooking form values: $formValues");
-                }
+            onPressed: () async {
+              if (await _validateAllTabs()) {
+                final formValues = {
+                  "enquiryUniqueCode": _enquiryUniqueCodeC.text,
+                  "permanentAddress": _permanentAddressC.text,
+                  "communicationAddress": _communicationAddressC.text,
+                  "agreementValueWithTds": _agreementValueWithTdsC.text,
+                  "tds": _tdsC.text,
+                  "agreementValueWithoutTds": _agreementValueWithoutTdsC.text,
+                  "agreementGstPercentage": _agreementGstPercentageC.text,
+                  "agreementGstAmount": _agreementGstAmountC.text,
+                  "stampDutyPercentage": _stampDutyPercentageC.text,
+                  "stampDutyAmount": _stampDutyAmountC.text,
+                  "registrationFees": _registrationFeesC.text,
+                  "remark": _remarkC.text,
+                  "selectedParking": _selectedParkingNotifier.value,
+                  "selectedTerms": _selectedTermsNotifier.value,
+                  "otherChargesLocal":
+                      _localOtherCharges.value.map((e) => e.toJson()).toList(),
+                  "selectedBanks": _selectedBankNotifier.value,
+                  "bookingAmount": _bookingAmountC.text,
+                  "chequeNo": _chequeNoC.text,
+                  "chequeDate": _selectedChequeDate?.toIso8601String(),
+                };
+                print("AddBooking form values: $formValues");
               }
+            },
           ),
         ),
       ),
@@ -1006,7 +989,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 children: [
                                   Row(
                                     spacing: 10,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       buildColumnTitleValue(
                                         title: 'Enquiry Code',
@@ -1020,7 +1004,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                   ),
                                   Row(
                                     spacing: 10,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       buildColumnTitleValue(
                                         title: 'Mobile No',
@@ -1034,7 +1019,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                   ),
                                   Row(
                                     spacing: 10,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       buildColumnTitleValue(
                                         title: 'Sub Source',
@@ -1048,7 +1034,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                   ),
                                   Row(
                                     spacing: 10,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       buildColumnTitleValue(
                                         title: 'Sub Source',
@@ -1062,7 +1049,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                   ),
                                   Row(
                                     spacing: 10,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       buildColumnTitleValue(
                                         title: 'Sourcing Manager',
@@ -1133,7 +1121,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               ),
                               child: Text(
                                 "Invalid Enquiry Unique Code",
-                                style: AppTextStyle.ts14M(color: AppColor.error),
+                                style: AppTextStyle.ts14M(
+                                  color: AppColor.error,
+                                ),
                                 textAlign: TextAlign.center,
                               ),
                             ),
@@ -1162,10 +1152,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   verticalSpacing(),
                   Row(
                     children: [
-                      Text("Add Applicant Details", style: AppTextStyle.ts14M()),
+                      Text(
+                        "Add Applicant Details",
+                        style: AppTextStyle.ts14M(),
+                      ),
                       Spacer(),
                       CustomButton(
-                        leading: Icon(Icons.add, size: 18, color: AppColor.white),
+                        leading: Icon(
+                          Icons.add,
+                          size: 18,
+                          color: AppColor.white,
+                        ),
                         text: "Add Applicant",
                         onPressed: () async => _openApplicantForm(),
                         backgroundColor: AppColor.primary,
@@ -1686,81 +1683,84 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // BUILD EXTRA CHARGES
   Widget _buildOtherCharges() {
-    return BlocBuilder<BookingCubit, BookingState>(
-      builder: (context, state) {
-        // Initialize local copy only once when cubit returns data
-        if (state.otherChargesList.isNotEmpty &&
-            _localOtherCharges.value.isEmpty) {
-          _localOtherCharges.value =
-              state.otherChargesList.map((e) => e).toList();
-        }
+    return Form(
+      key: _otherChargesFormKey,
+      child: BlocBuilder<BookingCubit, BookingState>(
+        builder: (context, state) {
+          // Initialize local copy only once when cubit returns data
+          if (state.otherChargesList.isNotEmpty &&
+              _localOtherCharges.value.isEmpty) {
+            _localOtherCharges.value =
+                state.otherChargesList.map((e) => e).toList();
+          }
 
-        if (_localOtherCharges.value.isEmpty) {
-          return Center(child: Text("No Charges Available"));
-        }
+          if (_localOtherCharges.value.isEmpty) {
+            return Center(child: Text("No Charges Available"));
+          }
 
-        return ValueListenableBuilder<List<OtherChargeModel>>(
-          valueListenable: _localOtherCharges,
-          builder: (context, localList, child) {
-            return ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              shrinkWrap: true,
-              itemCount: localList.length,
-              itemBuilder: (_, index) {
-                final oc = localList[index];
-                return Container(
-                  decoration: commonCardDecoration(),
-                  margin: EdgeInsets.only(bottom: 10),
-                  padding: EdgeInsets.all(16),
-                  child: Column(
-                    spacing: 10,
-                    children: [
-                      Row(
-                        children: [
-                          Text(oc.chargeName, style: AppTextStyle.ts14M()),
-                          Spacer(),
-                          CustomIconButton.delete(
-                            onPressed: () {
-                              final updated = List<OtherChargeModel>.from(
-                                localList,
-                              )..removeAt(index);
-                              _localOtherCharges.value = updated;
-                            },
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Calculated On",
-                            value: oc.calculatedOn,
-                          ),
-                          buildColumnTitleValue(
-                            title: "Amount",
-                            value: "₹ ${oc.value}",
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          buildColumnTitleValue(
-                            title: "GST(%)",
-                            value: "${oc.gstPercentage} %",
-                          ),
-                          buildColumnTitleValue(
-                            title: "GST Value",
-                            value: "₹ ${oc.gstValue}",
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
+          return ValueListenableBuilder<List<OtherChargeModel>>(
+            valueListenable: _localOtherCharges,
+            builder: (context, localList, child) {
+              return ListView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                shrinkWrap: true,
+                itemCount: localList.length,
+                itemBuilder: (_, index) {
+                  final oc = localList[index];
+                  return Container(
+                    decoration: commonCardDecoration(),
+                    margin: EdgeInsets.only(bottom: 10),
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      spacing: 10,
+                      children: [
+                        Row(
+                          children: [
+                            Text(oc.chargeName, style: AppTextStyle.ts14M()),
+                            Spacer(),
+                            CustomIconButton.delete(
+                              onPressed: () {
+                                final updated = List<OtherChargeModel>.from(
+                                  localList,
+                                )..removeAt(index);
+                                _localOtherCharges.value = updated;
+                              },
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Calculated On",
+                              value: oc.calculatedOn,
+                            ),
+                            buildColumnTitleValue(
+                              title: "Amount",
+                              value: "₹ ${oc.value}",
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            buildColumnTitleValue(
+                              title: "GST(%)",
+                              value: "${oc.gstPercentage} %",
+                            ),
+                            buildColumnTitleValue(
+                              title: "GST Value",
+                              value: "₹ ${oc.gstValue}",
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -1796,23 +1796,41 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 child: BlocBuilder<BookingCubit, BookingState>(
                   buildWhen: (prev, curr) => true,
                   builder: (context, state) {
-
-                    if (state.isLoading==true && state.paymentScheduleMasterList.isEmpty) {
+                    if (state.isLoading == true &&
+                        state.paymentScheduleMasterList.isEmpty) {
                       return Center(child: CircularProgressIndicator());
                     }
 
                     if (state.paymentScheduleMasterList.isEmpty) {
-                      return Center(child: Text("No Payment Schedule Available"));
+                      return Center(
+                        child: Text("No Payment Schedule Available"),
+                      );
+                    }
+
+                    if (_rankingControllers.length !=
+                        state.paymentScheduleMasterList.length) {
+                      _rankingControllers = List.generate(
+                        state.paymentScheduleMasterList.length,
+                        (index) => TextEditingController(
+                          text:
+                              state.paymentScheduleMasterList[index].ranking ==
+                                      0
+                                  ? ""
+                                  : state
+                                      .paymentScheduleMasterList[index]
+                                      .ranking
+                                      .toString(),
+                        ),
+                      );
                     }
 
                     return SingleChildScrollView(
                       child: Column(
                         children: List.generate(
                           state.paymentScheduleMasterList.length,
-                              (index) {
-
+                          (index) {
                             final paymentScheduleMaster =
-                            state.paymentScheduleMasterList[index];
+                                state.paymentScheduleMasterList[index];
 
                             return Container(
                               margin: EdgeInsets.only(bottom: 10),
@@ -1822,12 +1840,14 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 spacing: 10,
                                 children: [
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     spacing: 15,
                                     children: [
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               "Ranking",
@@ -1836,7 +1856,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                               ),
                                             ),
                                             SizedBox(height: 4),
-                                            TextFormField(
+                                            /*TextFormField(
                                               keyboardType: TextInputType.number,
                                               decoration: InputDecoration(
                                                 isDense: true,
@@ -1867,7 +1887,53 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                                   });
                                                 }
                                               },
-                                            )
+                                            )*/
+                                            CustomTextField(
+                                              textController:
+                                                  _rankingControllers[index],
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              inputFormatterList: [
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly,
+                                              ],
+                                              onChangeFunction: (value) {
+                                                final parsed =
+                                                    int.tryParse(value) ?? 0;
+
+                                                _bookingCubit.updateRanking(
+                                                  index,
+                                                  parsed,
+                                                );
+
+                                                if (_invalidRankingIndexes
+                                                        .contains(index) &&
+                                                    parsed != 0) {
+                                                  setState(() {
+                                                    _invalidRankingIndexes
+                                                        .remove(index);
+                                                  });
+                                                }
+                                              },
+                                              validator: (value) {
+                                                final parsed = int.tryParse(
+                                                  value ?? '',
+                                                );
+
+                                                if (parsed == null ||
+                                                    parsed == 0) {
+                                                  if (!_invalidRankingIndexes
+                                                      .contains(index)) {
+                                                    _invalidRankingIndexes.add(
+                                                      index,
+                                                    );
+                                                  }
+                                                  return "Ranking is required";
+                                                }
+
+                                                return null;
+                                              },
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -1882,12 +1948,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                       buildColumnTitleValue(
                                         title: "Percentage (%)",
                                         value:
-                                        "${paymentScheduleMaster.paymentSchedulePercentage}",
+                                            "${paymentScheduleMaster.paymentSchedulePercentage}",
                                       ),
                                       buildColumnTitleValue(
                                         title: "Cumulative (%)",
                                         value:
-                                        "${paymentScheduleMaster.paymentScheduleCummulativePercentage}",
+                                            "${paymentScheduleMaster.paymentScheduleCummulativePercentage}",
                                       ),
                                     ],
                                   ),
@@ -1910,104 +1976,117 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // BUILD REMARK
   Widget _buildRemark() {
-    return Container(
-      margin: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Add Remark", style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(),
-          Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            child: CustomTextField(
-              title: "Remark",
-              hint: "Enter Remark",
-              minLines: 3,
-              maxLines: 3,
-              textController: _remarkC,
+    return Form(
+      key: _remarkFormKey,
+      child: Container(
+        margin: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Add Remark", style: AppTextStyle.ts14M(color: AppColor.grey)),
+            verticalSpacing(),
+            Container(
+              decoration: commonCardDecoration(),
+              padding: EdgeInsets.all(16),
+              child: CustomTextField(
+                title: "Remark",
+                isRequired: true,
+                hint: "Enter Remark",
+                minLines: 3,
+                maxLines: 3,
+                textController: _remarkC,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Remark is required";
+                  }
+                  return null;
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // BUILD TERMS AND CONDITION
   Widget _buildTermsAndCondition() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Terms & Condition", style: AppTextStyle.ts16SB()),
-          verticalSpacing(),
-          BlocBuilder<BookingCubit, BookingState>(
-            bloc: _bookingCubit,
-            builder: (context, state) {
-              return ValueListenableBuilder<List<Map<String, dynamic>>>(
-                valueListenable: _selectedTermsNotifier,
-                builder: (context, selectedTerms, child) {
-                  return CustomMultipleSelectPopup(
-                    title: "Terms & Conditions",
-                    isRequired: false,
-                    isMultiSelect: true,
-                    initialValue: selectedTerms,
-                    dataList: const [],
-                    onSelected: (value) {
-                      final copied =
-                          value
-                              .map((e) => Map<String, dynamic>.from(e))
-                              .toList();
-                      _selectedTermsNotifier.value = copied;
-                      if (copied.isNotEmpty) {
-                        _termsAndConditionDescriptionC.text = copied
-                            .map((e) => e['Description'] ?? '')
-                            .join('\n\n');
-                      } else {
-                        _termsAndConditionDescriptionC.clear();
-                      }
-                    },
-                    dataFetchCallBack: _fetchTerms,
-                  );
-                },
-              );
-            },
-          ),
-          ValueListenableBuilder<List<Map<String, dynamic>>>(
-            valueListenable: _selectedTermsNotifier,
-            builder: (context, selectedTerms, child) {
-              if (selectedTerms.isEmpty) return SizedBox.shrink();
-              // Show each selected term with its title and cleaned description
-              return Column(
-                children:
-                    selectedTerms.map((term) {
-                      final title = term['DisplayName']?.toString() ?? '';
-                      final desc = term['Description']?.toString() ?? '';
-                      final cleaned = _stripHtmlTags(desc);
-                      if (cleaned.isEmpty && title.isEmpty)
-                        return SizedBox.shrink();
-                      return Container(
-                        width: double.infinity,
-                        margin: EdgeInsets.only(top: 8),
-                        decoration: commonCardDecoration(),
-                        padding: EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (title.isNotEmpty)
-                              Text(title, style: AppTextStyle.ts14SB()),
-                            if (title.isNotEmpty) verticalSpacing(height: 6),
-                            if (cleaned.isNotEmpty)
-                              Text(cleaned, style: AppTextStyle.ts14R()),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-              );
-            },
-          ),
-        ],
+    return Form(
+      key: _termsFormKey,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Terms & Condition", style: AppTextStyle.ts16SB()),
+            verticalSpacing(),
+            BlocBuilder<BookingCubit, BookingState>(
+              bloc: _bookingCubit,
+              builder: (context, state) {
+                return ValueListenableBuilder<List<Map<String, dynamic>>>(
+                  valueListenable: _selectedTermsNotifier,
+                  builder: (context, selectedTerms, child) {
+                    return CustomMultipleSelectPopup(
+                      title: "Terms & Conditions",
+                      isRequired: false,
+                      isMultiSelect: false,
+                      initialValue: selectedTerms,
+                      dataList: const [],
+                      onSelected: (value) {
+                        final copied =
+                            value
+                                .map((e) => Map<String, dynamic>.from(e))
+                                .toList();
+                        _selectedTermsNotifier.value = copied;
+                        if (copied.isNotEmpty) {
+                          _termsAndConditionDescriptionC.text = copied
+                              .map((e) => e['Description'] ?? '')
+                              .join('\n\n');
+                        } else {
+                          _termsAndConditionDescriptionC.clear();
+                        }
+                      },
+                      dataFetchCallBack: _fetchTerms,
+                    );
+                  },
+                );
+              },
+            ),
+            ValueListenableBuilder<List<Map<String, dynamic>>>(
+              valueListenable: _selectedTermsNotifier,
+              builder: (context, selectedTerms, child) {
+                if (selectedTerms.isEmpty) return SizedBox.shrink();
+                // Show each selected term with its title and cleaned description
+                return Column(
+                  children:
+                      selectedTerms.map((term) {
+                        final title = term['DisplayName']?.toString() ?? '';
+                        final desc = term['Description']?.toString() ?? '';
+                        final cleaned = _stripHtmlTags(desc);
+                        if (cleaned.isEmpty && title.isEmpty)
+                          return SizedBox.shrink();
+                        return Container(
+                          width: double.infinity,
+                          margin: EdgeInsets.only(top: 8),
+                          decoration: commonCardDecoration(),
+                          padding: EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (title.isNotEmpty)
+                                Text(title, style: AppTextStyle.ts14SB()),
+                              if (title.isNotEmpty) verticalSpacing(height: 6),
+                              if (cleaned.isNotEmpty)
+                                Text(cleaned, style: AppTextStyle.ts14R()),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -2181,4 +2260,3 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     );
   }
 }
-

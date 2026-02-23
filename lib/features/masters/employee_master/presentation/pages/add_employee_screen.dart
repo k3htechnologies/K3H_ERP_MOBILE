@@ -61,8 +61,8 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
 
   //EDIT MODE
   bool get _isEditMode => widget.employee != null;
+
   // LISTS
-  // BASIC EMPLOYEE DETAILS
   List<Map<String, dynamic>> genderList = [
     {"zAttributesId": -1, "DisplayName": "Select Gender"},
     {"zAttributesId": 1, "DisplayName": "Male"},
@@ -111,10 +111,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   Map<String, dynamic>? selectedRelationToEmployee;
 
   // EMPLOYEE INFO SHEET
-  Map<String, dynamic>? selectedCompany;
-  Map<String, dynamic>? selectedBranch;
-  Map<String, dynamic>? selectedDepartment;
-  Map<String, dynamic>? selectedDesignation;
   Map<String, dynamic>? selectedReportingPerson;
   Map<String, dynamic>? selectedState;
   Map<String, dynamic>? selectedDistrict;
@@ -136,6 +132,44 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   // EMPLOYEE INFO SHEET
   DateTime? joiningDate;
   DateTime? idCardIssueDateDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _employeeMasterCubit = BlocProvider.of<EmployeeMasterCubit>(context);
+    _initializeTextEditingController();
+    _initializeDropdowns();
+
+    if (widget.employee != null) {
+      _prefillDetailsToAddUpdateEmployeeMaster(widget.employee!);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _firstNameC.dispose();
+    _middleNameC.dispose();
+    _lastNameC.dispose();
+    _officeEmailIdC.dispose();
+    _personalEmailC.dispose();
+    _personalMobileNumberC.dispose();
+    _officeMobileNumberC.dispose();
+    _emergencyContactNumberC.dispose();
+    // ADDRESS
+    _communicationAddressC.dispose();
+    _permanentAddressC.dispose();
+    _bankBranchNameC.dispose();
+    _accountNumberC.dispose();
+    _ifscC.dispose();
+
+    for (var key in _formKeys) {
+      key.currentState?.dispose();
+    }
+  }
 
   // PREFILL DETAILS TO EDIT MODE
   Future<void> _prefillDetailsToAddUpdateEmployeeMaster(
@@ -171,22 +205,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       (item) => item['DisplayName'] == employee.bloodGroup,
       orElse: () => bloodGroupList.first,
     );
-    selectedCompany = {
-      'zAttributesId': employee.companyId,
-      'DisplayName': employee.companyName,
-    };
-    selectedBranch = {
-      'zAttributesId': employee.branchMasterId,
-      'DisplayName': employee.branch,
-    };
-    selectedDepartment = {
-      'zAttributesId': employee.departmentMasterId,
-      'DisplayName': employee.department,
-    };
-    selectedDesignation = {
-      'zAttributesId': employee.designationMasterId,
-      'DisplayName': employee.designation,
-    };
+
     selectedReportingPerson = {
       'zAttributesId': employee.reportPersonId,
       'DisplayName': employee.reportPersonName,
@@ -256,44 +275,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _employeeMasterCubit = BlocProvider.of<EmployeeMasterCubit>(context);
-    _initializeTextEditingController();
-    _initializeDropdowns();
-
-    if (widget.employee != null) {
-      _prefillDetailsToAddUpdateEmployeeMaster(widget.employee!);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() {});
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _firstNameC.dispose();
-    _middleNameC.dispose();
-    _lastNameC.dispose();
-    _officeEmailIdC.dispose();
-    _personalEmailC.dispose();
-    _personalMobileNumberC.dispose();
-    _officeMobileNumberC.dispose();
-    _emergencyContactNumberC.dispose();
-    // ADDRESS
-    _communicationAddressC.dispose();
-    _permanentAddressC.dispose();
-    _bankBranchNameC.dispose();
-    _accountNumberC.dispose();
-    _ifscC.dispose();
-
-    for (var key in _formKeys) {
-      key.currentState?.dispose();
-    }
-  }
-
   // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     // BASIC EMPLOYEE DETAILS
@@ -359,7 +340,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       };
     }
 
-    // 📄 NORMAL PAGINATION MODE
+    //  NORMAL PAGINATION MODE
     final totalCount = _employeeMasterCubit.state.departmentTotalCount;
 
     final currentLoadedCount = _employeeMasterCubit.state.departmentList.length;
@@ -430,7 +411,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     final currentLoadedCount =
         _employeeMasterCubit.state.companyNameList.length;
 
-    // Load NEXT PAGE
+    // LOAD NEXT PAGE
     if (currentLoadedCount < totalCount) {
       await _employeeMasterCubit.getCompanies(context, pageNumber, pageSize);
     }
@@ -619,7 +600,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         selectedGender: selectedGender!["DisplayName"],
         selectedMaritalStatus: selectedMaritalStatus!["DisplayName"],
         selectedBloodGroup: selectedBloodGroup!["DisplayName"],
-        selectedBranchId: selectedBranch!["zAttributesId"],
+        selectedBranchId: int.parse(
+          _selectedBranch[0]["zAttributesId"].toString(),
+        ),
         dateOfBirth: dateOfBirth!,
         joiningDate: joiningDate!,
         idCardIssueDate: idCardIssueDateDate,
@@ -633,9 +616,15 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         bankBranchName: _bankBranchNameC.text.trim(),
         accountNumber: _accountNumberC.text,
         ifscCode: _ifscC.text,
-        selectedCompanyNameId: selectedCompany!["zAttributesId"],
-        selectedDepartmentId: selectedDepartment!["zAttributesId"],
-        selectedDesignationId: selectedDesignation!["zAttributesId"],
+        selectedCompanyNameId: int.parse(
+          _selectedCompany[0]["zAttributesId"].toString(),
+        ),
+        selectedDepartmentId: int.parse(
+          _selectedDepartment[0]["zAttributesId"].toString(),
+        ),
+        selectedDesignationId: int.parse(
+          _selectedDesignation[0]["zAttributesId"].toString(),
+        ),
         selectedReportingPersonId: selectedReportingPerson!["zAttributesId"],
         selectedCountryNameId: 1,
         selectedStateId: selectedState!["zAttributesId"],
@@ -655,7 +644,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         selectedGender: selectedGender!["DisplayName"],
         selectedMaritalStatus: selectedMaritalStatus!["DisplayName"],
         selectedBloodGroup: selectedBloodGroup!["DisplayName"],
-        selectedBranchId: selectedBranch!["zAttributesId"],
+        selectedBranchId: int.parse(
+          _selectedBranch[0]["zAttributesId"].toString(),
+        ),
         dateOfBirth: dateOfBirth!,
         joiningDate: joiningDate!,
         idCardIssueDate: idCardIssueDateDate,
@@ -669,9 +660,15 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         bankBranchName: _bankBranchNameC.text.trim(),
         accountNumber: _accountNumberC.text,
         ifscCode: _ifscC.text,
-        selectedCompanyNameId: selectedCompany!["zAttributesId"],
-        selectedDepartmentId: selectedDepartment!["zAttributesId"],
-        selectedDesignationId: selectedDesignation!["zAttributesId"],
+        selectedCompanyNameId: int.parse(
+          _selectedCompany[0]["zAttributesId"].toString(),
+        ),
+        selectedDepartmentId: int.parse(
+          _selectedDepartment[0]["zAttributesId"].toString(),
+        ),
+        selectedDesignationId: int.parse(
+          _selectedDesignation[0]["zAttributesId"].toString(),
+        ),
         selectedReportingPersonId: selectedReportingPerson!["zAttributesId"],
         selectedCountryNameId: 1,
         selectedStateId: selectedState!["zAttributesId"],
@@ -698,6 +695,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     );
   }
 
+  // BUILD HEADER SECTION
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
@@ -1236,7 +1234,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               child: _buildSectionContainer(_buildBankDetailsSection()),
             ),
             SliverToBoxAdapter(child: SizedBox(height: 20)),
-            SliverToBoxAdapter(child: SizedBox(height: 50)), // padding bottom
+            SliverToBoxAdapter(child: SizedBox(height: 50)),
           ],
         ),
       ),

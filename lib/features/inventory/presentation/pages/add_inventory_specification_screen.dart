@@ -466,7 +466,7 @@ class _AddInventorySpecificationScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Inventory",
+        screenTitle: "Inventory Management",
         authorization: _routAuthorizationModel,
       ),
       body: SingleChildScrollView(

@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class InventoryScreen extends StatefulWidget {
@@ -45,7 +46,7 @@ class _InventoryScreenState extends State<InventoryScreen>
   TabController? _wingTabController;
 
   // EXPANSION STATE
-  final ValueNotifier<Set<int>> _expandedFloors = ValueNotifier({});
+  final ValueNotifier<Set<String>> _expandedFloors = ValueNotifier({});
   bool _isDisposing = false;
 
   @override
@@ -116,8 +117,16 @@ class _InventoryScreenState extends State<InventoryScreen>
   void _onBuildingTabChanged() {
     if (_buildingTabController == null || !mounted) return;
     if (!_buildingTabController!.indexIsChanging) {
+      _expandedFloors.value = {};
       _inventoryCubit.onTabChanged(_buildingTabController!.index, context);
     }
+  }
+
+  // WING TAB
+  void _onWingTabChanged() {
+    if (_wingTabController == null || !mounted) return;
+    _expandedFloors.value = {};
+    if (!_wingTabController!.indexIsChanging) {}
   }
 
   // INITIALIZE CONTROLLERS
@@ -170,12 +179,6 @@ class _InventoryScreenState extends State<InventoryScreen>
     _wingTabController!.addListener(_onWingTabChanged);
   }
 
-  // WING TAB
-  void _onWingTabChanged() {
-    if (_wingTabController == null || !mounted) return;
-    if (!_wingTabController!.indexIsChanging) {}
-  }
-
   // DELETE INVENTORY FLAT
   Future<void> _showPopupToDeleteInventoryFlat(
     BuildContext context,
@@ -212,7 +215,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         isMenuButton: true,
-        screenTitle: "Project Inventory",
+        screenTitle: "Inventory Management",
         authorization: _routAuthorizationModel,
         onExportCallback: (value) {
           _inventoryCubit.exportInventory(context, _project.projectId, value);
@@ -366,10 +369,11 @@ class _InventoryScreenState extends State<InventoryScreen>
       itemBuilder: (context, index) {
         final floor = floorList[index];
 
-        return ValueListenableBuilder<Set<int>>(
+        return ValueListenableBuilder<Set<String>>(
           valueListenable: _expandedFloors,
           builder: (context, expandedSet, child) {
-            final isExpanded = expandedSet.contains(index);
+            final floorKey = "$buildingIndex-$wingIndex-$index";
+            final isExpanded = expandedSet.contains(floorKey);
 
             return Container(
               margin: const EdgeInsets.only(bottom: 12),
@@ -383,11 +387,12 @@ class _InventoryScreenState extends State<InventoryScreen>
                   // Header - Clickable
                   InkWell(
                     onTap: () {
-                      final newSet = Set<int>.from(expandedSet);
+                      final newSet = Set<String>.from(expandedSet);
+
                       if (isExpanded) {
-                        newSet.remove(index);
+                        newSet.remove(floorKey);
                       } else {
-                        newSet.add(index);
+                        newSet.add(floorKey);
                       }
                       _expandedFloors.value = newSet;
                     },
@@ -741,67 +746,28 @@ class _InventoryScreenState extends State<InventoryScreen>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Type",
-                                    style: AppTextStyle.ts14M(
-                                      color: AppColor.grey,
-                                    ),
-                                  ),
-                                  verticalSpacing(height: 4),
-                                  Text(
+                              child: buildColumnTitleValue(
+                                title: "Type",
+                                value:
                                     flat.flatType != "" ? flat.flatType : "-",
-                                    style: AppTextStyle.ts14M(
-                                      color: AppColor.black,
-                                    ),
-                                  ),
-                                ],
                               ),
                             ),
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Area(Sq.ft)",
-                                    style: AppTextStyle.ts14M(
-                                      color: AppColor.grey,
-                                    ),
-                                  ),
-                                  verticalSpacing(height: 4),
-                                  Text(
+                              child: buildColumnTitleValue(
+                                title: "Area(Sq.ft)",
+                                value:
                                     flat.reraCarpetAreaSqFt.toString().isEmpty
                                         ? "-"
                                         : flat.reraCarpetAreaSqFt.toString(),
-                                    style: AppTextStyle.ts14M(
-                                      color: AppColor.black,
-                                    ),
-                                  ),
-                                ],
                               ),
                             ),
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Configuration",
-                                    style: AppTextStyle.ts14M(
-                                      color: AppColor.grey,
-                                    ),
-                                  ),
-                                  verticalSpacing(height: 4),
-                                  Text(
+                              child: buildColumnTitleValue(
+                                title: "Configuration",
+                                value:
                                     flat.flatConfiguration.toString().isEmpty
                                         ? "-"
                                         : flat.flatConfiguration,
-                                    style: AppTextStyle.ts14M(
-                                      color: AppColor.black,
-                                    ),
-                                  ),
-                                ],
                               ),
                             ),
                           ],
@@ -821,14 +787,21 @@ class _InventoryScreenState extends State<InventoryScreen>
                                     flat.flatStatus,
                                     style: AppTextStyle.ts14M(
                                       color:
-                                          flat.flatStatus == "Blocked"
+                                          flat.flatStatus.toLowerCase() ==
+                                                  "booked"
                                               ? AppColor.error
-                                              : flat.flatStatus == "Member"
+                                              : flat.flatStatus.toLowerCase() ==
+                                                  "member"
                                               ? AppColor.purple
-                                              : flat.flatStatus == "Hold"
+                                              : flat.flatStatus.toLowerCase() ==
+                                                  "hold"
                                               ? AppColor.yellow
-                                              : flat.flatStatus == "Available"
+                                              : flat.flatStatus.toLowerCase() ==
+                                                  "available"
                                               ? AppColor.darkGreen
+                                              : flat.flatStatus.toLowerCase() ==
+                                                  "blocked"
+                                              ? AppColor.primary
                                               : AppColor.black,
                                     ),
                                   ),
@@ -836,7 +809,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                               ),
                             ),
                             horizontalSpacing(),
-                            flat.flatStatus == "Blocked"
+                            flat.flatStatus.toLowerCase() == "booked"
                                 ? GestureDetector(
                                   onTap: () {
                                     goRouter.pushNamed(
@@ -907,7 +880,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                                 ),
                           ],
                         ),
-                        if (flat.ownerName != "") ...[
+                        if (flat.ownerName != "" && flat.flatStatus.toLowerCase()=="booked") ...[
                           verticalSpacing(),
                           Text(
                             "Owner : ${flat.ownerName}",
@@ -917,8 +890,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
                         if (flat.flatStatus.toLowerCase() == "available" &&
                             flat.reraCarpetAreaSqFt != 0 &&
-                            flat.flatType != "" &&
-                            flat.flatConfiguration != "") ...[
+                            flat.flatType != "") ...[
                           verticalSpacing(),
                           CustomButton(
                             leading: Icon(
@@ -1034,9 +1006,10 @@ class _InventoryScreenState extends State<InventoryScreen>
             counts['available']!,
             AppColor.darkGreen,
           ),
+          _buildCountItem("Booked", counts['booked']!, AppColor.error),
           _buildCountItem("Alloted", counts['alloted']!, AppColor.purple),
           _buildCountItem("Hold", counts['hold']!, AppColor.yellow),
-          _buildCountItem("Blocked", counts['blocked']!, AppColor.error),
+          _buildCountItem("Blocked", counts['blocked']!, AppColor.primary),
         ],
       ),
     );
@@ -1065,9 +1038,9 @@ class _InventoryScreenState extends State<InventoryScreen>
       case "Available":
         return AppColor.lightGreen.withValues(alpha: .3);
       case "Blocked":
-        return AppColor.lightRed;
-      case "Booked":
         return AppColor.lightBlue;
+      case "Booked":
+        return AppColor.lightRed;
       case "Hold":
         return AppColor.lightYellow;
       case "Alloted":
