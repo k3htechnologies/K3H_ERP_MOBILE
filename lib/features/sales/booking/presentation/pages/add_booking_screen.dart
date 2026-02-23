@@ -702,29 +702,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     );
   }
 
-  bool _validatePaymentScheduleRanking() {
-    final list = _bookingCubit.state.paymentScheduleMasterList;
-
-    Set<int> invalidIndexes = {};
-
-    for (int i = 0; i < list.length; i++) {
-      if (list[i].ranking == 0) {
-        invalidIndexes.add(i);
-      }
-    }
-
-    setState(() {
-      _invalidRankingIndexes = invalidIndexes;
-    });
-
-    return invalidIndexes.isEmpty;
-  }
-
   // VALIDATE ALL TABS
   Future<bool> _validateAllTabs() async {
     bool detailsValid = _detailsFormKey.currentState?.validate() ?? false;
 
-    bool rankingValid = _validatePaymentScheduleRanking();
+    bool rankingValid =
+        _paymentScheduleFormKey.currentState?.validate() ?? false;
 
     // Manual validation for Payment Details (NO TAB SWITCH)
     bool paymentDetailsValid = true;
@@ -1916,19 +1899,13 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                                 }
                                               },
                                               validator: (value) {
-                                                final parsed = int.tryParse(
-                                                  value ?? '',
-                                                );
+                                                final parsed = int.tryParse(value ?? '');
 
-                                                if (parsed == null ||
-                                                    parsed == 0) {
-                                                  if (!_invalidRankingIndexes
-                                                      .contains(index)) {
-                                                    _invalidRankingIndexes.add(
-                                                      index,
-                                                    );
-                                                  }
+                                                if (parsed == null) {
                                                   return "Ranking is required";
+                                                }
+                                                if(parsed == 0){
+                                                  return "Ranking cannot be 0";
                                                 }
 
                                                 return null;

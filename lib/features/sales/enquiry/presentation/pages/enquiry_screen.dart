@@ -554,10 +554,12 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                     buildRowTitleValue(
                       title: "Enquiry Follow Up Days",
                       value: getFollowUpStatus(enquiry.nextFollowUpDate),
+                      singleLine: false
                     ),
                     buildRowTitleValue(
                       title: "Requirement",
                       value: enquiry.requirement,
+                        singleLine: false
                     ),
                     buildRowTitleValue(
                       title: "Stage",
