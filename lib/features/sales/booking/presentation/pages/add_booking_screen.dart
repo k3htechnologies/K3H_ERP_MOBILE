@@ -51,7 +51,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   Set<int> _invalidRankingIndexes = {};
 
-  late List<TextEditingController> _rankingControllers;
+  late List<TextEditingController> _rankingControllers = [];
 
   // TEXT EDITING CONTROLLER
   late TextEditingController _enquiryUniqueCodeC,
