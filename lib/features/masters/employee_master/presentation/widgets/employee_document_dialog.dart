@@ -67,7 +67,6 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
   Future<void> _pickDocuments() async {
     final currentCount = widget.urls.length;
 
-    // 🔒 HARD LIMIT CHECK
     if (currentCount >= maxDocuments) {
       goRouter.pop();
       showErrorMessage(context, "Image Error", "Maximum 5 documents uploaded");
