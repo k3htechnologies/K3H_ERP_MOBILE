@@ -117,7 +117,7 @@ class _RichTextInputState extends State<RichTextInput> {
 
   void _generateFormattedText() {
     // Generate HTML-like formatted text
-    String formattedText = _controller.text;
+    String formattedText = _controller.text.replaceAll('\n', '<br>');
 
     if (_isBold) {
       formattedText = '<b>$formattedText</b>';
@@ -141,7 +141,7 @@ class _RichTextInputState extends State<RichTextInput> {
     }
     if (_textColor != Colors.black87) {
       formattedText =
-      '<font color="${_getHexColor(_textColor)}">$formattedText</font>';
+          '<font color="${_getHexColor(_textColor)}">$formattedText</font>';
     }
 
     widget.onFormattedTextChanged?.call(formattedText);
@@ -222,7 +222,6 @@ class _RichTextInputState extends State<RichTextInput> {
     plainText = plainText.replaceAll('</font>', '');
 
     _controller.text = plainText;
-
   }
 
   Color _parseHexColor(String hexColor) {
@@ -348,10 +347,7 @@ class _RichTextInputState extends State<RichTextInput> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (widget.isRequired == true)
-                  Text(
-                    "*",
-                    style: AppTextStyle.ts14R(color: AppColor.error),
-                  ),
+                  Text("*", style: AppTextStyle.ts14R(color: AppColor.error)),
               ],
             ),
           ),
@@ -371,111 +367,112 @@ class _RichTextInputState extends State<RichTextInput> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                // Text formatting
-                _buildCompactFormatButton(
-                  icon: Icons.format_bold,
-                  isActive: _isBold,
-                  onPressed: _toggleBold,
-                  tooltip: 'Bold',
-                ),
-                _buildCompactFormatButton(
-                  icon: Icons.format_italic,
-                  isActive: _isItalic,
-                  onPressed: _toggleItalic,
-                  tooltip: 'Italic',
-                ),
-                _buildCompactFormatButton(
-                  icon: Icons.format_underline,
-                  isActive: _isUnderlined,
-                  onPressed: _toggleUnderline,
-                  tooltip: 'Underline',
-                ),
-                _buildCompactFormatButton(
-                  icon: Icons.strikethrough_s,
-                  isActive: _isStrikethrough,
-                  onPressed: _toggleStrikethrough,
-                  tooltip: 'Strikethrough',
-                ),
-
-                const SizedBox(width: 6),
-
-                // Font size
-                _buildUltraCompactDropdown<double>(
-                  value: _fontSize,
-                  items:
-                  [10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 24.0]
-                      .map(
-                        (size) => DropdownMenuItem(
-                      value: size,
-                      child: Text('${size.toInt()}'),
-                    ),
-                  )
-                      .toList(),
-                  onChanged:
-                      (value) => value != null ? _changeFontSize(value) : null,
-                  tooltip: 'Font Size',
-                ),
-
-                const SizedBox(width: 2),
-
-                // Font family
-                _buildUltraCompactDropdown<String>(
-                  value: _fontFamily,
-                  items:
-                  _availableFonts
-                      .map(
-                        (font) => DropdownMenuItem(
-                      value: font,
-                      child: Text(font),
-                    ),
-                  )
-                      .toList(),
-                  onChanged:
-                      (value) =>
-                  value != null ? _changeFontFamily(value) : null,
-                  tooltip: 'Font Family',
-                ),
-
-                const SizedBox(width: 6),
-
-                // Text color
-                _buildUltraCompactColorPicker(
-                  currentColor: _textColor,
-                  onColorChanged: _changeTextColor,
-                  tooltip: 'Text Color',
-                ),
-
-                const SizedBox(width: 6),
-
-                // Text alignment
-                _buildCompactAlignmentButton(
-                  TextAlign.left,
-                  Icons.format_align_left,
-                  'Left',
-                ),
-                _buildCompactAlignmentButton(
-                  TextAlign.center,
-                  Icons.format_align_center,
-                  'Center',
-                ),
-                _buildCompactAlignmentButton(
-                  TextAlign.right,
-                  Icons.format_align_right,
-                  'Right',
-                ),
-
-                // Clear formatting
-                IconButton(
-                  icon: const Icon(Icons.clear_all, size: 14),
-                  onPressed: _clearFormatting,
-                  tooltip: 'Clear Formatting',
-                  color: Colors.grey[500],
-                  padding: const EdgeInsets.all(2),
-                  constraints: const BoxConstraints(
-                    minWidth: 20,
-                    minHeight: 20,
+                  // Text formatting
+                  _buildCompactFormatButton(
+                    icon: Icons.format_bold,
+                    isActive: _isBold,
+                    onPressed: _toggleBold,
+                    tooltip: 'Bold',
                   ),
-                ),
+                  _buildCompactFormatButton(
+                    icon: Icons.format_italic,
+                    isActive: _isItalic,
+                    onPressed: _toggleItalic,
+                    tooltip: 'Italic',
+                  ),
+                  _buildCompactFormatButton(
+                    icon: Icons.format_underline,
+                    isActive: _isUnderlined,
+                    onPressed: _toggleUnderline,
+                    tooltip: 'Underline',
+                  ),
+                  _buildCompactFormatButton(
+                    icon: Icons.strikethrough_s,
+                    isActive: _isStrikethrough,
+                    onPressed: _toggleStrikethrough,
+                    tooltip: 'Strikethrough',
+                  ),
+
+                  const SizedBox(width: 6),
+
+                  // Font size
+                  _buildUltraCompactDropdown<double>(
+                    value: _fontSize,
+                    items:
+                        [10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 24.0]
+                            .map(
+                              (size) => DropdownMenuItem(
+                                value: size,
+                                child: Text('${size.toInt()}'),
+                              ),
+                            )
+                            .toList(),
+                    onChanged:
+                        (value) =>
+                            value != null ? _changeFontSize(value) : null,
+                    tooltip: 'Font Size',
+                  ),
+
+                  const SizedBox(width: 2),
+
+                  // Font family
+                  _buildUltraCompactDropdown<String>(
+                    value: _fontFamily,
+                    items:
+                        _availableFonts
+                            .map(
+                              (font) => DropdownMenuItem(
+                                value: font,
+                                child: Text(font),
+                              ),
+                            )
+                            .toList(),
+                    onChanged:
+                        (value) =>
+                            value != null ? _changeFontFamily(value) : null,
+                    tooltip: 'Font Family',
+                  ),
+
+                  const SizedBox(width: 6),
+
+                  // Text color
+                  _buildUltraCompactColorPicker(
+                    currentColor: _textColor,
+                    onColorChanged: _changeTextColor,
+                    tooltip: 'Text Color',
+                  ),
+
+                  const SizedBox(width: 6),
+
+                  // Text alignment
+                  _buildCompactAlignmentButton(
+                    TextAlign.left,
+                    Icons.format_align_left,
+                    'Left',
+                  ),
+                  _buildCompactAlignmentButton(
+                    TextAlign.center,
+                    Icons.format_align_center,
+                    'Center',
+                  ),
+                  _buildCompactAlignmentButton(
+                    TextAlign.right,
+                    Icons.format_align_right,
+                    'Right',
+                  ),
+
+                  // Clear formatting
+                  IconButton(
+                    icon: const Icon(Icons.clear_all, size: 14),
+                    onPressed: _clearFormatting,
+                    tooltip: 'Clear Formatting',
+                    color: Colors.grey[500],
+                    padding: const EdgeInsets.all(2),
+                    constraints: const BoxConstraints(
+                      minWidth: 20,
+                      minHeight: 20,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -490,56 +487,57 @@ class _RichTextInputState extends State<RichTextInput> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(6.0),
             border: Border.all(
-              color: widget.readOnly
-                  ? AppColor.darkGrey
-                  : AppColor.grey.withValues(alpha: 0.3),
+              color:
+                  widget.readOnly
+                      ? AppColor.darkGrey
+                      : AppColor.grey.withValues(alpha: 0.3),
               width: 1.0,
             ),
           ),
           child:
-          _isHtmlContent && widget.readOnly
-              ? SingleChildScrollView(
-            padding: const EdgeInsets.all(12),
-            child: Html(
-              data: _htmlContent,
-              style: {
-                "body": Style(
-                  margin: Margins.zero,
-                  padding: HtmlPaddings.zero,
-                ),
-              },
-            ),
-          )
-              : TextField(
-            controller: _controller,
-            focusNode: _focusNode,
-            readOnly: widget.readOnly,
-            maxLines: null,
-            expands: true,
-            style: TextStyle(
-              color: _textColor,
-              fontSize: _fontSize,
-              fontFamily: _fontFamily,
-              fontWeight: _isBold ? FontWeight.bold : FontWeight.normal,
-              fontStyle:
-              _isItalic ? FontStyle.italic : FontStyle.normal,
-              decoration: _buildTextDecoration(),
-              decorationColor: _textColor,
-              decorationThickness: 1.0,
-            ),
-            decoration: InputDecoration(
-              hintText: widget.hintText,
-              hintStyle: TextStyle(
-                color: Colors.grey[400],
-                fontSize: _fontSize,
-                fontFamily: _fontFamily,
-              ),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.all(12),
-              filled: false,
-            ),
-            textAlign: _textAlign,
-          ),
+              _isHtmlContent && widget.readOnly
+                  ? SingleChildScrollView(
+                    padding: const EdgeInsets.all(12),
+                    child: Html(
+                      data: _htmlContent,
+                      style: {
+                        "body": Style(
+                          margin: Margins.zero,
+                          padding: HtmlPaddings.zero,
+                        ),
+                      },
+                    ),
+                  )
+                  : TextField(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    readOnly: widget.readOnly,
+                    maxLines: null,
+                    expands: true,
+                    style: TextStyle(
+                      color: _textColor,
+                      fontSize: _fontSize,
+                      fontFamily: _fontFamily,
+                      fontWeight: _isBold ? FontWeight.bold : FontWeight.normal,
+                      fontStyle:
+                          _isItalic ? FontStyle.italic : FontStyle.normal,
+                      decoration: _buildTextDecoration(),
+                      decorationColor: _textColor,
+                      decorationThickness: 1.0,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: widget.hintText,
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: _fontSize,
+                        fontFamily: _fontFamily,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.all(12),
+                      filled: false,
+                    ),
+                    textAlign: _textAlign,
+                  ),
         ),
       ],
     );
@@ -603,30 +601,30 @@ class _RichTextInputState extends State<RichTextInput> {
       child: PopupMenuButton<Color>(
         itemBuilder:
             (context) =>
-            _availableColors
-                .map(
-                  (color) => PopupMenuItem(
-                value: color,
-                child: Row(
-                  children: [
-                    Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: color,
-                        border: Border.all(color: Colors.grey[400]!),
+                _availableColors
+                    .map(
+                      (color) => PopupMenuItem(
+                        value: color,
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 14,
+                              height: 14,
+                              decoration: BoxDecoration(
+                                color: color,
+                                border: Border.all(color: Colors.grey[400]!),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              _getHexColor(color),
+                              style: const TextStyle(fontSize: 11),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      _getHexColor(color),
-                      style: const TextStyle(fontSize: 11),
-                    ),
-                  ],
-                ),
-              ),
-            )
-                .toList(),
+                    )
+                    .toList(),
         onSelected: onColorChanged,
         child: Container(
           width: 20,
@@ -642,10 +640,10 @@ class _RichTextInputState extends State<RichTextInput> {
   }
 
   Widget _buildCompactAlignmentButton(
-      TextAlign align,
-      IconData icon,
-      String tooltip,
-      ) {
+    TextAlign align,
+    IconData icon,
+    String tooltip,
+  ) {
     final isActive = _textAlign == align;
     return Container(
       margin: const EdgeInsets.only(right: 1),

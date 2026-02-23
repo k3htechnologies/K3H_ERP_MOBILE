@@ -174,6 +174,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
           _projectMasterCubit.searchProject(context, value);
         },
         textController: _searchC,
+        searchHintText: "Search by Project Name",
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addProjectMaster);
           if (context.mounted) {

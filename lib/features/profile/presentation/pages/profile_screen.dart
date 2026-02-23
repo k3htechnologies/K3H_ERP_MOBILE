@@ -582,26 +582,15 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
                 verticalSpacing(height: 4),
                 Text(
+                  user.department.isNotEmpty ? user.department : '-',
+                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                ),
+                verticalSpacing(height: 4),
+                Text(
                   user.designation.isNotEmpty ? user.designation : '-',
                   style: AppTextStyle.ts14M(color: AppColor.grey),
                 ),
                 verticalSpacing(height: 4),
-                Row(
-                  children: [
-                    Icon(Icons.business, size: 14, color: AppColor.grey),
-                    horizontalSpacing(width: 4),
-                    Expanded(
-                      child: Text(
-                        project!.projectName.toLowerCase() == "default"
-                            ? "-"
-                            : project.projectName,
-                        style: AppTextStyle.ts12R(color: AppColor.grey),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
                 SizedBox(
                   width: 140,
                   child: CustomButton(
@@ -1800,9 +1789,9 @@ class _ProfileScreenState extends State<ProfileScreen>
               final doc = state.employeeDocumentList[index];
 
               final urls =
-              doc.documentUrl.isEmpty
-                  ? <String>[]
-                  : doc.documentUrl.split(',');
+                  doc.documentUrl.isEmpty
+                      ? <String>[]
+                      : doc.documentUrl.split(',');
 
               final isFresh = urls.isEmpty;
 
@@ -1822,57 +1811,53 @@ class _ProfileScreenState extends State<ProfileScreen>
                           barrierDismissible: true,
                           builder:
                               (_) => EmployeeDocumentDialog(
-                            title: doc.documentName,
-                            urls: urls,
-                            isFreshAdd: isFresh,
+                                title: doc.documentName,
+                                urls: urls,
+                                isFreshAdd: isFresh,
 
-                            // ➕ ADD / UPLOAD
-                            addDocument: (pickedFiles) async {
-                              final files = MultiFilePickerModel(
-                                fileNameList:
-                                pickedFiles.map((e) => e.name).toList(),
-                                fileBytesList:
-                                pickedFiles
-                                    .where((e) => e.bytes != null)
-                                    .map((e) => e.bytes!)
-                                    .toList(),
-                                deletedFileList: "",
-                              );
+                                // ➕ ADD / UPLOAD
+                                addDocument: (pickedFiles) async {
+                                  final files = MultiFilePickerModel(
+                                    fileNameList:
+                                        pickedFiles.map((e) => e.name).toList(),
+                                    fileBytesList:
+                                        pickedFiles
+                                            .where((e) => e.bytes != null)
+                                            .map((e) => e.bytes!)
+                                            .toList(),
+                                    deletedFileList: "",
+                                  );
 
-                              await _profileCubit
-                                  .updateEmployeeDocument(
-                                context: context,
-                                employeeDocumentId:
-                                doc.employeeDocumentId,
-                                uniqueKey: doc.uniquekey,
-                                employeeId: doc.employeeId.toString(),
-                                documentName: doc.documentName,
-                                removeDocumentURL: "",
-                                files: files,
-                              );
-                            },
+                                  await _profileCubit.updateEmployeeDocument(
+                                    context: context,
+                                    employeeDocumentId: doc.employeeDocumentId,
+                                    uniqueKey: doc.uniquekey,
+                                    employeeId: doc.employeeId.toString(),
+                                    documentName: doc.documentName,
+                                    removeDocumentURL: "",
+                                    files: files,
+                                  );
+                                },
 
-                            // 🗑 DELETE
-                            deleteDocument: (removeUrl) async {
-                              final files = MultiFilePickerModel(
-                                fileNameList: [],
-                                fileBytesList: [],
-                                deletedFileList: removeUrl,
-                              );
+                                // 🗑 DELETE
+                                deleteDocument: (removeUrl) async {
+                                  final files = MultiFilePickerModel(
+                                    fileNameList: [],
+                                    fileBytesList: [],
+                                    deletedFileList: removeUrl,
+                                  );
 
-                              await _profileCubit
-                                  .updateEmployeeDocument(
-                                context: context,
-                                employeeDocumentId:
-                                doc.employeeDocumentId,
-                                uniqueKey: doc.uniquekey,
-                                employeeId: doc.employeeId.toString(),
-                                documentName: doc.documentName,
-                                removeDocumentURL: removeUrl,
-                                files: files,
-                              );
-                            },
-                          ),
+                                  await _profileCubit.updateEmployeeDocument(
+                                    context: context,
+                                    employeeDocumentId: doc.employeeDocumentId,
+                                    uniqueKey: doc.uniquekey,
+                                    employeeId: doc.employeeId.toString(),
+                                    documentName: doc.documentName,
+                                    removeDocumentURL: removeUrl,
+                                    files: files,
+                                  );
+                                },
+                              ),
                         );
                       },
                       icon: Icon(
@@ -1881,7 +1866,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         color: isFresh ? AppColor.grey : AppColor.primary,
                       ),
                       backgroundColor:
-                      isFresh ? AppColor.lightGrey : AppColor.lightBlue,
+                          isFresh ? AppColor.lightGrey : AppColor.lightBlue,
                     ),
                   ],
                 ),

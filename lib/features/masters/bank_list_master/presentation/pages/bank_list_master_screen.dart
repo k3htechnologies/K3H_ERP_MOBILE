@@ -37,7 +37,7 @@ class _BankListScreenState extends State<BankListScreen> {
     _bankListMasterCubit = context.read<BankListMasterCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.bankListMaster] ??
-            AuthorizationModel();
+        AuthorizationModel();
     _initializeTextEditingController();
     _onScroll();
     _bankListMasterCubit.getBankList(context, 1, 15);
@@ -87,6 +87,7 @@ class _BankListScreenState extends State<BankListScreen> {
           _bankListMasterCubit.searchBank(context, value);
         },
         textController: _searchC,
+        searchHintText: "Search By Bank Name",
       ),
       body: BlocBuilder<BankListMasterCubit, BankListMasterState>(
         builder: (context, state) {
@@ -104,9 +105,9 @@ class _BankListScreenState extends State<BankListScreen> {
               if (index == state.bankList.length) {
                 return state.bankList.length < state.totalNumberOfRecord
                     ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
                     : const SizedBox.shrink();
               }
               var bank = state.bankList[index];
@@ -116,7 +117,10 @@ class _BankListScreenState extends State<BankListScreen> {
                 decoration: commonCardDecoration(),
                 child: Container(
                   decoration: commonCardDecoration(),
-                  child: Text(bank.bankNameWithCode,style: AppTextStyle.ts14SB(),),
+                  child: Text(
+                    bank.bankNameWithCode,
+                    style: AppTextStyle.ts14SB(),
+                  ),
                 ),
               );
             },
@@ -125,5 +129,4 @@ class _BankListScreenState extends State<BankListScreen> {
       ),
     );
   }
-
 }

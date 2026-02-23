@@ -462,8 +462,12 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "tnc_${DateTime.now()}.pdf"
-              : "tnc_${DateTime.now()}.xlsx",
+              ? "Terms & Conditions Master ${DateTime.now()}.pdf"
+              : "Terms & Conditions Master ${DateTime.now()}.xlsx",
+        );
+        showSuccessMessage(
+          context,
+          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );
@@ -491,8 +495,12 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "booking_${DateTime.now()}.pdf"
-              : "booking_${DateTime.now()}.xlsx",
+              ? "Terms & Conditions Master ${DateTime.now()}.pdf"
+              : "Terms & Conditions Master ${DateTime.now()}.xlsx",
+        );
+        showSuccessMessage(
+          context,
+          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );
