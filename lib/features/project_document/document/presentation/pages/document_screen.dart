@@ -174,7 +174,7 @@ class _DocumentScreenState extends State<DocumentScreen>
       Form(
         key: _formKey,
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: EdgeInsets.symmetric(vertical: 16),
 
           child: Column(
             children: [
@@ -193,7 +193,7 @@ class _DocumentScreenState extends State<DocumentScreen>
               Spacer(),
               Container(
                 height: 70,
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.symmetric(vertical: 16),
                 child: CustomButton(
                   text:
                       documentModel != null
@@ -265,7 +265,7 @@ class _DocumentScreenState extends State<DocumentScreen>
 
               // 2. Loaded but no categories
               if (state.documentCategoryModelList.isEmpty) {
-                return noDataWidget();
+                return Center(child: noDataWidget());
               }
 
               // 3. Categories exist but controller not ready yet

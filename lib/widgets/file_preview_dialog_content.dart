@@ -104,23 +104,6 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
     }
   }
 
-  String _getMimeType(String fileName) {
-    final ext = fileName.split('.').last.toLowerCase();
-    switch (ext) {
-      case 'png':
-        return 'image/png';
-      case 'jpg':
-      case 'jpeg':
-        return 'image/jpeg';
-      case 'pdf':
-        return 'application/pdf';
-      case 'txt':
-        return 'text/plain';
-      default:
-        return 'application/octet-stream';
-    }
-  }
-
   Widget _buildImage(int index, String url) {
     // If it's a network image
     if (url.startsWith("http")) {

@@ -86,11 +86,13 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
 
     if (result.files.length > remaining) {
       goRouter.pop();
-      showErrorMessage(
+      if(mounted) {
+        showErrorMessage(
         context,
         "Image Error",
         "You can add only 5 document(s)",
       );
+      }
       return;
     }
 

@@ -49,7 +49,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   // TAB CONTROLLER
   late TabController _tabController;
 
-  Set<int> _invalidRankingIndexes = {};
+  final Set<int> _invalidRankingIndexes = {};
 
   late List<TextEditingController> _rankingControllers = [];
 
@@ -184,6 +184,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _selectedHandOverType = handOverTypeList.first;
     _selectedFundingSource = fundingSourceList.first;
     _agreementValueNotifier.addListener(_calculateTds);
+
     // PULL PAYMENT SCHEDULE MASTER
     _bookingCubit.getPaymentScheduleMasterList(
       context,
@@ -191,6 +192,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       _project.projectId,
       widget.inventoryObject?[0]["wing"] ?? widget.bookingModel!.wing,
     );
+    // OTHER CHARGES
+    _bookingCubit.getOtherChargesList(context, 1, _project.projectId);
+
     if (_isEditMode) {
       final bm = widget.bookingModel!;
       _prefill(bm);
@@ -210,7 +214,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         _project.projectId,
         bm.bookingId,
       );
-      _bookingCubit.getOtherChargesList(context, 1, _project.projectId);
 
       // Fetch enquiry by id to get system generated code and populate enquiry field
       if (bm.enquiryId != 0) {
@@ -752,11 +755,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       return false;
     }
 
-    if(!remarkValid){
+    if (!remarkValid) {
       _tabController.animateTo(3);
       return false;
     }
-
 
     if (!paymentDetailsValid) {
       _tabController.animateTo(5);
@@ -913,7 +915,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             title: "Enquiry Unique Code",
                             isRequired: true,
                             inputFormatterList: [
-                              LengthLimitingTextInputFormatter(18),
+                              LengthLimitingTextInputFormatter(8),
                             ],
                             hint: "Enter Enquiry Unique Code",
                             textController: _enquiryUniqueCodeC,
@@ -922,7 +924,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 _debounce!.cancel();
                               }
 
-                              if (value.length != 18) {
+                              if (value.length != 8) {
                                 // Clear any previous enquiry results and fetch flags
                                 _bookingCubit.clearEnquiryList();
                                 _permanentAddressC.clear();
@@ -935,7 +937,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               _debounce = Timer(
                                 const Duration(milliseconds: 500),
                                 () async {
-                                  if (value.length == 18) {
+                                  if (value.length == 8) {
                                     _isFetchingEnquiry.value = true;
                                     _enquiryFetchTried.value = true;
                                     await _bookingCubit.getEnquiryList(
@@ -1899,12 +1901,14 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                                 }
                                               },
                                               validator: (value) {
-                                                final parsed = int.tryParse(value ?? '');
+                                                final parsed = int.tryParse(
+                                                  value ?? '',
+                                                );
 
                                                 if (parsed == null) {
                                                   return "Ranking is required";
                                                 }
-                                                if(parsed == 0){
+                                                if (parsed == 0) {
                                                   return "Ranking cannot be 0";
                                                 }
 
@@ -2040,8 +2044,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         final title = term['DisplayName']?.toString() ?? '';
                         final desc = term['Description']?.toString() ?? '';
                         final cleaned = _stripHtmlTags(desc);
-                        if (cleaned.isEmpty && title.isEmpty)
+                        if (cleaned.isEmpty && title.isEmpty) {
                           return SizedBox.shrink();
+                        }
                         return Container(
                           width: double.infinity,
                           margin: EdgeInsets.only(top: 8),

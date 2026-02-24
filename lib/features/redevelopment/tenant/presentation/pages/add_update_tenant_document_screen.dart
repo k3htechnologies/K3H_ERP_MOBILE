@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/features/masters/employee_master/presentation/widget
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant_document.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -248,7 +249,7 @@ class _AddUpdateTenantDocumentScreenState
                                             files: files,
                                           );
                                           if (mounted) {
-                                            Navigator.of(context).pop();
+                                            goRouter.pop();
                                             await _loadDocuments();
                                           }
                                         },
@@ -271,7 +272,7 @@ class _AddUpdateTenantDocumentScreenState
                                             files: files,
                                           );
                                           if (mounted) {
-                                            Navigator.of(context).pop();
+                                            goRouter.pop();
                                             await _loadDocuments();
                                           }
                                         },

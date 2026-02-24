@@ -176,7 +176,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
       Form(
         key: _formKey,
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: EdgeInsets.symmetric(vertical: 16),
           child: Column(
             children: [
               CustomTextField(
@@ -194,7 +194,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
               Spacer(),
               Container(
                 height: 70,
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.symmetric(vertical: 16),
                 child: CustomButton(
                   text:
                       documentModel != null
@@ -264,7 +264,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
 
               // 2. Loaded but no categories
               if (state.documentCategoryModelList.isEmpty) {
-                return noDataWidget();
+                return Center(child: noDataWidget());
               }
 
               // 3. Categories exist but controller not ready yet

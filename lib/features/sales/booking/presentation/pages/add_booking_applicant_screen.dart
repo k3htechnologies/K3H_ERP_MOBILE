@@ -169,6 +169,61 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
     setFileLists(gstFile, applicant.gstNumberURL);
   }
 
+  void _save() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    // Prevent duplicate primary applicant
+    if (selectedApplicantType['DisplayName'] == "Applicant" &&
+        widget.hasPrimaryApplicant &&
+        !_isEditingApplicantType) {
+      showErrorMessage(context,"", "Primary Applicant already exists");
+      return;
+    }
+
+    final applicant = BookingApplicantData(
+      bookingApplicantId: widget.applicant?.bookingApplicantId ?? 0,
+      applicantType: selectedApplicantType['DisplayName'],
+      applicantName: _applicantNameC.text.trim(),
+      applicantMobileNumber: _mobileC.text.trim(),
+      applicantEmailId: _emailC.text.trim(),
+
+      photoURL: widget.applicant?.photoURL ?? '',
+      aadharCardNumber: _aadharC.text.trim(),
+      aadharCardURL: widget.applicant?.aadharCardURL ?? '',
+      panNumber: _panC.text.trim(),
+      panCardURL: widget.applicant?.panCardURL ?? '',
+      passportNumber: _passportC.text.trim(),
+      passportURL: widget.applicant?.passportURL ?? '',
+      drivingLicenseNumber: _drivingLicenseC.text.trim(),
+      drivingLicenseURL: widget.applicant?.drivingLicenseURL ?? '',
+      votingIdNumber: _votingIdC.text.trim(),
+      votingIdURL: widget.applicant?.votingIdURL ?? '',
+      gstNumber: _gstC.text.trim(),
+      gstNumberURL: widget.applicant?.gstNumberURL ?? '',
+
+      createdById: widget.applicant?.createdById ?? -1,
+      createdBy: widget.applicant?.createdBy ?? '',
+      createdDate: widget.applicant?.createdDate ?? DateTime.now(),
+      modifiedById: widget.applicant?.modifiedById ?? -1,
+      modifiedBy: widget.applicant?.modifiedBy ?? '',
+      modifiedDate: DateTime.now(),
+    );
+
+    // 🔥 Attach file picker models
+    applicant.profilePhotoImage = profilePhotoFile;
+    applicant.aadhaarImage = aadhaarFile;
+    applicant.panImage = panFile;
+    applicant.passportImage = passportFile;
+    applicant.drivingLicenseImage = drivingLicenseFile;
+    applicant.votingIdImage = votingIdFile;
+    applicant.gstImage = gstFile;
+
+    Navigator.pop(context, {
+      "applicant": applicant,
+      "index": widget.index,
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -499,7 +554,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
           height: 70,
           padding: const EdgeInsets.all(16),
           color: AppColor.white,
-          child: CustomButton(text: "Save", onPressed: () {}),
+          child: CustomButton(text: "Save", onPressed: _save),
         ),
       ),
     );

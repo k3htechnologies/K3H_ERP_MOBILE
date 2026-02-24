@@ -175,7 +175,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
       Form(
         key: _formKey,
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: EdgeInsets.symmetric(vertical: 16),
 
           child: Column(
             children: [
@@ -194,7 +194,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
               Spacer(),
               Container(
                 height: 70,
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.symmetric(vertical: 16),
                 child: CustomButton(
                   text:
                       documentModel != null
@@ -266,7 +266,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
 
               // 2. Loaded but no categories
               if (state.documentCategoryModelList.isEmpty) {
-                return noDataWidget();
+                return Center(child: noDataWidget());
               }
 
               // 3. Categories exist but controller not ready yet

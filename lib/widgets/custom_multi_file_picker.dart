@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
@@ -82,7 +83,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                 leading: Icon(Icons.camera_alt,size: 16,),
                 title: Text("Camera"),
                 onTap: () async {
-                  Navigator.pop(context);
+                  goRouter.pop();
                   await _captureFromCamera(formFieldState);
                 },
               ),
@@ -90,7 +91,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                 leading: Icon(Icons.photo_library),
                 title: Text("Gallery"),
                 onTap: () async {
-                  Navigator.pop(context);
+                  goRouter.pop();
                   pickFile(context, formFieldState, portalContext);
                 },
               ),
