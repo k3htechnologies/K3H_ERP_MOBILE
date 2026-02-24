@@ -6,18 +6,14 @@ import 'package:k3h_erp_app/features/sales/payment_schedule_summary/data/model/p
 class PaymentScheduleSummaryState extends BaseState {
   final int currentTabIndex;
   final List<ProjectInventoryStructure> projectInventoryList;
-  final List<FlatPaymentSchedule> flatPaymentSchedules; // ✅ grouped
+  final List<PaymentScheduleMasterReport> paymentScheduleReportList;
   final List<CostSheetReport> costSheetReportList;
   final List<ProjectInventoryStructure> buildingList;
   final List<String> wingList;
   final List<String> flatConfigurationList;
   final String selectedFlatConfiguration;
-
-  // Dropdown selections
   final ProjectInventoryStructure? selectedBuilding;
   final String? selectedWing;
-
-  // Pagination fields
   final int paymentScheduleCurrentPage;
   final int paymentScheduleTotalRecords;
   final int costSheetCurrentPage;
@@ -27,7 +23,7 @@ class PaymentScheduleSummaryState extends BaseState {
     super.isLoading,
     required this.currentTabIndex,
     required this.projectInventoryList,
-    required this.flatPaymentSchedules,
+    required this.paymentScheduleReportList,
     required this.costSheetReportList,
     required this.buildingList,
     required this.wingList,
@@ -45,7 +41,7 @@ class PaymentScheduleSummaryState extends BaseState {
     isLoading: true,
     currentTabIndex: 0,
     projectInventoryList: [],
-    flatPaymentSchedules: [],
+    paymentScheduleReportList: [],
     costSheetReportList: [],
     buildingList: [],
     wingList: [],
@@ -63,7 +59,7 @@ class PaymentScheduleSummaryState extends BaseState {
     bool? isLoading,
     int? currentTabIndex,
     List<ProjectInventoryStructure>? projectInventoryList,
-    List<FlatPaymentSchedule>? flatPaymentSchedules,
+    List<PaymentScheduleMasterReport>? paymentScheduleReportList,
     List<CostSheetReport>? costSheetReportList,
     List<ProjectInventoryStructure>? buildingList,
     List<String>? wingList,
@@ -80,7 +76,8 @@ class PaymentScheduleSummaryState extends BaseState {
       isLoading: isLoading ?? this.isLoading,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       projectInventoryList: projectInventoryList ?? this.projectInventoryList,
-      flatPaymentSchedules: flatPaymentSchedules ?? this.flatPaymentSchedules,
+      paymentScheduleReportList:
+          paymentScheduleReportList ?? this.paymentScheduleReportList,
       costSheetReportList: costSheetReportList ?? this.costSheetReportList,
       buildingList: buildingList ?? this.buildingList,
       wingList: wingList ?? this.wingList,
@@ -105,7 +102,7 @@ class PaymentScheduleSummaryState extends BaseState {
     isLoading,
     currentTabIndex,
     projectInventoryList,
-    flatPaymentSchedules,
+    paymentScheduleReportList,
     costSheetReportList,
     buildingList,
     wingList,

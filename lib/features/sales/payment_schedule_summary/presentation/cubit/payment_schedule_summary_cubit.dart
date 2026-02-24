@@ -37,7 +37,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
     final List<String> wings =
         filteredInventory
             .map((e) => e.wing)
-            .where((e) => e != null && e.isNotEmpty)
+            .where((e) => e.isNotEmpty)
             .cast<String>()
             .toSet()
             .toList();
@@ -106,6 +106,26 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
     await fetchData(context, 1, queryParams);
   }
 
+  // ------------------ RATE CHANGED ------------------
+  void onRateChanged(String val, BuildContext context) {
+    if (state.selectedBuilding == null ||
+        state.selectedWing == null ||
+        state.isLoading!) {
+      return;
+    }
+    final rate = int.tryParse(val.trim()) ?? 0;
+
+    final queryParams = {
+      "Wing": state.selectedWing,
+      "BuildingId": state.selectedBuilding!.buildingId,
+      if (rate != 0) "Rate": rate,
+      "PaymentScheduleMasterId": 0,
+      "FlatConfiguration": state.selectedFlatConfiguration,
+    };
+
+    fetchData(context, 1, queryParams);
+  }
+
   // ------------------ FETCH DATA ------------------
   Future<void> fetchData(
     BuildContext context,
@@ -140,7 +160,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
 
     final result = await _repository.getPaymentScheduleMasterReport(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 100,
       projectId: projectId,
       queryParams: queryParams,
     );
@@ -151,46 +171,20 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        final List<PaymentScheduleMasterReport> newSlabs =
+        final List<PaymentScheduleMasterReport> newData =
             List<PaymentScheduleMasterReport>.from(response['data'] ?? []);
 
-        // ------------------ GROUP BY FLAT ------------------
-        final Map<int, FlatPaymentSchedule> groupedFlats = {};
+        final List<PaymentScheduleMasterReport> updatedList =
+            pageNumber == 1
+                ? newData
+                : [...state.paymentScheduleReportList, ...newData];
 
-        // Start with existing flats to support pagination
-        for (var flat in state.flatPaymentSchedules) {
-          groupedFlats[flat.inventoryFlatId] = FlatPaymentSchedule(
-            inventoryFlatId: flat.inventoryFlatId,
-            carpetArea: flat.carpetArea,
-            slabs: List.from(flat.slabs),
-          );
-        }
-
-        for (var slab in newSlabs) {
-          final existingFlat = groupedFlats[slab.inventoryFlatId];
-
-          if (existingFlat != null) {
-            // Only add if this slab ID doesn't already exist
-            final isDuplicate = existingFlat.slabs.any(
-              (s) => s.inventoryFlatId == slab.inventoryFlatId,
-            );
-            if (!isDuplicate) {
-              existingFlat.slabs.add(slab);
-            }
-          } else {
-            groupedFlats[slab.inventoryFlatId] = FlatPaymentSchedule(
-              inventoryFlatId: slab.inventoryFlatId,
-              carpetArea: slab.carpetArea,
-              slabs: [slab],
-            );
-          }
-        }
         emit(
           state.copyWith(
-            flatPaymentSchedules: groupedFlats.values.toList(),
             isLoading: false,
+            paymentScheduleReportList: updatedList,
             paymentScheduleCurrentPage: pageNumber,
-            paymentScheduleTotalRecords: response['totalRecords'] ?? 0,
+            paymentScheduleTotalRecords: response["totalNumberOfRecord"] ?? 0,
           ),
         );
       },
@@ -204,7 +198,6 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
     int projectId,
     Map<String, dynamic> queryParams,
   ) async {
-    // If first page, clear list; else append
     final List<CostSheetReport> existingData =
         pageNumber == 1
             ? <CostSheetReport>[]
@@ -214,7 +207,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
 
     final result = await _repository.getCostSheetReport(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 20,
       projectId: projectId,
       queryParams: queryParams,
     );
@@ -236,7 +229,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
             costSheetReportList: combinedData,
             isLoading: false,
             costSheetCurrentPage: pageNumber,
-            costSheetTotalRecords: response['totalRecords'] ?? 0,
+            costSheetTotalRecords: response['totalNumberOfRecord'] ?? 0,
           ),
         );
       },
@@ -281,13 +274,15 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
             List<ProjectInventoryStructure>.from(response['data'] ?? []);
 
         final Map<int, ProjectInventoryStructure> uniqueBuildings = {};
-        for (var item in newData) uniqueBuildings[item.buildingId] = item;
+        for (var item in newData) {
+          uniqueBuildings[item.buildingId] = item;
+        }
 
         final List<String> flatConfigs =
             newData
                 .map((e) => e.flatConfiguration)
-                .where((e) => e != null && e.trim().isNotEmpty)
-                .map((e) => e!.trim())
+                .where((e) => e.trim().isNotEmpty)
+                .map((e) => e.trim())
                 .toSet()
                 .toList();
 
@@ -305,6 +300,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
     );
   }
 
+  // ------------------ CLEAR COST SHEET ------------------
   void clearCostSheetList() {
     emit(
       state.copyWith(

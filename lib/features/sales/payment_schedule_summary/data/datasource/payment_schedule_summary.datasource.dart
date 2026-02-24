@@ -29,6 +29,7 @@ abstract interface class PaymentScheduleDataSource {
 class PaymentScheduleDataSourceImpl implements PaymentScheduleDataSource {
   final BaseClient _baseClient = BaseClient();
 
+  // ------------------ GET PROJECT INVENTORY ------------------
   @override
   Future<Map<String, dynamic>> apicallPullProjectInventoryStructure({
     required int pageNumber,
@@ -79,6 +80,7 @@ class PaymentScheduleDataSourceImpl implements PaymentScheduleDataSource {
     }
   }
 
+  // ------------------ GET PAYMENT SCHEDULE MASTER REPORT ------------------
   @override
   Future<Map<String, dynamic>> apicallPullPaymentScheduleMasterReport({
     required int pageNumber,
@@ -132,6 +134,7 @@ class PaymentScheduleDataSourceImpl implements PaymentScheduleDataSource {
     }
   }
 
+  // ------------------ GET COST SHEET REPORT ------------------
   @override
   Future<Map<String, dynamic>> apicallPullCostSheetReport({
     required int pageNumber,
