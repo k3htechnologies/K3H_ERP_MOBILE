@@ -28,10 +28,14 @@ class PaymentScheduleSummaryScreen extends StatefulWidget {
 class _PaymentScheduleSummaryScreenState
     extends State<PaymentScheduleSummaryScreen>
     with TickerProviderStateMixin {
+  //TAB CONTROLLERS
   late TabController _mainTabController;
   TabController? _flatConfigurationTabController;
-  late PaymentScheduleSummaryCubit _paymentScheduleSummarycubit;
+  //CUBIT
+  late PaymentScheduleSummaryCubit _paymentScheduleSummaryCubit;
+  // TEXTEDITING CONTROLLER
   late TextEditingController _ratePerSqFt;
+  //PAGINATION
   late ScrollController _costSheetScrollController;
   late ScrollController _paymentScheduleScrollController;
   Timer? _debounceOfCostSheet;
@@ -40,10 +44,10 @@ class _PaymentScheduleSummaryScreenState
   @override
   void initState() {
     super.initState();
-    _paymentScheduleSummarycubit = context.read<PaymentScheduleSummaryCubit>();
+    _paymentScheduleSummaryCubit = context.read<PaymentScheduleSummaryCubit>();
     _onScroll();
     _ratePerSqFt = TextEditingController();
-    _paymentScheduleSummarycubit.getProjectInventoryStructure(
+    _paymentScheduleSummaryCubit.getProjectInventoryStructure(
       context,
       1,
       getProject().projectId,
@@ -66,15 +70,15 @@ class _PaymentScheduleSummaryScreenState
     _costSheetScrollController.addListener(() {
       if (_costSheetScrollController.position.pixels >=
               _costSheetScrollController.position.maxScrollExtent - 100 &&
-          !_paymentScheduleSummarycubit.state.isLoading! &&
-          _paymentScheduleSummarycubit.state.costSheetReportList.length <
-              _paymentScheduleSummarycubit.state.costSheetTotalRecords) {
+          !_paymentScheduleSummaryCubit.state.isLoading! &&
+          _paymentScheduleSummaryCubit.state.costSheetReportList.length <
+              _paymentScheduleSummaryCubit.state.costSheetTotalRecords) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounceOfCostSheet?.isActive ?? false) {
           _debounceOfCostSheet?.cancel();
         }
         _debounceOfCostSheet = Timer(const Duration(milliseconds: 300), () {
-          final state = _paymentScheduleSummarycubit.state;
+          final state = _paymentScheduleSummaryCubit.state;
           final nextPage = state.costSheetCurrentPage + 1;
 
           final rate = int.tryParse(_ratePerSqFt.text.trim()) ?? 0;
@@ -87,7 +91,7 @@ class _PaymentScheduleSummaryScreenState
             "FlatConfiguration": state.selectedFlatConfiguration,
           };
 
-          _paymentScheduleSummarycubit.getCostSheetReport(
+          _paymentScheduleSummaryCubit.getCostSheetReport(
             context,
             nextPage,
             getProject().projectId,
@@ -103,7 +107,7 @@ class _PaymentScheduleSummaryScreenState
     _paymentScheduleScrollController.addListener(() {
       if (_paymentScheduleScrollController.position.pixels >=
           _paymentScheduleScrollController.position.maxScrollExtent - 100) {
-        final state = _paymentScheduleSummarycubit.state;
+        final state = _paymentScheduleSummaryCubit.state;
 
         if (!state.isLoading! &&
             state.paymentScheduleReportList.length <
@@ -127,7 +131,7 @@ class _PaymentScheduleSummaryScreenState
                 "FlatConfiguration": state.selectedFlatConfiguration,
               };
 
-              _paymentScheduleSummarycubit.getPaymentScheduleMasterReport(
+              _paymentScheduleSummaryCubit.getPaymentScheduleMasterReport(
                 context,
                 nextPage,
                 getProject().projectId,
@@ -144,11 +148,11 @@ class _PaymentScheduleSummaryScreenState
   void _handleFlatConfigurationTabChange() {
     if (!_flatConfigurationTabController!.indexIsChanging) {
       final selectedConfig =
-          _paymentScheduleSummarycubit
+          _paymentScheduleSummaryCubit
               .state
               .flatConfigurationList[_flatConfigurationTabController!.index];
-      _paymentScheduleSummarycubit.clearCostSheetList();
-      _paymentScheduleSummarycubit.onFlatConfigurationChanged(
+      _paymentScheduleSummaryCubit.clearCostSheetList();
+      _paymentScheduleSummaryCubit.onFlatConfigurationChanged(
         selectedConfig,
         context,
         _ratePerSqFt,
@@ -177,7 +181,7 @@ class _PaymentScheduleSummaryScreenState
   void _handleMainTabChange() {
     if (_mainTabController.indexIsChanging) return;
 
-    final state = _paymentScheduleSummarycubit.state;
+    final state = _paymentScheduleSummaryCubit.state;
 
     final rate = int.tryParse(_ratePerSqFt.text.trim()) ?? 0;
 
@@ -188,7 +192,7 @@ class _PaymentScheduleSummaryScreenState
       "PaymentScheduleMasterId": 0,
       "FlatConfiguration": state.selectedFlatConfiguration,
     };
-    _paymentScheduleSummarycubit.fetchData(context, 1, queryParams);
+    _paymentScheduleSummaryCubit.fetchData(context, 1, queryParams);
   }
 
   @override
@@ -209,7 +213,7 @@ class _PaymentScheduleSummaryScreenState
         screenTitle: "Payment Schedule Summary",
         authorization: AuthorizationModel(),
         onProjectChangeCallback: (val) {
-          final state = _paymentScheduleSummarycubit.state;
+          final state = _paymentScheduleSummaryCubit.state;
 
           final rate = int.tryParse(_ratePerSqFt.text.trim()) ?? 0;
 
@@ -220,7 +224,7 @@ class _PaymentScheduleSummaryScreenState
             "PaymentScheduleMasterId": 0,
             "FlatConfiguration": state.selectedFlatConfiguration,
           };
-          _paymentScheduleSummarycubit.fetchData(context, 1, queryParams);
+          _paymentScheduleSummaryCubit.fetchData(context, 1, queryParams);
         },
       ),
       body: BlocListener<
@@ -633,7 +637,7 @@ class _PaymentScheduleSummaryScreenState
             textController: _ratePerSqFt,
             isRequired: true,
             onSubmitFunction: (val) {
-              _paymentScheduleSummarycubit.onRateChanged(val, context);
+              _paymentScheduleSummaryCubit.onRateChanged(val, context);
             },
           ),
         ],

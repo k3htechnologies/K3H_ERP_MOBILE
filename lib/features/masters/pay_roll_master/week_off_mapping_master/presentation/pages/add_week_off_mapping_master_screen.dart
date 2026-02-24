@@ -48,9 +48,6 @@ class _AddWeekOffMappingMasterScreenState
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
-  //RADIO BUTTON OPTIONS
-  List<String> options = ['Employee', 'Department'];
-
   @override
   void initState() {
     super.initState();
@@ -65,24 +62,35 @@ class _AddWeekOffMappingMasterScreenState
   }
 
   void _populateFormFields(WeekOffMappingModel weekOffMapping) {
-    _selectedEmployee = [
-      {
-        'zAttributesId': weekOffMapping.employeeId,
-        'DisplayName': weekOffMapping.employeeName,
-      },
-    ];
+    if (weekOffMapping.employeeId.isNotEmpty) {
+      _selectedEmployee = [
+        {
+          'zAttributesId': weekOffMapping.employeeId,
+          'DisplayName': weekOffMapping.employeeName,
+        },
+      ];
+    }
+
     _selectedWeekOff = [
       {
         'zAttributesId': weekOffMapping.weekOffPolicyMasterId,
         'DisplayName': weekOffMapping.weekOffPolicyName,
       },
     ];
-    _selectedDepartment = [
-      {
-        'zAttributesId': weekOffMapping.departmentMasterId,
-        'DisplayName': weekOffMapping.departmentName,
-      },
-    ];
+    if (weekOffMapping.departmentMasterId.isNotEmpty) {
+      _selectedDepartment = [
+        {
+          'zAttributesId': weekOffMapping.departmentMasterId,
+          'DisplayName': weekOffMapping.departmentName,
+        },
+      ];
+    }
+
+    if (weekOffMapping.employeeId.isNotEmpty) {
+      _weekOffMappingMasterCubit.onSelectedOptionChanged("Employee");
+    } else {
+      _weekOffMappingMasterCubit.onSelectedOptionChanged("Department");
+    }
   }
 
   void _submitForm() {
