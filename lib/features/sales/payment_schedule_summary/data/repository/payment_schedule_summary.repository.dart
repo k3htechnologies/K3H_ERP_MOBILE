@@ -17,7 +17,6 @@ abstract interface class PaymentScheduleSummaryRepository {
     required int projectId,
     required Map<String, dynamic> queryParams,
   });
-  // ---------------- NEW: Cost Sheet ----------------
   Future<Either<Failure, Map<String, dynamic>>> getCostSheetReport({
     required int pageNumber,
     required int pageSize,
@@ -34,6 +33,7 @@ class PaymentScheduleSummaryRepositoryImpl
     required this.paymentScheduleDataSource,
   });
 
+  // ------------------ GET PROJECT INVENTORY ------------------
   @override
   Future<Either<Failure, Map<String, dynamic>>> getProjectInventoryStructure({
     required int pageNumber,
@@ -56,6 +56,7 @@ class PaymentScheduleSummaryRepositoryImpl
     }
   }
 
+  // ------------------ GET PAYMENT SCHEDULE MASTER REPORT ------------------
   @override
   Future<Either<Failure, Map<String, dynamic>>> getPaymentScheduleMasterReport({
     required int pageNumber,
@@ -78,6 +79,7 @@ class PaymentScheduleSummaryRepositoryImpl
     }
   }
 
+  // ------------------ GET COST SHEET REPORT ------------------
   @override
   Future<Either<Failure, Map<String, dynamic>>> getCostSheetReport({
     required int pageNumber,

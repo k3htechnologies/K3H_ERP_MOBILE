@@ -6,22 +6,24 @@ import 'package:k3h_erp_app/features/sales/payment_schedule_summary/data/model/p
 class PaymentScheduleSummaryState extends BaseState {
   final int currentTabIndex;
   final List<ProjectInventoryStructure> projectInventoryList;
-  final List<PaymentScheduleMasterReport> paymentScheduleMasterReportList;
+  final List<PaymentScheduleMasterReport> paymentScheduleReportList;
   final List<CostSheetReport> costSheetReportList;
   final List<ProjectInventoryStructure> buildingList;
   final List<String> wingList;
   final List<String> flatConfigurationList;
   final String selectedFlatConfiguration;
-
-  // New fields for dropdowns
   final ProjectInventoryStructure? selectedBuilding;
   final String? selectedWing;
+  final int paymentScheduleCurrentPage;
+  final int paymentScheduleTotalRecords;
+  final int costSheetCurrentPage;
+  final int costSheetTotalRecords;
 
   const PaymentScheduleSummaryState({
     super.isLoading,
     required this.currentTabIndex,
     required this.projectInventoryList,
-    required this.paymentScheduleMasterReportList,
+    required this.paymentScheduleReportList,
     required this.costSheetReportList,
     required this.buildingList,
     required this.wingList,
@@ -29,13 +31,17 @@ class PaymentScheduleSummaryState extends BaseState {
     required this.selectedFlatConfiguration,
     this.selectedBuilding,
     this.selectedWing,
+    this.paymentScheduleCurrentPage = 1,
+    this.paymentScheduleTotalRecords = 0,
+    this.costSheetCurrentPage = 1,
+    this.costSheetTotalRecords = 0,
   });
 
   factory PaymentScheduleSummaryState.initial() => PaymentScheduleSummaryState(
     isLoading: true,
     currentTabIndex: 0,
     projectInventoryList: [],
-    paymentScheduleMasterReportList: [],
+    paymentScheduleReportList: [],
     costSheetReportList: [],
     buildingList: [],
     wingList: [],
@@ -43,13 +49,17 @@ class PaymentScheduleSummaryState extends BaseState {
     selectedFlatConfiguration: '',
     selectedBuilding: null,
     selectedWing: null,
+    paymentScheduleCurrentPage: 1,
+    paymentScheduleTotalRecords: 0,
+    costSheetCurrentPage: 1,
+    costSheetTotalRecords: 0,
   );
 
   PaymentScheduleSummaryState copyWith({
     bool? isLoading,
     int? currentTabIndex,
     List<ProjectInventoryStructure>? projectInventoryList,
-    List<PaymentScheduleMasterReport>? paymentScheduleMasterReportList,
+    List<PaymentScheduleMasterReport>? paymentScheduleReportList,
     List<CostSheetReport>? costSheetReportList,
     List<ProjectInventoryStructure>? buildingList,
     List<String>? wingList,
@@ -57,14 +67,17 @@ class PaymentScheduleSummaryState extends BaseState {
     String? selectedFlatConfiguration,
     ProjectInventoryStructure? selectedBuilding,
     String? selectedWing,
+    int? paymentScheduleCurrentPage,
+    int? paymentScheduleTotalRecords,
+    int? costSheetCurrentPage,
+    int? costSheetTotalRecords,
   }) {
     return PaymentScheduleSummaryState(
       isLoading: isLoading ?? this.isLoading,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       projectInventoryList: projectInventoryList ?? this.projectInventoryList,
-      paymentScheduleMasterReportList:
-          paymentScheduleMasterReportList ??
-          this.paymentScheduleMasterReportList,
+      paymentScheduleReportList:
+          paymentScheduleReportList ?? this.paymentScheduleReportList,
       costSheetReportList: costSheetReportList ?? this.costSheetReportList,
       buildingList: buildingList ?? this.buildingList,
       wingList: wingList ?? this.wingList,
@@ -74,6 +87,13 @@ class PaymentScheduleSummaryState extends BaseState {
           selectedFlatConfiguration ?? this.selectedFlatConfiguration,
       selectedBuilding: selectedBuilding ?? this.selectedBuilding,
       selectedWing: selectedWing ?? this.selectedWing,
+      paymentScheduleCurrentPage:
+          paymentScheduleCurrentPage ?? this.paymentScheduleCurrentPage,
+      paymentScheduleTotalRecords:
+          paymentScheduleTotalRecords ?? this.paymentScheduleTotalRecords,
+      costSheetCurrentPage: costSheetCurrentPage ?? this.costSheetCurrentPage,
+      costSheetTotalRecords:
+          costSheetTotalRecords ?? this.costSheetTotalRecords,
     );
   }
 
@@ -82,7 +102,7 @@ class PaymentScheduleSummaryState extends BaseState {
     isLoading,
     currentTabIndex,
     projectInventoryList,
-    paymentScheduleMasterReportList,
+    paymentScheduleReportList,
     costSheetReportList,
     buildingList,
     wingList,
@@ -90,5 +110,9 @@ class PaymentScheduleSummaryState extends BaseState {
     selectedFlatConfiguration,
     selectedBuilding,
     selectedWing,
+    paymentScheduleCurrentPage,
+    paymentScheduleTotalRecords,
+    costSheetCurrentPage,
+    costSheetTotalRecords,
   ];
 }

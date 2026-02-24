@@ -1,16 +1,26 @@
 import 'package:k3h_erp_app/utils/common_function.dart';
 
 class CostSheetReport {
-  final int carpetArea;
-  final String name;
+  final double carpetArea;
+  final String flatConfiguration;
+  final double totalValue;
 
-  CostSheetReport({required this.carpetArea, required this.name});
+  CostSheetReport({
+    required this.carpetArea,
+    required this.flatConfiguration,
+    required this.totalValue,
+  });
 
   factory CostSheetReport.fromJson(Map<String, dynamic> json) =>
       CostSheetReport(
-        carpetArea: parseValue<int>(json, "CarpetArea"),
-        name: parseValue<String>(json, "Name"),
+        carpetArea: parseValue<double>(json, "CarpetArea"),
+        flatConfiguration: parseValue<String>(json, "FlatConfiguration"),
+        totalValue: parseValue<double>(json, "TotalValue"),
       );
 
-  Map<String, dynamic> toJson() => {"CarpetArea": carpetArea, "Name": name};
+  Map<String, dynamic> toJson() => {
+    "CarpetArea": carpetArea,
+    "FlatConfiguration": flatConfiguration,
+    "TotalValue": totalValue,
+  };
 }

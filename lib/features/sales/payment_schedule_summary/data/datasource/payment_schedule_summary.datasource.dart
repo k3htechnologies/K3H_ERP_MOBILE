@@ -1,3 +1,4 @@
+import 'package:k3h_erp_app/features/sales/payment_schedule_summary/data/model/cost_sheet.model.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_summary/data/model/payment_schedule_master_report.model.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_summary/data/model/project_inventory_structure.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
@@ -28,6 +29,7 @@ abstract interface class PaymentScheduleDataSource {
 class PaymentScheduleDataSourceImpl implements PaymentScheduleDataSource {
   final BaseClient _baseClient = BaseClient();
 
+  // ------------------ GET PROJECT INVENTORY ------------------
   @override
   Future<Map<String, dynamic>> apicallPullProjectInventoryStructure({
     required int pageNumber,
@@ -78,6 +80,7 @@ class PaymentScheduleDataSourceImpl implements PaymentScheduleDataSource {
     }
   }
 
+  // ------------------ GET PAYMENT SCHEDULE MASTER REPORT ------------------
   @override
   Future<Map<String, dynamic>> apicallPullPaymentScheduleMasterReport({
     required int pageNumber,
@@ -131,6 +134,7 @@ class PaymentScheduleDataSourceImpl implements PaymentScheduleDataSource {
     }
   }
 
+  // ------------------ GET COST SHEET REPORT ------------------
   @override
   Future<Map<String, dynamic>> apicallPullCostSheetReport({
     required int pageNumber,
@@ -163,10 +167,8 @@ class PaymentScheduleDataSourceImpl implements PaymentScheduleDataSource {
       );
 
       return {
-        'data': List<PaymentScheduleMasterReport>.from(
-          networkResponse["data"].map(
-            (e) => PaymentScheduleMasterReport.fromJson(e),
-          ),
+        'data': List<CostSheetReport>.from(
+          networkResponse["data"].map((e) => CostSheetReport.fromJson(e)),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
