@@ -7,6 +7,7 @@ abstract interface class LoginDatasource {
   Future<UserModel> apicallIsValidOTP({
     required String mobileNumber,
     required String otp,
+    required String type,
   });
 
   Future<Map<String, dynamic>> apicallIsValidOTPRawResponse({
@@ -47,10 +48,11 @@ class LoginDatasourceImpl implements LoginDatasource {
   Future<UserModel> apicallIsValidOTP({
     required String mobileNumber,
     required String otp,
+    required String type,
   }) async {
     try {
       String isValidOTP({required String mobileNumber, required String otp}) {
-        return "Authentication/IsValidOTP?MobileNumber=$mobileNumber&OTP=$otp";
+        return "Authentication/IsValidOTP?MobileNumber=$mobileNumber&OTP=$otp&Type=$type";
       }
 
       var networkResponse = await baseClient.getRequestWithoutAuthentication(

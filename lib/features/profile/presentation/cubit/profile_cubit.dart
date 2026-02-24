@@ -53,7 +53,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         state.copyWith(
           user: user,
           selectedProject: project,
-          projectList: user.projectData, // Initialize with user's projectData
+          projectList: user.projectData,
         ),
       );
     }
@@ -376,7 +376,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       (response) {
         showSuccessMessage(
           context,
-          subTitle: 'Education Added Successfully!!!',
+          subTitle: 'Employee education details added successfully',
         );
         if (state.user != null) {
           getEmployeeEducationDetailsList(
@@ -438,7 +438,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
         showSuccessMessage(
           context,
-          subTitle: 'Education Updated Successfully!!!',
+          subTitle: 'Employee education details updated successfully',
         );
       },
     );
@@ -466,7 +466,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       (response) {
         showSuccessMessage(
           context,
-          subTitle: 'Education Deleted Successfully!!!',
+          subTitle: 'Employee Education Details Deleted Successfully',
         );
         if (index != null) {
           final updatedList = List<EmployeeEducationDetailsModel>.from(
@@ -555,7 +555,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       (response) {
         showSuccessMessage(
           context,
-          subTitle: 'Experience Added Successfully!!!',
+          subTitle: 'Employee experience details added successfully',
         );
         if (state.user != null) {
           getEmployeeExperienceDetailsList(
@@ -617,7 +617,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
         showSuccessMessage(
           context,
-          subTitle: 'Experience Updated Successfully!!!',
+          subTitle: 'Employee experience details updated successfully',
         );
       },
     );
@@ -645,7 +645,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       (response) {
         showSuccessMessage(
           context,
-          subTitle: 'Experience Deleted Successfully!!!',
+          subTitle: 'Employee Experience Details Deleted Successfully',
         );
         if (index != null) {
           final updatedList = List<EmployeeExperienceDetailsModel>.from(

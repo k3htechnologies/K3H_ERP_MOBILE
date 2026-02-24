@@ -184,7 +184,8 @@ Future<void> handleLocationPermission() async {
 }
 
 // LOGOUT
-Future logOutUser() async {
+Future logOutUser(BuildContext context) async {
+  await showSuccessMessage(context, subTitle: "Logged out successfully");
   await LocalStorageManager().removeAll();
   goRouter.replace(AppRoutes.splashScreen);
 }

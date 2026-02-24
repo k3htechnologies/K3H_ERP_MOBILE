@@ -16,6 +16,7 @@ abstract interface class LoginRepository {
   Future<Either<Failure, UserModel>> validateOTP({
     required String mobileNumber,
     required String otp,
+    required String type,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> validateOTPRawResponse({
@@ -65,11 +66,13 @@ class LoginRepositoryImpl implements LoginRepository {
   Future<Either<Failure, UserModel>> validateOTP({
     required String mobileNumber,
     required String otp,
+    required String type,
   }) async {
     try {
       var result = await loginDatasource.apicallIsValidOTP(
         mobileNumber: mobileNumber,
         otp: otp,
+        type:type
       );
       return right(result);
     } catch (error) {

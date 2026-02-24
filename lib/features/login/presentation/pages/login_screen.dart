@@ -193,6 +193,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                         context,
                                         _mobileNumberC.text,
                                         value,
+                                          state.message
+                                              .trim()
+                                              .toLowerCase()
+                                              .contains('mpin')?"mpin":"otp"
                                       );
                                     },
                                   ),
@@ -233,6 +237,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                     context,
                                     _mobileNumberC.text,
                                     _otpC.text,
+                                      state.message
+                                          .trim()
+                                          .toLowerCase()
+                                          .contains('mpin')?"mpin":"otp"
                                   );
                                 }
                               },

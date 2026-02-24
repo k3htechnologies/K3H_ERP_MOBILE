@@ -72,12 +72,14 @@ class LoginCubit extends Cubit<LoginState> {
     BuildContext context,
     String mobileNumber,
     String otp,
+    String type,
   ) async {
     DialogHelper.showProcessingOverlay(context);
 
     final result = await loginRepository.validateOTP(
       mobileNumber: mobileNumber,
       otp: otp,
+      type: type,
     );
 
     result.fold(
@@ -109,6 +111,11 @@ class LoginCubit extends Cubit<LoginState> {
           await updateRouteAuthorization(user.moduleData);
 
           goRouter.go(AppRoutes.dashboardScreen);
+
+        }
+
+        if(context.mounted) {
+          showSuccessMessage(context,subTitle: "Logged in Successfully");
         }
       },
     );

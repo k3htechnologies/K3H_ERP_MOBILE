@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -121,11 +122,11 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     DialogHelper.showCustomBottomSheet(
       context,
-      isUpdate ? "Update Education" : "Add Education",
+      isUpdate ? "Update Education Details" : "Add Education Details",
       Builder(
         builder: (bottomSheetContext) {
           return SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: EdgeInsets.symmetric(vertical: 10),
             child: Form(
               key: _educationFormKey,
               child: Column(
@@ -135,9 +136,12 @@ class _ProfileScreenState extends State<ProfileScreen>
                     isRequired: true,
                     hint: "Enter Qualification",
                     textController: _qualificationC,
+                    inputFormatterList: [
+                      LengthLimitingTextInputFormatter(250)
+                    ],
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter Qualification';
+                        return 'Qualification is required';
                       }
                       return null;
                     },
@@ -146,10 +150,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                     title: "College Name",
                     isRequired: true,
                     hint: "Enter College Name",
+                    inputFormatterList: [
+                      LengthLimitingTextInputFormatter(250)
+                    ],
                     textController: _collageNameC,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter College Name';
+                        return 'College Name is required';
                       }
                       return null;
                     },
@@ -158,10 +165,12 @@ class _ProfileScreenState extends State<ProfileScreen>
                     title: "Passing Year",
                     isRequired: true,
                     hint: "Enter Passing Year",
+                    keyboardType: TextInputType.number,
+                    inputFormatterList: InputValidator.digit(4),
                     textController: _passingC,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter Passing Year';
+                        return 'Passing Year is required';
                       }
                       return null;
                     },
@@ -258,11 +267,11 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     DialogHelper.showCustomBottomSheet(
       context,
-      isUpdate ? "Update Experience" : "Add Experience",
+      isUpdate ? "Update Experience Details" : "Add Experience Details",
       Builder(
         builder: (bottomSheetContext) {
           return SingleChildScrollView(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: EdgeInsets.symmetric(vertical: 10),
             child: Form(
               key: _experienceFormKey,
               child: Column(
@@ -274,7 +283,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     textController: _companyNameC,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter Company Name';
+                        return 'Company Name is required';
                       }
                       return null;
                     },
@@ -286,7 +295,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     textController: _roleC,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter Role';
+                        return 'Role is required';
                       }
                       return null;
                     },
@@ -298,7 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     textController: _tenureC,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter Tenure';
+                        return 'Tenure is required';
                       }
                       return null;
                     },
@@ -837,7 +846,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     return Container(
       margin: const EdgeInsets.all(16),
       child: InkWell(
-        onTap: () async => await logOutUser(),
+        onTap: () async => await logOutUser(context),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           decoration: BoxDecoration(
