@@ -73,7 +73,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
     final queryParams = {
       "Wing": wing,
       "BuildingId": state.selectedBuilding!.buildingId,
-      if (rate != 0) "Rate": rate,
+      "Rate": rate,
       "PaymentScheduleMasterId": 0,
       "FlatConfiguration": state.selectedFlatConfiguration,
     };
@@ -98,7 +98,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
     final queryParams = {
       "Wing": state.selectedWing,
       "BuildingId": state.selectedBuilding!.buildingId,
-      if (rate != 0) "Rate": rate,
+      "Rate": rate,
       "PaymentScheduleMasterId": 0,
       "FlatConfiguration": config,
     };
@@ -118,7 +118,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
     final queryParams = {
       "Wing": state.selectedWing,
       "BuildingId": state.selectedBuilding!.buildingId,
-      if (rate != 0) "Rate": rate,
+      "Rate": rate,
       "PaymentScheduleMasterId": 0,
       "FlatConfiguration": state.selectedFlatConfiguration,
     };

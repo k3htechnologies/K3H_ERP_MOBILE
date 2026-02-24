@@ -841,6 +841,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           child: CustomButton(
             text: "Save",
             onPressed: () async {
+              //Temporary Commented
+              // _printAllBookingData();
               if (await _validateAllTabs()) {
                 final formValues = {
                   "enquiryUniqueCode": _enquiryUniqueCodeC.text,
@@ -1600,12 +1602,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               }
                             },
                             dataFetchCallBack: _fetchParking,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Parking is required";
-                              }
-                              return null;
-                            },
+                            // validator: (value) {
+                            //   if (value == null || value.isEmpty) {
+                            //     return "Parking is required";
+                            //   }
+                            //   return null;
+                            // },
                           );
                         },
                       );
@@ -1978,6 +1980,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 textController: _remarkC,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
+                    print("Remark Val: $value");
                     return "Remark is required";
                   }
                   return null;
@@ -2240,5 +2243,78 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         ],
       ),
     );
+  }
+
+  void _printAllBookingData() {
+    print("\n================= BOOKING DATA =================");
+    print("Enquiry Code                : ${_enquiryUniqueCodeC.text}");
+
+    print("\nApplicants Count            : ${_applicants.value.length}");
+    for (var applicant in _applicants.value) {
+      print("Applicant                   : ${applicant.toJson()}");
+    }
+
+    print("Permanent Address           : ${_permanentAddressC.text}");
+    print("Communication Address       : ${_communicationAddressC.text}");
+
+    print("\n================ AGREEMENT DETAILS ================");
+    print("Agreement Value             : ${_agreementValueNotifier.value}");
+    print("TDS                         : ${_tdsNotifier.value}");
+    print("Without TDS                 : ${_withoutTdsNotifier.value}");
+
+    print("\n=================== TAX DETAILS ===================");
+    print("GST %                       : ${_agreementGstPercentageC.text}");
+    print("GST Amount                  : ${_agreementGstAmountNotifier.value}");
+    print("Stamp Duty %                : ${_stampDutyPercentageC.text}");
+    print("Stamp Duty Amount           : ${_stampDutyAmountNotifier.value}");
+    print("Registration Fees           : ${_registrationFeesNotifier.value}");
+
+    print("\n================== OTHER DETAILS ==================");
+    print("Parking Selected            : ${_selectedParkingNotifier.value}");
+    print("Selected HandOver Type      : $_selectedHandOverType");
+    print("Expected Registration Date  : $_selectedExpectedRegistrationDate");
+    print("Selected Funding Source     : $_selectedFundingSource");
+
+    print("\n================== OTHER CHARGES ==================");
+    print("Other Charges Count         : ${_localOtherCharges.value.length}");
+    for (var otherCharge in _localOtherCharges.value) {
+      print("Other Charge                : ${otherCharge.toJson()}");
+    }
+
+    print("\n================ PAYMENT SCHEDULE =================");
+    for (
+      int i = 0;
+      i < _bookingCubit.state.paymentScheduleMasterList.length;
+      i++
+    ) {
+      final item = _bookingCubit.state.paymentScheduleMasterList[i];
+      final rankingText =
+          i < _rankingControllers.length ? _rankingControllers[i].text : "";
+
+      print("\n---------- ITEM ${i + 1} ----------");
+      print("Name                         : ${item.name}");
+      print("Ranking (Controller)         : $rankingText");
+      print("Ranking (From Model)         : ${item.ranking}");
+      print("Percentage                   : ${item.paymentSchedulePercentage}");
+      print(
+        "Cumulative Percentage        : ${item.paymentScheduleCummulativePercentage}",
+      );
+    }
+
+    print("\n==================== REMARK ====================");
+    print("Remark                      : ${_remarkC.text}");
+
+    print("\n====================== TnC =====================");
+    print(
+      "Terms                       : ${_termsAndConditionDescriptionC.text}",
+    );
+
+    print("\n================= PAYMENT DETAILS ===============");
+    print("Booking Amount              : ${_bookingAmountC.text}");
+    print("Cheque No                   : ${_chequeNoC.text}");
+    print("Cheque Date                 : $_selectedChequeDate");
+    print("Bank Selected               : ${_selectedBankNotifier.value}");
+
+    print("\n=================================================\n");
   }
 }
