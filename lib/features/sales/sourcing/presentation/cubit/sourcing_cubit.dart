@@ -29,14 +29,18 @@ class SourcingCubit extends Cubit<SourcingState> {
     required int channelPartnerId,
     required int projectId,
   }) {
-    emit(state.copyWith(currentTabIndex: index, isIBM: true));
+    emit(state.copyWith(currentTabIndex: index,));
     if (index == 1) {
       getSourcingList(context, 1, channelPartnerId, projectId);
     }
   }
 
-  void onIBMTabChanged(String value, BuildContext context) {
-    emit(state.copyWith(isIBM: value.toLowerCase() == "ibm" ? true : false));
+  // void onIBMTabChanged(String value, BuildContext context) {
+  //   emit(state.copyWith(isIBM: value.toLowerCase() == "ibm" ? true : false));
+  // }
+
+  void onFilterChanged(String value) {
+    emit(state.copyWith(selectedFilter: value));
   }
 
   // <---- SEARCH CHANNEL PARTNER ---->
@@ -127,6 +131,7 @@ class SourcingCubit extends Cubit<SourcingState> {
     required int projectId,
     required String remark,
     required String support,
+    required String otp,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
@@ -136,6 +141,10 @@ class SourcingCubit extends Cubit<SourcingState> {
       "Support": support,
       "ProjectId": projectId,
       "SourcingRemark": remark,
+      "OTP": otp,
+      "SourcingLatitude": 0,
+      "SourcingLongitude": 0,
+      "SourcingLocation": "string",
     };
     var addResult = await _sourcingRepository.addUpdateSourcing(
       body: requestBody,
@@ -164,6 +173,7 @@ class SourcingCubit extends Cubit<SourcingState> {
     required int projectId,
     required String remark,
     required String support,
+    required String otp,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
@@ -174,6 +184,10 @@ class SourcingCubit extends Cubit<SourcingState> {
       "Support": support,
       "ProjectId": projectId,
       "SourcingRemark": remark,
+      "OTP": otp,
+      "SourcingLatitude": 0,
+      "SourcingLongitude": 0,
+      "SourcingLocation": "string",
     };
     var updateResult = await _sourcingRepository.addUpdateSourcing(
       body: requestBody,

@@ -436,7 +436,6 @@ class DropdownList extends StatefulWidget {
   State<DropdownList> createState() => _DropdownListState();
 }
 
-// Keep private version for internal use (backward compatibility)
 class _DropdownList extends DropdownList {
   const _DropdownList({
     required super.dataList,
@@ -463,13 +462,12 @@ class _DropdownListState extends State<DropdownList> {
 
   String searchText = '';
 
-  // For single select (radio button), store the selected ID (can be int or String)
   dynamic selectedRadioId;
 
   List<Map<String, dynamic>> _localSelectedValues = [];
 
   Future<void> _fetchData() async {
-    if (isLoading) return; // Prevent multiple simultaneous calls
+    if (isLoading) return;
     setState(() => isLoading = true);
 
     final result = await widget.dataFetchCallBack(
@@ -483,7 +481,6 @@ class _DropdownListState extends State<DropdownList> {
             .map((e) => Map<String, dynamic>.from(e as Map))
             .toList();
 
-    // Mark API items as checked if already selected (use _localSelectedValues so search doesn't wipe selections)
     for (int i = 0; i < fetchedItems.length; i++) {
       final item = fetchedItems[i];
       if (widget.isMultiSelect) {
@@ -494,7 +491,6 @@ class _DropdownListState extends State<DropdownList> {
           ),
         };
       } else {
-        // For single select, check if this is the selected item
         if (_localSelectedValues.isNotEmpty &&
             _localSelectedValues.first['zAttributesId'] ==
                 item['zAttributesId']) {
@@ -506,7 +502,6 @@ class _DropdownListState extends State<DropdownList> {
       }
     }
 
-    // Merge selected items that are not in fetched list yet (keep in-session selections when search changes list)
     if (widget.isMultiSelect) {
       if (searchText.isEmpty) {
         for (var selected in _localSelectedValues) {
@@ -523,7 +518,6 @@ class _DropdownListState extends State<DropdownList> {
         }
       }
     } else {
-      // For single select, add the selected value if not in fetched list
       if (_localSelectedValues.isNotEmpty) {
         final initialItem = _localSelectedValues.first;
         if (!fetchedItems.any(
@@ -560,22 +554,18 @@ class _DropdownListState extends State<DropdownList> {
     currentPage = 1;
     totalNumberOfRecord = 0;
     tempDataListForSearch.clear();
-    // Do not clear _localSelectedValues — selections must persist across search
     _fetchData();
   }
 
-  // PAGINATION — load more from API when scrolling near bottom
   void _onScroll() {
     if (!scrollController.hasClients) return;
     if (isLoading) return;
-    // When initial data was static list (dataList not empty) and user hasn't searched, don't call API
     if (widget.dataList.isNotEmpty && searchText.isEmpty) return;
     if (tempDataListForSearch.length >= totalNumberOfRecord) return;
 
     final maxScroll = scrollController.position.maxScrollExtent;
     final currentScroll = scrollController.position.pixels;
 
-    // Load more when user scrolls within 200px of the bottom
     if (currentScroll >= maxScroll - 200) {
       if (_debounce?.isActive ?? false) _debounce?.cancel();
       _debounce = Timer(const Duration(milliseconds: 300), () {
@@ -592,7 +582,6 @@ class _DropdownListState extends State<DropdownList> {
   void initState() {
     super.initState();
     searchC = TextEditingController();
-    // Persist selections in session so search does not wipe them
     _localSelectedValues =
         widget.initialValue.map((e) => Map<String, dynamic>.from(e)).toList();
     initialIds =
@@ -619,7 +608,6 @@ class _DropdownListState extends State<DropdownList> {
     scrollController.addListener(_onScroll);
 
     if (widget.dataList.isEmpty) {
-      // Fetch initial data from API
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           _fetchData();
@@ -664,7 +652,6 @@ class _DropdownListState extends State<DropdownList> {
   void _handleItemSelection(Map<String, dynamic> item) {
     setState(() {
       if (widget.isMultiSelect) {
-        // Multi-select: toggle checkbox and keep _localSelectedValues in sync
         final index = tempDataListForSearch.indexWhere(
           (e) => e['zAttributesId'] == item['zAttributesId'],
         );
@@ -692,7 +679,6 @@ class _DropdownListState extends State<DropdownList> {
           }
         }
       } else {
-        // Single select: radio button behavior; update _localSelectedValues
         for (int i = 0; i < tempDataListForSearch.length; i++) {
           final isSelected =
               tempDataListForSearch[i]['zAttributesId'] ==
@@ -702,8 +688,6 @@ class _DropdownListState extends State<DropdownList> {
             'isChecked': isSelected,
           };
           if (isSelected) {
-            // Only update visual selection (radio). Do NOT commit to _localSelectedValues
-            // until the user confirms via the Select button.
             selectedRadioId = item['zAttributesId'];
           } else {
             if (selectedRadioId == item['zAttributesId']) {

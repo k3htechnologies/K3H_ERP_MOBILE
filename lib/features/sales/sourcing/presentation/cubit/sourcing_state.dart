@@ -7,7 +7,7 @@ class SourcingState extends BaseState {
   final List<SourcingModel> sourcingList;
   final String searchText;
   final int currentTabIndex;
-  final bool isIBM;
+  final String selectedFilter;
 
   const SourcingState({
     super.isLoading,
@@ -17,7 +17,7 @@ class SourcingState extends BaseState {
     required this.sourcingList,
     required this.searchText,
     required this.currentTabIndex,
-    required this.isIBM,
+    required this.selectedFilter,
   });
 
   factory SourcingState.initial() => SourcingState(
@@ -28,7 +28,7 @@ class SourcingState extends BaseState {
     searchText: "",
     isLoading: true,
     currentTabIndex: 0,
-    isIBM: true,
+    selectedFilter: "ALL",
   );
 
   SourcingState copyWith({
@@ -39,7 +39,7 @@ class SourcingState extends BaseState {
     List<SourcingModel>? sourcingList,
     String? searchText,
     int? currentTabIndex,
-    bool? isIBM,
+    String? selectedFilter,
   }) {
     return SourcingState(
       isLoading: isLoading ?? this.isLoading,
@@ -49,7 +49,7 @@ class SourcingState extends BaseState {
       sourcingList: sourcingList ?? this.sourcingList,
       searchText: searchText ?? this.searchText,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
-      isIBM: isIBM ?? this.isIBM,
+      selectedFilter: selectedFilter ?? this.selectedFilter,
     );
   }
 
@@ -62,6 +62,6 @@ class SourcingState extends BaseState {
     sourcingList,
     searchText,
     currentTabIndex,
-    isIBM
+    selectedFilter
   ];
 }

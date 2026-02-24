@@ -16,7 +16,6 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_paginated_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
-import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddEmployeeScreen extends StatefulWidget {
   final UserModel? employee;
@@ -682,6 +681,67 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     }
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: "Employee Master",
+        authorization: AuthorizationModel(),
+      ),
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    !_isEditMode ? "Add Employee" : "Update Employee",
+                    style: AppTextStyle.ts16SB(),
+                  ),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: _buildSectionContainer(_buildBasicDetailsSection()),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 12)),
+            SliverToBoxAdapter(
+              child: _buildSectionContainer(_buildEmployeeInfoSection()),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 12)),
+            SliverToBoxAdapter(
+              child: _buildSectionContainer(_buildAddressSection()),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 12)),
+            SliverToBoxAdapter(
+              child: _buildSectionContainer(_buildBankDetailsSection()),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 20)),
+            SliverToBoxAdapter(child: SizedBox(height: 50)),
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 70,
+          padding: EdgeInsets.all(16),
+          child: CustomButton(
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
+            text: !_isEditMode ? 'Add Employee' : 'Update Employee',
+            onPressed: _handleSubmit,
+            backgroundColor: AppColor.primary,
+          ),
+        ),
+      ),
+    );
+  }
+
   // ------------------------- UI SECTION BUILDERS ------------------------- //
 
   Widget _buildSectionContainer(Widget child) {
@@ -727,7 +787,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomTextField(
             title: 'Middle Name',
             hint: "Enter Middle Name",
@@ -741,7 +800,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomTextField(
             title: 'Last Name',
             hint: "Enter Last Name",
@@ -755,7 +813,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomDropDownWidget(
             title: 'Gender',
             isRequired: true,
@@ -769,7 +826,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomDropDownWidget(
             title: 'Marital Status',
             isRequired: true,
@@ -783,7 +839,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomDropDownWidget(
             title: 'Blood Group',
             isRequired: true,
@@ -797,7 +852,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomDatePicker(
             title: 'DOB',
             isRequired: true,
@@ -813,7 +867,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             },
             setValue: (value) => dateOfBirth = value,
           ),
-          verticalSpacing(height: 12),
           CustomTextField(
             title: 'Email Id',
             hint: "Enter Email Id",
@@ -830,14 +883,12 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomTextField(
             title: 'Office Email Id',
             hint: "Enter Office Email Id",
             textController: _officeEmailIdC,
             keyboardType: TextInputType.emailAddress,
           ),
-          verticalSpacing(height: 12),
           CustomTextField(
             title: 'Personal Mobile Number',
             hint: "Enter Personal Mobile Number",
@@ -871,7 +922,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               ),
             ),
           ),
-          verticalSpacing(height: 12),
           CustomTextField(
             title: 'Office Mobile Number',
             hint: "Enter Office Mobile Number",
@@ -879,7 +929,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             keyboardType: TextInputType.phone,
             inputFormatterList: InputValidator.digit(10),
           ),
-          verticalSpacing(height: 12),
           CustomDropDownWidget(
             title: 'Employee Type',
             isRequired: true,
@@ -893,7 +942,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomDropDownWidget(
             title: 'Relation to Emergency Contact',
             isRequired: true,
@@ -907,7 +955,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomTextField(
             title: 'Emergency Contact Number',
             hint: "Enter Emergency Contact Number",
@@ -971,7 +1018,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomMultipleSelectPopup(
             title: "Department",
             isRequired: true,
@@ -989,7 +1035,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomMultipleSelectPopup(
             title: "Branch",
             isRequired: true,
@@ -1007,7 +1052,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomMultipleSelectPopup(
             title: "Designation",
             isRequired: true,
@@ -1025,7 +1069,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomDatePicker(
             title: 'Joining Date',
             isRequired: true,
@@ -1038,13 +1081,11 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomDatePicker(
             title: 'Id Card Issued Date',
             initialDate: idCardIssueDateDate,
             setValue: (value) => idCardIssueDateDate = value,
           ),
-          verticalSpacing(height: 12),
           CustomPaginationDropDownWidget(
             title: 'Reporting Person',
             isRequired: true,
@@ -1085,7 +1126,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomTextField(
             title: 'Permanent Address',
             hint: "Enter Permanent Address",
@@ -1099,7 +1139,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           AddressWidget(
             formKey: _formKeys[2],
             incomingStateId: widget.employee?.stateMasterId,
@@ -1142,7 +1181,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomTextField(
             title: 'Bank Branch Name',
             hint: "Enter Bank Branch Name",
@@ -1156,7 +1194,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomTextField(
             title: 'Account Number',
             hint: "Enter Account Number",
@@ -1174,7 +1211,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               return null;
             },
           ),
-          verticalSpacing(height: 12),
           CustomTextField(
             title: 'IFSC Code',
             hint: "Enter IFSC Code",
@@ -1196,64 +1232,4 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        screenTitle: "Employee Master",
-        authorization: AuthorizationModel(),
-      ),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    !_isEditMode ? "Add Employee" : "Update Employee",
-                    style: AppTextStyle.ts16SB(),
-                  ),
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: _buildSectionContainer(_buildBasicDetailsSection()),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 12)),
-            SliverToBoxAdapter(
-              child: _buildSectionContainer(_buildEmployeeInfoSection()),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 12)),
-            SliverToBoxAdapter(
-              child: _buildSectionContainer(_buildAddressSection()),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 12)),
-            SliverToBoxAdapter(
-              child: _buildSectionContainer(_buildBankDetailsSection()),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 20)),
-            SliverToBoxAdapter(child: SizedBox(height: 50)),
-          ],
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          height: 70,
-          padding: EdgeInsets.all(16),
-          child: CustomButton(
-            leading: Icon(
-              _isEditMode ? Icons.edit : Icons.add,
-              color: AppColor.white,
-              size: 18,
-            ),
-            text: !_isEditMode ? 'Add Employee' : 'Update Employee',
-            onPressed: _handleSubmit,
-            backgroundColor: AppColor.primary,
-          ),
-        ),
-      ),
-    );
-  }
 }

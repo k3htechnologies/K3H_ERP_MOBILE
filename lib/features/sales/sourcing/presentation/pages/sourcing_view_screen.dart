@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
+import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/data/model/sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -15,10 +16,12 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/custom_verification_dialog.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+import '../../../../../routes/route_delegate.dart' show goRouter;
 
 class SourcingViewScreen extends StatefulWidget {
   final ChannelPartnerModel channelPartner;
@@ -41,31 +44,32 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
 
   // CUBIT
   late SourcingCubit _sourcingCubit;
+  late LoginCubit _loginCubit;
 
   // TEXT CONTROLLER
-  late TextEditingController _remarkC;
+  late TextEditingController _remarkC,otpController;
 
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
-  // DATE
-  DateTime? selectedDate;
 
   late Map<String, dynamic> selectedSupport;
 
   // STATIC SUPPORT LIST
   List<Map<String, dynamic>> supportList = [
     {"zAttributesId": -1, "DisplayName": "Select Support"},
-    {"zAttributesId": 1, "DisplayName": "A"},
-    {"zAttributesId": 2, "DisplayName": "B"},
-    {"zAttributesId": 3, "DisplayName": "C"},
+    {"zAttributesId": 1, "DisplayName": "Bellow The Line (BTL)"},
+    {"zAttributesId": 2, "DisplayName": "Paper Insert"},
+    {"zAttributesId": 3, "DisplayName": "Standee Require"},
+    {"zAttributesId": 4, "DisplayName": "Video Recording"},
   ];
 
   @override
   void initState() {
     super.initState();
     _sourcingCubit = context.read<SourcingCubit>();
+    _loginCubit = context.read<LoginCubit>();
     _remarkC = TextEditingController();
+    otpController = TextEditingController();
     selectedSupport = supportList.first;
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
@@ -76,6 +80,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     super.dispose();
     _tabController.dispose();
     _remarkC.dispose();
+    otpController.dispose();
     _sourcingCubit.clearSourcingList();
   }
 
@@ -93,7 +98,6 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
 
   // CLEAR BOTTOM SHEET
   void _clearBottomSheet() {
-    selectedDate = null;
     selectedSupport = supportList.first;
     _remarkC.clear();
   }
@@ -125,7 +129,6 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     SourcingModel obj,
   ) async {
     // Prefill values
-    selectedDate = obj.createdDate;
     _remarkC.text = obj.sourcingRemark ?? "";
     selectedSupport = supportList.firstWhere(
       (e) => e["DisplayName"] == (obj.support ?? ""),
@@ -177,26 +180,6 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                     ),
                     verticalSpacing(height: 12),
 
-                    // DATE
-                    CustomDatePicker(
-                      startDate: DateTime.now().subtract(
-                        const Duration(days: 365),
-                      ),
-                      endDate: DateTime.now(),
-                      title: "Date",
-                      isRequired: true,
-                      initialDate: selectedDate,
-                      setValue: (value) {
-                        selectedDate = value;
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return "Please select date";
-                        }
-                        return null;
-                      },
-                    ),
-
                     // REMARK
                     CustomTextField(
                       title: "Remark",
@@ -230,22 +213,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                         text: "Update",
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            _sourcingCubit.updateRemark(
-                              context: context,
-                              channelPartnerSourcingId:
-                                  obj.channelPartnerSourcingId ?? 0,
-                              uniqueKey: obj.uniquekey!,
-                              channelPartnerId:
-                                  obj.channelPartnerId ??
-                                  widget.channelPartner.channelPartnerId,
-                              type: isIBM ? "IBM" : "OBM",
-                              projectId: widget.projectId,
-                              remark: _remarkC.text,
-                              support:
-                                  selectedSupport["zAttributesId"] == -1
-                                      ? ""
-                                      : selectedSupport["DisplayName"],
-                            );
+                            _submitForm(isIBM,obj);
                           }
                         },
                       ),
@@ -264,8 +232,13 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
 
   // ADD REMARK BOTTOM SHEET
   Future<void> _showBottomSheetToAddRemark(BuildContext context) async {
-    final bool initialIsIBM = _sourcingCubit.state.isIBM;
-    bool isIBM = initialIsIBM;
+    final currentFilter = _sourcingCubit.state.selectedFilter;
+
+    bool isIBM = currentFilter == "IBM"
+        ? true
+        : currentFilter == "OBM"
+        ? false
+        : true;
 
     await DialogHelper.showCustomBottomSheet(
       context,
@@ -311,26 +284,6 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                     ),
                     verticalSpacing(height: 12),
 
-                    // DATE
-                    CustomDatePicker(
-                      startDate: DateTime.now().subtract(
-                        const Duration(days: 2),
-                      ),
-                      endDate: DateTime.now(),
-                      title: "Date",
-                      isRequired: true,
-                      initialDate: selectedDate,
-                      setValue: (value) {
-                        selectedDate = value;
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return "Please select date";
-                        }
-                        return null;
-                      },
-                    ),
-
                     // REMARK
                     CustomTextField(
                       title: "Remark",
@@ -363,18 +316,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                         text: "Save",
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            _sourcingCubit.addRemark(
-                              context: context,
-                              channelPartnerId:
-                                  widget.channelPartner.channelPartnerId,
-                              type: isIBM ? "IBM" : "OBM",
-                              projectId: widget.projectId,
-                              remark: _remarkC.text,
-                              support:
-                                  selectedSupport["zAttributesId"] == -1
-                                      ? ""
-                                      : selectedSupport["DisplayName"],
-                            );
+                            _submitForm(isIBM,null);
                           }
                         },
                       ),
@@ -388,6 +330,86 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
       ),
     );
     _clearBottomSheet();
+  }
+
+  // OTP LOGIC
+  void _submitForm(bool isIBM, SourcingModel? obj) {
+
+    if (!_formKey.currentState!.validate()) return;
+
+
+    // VERIFY OTP ONLY IN FIRST ONBOARDING STAGE
+    if (obj==null) {
+      //  SEND OTP FIRST
+      _loginCubit.sendOTPModuleBased(
+        context: context,
+        mobileNumber: widget.channelPartner.mobileNumber,
+        module: "CHANNEL PARTNER SOURCING",
+      );
+
+      //  THEN SHOW VERIFICATION DIALOG
+      showCompleteVerificationDialog(
+        context,
+        otpController: otpController,
+        verificationSteps: {
+        },
+        onResendOTP: () {
+          _loginCubit.sendOTPModuleBased(
+            context: context,
+            mobileNumber: widget.channelPartner.mobileNumber,
+            module: "CHANNEL PARTNER SOURCING",
+          );
+        },
+        onVerifyOTP: () {
+          _sourcingCubit.addRemark(
+            context: context,
+            channelPartnerId:
+            widget.channelPartner.channelPartnerId,
+            type: isIBM ? "IBM" : "OBM",
+            projectId: widget.projectId,
+            remark: _remarkC.text,
+            support:
+            selectedSupport["zAttributesId"] == -1
+                ? ""
+                : selectedSupport["DisplayName"],
+            otp: otpController.text
+          );
+          goRouter.pop();
+        },
+      );
+    } else {
+      _sourcingCubit.updateRemark(
+          context: context,
+          channelPartnerSourcingId:
+          obj.channelPartnerSourcingId ?? 0,
+          uniqueKey: obj.uniquekey!,
+          channelPartnerId:
+          obj.channelPartnerId ??
+              widget.channelPartner.channelPartnerId,
+          type: isIBM ? "IBM" : "OBM",
+          projectId: widget.projectId,
+          remark: _remarkC.text,
+          support:
+          selectedSupport["zAttributesId"] == -1
+              ? ""
+              : selectedSupport["DisplayName"],
+          otp: otpController.text
+      );
+    }
+  }
+
+  // ALLOW EDIT FOR LAST 3 DAYS
+  bool _isWithinLastThreeDays(DateTime? date) {
+    if (date == null) return false;
+
+    final now = DateTime.now();
+
+    final today = DateTime(now.year, now.month, now.day);
+    final itemDate = DateTime(date.year, date.month, date.day);
+
+    final difference = today.difference(itemDate).inDays;
+
+    return difference >= 0 && difference <= 2;
   }
 
   @override
@@ -656,10 +678,11 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
   Widget _buildRemarkAndActivityTab() {
     return BlocBuilder<SourcingCubit, SourcingState>(
       builder: (context, state) {
-        final data =
-            state.sourcingList
-                .where((e) => e.ibmObm == (state.isIBM ? "IBM" : "OBM"))
-                .toList();
+        final data = state.selectedFilter == "ALL"
+            ? state.sourcingList
+            : state.sourcingList
+            .where((e) => e.ibmObm == state.selectedFilter)
+            .toList();
 
         final displayList = [...data]..sort(
           (a, b) => (b.createdDate ?? DateTime(0)).compareTo(
@@ -674,56 +697,11 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      _sourcingCubit.onIBMTabChanged("IBM", context);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color:
-                            state.isIBM ? AppColor.lightBlue : AppColor.white,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: AppColor.primary, width: .5),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      child: Text(
-                        "IBM",
-                        style: AppTextStyle.ts12M(
-                          color: state.isIBM ? AppColor.black : AppColor.grey,
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildFilterTab("ALL", state),
                   horizontalSpacing(),
-                  GestureDetector(
-                    onTap: () {
-                      _sourcingCubit.onIBMTabChanged("OBM", context);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color:
-                            (!state.isIBM)
-                                ? AppColor.lightBlue
-                                : AppColor.white,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: AppColor.primary, width: .5),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      child: Text(
-                        "OBM",
-                        style: AppTextStyle.ts12M(
-                          color:
-                              (!state.isIBM) ? AppColor.black : AppColor.grey,
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildFilterTab("IBM", state),
+                  horizontalSpacing(),
+                  _buildFilterTab("OBM", state),
                   Spacer(),
                   CustomButton(
                     leading: Icon(Icons.add, size: 18, color: AppColor.white),
@@ -840,7 +818,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                         verticalSpacing(),
 
                                         Visibility(
-                                          visible: index == 0,
+                                          visible: index == 0 && _isWithinLastThreeDays(item.createdDate),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
@@ -879,4 +857,32 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
       },
     );
   }
+
+  Widget _buildFilterTab(String value, SourcingState state) {
+    final isSelected = state.selectedFilter == value;
+
+    return GestureDetector(
+      onTap: () {
+        _sourcingCubit.onFilterChanged(value);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: isSelected ? AppColor.lightBlue : AppColor.white,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: AppColor.primary, width: .5),
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 6,
+        ),
+        child: Text(
+          value,
+          style: AppTextStyle.ts12M(
+            color: isSelected ? AppColor.black : AppColor.grey,
+          ),
+        ),
+      ),
+    );
+  }
+
 }

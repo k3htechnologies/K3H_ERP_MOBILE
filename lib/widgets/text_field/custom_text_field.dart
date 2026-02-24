@@ -101,8 +101,6 @@ class CustomTextField extends StatelessWidget {
                         ? AppTextStyle.ts14R().copyWith(color: AppColor.grey)
                         : AppTextStyle.ts14R(),
                 onChanged: (value) {
-                  formFieldState.didChange(value); // IMPORTANT
-                  formFieldState.validate();
                   onChangeFunction?.call(value);
                 },
                 onTapOutside: (_) => FocusScope.of(context).unfocus(),
@@ -121,7 +119,7 @@ class CustomTextField extends StatelessWidget {
                   prefixIcon: prefixWidget,
                   suffixIcon: suffixWidget,
 
-                  // 🔥 APPLY hasError HERE
+                  //  APPLY hasError HERE
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(6.0),
                     borderSide: BorderSide(

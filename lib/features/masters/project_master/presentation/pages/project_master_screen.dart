@@ -241,29 +241,11 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                                 },
                               );
                             },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    project.projectName,
-                                    style: AppTextStyle.ts16M(
-                                      color: AppColor.primary,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
+                            child: Text(
+                              project.projectName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                             ),
                           ),
                         ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:k3h_erp_app/features/login/presentation/widgets/login_text_field.widget.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -65,26 +64,6 @@ class TestScreen extends StatelessWidget {
                     text: 'Delete',
                   ),
                 ],
-              ),
-              LoginTextFieldWidget(
-                textController: TextEditingController(),
-                hint: "Enter some text... ",
-                prefixWidget: IntrinsicHeight(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(width: 10),
-                      Text("+91"),
-                      VerticalDivider(
-                        color: AppColor.black,
-                        thickness: 0.5,
-                        width: 15,
-                        indent: 5,
-                        endIndent: 5,
-                      ),
-                    ],
-                  ),
-                ),
               ),
               CustomTextField(
                 textController: TextEditingController(),

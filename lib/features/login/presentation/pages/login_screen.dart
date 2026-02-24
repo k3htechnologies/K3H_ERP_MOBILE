@@ -22,8 +22,8 @@ class _LoginScreenState extends State<LoginScreen> {
   late GlobalKey<FormState> _loginFormKey;
   late final TextEditingController _mobileNumberC, _otpC;
 
-  final FocusNode _mobileFocus = FocusNode();
-  final FocusNode _otpFocus = FocusNode();
+  late FocusNode _mobileFocus;
+  late FocusNode _otpFocus;
 
   @override
   void initState() {
@@ -32,6 +32,8 @@ class _LoginScreenState extends State<LoginScreen> {
     _loginFormKey = GlobalKey<FormState>();
     _mobileNumberC = TextEditingController();
     _otpC = TextEditingController();
+    _mobileFocus = FocusNode();
+    _otpFocus = FocusNode();
   }
 
   @override
@@ -122,12 +124,28 @@ class _LoginScreenState extends State<LoginScreen> {
                             builder: (context, state) {
                               return Column(
                                 children: [
-                                  // Mobile Field
+                                  // MOBIlE FIELD
                                   CustomTextField(
-                                    // focusNode: _mobileFocus,
+                                    focusNode: _mobileFocus,
                                     title: "Mobile Number",
                                     hint: "Enter Mobile Number",
-                                    readOnly: state.isSendOtp,
+                                    // readOnly: state.isSendOtp,
+                                    prefixWidget: IntrinsicHeight(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SizedBox(width: 10),
+                                          Text("+91"),
+                                          VerticalDivider(
+                                            color: AppColor.black,
+                                            thickness: 0.5,
+                                            width: 15,
+                                            indent: 5,
+                                            endIndent: 5,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                     inputFormatterList: InputValidator.digit(
                                       10,
                                     ),
@@ -153,10 +171,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                     },
                                   ),
 
-                                  // OTP Field
-                                  // if (state.message.isNotEmpty)
+                                  // OTP FIELD
+                                  if (state.message.isNotEmpty)
                                   CustomTextField(
-                                    // focusNode: _otpFocus,
+                                    focusNode: _otpFocus,
                                     readOnly: !state.isSendOtp,
                                     inputFormatterList: InputValidator.digit(4),
                                     keyboardType: TextInputType.number,

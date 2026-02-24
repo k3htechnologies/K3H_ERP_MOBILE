@@ -185,6 +185,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
                     buildRowTitleValue(
                       title: "Office Address",
                       value: channelPartner.officeAddress,
+                      singleLine: false
                     ),
                   ],
                 ),
