@@ -1,7 +1,7 @@
 import 'package:k3h_erp_app/utils/common_function.dart';
 
 class PaymentScheduleMasterReport {
-  final int carpetArea;
+  final double carpetArea;
   final int inventoryFlatId;
   final String name;
   final double paymentSchedulePercentage;
@@ -17,7 +17,7 @@ class PaymentScheduleMasterReport {
 
   factory PaymentScheduleMasterReport.fromJson(Map<String, dynamic> json) =>
       PaymentScheduleMasterReport(
-        carpetArea: parseValue<int>(json, "CarpetArea"),
+        carpetArea: parseValue<double>(json, "CarpetArea"),
         inventoryFlatId: parseValue<int>(json, "InventoryFlatId"),
 
         name: parseValue<String>(json, "Name"),
@@ -39,7 +39,7 @@ class PaymentScheduleMasterReport {
 
 class FlatPaymentSchedule {
   final int inventoryFlatId;
-  final int carpetArea;
+  final double carpetArea;
   final List<PaymentScheduleMasterReport> slabs;
 
   FlatPaymentSchedule({
@@ -56,7 +56,7 @@ class FlatPaymentSchedule {
 
     return FlatPaymentSchedule(
       inventoryFlatId: parseValue<int>(json, "InventoryFlatId"),
-      carpetArea: parseValue<int>(json, "CarpetArea"),
+      carpetArea: parseValue<double>(json, "CarpetArea"),
       slabs: slabList,
     );
   }

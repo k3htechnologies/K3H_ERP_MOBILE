@@ -40,7 +40,6 @@ class _PaymentScheduleSummaryScreenState
   late ScrollController _paymentScheduleScrollController;
   Timer? _debounceOfCostSheet;
   Timer? _debounceOfPaymentSchedule;
-
   @override
   void initState() {
     super.initState();
@@ -86,7 +85,7 @@ class _PaymentScheduleSummaryScreenState
           Map<String, dynamic> queryParams = {
             "Wing": state.selectedWing,
             "BuildingId": state.selectedBuilding?.buildingId,
-            if (rate != 0) "Rate": rate,
+            "Rate": rate,
             "PaymentScheduleMasterId": 0,
             "FlatConfiguration": state.selectedFlatConfiguration,
           };
@@ -126,7 +125,7 @@ class _PaymentScheduleSummaryScreenState
               Map<String, dynamic> queryParams = {
                 "Wing": state.selectedWing,
                 "BuildingId": state.selectedBuilding?.buildingId,
-                if (rate != 0) "Rate": rate,
+                "Rate": rate,
                 "PaymentScheduleMasterId": 0,
                 "FlatConfiguration": state.selectedFlatConfiguration,
               };
@@ -188,11 +187,25 @@ class _PaymentScheduleSummaryScreenState
     Map<String, dynamic> queryParams = {
       "Wing": state.selectedWing,
       "BuildingId": state.selectedBuilding?.buildingId,
-      if (rate != 0) "Rate": rate,
+      "Rate": rate,
       "PaymentScheduleMasterId": 0,
       "FlatConfiguration": state.selectedFlatConfiguration,
     };
-    _paymentScheduleSummaryCubit.fetchData(context, 1, queryParams);
+    if (_mainTabController.index == 1) {
+      _paymentScheduleSummaryCubit.getPaymentScheduleMasterReport(
+        context,
+        1,
+        getProject().projectId,
+        queryParams,
+      );
+    } else {
+      _paymentScheduleSummaryCubit.getCostSheetReport(
+        context,
+        1,
+        getProject().projectId,
+        queryParams,
+      );
+    }
   }
 
   @override
@@ -220,7 +233,7 @@ class _PaymentScheduleSummaryScreenState
           Map<String, dynamic> queryParams = {
             "Wing": state.selectedWing,
             "BuildingId": state.selectedBuilding?.buildingId,
-            if (rate != 0) "Rate": rate,
+            "Rate": rate,
             "PaymentScheduleMasterId": 0,
             "FlatConfiguration": state.selectedFlatConfiguration,
           };
@@ -614,9 +627,11 @@ class _PaymentScheduleSummaryScreenState
                         final selected = value["DisplayName"];
 
                         if (selected != state.selectedWing) {
-                          context
-                              .read<PaymentScheduleSummaryCubit>()
-                              .onWingChanged(selected, context, _ratePerSqFt);
+                          _paymentScheduleSummaryCubit.onWingChanged(
+                            selected,
+                            context,
+                            _ratePerSqFt,
+                          );
                         }
                       },
                       validator:
