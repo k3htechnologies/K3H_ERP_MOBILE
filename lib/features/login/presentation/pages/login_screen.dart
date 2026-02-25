@@ -129,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     focusNode: _mobileFocus,
                                     title: "Mobile Number",
                                     hint: "Enter Mobile Number",
-                                    // readOnly: state.isSendOtp,
+                                    readOnly: state.isSendOtp,
                                     prefixWidget: IntrinsicHeight(
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
@@ -173,33 +173,37 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                   // OTP FIELD
                                   if (state.message.isNotEmpty)
-                                  CustomTextField(
-                                    focusNode: _otpFocus,
-                                    readOnly: !state.isSendOtp,
-                                    inputFormatterList: InputValidator.digit(4),
-                                    keyboardType: TextInputType.number,
-                                    title:
-                                        state.message
-                                                .trim()
-                                                .toLowerCase()
-                                                .contains('mpin')
-                                            ? "MPIN"
-                                            : "OTP",
-                                    hint: "- - - -",
-                                    textController: _otpC,
-                                    onSubmitFunction: (value) {
-                                      FocusScope.of(context).unfocus();
+                                    CustomTextField(
+                                      focusNode: _otpFocus,
+                                      readOnly: !state.isSendOtp,
+                                      inputFormatterList: InputValidator.digit(
+                                        4,
+                                      ),
+                                      keyboardType: TextInputType.number,
+                                      title:
+                                          state.message
+                                                  .trim()
+                                                  .toLowerCase()
+                                                  .contains('mpin')
+                                              ? "MPIN"
+                                              : "OTP",
+                                      hint: "- - - -",
+                                      textController: _otpC,
+                                      onSubmitFunction: (value) {
+                                        FocusScope.of(context).unfocus();
                                       _loginCubit.validateOtp(
                                         context,
                                         _mobileNumberC.text,
                                         value,
                                           state.message
-                                              .trim()
-                                              .toLowerCase()
-                                              .contains('mpin')?"mpin":"otp"
-                                      );
-                                    },
-                                  ),
+                                                  .trim()
+                                                  .toLowerCase()
+                                                  .contains('mpin')
+                                              ? "mpin"
+                                              : "otp",
+                                        );
+                                      },
+                                    ),
                                 ],
                               );
                             },
@@ -237,10 +241,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                     context,
                                     _mobileNumberC.text,
                                     _otpC.text,
-                                      state.message
-                                          .trim()
-                                          .toLowerCase()
-                                          .contains('mpin')?"mpin":"otp"
+                                    state.message.trim().toLowerCase().contains(
+                                          'mpin',
+                                        )
+                                        ? "mpin"
+                                        : "otp",
                                   );
                                 }
                               },

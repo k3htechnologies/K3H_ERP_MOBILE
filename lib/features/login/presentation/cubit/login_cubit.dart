@@ -52,7 +52,12 @@ class LoginCubit extends Cubit<LoginState> {
         },
         (message) async {
           emit(
-            state.copyWith(isLoading: false, isSendOtp: true, message: message,stateType: StateType.sendOTP),
+            state.copyWith(
+              isLoading: false,
+              isSendOtp: true,
+              message: message,
+              stateType: StateType.sendOTP,
+            ),
           );
           await showSuccessMessage(context, subTitle: message);
         },
@@ -111,11 +116,10 @@ class LoginCubit extends Cubit<LoginState> {
           await updateRouteAuthorization(user.moduleData);
 
           goRouter.go(AppRoutes.dashboardScreen);
-
         }
 
-        if(context.mounted) {
-          showSuccessMessage(context,subTitle: "Logged in Successfully");
+        if (context.mounted) {
+          showSuccessMessage(context, subTitle: "Logged in Successfully");
         }
       },
     );
