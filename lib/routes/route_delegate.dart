@@ -4004,8 +4004,8 @@ final GoRouter goRouter = GoRouter(
               },
               routes: [
                 GoRoute(
-                  name: AppRoutes.paymentMaster,
-                  path: AppRoutes.paymentMaster,
+                  name: AppRoutes.paymentSchedule,
+                  path: AppRoutes.paymentSchedule,
                   builder: (context, state) {
                     return const PaymentScheduleSummaryScreen();
                   },

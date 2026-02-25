@@ -5,9 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_applicant_screen.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -17,6 +19,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/custom_verification_dialog.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -44,6 +47,7 @@ class AddBookingScreen extends StatefulWidget {
 class _AddBookingScreenState extends State<AddBookingScreen>
     with SingleTickerProviderStateMixin {
   // CUBIT
+  late LoginCubit _loginCubit;
   late BookingCubit _bookingCubit;
 
   // TAB CONTROLLER
@@ -68,7 +72,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       _remarkC,
       _termsAndConditionDescriptionC,
       _bookingAmountC,
-      _chequeNoC;
+      _chequeNoC,
+      _otpController;
 
   // AGREEMENT VALUE NOTIFIER
   final ValueNotifier<double> _agreementValueNotifier = ValueNotifier<double>(
@@ -178,6 +183,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     super.initState();
     _initializeTextControllers();
     _bookingCubit = context.read<BookingCubit>();
+    _loginCubit = context.read<LoginCubit>();
     _project = getProject();
     _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(_handleTabChange);
@@ -240,6 +246,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _localOtherCharges.dispose();
     _bookingSubscription?.cancel();
     _isFetchingEnquiry.dispose();
+    _otpController.dispose();
     for (final controller in _rankingControllers) {
       controller.dispose();
     }
@@ -271,6 +278,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _termsAndConditionDescriptionC = TextEditingController();
     _bookingAmountC = TextEditingController();
     _chequeNoC = TextEditingController();
+    _otpController = TextEditingController();
   }
 
   // Prefill form from booking model
@@ -768,6 +776,110 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     return true;
   }
 
+  // SUBMIT BOOKING FORM
+  void _submitForm() async {
+    String applicantMobile =
+        _applicants.value
+            .firstWhere((a) => a.applicantType == "Applicant")
+            .applicantMobileNumber;
+
+    _loginCubit.sendOTPModuleBased(
+      context: context,
+      mobileNumber: applicantMobile,
+      module: "BOOKING",
+    );
+    showCompleteVerificationDialog(
+      context,
+      otpController: _otpController,
+      verificationSteps: {
+        "Basic Details": true,
+        "Source Details": true,
+        "Property Preferences": true,
+        "Follow-up Details": true,
+      },
+      onResendOTP: () {
+        _loginCubit.sendOTPModuleBased(
+          context: context,
+          mobileNumber: applicantMobile,
+          module: "BOOKING",
+        );
+      },
+      onVerifyOTP: () async {
+        //TODO: NEED CONFORMATION
+        /*      await _bookingCubit.addBooking(
+          context: context,
+
+          projectId: getProject().projectId,
+          enquiryId:
+              _isEditMode
+                  ? widget.bookingModel!.enquiryId
+                  : _bookingCubit.state.enquiryList.isNotEmpty
+                  ? _bookingCubit.state.enquiryList.first.enquiryId
+                  : _bookingCubit.state.enquiryListById.first.enquiryId,
+
+          permanentAddress: _permanentAddressC.text.trim(),
+          communicationAddress: _communicationAddressC.text.trim(),
+
+          brokeragePercentage: 0.0,
+
+          brokerageAmount: 0.0,
+
+          inventoryFlatId: widget.inventoryObject?[0]['inventoryFlatId'],
+
+          agreementValue: _agreementValueNotifier.value ?? 0.0,
+
+          agreementValueTds: _tdsNotifier.value ?? 0.0,
+
+          agreementValueGSTPercentage:
+              double.tryParse(_agreementGstPercentageC.text) ?? 0.0,
+
+          agreementValueGSTAmount: _agreementGstAmountNotifier.value ?? 0.0,
+
+          stampDutyPercentage:
+              double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
+
+          stampDutyAmount: _stampDutyAmountNotifier.value ?? 0.0,
+
+          registrationFees: _registrationFeesNotifier.value ?? 0.0,
+
+          parkingId: null,
+          handoverType: _selectedHandOverType?['DisplayName'] ?? "",
+
+          registrationDate: _selectedExpectedRegistrationDate ?? DateTime.now(),
+
+          modeOfPayment: _selectedFundingSource?['DisplayName'] ?? "",
+
+          flatAlterationRemark: _remarkC.text.trim(),
+
+          termsAndConditionsDescription:
+              _termsAndConditionDescriptionC.text.trim(),
+
+          bookingType: 'FLAT',
+
+          otherChargesDetailJSON: _localOtherCharges.value,
+
+           paymentScheduleDetailJSON:
+             _bookingCubit.state.paymentScheduleMasterList,
+          bookingAmount: double.tryParse(_bookingAmountC.text) ?? 0.0,
+
+          chequeRTGSNumber: _chequeNoC.text.trim(),
+
+          chequeRTGSDate: _selectedChequeDate,
+
+          bankListMasterId: null,
+
+          transferBookingId: null,
+          tenantId: 0,
+
+          otp: _otpController.text.trim(),
+          addUpdateBookingApplicant: _applicants.value,
+        );
+*/
+        goRouter.pop();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -841,8 +953,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           child: CustomButton(
             text: "Save",
             onPressed: () async {
-              //Temporary Commented
-              // _printAllBookingData();
+              // TODO: NEED CONFIRMATION
+              // _submitForm();
               if (await _validateAllTabs()) {
                 final formValues = {
                   "enquiryUniqueCode": _enquiryUniqueCodeC.text,
@@ -2243,78 +2355,5 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         ],
       ),
     );
-  }
-
-  void _printAllBookingData() {
-    print("\n================= BOOKING DATA =================");
-    print("Enquiry Code                : ${_enquiryUniqueCodeC.text}");
-
-    print("\nApplicants Count            : ${_applicants.value.length}");
-    for (var applicant in _applicants.value) {
-      print("Applicant                   : ${applicant.toJson()}");
-    }
-
-    print("Permanent Address           : ${_permanentAddressC.text}");
-    print("Communication Address       : ${_communicationAddressC.text}");
-
-    print("\n================ AGREEMENT DETAILS ================");
-    print("Agreement Value             : ${_agreementValueNotifier.value}");
-    print("TDS                         : ${_tdsNotifier.value}");
-    print("Without TDS                 : ${_withoutTdsNotifier.value}");
-
-    print("\n=================== TAX DETAILS ===================");
-    print("GST %                       : ${_agreementGstPercentageC.text}");
-    print("GST Amount                  : ${_agreementGstAmountNotifier.value}");
-    print("Stamp Duty %                : ${_stampDutyPercentageC.text}");
-    print("Stamp Duty Amount           : ${_stampDutyAmountNotifier.value}");
-    print("Registration Fees           : ${_registrationFeesNotifier.value}");
-
-    print("\n================== OTHER DETAILS ==================");
-    print("Parking Selected            : ${_selectedParkingNotifier.value}");
-    print("Selected HandOver Type      : $_selectedHandOverType");
-    print("Expected Registration Date  : $_selectedExpectedRegistrationDate");
-    print("Selected Funding Source     : $_selectedFundingSource");
-
-    print("\n================== OTHER CHARGES ==================");
-    print("Other Charges Count         : ${_localOtherCharges.value.length}");
-    for (var otherCharge in _localOtherCharges.value) {
-      print("Other Charge                : ${otherCharge.toJson()}");
-    }
-
-    print("\n================ PAYMENT SCHEDULE =================");
-    for (
-      int i = 0;
-      i < _bookingCubit.state.paymentScheduleMasterList.length;
-      i++
-    ) {
-      final item = _bookingCubit.state.paymentScheduleMasterList[i];
-      final rankingText =
-          i < _rankingControllers.length ? _rankingControllers[i].text : "";
-
-      print("\n---------- ITEM ${i + 1} ----------");
-      print("Name                         : ${item.name}");
-      print("Ranking (Controller)         : $rankingText");
-      print("Ranking (From Model)         : ${item.ranking}");
-      print("Percentage                   : ${item.paymentSchedulePercentage}");
-      print(
-        "Cumulative Percentage        : ${item.paymentScheduleCummulativePercentage}",
-      );
-    }
-
-    print("\n==================== REMARK ====================");
-    print("Remark                      : ${_remarkC.text}");
-
-    print("\n====================== TnC =====================");
-    print(
-      "Terms                       : ${_termsAndConditionDescriptionC.text}",
-    );
-
-    print("\n================= PAYMENT DETAILS ===============");
-    print("Booking Amount              : ${_bookingAmountC.text}");
-    print("Cheque No                   : ${_chequeNoC.text}");
-    print("Cheque Date                 : $_selectedChequeDate");
-    print("Bank Selected               : ${_selectedBankNotifier.value}");
-
-    print("\n=================================================\n");
   }
 }

@@ -47,11 +47,6 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
         selectedBuilding: selectedBuilding,
         wingList: wings,
         selectedWing: null,
-        // reset pagination when building changes
-        paymentScheduleCurrentPage: 1,
-        paymentScheduleTotalRecords: 0,
-        costSheetCurrentPage: 1,
-        costSheetTotalRecords: 0,
       ),
     );
   }
@@ -160,7 +155,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
 
     final result = await _repository.getPaymentScheduleMasterReport(
       pageNumber: pageNumber,
-      pageSize: 100,
+      pageSize: 30,
       projectId: projectId,
       queryParams: queryParams,
     );
@@ -183,8 +178,6 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
           state.copyWith(
             isLoading: false,
             paymentScheduleReportList: updatedList,
-            paymentScheduleCurrentPage: pageNumber,
-            paymentScheduleTotalRecords: response["totalNumberOfRecord"] ?? 0,
           ),
         );
       },
@@ -207,7 +200,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
 
     final result = await _repository.getCostSheetReport(
       pageNumber: pageNumber,
-      pageSize: 20,
+      pageSize: 30,
       projectId: projectId,
       queryParams: queryParams,
     );
@@ -225,12 +218,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
         final combinedData = [...existingData, ...newData];
 
         emit(
-          state.copyWith(
-            costSheetReportList: combinedData,
-            isLoading: false,
-            costSheetCurrentPage: pageNumber,
-            costSheetTotalRecords: response['totalNumberOfRecord'] ?? 0,
-          ),
+          state.copyWith(costSheetReportList: combinedData, isLoading: false),
         );
       },
     );
@@ -251,16 +239,12 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
         wingList: [],
         selectedBuilding: null,
         selectedWing: null,
-        paymentScheduleCurrentPage: 1,
-        paymentScheduleTotalRecords: 0,
-        costSheetCurrentPage: 1,
-        costSheetTotalRecords: 0,
       ),
     );
 
     final result = await _repository.getProjectInventoryStructure(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 100,
       projectId: projectId,
     );
 
@@ -302,12 +286,6 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
 
   // ------------------ CLEAR COST SHEET ------------------
   void clearCostSheetList() {
-    emit(
-      state.copyWith(
-        costSheetReportList: [],
-        costSheetCurrentPage: 1,
-        costSheetTotalRecords: 0,
-      ),
-    );
+    emit(state.copyWith(costSheetReportList: []));
   }
 }
