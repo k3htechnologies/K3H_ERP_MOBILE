@@ -52,7 +52,7 @@ class LoginCubit extends Cubit<LoginState> {
         },
         (message) async {
           emit(
-            state.copyWith(isLoading: false, isSendOtp: true, message: message),
+            state.copyWith(isLoading: false, isSendOtp: true, message: message,stateType: StateType.sendOTP),
           );
           await showSuccessMessage(context, subTitle: message);
         },

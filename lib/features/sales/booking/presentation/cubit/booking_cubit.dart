@@ -315,12 +315,9 @@ class BookingCubit extends Cubit<BookingState> {
   Future addBooking({
     required BuildContext context,
     required int projectId,
+    required int enquiryId,
     required String permanentAddress,
     required String communicationAddress,
-    required String source,
-    required String flatAlterationRemark,
-    required String termsAndConditionsDescription,
-    String? subSource,
     required double brokeragePercentage,
     required double brokerageAmount,
     required int inventoryFlatId,
@@ -335,6 +332,10 @@ class BookingCubit extends Cubit<BookingState> {
     required String handoverType,
     required DateTime registrationDate,
     required String modeOfPayment,
+
+    /// CHANGE LATER IN API
+    required String flatAlterationRemark,
+    required String termsAndConditionsDescription,
     String bookingType = 'FLAT',
     required List<OtherChargeModel> otherChargesDetailJSON,
     required List<BookingPaymentScheduleData> paymentScheduleDetailJSON,
@@ -342,17 +343,18 @@ class BookingCubit extends Cubit<BookingState> {
     required String chequeRTGSNumber,
     DateTime? chequeRTGSDate,
     int? bankListMasterId,
-    required List<BookingApplicantData> addUpdateBookingApplicant,
+    int? transferBookingId,
     int? tenantId,
+    required String otp,
+    required List<BookingApplicantData> addUpdateBookingApplicant,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
       "BookingId": 0.toString(),
       "ProjectId": projectId.toString(),
+      "EnquiryId": enquiryId.toString(),
       "PermanentAddress": permanentAddress,
       "CommunicationAddress": communicationAddress,
-      "Source": source,
-      if (subSource != null) "SubSource": subSource,
       "BrokeragePercentage": brokeragePercentage.toString(),
       "BrokerageAmount": brokerageAmount.toString(),
       "InventoryFlatId": inventoryFlatId.toString(),
@@ -367,10 +369,11 @@ class BookingCubit extends Cubit<BookingState> {
       "HandoverType": handoverType,
       "RegistrationDate": registrationDate.toIso8601String(),
       "ModeOfPayment": modeOfPayment,
-      "BookingType": bookingType,
+
+      /// CHANGE LATER IN API
       "FlatAlterationRemark": flatAlterationRemark,
       "TermsAndConditionsDescription": termsAndConditionsDescription,
-      if (tenantId != null) "TenantId": tenantId.toString(),
+      "BookingType": bookingType,
       "OtherChargesDetailJSON": jsonEncode(
         otherChargesDetailJSON
             .where((e) => e.isSelected)
@@ -408,6 +411,10 @@ class BookingCubit extends Cubit<BookingState> {
         "ChequeRTGSDate": chequeRTGSDate.toIso8601String(),
       if (bankListMasterId != null)
         "BankListMasterId": bankListMasterId.toString(),
+      if (transferBookingId != null)
+        "TransferBookingId": transferBookingId.toString(),
+      if (tenantId != null) "TenantId": tenantId.toString(),
+      "OTP": otp,
     };
 
     for (int i = 0; i < addUpdateBookingApplicant.length; i++) {
@@ -558,20 +565,16 @@ class BookingCubit extends Cubit<BookingState> {
   // <---- UPDATE BOOKING ---->
   Future updateBooking({
     required BuildContext context,
-    required int projectId,
-    required int bookingId,
     required int index,
+    required int bookingId,
     required String uniqueKey,
+    required int projectId,
+    required int enquiryId,
     required String permanentAddress,
     required String communicationAddress,
-    required String source,
-    required String flatAlterationRemark,
-    required String termsAndConditionsDescription,
-    String? subSource,
     required double brokeragePercentage,
     required double brokerageAmount,
     required int inventoryFlatId,
-    String? parkingId,
     required double agreementValue,
     required double agreementValueTds,
     required double agreementValueGSTPercentage,
@@ -579,19 +582,25 @@ class BookingCubit extends Cubit<BookingState> {
     required double stampDutyPercentage,
     required double stampDutyAmount,
     required double registrationFees,
+    String? parkingId,
     required String handoverType,
     required DateTime registrationDate,
     required String modeOfPayment,
-    required String bookingType,
+
+    /// CHANGE LATER IN API
+    required String flatAlterationRemark,
+    required String termsAndConditionsDescription,
+    String bookingType = 'FLAT',
     required List<OtherChargeModel> otherChargesDetailJSON,
     required List<BookingPaymentScheduleData> paymentScheduleDetailJSON,
     required double bookingAmount,
     required String chequeRTGSNumber,
     DateTime? chequeRTGSDate,
     int? bankListMasterId,
-    required List<BookingApplicantData> addUpdateBookingApplicant,
     int? transferBookingId,
     int? tenantId,
+    required String otp,
+    required List<BookingApplicantData> addUpdateBookingApplicant,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
@@ -600,8 +609,6 @@ class BookingCubit extends Cubit<BookingState> {
       "ProjectId": projectId.toString(),
       "PermanentAddress": permanentAddress,
       "CommunicationAddress": communicationAddress,
-      "Source": source,
-      if (subSource != null) "SubSource": subSource,
       "BrokeragePercentage": brokeragePercentage.toString(),
       "BrokerageAmount": brokerageAmount.toString(),
       "InventoryFlatId": inventoryFlatId.toString(),
@@ -616,10 +623,11 @@ class BookingCubit extends Cubit<BookingState> {
       "HandoverType": handoverType,
       "RegistrationDate": registrationDate.toIso8601String(),
       "ModeOfPayment": modeOfPayment,
-      "BookingType": bookingType,
+
+      /// CHANGE IT LATER IN API
       "FlatAlterationRemark": flatAlterationRemark,
       "TermsAndConditionsDescription": termsAndConditionsDescription,
-      if (tenantId != null) "TenantId": tenantId.toString(),
+      "BookingType": bookingType,
       "OtherChargesDetailJSON": jsonEncode(
         otherChargesDetailJSON
             .where((e) => e.isSelected)
@@ -660,6 +668,8 @@ class BookingCubit extends Cubit<BookingState> {
         "BankListMasterId": bankListMasterId.toString(),
       if (transferBookingId != null)
         "TransferBookingId": transferBookingId.toString(),
+      if (tenantId != null) "TenantId": tenantId.toString(),
+      "OTP": otp,
     };
 
     for (int i = 0; i < addUpdateBookingApplicant.length; i++) {

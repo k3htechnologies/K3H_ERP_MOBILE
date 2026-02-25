@@ -186,8 +186,10 @@ Future<void> handleLocationPermission() async {
 // LOGOUT
 Future logOutUser(BuildContext context) async {
   await showSuccessMessage(context, subTitle: "Logged out successfully");
-  await LocalStorageManager().removeAll();
-  goRouter.replace(AppRoutes.splashScreen);
+  Future.delayed(Duration(seconds: 1), () async {
+    await LocalStorageManager().removeAll();
+    goRouter.replace(AppRoutes.splashScreen);
+  });
 }
 
 // SHOW SUCCESS MESSAGE
