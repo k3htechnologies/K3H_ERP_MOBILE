@@ -327,9 +327,9 @@ class DialogHelper {
                   /// TITLE
                   Container(
                     margin: const EdgeInsets.only(top: 10),
-                    padding: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.only(bottom: 16,left: 16),
                     child: Align(
-                      alignment: Alignment.center,
+                      alignment: Alignment.centerLeft,
                       child: Text(title, style: AppTextStyle.ts16SB()),
                     ),
                   ),
