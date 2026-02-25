@@ -128,6 +128,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
                       title: 'Branch Name',
                       textController: _branchNameC,
                       isRequired: true,
+                      hint: 'Enter Branch Name',
                       inputFormatterList: [
                         LengthLimitingTextInputFormatter(50),
                       ],
@@ -140,6 +141,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
                     ),
                     CustomTextField(
                       title: 'Branch Code',
+                      hint: 'Enter Branch Code',
                       textController: _branchCodeC,
                       isRequired: true,
                       inputFormatterList: [
@@ -156,6 +158,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
                     ),
                     CustomTextField(
                       title: 'Location',
+                      hint: 'Enter Location',
                       textController: _locationC,
                       isRequired: true,
                       inputFormatterList: [
@@ -201,7 +204,11 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: Icon(_isEditMode?Icons.edit:Icons.add,size: 18,color: AppColor.white,),
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              size: 18,
+              color: AppColor.white,
+            ),
             text: _isEditMode ? "Update Branch Master" : "Add Branch Master",
             onPressed: _submitForm,
           ),
