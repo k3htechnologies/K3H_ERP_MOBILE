@@ -12,10 +12,6 @@ jobs:
   build:
     runs-on: macos-latest
 
-    defaults:
-      run:
-        working-directory: erp_mobile_app
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -50,4 +46,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: erp_app
-          path: ci_cd_practice/build/app/outputs/flutter-apk/
+          path: build/app/outputs/flutter-apk/
