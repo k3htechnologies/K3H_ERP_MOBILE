@@ -17,6 +17,13 @@ class AppColor {
   static const Color purple20 = Color(0x338A38F5);
   static const Color priorityHighColor = Color(0xFFB91C1C);
 
+  // FINAL STAGE COLOR
+  static const Color bookingDoneColor = Color(0xCC00FF4A);
+  static const Color bookingDoneColorText = Color(0xFF48C848);
+  static const Color blockedColor = Color(0xCC00FF4A);
+  static const Color blockedColorText = Color(0xFF48C848);
+  static const Color blueBgColor = Color(0xFF13367A);
+
   // BASIC
   static const Color black = Color(0xFF111111); // BLACK
   static const Color black10 = Color(0x1A111111); // BLACK

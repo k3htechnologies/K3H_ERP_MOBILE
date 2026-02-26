@@ -85,7 +85,7 @@ class AppAssets {
   static const String payslipIcon = "$svgPath/payslip.svg";
   static const String mailIcon = "$svgPath/mailIcon.svg";
   static const String phoneIcon = "$svgPath/phoneIcon.svg";
-
+  static const String generateReportIcon = "$svgPath/generateReport.svg";
   // COMMON
   static const String backIcon = "$svgPath/backButtonIcon.svg";
 
@@ -107,6 +107,12 @@ class AppAssets {
   static const String submitIcon = "$svgPath/submit.svg";
   static const String copyIcon = "$svgPath/copyIcon.svg";
   static const String summaryIcon = "$svgPath/summaryIcon.svg";
+  static const String enquiryReportIcon = "$svgPath/enquiryReportIcon.svg";
+  static const String sourceReportIcon = "$svgPath/sourceReportIcon.svg";
+  static const String cpReportIcon = "$svgPath/cpReportIcons.svg";
+  static const String bookingReportIcon = "$svgPath/bookingReportIcon.svg";
+  static const String closingReportIcon = "$svgPath/closingReportIcon.svg";
+  static const String salesAdvisorIcon = "$svgPath/salesAdvisorIcon.svg";
 
   // SIDE DRAWER
 

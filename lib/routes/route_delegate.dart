@@ -24,6 +24,7 @@ import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_inventory_specification_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_unit_specification_screen.dart';
+import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_dashboard.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/unit_specification_view_screen.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
@@ -2656,6 +2657,13 @@ final GoRouter goRouter = GoRouter(
             return BlocProvider(create: (_) => InventoryCubit(), child: child);
           },
           routes: [
+            GoRoute(
+              name: AppRoutes.inventoryDashboard,
+              path: AppRoutes.inventoryDashboard,
+              builder: (context, state) {
+                return const InventoryDashboard();
+              },
+            ),
             GoRoute(
               name: AppRoutes.inventory,
               path: AppRoutes.inventory,
