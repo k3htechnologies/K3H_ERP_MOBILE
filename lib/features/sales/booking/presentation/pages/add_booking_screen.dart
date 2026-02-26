@@ -2245,7 +2245,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     );
   }
 
-  void _printAllBookingData() {
+ /* void _printAllBookingData() {
     print("\n================= BOOKING DATA =================");
     print("Enquiry Code                : ${_enquiryUniqueCodeC.text}");
 
@@ -2316,5 +2316,5 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     print("Bank Selected               : ${_selectedBankNotifier.value}");
 
     print("\n=================================================\n");
-  }
+  }*/
 }

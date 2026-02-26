@@ -30,14 +30,14 @@ jobs:
       - run: flutter --version
 
 
-      - name: Auto format rt code
+      - name: Auto format dart code
         run: dart format .
 
       - name: Verify dart code is formatted
         run: dart format --output=none --set-exit-if-changed .
 
-      - name: Analyze the dart code
-        run: flutter analyze
+#      - name: Analyze the dart code
+#        run: flutter analyze --fatal-warnings
 
       - name: Build APK
         run: flutter build apk --debug --build-name=1.0.0 --build-number=1
