@@ -17,6 +17,7 @@ class CustomMultipleSelectPopup extends StatefulWidget {
   dataFetchCallBack;
   final String? Function(List<Map<String, dynamic>>?)? validator;
   final bool isMultiSelect;
+  final VoidCallback? onClear;
 
   const CustomMultipleSelectPopup({
     super.key,
@@ -28,6 +29,7 @@ class CustomMultipleSelectPopup extends StatefulWidget {
     this.initialValue,
     this.dataList,
     this.isMultiSelect = true,
+    this.onClear,
   });
 
   @override
@@ -352,6 +354,9 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                                                         widget.onSelected(
                                                           selectedValues,
                                                         );
+                                                        if (widget.onClear != null) {
+                                                          widget.onClear!();
+                                                        }
                                                       },
                                                       child: const Icon(
                                                         Icons.close,

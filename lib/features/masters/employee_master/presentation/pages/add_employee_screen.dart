@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/employee_master_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -11,6 +13,7 @@ import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
@@ -29,6 +32,10 @@ class AddEmployeeScreen extends StatefulWidget {
 class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   // CUBIT
   late EmployeeMasterCubit _employeeMasterCubit;
+
+  // REPOSITORY
+  final EmployeeMasterRepository _employeeMasterRepository =
+      serviceLocator<EmployeeMasterRepository>();
 
   // FORM KEYS
   final _formKeys = [
@@ -113,12 +120,14 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   Map<String, dynamic>? selectedDistrict;
   Map<String, dynamic>? selectedCity;
 
+  late final ValueNotifier<List<Map<String, dynamic>>>
+  _selectedReportingPersonNotifier;
+
   // DROPDOWN SELECTIONS
   List<Map<String, dynamic>> _selectedCompany = [];
   List<Map<String, dynamic>> _selectedDepartment = [];
   List<Map<String, dynamic>> _selectedBranch = [];
   List<Map<String, dynamic>> _selectedDesignation = [];
-  List<Map<String, dynamic>> _selectedReportingPerson = [];
   List<Map<String, dynamic>> _selectedBank = [];
 
   // DATES
@@ -136,6 +145,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     _initializeTextEditingController();
     _initializeDropdowns();
 
+    _selectedReportingPersonNotifier =
+        ValueNotifier<List<Map<String, dynamic>>>([]);
+
     if (widget.employee != null) {
       _prefillDetailsToAddUpdateEmployeeMaster(widget.employee!);
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -147,6 +159,8 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   @override
   void dispose() {
     super.dispose();
+    _selectedReportingPersonNotifier.dispose();
+    // BASIC EMPLOYEE DETAILS
     _firstNameC.dispose();
     _middleNameC.dispose();
     _lastNameC.dispose();
@@ -187,6 +201,10 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     _bankBranchNameC.text = employee.bankBranchName;
     _accountNumberC.text = employee.accountNo;
     _ifscC.text = employee.ifscCode;
+
+    _selectedReportingPersonNotifier.value = [
+      {'zAttributesId': employee.employeeId, 'DisplayName': employee.fullName},
+    ];
 
     // DROPDOWNS
     selectedGender = genderList.firstWhere(
@@ -261,14 +279,12 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         },
       ];
     }
-    if (employee.reportPersonId > 0) {
-      _selectedReportingPerson = [
-        {
-          "zAttributesId": employee.reportPersonId,
-          "DisplayName": employee.reportPersonName,
-        },
-      ];
-    }
+    _selectedReportingPersonNotifier.value = [
+      {
+        'zAttributesId': widget.employee!.employeeId,
+        'DisplayName': widget.employee!.fullName,
+      },
+    ];
     if (employee.bankListMasterId > 0) {
       _selectedBank = [
         {
@@ -277,6 +293,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         },
       ];
     }
+    _fetchEmployeeDetailsForEdit(widget.employee!.employeeId);
   }
 
   // INITIALIZE TEXT EDITING CONTROLLERS
@@ -373,6 +390,35 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       "totalNumberOfRecord":
           totalCount > 0 ? totalCount : uniqueDepartments.length,
     };
+  }
+
+  // FETCH EMPLOYEE
+  Future<void> _fetchEmployeeDetailsForEdit(int employeeId) async {
+    final result = await _employeeMasterRepository.getEmployeeMasterList(
+      pageNumber: 1,
+      pageSize: 1,
+      queryParams: {'EmployeeId': employeeId},
+    );
+    result.fold((_) {}, (response) {
+      // Repository already returns List<UserModel> in response['data']
+      final employees = response['data'] as List<UserModel>? ?? [];
+      if (employees.isEmpty) return;
+      final employee = employees.first;
+      if (!mounted) return;
+      _selectedReportingPersonNotifier.value = [
+        {
+          'zAttributesId': employee.employeeId,
+          'DisplayName': employee.fullName,
+          'employeeCode': employee.employeeCode,
+          'department': employee.department,
+          'designation': employee.designation,
+          'branch': employee.branch,
+          'email': employee.emailId,
+          'personalNumber': employee.personalMobileNumber,
+          'reportingPerson': employee.reportPersonName,
+        },
+      ];
+    });
   }
 
   // FETCH COMPANIES
@@ -714,6 +760,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     if (!mounted) {
       return;
     }
+    final selectedReportingPerson = _selectedReportingPersonNotifier.value;
     if (employee != null) {
       await _employeeMasterCubit.updateEmployeeMaster(
         index: widget.index,
@@ -753,9 +800,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         selectedDesignationId: int.parse(
           _selectedDesignation[0]["zAttributesId"].toString(),
         ),
-        selectedReportingPersonId: int.parse(
-          _selectedReportingPerson[0]["zAttributesId"].toString(),
-        ),
+        selectedReportingPersonId: selectedReportingPerson.first['zAttributesId'] as int,
         selectedCountryNameId: 1,
         selectedStateId: selectedState!["zAttributesId"],
         selectedDistrictId: selectedDistrict!["zAttributesId"],
@@ -801,9 +846,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         selectedDesignationId: int.parse(
           _selectedDesignation[0]["zAttributesId"].toString(),
         ),
-        selectedReportingPersonId: int.parse(
-          _selectedReportingPerson[0]["zAttributesId"].toString(),
-        ),
+        selectedReportingPersonId: selectedReportingPerson.first['zAttributesId'] as int,
         selectedCountryNameId: 1,
         selectedStateId: selectedState!["zAttributesId"],
         selectedDistrictId: selectedDistrict!["zAttributesId"],
@@ -1221,21 +1264,102 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             initialDate: idCardIssueDateDate,
             setValue: (value) => idCardIssueDateDate = value,
           ),
-          CustomMultipleSelectPopup(
-            title: "Reporting Person",
-            isRequired: true,
-            isMultiSelect: false,
-            initialValue: _selectedReportingPerson,
-            dataList: [],
-            dataFetchCallBack: _fetchReportingPerson,
-            onSelected: (value) {
-              _selectedReportingPerson = value;
-            },
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Reporting Person is required';
-              }
-              return null;
+          ValueListenableBuilder<List<Map<String, dynamic>>>(
+            valueListenable: _selectedReportingPersonNotifier,
+            builder: (context, selectedEmployee, _) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomMultipleSelectPopup(
+                    title: "Reporting Person",
+                    isRequired: true,
+                    isMultiSelect: false,
+                    initialValue: selectedEmployee,
+                    dataList: [],
+                    dataFetchCallBack: _fetchReportingPerson,
+                    onSelected: (value) async {
+                      if (value.isEmpty) return;
+
+                      final id = value.first['zAttributesId'] as int;
+
+                      await _fetchEmployeeDetailsForEdit(id);
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Reporting Person is required';
+                      }
+                      return null;
+                    },
+                    onClear: (){
+                      _selectedReportingPersonNotifier.value = [];
+                    },
+                  ),
+                  if (selectedEmployee.isNotEmpty) ...[
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColor.lightBlue),
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        spacing: 10,
+                        children: [
+                          Row(
+                            spacing: 10,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Department",
+                                value:
+                                    selectedEmployee.first["department"] ?? '',
+                              ),
+                              buildColumnTitleValue(
+                                title: "Designation",
+                                value:
+                                    selectedEmployee.first["designation"] ?? '',
+                              ),
+                            ],
+                          ),
+                          Row(
+                            spacing: 10,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Branch",
+                                value: selectedEmployee.first["branch"] ?? '',
+                              ),
+                              buildColumnTitleValue(
+                                title: "Reporting Person",
+                                value:
+                                selectedEmployee
+                                    .first["reportingPerson"] ??
+                                    '',
+                              ),
+                            ],
+                          ),
+                          Row(
+                            spacing: 10,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Email Id",
+                                value: selectedEmployee.first["email"] ?? '',
+                              ),
+                              buildColumnTitleValue(
+                                title: "Personal Mobile Number",
+                                value:
+                                    selectedEmployee.first["personalNumber"] ??
+                                    '',
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              );
             },
           ),
         ],

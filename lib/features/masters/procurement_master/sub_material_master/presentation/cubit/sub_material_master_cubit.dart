@@ -256,8 +256,13 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "sub_material_${DateTime.now()}.pdf"
-              : "sub_material_${DateTime.now()}.xlsx",
+              ? "Sub Material Master ${DateTime.now()}.pdf"
+              : "Sub Material Master ${DateTime.now()}.xlsx",
+        );
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );
