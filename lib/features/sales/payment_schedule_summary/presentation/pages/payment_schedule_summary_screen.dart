@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -35,11 +34,7 @@ class _PaymentScheduleSummaryScreenState
   late PaymentScheduleSummaryCubit _paymentScheduleSummaryCubit;
   // TEXTEDITING CONTROLLER
   late TextEditingController _ratePerSqFt;
-  //PAGINATION
-  late ScrollController _costSheetScrollController;
-  late ScrollController _paymentScheduleScrollController;
-  Timer? _debounceOfCostSheet;
-  Timer? _debounceOfPaymentSchedule;
+
   @override
   void initState() {
     super.initState();
@@ -57,90 +52,6 @@ class _PaymentScheduleSummaryScreenState
   void _onScroll() {
     _mainTabController = TabController(length: 2, vsync: this);
     _mainTabController.addListener(_handleMainTabChange);
-    _costSheetScrollController = ScrollController();
-    _paymentScheduleScrollController = ScrollController();
-
-    _onCostSheetScroll();
-    _onPaymentScheduleScroll();
-  }
-
-  // <---- PAGINATION : COST SHEET ---->
-  void _onCostSheetScroll() {
-    _costSheetScrollController.addListener(() {
-      if (_costSheetScrollController.position.pixels >=
-              _costSheetScrollController.position.maxScrollExtent - 100 &&
-          !_paymentScheduleSummaryCubit.state.isLoading! &&
-          _paymentScheduleSummaryCubit.state.costSheetReportList.length <
-              _paymentScheduleSummaryCubit.state.costSheetTotalRecords) {
-        // TO HANDLE MULTIPLE TIME API CALLS
-        if (_debounceOfCostSheet?.isActive ?? false) {
-          _debounceOfCostSheet?.cancel();
-        }
-        _debounceOfCostSheet = Timer(const Duration(milliseconds: 300), () {
-          final state = _paymentScheduleSummaryCubit.state;
-          final nextPage = state.costSheetCurrentPage + 1;
-
-          final rate = int.tryParse(_ratePerSqFt.text.trim()) ?? 0;
-
-          Map<String, dynamic> queryParams = {
-            "Wing": state.selectedWing,
-            "BuildingId": state.selectedBuilding?.buildingId,
-            "Rate": rate,
-            "PaymentScheduleMasterId": 0,
-            "FlatConfiguration": state.selectedFlatConfiguration,
-          };
-
-          _paymentScheduleSummaryCubit.getCostSheetReport(
-            context,
-            nextPage,
-            getProject().projectId,
-            queryParams,
-          );
-        });
-      }
-    });
-  }
-
-  // <---- PAGINATION : PAYMENT SCHEDULE ---->
-  void _onPaymentScheduleScroll() {
-    _paymentScheduleScrollController.addListener(() {
-      if (_paymentScheduleScrollController.position.pixels >=
-          _paymentScheduleScrollController.position.maxScrollExtent - 100) {
-        final state = _paymentScheduleSummaryCubit.state;
-
-        if (!state.isLoading! &&
-            state.paymentScheduleReportList.length <
-                state.paymentScheduleTotalRecords) {
-          if (_debounceOfPaymentSchedule?.isActive ?? false) {
-            _debounceOfPaymentSchedule?.cancel();
-          }
-
-          _debounceOfPaymentSchedule = Timer(
-            const Duration(milliseconds: 300),
-            () {
-              final nextPage = state.paymentScheduleCurrentPage + 1;
-
-              final rate = int.tryParse(_ratePerSqFt.text.trim()) ?? 0;
-
-              Map<String, dynamic> queryParams = {
-                "Wing": state.selectedWing,
-                "BuildingId": state.selectedBuilding?.buildingId,
-                "Rate": rate,
-                "PaymentScheduleMasterId": 0,
-                "FlatConfiguration": state.selectedFlatConfiguration,
-              };
-
-              _paymentScheduleSummaryCubit.getPaymentScheduleMasterReport(
-                context,
-                nextPage,
-                getProject().projectId,
-                queryParams,
-              );
-            },
-          );
-        }
-      }
-    });
   }
 
   // <---- FLAT CONFIGURATION TAB CHANGE HANDLER ---->
@@ -213,8 +124,6 @@ class _PaymentScheduleSummaryScreenState
     _mainTabController.dispose();
     _flatConfigurationTabController?.dispose();
     _ratePerSqFt.dispose();
-    _costSheetScrollController.dispose();
-    _paymentScheduleScrollController.dispose();
     super.dispose();
   }
 
@@ -382,20 +291,9 @@ class _PaymentScheduleSummaryScreenState
         }
 
         return ListView.builder(
-          controller: _costSheetScrollController,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          itemCount: state.costSheetReportList.length + 1,
+          itemCount: state.costSheetReportList.length,
           itemBuilder: (context, index) {
-            if (index == state.costSheetReportList.length) {
-              return (state.isLoading! &&
-                      state.costSheetReportList.length <
-                          state.costSheetTotalRecords)
-                  ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                  : const SizedBox.shrink();
-            }
             final item = state.costSheetReportList[index];
             return Container(
               padding: const EdgeInsets.all(16),
@@ -477,20 +375,9 @@ class _PaymentScheduleSummaryScreenState
         final flats = grouped.values.toList();
 
         return ListView.builder(
-          controller: _paymentScheduleScrollController,
           padding: const EdgeInsets.symmetric(vertical: 8),
-          itemCount: flats.length + 1,
+          itemCount: flats.length,
           itemBuilder: (context, index) {
-            if (index == flats.length) {
-              return state.paymentScheduleReportList.length <
-                      state.paymentScheduleTotalRecords
-                  ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                  : const SizedBox.shrink();
-            }
-
             final flat = flats[index];
 
             return Container(
@@ -512,13 +399,14 @@ class _PaymentScheduleSummaryScreenState
                 children: [
                   _buildPaymentRow(
                     "Carpet Area (In Sq. ft)",
-                    flat.carpetArea.toString(),
+                    flat.carpetArea,
+                    null,
                   ),
 
                   const SizedBox(height: 12),
 
                   ...flat.slabs.map((slab) {
-                    return _buildPaymentRowWithPercentage(
+                    return _buildPaymentRow(
                       slab.name,
                       slab.totalValue,
                       slab.paymentSchedulePercentage,
@@ -703,47 +591,47 @@ class _PaymentScheduleSummaryScreenState
   }
 
   // HELPER WIDGET FOR PAYMENT SCHEDULE CARD
-  Widget _buildPaymentRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
-        Text(
-          value,
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPaymentRowWithPercentage(
-    String label,
-    double value,
-    double percentage,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+  Widget _buildPaymentRow(String label, double value, double? percentage) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // TITLE + PERCENTAGE
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 150,
+                  child: Text(
+                    label,
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                  ),
+                ),
+                if (percentage != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    "${percentage.toStringAsFixed(0)}%",
+                    style: AppTextStyle.ts14M(),
+                  ),
+                ],
+              ],
             ),
-            Text(
-              value.toStringAsFixed(0),
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+          // COLON
+          SizedBox(
+            width: 20,
+            child: Text(
+              ":",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColor.grey),
             ),
-          ],
-        ),
-        SizedBox(height: 2),
-        Text(
-          "${percentage.toStringAsFixed(0)}%",
-          style: TextStyle(fontSize: 12, color: Colors.grey),
-        ),
-        SizedBox(height: 8),
-      ],
+          ),
+          // VALUE
+          Text(value.toStringAsFixed(0), style: AppTextStyle.ts14M()),
+        ],
+      ),
     );
   }
 }

@@ -14,10 +14,6 @@ class PaymentScheduleSummaryState extends BaseState {
   final String selectedFlatConfiguration;
   final ProjectInventoryStructure? selectedBuilding;
   final String? selectedWing;
-  final int paymentScheduleCurrentPage;
-  final int paymentScheduleTotalRecords;
-  final int costSheetCurrentPage;
-  final int costSheetTotalRecords;
 
   const PaymentScheduleSummaryState({
     super.isLoading,
@@ -31,10 +27,6 @@ class PaymentScheduleSummaryState extends BaseState {
     required this.selectedFlatConfiguration,
     this.selectedBuilding,
     this.selectedWing,
-    this.paymentScheduleCurrentPage = 1,
-    this.paymentScheduleTotalRecords = 0,
-    this.costSheetCurrentPage = 1,
-    this.costSheetTotalRecords = 0,
   });
 
   factory PaymentScheduleSummaryState.initial() => PaymentScheduleSummaryState(
@@ -49,10 +41,6 @@ class PaymentScheduleSummaryState extends BaseState {
     selectedFlatConfiguration: '',
     selectedBuilding: null,
     selectedWing: null,
-    paymentScheduleCurrentPage: 1,
-    paymentScheduleTotalRecords: 0,
-    costSheetCurrentPage: 1,
-    costSheetTotalRecords: 0,
   );
 
   PaymentScheduleSummaryState copyWith({
@@ -67,10 +55,6 @@ class PaymentScheduleSummaryState extends BaseState {
     String? selectedFlatConfiguration,
     ProjectInventoryStructure? selectedBuilding,
     String? selectedWing,
-    int? paymentScheduleCurrentPage,
-    int? paymentScheduleTotalRecords,
-    int? costSheetCurrentPage,
-    int? costSheetTotalRecords,
   }) {
     return PaymentScheduleSummaryState(
       isLoading: isLoading ?? this.isLoading,
@@ -87,13 +71,6 @@ class PaymentScheduleSummaryState extends BaseState {
           selectedFlatConfiguration ?? this.selectedFlatConfiguration,
       selectedBuilding: selectedBuilding ?? this.selectedBuilding,
       selectedWing: selectedWing ?? this.selectedWing,
-      paymentScheduleCurrentPage:
-          paymentScheduleCurrentPage ?? this.paymentScheduleCurrentPage,
-      paymentScheduleTotalRecords:
-          paymentScheduleTotalRecords ?? this.paymentScheduleTotalRecords,
-      costSheetCurrentPage: costSheetCurrentPage ?? this.costSheetCurrentPage,
-      costSheetTotalRecords:
-          costSheetTotalRecords ?? this.costSheetTotalRecords,
     );
   }
 
@@ -110,9 +87,5 @@ class PaymentScheduleSummaryState extends BaseState {
     selectedFlatConfiguration,
     selectedBuilding,
     selectedWing,
-    paymentScheduleCurrentPage,
-    paymentScheduleTotalRecords,
-    costSheetCurrentPage,
-    costSheetTotalRecords,
   ];
 }

@@ -733,18 +733,14 @@ class _InventoryScreenState extends State<InventoryScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    "Unit No. : ${flat.flat}",
-                    style: AppTextStyle.ts14M(),
-                  ),
+                  Text("Unit No. : ${flat.flat}", style: AppTextStyle.ts14M()),
                   verticalSpacing(height: 5),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       buildColumnTitleValue(
                         title: "Type",
-                        value:
-                            flat.flatType != "" ? flat.flatType : "-",
+                        value: flat.flatType != "" ? flat.flatType : "-",
                       ),
                       buildColumnTitleValue(
                         title: "Area(Sq.ft)",
@@ -777,8 +773,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                               flat.flatStatus,
                               style: AppTextStyle.ts14M(
                                 color:
-                                    flat.flatStatus.toLowerCase() ==
-                                            "booked"
+                                    flat.flatStatus.toLowerCase() == "booked"
                                         ? AppColor.error
                                         : flat.flatStatus.toLowerCase() ==
                                             "member"
@@ -827,18 +822,16 @@ class _InventoryScreenState extends State<InventoryScreen>
                                   await goRouter.pushNamed(
                                     AppRoutes.addInventorySpecification,
                                     queryParameters: {
-                                      "flatModel":
-                                          Uri.encodeQueryComponent(
-                                            EncryptionManager.encryptData(
-                                              jsonEncode(flat),
-                                            ),
-                                          ),
-                                      "floorModel":
-                                          Uri.encodeQueryComponent(
-                                            EncryptionManager.encryptData(
-                                              jsonEncode(floor),
-                                            ),
-                                          ),
+                                      "flatModel": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(flat),
+                                        ),
+                                      ),
+                                      "floorModel": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(floor),
+                                        ),
+                                      ),
                                     },
                                   );
                                   if (mounted) {
@@ -870,7 +863,8 @@ class _InventoryScreenState extends State<InventoryScreen>
                           ),
                     ],
                   ),
-                  if (flat.ownerName != "" && flat.flatStatus.toLowerCase()=="booked") ...[
+                  if (flat.ownerName != "" &&
+                      flat.flatStatus.toLowerCase() == "booked") ...[
                     verticalSpacing(),
                     Text(
                       "Owner : ${flat.ownerName}",
@@ -892,6 +886,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                       onPressed: () {
                         List<Map<String, dynamic>> list = [
                           {
+                            "inventoryFlatId": flat.inventoryFlatId,
                             "buildingNumber": flat.buildingNumber,
                             "wing": flat.wing,
                             "floor": flat.floor,
@@ -906,9 +901,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                           AppRoutes.addBooking,
                           queryParameters: {
                             "inventoryObject": Uri.encodeComponent(
-                              EncryptionManager.encryptData(
-                                jsonEncode(list),
-                              ),
+                              EncryptionManager.encryptData(jsonEncode(list)),
                             ),
                           },
                         );
