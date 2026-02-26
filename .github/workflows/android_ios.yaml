@@ -1,0 +1,49 @@
+name: Android Build
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.2'
+          cache: true
+      - run: flutter --version
+
+
+      - name: Auto format dart code
+        run: dart format .
+
+      - name: Verify dart code is formatted
+        run: dart format --output=none --set-exit-if-changed .
+
+#      - name: Analyze the dart code
+#        run: flutter analyze --fatal-warnings
+
+      - name: Build APK
+        run: flutter build apk --debug --build-name=1.0.0 --build-number=1
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: erp_app
+          path: build/app/outputs/flutter-apk/
