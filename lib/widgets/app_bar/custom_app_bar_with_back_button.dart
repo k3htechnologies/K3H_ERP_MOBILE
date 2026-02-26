@@ -230,24 +230,30 @@ class _CustomAppBarWithBackButtonState
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      toolbarHeight: widget.preferredSize.height,
-      backgroundColor: AppColor.lightGreyBackground,
-      centerTitle: false,
-      leading: GestureDetector(
-        onTap: () {
-          if (widget.isMenuButton) {
-            mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
-          } else {
-            if (goRouter.canPop()) {
-              FocusManager.instance.primaryFocus?.unfocus();
-              goRouter.pop();
-            }
-          }
-        },
-        child:
-            widget.isMenuButton
-                ? Container(
+    return SafeArea(
+      bottom: false,
+      child: Container(
+        height: widget.preferredSize.height,
+        color: AppColor.lightGreyBackground,
+        padding: const EdgeInsets.symmetric(horizontal: 0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+
+            // LEADING BUTTON
+            GestureDetector(
+              onTap: () {
+                if (widget.isMenuButton) {
+                  mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
+                } else {
+                  if (goRouter.canPop()) {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    goRouter.pop();
+                  }
+                }
+              },
+              child: widget.isMenuButton
+                  ? Container(
                 alignment: Alignment.center,
                 padding: EdgeInsets.fromLTRB(7, 6, 6, 6),
                 margin: EdgeInsets.fromLTRB(16, 12, 10, 12),
@@ -255,109 +261,145 @@ class _CustomAppBarWithBackButtonState
                   color: AppColor.lightBlue,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Icon(Icons.menu,size: 14,color: AppColor.primary,))
-                : Container(
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.fromLTRB(10, 6, 6, 6),
-                  margin: EdgeInsets.fromLTRB(16, 12, 10, 12),
-                  decoration: BoxDecoration(
-                    color: AppColor.primary.withValues(alpha: .2),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
+                child: Icon(Icons.menu,
+                    size: 14,
+                    color: AppColor.primary),
+              )
+                  : Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.fromLTRB(7, 6, 6, 6),
+                margin: EdgeInsets.fromLTRB(16, 12, 10, 12),
+                decoration: BoxDecoration(
+                  color: AppColor.primary.withValues(alpha: .2),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 3.0),
                   child: Icon(
                     Icons.arrow_back_ios,
                     size: 14,
                     color: AppColor.black,
                   ),
                 ),
-      ),
-      title: Text(
-        widget.screenTitle,
-        style: AppTextStyle.ts16SB(color: AppColor.black),
-      ),
-      actions: [
-        if (widget.onProjectChangeCallback != null) ...[
-          ValueListenableBuilder<List<ProjectModel>>(
-            valueListenable: _projectListNotifier,
-            builder: (context, projects, _) {
-              if (projects.isEmpty) return const SizedBox.shrink();
-              return GestureDetector(
-                  onTap: () {
-                    _showOverlayNotifier.value = true;
-                  },
-                  child: SvgPicture.asset(AppAssets.projectIcon, height: 28));
-            },
-          ),
-          horizontalSpacing(),
-        ],
-
-        if (widget.onFilterTap != null) ...[
-          horizontalSpacing(),
-          CustomIconButton(
-            onPressed: () {
-              widget.onFilterTap!();
-            },
-            backgroundColor: AppColor.lightBlue,
-            icon: SvgPicture.asset(AppAssets.filterIcon, height: 16),
-          ),
-        ],
-
-        if (widget.authorization.isAction) ...[
-          if (widget.onAddCallback != null) ...[
-            horizontalSpacing(),
-            _buildAction(
-              icon: Icons.add,
-              onTap: () {
-                widget.onAddCallback!();
-              },
-              backgroundColor: AppColor.lightGreen,
-              iconColor: AppColor.darkGreen,
+              ),
             ),
-          ],
-          if (widget.onExportCallback != null) ...[
-            _buildAction(
-              icon: Icons.file_download,
-              onTap: () {
-                final box = context.findRenderObject() as RenderBox;
-                final position = box.localToGlobal(Offset.zero);
-                CustomOverlayMenu.show(
-                  width: 180,
-                  context: context,
-                  position: Offset(position.dx + 10, position.dy + (115)),
-                  items: [
-                    AddImportExportOverlayMenuItem(
-                      icon: Icons.file_download_outlined,
-                      label: 'Export Excel',
-                      value: 'EXCEL',
-                      onTap: widget.onExportCallback!,
-                      iconColor: AppColor.primary,
+
+            // TITLE
+            Expanded(
+              child: Text(
+                widget.screenTitle,
+                style: AppTextStyle.ts16SB(color: AppColor.black),
+              ),
+            ),
+
+            // ACTIONS
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+
+                if (widget.onProjectChangeCallback != null) ...[
+                  ValueListenableBuilder<List<ProjectModel>>(
+                    valueListenable: _projectListNotifier,
+                    builder: (context, projects, _) {
+                      if (projects.isEmpty) return const SizedBox.shrink();
+                      return GestureDetector(
+                        onTap: () {
+                          _showOverlayNotifier.value = true;
+                        },
+                        child: SvgPicture.asset(
+                          AppAssets.projectIcon,
+                          height: 28,
+                        ),
+                      );
+                    },
+                  ),
+                  horizontalSpacing(),
+                ],
+
+                if (widget.onFilterTap != null) ...[
+                  horizontalSpacing(),
+                  CustomIconButton(
+                    onPressed: () {
+                      widget.onFilterTap!();
+                    },
+                    backgroundColor: AppColor.lightBlue,
+                    icon: SvgPicture.asset(
+                      AppAssets.filterIcon,
+                      height: 16,
                     ),
-                    AddImportExportOverlayMenuItem(
-                      icon: Icons.file_download_outlined,
-                      label: 'Export PDF',
-                      value: 'PDF',
-                      onTap: widget.onExportCallback!,
+                  ),
+                ],
+
+                if (widget.authorization.isAction) ...[
+                  if (widget.onAddCallback != null) ...[
+                    horizontalSpacing(),
+                    _buildAction(
+                      icon: Icons.add,
+                      onTap: () {
+                        widget.onAddCallback!();
+                      },
+                      backgroundColor: AppColor.lightGreen,
+                      iconColor: AppColor.darkGreen,
+                    ),
+                  ],
+                  if (widget.onExportCallback != null) ...[
+                    _buildAction(
+                      icon: Icons.file_download,
+                      onTap: () {
+                        final box = context.findRenderObject() as RenderBox;
+                        final position = box.localToGlobal(Offset.zero);
+
+                        CustomOverlayMenu.show(
+                          width: 180,
+                          context: context,
+                          position: Offset(
+                            position.dx + 10,
+                            position.dy + 115,
+                          ),
+                          items: [
+                            AddImportExportOverlayMenuItem(
+                              icon: Icons.file_download_outlined,
+                              label: 'Export as Excel',
+                              value: 'EXCEL',
+                              onTap: widget.onExportCallback!,
+                              iconColor: AppColor.primary,
+                            ),
+                            AddImportExportOverlayMenuItem(
+                              icon: Icons.file_download_outlined,
+                              label: 'Export as PDF',
+                              value: 'PDF',
+                              onTap: widget.onExportCallback!,
+                              iconColor: AppColor.primary,
+                            ),
+                          ],
+                        );
+                      },
+                      backgroundColor: AppColor.lightBlue,
                       iconColor: AppColor.primary,
                     ),
                   ],
-                );
-              },
-              backgroundColor: AppColor.lightBlue,
-              iconColor: AppColor.primary,
+                ],
+
+                if (widget.showNotification) ...[
+                  CustomIconButton(
+                    onPressed: () {
+                      goRouter.pushNamed(
+                          AppRoutes.notificationScreenMobile);
+                    },
+                    icon: SvgPicture.asset(
+                      AppAssets.notificationIcon,
+                      height: 16,
+                    ),
+                    backgroundColor: AppColor.lightBlue,
+                  ),
+                ],
+
+                horizontalSpacing(width: 16),
+              ],
             ),
           ],
-        ],
-        if (widget.showNotification) ...[
-          CustomIconButton(
-            onPressed: () {
-              goRouter.pushNamed(AppRoutes.notificationScreenMobile);
-            },
-            icon: SvgPicture.asset(AppAssets.notificationIcon, height: 16),
-            backgroundColor: AppColor.lightBlue,
-          ),
-        ],
-        horizontalSpacing(width: 16),
-      ],
+        ),
+      ),
     );
   }
 }

@@ -59,6 +59,7 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
     super.dispose();
   }
 
+  // INITIALIZE TEXT CONTROLLER
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
   }
@@ -113,10 +114,10 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBar(
-        screenTitle: 'Sub Material',
+        screenTitle: 'Sub Material Master',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
-          if(_subMaterialMasterCubit.state.totalNumberOfRecord == 0){
+          if (_subMaterialMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No data found");
             return;
           }
@@ -133,11 +134,7 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
           _subMaterialMasterCubit.searchSubMaterial(context, value);
         },
         textController: _searchC,
-        onSortOptionCallback: (value) async {
-          _subMaterialMasterCubit.sortSubMaterial(context, value, "DESC");
-        },
-        sortOptionList: ["Created Date", "Sub Material Name", "Modified Date"],
-        initialSortType: "Created Date",
+        searchHintText: "Search by Sub Material Name",
       ),
       body: BlocBuilder<SubMaterialMasterCubit, SubMaterialMasterState>(
         builder: (context, state) {

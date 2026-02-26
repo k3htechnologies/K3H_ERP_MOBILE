@@ -18,6 +18,28 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
   final DepartmentMasterRepository _departmentMasterRepository =
       serviceLocator<DepartmentMasterRepository>();
 
+  // <---- SEARCH DEPARTMENT ---->
+  Future searchDepartment(BuildContext context, String value) async {
+    emit(state.copyWith(searchText: value, departmentList: []));
+    await getDepartmentList(context, 1);
+  }
+
+  // <---- SORT DEPARTMENT ---->
+  Future sortDepartment(
+      BuildContext context,
+      String value,
+      String direction,
+      ) async {
+    emit(
+      state.copyWith(
+        currentSortColumn: value,
+        currentSortDirection: direction,
+        departmentList: [],
+      ),
+    );
+    await getDepartmentList(context, 1);
+  }
+
   // <---- GET DEPARTMENT LIST ---->
   Future getDepartmentList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
@@ -172,28 +194,6 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
         }
       },
     );
-  }
-
-  // <---- SEARCH DEPARTMENT ---->
-  Future searchDepartment(BuildContext context, String value) async {
-    emit(state.copyWith(searchText: value, departmentList: []));
-    await getDepartmentList(context, 1);
-  }
-
-  // <---- SORT DEPARTMENT ---->
-  Future sortDepartment(
-    BuildContext context,
-    String value,
-    String direction,
-  ) async {
-    emit(
-      state.copyWith(
-        currentSortColumn: value,
-        currentSortDirection: direction,
-        departmentList: [],
-      ),
-    );
-    await getDepartmentList(context, 1);
   }
 
   // <---- EXPORT EXCEL PDF ---->

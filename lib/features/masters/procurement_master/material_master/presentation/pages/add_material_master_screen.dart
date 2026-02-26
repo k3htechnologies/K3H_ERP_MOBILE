@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/data/model/material_master.model.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/presentation/cubit/material_master_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -39,7 +39,7 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
   void initState() {
     super.initState();
     // Use service locator to get the singleton cubit instance
-    _materialMasterCubit = serviceLocator<MaterialMasterCubit>();
+    _materialMasterCubit = context.read<MaterialMasterCubit>();
     _initializeTextEditingControllers();
     if (widget.material != null) {
       _prefillForm(widget.material!);
@@ -68,9 +68,10 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
   // <---- ADD/UPDATE MATERIAL ---->
   Future<void> _addUpdateMaterial() async {
     if (_formKey.currentState!.validate()) {
+
       if (widget.material != null) {
         // UPDATE
-        await _materialMasterCubit.updateMaterialMaster(
+         _materialMasterCubit.updateMaterialMaster(
           context: context,
           materialName: _materialNameC.text.trim(),
           materialCode: _materialCodeC.text.trim(),
@@ -80,7 +81,7 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
         );
       } else {
         // ADD
-        await _materialMasterCubit.addMaterialMaster(
+         _materialMasterCubit.addMaterialMaster(
           context: context,
           materialName: _materialNameC.text.trim(),
           materialCode: _materialCodeC.text.trim(),
@@ -93,10 +94,7 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle:
-            widget.material != null
-                ? "Update Material Master"
-                : "Add Material Master",
+        screenTitle: "Material Master",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
@@ -124,11 +122,14 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
                       hint: "Enter Material Name",
                       textController: _materialNameC,
                       inputFormatterList: [
-                        LengthLimitingTextInputFormatter(100),
+                        LengthLimitingTextInputFormatter(134),
                       ],
                       validator: (string) {
                         if (string == null || string.trim().isEmpty) {
                           return 'Material Name is required';
+                        }
+                        if (string.trim().length < 3) {
+                          return 'Must be at least 3 characters long';
                         }
                         return null;
                       },

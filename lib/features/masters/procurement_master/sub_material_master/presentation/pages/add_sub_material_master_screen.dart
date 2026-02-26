@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/data/repository/material_master.repository.dart';
@@ -53,7 +54,7 @@ class _AddSubMaterialMasterScreenState
   @override
   void initState() {
     super.initState();
-    _subMaterialMasterCubit = serviceLocator<SubMaterialMasterCubit>();
+    _subMaterialMasterCubit = context.read<SubMaterialMasterCubit>();
     _initializeTextEditingControllers();
     if (widget.subMaterial != null) {
       _prefillForm(widget.subMaterial!);

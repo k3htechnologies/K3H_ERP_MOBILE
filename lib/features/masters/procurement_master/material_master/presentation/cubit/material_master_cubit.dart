@@ -113,17 +113,18 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
         return;
       },
       (response) {
-        final updatedList = List<MaterialMasterModel>.from(state.materialList);
-        // Check if index is valid, otherwise refresh the list
-        if (index >= 0 && index < updatedList.length) {
-          updatedList[index] = (response['data'][0] as MaterialMasterModel);
-          emit(state.copyWith(materialList: updatedList));
-        } else {
-          // If index is invalid, refresh the list from API
-          getMaterialMasterList(context, 1, 10);
+        goRouter.pop();
+        final updatedMaterial = response['data'][0] as MaterialMasterModel;
+
+        if (state.materialList.isNotEmpty &&
+            index < state.materialList.length) {
+          final updatedList = List<MaterialMasterModel>.from(
+            state.materialList,
+          );
+          updatedList[index] = updatedMaterial;
+          emit(state.copyWith(materialList: updatedList, isLoading: false));
         }
         showSuccessMessage(context, subTitle: "Material Updated Successfully");
-        goRouter.pop();
       },
     );
   }
@@ -205,8 +206,13 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "material_${DateTime.now()}.pdf"
-              : "material_${DateTime.now()}.xlsx",
+              ? "Material Master ${DateTime.now()}.pdf"
+              : "Material Master ${DateTime.now()}.xlsx",
+        );
+
+        showSuccessMessage(
+          context,
+          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );

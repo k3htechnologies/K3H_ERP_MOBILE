@@ -114,7 +114,7 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
         screenTitle: 'Material Master',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
-          if(_materialMasterCubit.state.totalNumberOfRecord == 0){
+          if (_materialMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No data found");
             return;
           }
@@ -131,16 +131,7 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
           _materialMasterCubit.searchMaterial(context, value);
         },
         textController: _searchC,
-        onSortOptionCallback: (value) async {
-          _materialMasterCubit.sortMaterial(context, value, "DESC");
-        },
-        sortOptionList: [
-          "Created Date",
-          "Material Name",
-          "Material Code",
-          "Modified Date",
-        ],
-        initialSortType: "Created Date",
+        searchHintText: "Search by Material Name",
       ),
       body: BlocBuilder<MaterialMasterCubit, MaterialMasterState>(
         builder: (context, state) {
@@ -190,27 +181,20 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
                               );
                             },
 
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
+                            child: Text(
+                              material.materialName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
                               ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Text(
-                                material.materialName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),
+                        horizontalSpacing(),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [

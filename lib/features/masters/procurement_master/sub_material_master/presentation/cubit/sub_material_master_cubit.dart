@@ -123,23 +123,22 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
         return;
       },
       (response) {
-        final updatedList = List<SubMaterialMasterModel>.from(
-          state.subMaterialList,
-        );
-        // Check if index is valid, otherwise refresh the list
-        if (index >= 0 && index < updatedList.length) {
-          updatedList[index] = (response['data'][0] as SubMaterialMasterModel);
-          emit(state.copyWith(subMaterialList: updatedList));
-        } else {
-          // If index is invalid, refresh the list from API
-          getSubMaterialMasterList(context, 1, 10);
+        goRouter.pop();
+        final updatedSubMaterial =
+            response['data'][0] as SubMaterialMasterModel;
+
+        if (state.subMaterialList.isNotEmpty &&
+            index < state.subMaterialList.length) {
+          final updatedList = List<SubMaterialMasterModel>.from(
+            state.subMaterialList,
+          );
+          updatedList[index] = updatedSubMaterial;
+          emit(state.copyWith(subMaterialList: updatedList, isLoading: false));
         }
         showSuccessMessage(
           context,
           subTitle: "Sub Material Updated Successfully",
         );
-        // Pop the edit screen after successful update
-        goRouter.pop();
       },
     );
   }
