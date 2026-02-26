@@ -67,60 +67,90 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     required BuildContext context,
     required int channelPartnerId,
     required String name,
+    required String companyName,
+    required String firmsType,
+    required String type,
+    required String designation,
     required String emailId,
     required String mobileNumber,
+    required String alternativeMobileNumber,
     required String panCardNumber,
     required MultiFilePickerModel panCardURL,
     required String aadharCardNumber,
     required MultiFilePickerModel aadharCardURL,
+    required String gstNumber,
+    required MultiFilePickerModel gstCertificateURL,
     required String speciality,
     required String officeAddress,
     required int selectedCountryNameId,
     required int selectedStateId,
     required int selectedDistrictId,
     required int selectedCityId,
+    required int selectedVillageId,
     required String reraNumber,
-    required String companyName,
+    required String otp,
   }) async {
     DialogHelper.showProcessingOverlay(context);
+
     Map<String, String> body = {
       "ChannelPartnerId": channelPartnerId.toString(),
       "Name": name,
+      "CompanyName": companyName,
+      "FirmsType": firmsType,
+      "Type": type,
+      "Designation": designation,
       "EmailId": emailId,
       "MobileNumber": mobileNumber,
+      "AlternativeMobileNumber": alternativeMobileNumber,
       "PanNumber": panCardNumber,
       "AadharCardNumber": aadharCardNumber,
-      "Speciality": speciality.toString(),
+      "GSTNumber": gstNumber,
+      "Speciality": speciality,
       "OfficeAddress": officeAddress,
       "CountryMasterId": selectedCountryNameId.toString(),
       "StateMasterId": selectedStateId.toString(),
       "DistrictMasterId": selectedDistrictId.toString(),
       "CityMasterId": selectedCityId.toString(),
+      "VillageMasterId": selectedVillageId.toString(),
       "RERANumber": reraNumber,
-      "CompanyName": companyName,
+      "OTP": otp,
     };
+
     List<Map<String, dynamic>> fileList = [];
 
+    // PAN
     for (int i = 0; i < panCardURL.fileNameList.length; i++) {
-      if (panCardURL.fileNameList[i].contains("http")) {
-        continue;
-      }
+      if (panCardURL.fileNameList[i].contains("http")) continue;
+
       fileList.add({
         "key": "PanCardURL",
         "value": panCardURL.fileBytesList[i],
         "fileName": panCardURL.fileNameList[i],
       });
     }
+
+    // AADHAR
     for (int i = 0; i < aadharCardURL.fileNameList.length; i++) {
-      if (aadharCardURL.fileNameList[i].contains("http")) {
-        continue;
-      }
+      if (aadharCardURL.fileNameList[i].contains("http")) continue;
+
       fileList.add({
         "key": "AadharCardURL",
         "value": aadharCardURL.fileBytesList[i],
         "fileName": aadharCardURL.fileNameList[i],
       });
     }
+
+    // GST Certificate
+    for (int i = 0; i < gstCertificateURL.fileNameList.length; i++) {
+      if (gstCertificateURL.fileNameList[i].contains("http")) continue;
+
+      fileList.add({
+        "key": "GSTCertificateURL",
+        "value": gstCertificateURL.fileBytesList[i],
+        "fileName": gstCertificateURL.fileNameList[i],
+      });
+    }
+
     final result = await _channelPartnerRepository.addUpdateChannelPartner(
       body: body,
       fileList: fileList,
@@ -135,7 +165,10 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       (response) {
         getChannelPartnerList(context, 1);
         goRouter.pop();
-        showSuccessMessage(context, subTitle: 'Asset Added Successfully');
+        showSuccessMessage(
+          context,
+          subTitle: 'Channel Partner Added Successfully',
+        );
       },
     );
   }
@@ -159,8 +192,16 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     required int selectedStateId,
     required int selectedDistrictId,
     required int selectedCityId,
+    required int selectedVillageId,
     required String reraNumber,
     required String companyName,
+    required String firmsType,
+    required String type,
+    required String designation,
+    required String alternativeMobileNumber,
+    required String gstNumber,
+    required MultiFilePickerModel gstCertificateURL,
+    required String otp,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> body = {
@@ -179,6 +220,13 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       "CityMasterId": selectedCityId.toString(),
       "RERANumber": reraNumber,
       "CompanyName": companyName,
+      'VillageMasterId': selectedVillageId.toString(),
+      "FirmsType": firmsType,
+      "Type": type,
+      "Designation": designation,
+      "AlternativeMobileNumber": alternativeMobileNumber,
+      "GSTNumber": gstNumber,
+      "OTP": otp,
     };
     List<Map<String, dynamic>> fileList = [];
 

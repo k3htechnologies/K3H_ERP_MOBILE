@@ -12,6 +12,7 @@ class ChannelPartnerModel {
   final String panCardUrl;
   final String aadharCardNumber;
   final String aadharCardUrl;
+  final String gstCertificateUrl;
   final String companyName;
   final String firmsType;
   final String designation;
@@ -54,6 +55,7 @@ class ChannelPartnerModel {
     required this.panCardUrl,
     required this.aadharCardNumber,
     required this.aadharCardUrl,
+    required this.gstCertificateUrl,
     required this.companyName,
     required this.firmsType,
     required this.designation,
@@ -101,6 +103,7 @@ class ChannelPartnerModel {
         panCardUrl: parseValue<String>(json, "PanCardURL"),
         aadharCardNumber: parseValue<String>(json, "AadharCardNumber"),
         aadharCardUrl: parseValue<String>(json, "AadharCardURL"),
+        gstCertificateUrl: parseValue<String>(json, "GSTCertificateURL"),
         companyName: parseValue<String>(json, "CompanyName"),
         firmsType: parseValue<String>(json, "FirmsType"),
         designation: parseValue<String>(json, "Designation"),
@@ -143,6 +146,7 @@ class ChannelPartnerModel {
     "AlternativeMobileNumber": alternativeMobileNumber,
     "PanNumber": panNumber,
     "PanCardURL": panCardUrl,
+    "GSTCertificateURL": gstCertificateUrl,
     "AadharCardNumber": aadharCardNumber,
     "AadharCardURL": aadharCardUrl,
     "CompanyName": companyName,

@@ -24,6 +24,11 @@ abstract interface class ChannelPartnerDatasource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apicallPullChannelPartnerCompany({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class ChannelPartnerDatasourceImpl implements ChannelPartnerDatasource {
@@ -167,6 +172,54 @@ class ChannelPartnerDatasourceImpl implements ChannelPartnerDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         apicallPullChannelPartnerMasterForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullChannelPartnerCompany({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullChannelPartnerCompanyUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "ChannelPartner/PullChannelPartnerCompany?PageSize=$pageSize&PageNumber=$pageNumber";
+
+      queryParams?.forEach((key, value) {
+        if (value != null && value.toString().isNotEmpty) {
+          url += "&$key=$value";
+        }
+      });
+
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullChannelPartnerCompanyUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullChannelPartnerCompany(
           pageNumber: pageNumber,
           pageSize: pageSize,
           queryParams: queryParams,

@@ -1,4 +1,3 @@
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -92,6 +91,8 @@ class _PaymentScheduleSummaryScreenState
     if (_mainTabController.indexIsChanging) return;
 
     final state = _paymentScheduleSummaryCubit.state;
+    // IF BUILDING OR WING IS NOT SELECTED, DO NOT FETCH DATA
+    if (state.selectedBuilding == null || state.selectedWing == null) return;
 
     final rate = int.tryParse(_ratePerSqFt.text.trim()) ?? 0;
 
@@ -136,7 +137,10 @@ class _PaymentScheduleSummaryScreenState
         authorization: AuthorizationModel(),
         onProjectChangeCallback: (val) {
           final state = _paymentScheduleSummaryCubit.state;
-
+          // IF BUILDING OR WING IS NOT SELECTED, DO NOT FETCH DATA
+          if (state.selectedBuilding == null || state.selectedWing == null) {
+            return;
+          }
           final rate = int.tryParse(_ratePerSqFt.text.trim()) ?? 0;
 
           Map<String, dynamic> queryParams = {

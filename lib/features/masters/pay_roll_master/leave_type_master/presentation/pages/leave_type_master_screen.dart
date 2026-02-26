@@ -249,40 +249,41 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
                 child: Column(
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        CustomIconButton.edit(
-                          onPressed: () async {
-                            await goRouter.pushNamed(
-                              AppRoutes.addLeaveTypeMaster,
-                              queryParameters: {
-                                "leaveType": Uri.encodeQueryComponent(
-                                  EncryptionManager.encryptData(
-                                    jsonEncode(leaveType.toJson()),
-                                  ),
-                                ),
-                                'index': index.toString(),
+                        Text(leaveType.leaveType, style: AppTextStyle.ts16M()),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            CustomIconButton.edit(
+                              onPressed: () async {
+                                await goRouter.pushNamed(
+                                  AppRoutes.addLeaveTypeMaster,
+                                  queryParameters: {
+                                    "leaveType": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(leaveType.toJson()),
+                                      ),
+                                    ),
+                                    'index': index.toString(),
+                                  },
+                                );
                               },
-                            );
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                        CustomIconButton.delete(
-                          onPressed: () {
-                            _showPopupToDeleteLeaveTypeMaster(
-                              context,
-                              leaveType,
-                              state.currentPage,
-                              index,
-                            );
-                          },
+                            ),
+                            const SizedBox(width: 8),
+                            CustomIconButton.delete(
+                              onPressed: () {
+                                _showPopupToDeleteLeaveTypeMaster(
+                                  context,
+                                  leaveType,
+                                  state.currentPage,
+                                  index,
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                    verticalSpacing(height: 10),
-                    buildRowTitleValue(
-                      title: "Leave Type",
-                      value: leaveType.leaveType,
                     ),
                     buildRowTitleValue(
                       title: "Leave Type Code",
