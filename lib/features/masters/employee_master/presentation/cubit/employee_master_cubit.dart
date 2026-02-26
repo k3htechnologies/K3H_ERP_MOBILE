@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
 import 'package:k3h_erp_app/features/masters/company_master/data/repository/company_master_repository.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
@@ -569,7 +570,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   }
 
   // <---- BANK DROPDOWN ---->
-  Future<Map<String, dynamic>> getBankList(
+  Future<Map<String, dynamic>> getBankListi(
     int pageNumber, {
     String? value,
   }) async {
@@ -596,6 +597,48 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
           ),
           "totalNumberOfRecord": response["totalNumberOfRecord"],
         };
+      },
+    );
+  }
+
+  Future<void> getBankList(
+      BuildContext context,
+      int pageNumber,
+      int pageSize,{
+        String? searchQuery,
+      }
+      ) async {
+
+    var queryParams = {"BankName": searchQuery ?? ""};
+
+    emit(state.copyWith(isLoading: true));
+
+    final result = await employeeMasterRepository.getBankList(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        query: queryParams
+    );
+
+    result.fold(
+          (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error Message", failure.message);
+      },
+          (response) {
+        final newData = List<BankListMasterModel>.from(response['data']);
+
+        final List<BankListMasterModel> updatedList =
+        pageNumber == 1 ? newData : [...state.bankList, ...newData];
+
+        final totalCount = response['totalNumberOfRecord'] ?? 0;
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            bankList: updatedList,
+            bankTotalCount: totalCount,
+          ),
+        );
       },
     );
   }
@@ -723,30 +766,45 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- DESIGNATION DROPDOWN ---->
-  Future<Map<String, dynamic>> getEmployee(
-    int pageNumber, {
-    String? value,
-  }) async {
-    var result = await employeeMasterRepository.getEmployeeMasterList(
-      pageNumber: pageNumber,
-      pageSize: 10,
-      queryParams: {'EmployeeName': value ?? ''},
+  // <---- REPORTING PERSON DROPDOWN ---->
+  Future<void> getEmployee(
+      BuildContext context,
+      int pageNumber,
+      int pageSize,{
+        String? searchQuery,
+      }
+      ) async {
+
+    var queryParams = {"EmployeeName": searchQuery ?? ""};
+
+    emit(state.copyWith(isLoading: true));
+
+    final result = await employeeMasterRepository.getEmployeeMasterList(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        queryParams: queryParams
     );
 
-    return result.fold(
-      (failure) {
-        return {"itemList": [], "totalNumberOfRecord": 0};
+    result.fold(
+          (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error Message", failure.message);
       },
-      (response) {
-        return {
-          "itemList": List<Map<String, dynamic>>.from(
-            (response['data'] as List<UserModel>).map(
-              (e) => {"zAttributesId": e.employeeId, "DisplayName": e.fullName},
-            ),
+          (response) {
+        final newData = List<UserModel>.from(response['data']);
+
+        final List<UserModel> updatedList =
+        pageNumber == 1 ? newData : [...state.reportingPersonList, ...newData];
+
+        final totalCount = response['totalNumberOfRecord'] ?? 0;
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            reportingPersonList: updatedList,
+            reportingPersonTotalCount: totalCount,
           ),
-          "totalNumberOfRecord": response["totalNumberOfRecord"],
-        };
+        );
       },
     );
   }

@@ -14,7 +14,6 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
-import 'package:k3h_erp_app/widgets/dropdown/custom_paginated_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 class AddEmployeeScreen extends StatefulWidget {
@@ -110,7 +109,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   Map<String, dynamic>? selectedRelationToEmployee;
 
   // EMPLOYEE INFO SHEET
-  Map<String, dynamic>? selectedReportingPerson;
   Map<String, dynamic>? selectedState;
   Map<String, dynamic>? selectedDistrict;
   Map<String, dynamic>? selectedCity;
@@ -120,9 +118,8 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   List<Map<String, dynamic>> _selectedDepartment = [];
   List<Map<String, dynamic>> _selectedBranch = [];
   List<Map<String, dynamic>> _selectedDesignation = [];
-
-  // BANK DETAILS
-  Map<String, dynamic>? selectedBank;
+  List<Map<String, dynamic>> _selectedReportingPerson = [];
+  List<Map<String, dynamic>> _selectedBank = [];
 
   // DATES
   // BASIC EMPLOYEE DETAILS
@@ -205,10 +202,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       orElse: () => bloodGroupList.first,
     );
 
-    selectedReportingPerson = {
-      'zAttributesId': employee.reportPersonId,
-      'DisplayName': employee.reportPersonName,
-    };
     selectedEmploymentType = employmentTypeList.firstWhere(
       (item) => item['DisplayName'] == employee.employeeType,
       orElse: () => employmentTypeList.first,
@@ -218,11 +211,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           item['DisplayName'] == employee.emergencyContactPersonRelationship,
       orElse: () => relationToEmployeeList.first,
     );
-    // BANK DETAILS
-    selectedBank = {
-      'zAttributesId': employee.bankListMasterId,
-      'DisplayName': employee.bankName,
-    };
+
     selectedState = {
       'zAttributesId': employee.stateMasterId,
       'DisplayName': employee.stateName,
@@ -269,6 +258,22 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         {
           "zAttributesId": employee.designationMasterId,
           "DisplayName": employee.designation,
+        },
+      ];
+    }
+    if (employee.reportPersonId > 0) {
+      _selectedReportingPerson = [
+        {
+          "zAttributesId": employee.reportPersonId,
+          "DisplayName": employee.reportPersonName,
+        },
+      ];
+    }
+    if (employee.bankListMasterId > 0) {
+      _selectedBank = [
+        {
+          "zAttributesId": employee.bankListMasterId,
+          "DisplayName": employee.bankName,
         },
       ];
     }
@@ -561,6 +566,128 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     };
   }
 
+  // FETCH REPORTING PERSON
+  Future<Map<String, dynamic>> _fetchReportingPerson(
+    int pageNumber, {
+    String? value,
+  }) async {
+    const pageSize = 15;
+
+    //  SEARCH MODE
+    if (value != null) {
+      await _employeeMasterCubit.getEmployee(
+        context,
+        pageNumber,
+        pageSize,
+        searchQuery: value,
+      );
+
+      final reportingPersonList =
+          _employeeMasterCubit.state.reportingPersonList;
+      final totalCount = _employeeMasterCubit.state.reportingPersonTotalCount;
+
+      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
+
+      for (final rp in reportingPersonList) {
+        uniqueFiltered[rp.employeeId] = {
+          "zAttributesId": rp.employeeId,
+          "DisplayName": rp.fullName,
+        };
+      }
+
+      return {
+        "itemList": uniqueFiltered.values.toList(),
+        "totalNumberOfRecord":
+            totalCount > 0 ? totalCount : uniqueFiltered.length,
+      };
+    }
+
+    //  NORMAL PAGINATION MODE
+    final totalCount = _employeeMasterCubit.state.reportingPersonTotalCount;
+    final currentLoadedCount =
+        _employeeMasterCubit.state.reportingPersonList.length;
+
+    if (currentLoadedCount < totalCount) {
+      await _employeeMasterCubit.getEmployee(context, pageNumber, pageSize);
+    }
+
+    final updatedList = _employeeMasterCubit.state.reportingPersonList;
+
+    final Map<int, Map<String, dynamic>> uniqueReportingPersons = {};
+
+    for (final rp in updatedList) {
+      uniqueReportingPersons[rp.employeeId] = {
+        "zAttributesId": rp.employeeId,
+        "DisplayName": rp.fullName,
+      };
+    }
+
+    return {
+      "itemList": uniqueReportingPersons.values.toList(),
+      "totalNumberOfRecord":
+          totalCount > 0 ? totalCount : uniqueReportingPersons.length,
+    };
+  }
+
+  Future<Map<String, dynamic>> _fetchBank(
+    int pageNumber, {
+    String? value,
+  }) async {
+    const pageSize = 15;
+
+    //  SEARCH MODE
+    if (value != null) {
+      await _employeeMasterCubit.getBankList(
+        context,
+        pageNumber,
+        pageSize,
+        searchQuery: value,
+      );
+
+      final bankList = _employeeMasterCubit.state.bankList;
+      final totalCount = _employeeMasterCubit.state.bankTotalCount;
+
+      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
+
+      for (final bank in bankList) {
+        uniqueFiltered[bank.bankListMasterId] = {
+          "zAttributesId": bank.bankListMasterId,
+          "DisplayName": bank.bankNameWithCode,
+        };
+      }
+
+      return {
+        "itemList": uniqueFiltered.values.toList(),
+        "totalNumberOfRecord":
+            totalCount > 0 ? totalCount : uniqueFiltered.length,
+      };
+    }
+
+    //  NORMAL PAGINATION MODE
+    final totalCount = _employeeMasterCubit.state.bankTotalCount;
+    final currentLoadedCount = _employeeMasterCubit.state.bankList.length;
+
+    if (currentLoadedCount < totalCount) {
+      await _employeeMasterCubit.getBankList(context, pageNumber, pageSize);
+    }
+
+    final updatedList = _employeeMasterCubit.state.bankList;
+
+    final Map<int, Map<String, dynamic>> uniqueBanks = {};
+
+    for (final bank in updatedList) {
+      uniqueBanks[bank.bankListMasterId] = {
+        "zAttributesId": bank.bankListMasterId,
+        "DisplayName": bank.bankNameWithCode,
+      };
+    }
+
+    return {
+      "itemList": uniqueBanks.values.toList(),
+      "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueBanks.length,
+    };
+  }
+
   // <---- ADD UPDATE EMPLOYEE ---->
   Future<void> _handleSubmit() async {
     if (!mounted) {
@@ -611,7 +738,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         officeMobileNumber: _officeMobileNumberC.text,
         communicationAddress: _communicationAddressC.text.trim(),
         permanentAddress: _permanentAddressC.text.trim(),
-        bankNameMasterId: selectedBank!['zAttributesId'],
+        bankNameMasterId: int.parse(
+          _selectedBank[0]['zAttributesId'].toString(),
+        ),
         bankBranchName: _bankBranchNameC.text.trim(),
         accountNumber: _accountNumberC.text,
         ifscCode: _ifscC.text,
@@ -624,7 +753,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         selectedDesignationId: int.parse(
           _selectedDesignation[0]["zAttributesId"].toString(),
         ),
-        selectedReportingPersonId: selectedReportingPerson!["zAttributesId"],
+        selectedReportingPersonId: int.parse(
+          _selectedReportingPerson[0]["zAttributesId"].toString(),
+        ),
         selectedCountryNameId: 1,
         selectedStateId: selectedState!["zAttributesId"],
         selectedDistrictId: selectedDistrict!["zAttributesId"],
@@ -655,7 +786,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         officeMobileNumber: _officeMobileNumberC.text,
         communicationAddress: _communicationAddressC.text.trim(),
         permanentAddress: _permanentAddressC.text.trim(),
-        bankNameMasterId: selectedBank!['zAttributesId'],
+        bankNameMasterId: int.parse(
+          _selectedBank[0]['zAttributesId'].toString(),
+        ),
         bankBranchName: _bankBranchNameC.text.trim(),
         accountNumber: _accountNumberC.text,
         ifscCode: _ifscC.text,
@@ -668,7 +801,9 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         selectedDesignationId: int.parse(
           _selectedDesignation[0]["zAttributesId"].toString(),
         ),
-        selectedReportingPersonId: selectedReportingPerson!["zAttributesId"],
+        selectedReportingPersonId: int.parse(
+          _selectedReportingPerson[0]["zAttributesId"].toString(),
+        ),
         selectedCountryNameId: 1,
         selectedStateId: selectedState!["zAttributesId"],
         selectedDistrictId: selectedDistrict!["zAttributesId"],
@@ -1086,15 +1221,18 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             initialDate: idCardIssueDateDate,
             setValue: (value) => idCardIssueDateDate = value,
           ),
-          CustomPaginationDropDownWidget(
-            title: 'Reporting Person',
+          CustomMultipleSelectPopup(
+            title: "Reporting Person",
             isRequired: true,
-            initialValue: selectedReportingPerson,
-            dataFetchCallBack: _employeeMasterCubit.getEmployee,
+            isMultiSelect: false,
+            initialValue: _selectedReportingPerson,
             dataList: [],
-            onSelected: (value) => selectedReportingPerson = value,
+            dataFetchCallBack: _fetchReportingPerson,
+            onSelected: (value) {
+              _selectedReportingPerson = value;
+            },
             validator: (value) {
-              if (value == null || value["zAttributesId"] == -1) {
+              if (value == null || value.isEmpty) {
                 return 'Reporting Person is required';
               }
               return null;
@@ -1167,15 +1305,18 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionHeader('Bank Details'),
-          CustomPaginationDropDownWidget(
-            dataList: [],
-            onSelected: (value) => selectedBank = value,
-            initialValue: selectedBank,
-            title: 'Bank Name',
+          CustomMultipleSelectPopup(
+            title: "Bank Details",
             isRequired: true,
-            dataFetchCallBack: _employeeMasterCubit.getBankList,
+            isMultiSelect: false,
+            initialValue: _selectedBank,
+            dataList: [],
+            dataFetchCallBack: _fetchBank,
+            onSelected: (value) {
+              _selectedBank = value;
+            },
             validator: (value) {
-              if (value == null || value["zAttributesId"] == -1) {
+              if (value == null || value.isEmpty) {
                 return 'Bank Name is required';
               }
               return null;
@@ -1231,5 +1372,4 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       ),
     );
   }
-
 }

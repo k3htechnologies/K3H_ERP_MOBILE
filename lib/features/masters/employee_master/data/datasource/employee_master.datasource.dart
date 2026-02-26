@@ -1,5 +1,6 @@
 import 'package:k3h_erp_app/core/models/branch.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_education_details.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_experience_details.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
@@ -613,8 +614,10 @@ class EmployeeMasterDataSourceImpl extends EmployeeMasterDataSource {
         ),
       );
       return {
-        "data": networkResponse['data'],
-        "totalNumberOfRecord": networkResponse["totalNumberOfRecord"],
+        'data': List<BankListMasterModel>.from(
+          networkResponse["data"].map((e) => BankListMasterModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
