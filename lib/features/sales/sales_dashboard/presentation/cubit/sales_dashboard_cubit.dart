@@ -16,10 +16,12 @@ class SalesDashboardCubit extends Cubit<SalesDashboardState> {
       serviceLocator<SalesDashboardRepository>();
 
   // <---- GET Dashboard LIST ---->
-  Future getSalesDashboardList(BuildContext context) async {
+  Future getSalesDashboardList(BuildContext context, int projectId) async {
     emit(state.copyWith(isLoading: true));
 
-    var result = await _salesDashboardRepository.getSalesDashboardList();
+    var result = await _salesDashboardRepository.getSalesDashboardList(
+      projectId: projectId,
+    );
 
     result.fold(
       (failure) {

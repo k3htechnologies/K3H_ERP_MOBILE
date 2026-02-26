@@ -4,6 +4,7 @@ import 'package:k3h_erp_app/service/exceptions.dart';
 
 abstract interface class SalesDashboardDatasource {
   Future<Map<String, dynamic>> apiCallPullSalesDashboard({
+    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -13,10 +14,11 @@ class SalesDashboardDatasourceImpl extends SalesDashboardDatasource {
 
   @override
   Future<Map<String, dynamic>> apiCallPullSalesDashboard({
+    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     String pullSalesDashboardUrl({Map<String, dynamic>? queryParams}) {
-      String url = "SalesDashboard/PullSalesDashboard";
+      String url = "SalesDashboard/PullSalesDashboard?ProjectId=$projectId";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
@@ -38,7 +40,10 @@ class SalesDashboardDatasourceImpl extends SalesDashboardDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return apiCallPullSalesDashboard(queryParams: queryParams);
+        return apiCallPullSalesDashboard(
+          queryParams: queryParams,
+          projectId: projectId,
+        );
       }
       rethrow;
     }

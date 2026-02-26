@@ -78,6 +78,7 @@ class AppRoutes {
   /// INVENTORY
 
   // INVENTORY
+  static String inventoryDashboard = "/inventoryDashboard";
   static String inventory = "/inventory";
   static String addInventorySpecification = "/addInventorySpecification";
   static String addUnitSpecification = "/addUnitSpecification";

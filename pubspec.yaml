@@ -99,10 +99,12 @@ dependencies:
   flutter_polyline_points: ^3.1.0
   firebase_core: ^4.4.0
   firebase_analytics: ^12.1.2
-#  OPEN FILE
+  # OPEN FILE
   open_filex: ^4.7.0
-#  IMAGE PICKER
+  # IMAGE PICKER
   image_picker: ^1.2.1
+  # GRAPH
+  syncfusion_flutter_charts: ^32.2.7
   
 # DEV DEPENDENCIES
 dev_dependencies:

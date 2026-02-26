@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/features/sales/sales_dashboard/data/datasource/sales
 
 abstract interface class SalesDashboardRepository {
   Future<Either<Failure, Map<String, dynamic>>> getSalesDashboardList({
+    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -14,10 +15,12 @@ class SalesDashboardRepositoryImpl extends SalesDashboardRepository {
   SalesDashboardRepositoryImpl({required this.salesDashboardDatasource});
   @override
   Future<Either<Failure, Map<String, dynamic>>> getSalesDashboardList({
+    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
       var result = await salesDashboardDatasource.apiCallPullSalesDashboard(
+        projectId: projectId,
         queryParams: queryParams,
       );
       return right(result);

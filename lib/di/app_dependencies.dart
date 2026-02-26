@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/dashboard/dashboard.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/inventory/inventory_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/legal/litigation/litigation.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/marketing/content/content.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/holiday_mapping_master.dependencies.dart';
@@ -193,4 +194,6 @@ void initDependencies() {
   registerPaymentScheduleSummaryDependencies(serviceLocator);
   // SALES DASHBOARD
   registerSalesDashboardDependencies(serviceLocator);
+  // SALES DASHBOARD
+  registerInventoryDashboardDependencies(serviceLocator);
 }
