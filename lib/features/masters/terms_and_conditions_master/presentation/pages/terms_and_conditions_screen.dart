@@ -153,7 +153,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
     }
   }
 
-  // PAGINATION - BOOKING (only when on this tab, same as Call Tracker)
+  // PAGINATION - BOOKING
   void _onBookingScroll() {
     if (_tabController.index != 1) return;
     if (_bookingScrollController.position.pixels >=
