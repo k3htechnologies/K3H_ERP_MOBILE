@@ -909,52 +909,16 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     ),
                     verticalSpacing(),
                     CustomTextField(
-                      title: 'PAN Number',
-                      isRequired: true,
-                      hint: "Enter PAN Number",
-                      textController: _panNumberC,
-                      inputFormatterList: InputValidator.panInputFormatters(),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "PAN Number is required";
-                        }
-                        if (value.trim().isNotEmpty &&
-                            !InputValidator.isValidPAN(value)) {
-                          return "Invalid PAN Number";
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomMultiFilePicker(
-                      title: "Upload Pan Number",
-                      initialFileList: selectedPANForPopUpFile.fileNameList,
-                      onFilePickedCallback: (bytesList, fileNameList) {
-                        selectedPANForPopUpFile.fileNameList = fileNameList;
-                        selectedPANForPopUpFile.fileBytesList = bytesList;
-                      },
-                      onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deletedFile,
-                      ) {
-                        selectedPANForPopUpFile.fileNameList = fileNameList;
-                        selectedPANForPopUpFile.fileBytesList = fileBytesList;
-                        selectedPANForPopUpFile.deletedFileList = deletedFile;
-                      },
-                    ),
-                    CustomTextField(
                       title: 'Aadhaar Card Number',
-                      isRequired: true,
                       hint: "Enter Aadhaar Card Number",
                       textController: _aadhaarNumberC,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
                           InputValidator.aadharNumberInputFormatter(),
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Aadhaar Number is required";
-                        }
-                        if (!InputValidator.isValidAadharNumber(value)) {
+                        if (value != null &&
+                            value.trim().isNotEmpty &&
+                            !InputValidator.isValidAadharNumber(value)) {
                           return "Invalid Aadhaar Number";
                         }
                         return null;
@@ -978,13 +942,69 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         selectedAadhaarForPopUpFile.deletedFileList =
                             deletedFile;
                       },
+                      validator: (fileList) {
+                        if (_aadhaarNumberC.text.isNotEmpty &&
+                            _aadhaarNumberC.text.trim().length == 12 &&
+                            (fileList == null || fileList.isEmpty)) {
+                          return "Aadhaar Card is required";
+                        }
+                        return null;
+                      },
                     ),
-
+                    CustomTextField(
+                      title: 'PAN Number',
+                      hint: "Enter PAN Number",
+                      textController: _panNumberC,
+                      inputFormatterList: InputValidator.panInputFormatters(),
+                      validator: (value) {
+                        if (value != null &&
+                            value.trim().isNotEmpty &&
+                            !InputValidator.isValidPAN(value)) {
+                          return "Invalid PAN Number";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomMultiFilePicker(
+                      title: "Upload Pan Number",
+                      initialFileList: selectedPANForPopUpFile.fileNameList,
+                      onFilePickedCallback: (bytesList, fileNameList) {
+                        selectedPANForPopUpFile.fileNameList = fileNameList;
+                        selectedPANForPopUpFile.fileBytesList = bytesList;
+                      },
+                      onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deletedFile,
+                      ) {
+                        selectedPANForPopUpFile.fileNameList = fileNameList;
+                        selectedPANForPopUpFile.fileBytesList = fileBytesList;
+                        selectedPANForPopUpFile.deletedFileList = deletedFile;
+                      },
+                      validator: (fileList) {
+                        if (_panNumberC.text.isNotEmpty &&
+                            InputValidator.isValidPAN(
+                              _panNumberC.text.trim(),
+                            ) &&
+                            (fileList == null || fileList.isEmpty)) {
+                          return "PAN Card is required";
+                        }
+                        return null;
+                      },
+                    ),
                     CustomTextField(
                       title: 'GST Number',
                       hint: "Enter GST Number",
                       textController: _gstNumberC,
                       inputFormatterList: InputValidator.gstInputFormatters(),
+                      validator: (value) {
+                        if (value != null &&
+                            value.trim().isNotEmpty &&
+                            !InputValidator.isValidGST(value)) {
+                          return "Invalid GST Number";
+                        }
+                        return null;
+                      },
                     ),
                     CustomMultiFilePicker(
                       title: "Upload GST Certificate",
@@ -1007,6 +1027,16 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                             fileBytesList;
                         selectedGSTCertificateForPopUpFile.deletedFileList =
                             deletedFile;
+                      },
+                      validator: (value) {
+                        if (_gstNumberC.text.isNotEmpty &&
+                            InputValidator.isValidGST(
+                              _gstNumberC.text.trim(),
+                            ) &&
+                            (value == null || value.isEmpty)) {
+                          return "GST Certificate is required";
+                        }
+                        return null;
                       },
                     ),
                   ],

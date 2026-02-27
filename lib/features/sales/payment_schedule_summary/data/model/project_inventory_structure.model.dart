@@ -1,7 +1,7 @@
 import 'package:k3h_erp_app/utils/common_function.dart';
 
 class ProjectInventoryStructure {
-  final int buildingId;
+  final int inventoryBuildingId;
   final String flat;
   final String buildingNumber;
   final String wing;
@@ -9,7 +9,7 @@ class ProjectInventoryStructure {
   final String flatConfiguration;
 
   ProjectInventoryStructure({
-    required this.buildingId,
+    required this.inventoryBuildingId,
     required this.flat,
     required this.buildingNumber,
     required this.wing,
@@ -19,7 +19,7 @@ class ProjectInventoryStructure {
 
   factory ProjectInventoryStructure.fromJson(Map<String, dynamic> json) =>
       ProjectInventoryStructure(
-        buildingId: parseValue<int>(json, "BuildingId"),
+        inventoryBuildingId: parseValue<int>(json, "InventoryBuildingId"),
         flat: parseValue<String>(json, "Flat"),
         buildingNumber: parseValue<String>(json, "BuildingNumber"),
         wing: parseValue<String>(json, "Wing"),
@@ -28,7 +28,7 @@ class ProjectInventoryStructure {
       );
 
   Map<String, dynamic> toJson() => {
-    "BuildingId": buildingId,
+    "InventoryBuildingId": inventoryBuildingId,
     "Flat": flat,
     "BuildingNumber": buildingNumber,
     "Wing": wing,

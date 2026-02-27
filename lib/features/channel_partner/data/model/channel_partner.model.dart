@@ -33,7 +33,7 @@ class ChannelPartnerModel {
   final String villageName;
   final int createdById;
   final String createdBy;
-  final DateTime? createdDate;
+  final DateTime createdDate;
   final int modifiedById;
   final String modifiedBy;
   final DateTime? modifiedDate;
@@ -76,7 +76,7 @@ class ChannelPartnerModel {
     required this.villageName,
     required this.createdById,
     required this.createdBy,
-    this.createdDate,
+    required this.createdDate,
     required this.modifiedById,
     required this.modifiedBy,
     this.modifiedDate,
@@ -169,7 +169,7 @@ class ChannelPartnerModel {
     "VillageName": villageName,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
-    "CreatedDate": createdDate?.toIso8601String(),
+    "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),

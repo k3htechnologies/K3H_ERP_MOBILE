@@ -383,7 +383,8 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 ),
 
                 /// ================= CLOSURE LIST =================
-                _buildClosureCardList(),
+                if (litigation.litigationClosureData.isNotEmpty)
+                  _buildClosureCardList(),
 
                 Container(
                   padding: EdgeInsets.all(16),
@@ -487,9 +488,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
         // get the current litigation from state
         final litigation = state.litigationList[widget.index];
         final closureList = litigation.litigationClosureData;
-
-        if (closureList.isEmpty) return Center(child: noDataWidget());
-
         return Container(
           padding: EdgeInsets.all(16),
           decoration: commonCardDecoration(),

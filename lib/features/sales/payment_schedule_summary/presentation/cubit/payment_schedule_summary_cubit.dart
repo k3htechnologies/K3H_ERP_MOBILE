@@ -24,14 +24,14 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
   // ------------------ BUILDING CHANGED ------------------
   void onBuildingChanged(int buildingId) {
     final selectedBuilding = state.buildingList.firstWhereOrNull(
-      (e) => e.buildingId == buildingId,
+      (e) => e.inventoryBuildingId == buildingId,
     );
     if (selectedBuilding == null) return;
-    if (state.selectedBuilding?.buildingId == buildingId) return;
+    if (state.selectedBuilding?.inventoryBuildingId == buildingId) return;
 
     final filteredInventory =
         state.projectInventoryList
-            .where((e) => e.buildingId == buildingId)
+            .where((e) => e.inventoryBuildingId == buildingId)
             .toList();
 
     final List<String> wings =
@@ -67,7 +67,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
 
     final queryParams = {
       "Wing": wing,
-      "BuildingId": state.selectedBuilding!.buildingId,
+      "BuildingId": state.selectedBuilding!.inventoryBuildingId,
       "Rate": rate,
       "PaymentScheduleMasterId": 0,
       "FlatConfiguration": state.selectedFlatConfiguration,
@@ -92,7 +92,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
 
     final queryParams = {
       "Wing": state.selectedWing,
-      "BuildingId": state.selectedBuilding!.buildingId,
+      "BuildingId": state.selectedBuilding!.inventoryBuildingId,
       "Rate": rate,
       "PaymentScheduleMasterId": 0,
       "FlatConfiguration": config,
@@ -112,7 +112,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
 
     final queryParams = {
       "Wing": state.selectedWing,
-      "BuildingId": state.selectedBuilding!.buildingId,
+      "BuildingId": state.selectedBuilding!.inventoryBuildingId,
       "Rate": rate,
       "PaymentScheduleMasterId": 0,
       "FlatConfiguration": state.selectedFlatConfiguration,
@@ -259,7 +259,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
 
         final Map<int, ProjectInventoryStructure> uniqueBuildings = {};
         for (var item in newData) {
-          uniqueBuildings[item.buildingId] = item;
+          uniqueBuildings[item.inventoryBuildingId] = item;
         }
 
         final List<String> flatConfigs =

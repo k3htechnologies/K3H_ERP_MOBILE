@@ -30,7 +30,6 @@ class CustomClickToContactText extends StatelessWidget {
 
     if (type == ContactType.phone) {
       uri = Uri(scheme: 'tel', path: value);
-      // Request READ_PHONE_STATE so we can detect call start/end (required on Android 6+)
       if (Platform.isAndroid) {
         final status = await Permission.phone.request();
         if (status.isGranted) {
@@ -82,10 +81,11 @@ class CustomClickToContactText extends StatelessWidget {
           const SizedBox(width: 6),
           Flexible(
             child: Text(
-              value,
+              type == ContactType.phone ? '+91 $value' : value,
               style:
                   textStyle ??
                   const TextStyle(
+                    fontSize: 14,
                     color: AppColor.mediumBlue,
                     decoration: TextDecoration.underline,
                     decorationColor: AppColor.mediumBlue,

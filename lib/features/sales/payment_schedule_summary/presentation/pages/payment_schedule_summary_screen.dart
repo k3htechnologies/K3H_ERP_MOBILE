@@ -98,7 +98,7 @@ class _PaymentScheduleSummaryScreenState
 
     Map<String, dynamic> queryParams = {
       "Wing": state.selectedWing,
-      "BuildingId": state.selectedBuilding?.buildingId,
+      "BuildingId": state.selectedBuilding?.inventoryBuildingId,
       "Rate": rate,
       "PaymentScheduleMasterId": 0,
       "FlatConfiguration": state.selectedFlatConfiguration,
@@ -145,7 +145,7 @@ class _PaymentScheduleSummaryScreenState
 
           Map<String, dynamic> queryParams = {
             "Wing": state.selectedWing,
-            "BuildingId": state.selectedBuilding?.buildingId,
+            "BuildingId": state.selectedBuilding?.inventoryBuildingId,
             "Rate": rate,
             "PaymentScheduleMasterId": 0,
             "FlatConfiguration": state.selectedFlatConfiguration,
@@ -448,7 +448,7 @@ class _PaymentScheduleSummaryScreenState
                         state.buildingList
                             .map(
                               (e) => {
-                                "zAttributesId": e.buildingId,
+                                "zAttributesId": e.inventoryBuildingId,
                                 "DisplayName": e.buildingNumber,
                               },
                             )
@@ -458,7 +458,7 @@ class _PaymentScheduleSummaryScreenState
                         .firstWhereOrNull(
                           (e) =>
                               e["zAttributesId"] ==
-                              state.selectedBuilding?.buildingId,
+                              state.selectedBuilding?.inventoryBuildingId,
                         );
 
                     return CustomDropDownWidget(
@@ -469,7 +469,8 @@ class _PaymentScheduleSummaryScreenState
                       onSelected: (value) {
                         final selectedId = value["zAttributesId"];
 
-                        if (selectedId != state.selectedBuilding?.buildingId) {
+                        if (selectedId !=
+                            state.selectedBuilding?.inventoryBuildingId) {
                           context
                               .read<PaymentScheduleSummaryCubit>()
                               .onBuildingChanged(selectedId);
