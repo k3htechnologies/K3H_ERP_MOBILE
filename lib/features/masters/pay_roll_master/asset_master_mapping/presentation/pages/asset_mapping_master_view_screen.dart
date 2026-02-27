@@ -253,7 +253,7 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             assetMapping.createdDate,
                           ),
                         ),
@@ -273,7 +273,7 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                           title: "Modified Date",
                           value:
                               assetMapping.modifiedDate != null
-                                  ? formatDateTimeAsDDMMMYYYY(
+                                  ? formatDate(
                                     assetMapping.modifiedDate!,
                                   )
                                   : "-",

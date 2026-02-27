@@ -116,7 +116,7 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             weekOffMaster.createdDate,
                           ),
                         ),
@@ -131,7 +131,7 @@ class ViewWeekOffMasterScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Modified Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             weekOffMaster.modifiedDate,
                           ),
                         ),

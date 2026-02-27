@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/employee_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -537,6 +538,40 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
     }
   }
 
+  // TO CHECK REQUIRED DETAILS ARE NOT EMPTY
+  bool checkValidEmployeeDetails(UserModel user) {
+    final isValid =
+        user.firstName.isNotEmpty &&
+        user.middleName.isNotEmpty &&
+        user.lastName.isNotEmpty &&
+        user.gender.isNotEmpty &&
+        user.maritalStatus.isNotEmpty &&
+        user.bloodGroup.isNotEmpty &&
+        user.dateOfBirth != null &&
+        user.emailId.isNotEmpty &&
+        user.personalMobileNumber.isNotEmpty &&
+        user.employeeType.isNotEmpty &&
+        user.emergencyContactPersonRelationship.isNotEmpty &&
+        user.emergencyMobileNumber.isNotEmpty &&
+        user.companyName.isNotEmpty &&
+        user.department.isNotEmpty &&
+        user.designation.isNotEmpty &&
+        user.joiningDate != null &&
+        user.reportPersonName.isNotEmpty &&
+        user.communicationAddress.isNotEmpty &&
+        user.permanentAddress.isNotEmpty &&
+        user.countryName.isNotEmpty &&
+        user.stateName.isNotEmpty &&
+        user.cityName.isNotEmpty &&
+        user.districtName.isNotEmpty &&
+        user.bankName.isNotEmpty &&
+        user.bankBranchName.isNotEmpty &&
+        user.accountNo.isNotEmpty &&
+        user.ifscCode.isNotEmpty;
+
+    return isValid;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -549,7 +584,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
         screenTitle: 'Employee Master',
         authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
-          if(_employeeMasterCubit.state.totalNumberOfRecord==0){
+          if (_employeeMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
@@ -627,7 +662,10 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                                       employee.fullName,
                                       style: AppTextStyle.ts16M(
                                         color: AppColor.primary,
-                                      ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
+                                      ).copyWith(
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: AppColor.primary,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -637,6 +675,20 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                           Row(
                             spacing: 10,
                             children: [
+                              if (checkValidEmployeeDetails(employee) ==
+                                  false) ...[
+                                CustomIconButton(
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.warning_amber_outlined,
+                                    color: AppColor.yellow,
+                                    size: 16,
+                                  ),
+                                  backgroundColor: AppColor.yellow.withValues(
+                                    alpha: .2,
+                                  ),
+                                ),
+                              ],
                               CustomIconButton.edit(
                                 onPressed: () async {
                                   await goRouter.pushNamed(
@@ -706,7 +758,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                       buildRowTitleValue(
                         title: "Department",
                         value: employee.department,
-                        singleLine: false
+                        singleLine: false,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 6),

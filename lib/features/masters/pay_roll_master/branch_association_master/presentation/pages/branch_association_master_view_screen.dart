@@ -72,7 +72,7 @@ class BranchAssociationMasterViewScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             branchAssociation.createdDate,
                           ),
                         ),
@@ -92,7 +92,7 @@ class BranchAssociationMasterViewScreen extends StatelessWidget {
                           title: "Modified Date",
                           value:
                               branchAssociation.modifiedDate != null
-                                  ? formatDateTimeAsDDMMMYYYY(
+                                  ? formatDate(
                                     branchAssociation.modifiedDate!,
                                   )
                                   : "-",

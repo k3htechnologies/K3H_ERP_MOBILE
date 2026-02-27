@@ -164,7 +164,7 @@ class ShiftMasterViewScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             shiftMaster.createdDate,
                           ),
                         ),
@@ -179,7 +179,7 @@ class ShiftMasterViewScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Modified Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             shiftMaster.modifiedDate,
                           ),
                         ),

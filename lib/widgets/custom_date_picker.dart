@@ -175,8 +175,9 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                   ),
                 ),
                 hasError
-                    ? Padding(
+                    ? Container(
                   padding: const EdgeInsets.only(left: 12.0, top: 4.0),
+                  margin: EdgeInsets.only(bottom: 10),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

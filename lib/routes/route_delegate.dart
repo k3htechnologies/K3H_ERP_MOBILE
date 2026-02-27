@@ -123,6 +123,7 @@ import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/mo
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/cubit/terms_and_conditions_cubit.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/add_terms_and_conditions_screen.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_screen.dart';
+import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_view_screen.dart';
 import 'package:k3h_erp_app/features/menu/presentation/pages/menu_screen.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/presentation/cubit/calendar_cubit.dart';
@@ -710,12 +711,30 @@ final GoRouter goRouter = GoRouter(
                       state.uri.queryParameters['tabIndex'] ?? '0',
                     ) ??
                     0;
-                // Use BlocProvider.value with service locator to get the singleton instance
                 return AddTermsAndConditionsScreen(
                   termsAndConditions: termsAndCondition,
                   index: index,
                   tabIndex: tabIndex,
                 );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewTermsAndConditions,
+              path: AppRoutes.viewTermsAndConditions,
+              builder: (context, state) {
+                final queryParameterTNC =
+                state.uri.queryParameters['tnc'];
+                if (queryParameterTNC != null) {
+                  final decodedJson = jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(queryParameterTNC),
+                    ),
+                  );
+                  final tnc = TermsAndConditionsModel.fromJson(decodedJson);
+                  return TermsAndConditionsViewScreen(termsAndCondition: tnc);
+                } else {
+                  return Scaffold();
+                }
               },
             ),
           ],

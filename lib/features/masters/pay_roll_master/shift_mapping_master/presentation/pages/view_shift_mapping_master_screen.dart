@@ -116,7 +116,7 @@ class ViewShiftMappingMasterScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             shiftMappingModel.createdDate,
                           ),
                         ),
@@ -131,7 +131,7 @@ class ViewShiftMappingMasterScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Modified Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             shiftMappingModel.modifiedDate,
                           ),
                         ),

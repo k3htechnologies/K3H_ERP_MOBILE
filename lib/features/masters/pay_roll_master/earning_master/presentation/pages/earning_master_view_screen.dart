@@ -101,7 +101,7 @@ class EarningMasterViewScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             earningMasterModel.createdDate,
                           ),
                         ),
@@ -121,7 +121,7 @@ class EarningMasterViewScreen extends StatelessWidget {
                           title: "Modified Date",
                           value:
                               earningMasterModel.modifiedDate != null
-                                  ? formatDateTimeAsDDMMMYYYY(
+                                  ? formatDate(
                                     earningMasterModel.modifiedDate!,
                                   )
                                   : "-",

@@ -308,7 +308,7 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
                     ),
                     buildColumnTitleValue(
                       title: "Created Date",
-                      value: formatDateTimeAsDDMMMYYYY(
+                      value: formatDate(
                         widget.assetMaster.createdDate,
                       ),
                     ),
@@ -328,7 +328,7 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
                       title: "Modified Date",
                       value:
                           widget.assetMaster.modifiedDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
+                              ? formatDate(
                                 widget.assetMaster.modifiedDate!,
                               )
                               : "-",

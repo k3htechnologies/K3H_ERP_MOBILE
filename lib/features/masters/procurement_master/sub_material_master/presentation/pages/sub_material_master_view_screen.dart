@@ -77,7 +77,7 @@ class SubMaterialMasterViewScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             subMaterial.createdDate,
                           ),
                         ),
@@ -97,7 +97,7 @@ class SubMaterialMasterViewScreen extends StatelessWidget {
                           title: "Modified Date",
                           value:
                               subMaterial.modifiedDate != null
-                                  ? formatDateTimeAsDDMMMYYYY(
+                                  ? formatDate(
                                     subMaterial.modifiedDate!,
                                   )
                                   : "-",

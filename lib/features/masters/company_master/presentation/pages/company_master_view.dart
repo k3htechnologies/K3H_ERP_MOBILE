@@ -305,7 +305,7 @@ class _CompanyMasterViewMobileScreenState
               ),
               buildColumnTitleValue(
                 title: "Created On",
-                value: formatDateTimeAsDDMMMYYYY(widget.company!.createdDate),
+                value: formatDate(widget.company!.createdDate),
               ),
             ],
           ),
@@ -324,7 +324,7 @@ class _CompanyMasterViewMobileScreenState
                 title: "Modified On",
                 value:
                     widget.company!.modifiedDate != null
-                        ? formatDateTimeAsDDMMMYYYY(
+                        ? formatDate(
                           widget.company!.modifiedDate!,
                         )
                         : "-",

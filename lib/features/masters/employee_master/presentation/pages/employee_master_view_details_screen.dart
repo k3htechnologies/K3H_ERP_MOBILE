@@ -615,7 +615,7 @@ class _EmployeeMasterViewDetailsScreenState
                     ),
                     buildColumnTitleValue(
                       title: "Created Date",
-                      value: formatDateTimeAsDDMMMYYYY(user.createdDate),
+                      value: formatDate(user.createdDate),
                     ),
                   ],
                 ),
@@ -631,7 +631,7 @@ class _EmployeeMasterViewDetailsScreenState
                       title: "Modified Date",
                       value:
                           user.modifiedDate != null
-                              ? formatDateTimeAsDDMMMYYYY(user.modifiedDate!)
+                              ? formatDate(user.modifiedDate!)
                               : "-",
                     ),
                   ],

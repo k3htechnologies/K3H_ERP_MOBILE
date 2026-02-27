@@ -249,7 +249,7 @@ String formatDateTimeAsDDMMMYYYY(DateTime d, {String? separator}) {
 // DATE FORMATTERS
 String formatDate(DateTime? date) {
   if (date == null) return "";
-  return DateFormat("dd MMMM yyyy, EEEE").format(date);
+  return DateFormat("dd MMM yyyy - hh:mm a").format(date);
 }
 
 // TIME FORMATTERS

@@ -249,7 +249,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
                           ),
                           buildRowTitleValue(
                             title: "Created Date",
-                            value: formatDateTimeAsDDMMMYYYY(
+                            value: formatDate(
                               leaveEncashment.createdDate,
                             ),
                           ),
@@ -261,7 +261,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
                             title: "Modified Date",
                             value:
                                 leaveEncashment.modifiedDate != null
-                                    ? formatDateTimeAsDDMMMYYYY(
+                                    ? formatDate(
                                       leaveEncashment.modifiedDate!,
                                     )
                                     : "",

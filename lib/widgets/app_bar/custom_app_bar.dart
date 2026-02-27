@@ -335,17 +335,6 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                     children: [
                       if (widget.secondaryBuilder != null)
                         widget.secondaryBuilder!(context),
-                      if (widget.authorization.isAction &&
-                          widget.onAddCallback != null)
-                        CustomIconButton(
-                          onPressed: () => widget.onAddCallback!(),
-                          icon: const Icon(
-                            Icons.add,
-                            size: 16,
-                            color: AppColor.darkGreen,
-                          ),
-                          backgroundColor: AppColor.lightGreen,
-                        ),
 
                       if (widget.authorization.isAction &&
                           widget.onExportCallback != null)
@@ -379,13 +368,23 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                             );
                           },
                           icon: Icon(
-                            Icons.file_download,
+                            Icons.file_download_outlined,
+                            size: 16,
+                            color: AppColor.darkGreen,
+                          ),
+                          backgroundColor: AppColor.lightGreen,
+                        ),
+                      if (widget.authorization.isAction &&
+                          widget.onAddCallback != null)
+                        CustomIconButton(
+                          onPressed: () => widget.onAddCallback!(),
+                          icon: const Icon(
+                            Icons.add,
                             size: 16,
                             color: AppColor.primary,
                           ),
                           backgroundColor: AppColor.lightBlue,
                         ),
-                      //FOR NEW WIDGET WHICH IS NEXT TO SEARCH BAR
                     ],
                   ),
                 ],

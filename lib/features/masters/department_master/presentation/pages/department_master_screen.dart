@@ -374,24 +374,23 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                     ),
                     buildRowTitleValue(
                       title: "Created Date",
-                      value: formatDateTimeAsDDMMMYYYY(department.createdDate),
+                      value: formatDate(department.createdDate),
+                      singleLine: false
                     ),
                     buildRowTitleValue(
                       title: "Modified By",
                       singleLine: false,
-                      value:
-                          department.modifiedBy.isEmpty
-                              ? department.createdBy
-                              : department.modifiedBy,
+                      value:department.modifiedBy.isEmpty? '-' : department.modifiedBy,
                     ),
                     buildRowTitleValue(
                       title: "Modified Date",
                       value:
                           department.modifiedDate == null
                               ? '-'
-                              : formatDateTimeAsDDMMMYYYY(
+                              : formatDate(
                                 department.modifiedDate!,
                               ),
+                        singleLine: false
                     ),
                   ],
                 ),

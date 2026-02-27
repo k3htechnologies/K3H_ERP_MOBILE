@@ -84,7 +84,7 @@ class HolidayMasterViewScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             holidayMaster.createdDate,
                           ),
                         ),
@@ -104,7 +104,7 @@ class HolidayMasterViewScreen extends StatelessWidget {
                           title: "Modified Date",
                           value:
                               holidayMaster.modifiedDate != null
-                                  ? formatDateTimeAsDDMMMYYYY(
+                                  ? formatDate(
                                     holidayMaster.modifiedDate!,
                                   )
                                   : "-",

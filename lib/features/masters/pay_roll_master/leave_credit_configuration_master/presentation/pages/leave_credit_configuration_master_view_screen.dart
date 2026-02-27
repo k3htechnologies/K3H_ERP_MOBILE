@@ -207,7 +207,7 @@ class _LeaveCreditConfigurationMasterViewScreenState
                     ),
                     buildColumnTitleValue(
                       title: "Created Date",
-                      value: formatDateTimeAsDDMMMYYYY(
+                      value: formatDate(
                         widget.leaveCreditConfigurationMaster.createdDate,
                       ),
                     ),
@@ -234,7 +234,7 @@ class _LeaveCreditConfigurationMasterViewScreenState
                       value:
                           widget.leaveCreditConfigurationMaster.modifiedDate !=
                                   null
-                              ? formatDateTimeAsDDMMMYYYY(
+                              ? formatDate(
                                 widget
                                     .leaveCreditConfigurationMaster
                                     .modifiedDate!,

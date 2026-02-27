@@ -310,8 +310,9 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                               icon: Icon(
                                 Icons.key,
                                 size: 16,
-                                color: AppColor.primary,
+                                color:designation.isSetAccessModule==true?  AppColor.primary:AppColor.grey,
                               ),
+                              backgroundColor: designation.isSetAccessModule==true?AppColor.lightBlue:AppColor.grey10,
                             ),
                             Row(
                               mainAxisSize: MainAxisSize.min,
@@ -446,7 +447,7 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                     ),
                     buildRowTitleValue(
                       title: "Created Date",
-                      value: formatDateTimeAsDDMMMYYYY(designation.createdDate),
+                      value: formatDate(designation.createdDate),
                     ),
                     buildRowTitleValue(
                       title: "Modified By",
@@ -458,7 +459,7 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                       value:
                           designation.modifiedDate == null
                               ? '-'
-                              : formatDateTimeAsDDMMMYYYY(
+                              : formatDate(
                                 designation.modifiedDate!,
                               ),
                     ),

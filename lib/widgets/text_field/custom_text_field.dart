@@ -148,8 +148,9 @@ class CustomTextField extends StatelessWidget {
 
             //  SHOW ERROR TEXT (WITHOUT REMOVING ANYTHING ELSE)
             hasError
-                ? Padding(
+                ? Container(
                   padding: const EdgeInsets.only(top: 2, left: 12),
+                  margin: EdgeInsets.only(bottom: 10),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

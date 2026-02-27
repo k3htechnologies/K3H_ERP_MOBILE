@@ -132,7 +132,7 @@ class DeductionMasterViewScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             deductionMasterModel.createdDate,
                           ),
                         ),
@@ -153,7 +153,7 @@ class DeductionMasterViewScreen extends StatelessWidget {
                           title: "Modified Date",
                           value:
                               deductionMasterModel.modifiedDate != null
-                                  ? formatDateTimeAsDDMMMYYYY(
+                                  ? formatDate(
                                     deductionMasterModel.modifiedDate!,
                                   )
                                   : "-",

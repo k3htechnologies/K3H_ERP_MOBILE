@@ -331,20 +331,10 @@ class _CustomAppBarWithBackButtonState
                 ],
 
                 if (widget.authorization.isAction) ...[
-                  if (widget.onAddCallback != null) ...[
+                  if (widget.onExportCallback != null) ...[
                     horizontalSpacing(),
                     _buildAction(
-                      icon: Icons.add,
-                      onTap: () {
-                        widget.onAddCallback!();
-                      },
-                      backgroundColor: AppColor.lightGreen,
-                      iconColor: AppColor.darkGreen,
-                    ),
-                  ],
-                  if (widget.onExportCallback != null) ...[
-                    _buildAction(
-                      icon: Icons.file_download,
+                      icon: Icons.file_download_outlined,
                       onTap: () {
                         final box = context.findRenderObject() as RenderBox;
                         final position = box.localToGlobal(Offset.zero);
@@ -373,6 +363,16 @@ class _CustomAppBarWithBackButtonState
                             ),
                           ],
                         );
+                      },
+                      backgroundColor: AppColor.lightGreen,
+                      iconColor: AppColor.darkGreen,
+                    ),
+                  ],
+                  if (widget.onAddCallback != null) ...[
+                    _buildAction(
+                      icon: Icons.add,
+                      onTap: () {
+                        widget.onAddCallback!();
                       },
                       backgroundColor: AppColor.lightBlue,
                       iconColor: AppColor.primary,

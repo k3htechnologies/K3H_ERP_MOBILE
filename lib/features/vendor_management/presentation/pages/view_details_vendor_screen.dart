@@ -293,7 +293,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
               ),
               buildColumnTitleValue(
                 title: "Created On",
-                value: formatDateTimeAsDDMMMYYYY(widget.vendor.createdDate),
+                value: formatDate(widget.vendor.createdDate),
               ),
             ],
           ),
@@ -310,7 +310,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
                 title: "Modified On",
                 value:
                     widget.vendor.modifiedDate != null
-                        ? formatDateTimeAsDDMMMYYYY(widget.vendor.modifiedDate!)
+                        ? formatDate(widget.vendor.modifiedDate!)
                         : "-",
               ),
             ],

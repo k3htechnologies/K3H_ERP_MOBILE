@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -288,19 +287,6 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
             _termsAndConditionsCubit.exportExcelPdfBooking(context, value);
           }
         },
-        onSortOptionCallback: (value) async {
-          if (_termsAndConditionsCubit.state.currentTabIndex == 0) {
-            await _termsAndConditionsCubit.sortMaterialRequisition(
-              context,
-              value,
-              "DESC",
-            );
-          } else {
-            await _termsAndConditionsCubit.sortBooking(context, value, "DESC");
-          }
-        },
-        sortOptionList: ["Created Date", "Title"],
-        initialSortType: "Created Date",
       ),
       body: SafeArea(
         child: Column(
@@ -459,9 +445,6 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
     required int index,
     required bool isMaterialRequisition,
   }) {
-    final isHtml =
-        termsAndCondition.description.contains('<') &&
-        termsAndCondition.description.contains('>');
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
@@ -473,11 +456,26 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  termsAndCondition.title,
-                  style: AppTextStyle.ts16M(color: AppColor.primary),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                child: GestureDetector(
+                  onTap: () {
+                    goRouter.pushNamed(
+                      AppRoutes.viewTermsAndConditions,
+                      queryParameters: {
+                        "tnc": Uri.encodeComponent(
+                          EncryptionManager.encryptData(
+                            jsonEncode(termsAndCondition),
+                          ),
+                        ),
+                      },
+                    );
+                  },
+                  child: Text(
+                    termsAndCondition.title,
+                    style: AppTextStyle.ts16M(color: AppColor.primary).copyWith(
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColor.primary,
+                    ),
+                  ),
                 ),
               ),
               Row(
@@ -521,81 +519,6 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
               ),
             ],
           ),
-          verticalSpacing(height: 12),
-          if (termsAndCondition.description.isNotEmpty)
-            isHtml
-                ? Html(
-                  data: termsAndCondition.description,
-                  style: {
-                    "body": Style(
-                      fontSize: FontSize(14),
-                      margin: Margins.zero,
-                      padding: HtmlPaddings.zero,
-                    ),
-                  },
-                )
-                : Text(
-                  termsAndCondition.description,
-                  style: AppTextStyle.ts14R(color: AppColor.grey),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-          verticalSpacing(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _buildInfoChip(
-                label: "Created By",
-                value: termsAndCondition.createdBy,
-              ),
-              _buildInfoChip(
-                label: "Created Date",
-                value: formatDateTimeAsDDMMMYYYY(termsAndCondition.createdDate),
-              ),
-            ],
-          ),
-          verticalSpacing(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _buildInfoChip(
-                label: "Modified By",
-                value:
-                    termsAndCondition.modifiedBy.isNotEmpty
-                        ? termsAndCondition.modifiedBy
-                        : "-",
-              ),
-              _buildInfoChip(
-                label: "Modified Date",
-                value:
-                    termsAndCondition.modifiedDate != null
-                        ? formatDateTimeAsDDMMMYYYY(
-                          termsAndCondition.modifiedDate!,
-                        )
-                        : "-",
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoChip({required String label, required String value}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColor.grey10,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text("$label: ", style: AppTextStyle.ts12R(color: AppColor.grey)),
-          Flexible(child: Text(value, style: AppTextStyle.ts12R())),
         ],
       ),
     );

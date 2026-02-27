@@ -65,7 +65,7 @@ class MaterialMasterViewScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             material.createdDate,
                           ),
                         ),
@@ -85,7 +85,7 @@ class MaterialMasterViewScreen extends StatelessWidget {
                           title: "Modified Date",
                           value:
                               material.modifiedDate != null
-                                  ? formatDateTimeAsDDMMMYYYY(
+                                  ? formatDate(
                                     material.modifiedDate!,
                                   )
                                   : "-",

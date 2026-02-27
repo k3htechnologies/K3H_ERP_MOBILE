@@ -53,6 +53,7 @@ class AppRoutes {
   // TERMS AND CONDITIONS
   static String termsAndConditions = "/tnc";
   static String addTermsAndConditions = "/addTnc";
+  static String viewTermsAndConditions = "/viewTnc";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PROCUREMENT MASTER
