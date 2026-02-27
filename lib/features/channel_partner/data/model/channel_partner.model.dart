@@ -12,6 +12,7 @@ class ChannelPartnerModel {
   final String panCardUrl;
   final String aadharCardNumber;
   final String aadharCardUrl;
+  final String gstCertificateUrl;
   final String companyName;
   final String firmsType;
   final String designation;
@@ -32,7 +33,7 @@ class ChannelPartnerModel {
   final String villageName;
   final int createdById;
   final String createdBy;
-  final DateTime? createdDate;
+  final DateTime createdDate;
   final int modifiedById;
   final String modifiedBy;
   final DateTime? modifiedDate;
@@ -54,6 +55,7 @@ class ChannelPartnerModel {
     required this.panCardUrl,
     required this.aadharCardNumber,
     required this.aadharCardUrl,
+    required this.gstCertificateUrl,
     required this.companyName,
     required this.firmsType,
     required this.designation,
@@ -74,7 +76,7 @@ class ChannelPartnerModel {
     required this.villageName,
     required this.createdById,
     required this.createdBy,
-    this.createdDate,
+    required this.createdDate,
     required this.modifiedById,
     required this.modifiedBy,
     this.modifiedDate,
@@ -101,6 +103,7 @@ class ChannelPartnerModel {
         panCardUrl: parseValue<String>(json, "PanCardURL"),
         aadharCardNumber: parseValue<String>(json, "AadharCardNumber"),
         aadharCardUrl: parseValue<String>(json, "AadharCardURL"),
+        gstCertificateUrl: parseValue<String>(json, "GSTCertificateURL"),
         companyName: parseValue<String>(json, "CompanyName"),
         firmsType: parseValue<String>(json, "FirmsType"),
         designation: parseValue<String>(json, "Designation"),
@@ -143,6 +146,7 @@ class ChannelPartnerModel {
     "AlternativeMobileNumber": alternativeMobileNumber,
     "PanNumber": panNumber,
     "PanCardURL": panCardUrl,
+    "GSTCertificateURL": gstCertificateUrl,
     "AadharCardNumber": aadharCardNumber,
     "AadharCardURL": aadharCardUrl,
     "CompanyName": companyName,
@@ -165,7 +169,7 @@ class ChannelPartnerModel {
     "VillageName": villageName,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
-    "CreatedDate": createdDate?.toIso8601String(),
+    "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),

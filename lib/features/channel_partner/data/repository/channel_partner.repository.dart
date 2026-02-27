@@ -25,6 +25,11 @@ abstract interface class ChannelPartnerRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> getChannelPartnerCompanyList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class ChannelPartnerRepositoryImpl implements ChannelPartnerRepository {
@@ -95,6 +100,26 @@ class ChannelPartnerRepositoryImpl implements ChannelPartnerRepository {
             pageSize: pageSize,
             queryParams: queryParams,
           );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getChannelPartnerCompanyList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await channelPartnerDatasource
+          .apicallPullChannelPartnerCompany(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            queryParams: queryParams,
+          );
+
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

@@ -44,7 +44,7 @@ class PaymentScheduleDataSourceImpl implements PaymentScheduleDataSource {
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "PaymentScheduleMaster/PullProjectInventoryStructure?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+          "Inventory/PullProjectInventoryStructure?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }

@@ -1,26 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
+import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
-import 'package:k3h_erp_app/features/masters/company_master/data/repository/company_master_repository.dart';
+import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/repository/designation_master.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
+import 'package:k3h_erp_app/widgets/custom_verification_dialog.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddChannelPartnerScreen extends StatefulWidget {
   final ChannelPartnerModel? channelPartnerModel;
@@ -40,14 +44,16 @@ class AddChannelPartnerScreen extends StatefulWidget {
 class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   // CUBIT
   late ChannelPartnerCubit _channelPartnerCubit;
+  late LoginCubit _loginCubit;
+
   //EDIT MODE
   bool get _isEditMode => widget.channelPartnerModel != null;
 
   // REPOSITORY
-  final CompanyMasterRepository _companyMasterRepository =
-      serviceLocator<CompanyMasterRepository>();
   final DesignationMasterRepository _designationMasterRepository =
       serviceLocator<DesignationMasterRepository>();
+  final ChannelPartnerRepository _channelPartnerRepository =
+      serviceLocator<ChannelPartnerRepository>();
 
   // TEXT EDITING CONTROLLER
   late TextEditingController _nameC,
@@ -60,7 +66,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       _reraNumberC,
       _gstNumberC,
       _officeAddressC,
-      _filterLocalityC;
+      _filterLocalityC,
+      _otpController;
 
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -69,12 +76,16 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   void initState() {
     super.initState();
     _channelPartnerCubit = context.read<ChannelPartnerCubit>();
+    _loginCubit = context.read<LoginCubit>();
     _initializeTextEditingController();
     selectedCompanyType = ValueNotifier<Map<String, dynamic>>(
       companyTypeList[0],
     );
+    selectedDesignation = ValueNotifier([]);
     selectedSpeciality = specialityList[0];
-    selectedFirmsType = firmsType[0];
+    selectedFirmsType = ValueNotifier(firmsType[0]);
+    hasReraNumber = ValueNotifier(false);
+    selectedCompany = ValueNotifier([]);
     selectedType = type[0];
     if (widget.channelPartnerModel != null) {
       _prefillChannelPartner(widget.channelPartnerModel!);
@@ -95,6 +106,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _gstNumberC.dispose();
     _officeAddressC.dispose();
     _filterLocalityC.dispose();
+    _otpController.dispose();
+    selectedFirmsType.dispose();
+    hasReraNumber.dispose();
+    selectedCompany.dispose();
     super.dispose();
   }
 
@@ -111,6 +126,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _gstNumberC = TextEditingController();
     _officeAddressC = TextEditingController();
     _filterLocalityC = TextEditingController();
+    _otpController = TextEditingController();
   }
 
   // FILE VARIABLES
@@ -124,7 +140,12 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
-
+  MultiFilePickerModel selectedGSTCertificateForPopUpFile =
+      MultiFilePickerModel(
+        fileBytesList: [],
+        fileNameList: [],
+        deletedFileList: "",
+      );
   // DROPDOWN VARIABLES
   final List<Map<String, dynamic>> specialityList = [
     {"zAttributesId": -1, "DisplayName": "Select"},
@@ -149,7 +170,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   ];
 
   final List<Map<String, dynamic>> type = [
-    {"zAttributesId": -1, "DisplayName": "Select Firms Type"},
+    {"zAttributesId": -1, "DisplayName": "Select Type"},
     {"zAttributesId": 1, "DisplayName": "International Channel Partner (IPC)"},
     {"zAttributesId": 2, "DisplayName": "Institutional Channel Partner (ICP)"},
     {"zAttributesId": 3, "DisplayName": "Retail Channel Partner (RCP)"},
@@ -159,56 +180,16 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   Map<String, dynamic>? selectedState;
   Map<String, dynamic>? selectedDistrict;
   Map<String, dynamic>? selectedCity;
+  Map<String, dynamic>? selectedVillage;
   late Map<String, dynamic> selectedSpeciality;
   late Map<String, dynamic> selectedSpecialityFilter;
   late ValueNotifier<Map<String, dynamic>> selectedCompanyType;
-  late Map<String, dynamic> selectedFirmsType;
+  late ValueNotifier<Map<String, dynamic>> selectedFirmsType;
   late Map<String, dynamic> selectedType;
   // MULTI SELECT FOR PROJECTS, SINGLE SELECT FOR COMPANY
-  List<Map<String, dynamic>> selectedCompany = [];
-  List<Map<String, dynamic>> selectedDesignation = [];
-
-  bool hasReraNumber = false;
-
-  // FETCH COMPANY LIST
-  Future<Map<String, dynamic>> _fetchCompanyList(
-    int pageNumber, {
-    String? value,
-  }) async {
-    try {
-      final result = await _companyMasterRepository.getCompanyList(
-        pageNumber: pageNumber,
-        pageSize: 10,
-        queryParams:
-            value != null && value.isNotEmpty ? {"CompanyName": value} : null,
-      );
-
-      return result.fold(
-        (failure) => {'itemList': [], 'totalNumberOfRecord': 0},
-        (response) {
-          final companies = response['data'] as List<CompanyModel>;
-          final itemList =
-              companies
-                  .map(
-                    (c) => {
-                      'zAttributesId': c.companyId,
-                      'DisplayName': c.companyName,
-                      'FirmsType': c.firmsType,
-                    },
-                  )
-                  .toList();
-
-          return {
-            'itemList': itemList,
-            'totalNumberOfRecord':
-                response['totalNumberOfRecord'] ?? itemList.length,
-          };
-        },
-      );
-    } catch (error) {
-      return {'itemList': [], 'totalNumberOfRecord': 0};
-    }
-  }
+  late ValueNotifier<List<Map<String, dynamic>>> selectedCompany;
+  late ValueNotifier<List<Map<String, dynamic>>> selectedDesignation;
+  late ValueNotifier<bool> hasReraNumber;
 
   // FETCH DESIGNATION LIST
   Future<Map<String, dynamic>> _fetchDesignationList(
@@ -251,6 +232,81 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     }
   }
 
+  // FETCH COMPANY LIST FOR EXISTING COMPANY FLOW
+  Future<Map<String, dynamic>> _fetchChannelPartnerList(
+    int pageNumber, {
+    String? value,
+  }) async {
+    try {
+      final result = await _channelPartnerRepository
+          .getChannelPartnerCompanyList(
+            pageNumber: pageNumber,
+            pageSize: 15,
+            queryParams:
+                value != null && value.isNotEmpty
+                    ? {
+                      "ProjectId": getProject().projectId,
+                      "CompanyName": value,
+                    }
+                    : {"ProjectId": getProject().projectId},
+          );
+
+      return result.fold(
+        (failure) => {'itemList': [], 'totalNumberOfRecord': 0},
+        (response) {
+          final List<dynamic> partners = response['data'] ?? [];
+
+          final itemList =
+              partners.map((c) {
+                return {
+                  'zAttributesId': c['ChannelPartnerId'],
+                  'DisplayName': c['CompanyName'],
+                };
+              }).toList();
+
+          return {
+            'itemList': itemList,
+            'totalNumberOfRecord':
+                response['totalNumberOfRecord'] ?? itemList.length,
+          };
+        },
+      );
+    } catch (error) {
+      return {'itemList': [], 'totalNumberOfRecord': 0};
+    }
+  }
+
+  Future<void> _pullChannelPartnerMaster(int channelPartnerId) async {
+    try {
+      final result = await _channelPartnerRepository.getChannelPartnerList(
+        pageNumber: 1,
+        pageSize: 1,
+        queryParams: {"ChannelPartnerId": channelPartnerId},
+      );
+
+      result.fold((failure) {}, (response) {
+        final partners = response['data'] as List<ChannelPartnerModel>;
+
+        if (partners.isNotEmpty) {
+          final data = partners.first;
+
+          _companyNameC.text = data.companyName;
+          _gstNumberC.text = data.gstNumber;
+          _reraNumberC.text = data.reraNumber;
+
+          hasReraNumber.value = data.reraNumber.isNotEmpty;
+
+          selectedFirmsType.value = firmsType.firstWhere(
+            (e) => e['DisplayName'] == data.firmsType,
+            orElse: () => firmsType[0],
+          );
+        }
+      });
+    } catch (error) {
+      debugPrint("Pull Channel Partner Error: $error");
+    }
+  }
+
   // PREFILL DIALOG TO ADD UPDATE CHANNEL PARTNER
   void _prefillChannelPartner(ChannelPartnerModel channelPartnerMasterModel) {
     _nameC.text = channelPartnerMasterModel.name;
@@ -262,131 +318,205 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _aadhaarNumberC.text = channelPartnerMasterModel.aadharCardNumber;
     _companyNameC.text = channelPartnerMasterModel.companyName;
     _reraNumberC.text = channelPartnerMasterModel.reraNumber;
-    hasReraNumber = channelPartnerMasterModel.reraNumber.isNotEmpty;
     _gstNumberC.text = channelPartnerMasterModel.gstNumber;
     _officeAddressC.text = channelPartnerMasterModel.officeAddress;
-    if (channelPartnerMasterModel.companyName.isNotEmpty) {
-      selectedCompany = [
-        {
-          "DisplayName": channelPartnerMasterModel.companyName,
-          "zAttributesId": 0,
-        },
-      ];
-    }
+
+    hasReraNumber.value = channelPartnerMasterModel.reraNumber.isNotEmpty;
+
     if (channelPartnerMasterModel.companyName.isNotEmpty) {
       // EXISTING COMPANY FLOW
       selectedCompanyType.value = companyTypeList[2];
 
-      selectedCompany = [
+      selectedCompany.value = [
         {
           "DisplayName": channelPartnerMasterModel.companyName,
-          "zAttributesId": 0,
+          "zAttributesId": channelPartnerMasterModel.channelPartnerId,
         },
       ];
 
       _companyNameC.text = channelPartnerMasterModel.companyName;
 
-      selectedFirmsType = firmsType.firstWhere(
+      selectedFirmsType.value = firmsType.firstWhere(
         (e) => e['DisplayName'] == channelPartnerMasterModel.firmsType,
-        orElse: () => firmsType[0],
+        orElse: () => firmsType.first,
       );
     } else {
       // NEW COMPANY FLOW
       selectedCompanyType.value = companyTypeList[1];
     }
+
     if (channelPartnerMasterModel.designation.isNotEmpty) {
-      selectedDesignation = [
+      selectedDesignation.value = [
         {
           "DisplayName": channelPartnerMasterModel.designation,
           "zAttributesId": 0,
         },
       ];
     }
+
     selectedSpeciality = specialityList.firstWhere(
       (element) =>
           element['DisplayName'] == channelPartnerMasterModel.speciality,
       orElse: () => specialityList.first,
     );
-    selectedFirmsType = firmsType.firstWhere(
+
+    selectedFirmsType.value = firmsType.firstWhere(
       (e) => e['DisplayName'] == channelPartnerMasterModel.firmsType,
       orElse: () => firmsType.first,
     );
+
     selectedType = type.firstWhere(
       (element) => element["DisplayName"] == channelPartnerMasterModel.type,
       orElse: () => type.first,
     );
+
     // FILES
     selectedPANForPopUpFile.fileNameList =
-        channelPartnerMasterModel.panCardUrl == ""
+        channelPartnerMasterModel.panCardUrl.isEmpty
             ? []
             : channelPartnerMasterModel.panCardUrl.split(",");
+
     selectedAadhaarForPopUpFile.fileNameList =
-        channelPartnerMasterModel.aadharCardUrl == ""
+        channelPartnerMasterModel.aadharCardUrl.isEmpty
             ? []
-            : channelPartnerMasterModel.aadharCardNumber.split(",");
+            : channelPartnerMasterModel.aadharCardUrl.split(",");
+    selectedGSTCertificateForPopUpFile.fileNameList =
+        channelPartnerMasterModel.gstCertificateUrl.isEmpty
+            ? []
+            : channelPartnerMasterModel.gstCertificateUrl.split(",");
 
     selectedDistrict = {
       "DisplayName": widget.channelPartnerModel!.districtName,
       "zAttributesId": widget.channelPartnerModel!.districtMasterId,
     };
+
     selectedCity = {
       "DisplayName": widget.channelPartnerModel!.cityName,
       "zAttributesId": widget.channelPartnerModel!.cityMasterId,
     };
+
     selectedState = {
       "DisplayName": widget.channelPartnerModel!.stateName,
       "zAttributesId": widget.channelPartnerModel!.stateMasterId,
     };
+
+    selectedVillage = {
+      "DisplayName": widget.channelPartnerModel!.villageName,
+      "zAttributesId": widget.channelPartnerModel!.villageMasterId,
+    };
   }
 
-  // ON SAVE BUTTON
-  void _submitForm({int index = 0}) {
+  void _verifyAndSubmitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    // IF IT IS NOT EDIT MODE THEN ONLY SEND OTP AND SHOW VERIFICATION DIALOG
+    if (!_isEditMode) {
+      //  FIRST SEND OTP
+      _loginCubit.sendOTPModuleBased(
+        context: context,
+        mobileNumber: _mobileNumberC.text.trim(),
+        module: "CHANNEL PARTNER",
+      );
+      //  THEN SHOW VERIFICATION DIALOG
+
+      showCompleteVerificationDialog(
+        context,
+        otpController: _otpController,
+        verificationSteps: {},
+        onResendOTP: () {
+          _loginCubit.sendOTPModuleBased(
+            context: context,
+            mobileNumber: _mobileNumberC.text.trim(),
+            module: "CHANNEL PARTNER",
+          );
+        },
+        onVerifyOTP: () {
+          _submitForm();
+          goRouter.pop();
+        },
+      );
+    } else {
+      _submitForm();
+    }
+  }
+
+  // ON SAVE BUTTON
+  void _submitForm() {
     if (_isEditMode && widget.channelPartnerModel != null) {
       _channelPartnerCubit.updateChannelPartner(
         context: context,
         channelPartnerId: widget.channelPartnerModel!.channelPartnerId,
         uniqueKey: widget.channelPartnerModel!.uniquekey,
         index: widget.index!,
-        name: _nameC.text,
-        emailId: _emailC.text,
-        mobileNumber: _mobileNumberC.text,
-        panCardNumber: _panNumberC.text,
-        aadharCardNumber: _aadhaarNumberC.text,
+        name: _nameC.text.trim(),
+        emailId: _emailC.text.trim(),
+        mobileNumber: _mobileNumberC.text.trim(),
+        alternativeMobileNumber: _alternateMobileNumberC.text.trim(),
+        panCardNumber: _panNumberC.text.trim(),
+        aadharCardNumber: _aadhaarNumberC.text.trim(),
+        gstNumber: _gstNumberC.text.trim(),
         speciality: selectedSpeciality["DisplayName"],
-        officeAddress: _officeAddressC.text,
+        officeAddress: _officeAddressC.text.trim(),
         panCardURL: selectedPANForPopUpFile,
         aadharCardURL: selectedAadhaarForPopUpFile,
+        gstCertificateURL: selectedGSTCertificateForPopUpFile,
         selectedCountryNameId: 1,
         selectedStateId: selectedState!["zAttributesId"],
         selectedDistrictId: selectedDistrict!["zAttributesId"],
         selectedCityId: selectedCity!["zAttributesId"],
-        reraNumber: _reraNumberC.text,
-        companyName: _companyNameC.text,
+        selectedVillageId: selectedVillage!["zAttributesId"],
+        reraNumber: _reraNumberC.text.trim(),
+        companyName: _companyNameC.text.trim(),
+        firmsType: selectedFirmsType.value["DisplayName"],
+        type: selectedType["DisplayName"],
+        designation:
+            selectedDesignation.value.isNotEmpty
+                ? selectedDesignation.value.first["DisplayName"]
+                : "",
+        otp: _otpController.text.trim(),
       );
     } else {
       _channelPartnerCubit.addChannelPartner(
         context: context,
         channelPartnerId: 0,
-        name: _nameC.text,
-        emailId: _emailC.text,
-        mobileNumber: _mobileNumberC.text,
-        panCardNumber: _panNumberC.text,
-        aadharCardNumber: _aadhaarNumberC.text,
+        name: _nameC.text.trim(),
+        emailId: _emailC.text.trim(),
+        mobileNumber: _mobileNumberC.text.trim(),
+        alternativeMobileNumber: _alternateMobileNumberC.text.trim(),
+        panCardNumber: _panNumberC.text.trim(),
+        aadharCardNumber: _aadhaarNumberC.text.trim(),
+        gstNumber: _gstNumberC.text.trim(),
         speciality: selectedSpeciality["DisplayName"],
-        officeAddress: _officeAddressC.text,
+        officeAddress: _officeAddressC.text.trim(),
         panCardURL: selectedPANForPopUpFile,
         aadharCardURL: selectedAadhaarForPopUpFile,
         selectedCountryNameId: 1,
         selectedStateId: selectedState!["zAttributesId"],
         selectedDistrictId: selectedDistrict!["zAttributesId"],
         selectedCityId: selectedCity!["zAttributesId"],
-        reraNumber: _reraNumberC.text,
-        companyName: _companyNameC.text,
+        selectedVillageId: selectedVillage!["zAttributesId"],
+        reraNumber: _reraNumberC.text.trim(),
+        companyName: _companyNameC.text.trim(),
+        firmsType: selectedFirmsType.value["DisplayName"],
+        type: selectedType["DisplayName"],
+        designation:
+            selectedDesignation.value.isNotEmpty
+                ? selectedDesignation.value.first["DisplayName"]
+                : "",
+        otp: _otpController.text.trim(),
+        gstCertificateURL: selectedGSTCertificateForPopUpFile,
       );
     }
+  }
+
+  // RESET FIELDS RELATED TO COMPANY SELECTION
+  void _resetCompanyFields() {
+    selectedCompany.value = [];
+    _companyNameC.clear();
+    selectedFirmsType.value = firmsType[0];
+    hasReraNumber.value = false;
+    _reraNumberC.clear();
   }
 
   @override
@@ -418,8 +548,11 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Basic Details", style: AppTextStyle.ts14M()),
-                    const SizedBox(height: 6.0),
+                    Text(
+                      "Basic Details",
+                      style: AppTextStyle.ts14M(color: AppColor.grey),
+                    ),
+                    verticalSpacing(),
                     CustomTextField(
                       title: 'Full Name',
                       isRequired: true,
@@ -436,25 +569,16 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     CustomTextField(
                       title: 'Email Id',
                       textController: _emailC,
-                      isRequired: true,
-                      hint: "Enter Email Id",
+                      hint: "Enter Valid E-mail Id",
                       inputFormatterList: InputValidator.emailInputFormatters(),
                       keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value == "") {
-                          return "Email id is required";
-                        }
-                        if (!InputValidator.isValidEmail(value)) {
-                          return "Invalid email id";
-                        }
-                        return null;
-                      },
                     ),
                     CustomTextField(
                       title: 'Mobile Number',
                       isRequired: true,
                       hint: "Enter Mobile Number",
                       textController: _mobileNumberC,
+                      keyboardType: TextInputType.phone,
                       validator: (value) {
                         if (value == null || value == "") {
                           return "Mobile number is required";
@@ -487,6 +611,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       title: 'Alternate Mobile Number',
                       hint: "Enter Alternate Mobile Number",
                       textController: _alternateMobileNumberC,
+                      keyboardType: TextInputType.phone,
                       inputFormatterList: InputValidator.digit(10),
                       prefixWidget: IntrinsicHeight(
                         child: Row(
@@ -511,8 +636,11 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       initialValue: selectedCompanyType.value,
                       dataList: companyTypeList,
                       onSelected: (value) {
-                        _companyNameC.clear();
-                        selectedCompanyType.value = value;
+                        if (selectedCompanyType.value['zAttributesId'] !=
+                            value['zAttributesId']) {
+                          selectedCompanyType.value = value;
+                          _resetCompanyFields();
+                        }
                       },
                     ),
                     ValueListenableBuilder(
@@ -529,29 +657,34 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 title: "Company",
                                 isRequired: true,
                                 isMultiSelect: false,
-                                initialValue: selectedCompany,
-                                dataFetchCallBack: _fetchCompanyList,
-                                onSelected: (selectedValue) {
-                                  setState(() {
-                                    selectedCompany = selectedValue;
-
-                                    if (selectedValue.isNotEmpty) {
-                                      final company = selectedValue.first;
-                                      _companyNameC.text =
-                                          company['DisplayName'] ?? '';
-                                      if (company.containsKey('FirmsType')) {
-                                        selectedFirmsType = firmsType
-                                            .firstWhere(
-                                              (e) =>
-                                                  e['DisplayName'] ==
-                                                  company['FirmsType'],
-                                              orElse: () => firmsType[0],
-                                            );
-                                      }
-                                    }
-                                  });
+                                initialValue: selectedCompany.value,
+                                dataFetchCallBack: _fetchChannelPartnerList,
+                                onClear: () {
+                                  selectedCompany.value = [];
+                                  _companyNameC.clear();
+                                  selectedFirmsType.value = firmsType[0];
+                                  hasReraNumber.value = false;
+                                  _reraNumberC.clear();
                                 },
+                                onSelected: (selectedValue) {
+                                  selectedCompany.value = selectedValue;
 
+                                  if (selectedValue.isNotEmpty) {
+                                    final company = selectedValue.first;
+
+                                    _companyNameC.text =
+                                        company['DisplayName'] ?? '';
+
+                                    final int channelPartnerId =
+                                        company['zAttributesId'] ?? 0;
+
+                                    if (channelPartnerId != 0) {
+                                      _pullChannelPartnerMaster(
+                                        channelPartnerId,
+                                      );
+                                    }
+                                  }
+                                },
                                 validator: (selectedValue) {
                                   if (selectedValue == null ||
                                       selectedValue.isEmpty) {
@@ -588,18 +721,42 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 },
                               ),
                             ],
-                            if (typeId == 1 || typeId == 2) ...[
-                              CustomDropDownWidget(
-                                title: "Firms Type",
-                                isRequired: true,
-                                dataList: firmsType,
-                                initialValue: selectedFirmsType,
-                                onSelected: (value) {
-                                  if (typeId == 1) {
-                                    setState(() {
-                                      selectedFirmsType = value;
-                                    });
-                                  }
+                            if (typeId == 1) ...[
+                              ValueListenableBuilder(
+                                valueListenable: selectedFirmsType,
+                                builder: (context, firmsValue, _) {
+                                  return CustomDropDownWidget(
+                                    title: "Firms Type",
+                                    isRequired: true,
+                                    dataList: firmsType,
+                                    initialValue: firmsValue,
+                                    onSelected: (value) {
+                                      selectedFirmsType.value = value;
+                                    },
+                                    validator: (value) {
+                                      if (value == null ||
+                                          value['zAttributesId'] == -1) {
+                                        return "Firms Type is required";
+                                      }
+                                      return null;
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+
+                            if (typeId == 2) ...[
+                              ValueListenableBuilder(
+                                valueListenable: selectedFirmsType,
+                                builder: (context, firmsValue, _) {
+                                  return CustomTextField(
+                                    title: "Firms Type",
+                                    isRequired: true,
+                                    readOnly: true,
+                                    textController: TextEditingController(
+                                      text: firmsValue['DisplayName'],
+                                    ),
+                                  );
                                 },
                               ),
                             ],
@@ -609,94 +766,36 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     ),
                     CustomMultipleSelectPopup(
                       title: "Designation",
-                      isRequired: false,
+                      isRequired: true,
                       isMultiSelect: false,
-                      initialValue: selectedDesignation,
+
+                      initialValue: selectedDesignation.value,
                       dataFetchCallBack: _fetchDesignationList,
                       onSelected: (selectedValue) {
-                        setState(() {
-                          selectedDesignation = selectedValue;
-                        });
+                        selectedDesignation.value = selectedValue;
                       },
-                    ),
-                    CustomDropDownWidget(
-                      title: "Type",
-                      isRequired: false,
-                      dataList: type,
-                      initialValue: selectedType,
-                      onSelected: (value) {
-                        setState(() {
-                          selectedType = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10.0),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Checkbox(
-                          value: hasReraNumber,
-                          onChanged: (value) {
-                            setState(() {
-                              hasReraNumber = value ?? false;
-
-                              if (!hasReraNumber) {
-                                _reraNumberC.clear();
-                              }
-                            });
-                          },
-                        ),
-                        Text(
-                          "Do you have RERA Number",
-                          style: AppTextStyle.ts14M(),
-                        ),
-                      ],
-                    ),
-                    Divider(
-                      thickness: 0.2,
-                      color: AppColor.black.withValues(alpha: 0.50),
-                    ),
-                    const SizedBox(height: 6.0),
-                    CustomTextField(
-                      title: 'RERA Number',
-                      isRequired: hasReraNumber,
-                      readOnly: !hasReraNumber,
-                      textController: _reraNumberC,
-                      inputFormatterList: InputValidator.reraInputFormatters(),
                       validator: (value) {
-                        if (hasReraNumber) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "RERA Number is required";
-                          }
+                        if (value == null || value.isEmpty) {
+                          return "Designation is required";
                         }
                         return null;
                       },
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10.0),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Speciality", style: AppTextStyle.ts14M()),
-                    Divider(
-                      thickness: 0.2,
-                      color: AppColor.black.withValues(alpha: 0.50),
+                    CustomDropDownWidget(
+                      title: "Type",
+                      isRequired: true,
+                      dataList: type,
+                      initialValue: selectedType,
+                      onSelected: (value) {
+                        selectedType = value;
+                      },
+                      validator: (value) {
+                        if (value == null || value["zAttributesId"] == -1) {
+                          return "Type is required";
+                        }
+                        return null;
+                      },
                     ),
-                    const SizedBox(height: 6.0),
                     CustomDropDownWidget(
                       title: "Speciality",
                       isRequired: true,
@@ -712,6 +811,88 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         return null;
                       },
                     ),
+                    ValueListenableBuilder(
+                      valueListenable: selectedCompanyType,
+                      builder: (context, value, child) {
+                        final int typeId = value['zAttributesId'];
+                        final bool isDisabled = typeId == 2;
+
+                        return ValueListenableBuilder(
+                          valueListenable: hasReraNumber,
+                          builder: (context, hasRera, _) {
+                            // ✅ AUTO CHECK IF RERA VALUE EXISTS
+                            if (_reraNumberC.text.trim().isNotEmpty &&
+                                !hasReraNumber.value) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                hasReraNumber.value = true;
+                              });
+                            }
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: Checkbox(
+                                        value:
+                                            isDisabled
+                                                ? _reraNumberC.text
+                                                    .trim()
+                                                    .isNotEmpty
+                                                : hasRera,
+                                        onChanged:
+                                            isDisabled
+                                                ? null
+                                                : (value) {
+                                                  hasReraNumber.value =
+                                                      value ?? false;
+
+                                                  if (!hasReraNumber.value) {
+                                                    _reraNumberC.clear();
+                                                  }
+                                                },
+                                      ),
+                                    ),
+                                    horizontalSpacing(width: 2),
+                                    Text(
+                                      "Do you have RERA Number",
+                                      style: AppTextStyle.ts14M().copyWith(
+                                        color:
+                                            isDisabled
+                                                ? Colors.grey
+                                                : Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                verticalSpacing(),
+                                CustomTextField(
+                                  title: 'RERA Number',
+                                  isRequired: !isDisabled && hasRera,
+                                  readOnly: isDisabled || !hasRera,
+                                  hint: "Enter RERA Number",
+                                  textController: _reraNumberC,
+                                  inputFormatterList:
+                                      InputValidator.reraInputFormatters(),
+                                  validator: (value) {
+                                    if (!isDisabled && hasRera) {
+                                      if (value == null ||
+                                          value.trim().isEmpty) {
+                                        return "RERA Number is required";
+                                      }
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -722,58 +903,22 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Document Details", style: AppTextStyle.ts14M()),
-                    Divider(
-                      thickness: 0.2,
-                      color: AppColor.black.withValues(alpha: 0.50),
+                    Text(
+                      "Document Details",
+                      style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
-                    const SizedBox(height: 6.0),
-                    CustomTextField(
-                      title: 'PAN Number',
-                      isRequired: true,
-                      hint: "Enter PAN Number",
-                      textController: _panNumberC,
-                      inputFormatterList: InputValidator.panInputFormatters(),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "PAN Number is required";
-                        }
-                        if (value.trim().isNotEmpty &&
-                            !InputValidator.isValidPAN(value)) {
-                          return "Invalid PAN Number";
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomMultiFilePicker(
-                      title: "Upload Pan Number",
-                      initialFileList: selectedPANForPopUpFile.fileNameList,
-                      onFilePickedCallback: (bytesList, fileNameList) {
-                        selectedPANForPopUpFile.fileNameList = fileNameList;
-                        selectedPANForPopUpFile.fileBytesList = bytesList;
-                      },
-                      onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deletedFile,
-                      ) {
-                        selectedPANForPopUpFile.fileNameList = fileNameList;
-                        selectedPANForPopUpFile.fileBytesList = fileBytesList;
-                        selectedPANForPopUpFile.deletedFileList = deletedFile;
-                      },
-                    ),
+                    verticalSpacing(),
                     CustomTextField(
                       title: 'Aadhaar Card Number',
-                      isRequired: true,
                       hint: "Enter Aadhaar Card Number",
                       textController: _aadhaarNumberC,
+                      keyboardType: TextInputType.number,
                       inputFormatterList:
                           InputValidator.aadharNumberInputFormatter(),
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Aadhaar Number is required";
-                        }
-                        if (!InputValidator.isValidAadharNumber(value)) {
+                        if (value != null &&
+                            value.trim().isNotEmpty &&
+                            !InputValidator.isValidAadharNumber(value)) {
                           return "Invalid Aadhaar Number";
                         }
                         return null;
@@ -797,12 +942,102 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         selectedAadhaarForPopUpFile.deletedFileList =
                             deletedFile;
                       },
+                      validator: (fileList) {
+                        if (_aadhaarNumberC.text.isNotEmpty &&
+                            _aadhaarNumberC.text.trim().length == 12 &&
+                            (fileList == null || fileList.isEmpty)) {
+                          return "Aadhaar Card is required";
+                        }
+                        return null;
+                      },
                     ),
-
+                    CustomTextField(
+                      title: 'PAN Number',
+                      hint: "Enter PAN Number",
+                      textController: _panNumberC,
+                      inputFormatterList: InputValidator.panInputFormatters(),
+                      validator: (value) {
+                        if (value != null &&
+                            value.trim().isNotEmpty &&
+                            !InputValidator.isValidPAN(value)) {
+                          return "Invalid PAN Number";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomMultiFilePicker(
+                      title: "Upload Pan Number",
+                      initialFileList: selectedPANForPopUpFile.fileNameList,
+                      onFilePickedCallback: (bytesList, fileNameList) {
+                        selectedPANForPopUpFile.fileNameList = fileNameList;
+                        selectedPANForPopUpFile.fileBytesList = bytesList;
+                      },
+                      onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deletedFile,
+                      ) {
+                        selectedPANForPopUpFile.fileNameList = fileNameList;
+                        selectedPANForPopUpFile.fileBytesList = fileBytesList;
+                        selectedPANForPopUpFile.deletedFileList = deletedFile;
+                      },
+                      validator: (fileList) {
+                        if (_panNumberC.text.isNotEmpty &&
+                            InputValidator.isValidPAN(
+                              _panNumberC.text.trim(),
+                            ) &&
+                            (fileList == null || fileList.isEmpty)) {
+                          return "PAN Card is required";
+                        }
+                        return null;
+                      },
+                    ),
                     CustomTextField(
                       title: 'GST Number',
+                      hint: "Enter GST Number",
                       textController: _gstNumberC,
                       inputFormatterList: InputValidator.gstInputFormatters(),
+                      validator: (value) {
+                        if (value != null &&
+                            value.trim().isNotEmpty &&
+                            !InputValidator.isValidGST(value)) {
+                          return "Invalid GST Number";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomMultiFilePicker(
+                      title: "Upload GST Certificate",
+                      initialFileList:
+                          selectedGSTCertificateForPopUpFile.fileNameList,
+                      onFilePickedCallback: (bytesList, fileNameList) {
+                        selectedGSTCertificateForPopUpFile.fileNameList =
+                            fileNameList;
+                        selectedGSTCertificateForPopUpFile.fileBytesList =
+                            bytesList;
+                      },
+                      onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deletedFile,
+                      ) {
+                        selectedGSTCertificateForPopUpFile.fileNameList =
+                            fileNameList;
+                        selectedGSTCertificateForPopUpFile.fileBytesList =
+                            fileBytesList;
+                        selectedGSTCertificateForPopUpFile.deletedFileList =
+                            deletedFile;
+                      },
+                      validator: (value) {
+                        if (_gstNumberC.text.isNotEmpty &&
+                            InputValidator.isValidGST(
+                              _gstNumberC.text.trim(),
+                            ) &&
+                            (value == null || value.isEmpty)) {
+                          return "GST Certificate is required";
+                        }
+                        return null;
+                      },
                     ),
                   ],
                 ),
@@ -814,12 +1049,11 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Address Details", style: AppTextStyle.ts14M()),
-                    Divider(
-                      thickness: 0.2,
-                      color: AppColor.black.withValues(alpha: 0.50),
+                    Text(
+                      "Address Details",
+                      style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
-                    const SizedBox(height: 6.0),
+                    verticalSpacing(),
                     AddressWidget(
                       formKey: _formKey,
                       incomingStateId:
@@ -827,6 +1061,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       incomingDistrictId:
                           widget.channelPartnerModel?.districtMasterId,
                       incomingCityId: widget.channelPartnerModel?.cityMasterId,
+                      incomingVillageId:
+                          widget.channelPartnerModel?.villageMasterId,
                       stateChange: (selectedState) {
                         this.selectedState = selectedState;
                       },
@@ -835,6 +1071,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       },
                       cityChange: (selectedCity) {
                         this.selectedCity = selectedCity;
+                      },
+                      villageChange: (selectedVillage) {
+                        this.selectedVillage = selectedVillage;
                       },
                     ),
                     CustomTextField(
@@ -870,7 +1109,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
               color: AppColor.white,
             ),
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _verifyAndSubmitForm,
           ),
         ),
       ),

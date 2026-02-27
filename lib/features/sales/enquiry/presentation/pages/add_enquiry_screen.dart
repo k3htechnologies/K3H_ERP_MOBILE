@@ -215,16 +215,16 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
   final List<Map<String, dynamic>> stageTypeList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Stage'},
-    {'zAttributesId': 1, 'DisplayName': 'Site Visit'},
-    {'zAttributesId': 2, 'DisplayName': 'Re-Visit Proposed'},
-    {'zAttributesId': 3, 'DisplayName': 'Re-Visit Scheduled'},
+    {'zAttributesId': 1, 'DisplayName': 'Booking Done'},
+    {'zAttributesId': 2, 'DisplayName': 'Blocked'},
+    {'zAttributesId': 3, 'DisplayName': 'Cancelled'},
     {'zAttributesId': 4, 'DisplayName': 'Negotiation'},
-    {'zAttributesId': 5, 'DisplayName': 'Unit Selection / Blocked'},
-    {'zAttributesId': 6, 'DisplayName': 'Blocked'},
-    {'zAttributesId': 7, 'DisplayName': 'Booking Done'},
-    {'zAttributesId': 8, 'DisplayName': 'Retention'},
-    {'zAttributesId': 9, 'DisplayName': 'Lost'},
-    {'zAttributesId': 10, 'DisplayName': 'Cancelled'},
+    {'zAttributesId': 5, 'DisplayName': 'Lost'},
+    {'zAttributesId': 6, 'DisplayName': 'Retention'},
+    {'zAttributesId': 7, 'DisplayName': 'Re-Visit Scheduled'},
+    {'zAttributesId': 8, 'DisplayName': 'Re-Visit Proposed'},
+    {'zAttributesId': 9, 'DisplayName': 'Site Visit'},
+    {'zAttributesId': 10, 'DisplayName': 'Unit Selection / Blocked'},
   ];
 
   final List<Map<String, dynamic>> channelPartnerActivityList = [

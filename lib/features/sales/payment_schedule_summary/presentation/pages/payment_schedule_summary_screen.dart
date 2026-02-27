@@ -1,4 +1,3 @@
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -92,12 +91,14 @@ class _PaymentScheduleSummaryScreenState
     if (_mainTabController.indexIsChanging) return;
 
     final state = _paymentScheduleSummaryCubit.state;
+    // IF BUILDING OR WING IS NOT SELECTED, DO NOT FETCH DATA
+    if (state.selectedBuilding == null || state.selectedWing == null) return;
 
     final rate = int.tryParse(_ratePerSqFt.text.trim()) ?? 0;
 
     Map<String, dynamic> queryParams = {
       "Wing": state.selectedWing,
-      "BuildingId": state.selectedBuilding?.buildingId,
+      "BuildingId": state.selectedBuilding?.inventoryBuildingId,
       "Rate": rate,
       "PaymentScheduleMasterId": 0,
       "FlatConfiguration": state.selectedFlatConfiguration,
@@ -136,12 +137,15 @@ class _PaymentScheduleSummaryScreenState
         authorization: AuthorizationModel(),
         onProjectChangeCallback: (val) {
           final state = _paymentScheduleSummaryCubit.state;
-
+          // IF BUILDING OR WING IS NOT SELECTED, DO NOT FETCH DATA
+          if (state.selectedBuilding == null || state.selectedWing == null) {
+            return;
+          }
           final rate = int.tryParse(_ratePerSqFt.text.trim()) ?? 0;
 
           Map<String, dynamic> queryParams = {
             "Wing": state.selectedWing,
-            "BuildingId": state.selectedBuilding?.buildingId,
+            "BuildingId": state.selectedBuilding?.inventoryBuildingId,
             "Rate": rate,
             "PaymentScheduleMasterId": 0,
             "FlatConfiguration": state.selectedFlatConfiguration,
@@ -444,7 +448,7 @@ class _PaymentScheduleSummaryScreenState
                         state.buildingList
                             .map(
                               (e) => {
-                                "zAttributesId": e.buildingId,
+                                "zAttributesId": e.inventoryBuildingId,
                                 "DisplayName": e.buildingNumber,
                               },
                             )
@@ -454,7 +458,7 @@ class _PaymentScheduleSummaryScreenState
                         .firstWhereOrNull(
                           (e) =>
                               e["zAttributesId"] ==
-                              state.selectedBuilding?.buildingId,
+                              state.selectedBuilding?.inventoryBuildingId,
                         );
 
                     return CustomDropDownWidget(
@@ -465,7 +469,8 @@ class _PaymentScheduleSummaryScreenState
                       onSelected: (value) {
                         final selectedId = value["zAttributesId"];
 
-                        if (selectedId != state.selectedBuilding?.buildingId) {
+                        if (selectedId !=
+                            state.selectedBuilding?.inventoryBuildingId) {
                           context
                               .read<PaymentScheduleSummaryCubit>()
                               .onBuildingChanged(selectedId);

@@ -13,10 +13,8 @@ class EnquiryState extends BaseState {
   final String selectedNationality;
   final ChannelPartnerModel? channelPartnerModel;
   final List<EnquiryFollowUpModel> enquiryFollowUpList;
-
   final String currentSortColumn;
   final String currentSortDirection;
-
   final DateTime? filterStartDate;
   final DateTime? filterEndDate;
   final String filterSystemCode;
@@ -24,8 +22,6 @@ class EnquiryState extends BaseState {
   final String filterFollowUpDays;
   final String filterRequirement;
   final String filterStage;
-
-  // ✅ ENQUIRY DETAILS ONLY
   final EnquiryModel? currentEnquiryDetails;
   final bool isFetchingEnquiryDetails;
 
@@ -47,8 +43,6 @@ class EnquiryState extends BaseState {
     this.filterFollowUpDays = "",
     this.filterRequirement = "",
     this.filterStage = "",
-
-    // ✅ ENQUIRY DETAILS DEFAULTS
     this.currentEnquiryDetails,
     this.isFetchingEnquiryDetails = false,
   });
@@ -71,8 +65,6 @@ class EnquiryState extends BaseState {
     filterFollowUpDays: "",
     filterRequirement: "",
     filterStage: "",
-
-    // ✅ ENQUIRY DETAILS DEFAULTS
     currentEnquiryDetails: null,
     isFetchingEnquiryDetails: false,
   );
@@ -98,8 +90,6 @@ class EnquiryState extends BaseState {
     String? filterFollowUpDays,
     String? filterRequirement,
     String? filterStage,
-
-    // ✅ ENQUIRY DETAILS IN COPYWITH
     Object? currentEnquiryDetails = _noChange,
     Object? isFetchingEnquiryDetails = _noChange,
   }) {
@@ -133,8 +123,6 @@ class EnquiryState extends BaseState {
       filterFollowUpDays: filterFollowUpDays ?? this.filterFollowUpDays,
       filterRequirement: filterRequirement ?? this.filterRequirement,
       filterStage: filterStage ?? this.filterStage,
-
-      // ✅ ENQUIRY DETAILS
       currentEnquiryDetails:
           currentEnquiryDetails == _noChange
               ? this.currentEnquiryDetails
@@ -165,8 +153,6 @@ class EnquiryState extends BaseState {
     filterFollowUpDays,
     filterRequirement,
     filterStage,
-
-    // ✅ ENQUIRY DETAILS IN PROPS
     currentEnquiryDetails,
     isFetchingEnquiryDetails,
   ];
