@@ -20,7 +20,6 @@ Widget noDataWidget() => Container(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       Image.asset(AppAssets.noDataImage, width: 150.0, height: 150.0),
-      verticalSpacing(),
       Text("No Data Available!", style: AppTextStyle.ts14B()),
     ],
   ),

@@ -1,4 +1,5 @@
 class AppAssets {
+  static const String gifPath = "assets/images";
   static const String pngPath = "assets/images";
   static const String svgPath = "assets/icons";
   static const String sideDrawerIconsPath = "assets/sideDrawer";
@@ -9,8 +10,10 @@ class AppAssets {
   static const String sampleCompanyImage = "$pngPath/sampleCompany.png";
   static const String moreImage = "$pngPath/more.png";
   static const String salesImage = "$pngPath/sales.png";
-  static const String noDataImage = "$pngPath/noData.png";
   static const String successLogo = "$pngPath/success.png";
+
+  // GIF
+  static const String noDataImage = "$gifPath/noData.gif";
 
   //------------------------------------------
   // only used in mobile, desktop ui changed
