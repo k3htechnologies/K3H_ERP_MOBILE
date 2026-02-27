@@ -1,0 +1,54 @@
+import 'package:k3h_erp_app/features/redevelopment/dashboard/data/model/redevelopment_dashboard.model.dart';
+import 'package:k3h_erp_app/service/base_client.dart';
+import 'package:k3h_erp_app/service/exceptions.dart';
+
+abstract interface class RedevelopmentDashboradDatasource {
+  Future<Map<String, dynamic>> apiCallPullRedevelopmentDashboard({
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
+}
+
+class RedevelopmentDashboradDatasourceImpl
+    extends RedevelopmentDashboradDatasource {
+  final BaseClient baseClient = BaseClient();
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullRedevelopmentDashboard({
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullRedevelopmentDashboardUrl({Map<String, dynamic>? queryParams}) {
+      String url =
+          "RedevelopmentDashboard/PullRedevelopmentDashboard?ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullRedevelopmentDashboardUrl(queryParams: queryParams),
+      );
+      final rawData = networkResponse["data"] ?? networkResponse["Data"];
+
+      if (rawData == null) {
+        return {'data': null, 'totalNumberOfRecord': 0};
+      }
+      final RedevelopmentDashboardModel model =
+          RedevelopmentDashboardModel.fromJson(rawData);
+
+      return {
+        'data': model,
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apiCallPullRedevelopmentDashboard(
+          queryParams: queryParams,
+          projectId: projectId,
+        );
+      }
+      rethrow;
+    }
+  }
+}
