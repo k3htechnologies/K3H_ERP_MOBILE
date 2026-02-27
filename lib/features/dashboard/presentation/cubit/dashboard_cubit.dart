@@ -69,6 +69,7 @@ class DashboardCubit extends Cubit<DashboardState> {
   // ADD ATTENDACE
   Future addAttendance(
     BuildContext context, {
+    required int attendanceId,
     required String punchAddress,
     required double startLatitude,
     required double startLongitude,
@@ -80,7 +81,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     DialogHelper.showProcessingOverlay(context);
 
     final Map<String, dynamic> requestBody = {
-      "AttendanceId": 0,
+      "AttendanceId": attendanceId,
       "PunchAddress": punchAddress,
       "StartLatitude": startLatitude,
       "StartLongitude": startLongitude,
@@ -101,7 +102,7 @@ class DashboardCubit extends Cubit<DashboardState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        showSuccessMessage(context, subTitle: "Punched In Successfully");
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -143,7 +144,7 @@ class DashboardCubit extends Cubit<DashboardState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        showSuccessMessage(context, subTitle: "Punched Out Successfully");
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }

@@ -14,19 +14,20 @@ import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
-import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/dashboard.model.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/widget/project_selector_overlay.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/route_map_screen.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -47,9 +48,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // CUBIT
   late DashboardCubit _dashboardCubit;
 
+  // AUTHORIZATION
+  late AuthorizationModel _routeAuthorization;
+
   final ValueNotifier<List<ProjectModel>> _projectListNotifier = ValueNotifier(
     [],
   );
+
+  final ValueNotifier<double> dragPositionNotifier = ValueNotifier(0.0);
+  final ValueNotifier<bool> isPunchedInNotifier = ValueNotifier(false);
 
   final ValueNotifier<bool> _showOverlayNotifier = ValueNotifier(false);
 
@@ -67,6 +74,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
+    _routeAuthorization =
+        Authorization.routeAuthorizationMap[AppRoutes.dashboardScreen]!;
     _dashboardCubit = context.read<DashboardCubit>();
     _loadProjects();
 
@@ -83,8 +92,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void dispose() {
     _showOverlayNotifier.dispose();
-    _timer?.cancel();
+    isPunchedInNotifier.dispose();
+    dragPositionNotifier.dispose();
     workedDuration.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -210,10 +221,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  double dragPosition = 0.0;
   double maxWidth = 0.0;
 
-  bool isPunchedIn = false;
   bool isDraggingRight = true;
 
   StreamSubscription<Position>? positionStream;
@@ -224,52 +233,63 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> punchIn(BuildContext context) async {
     try {
-      // Get HIGH accuracy GPS (not cached)
       Position pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.bestForNavigation,
       );
 
       final address = await _getAddressFromGPS();
+
       startLatLng = LatLng(pos.latitude, pos.longitude);
       routePoints.clear();
       routePoints.add(startLatLng!);
       lastPoint = startLatLng;
       totalDistance = 0.0;
-      await _dashboardCubit.addAttendance(
+
+      // 🔥 KEY LOGIC
+      final int attendanceIdToSend =
+          currentAttendanceId ?? 0; // if exists → update, else → insert
+
+      final result = await _dashboardCubit.addAttendance(
         context,
+        attendanceId: attendanceIdToSend,
         punchAddress: address,
-        startLatitude: pos.latitude, // ✅ REAL LAT
-        startLongitude: pos.longitude, // ✅ REAL LNG
+        startLatitude: pos.latitude,
+        startLongitude: pos.longitude,
         endLatitude: 0,
         endLongitude: 0,
         polyline: "",
         distance: 0,
       );
-      setState(() {
-        isPunchedIn = true;
-        dragPosition = maxWidth;
-      });
-      // Start live GPS tracking AFTER successful punch in
-      _startLocationTracking();
+
+      if (result != null) {
+        currentAttendanceId = result['AttendanceId'];
+        currentUniquekey = result['Uniquekey'];
+
+        // setState(() {
+        //   isPunchedInNotifier.value = true;
+        //   dragPositionNotifier.value = maxWidth;
+        // });
+
+        // _startLocationTracking();
+      }
     } catch (e) {
       debugPrint("Punch In GPS Error: $e");
     }
   }
 
   void _handleDragEnd() async {
-    if (!isPunchedIn && dragPosition > maxWidth * 0.75) {
+    if (!isPunchedInNotifier.value &&
+        dragPositionNotifier.value > maxWidth * 0.75) {
       // // PUNCH IN
       await punchIn(context);
 
-      // isPunchedIn = true;
-      dragPosition = maxWidth;
-    } else if (isPunchedIn && dragPosition < maxWidth * 0.25) {
+      dragPositionNotifier.value = maxWidth;
+    } else if (isPunchedInNotifier.value &&
+        dragPositionNotifier.value < maxWidth * 0.25) {
       final address = await _getAddressFromGPS();
 
-      // 🔥 Stop GPS tracking FIRST
       await positionStream?.cancel();
 
-      // Get latest GPS as end point
       final currentPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.bestForNavigation,
       );
@@ -278,8 +298,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         currentPosition.latitude,
         currentPosition.longitude,
       );
-
-      // 🔥 GUARANTEE minimum 2 points (VERY IMPORTANT)
       if (routePoints.isEmpty && startLatLng != null) {
         routePoints.add(startLatLng!);
       }
@@ -289,20 +307,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
       } else {
         routePoints.add(endPoint);
       }
-      // 🔥 ENTERPRISE SAFETY: restore start if lost
       if (startLatLng == null && routePoints.isNotEmpty) {
         startLatLng = routePoints.first;
       }
-
-      // Ensure minimum valid trip
       if (routePoints.length < 2) {
         debugPrint("Not enough GPS points to calculate route");
       }
-      // 🔥 FINAL DISTANCE (KM)
       final finalDistance =
           routePoints.length > 1 ? _calculateDistance(routePoints) : 0.0;
 
-      // 🔥 FINAL POLYLINE (THIS WAS MISSING PROPERLY)
       final finalPolyline =
           routePoints.length > 1 ? PolylineEncoder.encode(routePoints) : "";
 
@@ -329,12 +342,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       await _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
 
-      dragPosition = 0;
+      dragPositionNotifier.value = 0;
     } else {
-      dragPosition = isPunchedIn ? maxWidth : 0;
+      dragPositionNotifier.value = isPunchedInNotifier.value ? maxWidth : 0;
     }
 
-    setState(() {});
+    //  setState(() {});
   }
 
   double _calculateDistance(List<LatLng> points) {
@@ -378,7 +391,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           return;
         }
 
-        // fallback
         startLatLng = currentPoint;
         routePoints.add(currentPoint);
         lastPoint = currentPoint;
@@ -446,8 +458,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         currentAttendanceId = record.attendanceId;
         currentUniquekey = record.uniquekey;
         if (record.punchOut == null) {
-          isPunchedIn = true;
-          dragPosition = maxWidth;
+          isPunchedInNotifier.value = true;
+          dragPositionNotifier.value = maxWidth;
           _startTimerFrom(record.punchIn!);
           if (startLatLng == null &&
               record.startLatitude != 0 &&
@@ -464,12 +476,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           }
         } else {
           _timer?.cancel();
-          isPunchedIn = false;
-          dragPosition = 0;
+          isPunchedInNotifier.value = false;
+          dragPositionNotifier.value = 0;
           workedDuration.value = record.punchOut!.difference(record.punchIn!);
         }
-
-        setState(() {});
+        isPunchedInNotifier.value = record.punchOut == null;
+        dragPositionNotifier.value = record.punchOut == null ? maxWidth : 0;
       },
       child: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
@@ -477,48 +489,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             return Center(child: loader());
           }
           return Scaffold(
-            appBar: AppBar(
-              centerTitle: false,
-              leading: IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () {
-                  mobileScreenGlobalScaffoldKey.currentState?.openDrawer();
-                },
-              ),
-              title: const Text("Dashboard"),
-              actions: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        DialogHelper.showProcessingOverlay(context);
-                      },
-                      icon: SvgPicture.asset(
-                        AppAssets.dashboardNotificationIcon,
-                        height: 32,
-                        width: 32,
-                      ),
-                    ),
-                  ],
-                ),
-                ValueListenableBuilder<List<ProjectModel>>(
-                  valueListenable: _projectListNotifier,
-                  builder: (context, projects, _) {
-                    if (projects.isEmpty) return const SizedBox.shrink();
-                    return IconButton(
-                      onPressed: () {
-                        _showOverlayNotifier.value = true;
-                      },
-                      icon: SvgPicture.asset(
-                        AppAssets.projectIcon,
-                        height: 32,
-                        width: 32,
-                      ),
-                    );
-                  },
-                ),
-              ],
+            appBar: CustomAppBarWithBackButton(
+              screenTitle: "Dashboard",
+              isMenuButton: true,
+              authorization: _routeAuthorization,
+              onProjectChangeCallback: (_) {
+                _showOverlayNotifier.value = true;
+              },
+              showNotification: true,
             ),
             body: Stack(
               children: [
@@ -661,57 +639,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 },
               ),
             ),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                maxWidth = constraints.maxWidth - 42;
+            ValueListenableBuilder2<bool, double>(
+              first: isPunchedInNotifier,
+              second: dragPositionNotifier,
+              builder: (context, isPunchedIn, dragPosition, _) {
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    maxWidth = constraints.maxWidth - 42;
 
-                return Container(
-                  margin: EdgeInsets.symmetric(vertical: 24.0),
-                  height: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: AppColor.primary.withValues(alpha: 0.16),
-                  ),
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: Text(
-                          isPunchedIn
-                              ? "Swipe to Punch Out"
-                              : "Swipe to Punch In",
-                          style: AppTextStyle.ts12M(),
-                        ),
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 24.0),
+                      height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: AppColor.primary.withValues(alpha: 0.16),
                       ),
-                      AnimatedPositioned(
-                        duration: const Duration(milliseconds: 200),
-                        left: dragPosition,
-                        top: 0,
-                        bottom: 0,
-                        child: GestureDetector(
-                          onHorizontalDragUpdate: (details) {
-                            setState(() {
-                              dragPosition += details.delta.dx;
-                              dragPosition = dragPosition.clamp(0, maxWidth);
-                            });
-                          },
-                          onHorizontalDragEnd: (_) => _handleDragEnd(),
-                          child: Container(
-                            width: 42,
-                            decoration: BoxDecoration(
-                              color: AppColor.primary,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: Text(
                               isPunchedIn
-                                  ? Icons.arrow_back_ios_new_outlined
-                                  : Icons.arrow_forward_ios_outlined,
-                              color: Colors.white,
+                                  ? "Swipe to Punch Out"
+                                  : "Swipe to Punch In",
+                              style: AppTextStyle.ts12M(),
                             ),
                           ),
-                        ),
+                          AnimatedPositioned(
+                            duration: const Duration(milliseconds: 200),
+                            left: dragPosition,
+                            top: 0,
+                            bottom: 0,
+                            child: GestureDetector(
+                              onHorizontalDragUpdate: (details) {
+                                double newPos =
+                                    dragPositionNotifier.value +
+                                    details.delta.dx;
+                                newPos = newPos.clamp(0, maxWidth);
+                                dragPositionNotifier.value = newPos;
+                              },
+                              onHorizontalDragEnd: (_) => _handleDragEnd(),
+                              child: Container(
+                                width: 42,
+                                decoration: BoxDecoration(
+                                  color: AppColor.primary,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  isPunchedIn
+                                      ? Icons.arrow_back_ios_new_outlined
+                                      : Icons.arrow_forward_ios_outlined,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 );
               },
             ),
@@ -2142,14 +2127,12 @@ class RadialPainter extends CustomPainter {
           ..strokeWidth = stroke
           ..strokeCap = StrokeCap.round;
 
-    // Total degrees available after gaps
     final usable = 360 - (gapDegrees * 3);
 
     final presentSweep = (present / total) * usable;
     final absentSweep = (absent / total) * usable;
     final leaveSweep = (leave / total) * usable;
 
-    // ⭐ KEY: center PRESENT arc at top
     double start = -90 - (presentSweep / 2);
 
     void draw(Color color, double sweep) {
@@ -2167,4 +2150,32 @@ class RadialPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+class ValueListenableBuilder2<A, B> extends StatelessWidget {
+  final ValueNotifier<A> first;
+  final ValueNotifier<B> second;
+  final Widget Function(BuildContext, A, B, Widget?) builder;
+
+  const ValueListenableBuilder2({
+    super.key,
+    required this.first,
+    required this.second,
+    required this.builder,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<A>(
+      valueListenable: first,
+      builder: (context, a, _) {
+        return ValueListenableBuilder<B>(
+          valueListenable: second,
+          builder: (context, b, __) {
+            return builder(context, a, b, null);
+          },
+        );
+      },
+    );
+  }
 }

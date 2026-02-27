@@ -240,7 +240,8 @@ import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/a
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_view_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/edit_building_details_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/dashboard/pages/redevelopment_dashboard_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/dashboard/presentation/cubit/redevlopment_dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/redevelopment/dashboard/presentation/pages/redevelopment_dashboard_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_secondary_screen.dart';
@@ -1993,17 +1994,27 @@ final GoRouter goRouter = GoRouter(
           ],
         ),
         // REDEVELOPMENT DASHBOARD
-        GoRoute(
-          name: AppRoutes.redevelopmentDashboard,
-          path: AppRoutes.redevelopmentDashboard,
-          builder: (context, state) => const RedevelopmentDashboardScreen(),
-        ),
+
         // BUILDING
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(create: (_) => BuildingCubit(), child: child);
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (_) => RedevlopmentDashboardCubit(),
+                  child: child,
+                ),
+                BlocProvider(create: (_) => BuildingCubit(), child: child),
+              ],
+              child: child,
+            );
           },
           routes: [
+            GoRoute(
+              name: AppRoutes.redevelopmentDashboard,
+              path: AppRoutes.redevelopmentDashboard,
+              builder: (context, state) => const RedevelopmentDashboardScreen(),
+            ),
             GoRoute(
               name: AppRoutes.building,
               path: AppRoutes.building,
