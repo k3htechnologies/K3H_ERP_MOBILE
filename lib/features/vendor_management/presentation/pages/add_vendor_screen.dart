@@ -397,7 +397,11 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: Icon(widget.vendor!=null?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
+            leading: Icon(
+              widget.vendor != null ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
             text: widget.vendor == null ? 'Add Vendor' : 'Update Vendor',
             onPressed: _handleSubmit,
             backgroundColor: AppColor.primary,
@@ -537,7 +541,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
         children: [
           _buildSectionHeader('Government Identifiers'),
           CustomTextField(
-            inputFormatterList: InputValidator.aadharNumberInputFormatter(),
+            inputFormatterList: InputValidator.aadhaarNumberInputFormatter(),
             textController: aadhaarC,
             title: "Aadhaar Card Number",
             hint: "Enter Aadhaar Card Number",

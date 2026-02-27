@@ -13,6 +13,8 @@ import 'package:k3h_erp_app/widgets/file_preview_dialog_content.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:file_picker/file_picker.dart';
 
+enum FilePickType { image, document, both }
+
 class CustomMultiFilePicker extends StatefulWidget {
   // DEFINING REQUIRED AND OPTIONAL PARAMETERS
   final Function(List<Uint8List>, List<String>) onFilePickedCallback;
@@ -22,6 +24,7 @@ class CustomMultiFilePicker extends StatefulWidget {
   final int maxFiles;
   final bool readOnly;
   final List<String>? initialFileList;
+  final FilePickType filePickType;
   final Function(
     List<Uint8List> fileBytesList,
     List<String> fileNameList,
@@ -44,6 +47,7 @@ class CustomMultiFilePicker extends StatefulWidget {
     this.onFileDeleteCallback,
     this.validator,
     this.actions,
+    this.filePickType = FilePickType.both,
   });
 
   @override
@@ -80,7 +84,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: Icon(Icons.camera_alt,size: 16,),
+                leading: Icon(Icons.camera_alt, size: 16),
                 title: Text("Camera"),
                 onTap: () async {
                   goRouter.pop();
@@ -88,8 +92,8 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.photo_library),
-                title: Text("Gallery"),
+                leading: Icon(Icons.attach_file, size: 16),
+                title: Text("Browse Files"),
                 onTap: () async {
                   goRouter.pop();
                   pickFile(context, formFieldState, portalContext);
@@ -259,10 +263,38 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
     FormFieldState formFieldState,
     BuildContext portalContext,
   ) async {
+    List<String> imageExtensions = ['jpg', 'jpeg', 'png', 'heic', 'heif'];
+
+    List<String> documentExtensions = [
+      'pdf',
+      'doc',
+      'docx',
+      'xls',
+      'xlsx',
+      'txt',
+      'dwg',
+    ];
+
+    List<String> finalExtensions = [];
+
+    switch (widget.filePickType) {
+      case FilePickType.image:
+        finalExtensions = imageExtensions;
+        break;
+
+      case FilePickType.document:
+        finalExtensions = documentExtensions;
+        break;
+
+      case FilePickType.both:
+        finalExtensions = [...imageExtensions, ...documentExtensions];
+        break;
+    }
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       withData: true,
-      type: FileType.any,
+      type: FileType.custom,
+      allowedExtensions: finalExtensions,
     );
     if (result == null || result.files.isEmpty) return;
 
@@ -465,11 +497,12 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                         ),
                       ),
                       hasError
-                          ? Padding(
+                          ? Container(
                             padding: const EdgeInsets.only(
                               left: 12.0,
                               top: 4.0,
                             ),
+                            margin: const EdgeInsets.only(bottom: 10.0),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [

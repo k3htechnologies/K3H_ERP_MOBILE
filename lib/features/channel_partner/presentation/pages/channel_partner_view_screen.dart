@@ -653,9 +653,9 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
         "url": channelPartner.panCardUrl,
       },
       {
-        "title": "Aadhar Card",
-        "number": channelPartner.aadharCardNumber,
-        "url": channelPartner.aadharCardUrl,
+        "title": "Aadhaar Card",
+        "number": channelPartner.aadhaarCardNumber,
+        "url": channelPartner.aadhaarCardUrl,
       },
       {
         "title": "GST Certificate",
@@ -667,8 +667,25 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
     final validDocuments =
         documents.where((doc) => (doc["url"] ?? "").isNotEmpty).toList();
 
-    if (validDocuments.isEmpty) return const SizedBox.shrink();
-
+    if (validDocuments.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.insert_drive_file_outlined,
+              size: 40,
+              color: AppColor.grey,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "No Documents Uploaded",
+              style: AppTextStyle.ts14M(color: AppColor.grey),
+            ),
+          ],
+        ),
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children:
