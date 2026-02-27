@@ -353,12 +353,13 @@ class _HolidayMappingMasterScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "Holiday Mapping",
+        screenTitle: "Holiday Mapping Master",
         authorization: _routeAuthorizationModel,
         onSearchSubmit: (value) {
           _holidayMappingMasterCubit.searchHolidayMapping(value, context);
         },
         textController: _searchC,
+        searchHintText: "Search by Holiday Name",
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addHolidayMappingMaster);
           if (context.mounted) {
@@ -427,24 +428,11 @@ class _HolidayMappingMasterScreenState
                                 },
                               );
                             },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Text(
-                                holidayMapping.holidayName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                            child:  Text(
+                              holidayMapping.holidayName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                             ),
                           ),
                         ),

@@ -4,6 +4,7 @@ import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/data/model/holiday_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/presentation/cubit/holiday_master_cubit.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
@@ -92,7 +93,7 @@ class _AddHolidayMasterScreenState extends State<AddHolidayMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Holiday",
+        screenTitle: "Holiday Master",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
@@ -160,6 +161,7 @@ class _AddHolidayMasterScreenState extends State<AddHolidayMasterScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
+            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
             text: _isEditMode ? "Update Holiday" : "Add Holiday",
             onPressed: _submitForm,
           ),

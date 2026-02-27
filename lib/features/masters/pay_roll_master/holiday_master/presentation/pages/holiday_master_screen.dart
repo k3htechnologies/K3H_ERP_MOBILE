@@ -204,12 +204,13 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "Holidays",
+        screenTitle: "Holiday Master",
         authorization: _routeAuthorizationModel,
         onSearchSubmit: (value) {
           holidayMasterCubit.searchHolidays(value, context);
         },
         textController: _searchC,
+        searchHintText: "Search by Holiday Name",
         onAddCallback: () {
           goRouter.pushNamed(AppRoutes.addHolidayMaster);
         },

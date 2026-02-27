@@ -246,6 +246,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
           _assetMappingMasterCubit.searchAssetMapping(value, context);
         },
         textController: _searchC,
+        searchHintText: "Search by Asset Name",
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addAssetMappingMaster);
           if (context.mounted) {
@@ -313,24 +314,11 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                                 },
                               );
                             },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Text(
-                                assetMapping.assetName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                            child:  Text(
+                              assetMapping.assetName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                             ),
                           ),
                         ),

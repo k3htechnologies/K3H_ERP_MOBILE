@@ -168,7 +168,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Asset",
+        screenTitle: "Asset Master",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(

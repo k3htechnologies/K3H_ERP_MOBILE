@@ -14,7 +14,6 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -96,71 +95,21 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
         screenTitle: "Leave Encashment Master",
         authorization: _routeAuthorizationModel,
         isMenuButton: true,
+        onAddCallback: (){
+          goRouter.pushNamed(AppRoutes.addLeaveEncashmentMaster);
+        },
+        onExportCallback: (value){
+          if(_leaveEncashmentMasterCubit.state.totalNumberOfRecord==0){
+            return showErrorMessage(context, "", "No Data Found");
+          }
+          _leaveEncashmentMasterCubit.exportExcelPdf(
+            context,
+            value,
+          );
+        },
       ),
       body: Column(
         children: [
-          Padding(
-            padding: EdgeInsetsGeometry.symmetric(horizontal: 20, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                CustomIconButton(
-                  icon: Icon(Icons.add, size: 16, color: AppColor.darkGreen),
-                  backgroundColor: AppColor.lightGreen,
-                  onPressed: () {
-                    goRouter.pushNamed(AppRoutes.addLeaveEncashmentMaster);
-                  },
-                ),
-                const SizedBox(width: 10),
-
-                CustomIconButton(
-                  onPressed: () {
-                    final box = context.findRenderObject() as RenderBox;
-                    final position = box.localToGlobal(Offset.zero);
-
-                    CustomOverlayMenu.show(
-                      width: 180,
-                      context: context,
-                      position: Offset(position.dx + 10, position.dy + (120)),
-
-                      items: [
-                        AddImportExportOverlayMenuItem(
-                          icon: Icons.file_download_outlined,
-                          label: 'Export Excel',
-                          value: 'EXCEL',
-                          onTap: (val) {
-                            _leaveEncashmentMasterCubit.exportExcelPdf(
-                              context,
-                              val,
-                            );
-                          },
-                          iconColor: AppColor.primary,
-                        ),
-                        AddImportExportOverlayMenuItem(
-                          icon: Icons.file_download_outlined,
-                          label: 'Export PDF',
-                          value: 'PDF',
-                          onTap: (val) {
-                            _leaveEncashmentMasterCubit.exportExcelPdf(
-                              context,
-                              val,
-                            );
-                          },
-                          iconColor: AppColor.primary,
-                        ),
-                      ],
-                    );
-                  },
-                  icon: Icon(
-                    Icons.file_download,
-                    size: 16,
-                    color: AppColor.primary,
-                  ),
-                  backgroundColor: AppColor.lightBlue,
-                ),
-              ],
-            ),
-          ),
           BlocBuilder<LeaveEncashmentMasterCubit, LeaveEncashmentMasterState>(
             builder: (context, state) {
               if ((state.isLoading ?? true) &&

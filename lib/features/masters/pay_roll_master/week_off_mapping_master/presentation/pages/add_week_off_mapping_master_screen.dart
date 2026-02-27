@@ -141,120 +141,126 @@ class _AddWeekOffMappingMasterScreenState
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBarWithBackButton(
-        screenTitle:
-            _isEditMode ? "Update Week Off Mapping" : "Add Week Off Mapping",
+        screenTitle:"Week Off Mapping Master",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            child: BlocBuilder<
-              WeekOffMappingMasterCubit,
-              WeekOffMappingMasterState
-            >(
-              builder: (context, state) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CustomMultipleSelectPopup(
-                      title: 'Week Off Name',
-                      isRequired: true,
-                      isMultiSelect: false,
-                      initialValue: _selectedWeekOff,
-                      dataList: [],
-                      onSelected: (value) {
-                        _selectedWeekOff = value;
-                      },
-                      dataFetchCallBack:
-                          _weekOffMappingMasterCubit.fetchWeekOff,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Week off Name is required";
-                        }
-                        return null;
-                      },
-                    ),
-                    Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(_isEditMode ? "Update Week Off Mapping" : "Add Week Off Mapping",style: AppTextStyle.ts16SB(),),
+              verticalSpacing(),
+              Container(
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.all(16),
+                child: BlocBuilder<
+                  WeekOffMappingMasterCubit,
+                  WeekOffMappingMasterState
+                >(
+                  builder: (context, state) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Radio<String>(
-                          value: state.options[0],
-                          groupValue: state.selectedOption,
-                          onChanged: (value) {
-                            _weekOffMappingMasterCubit.onSelectedOptionChanged(
-                              value!,
-                            );
+                        CustomMultipleSelectPopup(
+                          title: 'Week Off Name',
+                          isRequired: true,
+                          isMultiSelect: false,
+                          initialValue: _selectedWeekOff,
+                          dataList: [],
+                          onSelected: (value) {
+                            _selectedWeekOff = value;
+                          },
+                          dataFetchCallBack:
+                              _weekOffMappingMasterCubit.fetchWeekOff,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Week off Name is required";
+                            }
+                            return null;
                           },
                         ),
-                        Text("Employee", style: AppTextStyle.ts14R()),
-                        horizontalSpacing(),
-                        Radio<String>(
-                          value: state.options[1],
-                          groupValue: state.selectedOption,
-                          onChanged: (value) {
-                            _weekOffMappingMasterCubit.onSelectedOptionChanged(
-                              value!,
-                            );
-                          },
+                        Row(
+                          children: [
+                            Radio<String>(
+                              value: state.options[0],
+                              groupValue: state.selectedOption,
+                              onChanged: (value) {
+                                _weekOffMappingMasterCubit.onSelectedOptionChanged(
+                                  value!,
+                                );
+                              },
+                            ),
+                            Text("Employee", style: AppTextStyle.ts14R()),
+                            horizontalSpacing(),
+                            Radio<String>(
+                              value: state.options[1],
+                              groupValue: state.selectedOption,
+                              onChanged: (value) {
+                                _weekOffMappingMasterCubit.onSelectedOptionChanged(
+                                  value!,
+                                );
+                              },
+                            ),
+                            Text("Department", style: AppTextStyle.ts14R()),
+                          ],
                         ),
-                        Text("Department", style: AppTextStyle.ts14R()),
-                      ],
-                    ),
-                    verticalSpacing(),
-                    Visibility(
-                      visible: state.selectedOption == state.options[0],
-                      child: CustomMultipleSelectPopup(
-                        title: 'Employee',
-                        isRequired: true,
-                        isMultiSelect: false,
-                        initialValue: _selectedEmployee,
-                        dataList: [],
-                        onSelected: (value) {
-                          _selectedEmployee = value;
-                        },
-                        dataFetchCallBack:
-                            _weekOffMappingMasterCubit.fetchEmployees,
-                        validator: (value) {
-                          if ((state.selectedOption.toLowerCase() ==
-                                  state.options[0].toLowerCase()) &&
-                              (value == null || value.isEmpty)) {
-                            return "Employee is required";
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    Visibility(
-                      visible: state.selectedOption == state.options[1],
+                        verticalSpacing(),
+                        Visibility(
+                          visible: state.selectedOption == state.options[0],
+                          child: CustomMultipleSelectPopup(
+                            title: 'Employee',
+                            isRequired: true,
+                            isMultiSelect: false,
+                            initialValue: _selectedEmployee,
+                            dataList: [],
+                            onSelected: (value) {
+                              _selectedEmployee = value;
+                            },
+                            dataFetchCallBack:
+                                _weekOffMappingMasterCubit.fetchEmployees,
+                            validator: (value) {
+                              if ((state.selectedOption.toLowerCase() ==
+                                      state.options[0].toLowerCase()) &&
+                                  (value == null || value.isEmpty)) {
+                                return "Employee is required";
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        Visibility(
+                          visible: state.selectedOption == state.options[1],
 
-                      child: CustomMultipleSelectPopup(
-                        title: 'Department',
-                        isRequired: true,
-                        isMultiSelect: false,
-                        initialValue: _selectedDepartment,
-                        dataList: [],
-                        onSelected: (value) {
-                          _selectedDepartment = value;
-                        },
-                        dataFetchCallBack:
-                            _weekOffMappingMasterCubit.fetchDepartment,
-                        validator: (value) {
-                          if ((state.selectedOption.toLowerCase() ==
-                                  state.options[1].toLowerCase()) &&
-                              (value == null || value.isEmpty)) {
-                            return "Department is required";
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
+                          child: CustomMultipleSelectPopup(
+                            title: 'Department',
+                            isRequired: true,
+                            isMultiSelect: false,
+                            initialValue: _selectedDepartment,
+                            dataList: [],
+                            onSelected: (value) {
+                              _selectedDepartment = value;
+                            },
+                            dataFetchCallBack:
+                                _weekOffMappingMasterCubit.fetchDepartment,
+                            validator: (value) {
+                              if ((state.selectedOption.toLowerCase() ==
+                                      state.options[1].toLowerCase()) &&
+                                  (value == null || value.isEmpty)) {
+                                return "Department is required";
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -263,6 +269,7 @@ class _AddWeekOffMappingMasterScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
+            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
             text:
                 _isEditMode
                     ? "Update Week Off Mapping"

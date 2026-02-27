@@ -5,12 +5,15 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/data/model/week_off_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_master/presentation/cubit/week_off_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddWeekOffMasterScreen extends StatefulWidget {
   final WeekOffMasterModel? weekOffMasterModel;
@@ -165,198 +168,205 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: _isEditMode ? "Update Week Off" : "Add Week Off",
+        screenTitle: "Week Off Master",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomTextField(
-                  title: "Week Off Name",
-                  textController: _weekOffNameC,
-                  hint: "Enter Week Off Name",
-                  inputFormatterList: [InputValidator.digitAndCharacterOnly()],
-                  keyboardType: TextInputType.text,
-                  isRequired: true,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Week Off Name is reqiured";
-                    }
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(_isEditMode ? "Update Week Off" : "Add Week Off",style: AppTextStyle.ts16SB(),),
+              verticalSpacing(),
+              Container(
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomTextField(
+                      title: "Week Off Name",
+                      textController: _weekOffNameC,
+                      hint: "Enter Week Off Name",
+                      inputFormatterList: [InputValidator.digitAndCharacterOnly()],
+                      keyboardType: TextInputType.text,
+                      isRequired: true,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Week Off Name is reqiured";
+                        }
 
-                    return null;
-                  },
-                ),
-                CustomTextField(
-                  title: "Week Off Code",
-                  textController: _weekOffCodeC,
-                  hint: "Enter Week Off Code",
-                  inputFormatterList: [
-                    UpperCaseTextFormatter(),
-                    LengthLimitingTextInputFormatter(4),
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: "Week Off Code",
+                      textController: _weekOffCodeC,
+                      hint: "Enter Week Off Code",
+                      inputFormatterList: [
+                        UpperCaseTextFormatter(),
+                        LengthLimitingTextInputFormatter(4),
+                      ],
+                      keyboardType: TextInputType.text,
+                      isRequired: true,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Week Off Code is reqiured";
+                        }
+
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: "Week Days",
+                      textController: _weekDaysC,
+                      hint: "Enter Week Days",
+                      inputFormatterList: InputValidator.digit(4),
+                      keyboardType: TextInputType.number,
+                      isRequired: true,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Week Days is reqiured";
+                        }
+
+                        return null;
+                      },
+                    ),
+                    CustomMultipleSelectPopup(
+                      title: 'Week Off',
+                      isRequired: true,
+                      isMultiSelect: false,
+                      initialValue: _selectWeekOff,
+                      onSelected: (value) {
+                        _selectWeekOff = value;
+                      },
+
+                      dataFetchCallBack: (int pageNumber, {String? value}) {
+                        //  Filter based on search value
+                        final filteredList =
+                            value == null || value.isEmpty
+                                ? allDays
+                                : allDays
+                                    .where(
+                                      (day) => day["DisplayName"]
+                                          .toString()
+                                          .toLowerCase()
+                                          .contains(value.toLowerCase()),
+                                    )
+                                    .toList();
+
+                        return Future.value({
+                          "itemList": filteredList,
+                          "totalNumberOfRecord": filteredList.length,
+                        });
+                      },
+                    ),
+
+                    CustomMultipleSelectPopup(
+                      title: 'Week Off2',
+                      isMultiSelect: false,
+                      initialValue: _selectWeekOff2,
+                      onSelected: (value) {
+                        _selectWeekOff2 = value;
+                      },
+
+                      dataFetchCallBack: (int pageNumber, {String? value}) {
+                        //  Filter based on search value
+                        final filteredList =
+                            value == null || value.isEmpty
+                                ? allDays
+                                : allDays
+                                    .where(
+                                      (day) => day["DisplayName"]
+                                          .toString()
+                                          .toLowerCase()
+                                          .contains(value.toLowerCase()),
+                                    )
+                                    .toList();
+
+                        return Future.value({
+                          "itemList": filteredList,
+                          "totalNumberOfRecord": filteredList.length,
+                        });
+                      },
+                    ),
+
+                    CustomTextField(
+                      title: "Weekly Off2 Type",
+                      textController: _weekOff2TypeC,
+                      hint: "Enter Weekly Off2 Type",
+                      inputFormatterList: [
+                        InputValidator.digitAndCharacterOnly(),
+                        LengthLimitingTextInputFormatter(200),
+                      ],
+                      keyboardType: TextInputType.text,
+                    ),
+                    CustomTextField(
+                      title: "Week Days Starts On",
+                      textController: _weekDaysStartsOnC,
+                      isRequired: true,
+                      hint: "Enter Week Days Starts On",
+                      inputFormatterList: [
+                        InputValidator.digitAndCharacterOnly(),
+                        LengthLimitingTextInputFormatter(200),
+                      ],
+                      keyboardType: TextInputType.text,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Week Days Starts On is reqiured";
+                        }
+
+                        return null;
+                      },
+                    ),
+                    CustomMultipleSelectPopup(
+                      title: 'Not Applicable For Months',
+                      isRequired: true,
+                      isMultiSelect: true,
+                      initialValue:
+                          _selectNotApplicableForMonth.isEmpty
+                              ? []
+                              : allMonths
+                                  .where(
+                                    (month) => _selectNotApplicableForMonth
+                                        .map((e) => e["DisplayName"])
+                                        .contains(month["DisplayName"]),
+                                  )
+                                  .map((e) => Map<String, dynamic>.from(e))
+                                  .toList(),
+                      onSelected: (value) {
+                        _selectNotApplicableForMonth = value;
+                      },
+
+                      dataFetchCallBack: (int pageNumber, {String? value}) {
+                        //  Filter based on search value
+                        final filteredList =
+                            (value == null || value.isEmpty)
+                                ? allMonths
+                                    .map((e) => Map<String, dynamic>.from(e))
+                                    .toList()
+                                : allMonths
+                                    .where(
+                                      (month) => month["DisplayName"]
+                                          .toString()
+                                          .toLowerCase()
+                                          .contains(value.toLowerCase()),
+                                    )
+                                    .map((e) => Map<String, dynamic>.from(e))
+                                    .toList();
+
+                        return Future.value({
+                          "itemList": filteredList,
+                          "totalNumberOfRecord": filteredList.length,
+                        });
+                      },
+                    ),
                   ],
-                  keyboardType: TextInputType.text,
-                  isRequired: true,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Week Off Code is reqiured";
-                    }
-
-                    return null;
-                  },
                 ),
-                CustomTextField(
-                  title: "Week Days",
-                  textController: _weekDaysC,
-                  hint: "Enter Week Days",
-                  inputFormatterList: InputValidator.digit(4),
-                  keyboardType: TextInputType.number,
-                  isRequired: true,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Week Days is reqiured";
-                    }
-
-                    return null;
-                  },
-                ),
-                CustomMultipleSelectPopup(
-                  title: 'Week Off',
-                  isRequired: true,
-                  isMultiSelect: false,
-                  initialValue: _selectWeekOff,
-                  onSelected: (value) {
-                    _selectWeekOff = value;
-                  },
-
-                  dataFetchCallBack: (int pageNumber, {String? value}) {
-                    //  Filter based on search value
-                    final filteredList =
-                        value == null || value.isEmpty
-                            ? allDays
-                            : allDays
-                                .where(
-                                  (day) => day["DisplayName"]
-                                      .toString()
-                                      .toLowerCase()
-                                      .contains(value.toLowerCase()),
-                                )
-                                .toList();
-
-                    return Future.value({
-                      "itemList": filteredList,
-                      "totalNumberOfRecord": filteredList.length,
-                    });
-                  },
-                ),
-
-                CustomMultipleSelectPopup(
-                  title: 'Week Off2',
-                  isMultiSelect: false,
-                  initialValue: _selectWeekOff2,
-                  onSelected: (value) {
-                    _selectWeekOff2 = value;
-                  },
-
-                  dataFetchCallBack: (int pageNumber, {String? value}) {
-                    //  Filter based on search value
-                    final filteredList =
-                        value == null || value.isEmpty
-                            ? allDays
-                            : allDays
-                                .where(
-                                  (day) => day["DisplayName"]
-                                      .toString()
-                                      .toLowerCase()
-                                      .contains(value.toLowerCase()),
-                                )
-                                .toList();
-
-                    return Future.value({
-                      "itemList": filteredList,
-                      "totalNumberOfRecord": filteredList.length,
-                    });
-                  },
-                ),
-
-                CustomTextField(
-                  title: "Weekly Off2 Type",
-                  textController: _weekOff2TypeC,
-                  hint: "Enter Weekly Off2 Type",
-                  inputFormatterList: [
-                    InputValidator.digitAndCharacterOnly(),
-                    LengthLimitingTextInputFormatter(200),
-                  ],
-                  keyboardType: TextInputType.text,
-                ),
-                CustomTextField(
-                  title: "Week Days Starts On",
-                  textController: _weekDaysStartsOnC,
-                  isRequired: true,
-                  hint: "Enter Week Days Starts On",
-                  inputFormatterList: [
-                    InputValidator.digitAndCharacterOnly(),
-                    LengthLimitingTextInputFormatter(200),
-                  ],
-                  keyboardType: TextInputType.text,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Week Days Starts On is reqiured";
-                    }
-
-                    return null;
-                  },
-                ),
-                CustomMultipleSelectPopup(
-                  title: 'Not Applicable For Months',
-                  isRequired: true,
-                  isMultiSelect: true,
-                  initialValue:
-                      _selectNotApplicableForMonth.isEmpty
-                          ? []
-                          : allMonths
-                              .where(
-                                (month) => _selectNotApplicableForMonth
-                                    .map((e) => e["DisplayName"])
-                                    .contains(month["DisplayName"]),
-                              )
-                              .map((e) => Map<String, dynamic>.from(e))
-                              .toList(),
-                  onSelected: (value) {
-                    _selectNotApplicableForMonth = value;
-                  },
-
-                  dataFetchCallBack: (int pageNumber, {String? value}) {
-                    //  Filter based on search value
-                    final filteredList =
-                        (value == null || value.isEmpty)
-                            ? allMonths
-                                .map((e) => Map<String, dynamic>.from(e))
-                                .toList()
-                            : allMonths
-                                .where(
-                                  (month) => month["DisplayName"]
-                                      .toString()
-                                      .toLowerCase()
-                                      .contains(value.toLowerCase()),
-                                )
-                                .map((e) => Map<String, dynamic>.from(e))
-                                .toList();
-
-                    return Future.value({
-                      "itemList": filteredList,
-                      "totalNumberOfRecord": filteredList.length,
-                    });
-                  },
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -365,6 +375,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
+            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
             text: _isEditMode ? "Update Week Off" : "Add Week Off",
             onPressed: _submitForm,
           ),

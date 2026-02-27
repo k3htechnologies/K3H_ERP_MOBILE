@@ -197,12 +197,13 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "WeekOff Master",
+        screenTitle: "Week Off Master",
         authorization: _routeAuthorizationModel,
         onAddCallback: () {
           goRouter.pushNamed(AppRoutes.addWeekOffMaster);
         },
         textController: _searchC,
+        searchHintText: "Search by Week Off Name",
         onExportCallback: (value) {
           if (_weekOffMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
@@ -264,23 +265,13 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
                                 },
                               );
                             },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Text(
-                                weekOffMaster.weekOffPolicyName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                            child: Text(
+                              weekOffMaster.weekOffPolicyName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
                               ),
                             ),
                           ),
@@ -353,6 +344,7 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
                     buildRowTitleValue(
                       title: "Not Applicable For Months",
                       value: weekOffMaster.notApplicableForMonths,
+                      singleLine: false
                     ),
                   ],
                 ),

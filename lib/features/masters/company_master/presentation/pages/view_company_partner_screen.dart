@@ -100,7 +100,7 @@ class ViewCompanyPartnerScreen extends StatelessWidget {
                             children: [
                               buildColumnTitleValue(
                                 title: "DOB",
-                                value: _formatDate(p.dateOfBirth),
+                                value: formatDateTimeAsDDMMMYYYY(p.dateOfBirth),
                               ),
                               buildColumnTitleValue(
                                 title: "Gender",
@@ -213,7 +213,5 @@ class ViewCompanyPartnerScreen extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
-    return "${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}";
-  }
+
 }

@@ -261,6 +261,7 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
           goRouter.pushNamed(AppRoutes.addShiftMappingMaster);
         },
         textController: _searchC,
+        searchHintText: "Search by Shift Name",
         onExportCallback: (value) {
           if (_shiftMappingMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
@@ -321,24 +322,11 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
                                 },
                               );
                             },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Text(
-                                shiftMappingMaster.shiftName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                            child: Text(
+                              shiftMappingMaster.shiftName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                             ),
                           ),
                         ),

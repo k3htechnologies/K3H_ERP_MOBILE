@@ -261,6 +261,7 @@ class _WeekOffMappingMasterScreenState
           goRouter.pushNamed(AppRoutes.addWeekOffMappingMaster);
         },
         textController: _searchC,
+        searchHintText: "Search by Week Off Policy Name",
         onExportCallback: (value) {
           if (_weekOffMappingMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
@@ -322,24 +323,11 @@ class _WeekOffMappingMasterScreenState
                                 },
                               );
                             },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Text(
-                                weekOffMappingMaster.weekOffPolicyName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                            child: Text(
+                              weekOffMappingMaster.weekOffPolicyName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                             ),
                           ),
                         ),

@@ -104,7 +104,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Branch",
+        screenTitle: "Branch Master",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
@@ -116,7 +116,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
             spacing: 10,
             children: [
               Text(
-                _isEditMode ? "Update Branch Master" : "Add Branch Master",
+                _isEditMode ? "Update Branch" : "Add Branch",
                 style: AppTextStyle.ts16SB(),
               ),
               Container(

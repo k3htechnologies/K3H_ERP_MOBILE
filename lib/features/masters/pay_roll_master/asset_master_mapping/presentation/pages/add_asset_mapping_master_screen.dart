@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/data/m
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/data/repository/asset_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/cubit/asset_mapping_master_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -17,6 +18,7 @@ import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddAssetMappingMasterScreen extends StatefulWidget {
   final AssetMappingModel? assetMapping;
@@ -300,319 +302,326 @@ class _AddAssetMappingMasterScreenState
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBarWithBackButton(
-        screenTitle: _isEditMode ? "Update Asset Mapping" : "Add Asset Mapping",
+        screenTitle: "Asset Mapping Master",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Container(
-            decoration: commonCardDecoration(),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ASSET SELECT
-                ValueListenableBuilder<List<Map<String, dynamic>>>(
-                  valueListenable: _selectedAssetNotifier,
-                  builder: (context, selectedAsset, _) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomMultipleSelectPopup(
-                          title: 'Asset',
-                          isRequired: true,
-                          isMultiSelect: false,
-                          initialValue: selectedAsset,
-                          dataList: const [],
-                          onSelected: (value) {
-                            _selectedAssetNotifier.value = value;
-                          },
-                          dataFetchCallBack: _fetchAssets,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Asset is required";
-                            }
-                            return null;
-                          },
-                        ),
-                        if (selectedAsset.isNotEmpty) ...[
-                          Container(
-                            margin: EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: AppColor.lightBlue),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(_isEditMode ? "Update Asset Mapping" : "Add Asset Mapping",style: AppTextStyle.ts16M()),
+              verticalSpacing(),
+              Container(
+                decoration: commonCardDecoration(),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ASSET SELECT
+                    ValueListenableBuilder<List<Map<String, dynamic>>>(
+                      valueListenable: _selectedAssetNotifier,
+                      builder: (context, selectedAsset, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomMultipleSelectPopup(
+                              title: 'Asset',
+                              isRequired: true,
+                              isMultiSelect: false,
+                              initialValue: selectedAsset,
+                              dataList: const [],
+                              onSelected: (value) {
+                                _selectedAssetNotifier.value = value;
+                              },
+                              dataFetchCallBack: _fetchAssets,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Asset is required";
+                                }
+                                return null;
+                              },
                             ),
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              spacing: 10,
-                              children: [
-                                Row(
+                            if (selectedAsset.isNotEmpty) ...[
+                              Container(
+                                margin: EdgeInsets.only(bottom: 10),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: AppColor.lightBlue),
+                                ),
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
                                   spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    buildColumnTitleValue(
-                                      title: "Asset Code",
-                                      value:
-                                          selectedAsset.first["assetCode"] ??
-                                          '',
+                                    Row(
+                                      spacing: 10,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Asset Code",
+                                          value:
+                                              selectedAsset.first["assetCode"] ??
+                                              '',
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Asset Name",
+                                          value:
+                                              selectedAsset.first["DisplayName"] ??
+                                              '',
+                                        ),
+                                      ],
                                     ),
-                                    buildColumnTitleValue(
-                                      title: "Asset Name",
-                                      value:
-                                          selectedAsset.first["DisplayName"] ??
-                                          '',
+                                    Row(
+                                      spacing: 10,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Asset Type",
+                                          value:
+                                              selectedAsset.first["assetType"] ??
+                                              '',
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Asset Model",
+                                          value:
+                                              selectedAsset.first["assetModel"] ??
+                                              '',
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      spacing: 10,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Asset Brand",
+                                          value:
+                                              selectedAsset.first["assetBrand"] ??
+                                              '',
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Serial Number",
+                                          value:
+                                              selectedAsset.first["serialNumber"] ??
+                                              '',
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                                Row(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Asset Type",
-                                      value:
-                                          selectedAsset.first["assetType"] ??
-                                          '',
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Asset Model",
-                                      value:
-                                          selectedAsset.first["assetModel"] ??
-                                          '',
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Asset Brand",
-                                      value:
-                                          selectedAsset.first["assetBrand"] ??
-                                          '',
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Serial Number",
-                                      value:
-                                          selectedAsset.first["serialNumber"] ??
-                                          '',
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    );
-                  },
-                ),
-                // EMPLOYEE SELECT + CARD
-                ValueListenableBuilder<List<Map<String, dynamic>>>(
-                  valueListenable: _selectedEmployeeNotifier,
-                  builder: (context, selectedEmployee, _) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomMultipleSelectPopup(
-                          title: 'Employee',
-                          isRequired: true,
-                          isMultiSelect: false,
-                          initialValue: selectedEmployee,
-                          dataList: const [],
-                          onSelected: (value) {
-                            _selectedEmployeeNotifier.value = value;
-                          },
-                          dataFetchCallBack: _fetchEmployees,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Employee is required";
-                            }
-                            return null;
-                          },
-                        ),
-                        if (selectedEmployee.isNotEmpty) ...[
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: AppColor.lightBlue),
-                            ),
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              spacing: 10,
-                              children: [
-                                Row(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Department",
-                                      value:
-                                          selectedEmployee
-                                              .first["department"] ??
-                                          '',
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Designation",
-                                      value:
-                                          selectedEmployee
-                                              .first["designation"] ??
-                                          '',
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Branch",
-                                      value:
-                                          selectedEmployee.first["branch"] ??
-                                          '',
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Reporting Person",
-                                      value:
-                                          selectedEmployee
-                                              .first["reportingPerson"] ??
-                                          '',
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Email Id",
-                                      value:
-                                          selectedEmployee.first["email"] ?? '',
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Personal Mobile Number",
-                                      value:
-                                          selectedEmployee
-                                              .first["personalNumber"] ??
-                                          '',
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    );
-                  },
-                ),
-                // ASSIGNED DATE
-                ValueListenableBuilder<DateTime?>(
-                  valueListenable: _assignedDateNotifier,
-                  builder: (context, assignedDate, _) {
-                    return CustomDatePicker(
-                      title: 'Assigned Date',
-                      initialDate: assignedDate,
-                      isRequired: true,
-                      setValue: (date) {
-                        _assignedDateNotifier.value = date;
+                              ),
+                            ],
+                          ],
+                        );
                       },
+                    ),
+                    // EMPLOYEE SELECT + CARD
+                    ValueListenableBuilder<List<Map<String, dynamic>>>(
+                      valueListenable: _selectedEmployeeNotifier,
+                      builder: (context, selectedEmployee, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomMultipleSelectPopup(
+                              title: 'Employee',
+                              isRequired: true,
+                              isMultiSelect: false,
+                              initialValue: selectedEmployee,
+                              dataList: const [],
+                              onSelected: (value) {
+                                _selectedEmployeeNotifier.value = value;
+                              },
+                              dataFetchCallBack: _fetchEmployees,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Employee is required";
+                                }
+                                return null;
+                              },
+                            ),
+                            if (selectedEmployee.isNotEmpty) ...[
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 10),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: AppColor.lightBlue),
+                                ),
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  spacing: 10,
+                                  children: [
+                                    Row(
+                                      spacing: 10,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Department",
+                                          value:
+                                              selectedEmployee
+                                                  .first["department"] ??
+                                              '',
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Designation",
+                                          value:
+                                              selectedEmployee
+                                                  .first["designation"] ??
+                                              '',
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      spacing: 10,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Branch",
+                                          value:
+                                              selectedEmployee.first["branch"] ??
+                                              '',
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Reporting Person",
+                                          value:
+                                              selectedEmployee
+                                                  .first["reportingPerson"] ??
+                                              '',
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      spacing: 10,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Email Id",
+                                          value:
+                                              selectedEmployee.first["email"] ?? '',
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Personal Mobile Number",
+                                          value:
+                                              selectedEmployee
+                                                  .first["personalNumber"] ??
+                                              '',
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+                        );
+                      },
+                    ),
+                    // ASSIGNED DATE
+                    ValueListenableBuilder<DateTime?>(
+                      valueListenable: _assignedDateNotifier,
+                      builder: (context, assignedDate, _) {
+                        return CustomDatePicker(
+                          title: 'Assigned Date',
+                          initialDate: assignedDate,
+                          isRequired: true,
+                          setValue: (date) {
+                            _assignedDateNotifier.value = date;
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return "Assigned Date is required";
+                            }
+                            return null;
+                          },
+                        );
+                      },
+                    ),
+
+                    // CONDITION ON ISSUE
+                    CustomTextField(
+                      title: 'Condition on Issue',
+                      textController: _conditionOnIssueC,
+                      hint: "Enter Condition on Issue",
+                      inputFormatterList: InputValidator.textOnly(200),
+                      isRequired: true,
                       validator: (value) {
-                        if (value == null) {
-                          return "Assigned Date is required";
+                        if (value == null || value.trim().isEmpty) {
+                          return "Condition on Issue is required";
                         }
                         return null;
                       },
-                    );
-                  },
-                ),
+                    ),
 
-                // CONDITION ON ISSUE
-                CustomTextField(
-                  title: 'Condition on Issue',
-                  textController: _conditionOnIssueC,
-                  hint: "Enter Condition on Issue",
-                  inputFormatterList: InputValidator.textOnly(200),
-                  isRequired: true,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Condition on Issue is required";
-                    }
-                    return null;
-                  },
-                ),
+                    // REMARKS
+                    CustomTextField(
+                      title: 'Remarks',
+                      textController: _remarksC,
+                      hint: "Enter Remarks",
+                      inputFormatterList: InputValidator.textOnly(500),
+                      minLines: 3,
+                      maxLines: 3,
+                    ),
 
-                // REMARKS
-                CustomTextField(
-                  title: 'Remarks',
-                  textController: _remarksC,
-                  hint: "Enter Remarks",
-                  inputFormatterList: InputValidator.textOnly(500),
-                  minLines: 3,
-                  maxLines: 3,
-                ),
-
-                // RETURN SECTION (EDIT MODE ONLY)
-                if (_isEditMode)
-                  ValueListenableBuilder<bool>(
-                    valueListenable: _isInactiveNotifier,
-                    builder: (context, isInactive, _) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ValueListenableBuilder<DateTime?>(
-                            valueListenable: _returnDateNotifier,
-                            builder: (context, returnDate, __) {
-                              return ValueListenableBuilder<DateTime?>(
-                                valueListenable: _assignedDateNotifier,
-                                builder: (context, assignedDate, ___) {
-                                  return CustomDatePicker(
-                                    title: 'Return Date',
-                                    initialDate: returnDate,
-                                    startDate: assignedDate,
-                                    setValue: (date) {
-                                      _returnDateNotifier.value = date;
-                                    },
-                                    validator: (value) {
-                                      if (value == null && isInactive) {
-                                        return "Return Date is required";
-                                      }
-                                      if (assignedDate != null &&
-                                          isInactive &&
-                                          value != null &&
-                                          value.isBefore(assignedDate)) {
-                                        return "Return Date must be after Assigned Date";
-                                      }
-                                      return null;
+                    // RETURN SECTION (EDIT MODE ONLY)
+                    if (_isEditMode)
+                      ValueListenableBuilder<bool>(
+                        valueListenable: _isInactiveNotifier,
+                        builder: (context, isInactive, _) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ValueListenableBuilder<DateTime?>(
+                                valueListenable: _returnDateNotifier,
+                                builder: (context, returnDate, __) {
+                                  return ValueListenableBuilder<DateTime?>(
+                                    valueListenable: _assignedDateNotifier,
+                                    builder: (context, assignedDate, ___) {
+                                      return CustomDatePicker(
+                                        title: 'Return Date',
+                                        initialDate: returnDate,
+                                        startDate: assignedDate,
+                                        setValue: (date) {
+                                          _returnDateNotifier.value = date;
+                                        },
+                                        validator: (value) {
+                                          if (value == null && isInactive) {
+                                            return "Return Date is required";
+                                          }
+                                          if (assignedDate != null &&
+                                              isInactive &&
+                                              value != null &&
+                                              value.isBefore(assignedDate)) {
+                                            return "Return Date must be after Assigned Date";
+                                          }
+                                          return null;
+                                        },
+                                      );
                                     },
                                   );
                                 },
-                              );
-                            },
-                          ),
-                          CustomTextField(
-                            title: 'Condition on Return',
-                            textController: _conditionOnReturnC,
-                            hint: "Enter Condition on Return",
-                            inputFormatterList: InputValidator.textOnly(200),
-                            validator: (value) {
-                              if ((value == null || value.trim().isEmpty) &&
-                                  isInactive) {
-                                return "Condition on Return is required";
-                              }
-                              return null;
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-              ],
-            ),
+                              ),
+                              CustomTextField(
+                                title: 'Condition on Return',
+                                textController: _conditionOnReturnC,
+                                hint: "Enter Condition on Return",
+                                inputFormatterList: InputValidator.textOnly(200),
+                                validator: (value) {
+                                  if ((value == null || value.trim().isEmpty) &&
+                                      isInactive) {
+                                    return "Condition on Return is required";
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

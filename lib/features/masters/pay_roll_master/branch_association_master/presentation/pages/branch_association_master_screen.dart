@@ -218,6 +218,7 @@ class _BranchAssociationMasterScreenState
         screenTitle: "Branch Association Master",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
+        searchHintText: "Search by Employee Name",
         onSearchSubmit: (value) {
           _branchAssociationMasterCubit.searchAssetMapping(value, context);
         },
@@ -294,22 +295,11 @@ class _BranchAssociationMasterScreenState
                                 },
                               );
                             },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Text(
-                                branchAssociation.employeeName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                              ),
+                            child: Text(
+                              branchAssociation.employeeName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                             ),
                           ),
                           verticalSpacing(height: 5),

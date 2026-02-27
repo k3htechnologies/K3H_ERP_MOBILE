@@ -205,6 +205,7 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
           goRouter.pushNamed(AppRoutes.addLeaveTypeMaster);
         },
         textController: _searchC,
+        searchHintText: "Search by Leave Type",
         onExportCallback: (value) {
           if (_leaveTypeMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");

@@ -263,6 +263,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
           _branchMasterCubit.searchBranch(value, context);
         },
         textController: _searchC,
+        searchHintText: "Search  by Branch Name",
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addBranchMaster);
           if (context.mounted) {
@@ -327,24 +328,11 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
                                 },
                               );
                             },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Text(
-                                branch.branchName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                            child:  Text(
+                              branch.branchName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                             ),
                           ),
                         ),

@@ -307,11 +307,11 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     },
                   ),
                   CustomTextField(
-                    title: 'Partner Percentage',
+                    title: 'Share %',
                     isRequired: true,
                     textController: _percentageC,
                     keyboardType: TextInputType.number,
-                    hint: 'Enter Partner Percentage',
+                    hint: 'Enter Share %',
                     inputFormatterList: [
                       FilteringTextInputFormatter.allow(
                         RegExp(r'^\d{0,3}(\.\d{0,2})?$'),
@@ -319,11 +319,11 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     ],
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Partner percentage is required";
+                        return "Share % is required";
                       }
                       final parsed = double.tryParse(value);
                       if (parsed == null || parsed <= 0 || parsed > 100) {
-                        return "Enter a valid percentage between 1 and 100";
+                        return "Enter a valid % between 1 and 100";
                       }
 
                       final existingPartners =
@@ -351,16 +351,15 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                   ),
                   CustomTextField(
                     title: 'PAN Number',
+                    isRequired: true,
                     textController: _panC,
                     hint: "Enter PAN Number",
                     inputFormatterList: InputValidator.panInputFormatters(),
                     validator: (value) {
-                      if (panFile.fileBytesList.isNotEmpty &&
-                          (value == null || value.trim().isEmpty)) {
+                      if ((value == null || value.trim().isEmpty)) {
                         return "PAN Number is required";
                       }
-                      if (value != null &&
-                          value.trim().isNotEmpty &&
+                      if (value.trim().isNotEmpty &&
                           !InputValidator.isValidPAN(value)) {
                         return "Invalid PAN Number";
                       }
@@ -369,6 +368,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload PAN Number",
+                    isRequired: true,
                     initialFileList: panFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       panFile.fileNameList = fileNameList;
@@ -382,6 +382,12 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                       panFile.fileBytesList = fileBytesList;
                       panFile.fileNameList = fileNameList;
                       panFile.deletedFileList = deleted;
+                    },
+                    validator: (value){
+                      if (value == null || value.isEmpty) {
+                        return "PAN Document is required";
+                      }
+                      return null;
                     },
                   ),
                   CustomTextField(
@@ -403,6 +409,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload Aadhaar Card",
+                    isRequired: true,
                     initialFileList: aadhaarFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       aadhaarFile.fileNameList = fileNameList;
@@ -417,9 +424,16 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                       aadhaarFile.fileNameList = fileNameList;
                       aadhaarFile.deletedFileList = deleted;
                     },
+                    validator: (value){
+                      if (value == null || value.isEmpty) {
+                        return "Aadhaar Document is required";
+                      }
+                      return null;
+                    },
                   ),
                   CustomMultiFilePicker(
                     title: "Upload Photo",
+                    isRequired: true,
                     initialFileList: photoFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       photoFile.fileNameList = fileNameList;
@@ -433,6 +447,12 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                       photoFile.fileBytesList = fileBytesList;
                       photoFile.fileNameList = fileNameList;
                       photoFile.deletedFileList = deleted;
+                    },
+                    validator: (value){
+                      if (value == null || value.isEmpty) {
+                        return "Applicant Photo is required";
+                      }
+                      return null;
                     },
                   ),
                   verticalSpacing(height: 20),

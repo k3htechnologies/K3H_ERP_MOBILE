@@ -5,10 +5,12 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_maste
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/presentation/cubit/shift_master_mapping_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddShiftMappingMasterScreen extends StatefulWidget {
   final ShiftMappingModel? shiftMappingModel;
@@ -123,73 +125,80 @@ class _AddShiftMappingMasterScreenState
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBarWithBackButton(
-        screenTitle: _isEditMode ? "Update Shift Mapping" : "Add Shift Mapping",
+        screenTitle: "Shift Mapping Master",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomMultipleSelectPopup(
-                  title: 'Shift Name',
-                  isRequired: true,
-                  isMultiSelect: false,
-                  initialValue: _selectedShift,
-                  dataList: [],
-                  onSelected: (value) {
-                    _selectedShift = value;
-                  },
-                  dataFetchCallBack: _shiftMappingMasterCubit.fetchShift,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Shift Name is required";
-                    }
-                    return null;
-                  },
-                ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(_isEditMode ? "Update Shift Mapping" : "Add Shift Mapping",style: AppTextStyle.ts16SB(),),
+              verticalSpacing(),
+              Container(
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomMultipleSelectPopup(
+                      title: 'Shift Name',
+                      isRequired: true,
+                      isMultiSelect: false,
+                      initialValue: _selectedShift,
+                      dataList: [],
+                      onSelected: (value) {
+                        _selectedShift = value;
+                      },
+                      dataFetchCallBack: _shiftMappingMasterCubit.fetchShift,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Shift Name is required";
+                        }
+                        return null;
+                      },
+                    ),
 
-                CustomMultipleSelectPopup(
-                  title: 'Employee',
-                  isRequired: true,
-                  isMultiSelect: false,
-                  initialValue: _selectedEmployee,
-                  dataList: [],
-                  onSelected: (value) {
-                    _selectedEmployee = value;
-                  },
-                  dataFetchCallBack: _shiftMappingMasterCubit.fetchEmployees,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Employee is required";
-                    }
-                    return null;
-                  },
+                    CustomMultipleSelectPopup(
+                      title: 'Employee',
+                      isRequired: true,
+                      isMultiSelect: false,
+                      initialValue: _selectedEmployee,
+                      dataList: [],
+                      onSelected: (value) {
+                        _selectedEmployee = value;
+                      },
+                      dataFetchCallBack: _shiftMappingMasterCubit.fetchEmployees,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Employee is required";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomMultipleSelectPopup(
+                      title: 'Department',
+                      isRequired: true,
+                      isMultiSelect: false,
+                      initialValue: _selectedDepartment,
+                      dataList: [],
+                      onSelected: (value) {
+                        _selectedDepartment = value;
+                      },
+                      dataFetchCallBack: _shiftMappingMasterCubit.fetchDepartment,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Department is required";
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
                 ),
-                CustomMultipleSelectPopup(
-                  title: 'Department',
-                  isRequired: true,
-                  isMultiSelect: false,
-                  initialValue: _selectedDepartment,
-                  dataList: [],
-                  onSelected: (value) {
-                    _selectedDepartment = value;
-                  },
-                  dataFetchCallBack: _shiftMappingMasterCubit.fetchDepartment,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Department is required";
-                    }
-                    return null;
-                  },
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -198,6 +207,7 @@ class _AddShiftMappingMasterScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
+            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
             text: _isEditMode ? "Update Shift Mapping" : "Add Shift Mapping",
             onPressed: _submitForm,
           ),

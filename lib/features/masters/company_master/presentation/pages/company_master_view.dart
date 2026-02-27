@@ -11,7 +11,6 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -113,7 +112,7 @@ class _CompanyMasterViewMobileScreenState
                 value: widget.company!.contactPerson,
               ),
               buildColumnTitleValue(
-                title: "E-mail ID",
+                title: "E-mail Id",
                 customValueWidget: CustomClickToContactText(
                   value: widget.company!.emailId,
                   type: ContactType.email,
@@ -262,26 +261,123 @@ class _CompanyMasterViewMobileScreenState
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 10),
       decoration: commonCardDecoration(),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
         children: [
-          _buildTitle(title: "Document"),
-          CustomIconButton(
-            onPressed: () async {
-              await goRouter.pushNamed(
-                AppRoutes.viewCompanyDocument,
-                queryParameters: {
-                  "company": Uri.encodeQueryComponent(
-                    EncryptionManager.encryptData(jsonEncode(widget.company)),
-                  ),
-                },
-              );
-            },
-            icon: Icon(Icons.file_copy, size: 16, color: AppColor.primary),
-            backgroundColor: AppColor.lightBlue,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _buildTitle(title: "Document"),
+            ],
           ),
+          verticalSpacing(),
+          Column(
+            children: [
+              _buildDocumentCard(
+                context,
+                widget.company!,
+              ),
+            ],
+          )
         ],
       ),
+    );
+  }
+
+  Widget _buildDocumentCard(
+      BuildContext context,
+      CompanyModel company,
+      ) {
+    final List<Map<String, String>> documents = [
+      {
+        "title": "GST",
+        "number": company.gstNumber,
+        "url": company.gstCertificateURL,
+      },
+      {
+        "title": "PAN Number",
+        "number": company.panNumber,
+        "url": company.panCardURL,
+      },
+      {
+        "title": "CIN Number",
+        "number": company.cinNumber,
+        "url": company.cinURL,
+      },
+      {
+        "title": "TAN Number",
+        "number": company.tanNumber,
+        "url": company.tanURL,
+      },
+    ];
+
+    final validDocuments =
+    documents.where((doc) => (doc["url"] ?? "").isNotEmpty).toList();
+
+    if (validDocuments.isEmpty) {
+      return Column(
+        children: [
+          Icon(Icons.insert_drive_file_outlined,
+              size: 40,
+              color: AppColor.grey),
+          const SizedBox(height: 8),
+          Text(
+            "No Documents Uploaded",
+            style: AppTextStyle.ts14M(color: AppColor.grey),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children:
+      validDocuments.map((doc) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: AppColor.white,
+            border: Border.all(color: AppColor.primary, width: 0.3),
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: AppColor.black.withValues(alpha: 0.05),
+                blurRadius: 2,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      doc["title"] ?? "",
+                      style: AppTextStyle.ts14M(color: AppColor.grey),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(doc["number"] ?? "", style: AppTextStyle.ts14M()),
+                  ],
+                ),
+              ),
+              horizontalSpacing(),
+              CustomButton.documentOutline(
+                onPressed: () {
+                  final url = doc["url"] ?? "";
+                  if (url.isNotEmpty) {
+                    showFilePreviewDialog(context, url.split(","));
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 

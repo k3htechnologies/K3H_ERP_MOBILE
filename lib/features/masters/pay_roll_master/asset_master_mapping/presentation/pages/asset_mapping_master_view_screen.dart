@@ -16,7 +16,7 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Asset Mapping",
+        screenTitle: "Asset Mapping Master",
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(

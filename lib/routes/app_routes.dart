@@ -22,7 +22,6 @@ class AppRoutes {
   static String addCompany = "/addCompany";
   static String addCompanyPartner = "addCompanyPartner";
   static String viewCompanyDetails = "/viewCompanyDetails";
-  static String viewCompanyDocument = "/viewCompanyDocument";
   static String viewCompanyPartner = "/viewCompanyPartner";
 
   // DESIGNATION MASTER

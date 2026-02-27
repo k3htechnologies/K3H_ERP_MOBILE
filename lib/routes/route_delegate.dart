@@ -291,7 +291,6 @@ import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.d
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor_add/vendor_add_cubit.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/add_vendor_screen.dart';
-import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/document_view_company_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/documents_view_vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/view_details_vendor_screen.dart';
@@ -509,26 +508,6 @@ final GoRouter goRouter = GoRouter(
                   );
                   final companyModel = CompanyModel.fromJson(decodedJson);
                   return CompanyMasterViewScreen(company: companyModel);
-                } else {
-                  return Scaffold();
-                }
-              },
-            ),
-            GoRoute(
-              parentNavigatorKey: navigatorKey,
-              name: AppRoutes.viewCompanyDocument,
-              path: AppRoutes.viewVendorDocument,
-              builder: (context, state) {
-                final queryParameterVendor =
-                    state.uri.queryParameters['company'];
-                if (queryParameterVendor != null) {
-                  final decodedJson = jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeQueryComponent(queryParameterVendor),
-                    ),
-                  );
-                  final companyModel = CompanyModel.fromJson(decodedJson);
-                  return DocumentsViewCompanyScreen(companyModel: companyModel);
                 } else {
                   return Scaffold();
                 }

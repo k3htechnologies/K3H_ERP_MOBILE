@@ -235,7 +235,7 @@ class _AddBranchAssociationMasterScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Branch Association",
+        screenTitle: "Branch Association Master",
         authorization: _routeAuthorizationModel,
       ),
       body: SingleChildScrollView(
@@ -397,6 +397,7 @@ class _AddBranchAssociationMasterScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
+            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
             text:
                 _isEditMode
                     ? "Update Branch Association"

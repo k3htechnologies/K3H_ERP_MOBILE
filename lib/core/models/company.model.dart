@@ -27,6 +27,7 @@ class CompanyModel {
   String cityName;
   String companyLetterheadHeaderURL;
   String companyLetterheadFooterURL;
+  String tanURL;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -63,6 +64,7 @@ class CompanyModel {
     required this.cityName,
     required this.companyLetterheadHeaderURL,
     required this.companyLetterheadFooterURL,
+    required this.tanURL,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -88,6 +90,7 @@ class CompanyModel {
       panNumber: parseValue<String>(json, "PANNumber"),
       panCardURL: parseValue<String>(json, "PanCardURL"),
       tanNumber: parseValue<String>(json, "TANNumber"),
+      tanURL: parseValue<String>(json, "TANURL"),
       emailId: parseValue<String>(json, "EmailId"),
       countryMasterId: parseValue<int>(json, "CountryMasterId"),
       countryName: parseValue<String>(json, "CountryName"),
@@ -139,6 +142,7 @@ class CompanyModel {
     "PANNumber": panNumber,
     "PanCardURL": panCardURL,
     "TANNumber": tanNumber,
+    "TANURL": tanURL,
     "EmailId": emailId,
     "CountryMasterId": countryMasterId,
     "CountryName": countryName,

@@ -409,7 +409,7 @@ class _EmployeeMasterViewDetailsScreenState
                       ),
                     ),
                     buildColumnTitleValue(
-                      title: "Office E-mail ID",
+                      title: "Office E-mail Id",
                       value: user.officeEmailId,
                       customValueWidget: CustomClickToContactText(
                         value: user.officeEmailId,

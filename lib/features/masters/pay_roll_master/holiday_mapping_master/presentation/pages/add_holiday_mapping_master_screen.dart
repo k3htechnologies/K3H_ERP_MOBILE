@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_mapping_mas
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_mapping_master/presentation/cubit/holiday_mapping_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/data/model/holiday_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_master/data/repository/holiday_master.repository.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -180,7 +181,7 @@ class _AddHolidayMappingMasterScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Holiday Mapping",
+        screenTitle: "Holiday Mapping Master",
         authorization: _routeAuthorizationModel,
       ),
       body: StatefulBuilder(
@@ -275,6 +276,7 @@ class _AddHolidayMappingMasterScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
+            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
             text:
                 _isEditMode ? "Update Holiday Mapping" : "Add Holiday Mapping",
             onPressed: _submitForm,

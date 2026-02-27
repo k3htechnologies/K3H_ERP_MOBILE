@@ -291,12 +291,13 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBar(
-        screenTitle: "Asset",
+        screenTitle: "Asset Master",
         authorization: _routeAuthorizationModel,
         onSearchSubmit: (value) {
           _assetMasterCubit.searchAsset(value, context);
         },
         textController: _searchC,
+        searchHintText: "Search by Asset Name",
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addAssetMaster);
           if (context.mounted) {

@@ -14,7 +14,7 @@ class BranchMasterViewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Branch",
+        screenTitle: "Branch Master",
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(
