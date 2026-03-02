@@ -559,6 +559,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
           CustomMultiFilePicker(
             maxFiles: 3,
             initialFileList: aadhaarCard.fileNameList,
+            filePickType: FilePickType.kycDocument,
             title: "Upload Aadhaar Card",
             isRequired: true,
             onFilePickedCallback: (bytesList, fileList) {
@@ -598,6 +599,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
             maxFiles: 3,
             initialFileList: panCard.fileNameList,
             title: "Upload PAN Card",
+            filePickType: FilePickType.kycDocument,
             isRequired: true,
             onFilePickedCallback: (bytesList, filesList) {
               panCard.fileBytesList = bytesList;
@@ -634,6 +636,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
           CustomMultiFilePicker(
             maxFiles: 3,
             initialFileList: gstCertificate.fileNameList,
+            filePickType: FilePickType.kycDocument,
             title: "Upload GST Certificate",
             isRequired: true,
             onFilePickedCallback: (fileByteList, fileNameList) {

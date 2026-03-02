@@ -395,6 +395,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                     ),
                     CustomMultiFilePicker(
                       maxFiles: 3,
+                      filePickType: FilePickType.kycDocument,
                       initialFileList: leaveDocument.fileNameList,
                       title: "Leave Document",
                       onFilePickedCallback: (fileByteList, fileNameList) {

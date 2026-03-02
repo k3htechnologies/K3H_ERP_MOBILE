@@ -926,6 +926,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     ),
                     CustomMultiFilePicker(
                       title: "Upload Aadhaar Card",
+                      filePickType: FilePickType.kycDocument,
                       initialFileList: selectedAadhaarForPopUpFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
                         selectedAadhaarForPopUpFile.fileNameList = fileNameList;
@@ -967,6 +968,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     ),
                     CustomMultiFilePicker(
                       title: "Upload Pan Card",
+                      filePickType: FilePickType.kycDocument,
                       initialFileList: selectedPANForPopUpFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
                         selectedPANForPopUpFile.fileNameList = fileNameList;
@@ -1008,6 +1010,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     ),
                     CustomMultiFilePicker(
                       title: "Upload GST Certificate",
+                      filePickType: FilePickType.kycDocument,
                       initialFileList:
                           selectedGSTCertificateForPopUpFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {

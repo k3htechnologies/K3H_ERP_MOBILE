@@ -21,6 +21,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/redevelopment/dashboard/rede
 import 'package:k3h_erp_app/di/feature_dependencies/sales/booking/booking.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/enquiry/enquiry.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/other_charges/other_charges.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/sales/payment_schedule_scheme/payment_schedule_scheme.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/payment_schedule_summary/payment_schedule_summary.dependency.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/sales_dashboard/sales_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
@@ -196,4 +197,6 @@ void initDependencies() {
   registerSalesDashboardDependencies(serviceLocator);
   // REDEVELOPMENT DASHBOARD
   registerRedevelopmentDashboardDependencies(serviceLocator);
+  // PAYMENT SCHEDULE SCHEME DEPENDENCIES
+  registerPaymentScheduleSchemeDependencies(serviceLocator);
 }

@@ -19,7 +19,7 @@ class CustomClickToContactText extends StatelessWidget {
   const CustomClickToContactText({
     super.key,
     required this.value,
-    this.type = ContactType.phone, // default is phone
+    this.type = ContactType.phone,
     this.textStyle,
     this.iconColor = AppColor.mediumBlue,
     this.iconSize = 15,
@@ -81,7 +81,11 @@ class CustomClickToContactText extends StatelessWidget {
           const SizedBox(width: 6),
           Flexible(
             child: Text(
-              type == ContactType.phone ? '+91 $value' : value,
+              type == ContactType.phone
+                  ? (value.trim().length == 10
+                      ? '+91 ${value.trim()}'
+                      : value.trim())
+                  : value,
               style:
                   textStyle ??
                   const TextStyle(

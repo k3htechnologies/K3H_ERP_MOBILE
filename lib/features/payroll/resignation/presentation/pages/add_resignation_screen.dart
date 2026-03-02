@@ -253,6 +253,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
                         ),
                         CustomMultiFilePicker(
                           title: "Upload Offer Letter",
+                          filePickType: FilePickType.kycDocument,
                           isRequired: value,
                           readOnly: !value,
                           validator: (val) {
