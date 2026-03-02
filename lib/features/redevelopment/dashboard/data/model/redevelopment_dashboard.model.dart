@@ -37,7 +37,7 @@ class RedevelopmentDashboardModel {
 class Table0 {
   final String buildingName;
   final String ctsNumber;
-  final int totalPlotAreaSqFt;
+  final double totalPlotAreaSqFt;
   final int totalRecords;
 
   Table0({
@@ -50,7 +50,7 @@ class Table0 {
   factory Table0.fromJson(Map<String, dynamic> json) => Table0(
     buildingName: parseValue<String>(json, "BuildingName"),
     ctsNumber: parseValue<String>(json, "CTSNumber"),
-    totalPlotAreaSqFt: parseValue<int>(json, "TotalPlotAreaSqFt"),
+    totalPlotAreaSqFt: parseValue<double>(json, "TotalPlotAreaSqFt").toDouble(),
     totalRecords: parseValue<int>(json, "TotalRecords"),
   );
 
@@ -64,14 +64,14 @@ class Table0 {
 
 class Table1 {
   final String chargeType;
-  final int amount;
+  final double amount;
   final int paid;
 
   Table1({required this.chargeType, required this.amount, required this.paid});
 
   factory Table1.fromJson(Map<String, dynamic> json) => Table1(
     chargeType: parseValue<String>(json, "ChargeType"),
-    amount: parseValue<int>(json, "Amount"),
+    amount: parseValue<double>(json, "Amount").toDouble(),
     paid: parseValue<int>(json, "Paid"),
   );
 
@@ -117,9 +117,9 @@ class Table2 {
 class Table3 {
   final String flatConfiguration;
   final String flatType;
-  final int flatCarpetAreaSqFt;
-  final int freeAreaOfferedPercent;
-  final int extraAreaPurchasedSqFt;
+  final double flatCarpetAreaSqFt;
+  final double freeAreaOfferedPercent;
+  final double extraAreaPurchasedSqFt;
   final int totalAreaSqFt;
   final int totalRecords;
 
@@ -136,9 +136,12 @@ class Table3 {
   factory Table3.fromJson(Map<String, dynamic> json) => Table3(
     flatConfiguration: parseValue<String>(json, "FlatConfiguration"),
     flatType: parseValue<String>(json, "FlatType"),
-    flatCarpetAreaSqFt: parseValue<int>(json, "FlatCarpetAreaSqFt"),
-    freeAreaOfferedPercent: parseValue<int>(json, "FreeAreaOfferedPercent"),
-    extraAreaPurchasedSqFt: parseValue<int>(json, "ExtraAreaPurchasedSqFt"),
+    flatCarpetAreaSqFt:
+        parseValue<double>(json, "FlatCarpetAreaSqFt").toDouble(),
+    freeAreaOfferedPercent:
+        parseValue<double>(json, "FreeAreaOfferedPercent").toDouble(),
+    extraAreaPurchasedSqFt:
+        parseValue<double>(json, "ExtraAreaPurchasedSqFt").toDouble(),
     totalAreaSqFt: parseValue<int>(json, "TotalAreaSqFt"),
     totalRecords: parseValue<int>(json, "TotalRecords"),
   );

@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/features/redevelopment/dashboard/data/datasource/red
 abstract interface class RedevelopmentDashboardRepository {
   Future<Either<Failure, Map<String, dynamic>>> getRedevelopmentDashboardList({
     required int projectId,
+    int? buildingId,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -20,12 +21,14 @@ class RedevelopmentDashboardRepositoryImpl
   @override
   Future<Either<Failure, Map<String, dynamic>>> getRedevelopmentDashboardList({
     required int projectId,
+    int? buildingId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
       var result = await redevelopmentDashboradDatasource
           .apiCallPullRedevelopmentDashboard(
             projectId: projectId,
+            buildingId: buildingId,
             queryParams: queryParams,
           );
       return right(result);

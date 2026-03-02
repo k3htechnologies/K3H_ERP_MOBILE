@@ -24,7 +24,10 @@ class RedevlopmentDashboardCubit extends Cubit<RedevlopmentDashboardState> {
     emit(state.copyWith(isLoading: true));
 
     var result = await _redevelopmentDashboardRepository
-        .getRedevelopmentDashboardList(projectId: projectId);
+        .getRedevelopmentDashboardList(
+          projectId: projectId,
+          buildingId: buildingId,
+        );
 
     result.fold(
       (failure) {
