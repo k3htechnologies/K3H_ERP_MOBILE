@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -191,10 +192,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                       textController: _otpC,
                                       onSubmitFunction: (value) {
                                         FocusScope.of(context).unfocus();
-                                      _loginCubit.validateOtp(
-                                        context,
-                                        _mobileNumberC.text,
-                                        value,
+                                        _loginCubit.validateOtp(
+                                          context,
+                                          _mobileNumberC.text,
+                                          value,
                                           state.message
                                                   .trim()
                                                   .toLowerCase()
@@ -202,6 +203,21 @@ class _LoginScreenState extends State<LoginScreen> {
                                               ? "mpin"
                                               : "otp",
                                         );
+                                      },
+                                      validator: (value) {
+                                        final isMpin = state.message
+                                            .trim()
+                                            .toLowerCase()
+                                            .contains('mpin');
+
+                                        if (value == null ||
+                                            value.trim().isEmpty) {
+                                          return isMpin
+                                              ? "MPIN is required"
+                                              : "OTP is required";
+                                        }
+
+                                        return null;
                                       },
                                     ),
                                 ],
@@ -219,38 +235,81 @@ class _LoginScreenState extends State<LoginScreen> {
                             (previous, current) =>
                                 current.stateType == StateType.sendOTP,
                         builder: (context, state) {
-                          return Container(
-                            height: 30,
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: CustomButton(
-                              text:
-                                  !state.isSendOtp
-                                      ? "Verify Mobile Number"
-                                      : "Log In",
-                              // isDisable: state.isSendOtp,
-                              elevation: 0,
-                              padding: EdgeInsets.symmetric(horizontal: 40.0),
-                              onPressed: () {
-                                if (!state.isSendOtp) {
-                                  final mobileNumber = _mobileNumberC.text;
-                                  if (_loginFormKey.currentState!.validate()) {
-                                    _loginCubit.sendOTP(context, mobileNumber);
-                                  }
-                                } else {
-                                  _loginCubit.validateOtp(
-                                    context,
-                                    _mobileNumberC.text,
-                                    _otpC.text,
-                                    state.message.trim().toLowerCase().contains(
-                                          'mpin',
-                                        )
-                                        ? "mpin"
-                                        : "otp",
-                                  );
-                                }
-                              },
-                              backgroundColor: AppColor.primary,
-                            ),
+                          return Column(
+                            children: [
+                              Container(
+                                height: 30,
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                child: CustomButton(
+                                  text:
+                                      !state.isSendOtp
+                                          ? "Verify Mobile Number"
+                                          : "Log In",
+                                  // isDisable: state.isSendOtp,
+                                  elevation: 0,
+                                  padding: EdgeInsets.symmetric(horizontal: 40.0),
+                                  onPressed: () {
+                                    if (_loginFormKey.currentState!.validate()) {
+                                      if (!state.isSendOtp) {
+                                        final mobileNumber = _mobileNumberC.text;
+                                        if (_loginFormKey.currentState!
+                                            .validate()) {
+                                          _loginCubit.sendOTP(
+                                            context,
+                                            mobileNumber,
+                                          );
+                                        }
+                                      } else {
+                                        _loginCubit.validateOtp(
+                                          context,
+                                          _mobileNumberC.text,
+                                          _otpC.text,
+                                          state.message
+                                                  .trim()
+                                                  .toLowerCase()
+                                                  .contains('mpin')
+                                              ? "mpin"
+                                              : "otp",
+                                        );
+                                      }
+                                    }
+                                  },
+                                  backgroundColor: AppColor.primary,
+                                ),
+                              ),
+                              verticalSpacing(),
+                              Visibility(
+                                visible: state.message.trim().toLowerCase().contains('otp'),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text("Didn’t Receive a code ? "),
+
+                                    state.canResend
+                                        ? GestureDetector(
+                                      onTap: () {
+                                        _loginCubit.sendOTP(
+                                          context,
+                                          _mobileNumberC.text,
+                                        );
+                                      },
+                                      child: Text(
+                                        "Resend",
+                                        style: AppTextStyle.ts14B(
+                                          color: AppColor.primary,
+                                        ),
+                                      ),
+                                    )
+                                        : Text(
+                                      "Resend in ${state.resendSeconds}s",
+                                      style: AppTextStyle.ts14R(
+                                        color: AppColor.primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           );
                         },
                       ),

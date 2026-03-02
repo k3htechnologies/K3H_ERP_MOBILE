@@ -66,16 +66,6 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
   OverlayEntry? _overlayEntry;
   final GlobalKey _fieldKey = GlobalKey();
 
-  bool _isImage(String fileName) {
-    final ext = fileName.split('.').last.toLowerCase();
-    return ['jpg', 'jpeg', 'png', 'heic', 'heif', 'webp'].contains(ext);
-  }
-
-  bool _isPdf(String fileName) {
-    final ext = fileName.split('.').last.toLowerCase();
-    return ext == 'pdf';
-  }
-
   // METHOD TO SHOW ATTACHMENT OPTIONS
   void _showAttachmentOptions(
     BuildContext context,
@@ -138,7 +128,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                /// ───── HEADER ─────
+                // ───── HEADER ─────
                 Row(
                   children: [
                     Expanded(
@@ -159,7 +149,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
 
                 const SizedBox(height: 20),
 
-                /// ───── UPLOAD AREA ─────
+                // ───── UPLOAD AREA ─────
                 InkWell(
                   onTap: () async {
                     Navigator.pop(context);
@@ -282,99 +272,73 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                           mainAxisSize: MainAxisSize.min,
                           children: List.generate(fileNamesList.length, (index) {
                             final fileName = fileNamesList[index];
-                            final isImage = _isImage(fileName);
-                            final isPdf = _isPdf(fileName);
+
+                            final cleanName = fileName.split('?').first;
+                            final ext = cleanName.contains('.')
+                                ? cleanName.split('.').last.toLowerCase().trim()
+                                : '';
+
+                            final allowedPreviewExtensions = [
+                              'jpg',
+                              'jpeg',
+                              'png',
+                              'gif',
+                              'webp',
+                              'heic',
+                              'heif',
+                              'pdf'
+                            ];
+
+                            final canPreview = allowedPreviewExtensions.contains(ext);
+
 
                             return Container(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: AppColor.grey30),
-                              ),
+                              margin: const EdgeInsets.only(bottom: 5.0),
                               child: Row(
                                 children: [
-                                  /// 🔹 Thumbnail Section
-                                  if (isImage && fileBytesList[index].isNotEmpty)
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(6),
-                                      child: Image.memory(
-                                        fileBytesList[index],
-                                        height: 40,
-                                        width: 40,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                  else if (isPdf)
-                                    Container(
-                                      height: 40,
-                                      width: 40,
-                                      decoration: BoxDecoration(
-                                        color: Colors.red.withValues(alpha: .1),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Icon(
-                                        Icons.picture_as_pdf,
-                                        color: Colors.red,
-                                        size: 24,
-                                      ),
-                                    )
-                                  else
-                                    Container(
-                                      height: 40,
-                                      width: 40,
-                                      decoration: BoxDecoration(
-                                        color: AppColor.grey.withValues(alpha: .1),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Icon(
-                                        Icons.insert_drive_file,
-                                        color: AppColor.grey,
-                                        size: 22,
-                                      ),
-                                    ),
-
-                                  const SizedBox(width: 10),
-
-                                  /// 🔹 File Name
                                   Expanded(
                                     child: Text(
-                                      fileName,
+                                      fileName.split('/').last,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: AppTextStyle.ts14R(),
                                     ),
                                   ),
 
-                                  /// 🔹 Actions
                                   Row(
                                     children: [
-                                      InkWell(
-                                        onTap: () {
-                                          _overlayEntry?.remove();
-                                          _overlayEntry = null;
+                                      //  SHOE PFD AND IMAGE ONLY
+                                      if (canPreview)
+                                        InkWell(
+                                          onTap: () {
+                                            _overlayEntry?.remove();
+                                            _overlayEntry = null;
 
-                                          CommonFileViewerMobile.show(
-                                            context,
-                                            urls: [fileName],
-                                            fileBytes: fileName.contains('http')
-                                                ? null
-                                                : [fileBytesList[index]],
-                                          );
-                                        },
-                                        child: Icon(
-                                          Icons.remove_red_eye,
-                                          color: AppColor.primary,
-                                          size: 18,
+                                            CommonFileViewerMobile.show(
+                                              context,
+                                              urls: [fileName],
+                                              fileBytes: fileBytesList.length > index &&
+                                                  fileBytesList[index].isNotEmpty
+                                                  ? [fileBytesList[index]]
+                                                  : null,
+                                            );
+                                          },
+                                          child: Icon(
+                                            Icons.remove_red_eye,
+                                            color: AppColor.primary,
+                                            size: 18.0,
+                                          ),
                                         ),
-                                      ),
-                                      horizontalSpacing(),
+
+                                      if (canPreview) horizontalSpacing(),
+
+                                      /// 🗑 Always show delete
                                       InkWell(
                                         onTap: () => deleteFile(formFieldState, index),
                                         child: Icon(
                                           Icons.delete,
                                           color: AppColor.error,
-                                          size: 18,
+                                          size: 18.0,
                                         ),
                                       ),
                                     ],
@@ -383,67 +347,6 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                               ),
                             );
                           }),
-                          // children: List.generate(fileNamesList.length, (
-                          //   index,
-                          // ) {
-                          //   return Container(
-                          //     margin: const EdgeInsets.only(bottom: 5.0),
-                          //     child: Row(
-                          //       children: [
-                          //         Expanded(
-                          //           child: Text(
-                          //             "${fileNamesList[index]} -$index",
-                          //             maxLines: 1,
-                          //             overflow: TextOverflow.ellipsis,
-                          //             style: AppTextStyle.ts14R(),
-                          //           ),
-                          //         ),
-                          //         // FILE ACTIONS (VIEW/DELETE)
-                          //         if (fileBytesList.isNotEmpty ||
-                          //             fileNamesList.isNotEmpty)
-                          //           Row(
-                          //             children: [
-                          //               InkWell(
-                          //                 onTap: () {
-                          //                   _overlayEntry?.remove();
-                          //                   _overlayEntry = null;
-                          //
-                          //                   CommonFileViewerMobile.show(
-                          //                     context,
-                          //                     urls: [fileNamesList[index]],
-                          //                     fileBytes:
-                          //                         !fileNamesList[index]
-                          //                                 .contains('http')
-                          //                             ? [fileBytesList[index]]
-                          //                             : null,
-                          //                   );
-                          //                 },
-                          //
-                          //                 child: Icon(
-                          //                   Icons.remove_red_eye,
-                          //                   color: AppColor.primary,
-                          //                   size: 18.0,
-                          //                 ),
-                          //               ),
-                          //               horizontalSpacing(),
-                          //               InkWell(
-                          //                 onTap:
-                          //                     () => deleteFile(
-                          //                       formFieldState,
-                          //                       index,
-                          //                     ),
-                          //                 child: Icon(
-                          //                   Icons.delete,
-                          //                   color: AppColor.error,
-                          //                   size: 18.0,
-                          //                 ),
-                          //               ),
-                          //             ],
-                          //           ),
-                          //       ],
-                          //     ),
-                          //   );
-                          // }),
                         ),
                       ],
                     ),

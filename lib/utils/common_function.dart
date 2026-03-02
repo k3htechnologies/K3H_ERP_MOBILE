@@ -184,12 +184,20 @@ Future<void> handleLocationPermission() async {
 }
 
 // LOGOUT
-Future logOutUser(BuildContext context) async {
-  await showSuccessMessage(context, subTitle: "Logged out successfully");
-  Future.delayed(Duration(seconds: 1), () async {
+Future<void> logOutUser(BuildContext context) async {
+  final isConfirmed = await DialogHelper.logoutDialog(
+    context,
+    "You are sure you want to logout",
+    "Are you sure you want to logout from the application? Please save all your work before confirming.",
+  );
+
+  if (isConfirmed == true) {
     await LocalStorageManager().removeAll();
-    goRouter.replace(AppRoutes.splashScreen);
-  });
+
+    if (context.mounted) {
+      goRouter.go(AppRoutes.splashScreen);
+    }
+  }
 }
 
 // SHOW SUCCESS MESSAGE

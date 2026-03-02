@@ -329,7 +329,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
             return Center(child: loader());
           }
           if (state.companyList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No companies Data found"));
           }
           return ListView.builder(
             controller: scrollController,

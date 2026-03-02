@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class CommonFileViewer extends StatefulWidget {
   final List<String> urls;
@@ -68,8 +69,7 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
     final imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
     // 1) Normal extension-based check
-    final hasImageExt =
-        imageExtensions.any((ext) => cleanUrl.endsWith(ext));
+    final hasImageExt = imageExtensions.any((ext) => cleanUrl.endsWith(ext));
 
     if (hasImageExt) return true;
 
@@ -82,6 +82,11 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
         lowerUrl.contains('.docx');
 
     return url.startsWith('http') && !isDocLike;
+  }
+
+  bool isPdf(String url) {
+    final cleanUrl = url.split('?').first.toLowerCase();
+    return cleanUrl.endsWith('.pdf') || cleanUrl.contains('.pdf');
   }
 
   String getFileName(String url) => Uri.parse(url).pathSegments.last;
@@ -115,7 +120,6 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
 
       final file = File(filePath);
       await file.writeAsBytes(fileData, flush: true);
-
 
       await OpenFilex.open(filePath);
     } catch (e) {
@@ -165,40 +169,50 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
 
                   return Container(
                     padding: const EdgeInsets.all(16.0),
-                    child: isImageFile
-                        ? Column(
-                            children: [
-                              Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: hasBytes
-                                      // Local / in-memory image preview (e.g., from local storage)
-                                      ? Image.memory(
-                                          bytes!,
-                                          fit: BoxFit.contain,
-                                          width: double.infinity,
-                                          height: double.infinity,
-                                        )
-                                      // Network image preview (URL)
-                                      : NetworkImageWidget(
-                                          imageUrl: url,
-                                          fit: BoxFit.contain,
-                                          width: double.infinity,
-                                          height: double.infinity,
-                                        ),
+                    child:
+                        isImageFile
+                            ? Column(
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child:
+                                        hasBytes
+                                            ? Image.memory(
+                                              bytes!,
+                                              fit: BoxFit.contain,
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                            )
+                                            : NetworkImageWidget(
+                                              imageUrl: url,
+                                              fit: BoxFit.contain,
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                            ),
+                                  ),
                                 ),
+                                verticalSpacing(height: 8),
+                                Text(getFileName(url)),
+                              ],
+                            )
+                            : isPdf(url)
+                            ? Expanded(
+                              child:
+                                  hasBytes
+                                      ? SfPdfViewer.memory(bytes!)
+                                      : SfPdfViewer.network(url),
+                            )
+                            : Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.insert_drive_file, size: 50),
+                                  verticalSpacing(height: 8),
+                                  Text(getFileName(url)),
+                                ],
                               ),
-                              verticalSpacing(height: 8),
-                              Text(getFileName(url)),
-                            ],
-                          )
-                        // Non-image files (pdf, excel, others): show just the file name
-                        : Center(
-                            child: Text(
-                              getFileName(url),
-                              style: AppTextStyle.ts16R(),
                             ),
-                          ),
                   );
                 },
               ),

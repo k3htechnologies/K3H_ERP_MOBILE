@@ -249,7 +249,7 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
             return Center(child: loader());
           }
           if (state.designationList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Designation Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

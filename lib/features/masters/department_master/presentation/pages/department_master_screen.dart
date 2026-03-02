@@ -239,7 +239,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
             return Center(child: loader());
           }
           if (state.departmentList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Departments Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

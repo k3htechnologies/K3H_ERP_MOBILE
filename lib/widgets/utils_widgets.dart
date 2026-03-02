@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 Widget verticalSpacing({double height = 10.0}) => SizedBox(height: height);
 
@@ -13,14 +14,14 @@ double verticalSpacingMeasure({double height = 10.0}) => height;
 
 double horizontalSpacingMeasure({double width = 20.0}) => width;
 
-Widget noDataWidget() => Container(
+Widget noDataWidget({String? message}) => Container(
   decoration: const BoxDecoration(color: Colors.transparent),
   child: Column(
     mainAxisSize: MainAxisSize.min,
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      Image.asset(AppAssets.noDataImage, width: 150.0, height: 150.0),
-      Text("No Data Available!", style: AppTextStyle.ts14B()),
+      Image.asset(AppAssets.noDataImage,width: 200, fit: BoxFit.fitHeight,),
+      Text(message??"No Data Available!", style: AppTextStyle.ts14B(color: AppColor.grey)),
     ],
   ),
 );

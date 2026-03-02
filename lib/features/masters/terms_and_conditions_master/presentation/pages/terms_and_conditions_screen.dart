@@ -345,7 +345,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
                       if (state
                           .materialRequisitionTermsAndConditionsList
                           .isEmpty) {
-                        return Center(child: noDataWidget());
+                        return Center(child: noDataWidget(message: "No terms & conditions found"));
                       }
                       return ListView.builder(
                         controller: _materialRequisitionScrollController,
@@ -396,7 +396,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
                         return Center(child: loader());
                       }
                       if (state.bookingTermsAndConditionsList.isEmpty) {
-                        return Center(child: noDataWidget());
+                        return Center(child: noDataWidget(message: "No terms & conditions found"));
                       }
                       return ListView.builder(
                         controller: _bookingScrollController,

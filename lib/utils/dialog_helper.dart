@@ -207,6 +207,88 @@ class DialogHelper {
     );
   }
 
+  static Future<bool> logoutDialog(
+      BuildContext context,
+      String title,
+      String subTitle,
+      ) async {
+    return await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20.0,
+            vertical: 40.0,
+          ),
+          backgroundColor: Colors.transparent,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColor.primary, width: 0.5),
+                color: AppColor.white,
+                borderRadius: BorderRadius.circular(25.0),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.logout,
+                    color: AppColor.primary,
+                    size: 32,
+                  ),
+                  verticalSpacing(height: 15),
+
+                  Text(
+                    title,
+                    style: AppTextStyle.ts20R(color: AppColor.primary),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  verticalSpacing(height: 8),
+
+                  Text(
+                    subTitle,
+                    style: AppTextStyle.ts16R(color: AppColor.grey),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  verticalSpacing(height: 24),
+
+                  Row(
+                    spacing: 2,
+                    children: [
+                      Expanded(
+                        child: CustomButton.cancelOutline(
+                          onPressed: () => goRouter.pop(false),
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      Expanded(
+                        child: CustomButton(
+                          backgroundColor: AppColor.primary,
+                          textColor: AppColor.white,
+                          onPressed: () => goRouter.pop(true),
+                          text: "Confirm",
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 9,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   static Future<bool> showConfirmationDialog({
     required BuildContext context,
     required String title,

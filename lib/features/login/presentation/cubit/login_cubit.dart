@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
@@ -27,9 +28,35 @@ class LoginCubit extends Cubit<LoginState> {
 
   final LocalStorageManager localStorage = LocalStorageManager();
 
+  Timer? _resendTimer;
+
   // RESET
   void resetState() {
     emit(LoginState.initial());
+  }
+
+  // START TIMER
+  void startResendTimer() {
+    emit(state.copyWith(
+      resendSeconds: 60,
+      canResend: false,
+    ));
+
+    _resendTimer?.cancel();
+
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (state.resendSeconds > 1) {
+        emit(state.copyWith(
+          resendSeconds: state.resendSeconds - 1,
+        ));
+      } else {
+        timer.cancel();
+        emit(state.copyWith(
+          resendSeconds: 0,
+          canResend: true,
+        ));
+      }
+    });
   }
 
   // ----------------------------- SEND OTP -----------------------------------
@@ -59,6 +86,7 @@ class LoginCubit extends Cubit<LoginState> {
               stateType: StateType.sendOTP,
             ),
           );
+          startResendTimer();
           await showSuccessMessage(context, subTitle: message);
         },
       );
@@ -119,7 +147,7 @@ class LoginCubit extends Cubit<LoginState> {
         }
 
         if (context.mounted) {
-          showSuccessMessage(context, subTitle: "Logged in Successfully");
+          showSuccessMessage(context, subTitle: "Login Successfully");
         }
       },
     );

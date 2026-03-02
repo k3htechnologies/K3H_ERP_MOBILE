@@ -133,9 +133,7 @@ class _MainScreenState extends State<MainScreen>
                   leading: Icon(Icons.login, size: 18, color: AppColor.white),
                   text: "Log out",
                   onPressed: () async {
-                    await showSuccessMessage(context, subTitle: "Logged out successfully");
-                    await LocalStorageManager().removeAll();
-                    goRouter.replace(AppRoutes.splashScreen);
+                    logOutUser(context);
                   },
                 ),
               ),

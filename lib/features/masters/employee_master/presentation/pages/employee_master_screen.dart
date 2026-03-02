@@ -608,7 +608,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
               return Center(child: loader());
             }
             if (state.employeeMasterList.isEmpty) {
-              return Center(child: noDataWidget());
+              return Center(child: noDataWidget(message: "No employees found"));
             }
 
             final listView = ListView.builder(

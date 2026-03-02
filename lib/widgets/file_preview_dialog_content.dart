@@ -67,8 +67,24 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
 
   // CHECK IF ITS IMAGE OR NOT
   bool isImage(String url) {
-    final imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-    return imageExtensions.any((ext) => url.toLowerCase().endsWith(ext));
+    final clean = url.split('?').first.toLowerCase();
+    final ext = clean.contains('.') ? clean.split('.').last : '';
+
+    return [
+      'jpg',
+      'jpeg',
+      'png',
+      'gif',
+      'webp',
+      'heic',
+      'heif'
+    ].contains(ext);
+  }
+
+  bool isPdf(String url) {
+    final clean = url.split('?').first.toLowerCase();
+    final ext = clean.contains('.') ? clean.split('.').last : '';
+    return ext == 'pdf';
   }
 
   // GET FILE NAME
@@ -166,28 +182,50 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
                 onPageChanged: (index) => _currentPageNotifier.value = index,
                 itemBuilder: (context, index) {
                   final url = widget.urls[index];
+
+                  if (isImage(url)) {
+                    return Container(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: _buildImage(index, url),
+                            ),
+                          ),
+                          verticalSpacing(height: 8),
+                          Text(getFileName(url)),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (isPdf(url)) {
+                    // Auto open PDF and close dialog
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      downloadFile(
+                        url,
+                        bytes: widget.fileBytes != null &&
+                            widget.fileBytes!.length > index
+                            ? widget.fileBytes![index]
+                            : null,
+                      );
+                      goRouter.pop();
+                    });
+
+                    return const SizedBox(); // empty placeholder
+                  }
+
+                  // Other files
                   return Container(
                     padding: const EdgeInsets.all(16.0),
-                    child:
-                        isImage(url)
-                            ? Column(
-                              children: [
-                                Expanded(
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: _buildImage(index, url),
-                                  ),
-                                ),
-                                verticalSpacing(height: 8),
-                                Text(getFileName(url)),
-                              ],
-                            )
-                            : Center(
-                              child: Text(
-                                getFileName(url),
-                                style: AppTextStyle.ts16R(),
-                              ),
-                            ),
+                    child: Center(
+                      child: Text(
+                        getFileName(url),
+                        style: AppTextStyle.ts16R(),
+                      ),
+                    ),
                   );
                 },
               ),

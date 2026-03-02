@@ -79,6 +79,9 @@ class _SearchWidgetState extends State<SearchWidget> {
               controller: widget.textController,
               onChanged: _onChanged,
               onSubmitted: _onSubmitted,
+              onTapOutside: (_) {
+                FocusScope.of(context).unfocus();
+              },
               cursorHeight: 15,
               cursorColor: isDarkMode ? AppColor.warning : AppColor.cursorColor,
               style: AppTextStyle.ts12R().copyWith(
