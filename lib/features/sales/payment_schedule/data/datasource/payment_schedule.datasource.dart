@@ -1,18 +1,20 @@
-import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_master.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
-abstract interface class PaymentScheduleSchemeDatasource {
-  Future<Map<String, dynamic>> apicallPullPaymentScheduleScheme({
+abstract interface class PaymentScheduleMasterDatasource {
+  Future<Map<String, dynamic>> apicallPullPaymentScheduleMaster({
     required int pageNumber,
     required int pageSize,
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-  Future<Map<String, dynamic>> apicallAddUpdatePaymentScheduleScheme({
+
+  Future<Map<String, dynamic>> apicallAddUpdatePaymentScheduleMaster({
     required Map<String, dynamic> body,
   });
-  Future<Map<String, dynamic>> apicallPullScheduleSchemeForExport({
+
+  Future<Map<String, dynamic>> apicallPullPaymentScheduleMasterForExport({
     required int pageNumber,
     required int pageSize,
     required int projectId,
@@ -20,29 +22,29 @@ abstract interface class PaymentScheduleSchemeDatasource {
   });
 }
 
-class PaymentScheduleSchemeDatasourceImpl
-    extends PaymentScheduleSchemeDatasource {
+class PaymentScheduleMasterDatasourceImpl
+    extends PaymentScheduleMasterDatasource {
   final BaseClient baseClient = BaseClient();
 
   // ----------------------------------------------------------
-  // Pull Payment Schedule Scheme
+  // Pull Payment Schedule Master
   // ----------------------------------------------------------
 
   @override
-  Future<Map<String, dynamic>> apicallPullPaymentScheduleScheme({
+  Future<Map<String, dynamic>> apicallPullPaymentScheduleMaster({
     required int pageNumber,
     required int pageSize,
     required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullPaymentScheduleSchemeUrl({
+    String pullPaymentScheduleMasterUrl({
       required int pageSize,
       required int pageNumber,
       required int projectId,
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "PaymentScheduleSchemeMaster/PullPaymentScheduleSchemeMaster?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+          "PaymentScheduleMaster/PullPaymentScheduleMaster?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
 
       queryParams?.forEach((key, value) {
         url += "&$key=$value";
@@ -53,7 +55,7 @@ class PaymentScheduleSchemeDatasourceImpl
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullPaymentScheduleSchemeUrl(
+        pullPaymentScheduleMasterUrl(
           pageSize: pageSize,
           pageNumber: pageNumber,
           projectId: projectId,
@@ -62,16 +64,17 @@ class PaymentScheduleSchemeDatasourceImpl
       );
 
       return {
-        'data': List<PaymentScheduleSchemeModel>.from(
+        'data': List<PaymentScheduleMasterModel>.from(
           networkResponse["data"].map(
-            (e) => PaymentScheduleSchemeModel.fromJson(e),
+            (e) => PaymentScheduleMasterModel.fromJson(e),
           ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return await apicallPullPaymentScheduleScheme(
+        // Retry on token expiry
+        return await apicallPullPaymentScheduleMaster(
           pageNumber: pageNumber,
           pageSize: pageSize,
           projectId: projectId,
@@ -82,12 +85,15 @@ class PaymentScheduleSchemeDatasourceImpl
     }
   }
 
+  // ----------------------------------------------------------
+  // Add / Update Payment Schedule Master
+  // ----------------------------------------------------------
+
   @override
-  Future<Map<String, dynamic>> apicallAddUpdatePaymentScheduleScheme({
+  Future<Map<String, dynamic>> apicallAddUpdatePaymentScheduleMaster({
     required Map<String, dynamic> body,
   }) async {
-    String url =
-        "PaymentScheduleSchemeMaster/AddUpdatePaymentScheduleSchemeMaster";
+    String url = "PaymentScheduleMaster/AddUpdatePaymentScheduleMaster";
 
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
@@ -96,39 +102,40 @@ class PaymentScheduleSchemeDatasourceImpl
       );
 
       return {
-        'data': List<PaymentScheduleSchemeModel>.from(
+        'data': List<PaymentScheduleMasterModel>.from(
           networkResponse["data"].map(
-            (e) => PaymentScheduleSchemeModel.fromJson(e),
+            (e) => PaymentScheduleMasterModel.fromJson(e),
           ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return await apicallAddUpdatePaymentScheduleScheme(body: body);
+        return await apicallAddUpdatePaymentScheduleMaster(body: body);
       }
       rethrow;
     }
   }
+
   // ----------------------------------------------------------
-  // Pull Payment Schedule Scheme For Export
+  // Pull Payment Schedule Master For Export
   // ----------------------------------------------------------
 
   @override
-  Future<Map<String, dynamic>> apicallPullScheduleSchemeForExport({
+  Future<Map<String, dynamic>> apicallPullPaymentScheduleMasterForExport({
     required int pageNumber,
     required int pageSize,
     required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullScheduleSchemeExportUrl({
+    String pullPaymentScheduleMasterExportUrl({
       required int pageSize,
       required int pageNumber,
       required int projectId,
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "PaymentScheduleSchemeMaster/PullPaymentScheduleSchemeMaster?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+          "PaymentScheduleMaster/PullPaymentScheduleMaster?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
 
       queryParams?.forEach((key, value) {
         url += "&$key=$value";
@@ -139,7 +146,7 @@ class PaymentScheduleSchemeDatasourceImpl
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullScheduleSchemeExportUrl(
+        pullPaymentScheduleMasterExportUrl(
           pageSize: pageSize,
           pageNumber: pageNumber,
           projectId: projectId,
@@ -153,7 +160,7 @@ class PaymentScheduleSchemeDatasourceImpl
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return await apicallPullScheduleSchemeForExport(
+        return await apicallPullPaymentScheduleMasterForExport(
           pageNumber: pageNumber,
           pageSize: pageSize,
           projectId: projectId,

@@ -1,4 +1,5 @@
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule_summary/data/model/project_inventory_structure.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -69,6 +70,12 @@ abstract interface class InventoryDatasource {
 
   // PAGINATED FLATS
   Future<Map<String, dynamic>> apicallPullPaginatedFlats({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Map<String, dynamic>> apicallPullProjectInventoryStructure({
     required int pageNumber,
     required int pageSize,
     required int projectId,
@@ -518,6 +525,57 @@ class InventoryDatasourceImpl implements InventoryDatasource {
         apicallPullPaginatedFlats(
           pageSize: pageSize,
           pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  // ------------------ GET PROJECT INVENTORY ------------------
+  @override
+  Future<Map<String, dynamic>> apicallPullProjectInventoryStructure({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullProjectInventoryStructureUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "Inventory/PullProjectInventoryStructure?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullProjectInventoryStructureUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': List<ProjectInventoryStructure>.from(
+          networkResponse["data"].map(
+            (e) => ProjectInventoryStructure.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullProjectInventoryStructure(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
           projectId: projectId,
           queryParams: queryParams,
         );

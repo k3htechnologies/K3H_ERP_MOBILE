@@ -1,11 +1,16 @@
 import 'package:k3h_erp_app/utils/common_function.dart';
 
 class PaymentScheduleSchemeModel {
-  int paymentScheduleSchemeId;
+  int paymentScheduleSchemeMasterId;
   String uniquekey;
   int projectId;
   String paymentScheduleSchemeName;
-  int orderBy;
+
+  int inventoryBuildingId;
+  String buildingNumber;
+  String wing;
+  int inventoryFlatFloorBasementPodiumWingId;
+
   int createdById;
   String createdBy;
   DateTime? createdDate;
@@ -14,11 +19,14 @@ class PaymentScheduleSchemeModel {
   DateTime? modifiedDate;
 
   PaymentScheduleSchemeModel({
-    required this.paymentScheduleSchemeId,
+    required this.paymentScheduleSchemeMasterId,
     required this.uniquekey,
     required this.projectId,
     required this.paymentScheduleSchemeName,
-    required this.orderBy,
+    required this.inventoryBuildingId,
+    required this.buildingNumber,
+    required this.wing,
+    required this.inventoryFlatFloorBasementPodiumWingId,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -29,9 +37,9 @@ class PaymentScheduleSchemeModel {
 
   factory PaymentScheduleSchemeModel.fromJson(Map<String, dynamic> json) =>
       PaymentScheduleSchemeModel(
-        paymentScheduleSchemeId: parseValue<int>(
+        paymentScheduleSchemeMasterId: parseValue<int>(
           json,
-          "PaymentScheduleSchemeId",
+          "PaymentScheduleSchemeMasterId",
         ),
 
         uniquekey: parseValue<String>(json, "Uniquekey"),
@@ -40,10 +48,19 @@ class PaymentScheduleSchemeModel {
 
         paymentScheduleSchemeName: parseValue<String>(
           json,
-          "PaymentScheduleSchemeName",
+          "PaymentScheduleScheme",
         ),
 
-        orderBy: parseValue<int>(json, "OrderBy"),
+        inventoryBuildingId: parseValue<int>(json, "InventoryBuildingId"),
+
+        buildingNumber: parseValue<String>(json, "BuildingNumber"),
+
+        wing: parseValue<String>(json, "Wing"),
+
+        inventoryFlatFloorBasementPodiumWingId: parseValue<int>(
+          json,
+          "InventoryFlatFloorBasementPodiumWingId",
+        ),
 
         createdById: parseValue<int>(json, "CreatedById"),
 
@@ -65,11 +82,13 @@ class PaymentScheduleSchemeModel {
       );
 
   Map<String, dynamic> toJson() => {
-    "PaymentScheduleSchemeId": paymentScheduleSchemeId,
+    "PaymentScheduleSchemeMasterId": paymentScheduleSchemeMasterId,
     "Uniquekey": uniquekey,
     "ProjectId": projectId,
-    "PaymentScheduleSchemeName": paymentScheduleSchemeName,
-    "OrderBy": orderBy,
+    "PaymentScheduleScheme": paymentScheduleSchemeName,
+    "InventoryBuildingId": inventoryBuildingId,
+    "InventoryFlatFloorBasementPodiumWingId":
+        inventoryFlatFloorBasementPodiumWingId,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate?.toIso8601String(),

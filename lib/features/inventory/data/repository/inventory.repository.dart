@@ -73,6 +73,13 @@ abstract interface class InventoryRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> getProjectInventoryStructure({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class InventoryRepositoryImpl implements InventoryRepository {
@@ -301,6 +308,29 @@ class InventoryRepositoryImpl implements InventoryRepository {
         projectId: projectId,
         queryParams: queryParams,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  // ------------------ GET PROJECT INVENTORY ------------------
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getProjectInventoryStructure({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await inventoryDatasource
+          .apicallPullProjectInventoryStructure(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            projectId: projectId,
+            queryParams: queryParams,
+          );
+
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

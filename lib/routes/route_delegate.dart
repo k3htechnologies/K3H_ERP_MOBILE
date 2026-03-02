@@ -277,7 +277,9 @@ import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/view_enqui
 import 'package:k3h_erp_app/features/sales/other_charges/presentation/cubit/other_charges_cubit.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/presentation/pages/add_other_charges_screen.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/presentation/pages/other_charges_screen.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_cubit.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/pages/add_payment_schedule_scheme_screen.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/pages/payment_schedule_scheme_screen.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_summary/presentation/cubit/payment_schedule_summary_cubit.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_summary/presentation/pages/payment_schedule_summary_screen.dart';
@@ -4044,6 +4046,37 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.paymentScheduleScheme,
                   builder: (context, state) {
                     return const PaymentScheduleSchemeScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addPaymentScheduleScheme,
+                  path: AppRoutes.addPaymentScheduleScheme,
+                  builder: (context, state) {
+                    final queryParameterPaymentScheduleScheme =
+                        state.uri.queryParameters['scheme'];
+                    final paymentScheduleScheme =
+                        queryParameterPaymentScheduleScheme != null &&
+                                queryParameterPaymentScheduleScheme.isNotEmpty
+                            ? PaymentScheduleSchemeModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterPaymentScheduleScheme,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddPaymentScheduleSchemeScreen(
+                      paymentScheduleSchemeModel: paymentScheduleScheme,
+                      index: index,
+                    );
                   },
                 ),
               ],

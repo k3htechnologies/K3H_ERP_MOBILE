@@ -114,7 +114,7 @@ class _PaymentScheduleSchemeScreenState
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
-          _cubit.exportExcelPdf(context, value, 0);
+          _cubit.exportExcelPdf(context, value);
         },
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addPaymentScheduleScheme);
@@ -168,45 +168,52 @@ class _PaymentScheduleSchemeScreenState
                         Expanded(
                           child: Text(
                             scheme.paymentScheduleSchemeName,
-                            style: AppTextStyle.ts14R(),
+                            style: AppTextStyle.ts16M(),
                           ),
                         ),
-                        Row(
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addPaymentScheduleScheme,
-                                  queryParameters: {
-                                    'scheme': Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(scheme.toJson()),
+                        if (_routeAuthorizationModel.isAction) ...[
+                          Row(
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addPaymentScheduleScheme,
+                                    queryParameters: {
+                                      'scheme': Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(scheme.toJson()),
+                                        ),
                                       ),
-                                    ),
-                                    'index': index.toString(),
-                                  },
-                                );
-                              },
-                            ),
-                            CustomIconButton.delete(
-                              onPressed: () async {
-                                _showPaymentScheduleDeletePopup(
-                                  context,
-                                  scheme,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              horizontalSpacing(),
+                              CustomIconButton.delete(
+                                onPressed: () async {
+                                  _showPaymentScheduleDeletePopup(
+                                    context,
+                                    scheme,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
 
                     verticalSpacing(),
-
                     buildRowTitleValue(
-                      title: "Order By",
-                      value: scheme.orderBy.toString(),
+                      title: "Building",
+                      value: scheme.buildingNumber,
+                      singleLine: false,
+                    ),
+                    buildRowTitleValue(
+                      title: "Wing",
+                      value: scheme.wing,
                       singleLine: false,
                     ),
                     buildRowTitleValue(

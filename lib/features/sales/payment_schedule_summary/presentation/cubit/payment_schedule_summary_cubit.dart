@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/inventory/data/repository/inventory.repository.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_summary/data/model/cost_sheet.model.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_summary/data/model/payment_schedule_master_report.model.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_summary/data/model/project_inventory_structure.model.dart';
@@ -15,6 +16,9 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
 
   final PaymentScheduleSummaryRepository _repository =
       serviceLocator<PaymentScheduleSummaryRepository>();
+  // REPOSITORY
+  final InventoryRepository _inventoryRepository =
+      serviceLocator<InventoryRepository>();
 
   // ------------------ TAB CHANGED ------------------
   void onTabChanged(int index, BuildContext context) {
@@ -242,7 +246,7 @@ class PaymentScheduleSummaryCubit extends Cubit<PaymentScheduleSummaryState> {
       ),
     );
 
-    final result = await _repository.getProjectInventoryStructure(
+    final result = await _inventoryRepository.getProjectInventoryStructure(
       pageNumber: pageNumber,
       pageSize: 100,
       projectId: projectId,

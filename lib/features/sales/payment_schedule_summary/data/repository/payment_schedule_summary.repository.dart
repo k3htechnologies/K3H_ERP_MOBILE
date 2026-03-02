@@ -4,13 +4,6 @@ import 'package:k3h_erp_app/core/failure.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_summary/data/datasource/payment_schedule_summary.datasource.dart';
 
 abstract interface class PaymentScheduleSummaryRepository {
-  Future<Either<Failure, Map<String, dynamic>>> getProjectInventoryStructure({
-    required int pageNumber,
-    required int pageSize,
-    required int projectId,
-    Map<String, dynamic>? queryParams,
-  });
-
   Future<Either<Failure, Map<String, dynamic>>> getPaymentScheduleMasterReport({
     required int pageNumber,
     required int pageSize,
@@ -32,29 +25,6 @@ class PaymentScheduleSummaryRepositoryImpl
   PaymentScheduleSummaryRepositoryImpl({
     required this.paymentScheduleDataSource,
   });
-
-  // ------------------ GET PROJECT INVENTORY ------------------
-  @override
-  Future<Either<Failure, Map<String, dynamic>>> getProjectInventoryStructure({
-    required int pageNumber,
-    required int pageSize,
-    required int projectId,
-    Map<String, dynamic>? queryParams,
-  }) async {
-    try {
-      var result = await paymentScheduleDataSource
-          .apicallPullProjectInventoryStructure(
-            pageNumber: pageNumber,
-            pageSize: pageSize,
-            projectId: projectId,
-            queryParams: queryParams,
-          );
-
-      return right(result);
-    } catch (error) {
-      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-    }
-  }
 
   // ------------------ GET PAYMENT SCHEDULE MASTER REPORT ------------------
   @override
