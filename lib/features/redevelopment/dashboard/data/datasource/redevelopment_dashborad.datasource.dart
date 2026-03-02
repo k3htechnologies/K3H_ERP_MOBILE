@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/service/exceptions.dart';
 abstract interface class RedevelopmentDashboradDatasource {
   Future<Map<String, dynamic>> apiCallPullRedevelopmentDashboard({
     required int projectId,
+    int? buildingId,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -16,11 +17,12 @@ class RedevelopmentDashboradDatasourceImpl
   @override
   Future<Map<String, dynamic>> apiCallPullRedevelopmentDashboard({
     required int projectId,
+    int? buildingId,
     Map<String, dynamic>? queryParams,
   }) async {
     String pullRedevelopmentDashboardUrl({Map<String, dynamic>? queryParams}) {
       String url =
-          "RedevelopmentDashboard/PullRedevelopmentDashboard?ProjectId=$projectId";
+          "RedevelopmentDashboard/PullRedevelopmentDashboard?ProjectId=$projectId&BuildingId=$buildingId";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
