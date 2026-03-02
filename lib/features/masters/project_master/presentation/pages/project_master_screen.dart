@@ -114,7 +114,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
 
     DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Project",
+      title: "Filter - Project Master",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           return SingleChildScrollView(
@@ -249,21 +249,23 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                             ),
                           ),
                         ),
-                        CustomIconButton.edit(
-                          onPressed: () async {
-                            await goRouter.pushNamed(
-                              AppRoutes.addProjectMaster,
-                              queryParameters: {
-                                "project": Uri.encodeQueryComponent(
-                                  EncryptionManager.encryptData(
-                                    jsonEncode(project),
-                                  ),
-                                ),
-                                'index': index.toString(),
-                              },
-                            );
-                          },
-                        ),
+                       if(_routeAuthorizationModel.isAction)...[
+                         CustomIconButton.edit(
+                           onPressed: () async {
+                             await goRouter.pushNamed(
+                               AppRoutes.addProjectMaster,
+                               queryParameters: {
+                                 "project": Uri.encodeQueryComponent(
+                                   EncryptionManager.encryptData(
+                                     jsonEncode(project),
+                                   ),
+                                 ),
+                                 'index': index.toString(),
+                               },
+                             );
+                           },
+                         ),
+                       ]
                       ],
                     ),
                     verticalSpacing(),

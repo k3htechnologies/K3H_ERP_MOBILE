@@ -97,8 +97,8 @@ class LoginCubit extends Cubit<LoginState> {
         emit(state.copyWith(user: user));
 
         // SAVE USER + TOKEN
-        localStorage.setString(StorageKey.authorizationToken, user.token);
-        localStorage.setString(StorageKey.userUniqueKey, user.uniqueKey);
+        await localStorage.setString(StorageKey.authorizationToken, user.token);
+        await localStorage.setString(StorageKey.userUniqueKey, user.uniqueKey);
 
         // Fetch complete employee data with all fields (bank details, reporting cycle, etc.)
         await _fetchAndStoreCompleteEmployeeData(user);
@@ -110,7 +110,7 @@ class LoginCubit extends Cubit<LoginState> {
           );
         } else {
           // SAVE MENU
-          localStorage.setString(StorageKey.menu, jsonEncode(user.moduleData));
+          await localStorage.setString(StorageKey.menu, jsonEncode(user.moduleData));
 
           // UPDATE ROUTE AUTH
           await updateRouteAuthorization(user.moduleData);
@@ -150,7 +150,7 @@ class LoginCubit extends Cubit<LoginState> {
         (message) async {
           showSuccessMessage(context, subTitle: message);
 
-          await LocalStorageManager().removeAll();
+          await localStorage.removeAll();
           goRouter.replace(AppRoutes.splashScreen);
         },
       );
@@ -171,11 +171,11 @@ class LoginCubit extends Cubit<LoginState> {
       );
 
       result.fold(
-        (failure) {
+        (failure) async {
           // Fallback to login user data if fetch fails
-          localStorage.setString(StorageKey.currentUser, jsonEncode(loginUser));
+          await localStorage.setString(StorageKey.currentUser, jsonEncode(loginUser));
         },
-        (response) {
+        (response) async {
           final employeeList = response['data'] as List<UserModel>;
           if (employeeList.isNotEmpty) {
             final completeEmployee = employeeList.first;
@@ -193,12 +193,12 @@ class LoginCubit extends Cubit<LoginState> {
                       .toList(), // Preserve project data
             };
 
-            localStorage.setString(
+            await localStorage.setString(
               StorageKey.currentUser,
               jsonEncode(mergedUserData),
             );
           } else {
-            localStorage.setString(
+            await localStorage.setString(
               StorageKey.currentUser,
               jsonEncode(loginUser),
             );
@@ -206,7 +206,7 @@ class LoginCubit extends Cubit<LoginState> {
         },
       );
     } catch (e) {
-      localStorage.setString(StorageKey.currentUser, jsonEncode(loginUser));
+      await localStorage.setString(StorageKey.currentUser, jsonEncode(loginUser));
     }
   }
 

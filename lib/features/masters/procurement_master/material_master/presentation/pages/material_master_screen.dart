@@ -195,37 +195,39 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
                           ),
                         ),
                         horizontalSpacing(),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addMaterialMaster,
-                                  queryParameters: {
-                                    'material': Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(material.toJson()),
+                        if(_routeAuthorizationModel.isAction)...[
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addMaterialMaster,
+                                    queryParameters: {
+                                      'material': Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(material.toJson()),
+                                        ),
                                       ),
-                                    ),
-                                    'index': index.toString(),
-                                  },
-                                );
-                              },
-                            ),
-                            horizontalSpacing(),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteMaterialMaster(
-                                  context,
-                                  material,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              horizontalSpacing(),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteMaterialMaster(
+                                    context,
+                                    material,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ]
                       ],
                     ),
                     verticalSpacing(height: 12),

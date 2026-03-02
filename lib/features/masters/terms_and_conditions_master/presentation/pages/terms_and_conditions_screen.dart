@@ -478,45 +478,47 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
                   ),
                 ),
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CustomIconButton.edit(
-                    onPressed: () async {
-                      await goRouter.pushNamed(
-                        AppRoutes.addTermsAndConditions,
-                        queryParameters: {
-                          "termsAndCondition": Uri.encodeQueryComponent(
-                            EncryptionManager.encryptData(
-                              jsonEncode(termsAndCondition.toJson()),
+              if(_routeAuthorizationModel.isAction)...[
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CustomIconButton.edit(
+                      onPressed: () async {
+                        await goRouter.pushNamed(
+                          AppRoutes.addTermsAndConditions,
+                          queryParameters: {
+                            "termsAndCondition": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(termsAndCondition.toJson()),
+                              ),
                             ),
-                          ),
-                          'index': index.toString(),
-                          'tabIndex': isMaterialRequisition ? '0' : '1',
-                        },
-                      );
-                    },
-                  ),
-                  horizontalSpacing(),
-                  CustomIconButton.delete(
-                    onPressed: () {
-                      if (isMaterialRequisition) {
-                        _showDeleteDialogMaterialRequisition(
-                          context,
-                          termsAndCondition,
-                          index,
+                            'index': index.toString(),
+                            'tabIndex': isMaterialRequisition ? '0' : '1',
+                          },
                         );
-                      } else {
-                        _showDeleteDialogBooking(
-                          context,
-                          termsAndCondition,
-                          index,
-                        );
-                      }
-                    },
-                  ),
-                ],
-              ),
+                      },
+                    ),
+                    horizontalSpacing(),
+                    CustomIconButton.delete(
+                      onPressed: () {
+                        if (isMaterialRequisition) {
+                          _showDeleteDialogMaterialRequisition(
+                            context,
+                            termsAndCondition,
+                            index,
+                          );
+                        } else {
+                          _showDeleteDialogBooking(
+                            context,
+                            termsAndCondition,
+                            index,
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ]
             ],
           ),
         ],

@@ -64,14 +64,20 @@ class _MainScreenState extends State<MainScreen>
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 child: Row(
                   children: [
-                    CircleAvatar(
-                      radius: 25,
-                      backgroundColor: AppColor.primary.withValues(alpha: .6),
-                      child: Text(
-                        user.fullName.isNotEmpty
-                            ? user.fullName[0].toUpperCase()
-                            : 'U',
-                        style: AppTextStyle.ts24B(color: AppColor.white),
+                    GestureDetector(
+                      onTap: ()  {
+                        goRouter.pop();
+                        goRouter.go(AppRoutes.profile);
+                      },
+                      child: CircleAvatar(
+                        radius: 25,
+                        backgroundColor: AppColor.primary.withValues(alpha: .6),
+                        child: Text(
+                          user.fullName.isNotEmpty
+                              ? user.fullName[0].toUpperCase()
+                              : 'U',
+                          style: AppTextStyle.ts24B(color: AppColor.white),
+                        ),
                       ),
                     ),
                     horizontalSpacing(width: 16),
@@ -79,9 +85,23 @@ class _MainScreenState extends State<MainScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          GestureDetector(
+                            onTap: ()  {
+                              goRouter.pop();
+                              goRouter.go(AppRoutes.profile);
+                            },
+                            child: Text(
+                              user.fullName,
+                              style: AppTextStyle.ts16SB(),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                           Text(
-                            user.fullName,
-                            style: AppTextStyle.ts16SB(),
+                            user.designation.isNotEmpty
+                                ? user.designation
+                                : '-',
+                            style: AppTextStyle.ts12M(color: AppColor.grey),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -92,10 +112,8 @@ class _MainScreenState extends State<MainScreen>
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            user.designation.isNotEmpty
-                                ? user.designation
-                                : '-',
-                            style: AppTextStyle.ts12M(color: AppColor.grey),
+                            user.personalMobileNumber.isNotEmpty ? user.personalMobileNumber : '-',
+                            style: AppTextStyle.ts14M(color: AppColor.grey),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),

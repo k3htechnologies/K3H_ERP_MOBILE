@@ -336,7 +336,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                       if (widget.secondaryBuilder != null)
                         widget.secondaryBuilder!(context),
 
-                      if (widget.authorization.isAction &&
+                      if (widget.authorization.isExport &&
                           widget.onExportCallback != null)
                         CustomIconButton(
                           onPressed: () {

@@ -274,38 +274,40 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                           ),
                         ),
                         horizontalSpacing(),
-                        Row(
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addDepartment,
-                                  queryParameters: {
-                                    'department': Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(department.toJson()),
+                        if(_routeAuthorizationModel.isAction)...[
+                          Row(
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addDepartment,
+                                    queryParameters: {
+                                      'department': Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(department.toJson()),
+                                        ),
                                       ),
-                                    ),
-                                    'index': index.toString(),
-                                  },
-                                );
-                              },
-                            ),
-                            if (department.numberOfEmployee == 0) ...[
-                              horizontalSpacing(),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteDepartmentMaster(
-                                    context,
-                                    department,
-                                    state.currentPage,
-                                    index,
+                                      'index': index.toString(),
+                                    },
                                   );
                                 },
                               ),
+                              if (department.numberOfEmployee == 0) ...[
+                                horizontalSpacing(),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showPopupToDeleteDepartmentMaster(
+                                      context,
+                                      department,
+                                      state.currentPage,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
                             ],
-                          ],
-                        ),
+                          ),
+                        ]
                       ],
                     ),
                     verticalSpacing(),

@@ -205,37 +205,39 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
                             ),
                           ),
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addSubMaterialMaster,
-                                  queryParameters: {
-                                    "subMaterial": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(subMaterial.toJson()),
-                                      ),
-                                    ),
-                                    'index': index.toString(),
-                                  },
-                                );
-                              },
-                            ),
-                            horizontalSpacing(),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteSubMaterialMaster(
-                                  context,
-                                  subMaterial,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                       if(_routeAuthorizationModel.isAction)...[
+                         Row(
+                           mainAxisSize: MainAxisSize.min,
+                           children: [
+                             CustomIconButton.edit(
+                               onPressed: () async {
+                                 await goRouter.pushNamed(
+                                   AppRoutes.addSubMaterialMaster,
+                                   queryParameters: {
+                                     "subMaterial": Uri.encodeQueryComponent(
+                                       EncryptionManager.encryptData(
+                                         jsonEncode(subMaterial.toJson()),
+                                       ),
+                                     ),
+                                     'index': index.toString(),
+                                   },
+                                 );
+                               },
+                             ),
+                             horizontalSpacing(),
+                             CustomIconButton.delete(
+                               onPressed: () {
+                                 _showPopupToDeleteSubMaterialMaster(
+                                   context,
+                                   subMaterial,
+                                   state.currentPage,
+                                   index,
+                                 );
+                               },
+                             ),
+                           ],
+                         ),
+                       ]
                       ],
                     ),
                     verticalSpacing(height: 12),

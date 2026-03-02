@@ -83,6 +83,7 @@ class DialogHelper {
           insetPadding: EdgeInsets.zero,
           backgroundColor: Colors.transparent,
           child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 20),
             height: 300,
             width: 500,
             decoration: BoxDecoration(

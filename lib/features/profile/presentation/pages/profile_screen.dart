@@ -83,7 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   // HANDLE TAB CHANGE
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
-      context.read<ProfileCubit>().onTabChanged(_tabController.index, context);
+      _profileCubit.onTabChanged(_tabController.index, context);
     }
   }
 
@@ -729,8 +729,8 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   // BUILD EMPLOYEE REPORTING CYCLE CARD
   Widget _buildEmployeeReportingCycleCard(
-    List<Map<String, dynamic>> employeeReportingCycleData,
-  ) {
+      List<Map<String, dynamic>> employeeReportingCycleData,
+      ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
@@ -738,104 +738,114 @@ class _ProfileScreenState extends State<ProfileScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Employee Reporting Cycle', style: AppTextStyle.ts16SB()),
-          verticalSpacing(height: 12),
-          ...employeeReportingCycleData.map((employee) {
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColor.greyBackground,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
+          Text(
+            'Reporting Structure',
+            style: AppTextStyle.ts16SB(),
+          ),
+          const SizedBox(height: 16),
+
+          // TIMELINE LIST
+          Column(
+            children: List.generate(employeeReportingCycleData.length, (index) {
+              final employee = employeeReportingCycleData[index];
+              final bool isLast =
+                  index == employeeReportingCycleData.length - 1;
+
+              return IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // TIMELINE INDICATOR
+                    Column(
+                      children: [
+                        // CIRCLE AVATAR
+                        CircleAvatar(
+                          radius: 22,
+                          backgroundColor: AppColor.primary,
+                          child: Text(
+                            (employee['FullName'] ?? '')
+                                .toString()
+                                .substring(0, 1)
+                                .toUpperCase(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+
+                        // VERTICAL LINE
+                        if (!isLast)
+                          Expanded(
+                            child: Container(
+                              width: 1.5,
+                              margin: const EdgeInsets.symmetric(vertical: 4),
+                              color: Colors.grey.shade400,
+                            ),
+                          ),
+                      ],
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    // EMPLOYEE DETAILS
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    _getDisplayValue(
+                                        employee['FullName']?.toString()),
+                                    style: AppTextStyle.ts14SB(),
+                                  ),
+                                ),
+                                horizontalSpacing(),
+                                if(employee['EmployeeCode']!=null && employee['EmployeeCode']!.isNotEmpty)
+                                Container(
+                                  decoration: BoxDecoration(),
+                                    child: Text("(${employee['EmployeeCode'] ?? '-'})",style: AppTextStyle.ts12R(color: AppColor.grey),))
+                              ],
+                            ),
+                            const SizedBox(height: 4),
                             Text(
                               _getDisplayValue(
-                                employee['FullName']?.toString(),
+                                  employee['Designation']?.toString()),
+                              style: AppTextStyle.ts12R(
+                                color: AppColor.grey,
                               ),
-                              style: AppTextStyle.ts14SB(),
                             ),
-                            verticalSpacing(height: 4),
+                            const SizedBox(height: 6),
                             Text(
                               _getDisplayValue(
-                                employee['Designation']?.toString(),
+                                  employee['EmailId']?.toString()),
+                              style: AppTextStyle.ts12R(
+                                color: AppColor.grey,
                               ),
-                              style: AppTextStyle.ts12R(color: AppColor.grey),
                             ),
+                            if(employee['PersonalMobileNumber']!=null && employee['PersonalMobileNumber']!.isNotEmpty)...[
+                              const SizedBox(height: 6),
+                              Text(
+                                _getDisplayValue(
+                                    employee['PersonalMobileNumber']?.toString()),
+                                style: AppTextStyle.ts12R(
+                                  color: AppColor.grey,
+                                ),
+                              ),
+                            ]
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                  verticalSpacing(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Employee Code',
-                              style: AppTextStyle.ts12M(color: AppColor.grey),
-                            ),
-                            verticalSpacing(height: 2),
-                            Text(
-                              _getDisplayValue(
-                                employee['EmployeeCode']?.toString(),
-                              ),
-                              style: AppTextStyle.ts12R(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Mobile',
-                              style: AppTextStyle.ts12M(color: AppColor.grey),
-                            ),
-                            verticalSpacing(height: 2),
-                            Text(
-                              _getDisplayValue(
-                                employee['PersonalMobileNumber']?.toString(),
-                              ),
-                              style: AppTextStyle.ts12R(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(height: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Email',
-                        style: AppTextStyle.ts12M(color: AppColor.grey),
-                      ),
-                      verticalSpacing(height: 2),
-                      Text(
-                        _getDisplayValue(employee['EmailId']?.toString()),
-                        style: AppTextStyle.ts12R(),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
         ],
       ),
     );
@@ -915,12 +925,16 @@ class _ProfileScreenState extends State<ProfileScreen>
           _buildInfoCard(
             title: 'Contact Information',
             items: [
-              {'label': 'Personal Mobile', 'value': user.personalMobileNumber},
+              {'label': 'Personal Mobile No.', 'value': user.personalMobileNumber},
               {'label': 'Office Mobile', 'value': user.officeMobileNumber},
-              {'label': 'Email', 'value': user.emailId},
-              {'label': 'Office Email', 'value': user.officeEmailId},
+              {'label': 'Email Id', 'value': user.emailId},
+              {'label': 'Office Email Id', 'value': user.officeEmailId},
               {
-                'label': 'Emergency Contact',
+                'label': 'Relation to Emergency Contact',
+                'value': user.emergencyContactPersonRelationship,
+              },
+              {
+                'label': 'Emergency Contact No.',
                 'value': user.emergencyMobileNumber,
               },
             ],
@@ -929,12 +943,12 @@ class _ProfileScreenState extends State<ProfileScreen>
           _buildInfoCard(
             title: 'Professional Information',
             items: [
-              {'label': 'Company', 'value': user.companyName},
+              {'label': 'Company Name', 'value': user.companyName},
               {'label': 'Department', 'value': user.department},
               {'label': 'Designation', 'value': user.designation},
               {'label': 'Branch', 'value': user.branch},
-              {'label': 'Employee Type', 'value': user.employeeType},
-              {'label': 'Reporting To', 'value': user.reportPersonName},
+              {'label': 'Employment Type', 'value': user.employeeType},
+              {'label': 'Reporting Person', 'value': user.reportPersonName},
               if (user.joiningDate != null)
                 {
                   'label': 'Joining Date',

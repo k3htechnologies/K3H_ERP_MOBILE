@@ -239,7 +239,6 @@ class _CustomAppBarWithBackButtonState
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-
             // LEADING BUTTON
             GestureDetector(
               onTap: () {
@@ -252,36 +251,39 @@ class _CustomAppBarWithBackButtonState
                   }
                 }
               },
-              child: widget.isMenuButton
-                  ? Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.fromLTRB(7, 6, 6, 6),
-                margin: EdgeInsets.fromLTRB(16, 12, 10, 12),
-                decoration: BoxDecoration(
-                  color: AppColor.lightBlue,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Icon(Icons.menu,
-                    size: 14,
-                    color: AppColor.primary),
-              )
-                  : Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.fromLTRB(7, 6, 6, 6),
-                margin: EdgeInsets.fromLTRB(16, 12, 10, 12),
-                decoration: BoxDecoration(
-                  color: AppColor.primary.withValues(alpha: .2),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 3.0),
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    size: 14,
-                    color: AppColor.black,
-                  ),
-                ),
-              ),
+              child:
+                  widget.isMenuButton
+                      ? Container(
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.fromLTRB(7, 6, 6, 6),
+                        margin: EdgeInsets.fromLTRB(16, 12, 10, 12),
+                        decoration: BoxDecoration(
+                          color: AppColor.lightBlue,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Icon(
+                          Icons.menu,
+                          size: 14,
+                          color: AppColor.primary,
+                        ),
+                      )
+                      : Container(
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.fromLTRB(7, 6, 6, 6),
+                        margin: EdgeInsets.fromLTRB(16, 12, 10, 12),
+                        decoration: BoxDecoration(
+                          color: AppColor.primary.withValues(alpha: .2),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 3.0),
+                          child: Icon(
+                            Icons.arrow_back_ios,
+                            size: 14,
+                            color: AppColor.black,
+                          ),
+                        ),
+                      ),
             ),
 
             // TITLE
@@ -296,7 +298,6 @@ class _CustomAppBarWithBackButtonState
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-
                 if (widget.onProjectChangeCallback != null) ...[
                   ValueListenableBuilder<List<ProjectModel>>(
                     valueListenable: _projectListNotifier,
@@ -323,68 +324,61 @@ class _CustomAppBarWithBackButtonState
                       widget.onFilterTap!();
                     },
                     backgroundColor: AppColor.lightBlue,
-                    icon: SvgPicture.asset(
-                      AppAssets.filterIcon,
-                      height: 16,
-                    ),
+                    icon: SvgPicture.asset(AppAssets.filterIcon, height: 16),
                   ),
                 ],
 
-                if (widget.authorization.isAction) ...[
-                  if (widget.onExportCallback != null) ...[
-                    horizontalSpacing(),
-                    _buildAction(
-                      icon: Icons.file_download_outlined,
-                      onTap: () {
-                        final box = context.findRenderObject() as RenderBox;
-                        final position = box.localToGlobal(Offset.zero);
+                if (widget.onExportCallback != null &&
+                    widget.authorization.isExport) ...[
+                  horizontalSpacing(),
+                  _buildAction(
+                    icon: Icons.file_download_outlined,
+                    onTap: () {
+                      final box = context.findRenderObject() as RenderBox;
+                      final position = box.localToGlobal(Offset.zero);
 
-                        CustomOverlayMenu.show(
-                          width: 180,
-                          context: context,
-                          position: Offset(
-                            position.dx + 10,
-                            position.dy + 115,
+                      CustomOverlayMenu.show(
+                        width: 180,
+                        context: context,
+                        position: Offset(position.dx + 10, position.dy + 115),
+                        items: [
+                          AddImportExportOverlayMenuItem(
+                            icon: Icons.file_download_outlined,
+                            label: 'Export as Excel',
+                            value: 'EXCEL',
+                            onTap: widget.onExportCallback!,
+                            iconColor: AppColor.primary,
                           ),
-                          items: [
-                            AddImportExportOverlayMenuItem(
-                              icon: Icons.file_download_outlined,
-                              label: 'Export as Excel',
-                              value: 'EXCEL',
-                              onTap: widget.onExportCallback!,
-                              iconColor: AppColor.primary,
-                            ),
-                            AddImportExportOverlayMenuItem(
-                              icon: Icons.file_download_outlined,
-                              label: 'Export as PDF',
-                              value: 'PDF',
-                              onTap: widget.onExportCallback!,
-                              iconColor: AppColor.primary,
-                            ),
-                          ],
-                        );
-                      },
-                      backgroundColor: AppColor.lightGreen,
-                      iconColor: AppColor.darkGreen,
-                    ),
-                  ],
-                  if (widget.onAddCallback != null) ...[
-                    _buildAction(
-                      icon: Icons.add,
-                      onTap: () {
-                        widget.onAddCallback!();
-                      },
-                      backgroundColor: AppColor.lightBlue,
-                      iconColor: AppColor.primary,
-                    ),
-                  ],
+                          AddImportExportOverlayMenuItem(
+                            icon: Icons.file_download_outlined,
+                            label: 'Export as PDF',
+                            value: 'PDF',
+                            onTap: widget.onExportCallback!,
+                            iconColor: AppColor.primary,
+                          ),
+                        ],
+                      );
+                    },
+                    backgroundColor: AppColor.lightGreen,
+                    iconColor: AppColor.darkGreen,
+                  ),
+                ],
+                if (widget.onAddCallback != null &&
+                    widget.authorization.isAction) ...[
+                  _buildAction(
+                    icon: Icons.add,
+                    onTap: () {
+                      widget.onAddCallback!();
+                    },
+                    backgroundColor: AppColor.lightBlue,
+                    iconColor: AppColor.primary,
+                  ),
                 ],
 
                 if (widget.showNotification) ...[
                   CustomIconButton(
                     onPressed: () {
-                      goRouter.pushNamed(
-                          AppRoutes.notificationScreenMobile);
+                      goRouter.pushNamed(AppRoutes.notificationScreenMobile);
                     },
                     icon: SvgPicture.asset(
                       AppAssets.notificationIcon,

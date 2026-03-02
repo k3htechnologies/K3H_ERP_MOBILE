@@ -380,40 +380,42 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                             ),
                           ),
                         ),
-                        Row(
-                          spacing: 10,
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                final result = await goRouter.pushNamed(
-                                  AppRoutes.addCompany,
-                                  queryParameters: {
-                                    "company": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(company),
+                        if(_routeAuthorizationModel.isAction)...[
+                          Row(
+                            spacing: 10,
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  final result = await goRouter.pushNamed(
+                                    AppRoutes.addCompany,
+                                    queryParameters: {
+                                      "company": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(company),
+                                        ),
                                       ),
-                                    ),
-                                  },
-                                );
-                                if (result != null && result is CompanyModel) {
-                                  _companyMasterCubit.updateCompany(
-                                    result,
+                                    },
+                                  );
+                                  if (result != null && result is CompanyModel) {
+                                    _companyMasterCubit.updateCompany(
+                                      result,
+                                      index,
+                                    );
+                                  }
+                                },
+                              ),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopUpToDeleteVendor(
+                                    context,
+                                    company,
                                     index,
                                   );
-                                }
-                              },
-                            ),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopUpToDeleteVendor(
-                                  context,
-                                  company,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                },
+                              ),
+                            ],
+                          ),
+                        ]
                       ],
                     ),
                     verticalSpacing(height: 5),

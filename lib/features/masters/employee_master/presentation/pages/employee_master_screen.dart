@@ -689,21 +689,23 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                                   ),
                                 ),
                               ],
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addUpdateEmployee,
-                                    queryParameters: {
-                                      "employee": Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(employee),
+                              if(_routeAuthorizationModel.isAction)...[
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addUpdateEmployee,
+                                      queryParameters: {
+                                        "employee": Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(employee),
+                                          ),
                                         ),
-                                      ),
-                                      'index': index.toString(),
-                                    },
-                                  );
-                                },
-                              ),
+                                        'index': index.toString(),
+                                      },
+                                    );
+                                  },
+                                ),
+                              ]
                             ],
                           ),
                         ],

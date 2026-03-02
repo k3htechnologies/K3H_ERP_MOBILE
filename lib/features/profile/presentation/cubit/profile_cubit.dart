@@ -45,8 +45,10 @@ class ProfileCubit extends Cubit<ProfileState> {
   final BranchAssociationMasterRepository _branchAssociationMasterRepository =
       serviceLocator<BranchAssociationMasterRepository>();
 
-  void _loadUserData() {
-    final user = _getUser();
+  final _localStorage = LocalStorageManager();
+
+  Future<void> _loadUserData() async {
+    final user = await _getUser();
     final project = _getSelectedProject();
     if (user != null) {
       emit(
@@ -59,10 +61,8 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
-  UserModel? _getUser() {
-    String? userString = LocalStorageManager().getString(
-      StorageKey.currentUser,
-    );
+  Future<UserModel?> _getUser() async {
+    String? userString = _localStorage.getString(StorageKey.currentUser);
     if (userString == null) {
       return null;
     }
@@ -729,7 +729,7 @@ class ProfileCubit extends Cubit<ProfileState> {
           }
 
           Future.delayed(Duration(seconds: 1), () async {
-            await LocalStorageManager().removeAll();
+            await _localStorage.removeAll();
             goRouter.replace(AppRoutes.splashScreen);
           });
         },

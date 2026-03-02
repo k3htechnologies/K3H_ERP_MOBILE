@@ -314,53 +314,55 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                               ),
                               backgroundColor: designation.isSetAccessModule==true?AppColor.lightBlue:AppColor.grey10,
                             ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                CustomIconButton(
-                                  onPressed: () async {
-                                    await goRouter.pushNamed(
-                                      AppRoutes.addDesignation,
-                                      queryParameters: {
-                                        'designation': Uri.encodeComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(designation.toJson()),
-                                          ),
-                                        ),
-                                        'index': index.toString(),
-                                      },
-                                    );
-                                  },
-                                  icon: Icon(
-                                    Icons.edit,
-                                    size: 16,
-                                    color: AppColor.grey,
-                                  ),
-                                  backgroundColor: AppColor.grey10,
-                                ),
-                                if(designation.numberOfEmployee==0)...[
-                                  horizontalSpacing(width: 5),
+                            if(_routeAuthorizationModel.isAction)...[
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
                                   CustomIconButton(
-                                    onPressed: () {
-                                      _showPopupToDeleteDesignationMaster(
-                                        designation.designationMasterId,
-                                        designation.uniquekey,
-                                        index,
+                                    onPressed: () async {
+                                      await goRouter.pushNamed(
+                                        AppRoutes.addDesignation,
+                                        queryParameters: {
+                                          'designation': Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(designation.toJson()),
+                                            ),
+                                          ),
+                                          'index': index.toString(),
+                                        },
                                       );
                                     },
-                                    icon: SvgPicture.asset(
-                                      AppAssets.deleteIcon2,
-                                      height: 16,
-                                      colorFilter: ColorFilter.mode(
-                                        AppColor.error,
-                                        BlendMode.srcIn,
-                                      ),
+                                    icon: Icon(
+                                      Icons.edit,
+                                      size: 16,
+                                      color: AppColor.grey,
                                     ),
-                                    backgroundColor: AppColor.lightRed,
+                                    backgroundColor: AppColor.grey10,
                                   ),
-                                ]
-                              ],
-                            ),
+                                  if(designation.numberOfEmployee==0)...[
+                                    horizontalSpacing(width: 5),
+                                    CustomIconButton(
+                                      onPressed: () {
+                                        _showPopupToDeleteDesignationMaster(
+                                          designation.designationMasterId,
+                                          designation.uniquekey,
+                                          index,
+                                        );
+                                      },
+                                      icon: SvgPicture.asset(
+                                        AppAssets.deleteIcon2,
+                                        height: 16,
+                                        colorFilter: ColorFilter.mode(
+                                          AppColor.error,
+                                          BlendMode.srcIn,
+                                        ),
+                                      ),
+                                      backgroundColor: AppColor.lightRed,
+                                    ),
+                                  ]
+                                ],
+                              ),
+                            ]
                           ],
                         ),
                       ],

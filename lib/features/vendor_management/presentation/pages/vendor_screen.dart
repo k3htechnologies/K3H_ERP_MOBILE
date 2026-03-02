@@ -335,40 +335,42 @@ class _VendorScreenState extends State<VendorScreen> {
                             ),
                           ),
                         ),
-                        Row(
-                          spacing: 10,
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addVendor,
-                                  queryParameters: {
-                                    "vendor": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(vendor),
+                        if(_routeAuthorizationModel.isAction)...[
+                          Row(
+                            spacing: 10,
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addVendor,
+                                    queryParameters: {
+                                      "vendor": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(vendor),
+                                        ),
                                       ),
-                                    ),
-                                  },
-                                );
-                                if (context.mounted) {
-                                  _vendorCubit.getVendors(
-                                    context,
-                                    state.currentPage,
+                                    },
                                   );
-                                }
-                              },
-                            ),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopUpToDeleteVendor(
-                                  context,
-                                  vendor,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                  if (context.mounted) {
+                                    _vendorCubit.getVendors(
+                                      context,
+                                      state.currentPage,
+                                    );
+                                  }
+                                },
+                              ),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopUpToDeleteVendor(
+                                    context,
+                                    vendor,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ]
                       ],
                     ),
                     buildRowTitleValue(
