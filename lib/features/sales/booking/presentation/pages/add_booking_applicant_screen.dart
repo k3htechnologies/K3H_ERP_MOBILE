@@ -314,6 +314,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Profile Photo",
+                    filePickType: FilePickType.image,
                     isRequired: true,
                     initialFileList: profilePhotoFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -353,6 +354,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload Aadhaar Card",
+                    filePickType: FilePickType.kycDocument,
                     initialFileList: aadhaarFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       aadhaarFile.fileNameList = fileNameList;
@@ -384,6 +386,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload PAN",
+                    filePickType: FilePickType.kycDocument,
                     initialFileList: panFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       panFile.fileNameList = fileNameList;
@@ -407,6 +410,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload Passport",
+                    filePickType: FilePickType.kycDocument,
                     initialFileList: passportFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       passportFile.fileNameList = fileNameList;
@@ -444,6 +448,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload Driving License",
+                    filePickType: FilePickType.kycDocument,
                     initialFileList: drivingLicenseFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       drivingLicenseFile.fileNameList = fileNameList;
@@ -484,6 +489,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload Voting ID",
+                    filePickType: FilePickType.kycDocument,
                     initialFileList: votingIdFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       votingIdFile.fileNameList = fileNameList;
@@ -524,6 +530,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload GST Document",
+                    filePickType: FilePickType.kycDocument,
                     initialFileList: gstFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       gstFile.fileNameList = fileNameList;

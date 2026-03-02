@@ -547,6 +547,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           ),
           CustomMultiFilePicker(
             maxFiles: 3,
+            filePickType: FilePickType.kycDocument,
             initialFileList: gstCertificateFile.fileNameList,
             title: "Upload GST Certificate",
             onFilePickedCallback: (fileByteList, fileNameList) {
@@ -567,6 +568,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           ),
           CustomMultiFilePicker(
             title: 'Upload PAN Card',
+            filePickType: FilePickType.kycDocument,
             initialFileList: selectedPANCardFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
               selectedPANCardFile.fileNameList = fileNameList;
@@ -586,6 +588,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           ),
           CustomMultiFilePicker(
             title: 'Upload CIN Card',
+            filePickType: FilePickType.kycDocument,
             initialFileList: cinPhotoFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
               cinPhotoFile.fileNameList = fileNameList;
@@ -605,6 +608,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           ),
           CustomMultiFilePicker(
             title: 'Upload TAN',
+            filePickType: FilePickType.kycDocument,
             initialFileList: selectedTANFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
               selectedTANFile.fileNameList = fileNameList;
@@ -632,6 +636,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           CustomMultiFilePicker(
             title: 'Company Letterhead Header',
             isRequired: true,
+            filePickType: FilePickType.kycDocument,
             initialFileList: selectedCompanyLetterHeadHeaderFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
               selectedCompanyLetterHeadHeaderFile.fileNameList = fileNameList;
@@ -651,6 +656,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           ),
           CustomMultiFilePicker(
             title: 'Company Letterhead Footer',
+            filePickType: FilePickType.kycDocument,
             isRequired: true,
             initialFileList: selectedCompanyLetterHeadFooterFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {

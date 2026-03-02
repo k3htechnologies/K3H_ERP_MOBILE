@@ -405,6 +405,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomMultiFilePicker(
                     title: "Profile Photo",
                     isRequired: true,
+                    filePickType: FilePickType.image,
                     initialFileList: profilePhotoFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       profilePhotoFile.fileNameList = fileNameList;
@@ -442,6 +443,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload Aadhaar Card",
+                    filePickType: FilePickType.kycDocument,
                     initialFileList: aadhaarFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       aadhaarFile.fileNameList = fileNameList;
@@ -472,6 +474,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload PAN",
+                    filePickType: FilePickType.kycDocument,
                     initialFileList: panFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       panFile.fileNameList = fileNameList;
@@ -495,6 +498,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomMultiFilePicker(
                     title: "Upload Passport",
                     initialFileList: passportFile.fileNameList,
+                    filePickType: FilePickType.kycDocument,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       passportFile.fileNameList = fileNameList;
                       passportFile.fileBytesList = bytesList;
@@ -530,6 +534,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload Driving License",
+                    filePickType: FilePickType.kycDocument,
                     initialFileList: drivingLicenseFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       drivingLicenseFile.fileNameList = fileNameList;
@@ -569,6 +574,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload Voting ID",
+                    filePickType: FilePickType.kycDocument,
                     initialFileList: votingIdFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       votingIdFile.fileNameList = fileNameList;
@@ -608,6 +614,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload GST Document",
+                    filePickType: FilePickType.kycDocument,
                     initialFileList: gstFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       gstFile.fileNameList = fileNameList;
@@ -665,6 +672,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Upload Cancelled Cheque",
+                    filePickType: FilePickType.kycDocument,
                     initialFileList: chequeFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       chequeFile.fileNameList = fileNameList;

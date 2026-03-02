@@ -1110,7 +1110,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                   return null;
                 },
               ),
-              // Spacer(),
               CustomMultiFilePicker(
                 title: "Files",
                 initialFileList: litigationDocument.fileNameList,

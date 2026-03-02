@@ -123,23 +123,23 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
       ];
     }
 
-      if (widget.outdoorModel!.accompaniedById.isNotEmpty) {
-        final employeeId = int.tryParse(widget.outdoorModel!.accompaniedById);
-        if (employeeId != null && employeeId > 0) {
-          _selectedEmployeeNotifier.value = [
-            {
-              "zAttributesId": employeeId,
-              "DisplayName": widget.outdoorModel!.accompaniedByName,
-            },
-          ];
-        }
-      }
-
-      // Pre-fill visiting card file if available
-      if (widget.outdoorModel!.visitingCardUrl.isNotEmpty) {
-        visitingCardFile.fileNameList = [widget.outdoorModel!.visitingCardUrl];
+    if (widget.outdoorModel!.accompaniedById.isNotEmpty) {
+      final employeeId = int.tryParse(widget.outdoorModel!.accompaniedById);
+      if (employeeId != null && employeeId > 0) {
+        _selectedEmployeeNotifier.value = [
+          {
+            "zAttributesId": employeeId,
+            "DisplayName": widget.outdoorModel!.accompaniedByName,
+          },
+        ];
       }
     }
+
+    // Pre-fill visiting card file if available
+    if (widget.outdoorModel!.visitingCardUrl.isNotEmpty) {
+      visitingCardFile.fileNameList = [widget.outdoorModel!.visitingCardUrl];
+    }
+  }
 
   // LOAD DEPARTMENTS INITIALLY
   Future<void> _loadDepartments() async {
@@ -272,7 +272,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
             ? _outdoorCubit.state.employeeList
             : _outdoorCubit.state.employeeList
                 .where((emp) => emp.department == departmentName)
-            .toList();
+                .toList();
 
     final Map<int, Map<String, dynamic>> uniqueEmployees = {};
 
@@ -310,38 +310,38 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: commonCardDecoration(),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
                     const SizedBox(height: 10),
-              CustomDatePicker(
-                title: 'Outdoor Date',
-                isRequired: true,
-                initialDate: outdoorDate,
-                validator: (value) {
-                  if (value == null) {
-                    return 'Outdoor Date is required';
-                  }
-                  return null;
-                },
-                setValue: (value) => outdoorDate = value,
-              ),
-              CustomTimePicker(
-                setValue: (value) {
-                  meetingTime = formatTimeOfDayHHmm(value);
+                    CustomDatePicker(
+                      title: 'Outdoor Date',
+                      isRequired: true,
+                      initialDate: outdoorDate,
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Outdoor Date is required';
+                        }
+                        return null;
+                      },
+                      setValue: (value) => outdoorDate = value,
+                    ),
+                    CustomTimePicker(
+                      setValue: (value) {
+                        meetingTime = formatTimeOfDayHHmm(value);
                         initialMeetingTime = value;
-                },
-                title: "Meeting Time",
-                isRequired: true,
+                      },
+                      title: "Meeting Time",
+                      isRequired: true,
                       initialTime: initialMeetingTime,
-                validator: (value) {
-                  if (value == null) {
-                    return "Meeting Time is required";
-                  }
-                  return null;
-                },
-              ),
+                      validator: (value) {
+                        if (value == null) {
+                          return "Meeting Time is required";
+                        }
+                        return null;
+                      },
+                    ),
                     ValueListenableBuilder<List<Map<String, dynamic>>>(
                       valueListenable: _selectedDepartmentNotifier,
                       builder: (context, selectedDept, child) {
@@ -440,6 +440,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                     ),
                     CustomMultiFilePicker(
                       title: "Visiting Card",
+                      filePickType: FilePickType.kycDocument,
                       initialFileList: visitingCardFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
                         visitingCardFile.fileNameList = fileNameList;
@@ -507,8 +508,10 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
       return;
     }
 
-    final departmentId = _selectedDepartmentNotifier.value.first['zAttributesId'].toString();
-    final employeeId = _selectedEmployeeNotifier.value.first['zAttributesId'].toString();
+    final departmentId =
+        _selectedDepartmentNotifier.value.first['zAttributesId'].toString();
+    final employeeId =
+        _selectedEmployeeNotifier.value.first['zAttributesId'].toString();
 
     // Format date and time
     final formattedDate = outdoorDate!.toIso8601String();
