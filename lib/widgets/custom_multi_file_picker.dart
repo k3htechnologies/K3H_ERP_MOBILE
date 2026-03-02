@@ -13,7 +13,7 @@ import 'package:k3h_erp_app/widgets/file_preview_dialog_content.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:file_picker/file_picker.dart';
 
-enum FilePickType { image, document, both }
+enum FilePickType { image, document, both, kycDocument }
 
 class CustomMultiFilePicker extends StatefulWidget {
   // DEFINING REQUIRED AND OPTIONAL PARAMETERS
@@ -100,6 +100,93 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                 },
               ),
             ],
+          ),
+        );
+      },
+    );
+  }
+
+  void showUploadDocumentDialog(
+    BuildContext context,
+    FormFieldState formFieldState,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.all(20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            width: 520,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColor.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                /// ───── HEADER ─────
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.title ?? "Upload Document",
+                        style: AppTextStyle.ts16SB(),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+                Divider(color: AppColor.lightBlue),
+
+                const SizedBox(height: 20),
+
+                /// ───── UPLOAD AREA ─────
+                InkWell(
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await Future.delayed(const Duration(milliseconds: 100));
+                    if (mounted) {
+                      pickFile(this.context, formFieldState, this.context);
+                    }
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 40),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColor.lightGrey, width: 1.2),
+                      color: AppColor.white,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.upload_file,
+                          size: 40,
+                          color: AppColor.primary,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          "Upload Document",
+                          style: AppTextStyle.ts14SB(color: AppColor.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         );
       },
@@ -263,31 +350,36 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
     FormFieldState formFieldState,
     BuildContext portalContext,
   ) async {
-    List<String> imageExtensions = ['jpg', 'jpeg', 'png', 'heic', 'heif'];
-
-    List<String> documentExtensions = [
-      'pdf',
-      'doc',
-      'docx',
-      'xls',
-      'xlsx',
-      'txt',
-      'dwg',
-    ];
-
     List<String> finalExtensions = [];
 
     switch (widget.filePickType) {
       case FilePickType.image:
-        finalExtensions = imageExtensions;
+        finalExtensions = ['jpg', 'jpeg', 'png', 'heic', 'heif', 'webp'];
         break;
 
       case FilePickType.document:
-        finalExtensions = documentExtensions;
+        finalExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'dwg'];
         break;
 
       case FilePickType.both:
-        finalExtensions = [...imageExtensions, ...documentExtensions];
+        finalExtensions = [
+          'jpg',
+          'jpeg',
+          'png',
+          'heic',
+          'heif',
+          'pdf',
+          'doc',
+          'docx',
+          'xls',
+          'xlsx',
+          'txt',
+          'dwg',
+        ];
+        break;
+
+      case FilePickType.kycDocument:
+        finalExtensions = ['jpg', 'jpeg', 'png', 'heic', 'heif', 'pdf'];
         break;
     }
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -296,31 +388,50 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
       type: FileType.custom,
       allowedExtensions: finalExtensions,
     );
+
     if (result == null || result.files.isEmpty) return;
 
-    // CHECKING MAX FILES ALLOWED
+    // MAX FILE CHECK
     if (result.files.length + fileBytesList.length > widget.maxFiles) {
       if (context.mounted) {
         showErrorMessage(
           context,
-          "Images limit exceed",
+          "File limit exceeded",
           "You can only upload up to ${widget.maxFiles} files.",
         );
       }
       return;
     }
 
-    // ADDING SELECTED FILES TO LISTS
     for (var file in result.files) {
+      String extension = file.extension?.toLowerCase() ?? "";
+
+      // MANUAL EXTENSION VALIDATION
+      if (!finalExtensions.contains(extension)) {
+        if (context.mounted) {
+          showErrorMessage(
+            context,
+            "Invalid File Type",
+            "Only ${finalExtensions.join(", ")} files are allowed.",
+          );
+        }
+        continue; // SKIP INVALID FILES
+      }
+
       Uint8List? fileData = file.bytes;
       if (fileData == null && file.path != null) {
         fileData = await File(file.path!).readAsBytes();
       }
+
       if (fileData != null) {
         fileBytesList.add(fileData);
         fileNamesList.add(file.name);
       }
     }
+
+    // IF NO VALID FILES WERE ADDED, DON'T CALL THE CALLBACK
+    if (fileBytesList.isEmpty) return;
+
     widget.onFilePickedCallback(fileBytesList, fileNamesList);
     formFieldState.didChange(fileBytesList);
     setState(() {});
@@ -479,11 +590,21 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                     onTap:
                                         widget.readOnly
                                             ? null
-                                            : () => _showAttachmentOptions(
-                                              context,
-                                              formFieldState,
-                                              portalContext,
-                                            ),
+                                            : () =>
+                                                (widget.filePickType ==
+                                                            FilePickType
+                                                                .image ||
+                                                        widget.filePickType ==
+                                                            FilePickType.both)
+                                                    ? _showAttachmentOptions(
+                                                      context,
+                                                      formFieldState,
+                                                      portalContext,
+                                                    )
+                                                    : showUploadDocumentDialog(
+                                                      context,
+                                                      formFieldState,
+                                                    ),
                                     child: SvgPicture.asset(
                                       AppAssets.attachFileIcon,
                                       height: 18,
