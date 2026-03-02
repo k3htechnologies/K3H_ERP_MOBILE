@@ -664,7 +664,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
             height: 22,
             margin: EdgeInsets.all(2),
             decoration: BoxDecoration(
-              color: widget.isSelected ? AppColor.green : AppColor.white,
+              color: widget.isSelected ? AppColor.primary : AppColor.white,
               border:
                   widget.isSelected
                       ? null

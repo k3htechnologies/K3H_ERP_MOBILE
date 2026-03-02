@@ -288,7 +288,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
             return Center(child: loader());
           }
           if (state.branchList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Branch Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

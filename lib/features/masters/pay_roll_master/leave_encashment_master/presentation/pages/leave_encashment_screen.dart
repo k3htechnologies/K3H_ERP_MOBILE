@@ -117,7 +117,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
                 return Expanded(child: Center(child: loader()));
               }
               if (state.leaveEncashmentList.isEmpty) {
-                return Expanded(child: Center(child: noDataWidget()));
+                return Expanded(child: Center(child: noDataWidget(message: "No Leave Encashment Found")));
               }
               return Expanded(
                 child: ListView.builder(

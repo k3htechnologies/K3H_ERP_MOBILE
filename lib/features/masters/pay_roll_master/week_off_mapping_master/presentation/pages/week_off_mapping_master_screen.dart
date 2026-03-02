@@ -283,7 +283,7 @@ class _WeekOffMappingMasterScreenState
             return Center(child: loader());
           }
           if (state.weekOffMappingList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Week Off Mapping Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

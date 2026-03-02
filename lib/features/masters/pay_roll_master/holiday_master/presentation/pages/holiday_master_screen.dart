@@ -232,7 +232,7 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
             return Center(child: loader());
           }
           if (state.holidays.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Holiday Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

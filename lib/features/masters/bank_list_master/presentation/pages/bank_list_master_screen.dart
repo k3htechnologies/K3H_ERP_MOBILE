@@ -95,7 +95,7 @@ class _BankListScreenState extends State<BankListScreen> {
             return Center(child: loader());
           }
           if (state.bankList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Banks List Found"));
           }
           return ListView.builder(
             controller: scrollController,

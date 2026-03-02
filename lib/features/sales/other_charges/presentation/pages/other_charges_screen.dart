@@ -147,7 +147,7 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
             return Center(child: loader());
           }
           if (state.otherChargesList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Other Charges Data found"));
           }
           return ListView.builder(
             controller: scrollController,

@@ -274,7 +274,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
             return Center(child: loader());
           }
           if (state.assetMappingList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Asset Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

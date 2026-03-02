@@ -236,7 +236,7 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
             return Center(child: loader());
           }
           if (state.deductionList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Deduction found"));
           }
           return ListView.builder(
             controller: scrollController,

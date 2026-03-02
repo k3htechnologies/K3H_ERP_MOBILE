@@ -102,7 +102,7 @@ class _UOMMasterScreenState extends State<UOMMasterScreen> {
               return Center(child: loader());
             }
             if (state.uomList.isEmpty) {
-              return Center(child: noDataWidget());
+              return Center(child: noDataWidget(message: "No UOMs Data Found"));
             }
             return Column(
               children: [

@@ -234,7 +234,7 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
             return Center(child: loader());
           }
           if (state.earningList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Earnings Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

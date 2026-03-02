@@ -461,7 +461,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
             return Center(child: loader());
           }
           if (state.enquiryList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Enquiry Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

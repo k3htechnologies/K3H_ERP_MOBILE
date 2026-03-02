@@ -139,7 +139,7 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
             return Center(child: loader());
           }
           if (state.materialList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Materials Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

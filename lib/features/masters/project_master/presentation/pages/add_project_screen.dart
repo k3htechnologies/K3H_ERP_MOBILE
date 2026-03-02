@@ -388,6 +388,35 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                   style: AppTextStyle.ts16SB(),
                 ),
                 verticalSpacing(),
+                StatefulBuilder(
+                  builder: (context, innerState) {
+                    return Container(
+                      padding: EdgeInsets.all(12),
+                      margin: EdgeInsets.only(bottom: 10),
+                      decoration: commonCardDecoration(),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomCheckBox(
+                            isSelected: isRedevelopment,
+                            onChanged: (value) {
+                              innerState(() {
+                                isRedevelopment = value;
+                              });
+                            },
+                          ),
+                          horizontalSpacing(),
+                          Flexible(
+                            child: Text(
+                              'Is this project a Redevelopment Project?',
+                              style: AppTextStyle.ts16SB(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
                 Container(
                   padding: EdgeInsets.all(12),
                   margin: EdgeInsets.only(bottom: 10),
@@ -697,35 +726,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     ],
                   ),
                 ),
-                StatefulBuilder(
-                  builder: (context, innerState) {
-                    return Container(
-                      padding: EdgeInsets.all(12),
-                      margin: EdgeInsets.only(bottom: 10),
-                      decoration: commonCardDecoration(),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomCheckBox(
-                            isSelected: isRedevelopment,
-                            onChanged: (value) {
-                              innerState(() {
-                                isRedevelopment = value;
-                              });
-                            },
-                          ),
-                          horizontalSpacing(),
-                          Flexible(
-                            child: Text(
-                              'Is this project a Redevelopment Project?',
-                              style: AppTextStyle.ts16SB(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+
               ],
             ),
           ),

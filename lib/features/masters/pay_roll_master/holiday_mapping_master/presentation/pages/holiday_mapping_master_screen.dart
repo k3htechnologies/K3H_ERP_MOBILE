@@ -387,7 +387,7 @@ class _HolidayMappingMasterScreenState
             return Center(child: loader());
           }
           if (state.holidayMappingList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Holiday Mapping Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

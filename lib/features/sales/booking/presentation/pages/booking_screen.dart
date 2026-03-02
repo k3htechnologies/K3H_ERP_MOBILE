@@ -107,7 +107,7 @@ class _BookingScreenState extends State<BookingScreen> {
             return Center(child: loader());
           }
           if (state.bookingList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Booking Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

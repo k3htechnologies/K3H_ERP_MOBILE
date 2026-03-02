@@ -283,7 +283,7 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
             return Center(child: loader());
           }
           if (state.shiftMappingList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Shift Mappings Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

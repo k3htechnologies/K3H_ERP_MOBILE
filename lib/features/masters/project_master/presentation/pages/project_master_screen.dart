@@ -199,7 +199,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
             return Center(child: loader());
           }
           if (state.projectList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No projects found"));
           }
           return ListView.builder(
             controller: scrollController,

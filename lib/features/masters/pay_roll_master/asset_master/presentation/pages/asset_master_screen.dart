@@ -322,7 +322,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
             return Center(child: loader());
           }
           if (state.assetList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Assets Found"));
           }
           return ListView.builder(
             controller: scrollController,

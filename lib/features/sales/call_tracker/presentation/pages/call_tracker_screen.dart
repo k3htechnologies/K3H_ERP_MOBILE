@@ -338,7 +338,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
           return Center(child: loader());
         }
         if (state.callingDataList.isEmpty) {
-          return Center(child: noDataWidget());
+          return Center(child: noDataWidget(message: "No Calling Data Found"));
         }
         return ListView.builder(
           controller: scrollController,
@@ -423,7 +423,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
           return Center(child: loader());
         }
         if (state.callLogList.isEmpty) {
-          return Center(child: noDataWidget());
+          return Center(child: noDataWidget(message: "No Call Log Found"));
         }
         return ListView.builder(
           controller: _scrollControllerCallLog,

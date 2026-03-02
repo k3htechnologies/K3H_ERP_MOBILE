@@ -23,6 +23,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:shimmer/shimmer.dart';
@@ -288,7 +289,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         return Stack(
                           fit: StackFit.expand,
                           children: [
-                            // 🔹 Image
+                            // IMAGE
                             ImageFiltered(
                               imageFilter: ImageFilter.blur(
                                 sigmaX: 0.8,
@@ -397,13 +398,13 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumTitleVale(
-                      title: "Project Location",
-                      value: widget.project.projectLocation,
+                    buildColumnTitleValue(
+                      title: "Redevelopment",
+                      value: widget.project.isRedevelopment?"Yes":"No",
                     ),
-                    _buildColumTitleVale(
-                      title: "Project Area (Sq.ft)",
-                      value: widget.project.projectAreaInSqft,
+                    buildColumnTitleValue(
+                      title: "Project Name",
+                      value: widget.project.projectName,
                     ),
                   ],
                 ),
@@ -411,13 +412,13 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumTitleVale(
-                      title: "CTS Number",
-                      value: widget.project.ctsNumber,
-                    ),
-                    _buildColumTitleVale(
+                    buildColumnTitleValue(
                       title: "Business Category",
                       value: widget.project.bussinessCategory,
+                    ),
+                    buildColumnTitleValue(
+                      title: "CTS Number",
+                      value: widget.project.ctsNumber,
                     ),
                   ],
                 ),
@@ -435,13 +436,25 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Text("Location Details", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Row(
+                  children: [
+                    buildColumnTitleValue(title: "Project Location", value: widget.project.projectLocation)
+                  ],
+                ),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    buildColumnTitleValue(title: "Google Location", value: widget.project.googleLocation,valueTextStyle: AppTextStyle.ts14M(color: AppColor.primary))
+                  ],
+                ),
+                verticalSpacing(),
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumTitleVale(
+                    buildColumnTitleValue(
                       title: "Country",
                       value: widget.project.countryName,
                     ),
-                    _buildColumTitleVale(
+                    buildColumnTitleValue(
                       title: "State",
                       value: widget.project.stateName,
                     ),
@@ -451,16 +464,49 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumTitleVale(
+                    buildColumnTitleValue(
                       title: "District",
                       value: widget.project.districtName,
                     ),
-                    _buildColumTitleVale(
+                    buildColumnTitleValue(
                       title: "City",
                       value: widget.project.cityName,
                     ),
                   ],
                 ),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    buildColumnTitleValue(title: "PIN Code", value: widget.project.zipCode)
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // PROJECT SCOPE
+          Container(
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: commonCardDecoration(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Scheme & Scope Details", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(title: "Project Scope", value: widget.project.projectScope),
+                    buildColumnTitleValue(title: "Project Scheme", value: widget.project.projectScheme),
+                  ],
+                ),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    buildColumnTitleValue(title: "Project Sub Scope", value: widget.project.projectSubScheme)
+                  ],
+                )
               ],
             ),
           ),
@@ -475,29 +521,24 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Text("Project Document", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Row(
+                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumTitleVale(
+                    buildColumnTitleValue(
                       title: "RERA Number",
                       value:
                           widget.project.reraNumber.isNotEmpty
                               ? widget.project.reraNumber
                               : "-",
                     ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildColumTitleVale(
+                    buildColumnTitleValue(
                       title: "RERA Certificate Date",
                       value:
-                          widget.project.reraCertificateDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                widget.project.reraCertificateDate!,
-                              )
-                              : "-",
+                      widget.project.reraCertificateDate != null
+                          ? formatDateTimeAsDDMMMYYYY(
+                        widget.project.reraCertificateDate!,
+                      )
+                          : "-",
                     ),
                   ],
                 ),
@@ -505,7 +546,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumTitleVale(
+                    buildColumnTitleValue(
                       title: "RERA Completion Date",
                       value:
                           widget.project.reraComplitionDate != null
@@ -530,11 +571,16 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Text("Project Financials", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Row(
+                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumTitleVale(
+                    buildColumnTitleValue(
                       title: "Project Estimate Cost",
                       value: widget.project.projectEstimateCost.toString(),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Ongoing Budget Cost",
+                      value: widget.project.onGoingBudgetCost.toString(),
                     ),
                   ],
                 ),
@@ -542,9 +588,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumTitleVale(
-                      title: "Onboard Budget Cost",
-                      value: widget.project.onGoingBudgetCost.toString(),
+                    buildColumnTitleValue(
+                      title: "Project Area (Sq.ft)",
+                      value: widget.project.projectAreaInSqft.toString(),
                     ),
                   ],
                 ),
@@ -562,9 +608,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Text("Project Timeline", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Row(
+                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumTitleVale(
+                    buildColumnTitleValue(
                       title: "Survey Date",
                       value:
                           widget.project.surveyDate != null
@@ -573,20 +620,14 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                               )
                               : "-",
                     ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildColumTitleVale(
+                    buildColumnTitleValue(
                       title: "Expected Start Date",
                       value:
-                          widget.project.expectedStartDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                widget.project.expectedStartDate!,
-                              )
-                              : "-",
+                      widget.project.expectedStartDate != null
+                          ? formatDateTimeAsDDMMMYYYY(
+                        widget.project.expectedStartDate!,
+                      )
+                          : "-",
                     ),
                   ],
                 ),
@@ -594,7 +635,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumTitleVale(
+                    buildColumnTitleValue(
                       title: "Execution Start Date",
                       value:
                           widget.project.executionStartDate != null
@@ -619,14 +660,25 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Text("Contact Information", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Row(
+                  spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumTitleVale(
+                    buildColumnTitleValue(
                       title: "Site Contact Name",
                       value:
                           widget.project.siteContactName.isNotEmpty
                               ? widget.project.siteContactName
                               : "-",
+                    ),
+                    buildColumnTitleValue(
+                      title: "Site Contact Mobile Number",
+                      value:
+                      widget.project.siteContactMobileNumber.isNotEmpty
+                          ? widget.project.siteContactMobileNumber
+                          : "-",
+                      customValueWidget:   CustomClickToContactText(
+                        value: widget.project.siteContactMobileNumber,
+                      ),
                     ),
                   ],
                 ),
@@ -634,28 +686,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildColumTitleVale(
-                      title: "Site Contact Mobile Number",
-                      value:
-                          widget.project.siteContactMobileNumber.isNotEmpty
-                              ? widget.project.siteContactMobileNumber
-                              : "-",
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Site Contact Mobile Number",
-                            style: AppTextStyle.ts14M(color: AppColor.grey),
-                          ),
-                          verticalSpacing(),
-                          CustomClickToContactText(
-                            value: widget.project.siteContactMobileNumber,
-                          ),
-                        ],
-                      ),
-                    ),
+                   buildColumnTitleValue(title: "Project Status", value: widget.project.projectStatus)
                   ],
                 ),
               ],
@@ -744,11 +775,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildColumTitleVale(
+                            buildColumnTitleValue(
                               title: "Employee Code",
                               value: employee.employeeCode,
                             ),
-                            _buildColumTitleVale(
+                            buildColumnTitleValue(
                               title: "Reporting Person",
                               value: employee.reportPersonName,
                             ),
@@ -759,11 +790,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildColumTitleVale(
+                            buildColumnTitleValue(
                               title: "Designation",
                               value: employee.designation,
                             ),
-                            _buildColumTitleVale(
+                            buildColumnTitleValue(
                               title: "Department",
                               value: employee.department,
                             ),
@@ -816,7 +847,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildColumTitleVale(
+                            buildColumnTitleValue(
                               title: "Joining Date",
                               value:
                                   employee.joiningDate != null
@@ -825,7 +856,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                       )
                                       : "-",
                             ),
-                            _buildColumTitleVale(
+                            buildColumnTitleValue(
                               title: "Last Login",
                               value:
                                   employee.lastLogin != null
@@ -847,20 +878,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
       },
     );
   }
-
-  // BUILD ROW TITLE VALUE
-  Widget _buildColumTitleVale({required String title, required String value}) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(),
-          Text(value, style: AppTextStyle.ts14M()),
-        ],
-      ),
-    );
-  }
+  
 
   // <---- SHOW EMPLOYEE SELECTION BOTTOM SHEET ---->
   Future<void> _showEmployeeSelectionBottomSheet(BuildContext context) async {
@@ -1026,11 +1044,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildColumTitleVale(
+                                buildColumnTitleValue(
                                   title: "Firms Type",
                                   value: company.firmsType,
                                 ),
-                                _buildColumTitleVale(
+                                buildColumnTitleValue(
                                   title: "Contact Person",
                                   value: company.contactPerson,
                                 ),
@@ -1058,7 +1076,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                     ],
                                   ),
                                 ),
-                                _buildColumTitleVale(
+                                buildColumnTitleValue(
                                   title: "City",
                                   value: company.cityName,
                                 ),
@@ -1067,14 +1085,14 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                             verticalSpacing(),
                             Row(
                               children: [
-                                _buildColumTitleVale(
+                                buildColumnTitleValue(
                                   title: "GST Number",
                                   value:
                                       company.gstNumber.isNotEmpty
                                           ? company.gstNumber
                                           : "-",
                                 ),
-                                _buildColumTitleVale(
+                                buildColumnTitleValue(
                                   title: "PAN Number",
                                   value:
                                       company.panNumber.isNotEmpty
@@ -1211,11 +1229,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildColumTitleVale(
+                            buildColumnTitleValue(
                               title: "Account Holder Name",
                               value: bank.beneficiaryAccountHolderName,
                             ),
-                            _buildColumTitleVale(
+                            buildColumnTitleValue(
                               title: "Account Number",
                               value: bank.accountNumber,
                             ),
@@ -1225,11 +1243,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildColumTitleVale(
+                            buildColumnTitleValue(
                               title: "IFSC Code",
                               value: bank.ifscCode,
                             ),
-                            _buildColumTitleVale(
+                            buildColumnTitleValue(
                               title: "Branch",
                               value: bank.branch,
                             ),
@@ -1239,7 +1257,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildColumTitleVale(
+                            buildColumnTitleValue(
                               title: "Account Type",
                               value: bank.acType,
                             ),

@@ -227,7 +227,7 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
             return Center(child: loader());
           }
           if (state.leaveTypeList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Leave Types Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

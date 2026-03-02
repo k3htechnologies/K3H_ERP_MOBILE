@@ -283,7 +283,7 @@ class _VendorScreenState extends State<VendorScreen> {
             return loader();
           }
           if (state.vendorList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Vendors Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

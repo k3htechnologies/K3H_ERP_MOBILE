@@ -142,7 +142,7 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
             return Center(child: loader());
           }
           if (state.subMaterialList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Sub Materials Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

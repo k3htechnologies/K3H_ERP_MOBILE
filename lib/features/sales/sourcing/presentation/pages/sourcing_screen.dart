@@ -103,7 +103,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
             return Center(child: loader());
           }
           if (state.channelPartnerList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Channel Partner Sourcing found"));
           }
           return ListView.builder(
             controller: scrollController,

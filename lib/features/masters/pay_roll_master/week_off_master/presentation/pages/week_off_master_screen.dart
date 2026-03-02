@@ -225,7 +225,7 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
             return Center(child: loader());
           }
           if (state.weekOffMasterList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Week Off Found"));
           }
           return ListView.builder(
             controller: scrollController,
