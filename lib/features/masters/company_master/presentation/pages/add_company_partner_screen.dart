@@ -396,7 +396,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     textController: _aadhaarC,
                     hint: "Enter Aadhar Card Number",
                     inputFormatterList:
-                        InputValidator.aadharNumberInputFormatter(),
+                        InputValidator.aadhaarNumberInputFormatter(),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "Aadhaar Card Number is required";

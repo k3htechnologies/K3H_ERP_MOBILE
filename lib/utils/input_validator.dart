@@ -1,7 +1,6 @@
 import 'package:flutter/services.dart';
 
 class InputValidator {
-
   static List<TextInputFormatter> textDigit(int length) {
     return [
       LengthLimitingTextInputFormatter(length),
@@ -65,9 +64,7 @@ class InputValidator {
   static List<TextInputFormatter> percentage() {
     return [
       // allow values like 0, 0., 0.5, 10.25, 100, 100.00
-      FilteringTextInputFormatter.allow(
-        RegExp(r'^\d{0,3}(\.\d{0,2})?$'),
-      ),
+      FilteringTextInputFormatter.allow(RegExp(r'^\d{0,3}(\.\d{0,2})?$')),
 
       // post-formatter to clamp value between 0 and 100
       TextInputFormatter.withFunction((oldValue, newValue) {
@@ -137,7 +134,6 @@ class InputValidator {
     return ifscRegex.hasMatch(input);
   }
 
-
   static List<TextInputFormatter> reraInputFormatters() {
     return [
       LengthLimitingTextInputFormatter(12), // adjust if needed
@@ -159,7 +155,7 @@ class InputValidator {
 
     final hasHadBirthdayThisYear =
         (today.month > dob.month) ||
-            (today.month == dob.month && today.day >= dob.day);
+        (today.month == dob.month && today.day >= dob.day);
 
     final actualAge = hasHadBirthdayThisYear ? age : age - 1;
 
@@ -218,7 +214,7 @@ class InputValidator {
     return cinRegex.hasMatch(input);
   }
 
-  static List<TextInputFormatter> aadharNumberInputFormatter() {
+  static List<TextInputFormatter> aadhaarNumberInputFormatter() {
     return [
       FilteringTextInputFormatter.digitsOnly,
       LengthLimitingTextInputFormatter(12),
@@ -226,18 +222,17 @@ class InputValidator {
   }
 
   static bool isValidAadharNumber(String input) {
-    final aadharRegex = RegExp(r'^\d{12}$');
-    return aadharRegex.hasMatch(input);
+    final aadhaarRegex = RegExp(r'^\d{12}$');
+    return aadhaarRegex.hasMatch(input);
   }
-
 }
 
 class UpperCaseTextFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     return newValue.copyWith(
       text: newValue.text.toUpperCase(),
       selection: newValue.selection,
@@ -250,9 +245,9 @@ class AlphaNumericWithoutSpacesFormatter extends TextInputFormatter {
 
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     // Prevent space character input entirely
     if (newValue.text.contains(' ')) {
       return oldValue;
@@ -268,8 +263,8 @@ class AlphaNumericWithoutSpacesFormatter extends TextInputFormatter {
 }
 
 List<TextInputFormatter> inputFormatterListForDecimalValuesFixedToTwo(
-    int length,
-    ) {
+  int length,
+) {
   return [
     NewDecimalTextInputFormatter(
       decimalRange: 2,
@@ -277,7 +272,6 @@ List<TextInputFormatter> inputFormatterListForDecimalValuesFixedToTwo(
     ),
   ];
 }
-
 
 class NewDecimalTextInputFormatter extends TextInputFormatter {
   final int decimalRange;
@@ -290,9 +284,9 @@ class NewDecimalTextInputFormatter extends TextInputFormatter {
 
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     if (newValue.text == '') {
       return newValue;
     }

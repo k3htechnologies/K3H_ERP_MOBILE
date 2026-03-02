@@ -430,7 +430,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     title: 'Aadhaar Card Number',
                     textController: _aadharC,
                     inputFormatterList:
-                        InputValidator.aadharNumberInputFormatter(),
+                        InputValidator.aadhaarNumberInputFormatter(),
                     validator: (value) {
                       if (value != null &&
                           value.trim().isNotEmpty &&

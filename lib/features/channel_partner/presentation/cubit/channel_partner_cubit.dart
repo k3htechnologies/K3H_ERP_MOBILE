@@ -76,8 +76,8 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     required String alternativeMobileNumber,
     required String panCardNumber,
     required MultiFilePickerModel panCardURL,
-    required String aadharCardNumber,
-    required MultiFilePickerModel aadharCardURL,
+    required String aadhaarCardNumber,
+    required MultiFilePickerModel aadhaarCardURL,
     required String gstNumber,
     required MultiFilePickerModel gstCertificateURL,
     required String speciality,
@@ -103,7 +103,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       "MobileNumber": mobileNumber,
       "AlternativeMobileNumber": alternativeMobileNumber,
       "PanNumber": panCardNumber,
-      "AadharCardNumber": aadharCardNumber,
+      "AadharCardNumber": aadhaarCardNumber,
       "GSTNumber": gstNumber,
       "Speciality": speciality,
       "OfficeAddress": officeAddress,
@@ -130,13 +130,13 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     }
 
     // AADHAR
-    for (int i = 0; i < aadharCardURL.fileNameList.length; i++) {
-      if (aadharCardURL.fileNameList[i].contains("http")) continue;
+    for (int i = 0; i < aadhaarCardURL.fileNameList.length; i++) {
+      if (aadhaarCardURL.fileNameList[i].contains("http")) continue;
 
       fileList.add({
         "key": "AadharCardURL",
-        "value": aadharCardURL.fileBytesList[i],
-        "fileName": aadharCardURL.fileNameList[i],
+        "value": aadhaarCardURL.fileBytesList[i],
+        "fileName": aadhaarCardURL.fileNameList[i],
       });
     }
 
@@ -184,8 +184,8 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     required String mobileNumber,
     required String panCardNumber,
     required MultiFilePickerModel panCardURL,
-    required String aadharCardNumber,
-    required MultiFilePickerModel aadharCardURL,
+    required String aadhaarCardNumber,
+    required MultiFilePickerModel aadhaarCardURL,
     required String speciality,
     required String officeAddress,
     required int selectedCountryNameId,
@@ -211,7 +211,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       "EmailId": emailId,
       "MobileNumber": mobileNumber,
       "PanNumber": panCardNumber,
-      "AadharCardNumber": aadharCardNumber,
+      "AadharCardNumber": aadhaarCardNumber,
       "Speciality": speciality.toString(),
       "OfficeAddress": officeAddress,
       "CountryMasterId": selectedCountryNameId.toString(),
@@ -240,14 +240,14 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
         "fileName": panCardURL.fileNameList[i],
       });
     }
-    for (int i = 0; i < aadharCardURL.fileNameList.length; i++) {
-      if (aadharCardURL.fileNameList[i].contains("http")) {
+    for (int i = 0; i < aadhaarCardURL.fileNameList.length; i++) {
+      if (aadhaarCardURL.fileNameList[i].contains("http")) {
         continue;
       }
       fileList.add({
         "key": "AadharCardURL",
-        "value": aadharCardURL.fileBytesList[i],
-        "fileName": aadharCardURL.fileNameList[i],
+        "value": aadhaarCardURL.fileBytesList[i],
+        "fileName": aadhaarCardURL.fileNameList[i],
       });
     }
     final result = await _channelPartnerRepository.addUpdateChannelPartner(

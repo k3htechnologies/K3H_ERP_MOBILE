@@ -176,7 +176,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
     if (selectedApplicantType['DisplayName'] == "Applicant" &&
         widget.hasPrimaryApplicant &&
         !_isEditingApplicantType) {
-      showErrorMessage(context,"", "Primary Applicant already exists");
+      showErrorMessage(context, "", "Primary Applicant already exists");
       return;
     }
 
@@ -218,10 +218,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
     applicant.votingIdImage = votingIdFile;
     applicant.gstImage = gstFile;
 
-    Navigator.pop(context, {
-      "applicant": applicant,
-      "index": widget.index,
-    });
+    Navigator.pop(context, {"applicant": applicant, "index": widget.index});
   }
 
   @override
@@ -344,7 +341,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     hint: "Enter Aadhaar Card Number",
                     textController: _aadharC,
                     inputFormatterList:
-                        InputValidator.aadharNumberInputFormatter(),
+                        InputValidator.aadhaarNumberInputFormatter(),
                     validator: (value) {
                       if (value != null &&
                           value.trim().isNotEmpty &&

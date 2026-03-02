@@ -315,7 +315,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _alternateMobileNumberC.text =
         channelPartnerMasterModel.alternativeMobileNumber;
     _panNumberC.text = channelPartnerMasterModel.panNumber;
-    _aadhaarNumberC.text = channelPartnerMasterModel.aadharCardNumber;
+    _aadhaarNumberC.text = channelPartnerMasterModel.aadhaarCardNumber;
     _companyNameC.text = channelPartnerMasterModel.companyName;
     _reraNumberC.text = channelPartnerMasterModel.reraNumber;
     _gstNumberC.text = channelPartnerMasterModel.gstNumber;
@@ -377,9 +377,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
             : channelPartnerMasterModel.panCardUrl.split(",");
 
     selectedAadhaarForPopUpFile.fileNameList =
-        channelPartnerMasterModel.aadharCardUrl.isEmpty
+        channelPartnerMasterModel.aadhaarCardUrl.isEmpty
             ? []
-            : channelPartnerMasterModel.aadharCardUrl.split(",");
+            : channelPartnerMasterModel.aadhaarCardUrl.split(",");
     selectedGSTCertificateForPopUpFile.fileNameList =
         channelPartnerMasterModel.gstCertificateUrl.isEmpty
             ? []
@@ -454,12 +454,12 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         mobileNumber: _mobileNumberC.text.trim(),
         alternativeMobileNumber: _alternateMobileNumberC.text.trim(),
         panCardNumber: _panNumberC.text.trim(),
-        aadharCardNumber: _aadhaarNumberC.text.trim(),
+        aadhaarCardNumber: _aadhaarNumberC.text.trim(),
         gstNumber: _gstNumberC.text.trim(),
         speciality: selectedSpeciality["DisplayName"],
         officeAddress: _officeAddressC.text.trim(),
         panCardURL: selectedPANForPopUpFile,
-        aadharCardURL: selectedAadhaarForPopUpFile,
+        aadhaarCardURL: selectedAadhaarForPopUpFile,
         gstCertificateURL: selectedGSTCertificateForPopUpFile,
         selectedCountryNameId: 1,
         selectedStateId: selectedState!["zAttributesId"],
@@ -485,12 +485,12 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         mobileNumber: _mobileNumberC.text.trim(),
         alternativeMobileNumber: _alternateMobileNumberC.text.trim(),
         panCardNumber: _panNumberC.text.trim(),
-        aadharCardNumber: _aadhaarNumberC.text.trim(),
+        aadhaarCardNumber: _aadhaarNumberC.text.trim(),
         gstNumber: _gstNumberC.text.trim(),
         speciality: selectedSpeciality["DisplayName"],
         officeAddress: _officeAddressC.text.trim(),
         panCardURL: selectedPANForPopUpFile,
-        aadharCardURL: selectedAadhaarForPopUpFile,
+        aadhaarCardURL: selectedAadhaarForPopUpFile,
         selectedCountryNameId: 1,
         selectedStateId: selectedState!["zAttributesId"],
         selectedDistrictId: selectedDistrict!["zAttributesId"],
@@ -914,7 +914,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       textController: _aadhaarNumberC,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
-                          InputValidator.aadharNumberInputFormatter(),
+                          InputValidator.aadhaarNumberInputFormatter(),
                       validator: (value) {
                         if (value != null &&
                             value.trim().isNotEmpty &&
@@ -966,7 +966,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       },
                     ),
                     CustomMultiFilePicker(
-                      title: "Upload Pan Number",
+                      title: "Upload Pan Card",
                       initialFileList: selectedPANForPopUpFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
                         selectedPANForPopUpFile.fileNameList = fileNameList;
