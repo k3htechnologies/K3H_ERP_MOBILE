@@ -184,13 +184,12 @@ class EnquiryCubit extends Cubit<EnquiryState> {
   }) async {
     final Map<String, dynamic> queryParams = {};
 
+    queryParams["DepartmentName"] = "Sale";
+
     if (employeeId != null && employeeId != 0) {
-      // FETCH BY
       queryParams["EmployeeId"] = employeeId;
     } else if (value != null && value.isNotEmpty) {
-      // FETCH BY NAME (SEARCH)
       queryParams["EmployeeName"] = value;
-      queryParams["DepartmentName"] = "Sale";
     }
 
     final result = await _employeeMasterRepository.getEmployeeMasterList(

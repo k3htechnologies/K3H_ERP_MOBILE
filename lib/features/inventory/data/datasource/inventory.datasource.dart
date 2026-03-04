@@ -510,7 +510,9 @@ class InventoryDatasourceImpl implements InventoryDatasource {
         ),
       );
       return {
-        'data': networkResponse["data"],
+        'data': List<FlatModel>.from(
+          networkResponse["data"].map((e) => FlatModel.fromJson(e)),
+        ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

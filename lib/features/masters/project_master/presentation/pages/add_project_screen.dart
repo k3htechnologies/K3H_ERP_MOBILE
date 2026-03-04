@@ -476,7 +476,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       CustomMultiFilePicker(
                         initialFileList: projectPhotoImage.fileNameList,
                         title: "Project Photo",
-                        filePickType: FilePickType.kycDocument,
+                        filePickType: FilePickType.image,
                         isRequired: true,
                         onFilePickedCallback: (bytes, fileName) {
                           projectPhotoImage.fileBytesList = bytes;

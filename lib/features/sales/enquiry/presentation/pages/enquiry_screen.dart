@@ -573,7 +573,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: _routeAuthorizationModel.isAction==true? FloatingActionButton(
         elevation: 2.5,
         shape: CircleBorder(side: BorderSide(color: AppColor.primary)),
         backgroundColor: AppColor.lightBlue,
@@ -581,7 +581,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         onPressed: () {
           goRouter.pushNamed(AppRoutes.addEnquiry);
         },
-      ),
+      ):SizedBox(),
     );
   }
 

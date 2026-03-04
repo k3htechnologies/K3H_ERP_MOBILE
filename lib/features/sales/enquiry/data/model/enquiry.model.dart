@@ -47,8 +47,12 @@ class EnquiryModel {
     required this.villageName,
     required this.referelName,
     required this.referelMobileNumber,
+    required this.referelProjectId,
+    required this.referelInventoryFlatId,
     required this.referelProjectName,
     required this.referelUnitNumber,
+    required this.loyaltyProjectId,
+    required this.loyaltyInventoryFlatId,
     required this.loyaltyExistingProjectName,
     required this.loyaltyExistingUnitNumber,
     required this.employeeReferenceName,
@@ -119,10 +123,14 @@ class EnquiryModel {
   /// REFERRAL
   String referelName;
   String referelMobileNumber;
+  int referelProjectId;
+  int referelInventoryFlatId;
   String referelProjectName;
   String referelUnitNumber;
 
   /// LOYALTY
+  int loyaltyProjectId;
+  int loyaltyInventoryFlatId;
   String loyaltyExistingProjectName;
   String loyaltyExistingUnitNumber;
 
@@ -203,8 +211,12 @@ class EnquiryModel {
       villageName: parseValue<String>(json, "VillageName"),
       referelName: parseValue<String>(json, "ReferelName"),
       referelMobileNumber: parseValue<String>(json, "ReferelMobileNumber"),
+      referelProjectId: parseValue<int>(json, "ReferelProjectId"),
+      referelInventoryFlatId: parseValue<int>(json, "ReferelInventoryFlatId"),
       referelProjectName: parseValue<String>(json, "ReferelProjectName"),
       referelUnitNumber: parseValue<String>(json, "ReferelUnitNumber"),
+      loyaltyProjectId: parseValue<int>(json, "LoyaltyProjectId"),
+      loyaltyInventoryFlatId: parseValue<int>(json, "LoyaltyInventoryFlatId"),
       loyaltyExistingProjectName: parseValue<String>(
         json,
         "LoyaltyExistingProjectName",
@@ -276,8 +288,12 @@ class EnquiryModel {
     "VillageName": villageName,
     "ReferelName": referelName,
     "ReferelMobileNumber": referelMobileNumber,
+    "ReferelProjectId": referelProjectId,
+    "ReferelInventoryFlatId": referelInventoryFlatId,
     "ReferelProjectName": referelProjectName,
     "ReferelUnitNumber": referelUnitNumber,
+    "LoyaltyProjectId": loyaltyProjectId,
+    "LoyaltyInventoryFlatId": loyaltyInventoryFlatId,
     "LoyaltyExistingProjectName": loyaltyExistingProjectName,
     "LoyaltyExistingUnitNumber": loyaltyExistingUnitNumber,
     "EmployeeReferenceName": employeeReferenceName,

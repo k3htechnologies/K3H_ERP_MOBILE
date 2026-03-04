@@ -393,7 +393,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Basic Details", style: AppTextStyle.ts16SB()),
+                Text("Basic Project Details", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
