@@ -587,7 +587,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                   },
                                   child: Text(
                                     fileNamesList.isEmpty
-                                        ? "No files selected"
+                                        ? "Upload ${widget.title}"
                                         : "${fileNamesList.length} file(s) selected",
                                     style: AppTextStyle.ts14R().copyWith(
                                       color:

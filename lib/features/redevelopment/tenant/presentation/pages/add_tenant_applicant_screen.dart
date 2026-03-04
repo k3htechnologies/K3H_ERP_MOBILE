@@ -363,6 +363,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomTextField(
                     title: 'Applicant Name',
                     isRequired: true,
+                    hint: "Enter Applicant Name",
                     textController: _applicantNameC,
                     inputFormatterList: InputValidator.textOnly(100),
                     validator: (value) {
@@ -375,6 +376,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomTextField(
                     title: 'Mobile Number',
                     isRequired: true,
+                    hint: "Enter Mobile Number",
                     textController: _mobileC,
                     inputFormatterList: InputValidator.digit(10),
                     validator: (value) {
@@ -390,6 +392,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomTextField(
                     title: 'Email Id',
                     isRequired: true,
+                    hint: "Enter Email Id",
                     textController: _emailC,
                     inputFormatterList: InputValidator.emailInputFormatters(),
                     validator: (value) {
@@ -430,6 +433,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomTextField(
                     title: 'Aadhaar Card Number',
                     textController: _aadharC,
+                    hint: "Enter Aadhaar Card Number",
                     inputFormatterList:
                         InputValidator.aadhaarNumberInputFormatter(),
                     validator: (value) {
@@ -462,6 +466,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomTextField(
                     title: 'PAN Number',
                     textController: _panC,
+                    hint: "Enter PAN Number",
                     inputFormatterList: InputValidator.panInputFormatters(),
                     validator: (value) {
                       if (value != null &&
@@ -493,10 +498,11 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomTextField(
                     title: 'Passport Number',
                     textController: _passportC,
+                    hint: "Enter Passport Number",
                     inputFormatterList: [LengthLimitingTextInputFormatter(20)],
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload Passport",
+                    title: "Passport",
                     initialFileList: passportFile.fileNameList,
                     filePickType: FilePickType.kycDocument,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -516,6 +522,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomTextField(
                     title: 'Driving License Number',
                     textController: _drivingLicenseC,
+                    hint: "Enter Driving License Number",
                     inputFormatterList: InputValidator.textDigit(20),
                     validator: (value) {
                       if (drivingLicenseFile.fileNameList.isEmpty) {
@@ -533,7 +540,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload Driving License",
+                    title: "Driving License",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: drivingLicenseFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -553,6 +560,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomTextField(
                     title: 'Voting ID Number',
                     textController: _votingIdC,
+                    hint: "Enter Voting ID Number",
                     inputFormatterList: InputValidator.textDigit(20),
                     validator: (value) {
                       if (votingIdFile.fileNameList.isNotEmpty) {
@@ -573,7 +581,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload Voting ID",
+                    title: "Voting ID",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: votingIdFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -593,6 +601,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomTextField(
                     title: 'GST Number',
                     textController: _gstC,
+                    hint: "Enter GST Number",
                     inputFormatterList: InputValidator.gstInputFormatters(),
                     validator: (value) {
                       if (gstFile.fileNameList.isNotEmpty) {
@@ -613,7 +622,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload GST Document",
+                    title: "GST Document",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: gstFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -671,7 +680,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload Cancelled Cheque",
+                    title: "Cancelled Cheque",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: chequeFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -700,7 +709,11 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
           height: 70,
           padding: const EdgeInsets.all(16),
           color: AppColor.white,
-          child: CustomButton(text: "Save", onPressed: _save),
+          child: CustomButton(
+            leading: Icon(_isEditingApplicantType
+                ? Icons.edit
+                : Icons.add,size: 18,color: AppColor.white,),
+              text: _isEditingApplicantType ? "Update Applicant" : "Add Applicant", onPressed: _save),
         ),
       ),
     );

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
-import 'package:k3h_erp_app/utils/common_function.dart';
 
 Widget verticalSpacing({double height = 10.0}) => SizedBox(height: height);
 

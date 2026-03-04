@@ -71,7 +71,7 @@ class CustomDropDownWidget extends StatelessWidget {
                       ),
                       closedBorder: Border.all(
                         color: isDisabled
-                            ? AppColor.grey.withValues(alpha: 0.4)
+                            ? AppColor.grey.withValues(alpha: 0.2)
                             : hasError
                             ? AppColor.error
                             : AppColor.grey30,

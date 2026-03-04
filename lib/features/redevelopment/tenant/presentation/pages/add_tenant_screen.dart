@@ -633,7 +633,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
           padding: EdgeInsets.all(16),
           child: CustomButton(
             leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
-            text: _isEditMode ? 'Update' : 'Add',
+            text: _isEditMode ? 'Update Tenant' : 'Add Tenant',
             onPressed: _handleSubmit,
             backgroundColor: AppColor.primary,
           ),

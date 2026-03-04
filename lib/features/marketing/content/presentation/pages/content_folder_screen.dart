@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -13,7 +12,6 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
@@ -199,7 +197,7 @@ class _ContentFolderScreenState extends State<ContentFolderScreen> {
                           Expanded(
                             child: GestureDetector(
                               onTap: () async {
-                                 await goRouter.pushNamed(
+                                await goRouter.pushNamed(
                                   AppRoutes.contentDocument,
                                   queryParameters: {
                                     "marketingContentFolderId":
@@ -216,7 +214,7 @@ class _ContentFolderScreenState extends State<ContentFolderScreen> {
                                 );
 
                                 // If document was added/deleted, refresh the folder list
-                                if ( context.mounted) {
+                                if (context.mounted) {
                                   _marketingCubit.getMarketingFolderList(
                                     context,
                                     1,
@@ -262,34 +260,12 @@ class _ContentFolderScreenState extends State<ContentFolderScreen> {
                               ),
                             ],
                           ),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColor.primary.withValues(alpha: .2),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              spacing: 5,
-                              children: [
-                                SvgPicture.asset(
-                                  AppAssets.downloadIcon,
-                                  height: 16,
-                                  colorFilter: ColorFilter.mode(
-                                    AppColor.primary,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                                Text(
-                                  "Download",
-                                  style: AppTextStyle.ts14R(
-                                    color: AppColor.primary,
-                                  ),
-                                ),
-                              ],
+                          CustomIconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.file_download_outlined,
+                              size: 16,
+                              color: AppColor.primary,
                             ),
                           ),
                         ],

@@ -335,7 +335,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
                     ),
                     CustomMultiFilePicker(
                       initialFileList: assetInvoiceFile.fileNameList,
-                      title: "Upload Asset Invoice",
+                      title: "Asset Invoice",
                       isRequired: true,
                       onFilePickedCallback: (fileByteList, fileNameList) {
                         assetInvoiceFile.fileBytesList = fileByteList;

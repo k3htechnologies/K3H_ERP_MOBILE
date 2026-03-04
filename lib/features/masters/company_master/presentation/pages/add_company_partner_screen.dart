@@ -367,7 +367,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload PAN Number",
+                    title: "PAN Card",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: panFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -408,7 +408,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload Aadhaar Card",
+                    title: "Aadhaar Card",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: aadhaarFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -432,7 +432,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload Photo",
+                    title: "Photo",
                     filePickType: FilePickType.image,
                     initialFileList: photoFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {

@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -13,6 +12,7 @@ import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -41,8 +41,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   Map<String, dynamic>? selectedDistrict;
   Map<String, dynamic>? selectedCity;
   Map<String, dynamic>? selectedProjectStatus;
-  Map<String, dynamic>? selectedProjectScheme;
   Map<String, dynamic>? selectedProjectSubScheme;
+
+  final ValueNotifier<Map<String, dynamic>?> projectSchemeNotifier =
+      ValueNotifier(null);
 
   // DATE PICKER VARIABLE
   DateTime? reraCompletionDate;
@@ -110,8 +112,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   ];
 
   List<Map<String, dynamic>> get _currentSubSchemeList {
-    if (selectedProjectScheme == null) return projectSubSchemeList;
-    final id = selectedProjectScheme!["zAttributesId"] as int?;
+    if (projectSchemeNotifier.value == null) return projectSubSchemeList;
+    final id = projectSchemeNotifier.value!["zAttributesId"] as int?;
     if (id == null || id == -1) return projectSubSchemeList;
     switch (id) {
       case 1:
@@ -140,7 +142,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     super.initState();
     _projectMasterCubit = context.read<ProjectMasterCubit>();
     selectedProjectStatus = projectStatusList.first;
-    selectedProjectScheme = projectSchemeList.first;
+    projectSchemeNotifier.value = projectSchemeList.first;
     selectedProjectSubScheme =
         _currentSubSchemeList.isNotEmpty ? _currentSubSchemeList.first : null;
     _initializeTextEditingController();
@@ -221,7 +223,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     }
 
     if (widget.project!.projectScheme.isNotEmpty) {
-      selectedProjectScheme = projectSchemeList.firstWhere(
+      projectSchemeNotifier.value = projectSchemeList.firstWhere(
         (item) => item["DisplayName"] == widget.project!.projectScheme,
         orElse: () => projectSchemeList.first,
       );
@@ -231,7 +233,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
         orElse: () => subList.first,
       );
     } else {
-      selectedProjectScheme = projectSchemeList.first;
+      projectSchemeNotifier.value = projectSchemeList.first;
       selectedProjectSubScheme =
           _currentSubSchemeList.isNotEmpty ? _currentSubSchemeList.first : null;
     }
@@ -296,9 +298,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     ? _projectEstimateCostC.text
                     : "0.0",
             projectScheme:
-                selectedProjectScheme != null &&
-                        selectedProjectScheme!["zAttributesId"] != -1
-                    ? selectedProjectScheme!["DisplayName"].toString()
+                projectSchemeNotifier.value != null &&
+                        projectSchemeNotifier.value!["zAttributesId"] != -1
+                    ? projectSchemeNotifier.value!["DisplayName"].toString()
                     : "",
             projectScope: _projectScopeC.text,
             projectStatus:
@@ -346,9 +348,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     ? _projectEstimateCostC.text
                     : "0.0",
             projectScheme:
-                selectedProjectScheme != null &&
-                        selectedProjectScheme!["zAttributesId"] != -1
-                    ? selectedProjectScheme!["DisplayName"].toString()
+                projectSchemeNotifier.value != null &&
+                        projectSchemeNotifier.value!["zAttributesId"] != -1
+                    ? projectSchemeNotifier.value!["DisplayName"].toString()
                     : "",
             projectScope: _projectScopeC.text,
             projectStatus:
@@ -400,12 +402,12 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomCheckBox(
-                            isSelected: isRedevelopment,
-                            onChanged: (value) {
-                              isRedevelopmentNotifier.value = value;
+                          CustomCheckbox(
+                            value: isRedevelopment,
+                            onChanged: (check) {
+                              isRedevelopmentNotifier.value = check!;
 
-                              if (value) {
+                              if (check) {
                                 _ctsNumberC.clear();
                               }
                             },
@@ -597,29 +599,37 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                           LengthLimitingTextInputFormatter(100),
                         ],
                       ),
-                      CustomDropDownWidget(
-                        title: 'Project Scheme',
-                        initialValue: selectedProjectScheme,
-                        dataList: projectSchemeList,
-                        onSelected: (value) {
-                          setState(() {
-                            selectedProjectScheme = value;
-                            selectedProjectSubScheme =
-                                _currentSubSchemeList.isNotEmpty
-                                    ? _currentSubSchemeList.first
-                                    : null;
-                          });
+                      ValueListenableBuilder<Map<String, dynamic>?>(
+                        valueListenable: projectSchemeNotifier,
+                        builder: (context, selectedProjectScheme, _) {
+                          return CustomDropDownWidget(
+                            title: 'Project Scheme',
+                            initialValue: selectedProjectScheme,
+                            dataList: projectSchemeList,
+                            onSelected: (value) {
+                              projectSchemeNotifier.value = value;
+
+                              selectedProjectSubScheme =
+                                  _currentSubSchemeList.isNotEmpty
+                                      ? _currentSubSchemeList.first
+                                      : null;
+                            },
+                          );
                         },
                       ),
-                      CustomDropDownWidget(
-                        title: 'Project Sub Scheme',
-                        initialValue: selectedProjectSubScheme,
-                        dataList: _currentSubSchemeList,
-                        isDisabled: true,
-                        onSelected: (value) {
-                          setState(() {
-                            selectedProjectSubScheme = value;
-                          });
+                      ValueListenableBuilder<Map<String, dynamic>?>(
+                        valueListenable: projectSchemeNotifier,
+                        builder: (context, selectedProjectScheme, _) {
+                          return CustomDropDownWidget(
+                            title: 'Project Sub Scheme',
+                            initialValue: selectedProjectSubScheme,
+                            dataList: _currentSubSchemeList,
+                            isDisabled:
+                                selectedProjectScheme?["zAttributesId"] == -1,
+                            onSelected: (value) {
+                              selectedProjectSubScheme = value;
+                            },
+                          );
                         },
                       ),
                     ],

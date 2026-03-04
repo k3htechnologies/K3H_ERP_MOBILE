@@ -549,7 +549,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             maxFiles: 3,
             filePickType: FilePickType.kycDocument,
             initialFileList: gstCertificateFile.fileNameList,
-            title: "Upload GST Certificate",
+            title: "GST Certificate",
             onFilePickedCallback: (fileByteList, fileNameList) {
               gstCertificateFile.fileBytesList = fileByteList;
               gstCertificateFile.fileNameList = fileNameList;
@@ -567,7 +567,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             inputFormatterList: InputValidator.panInputFormatters(),
           ),
           CustomMultiFilePicker(
-            title: 'Upload PAN Card',
+            title: 'PAN Card',
             filePickType: FilePickType.kycDocument,
             initialFileList: selectedPANCardFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
@@ -587,7 +587,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             inputFormatterList: InputValidator.cinInputFormatters(),
           ),
           CustomMultiFilePicker(
-            title: 'Upload CIN Card',
+            title: 'CIN',
             filePickType: FilePickType.kycDocument,
             initialFileList: cinPhotoFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
@@ -607,7 +607,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             inputFormatterList: InputValidator.reraInputFormatters(),
           ),
           CustomMultiFilePicker(
-            title: 'Upload TAN',
+            title: 'TAN',
             filePickType: FilePickType.kycDocument,
             initialFileList: selectedTANFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
