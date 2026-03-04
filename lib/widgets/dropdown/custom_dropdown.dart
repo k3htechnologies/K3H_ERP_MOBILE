@@ -11,6 +11,7 @@ class CustomDropDownWidget extends StatelessWidget {
   final String? title;
   final String? Function(Map<String, dynamic>?)? validator;
   final Map<String, dynamic>? initialValue;
+  final bool isDisabled;
   const CustomDropDownWidget({
     super.key,
     required this.dataList,
@@ -19,6 +20,7 @@ class CustomDropDownWidget extends StatelessWidget {
     this.title,
     this.validator,
     this.initialValue,
+    this.isDisabled = false,
   });
 
   @override
@@ -47,57 +49,66 @@ class CustomDropDownWidget extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomDropdown<Map<String, dynamic>>.search(
-                  initialItem: initialValue,
-                  closedHeaderPadding: const EdgeInsets.symmetric(
-                    horizontal: 10.0,
-                    vertical: 10.0,
-                  ),
-                  hintText: 'Select',
-                  decoration: CustomDropdownDecoration(
-                    hintStyle: AppTextStyle.ts14R().copyWith(
-                      color: AppColor.grey,
+                IgnorePointer(
+                  ignoring: isDisabled,
+                  child: CustomDropdown<Map<String, dynamic>>.search(
+                    initialItem: initialValue,
+                    closedHeaderPadding: const EdgeInsets.symmetric(
+                      horizontal: 10.0,
+                      vertical: 10.0,
                     ),
-                    expandedBorderRadius: BorderRadius.circular(6),
-                    closedBorderRadius: BorderRadius.circular(6),
-                    closedErrorBorderRadius: BorderRadius.circular(6),
-                    expandedBorder: Border.all(
-                      color: AppColor.grey30,
-                      width: 1.0,
-                    ),
-                    closedBorder: Border.all(
-                      color: hasError ? AppColor.error : AppColor.grey30,
-                      width: 1.0,
-                    ),
-                    closedErrorBorder: Border.all(
-                      color: AppColor.error.withValues(alpha: 0.5),
-                      width: 1.0,
-                    ),
-                    errorStyle: AppTextStyle.ts14R(
-                      color: AppColor.error,
-                    ).copyWith(fontSize: 0),
-                  ),
-                  items: dataList,
-                  listItemPadding: EdgeInsets.zero,
-                  listItemBuilder: (context, item, isSelected, onItemSelect) {
-                    return ListTile(
-                      title: Text(
-                        item['DisplayName'] ?? '',
-                        style: AppTextStyle.ts14R(),
+                    hintText: 'Select',
+                    decoration: CustomDropdownDecoration(
+                      hintStyle: AppTextStyle.ts14R().copyWith(
+                        color: AppColor.grey,
                       ),
-                      onTap: onItemSelect,
-                    );
-                  },
-                  headerBuilder: (context, selectedItem, isSelected) {
-                    return Text(
-                      selectedItem['DisplayName'] ?? '',
-                      style: AppTextStyle.ts14R(),
-                    );
-                  },
-                  onChanged: (value) {
-                    formFieldState.didChange(value);
-                    onSelected(value!);
-                  },
+                      expandedBorderRadius: BorderRadius.circular(6),
+                      closedBorderRadius: BorderRadius.circular(6),
+                      closedErrorBorderRadius: BorderRadius.circular(6),
+                      expandedBorder: Border.all(
+                        color: AppColor.grey30,
+                        width: 1.0,
+                      ),
+                      closedBorder: Border.all(
+                        color: isDisabled
+                            ? AppColor.grey.withValues(alpha: 0.4)
+                            : hasError
+                            ? AppColor.error
+                            : AppColor.grey30,
+                        width: 1.0,
+                      ),
+                      closedErrorBorder: Border.all(
+                        color: AppColor.error.withValues(alpha: 0.5),
+                        width: 1.0,
+                      ),
+                      errorStyle: AppTextStyle.ts14R(
+                        color: AppColor.error,
+                      ).copyWith(fontSize: 0),
+                    ),
+                    items: dataList,
+                    listItemPadding: EdgeInsets.zero,
+                    listItemBuilder: (context, item, isSelected, onItemSelect) {
+                      return ListTile(
+                        title: Text(
+                          item['DisplayName'] ?? '',
+                          style: AppTextStyle.ts14R(),
+                        ),
+                        onTap: onItemSelect,
+                      );
+                    },
+                    headerBuilder: (context, selectedItem, isSelected) {
+                      return Text(
+                        selectedItem['DisplayName'] ?? '',
+                        style: AppTextStyle.ts14R(),
+                      );
+                    },
+                    onChanged: (value) {
+                      if (!isDisabled) {
+                        formFieldState.didChange(value);
+                        onSelected(value!);
+                      }
+                    },
+                  ),
                 ),
                 hasError
                     ? Container(

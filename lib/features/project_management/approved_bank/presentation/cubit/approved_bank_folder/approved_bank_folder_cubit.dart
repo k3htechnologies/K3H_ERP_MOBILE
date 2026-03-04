@@ -56,6 +56,7 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
   // GET BANK LIST
   Future getBankList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
+
     var result = await _employeeMasterRepository.getBankList(
       pageNumber: pageNumber,
       pageSize: 20,
@@ -63,18 +64,18 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
     );
 
     result.fold(
-      (failure) {
+          (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
-      (response) {
+          (response) {
+
         final List<BankListMasterModel> newData =
-            (response['data'] as List)
-                .map((e) => BankListMasterModel.fromJson(e))
-                .toList();
+        response['data'] as List<BankListMasterModel>;
 
         final List<BankListMasterModel> updatedList =
-            pageNumber == 1 ? newData : [...state.bankList, ...newData];
+        pageNumber == 1 ? newData : [...state.bankList, ...newData];
+
         emit(
           state.copyWith(
             bankList: updatedList,

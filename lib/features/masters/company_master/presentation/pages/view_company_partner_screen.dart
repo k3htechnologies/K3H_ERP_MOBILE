@@ -27,13 +27,7 @@ class ViewCompanyPartnerScreen extends StatelessWidget {
         child:
             partners.isEmpty
                 ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Text(
-                      "No Company Partner Added",
-                      style: AppTextStyle.ts16M(color: AppColor.grey),
-                    ),
-                  ),
+                  child: noDataWidget(message: "No Partner Data Available"),
                 )
                 : ListView.builder(
                   padding: const EdgeInsets.all(16),

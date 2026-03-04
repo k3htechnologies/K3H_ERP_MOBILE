@@ -68,7 +68,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       _siteContactMobileNumberC;
 
   // CHECKBOX FOR REDEVELOPMENT
-  bool isRedevelopment = false;
+  final ValueNotifier<bool> isRedevelopmentNotifier = ValueNotifier(false);
 
   // ProjectPhotoURL IMAGE SELECTION
   MultiFilePickerModel projectPhotoImage = MultiFilePickerModel(
@@ -79,7 +79,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectSchemeList = [
-    {"zAttributesId": -1, "DisplayName": "Select Project Status"},
+    {"zAttributesId": -1, "DisplayName": "Select Project Scheme"},
     {"zAttributesId": 1, "DisplayName": "BMC"},
     {"zAttributesId": 2, "DisplayName": "MHADA"},
     {"zAttributesId": 3, "DisplayName": "SRA"},
@@ -87,7 +87,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectSubSchemeList = [
-    {"zAttributesId": -1, "DisplayName": "Select Project Status"},
+    {"zAttributesId": -1, "DisplayName": "Select Project Sub Scheme"},
     {"zAttributesId": 1, "DisplayName": "33 (20) B"},
     {"zAttributesId": 2, "DisplayName": "33 (19)"},
     {"zAttributesId": 3, "DisplayName": "33 (7) B"},
@@ -98,13 +98,13 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectSubSchemeList1 = [
-    {"zAttributesId": -1, "DisplayName": "Select Project Status"},
+    {"zAttributesId": -1, "DisplayName": "Select Project Sub Scheme"},
     {"zAttributesId": 1, "DisplayName": "33 (5)"},
   ];
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectSubSchemeList2 = [
-    {"zAttributesId": -1, "DisplayName": "Select Project Status"},
+    {"zAttributesId": -1, "DisplayName": "Select Project Sub Scheme"},
     {"zAttributesId": 1, "DisplayName": "33 (10)"},
     {"zAttributesId": 2, "DisplayName": "33 (11)"},
   ];
@@ -127,7 +127,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
   // STATIC LISTS
   List<Map<String, dynamic>> projectStatusList = [
-    {"zAttributesId": -1, "DisplayName": "Select Project Scheme"},
+    {"zAttributesId": -1, "DisplayName": "Select Project Status"},
     {"zAttributesId": 1, "DisplayName": "On-Going"},
     {"zAttributesId": 2, "DisplayName": "Completed"},
     {"zAttributesId": 3, "DisplayName": "On-Hold"},
@@ -245,7 +245,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             .toList();
 
     // Prefill location data
-    isRedevelopment = widget.project!.isRedevelopment;
+    isRedevelopmentNotifier.value = widget.project!.isRedevelopment;
     selectedDistrict = {
       "DisplayName": widget.project!.districtName,
       "zAttributesId": widget.project!.districtMasterId,
@@ -271,10 +271,11 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             uniqueKey: project.uniquekey,
             projectName: _projectNameC.text,
             location: _projectLocationC.text,
-            ctsNumber: _ctsNumberC.text,
+            ctsNumber:
+                isRedevelopmentNotifier.value == false ? _ctsNumberC.text : "",
             projectPhotoMap: projectPhotoImage,
             businessCategory: _businessCategoryC.text,
-            isRedevelopment: isRedevelopment,
+            isRedevelopment: isRedevelopmentNotifier.value,
             districtMasterId: selectedDistrict!["zAttributesId"].toString(),
             stateMasterId: selectedState!["zAttributesId"].toString(),
             cityMasterId: selectedCity!["zAttributesId"].toString(),
@@ -320,10 +321,11 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             context: context,
             projectName: _projectNameC.text,
             location: _projectLocationC.text,
-            ctsNumber: _ctsNumberC.text,
+            ctsNumber:
+                isRedevelopmentNotifier.value == false ? _ctsNumberC.text : "",
             projectPhotoMap: projectPhotoImage,
             businessCategory: _businessCategoryC.text,
-            isRedevelopment: isRedevelopment,
+            isRedevelopment: isRedevelopmentNotifier.value,
             districtMasterId: selectedDistrict!["zAttributesId"].toString(),
             stateMasterId: selectedState!["zAttributesId"].toString(),
             cityMasterId: selectedCity!["zAttributesId"].toString(),
@@ -388,8 +390,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                   style: AppTextStyle.ts16SB(),
                 ),
                 verticalSpacing(),
-                StatefulBuilder(
-                  builder: (context, innerState) {
+                ValueListenableBuilder<bool>(
+                  valueListenable: isRedevelopmentNotifier,
+                  builder: (context, isRedevelopment, _) {
                     return Container(
                       padding: EdgeInsets.all(12),
                       margin: EdgeInsets.only(bottom: 10),
@@ -400,16 +403,18 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                           CustomCheckBox(
                             isSelected: isRedevelopment,
                             onChanged: (value) {
-                              innerState(() {
-                                isRedevelopment = value;
-                              });
+                              isRedevelopmentNotifier.value = value;
+
+                              if (value) {
+                                _ctsNumberC.clear();
+                              }
                             },
                           ),
                           horizontalSpacing(),
                           Flexible(
                             child: Text(
                               'Is this project a Redevelopment Project?',
-                              style: AppTextStyle.ts16SB(),
+                              style: AppTextStyle.ts14R(),
                             ),
                           ),
                         ],
@@ -442,19 +447,28 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                           return null;
                         },
                       ),
-                      CustomTextField(
-                        title: 'CTS Number',
-                        hint: "Enter CTS Number",
-                        isRequired: true,
-                        textController: _ctsNumberC,
-                        inputFormatterList: [
-                          LengthLimitingTextInputFormatter(50),
-                        ],
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'CTS number is required';
-                          }
-                          return null;
+                      ValueListenableBuilder<bool>(
+                        valueListenable: isRedevelopmentNotifier,
+                        builder: (context, isRedevelopment, child) {
+                          return Visibility(
+                            visible: !isRedevelopment,
+                            child: CustomTextField(
+                              title: 'CTS Number',
+                              hint: "Enter CTS Number",
+                              isRequired: !isRedevelopment,
+                              textController: _ctsNumberC,
+                              inputFormatterList: [
+                                LengthLimitingTextInputFormatter(50),
+                              ],
+                              validator: (value) {
+                                if (!isRedevelopment &&
+                                    (value == null || value.isEmpty)) {
+                                  return 'CTS number is required';
+                                }
+                                return null;
+                              },
+                            ),
+                          );
                         },
                       ),
                       CustomMultiFilePicker(
@@ -524,11 +538,41 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       ),
                       CustomTextField(
                         title: 'Google Location',
+                        prefixWidget: Container(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              right: BorderSide(
+                                color: AppColor.grey,
+                                width: .5,
+                              ),
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.location_on_outlined,
+                            color: AppColor.grey,
+                            size: 18,
+                          ),
+                        ),
                         textController: _googleLocationC,
                         hint: "Enter Google Location",
                         inputFormatterList: [
-                          LengthLimitingTextInputFormatter(100),
+                          LengthLimitingTextInputFormatter(500),
                         ],
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Google Location is required";
+                          }
+
+                          final googleMapRegex = RegExp(
+                            r'^(https?:\/\/)?(www\.)?(google\.com\/maps|goo\.gl\/maps|maps\.app\.goo\.gl)\/.+',
+                          );
+
+                          if (!googleMapRegex.hasMatch(value.trim())) {
+                            return "Enter a valid Google Maps link";
+                          }
+
+                          return null;
+                        },
                       ),
                     ],
                   ),
@@ -571,6 +615,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         title: 'Project Sub Scheme',
                         initialValue: selectedProjectSubScheme,
                         dataList: _currentSubSchemeList,
+                        isDisabled: true,
                         onSelected: (value) {
                           setState(() {
                             selectedProjectSubScheme = value;
@@ -638,19 +683,49 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       verticalSpacing(),
                       CustomTextField(
                         title: 'Project Estimate Cost',
-                        hint: "Enter Project Estimate Cost",
+                        prefixWidget: Container(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              right: BorderSide(
+                                color: AppColor.grey,
+                                width: .5,
+                              ),
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.currency_rupee,
+                            color: AppColor.grey,
+                            size: 18,
+                          ),
+                        ),
+                        hint: "Enter Estimate Cost",
                         textController: _projectEstimateCostC,
                         inputFormatterList: InputValidator.decimal(2),
                       ),
                       CustomTextField(
                         title: 'On Going Budget Cost',
-                        hint: "Enter On Going Budget Cost",
+                        prefixWidget: Container(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              right: BorderSide(
+                                color: AppColor.grey,
+                                width: .5,
+                              ),
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.currency_rupee,
+                            color: AppColor.grey,
+                            size: 18,
+                          ),
+                        ),
+                        hint: "Enter Budget Cost",
                         textController: _onGoingBudgetCostC,
                         inputFormatterList: InputValidator.decimal(2),
                       ),
                       CustomTextField(
                         title: 'Project Area in Sqft',
-                        hint: "Enter Project Area in Sqft",
+                        hint: "Enter Area in (Sqft)",
                         textController: _projectAreaSqftC,
                         inputFormatterList: InputValidator.decimal(2),
                       ),
@@ -726,7 +801,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     ],
                   ),
                 ),
-
               ],
             ),
           ),

@@ -187,21 +187,7 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
                              Text(folder.numberOfApprovedBankFile.toString(),style: AppTextStyle.ts14M(),),
                            ],
                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12,vertical: 6),
-                            decoration: BoxDecoration(
-                              color: AppColor.primary.withValues(alpha: .2),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              spacing: 5,
-                              children: [
-                                SvgPicture.asset(AppAssets.downloadIcon,height: 16,colorFilter: ColorFilter.mode( AppColor.primary, BlendMode.srcIn),),
-                                Text("Download",style: AppTextStyle.ts14R(color: AppColor.primary),),
-                              ],
-                            ),
-                          )
+                        CustomIconButton(onPressed: (){}, icon: Icon(Icons.file_download_outlined,size: 16,color: AppColor.primary,))
                         ],
                       )
                     ],
