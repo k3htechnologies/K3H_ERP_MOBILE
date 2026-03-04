@@ -969,18 +969,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
 
         final userData = state.userData;
-        if (userData == null || userData.table1.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Attendance Data Available")),
-          );
-        }
-
-        final table1 = userData.table1.first;
+        final table1 = userData?.table1.first;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -1001,44 +990,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              Column(
-                children: [
-                  AttendanceStatCard(
-                    title: "Present Days",
-                    value: table1.presentDays,
-                    subtitle: "This Month",
-                    bgColor: Color(0xFFEFFAF3),
-                    borderColor: Color(0xFFB7E4C7),
-                    valueColor: Color(0xFF2E7D32),
-                  ),
-                  verticalSpacing(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: AttendanceStatCard(
-                          title: "Avg Login Time",
-                          value: formatApiTimeToAmPm(table1.avgLoginTime),
-                          bgColor: Color(0xFFFFF6ED),
-                          borderColor: Color(0xFFFFD8B5),
-                          valueColor: Color(0xFFE65100),
+              if (table1 != null) ...[
+                Column(
+                  children: [
+                    AttendanceStatCard(
+                      title: "Present Days",
+                      value: table1.presentDays,
+                      subtitle: "This Month",
+                      bgColor: Color(0xFFEFFAF3),
+                      borderColor: Color(0xFFB7E4C7),
+                      valueColor: Color(0xFF2E7D32),
+                    ),
+                    verticalSpacing(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: AttendanceStatCard(
+                            title: "Avg Login Time",
+                            value: formatApiTimeToAmPm(table1.avgLoginTime),
+                            bgColor: Color(0xFFFFF6ED),
+                            borderColor: Color(0xFFFFD8B5),
+                            valueColor: Color(0xFFE65100),
+                          ),
                         ),
-                      ),
-                      horizontalSpacing(),
-                      Expanded(
-                        child: AttendanceStatCard(
-                          title: "Shift Pattern",
-                          value:
-                              "${dateFormatterHourOnly(table1.shiftStartTime)} - ${dateFormatterHourOnly(table1.shiftEndTime)}",
-                          bgColor: Color(0xFFF4F0FF),
-                          borderColor: Color(0xFFD9CCFF),
-                          valueColor: Color(0xFF6A1B9A),
+                        horizontalSpacing(),
+                        Expanded(
+                          child: AttendanceStatCard(
+                            title: "Shift Pattern",
+                            value:
+                                "${dateFormatterHourOnly(table1.shiftStartTime)} - ${dateFormatterHourOnly(table1.shiftEndTime)}",
+                            bgColor: Color(0xFFF4F0FF),
+                            borderColor: Color(0xFFD9CCFF),
+                            valueColor: Color(0xFF6A1B9A),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                  ],
+                ),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "No Attendance Summary Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ],
           ),
         );
@@ -1054,18 +1054,71 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
 
         final userData = state.userData;
-        if (userData == null || userData.table2.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Attendance Data Available")),
-          );
-        }
+        final table2 = userData?.table2;
 
-        final table2 = userData.table2.first;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Working Hour Summary",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.black.withValues(alpha: 0.50),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              if (table2?.isNotEmpty == true) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    summaryOverallWidget(
+                      title: "This Week",
+                      subTitle: formatDecimalHours(table2!.first.thisWeekHours),
+                    ),
+                    summaryOverallWidget(
+                      title: "Overtime",
+                      subTitle: formatDecimalHours(table2.first.overtimeHours),
+                      color: AppColor.yellow,
+                    ),
+                    summaryOverallWidget(
+                      title: "Avg Daily",
+                      subTitle: formatDecimalHours(table2.first.avgDailyHours),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                _buildDayWiseProgress(),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "No Working Hour Summary Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTeamAttendanceSummaryWidget(BuildContext context) {
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        if (state.isLoading == true) {
+          return Center(child: loader());
+        }
+        final userData = state.userData;
+
+        final table3 = userData?.table3;
+
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -1077,7 +1130,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      "Working Hour Summary",
+                      "Team Attendance Summary",
                       style: AppTextStyle.ts14M(
                         color: AppColor.black.withValues(alpha: 0.50),
                       ),
@@ -1086,60 +1139,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  summaryOverallWidget(
-                    title: "This Week",
-                    subTitle: formatDecimalHours(table2.thisWeekHours),
+              (table3 != null && table3.isNotEmpty)
+                  ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AttendanceRadialChart(present: 8, absent: 3, leave: 1),
+                    ],
+                  )
+                  : Center(
+                    child: Text(
+                      "No Team Attendance Summary",
+                      style: AppTextStyle.ts12M(
+                        color: AppColor.black.withValues(alpha: 0.50),
+                      ),
+                    ),
                   ),
-                  summaryOverallWidget(
-                    title: "Overtime",
-                    subTitle: formatDecimalHours(table2.overtimeHours),
-                    color: AppColor.yellow,
-                  ),
-                  summaryOverallWidget(
-                    title: "Avg Daily",
-                    subTitle: formatDecimalHours(table2.avgDailyHours),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-              _buildDayWiseProgress(),
             ],
           ),
         );
       },
-    );
-  }
-
-  Widget _buildTeamAttendanceSummaryWidget(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  "Team Attendance Summary",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.50),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [AttendanceRadialChart(present: 8, absent: 3, leave: 1)],
-          ),
-        ],
-      ),
     );
   }
 
@@ -1152,22 +1170,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         final userData = state.userData;
 
-        if (userData == null || userData.table3.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Daily Attendance Data")),
-          );
-        }
-
-        final table4List = userData.table4;
-        var totalLeaves = table4List.first.totalLeaves;
-        var usedLeaves = table4List.first.usedLeaves;
-        var pendingLeaves = table4List.first.pendingLeaves;
-        var leaveName = table4List.first.leaveTypeName;
+        final table4List = userData?.table4;
+        var totalLeaves = table4List?.first.totalLeaves;
+        var usedLeaves = table4List?.first.usedLeaves;
+        var pendingLeaves = table4List?.first.pendingLeaves;
+        var leaveName = table4List?.first.leaveTypeName;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -1188,24 +1195,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              _leaveRow(title: "Total Leaves", value: "$totalLeaves"),
-              _leaveRow(title: "Used Leaves", value: "$usedLeaves"),
-              _leaveRow(title: "Pending Leaves", value: "$pendingLeaves"),
-              const SizedBox(height: 20),
-              Text(
-                "Upcoming Approved",
-                style: AppTextStyle.ts14M(
-                  color: AppColor.black.withValues(alpha: 0.5),
+              if (table4List != null) ...[
+                _leaveRow(title: "Total Leaves", value: "$totalLeaves"),
+                _leaveRow(title: "Used Leaves", value: "$usedLeaves"),
+                _leaveRow(title: "Pending Leaves", value: "$pendingLeaves"),
+                const SizedBox(height: 20),
+                Text(
+                  "Upcoming Approved",
+                  style: AppTextStyle.ts14M(
+                    color: AppColor.black.withValues(alpha: 0.5),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              _buildUpcomingAttendanceWidget(
-                title: leaveName,
-                value: "",
-                subtitle: "Feb 14-16, 2024 (3 days)",
-                bgColor: Color(0xFFEFFAF3),
-                borderColor: Color(0xFFB7E4C7),
-              ),
+                const SizedBox(height: 10),
+                _buildUpcomingAttendanceWidget(
+                  title: leaveName,
+                  value: "",
+                  subtitle: "Feb 14-16, 2024 (3 days)",
+                  bgColor: Color(0xFFEFFAF3),
+                  borderColor: Color(0xFFB7E4C7),
+                ),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "No Leave Balance Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         );
@@ -1285,20 +1303,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         final userData = state.userData;
 
-        if (userData == null || userData.table6.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Daily Attendance Data")),
-          );
-        }
-
-        final table6List = userData.table6;
+        final table6List = userData?.table6;
         return Container(
-          height: 300.0,
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
           child: Column(
@@ -1318,10 +1324,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              Expanded(
-                child: ListView.builder(
+              if (table6List != null) ...[
+                ListView.builder(
                   itemCount: table6List.length,
                   shrinkWrap: true,
+                  physics: AlwaysScrollableScrollPhysics(),
                   itemBuilder: (context, int index) {
                     final holiday = table6List[index];
                     return Container(
@@ -1367,7 +1374,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     );
                   },
                 ),
-              ),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "No Holiday Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         );
@@ -1384,18 +1400,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         final userData = state.userData;
 
-        if (userData == null || userData.table8.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Daily Attendance Data")),
-          );
-        }
-
-        final table8List = userData.table8;
+        final table8List = userData?.table8;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -1433,96 +1438,105 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              ListView.builder(
-                itemCount: table8List.length,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, int index) {
-                  var upcomingBirthday = table8List[index];
-                  return ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Container(
-                      clipBehavior: Clip.hardEdge,
-                      decoration: BoxDecoration(shape: BoxShape.circle),
-                      child: NetworkImageWidget(
-                        borderRadius: BorderRadius.circular(100.0),
-                        imageUrl:
-                            'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                        width: 45,
-                        height: 45,
-                        fit: BoxFit.cover,
-                        errorWidget: Container(
-                          color: AppColor.white,
+              if (table8List != null) ...[
+                ListView.builder(
+                  itemCount: table8List.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, int index) {
+                    var upcomingBirthday = table8List[index];
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Container(
+                        clipBehavior: Clip.hardEdge,
+                        decoration: BoxDecoration(shape: BoxShape.circle),
+                        child: NetworkImageWidget(
+                          borderRadius: BorderRadius.circular(100.0),
+                          imageUrl:
+                              'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
                           width: 45,
                           height: 45,
-                          child: Icon(
-                            Icons.image_not_supported,
-                            size: 20,
-                            color: Colors.grey[700],
+                          fit: BoxFit.cover,
+                          errorWidget: Container(
+                            color: AppColor.white,
+                            width: 45,
+                            height: 45,
+                            child: Icon(
+                              Icons.image_not_supported,
+                              size: 20,
+                              color: Colors.grey[700],
+                            ),
                           ),
                         ),
                       ),
-                    ),
 
-                    title: Text(
-                      upcomingBirthday.fullName,
-                      style: AppTextStyle.ts14M(),
-                    ),
-                    subtitle: Text(
-                      upcomingBirthday.departmentName,
-                      style: AppTextStyle.ts14R(
-                        color: AppColor.black.withValues(alpha: 0.50),
+                      title: Text(
+                        upcomingBirthday.fullName,
+                        style: AppTextStyle.ts14M(),
+                      ),
+                      subtitle: Text(
+                        upcomingBirthday.departmentName,
+                        style: AppTextStyle.ts14R(
+                          color: AppColor.black.withValues(alpha: 0.50),
+                        ),
+                      ),
+                      trailing: Text(
+                        formatDateTimeAsDDMMMYYYY(upcomingBirthday.dateOfBirth),
+                        style: AppTextStyle.ts14R(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                Divider(
+                  thickness: 0.3,
+                  color: AppColor.black.withValues(alpha: 0.50),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "Upcoming Events",
+                        style: AppTextStyle.ts14SB(color: AppColor.black),
                       ),
                     ),
-                    trailing: Text(
-                      formatDateTimeAsDDMMMYYYY(upcomingBirthday.dateOfBirth),
-                      style: AppTextStyle.ts14R(),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
-              Divider(
-                thickness: 0.3,
-                color: AppColor.black.withValues(alpha: 0.50),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "Upcoming Events",
-                      style: AppTextStyle.ts14SB(color: AppColor.black),
-                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                ListView.builder(
+                  itemCount: 5,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, int index) {
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        "Diwali Celebration",
+                        style: AppTextStyle.ts14M(),
+                      ),
+                      subtitle: Text(
+                        "Andheri",
+                        style: AppTextStyle.ts16R(
+                          color: AppColor.black.withValues(alpha: 0.50),
+                        ),
+                      ),
+                      trailing: Text(
+                        formatDateTimeAsDDMMMYYYY(DateTime.now()),
+                        style: AppTextStyle.ts14R(),
+                      ),
+                    );
+                  },
+                ),
+              ] else ...[
+                Text(
+                  "No Data Available",
+                  style: AppTextStyle.ts12M(
+                    color: AppColor.black.withValues(alpha: 0.50),
                   ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              ListView.builder(
-                itemCount: 5,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, int index) {
-                  return ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      "Diwali Celebration",
-                      style: AppTextStyle.ts14M(),
-                    ),
-                    subtitle: Text(
-                      "Andheri",
-                      style: AppTextStyle.ts16R(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
-                    trailing: Text(
-                      formatDateTimeAsDDMMMYYYY(DateTime.now()),
-                      style: AppTextStyle.ts14R(),
-                    ),
-                  );
-                },
-              ),
+                ),
+              ],
             ],
           ),
         );
@@ -1539,18 +1553,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         final userData = state.userData;
 
-        if (userData == null || userData.table10.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Daily Attendance Data")),
-          );
-        }
-
-        final table10List = userData.table10;
+        final table10List = userData?.table10;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -1571,93 +1574,104 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Container(
-                  clipBehavior: Clip.hardEdge,
-                  decoration: BoxDecoration(shape: BoxShape.circle),
-                  child: NetworkImageWidget(
-                    borderRadius: BorderRadius.circular(100.0),
-                    imageUrl:
-                        'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                    width: 45,
-                    height: 45,
-                    fit: BoxFit.cover,
-                    errorWidget: Container(
-                      color: AppColor.white,
+              if (table10List != null) ...[
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Container(
+                    clipBehavior: Clip.hardEdge,
+                    decoration: BoxDecoration(shape: BoxShape.circle),
+                    child: NetworkImageWidget(
+                      borderRadius: BorderRadius.circular(100.0),
+                      imageUrl:
+                          'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
                       width: 45,
                       height: 45,
-                      child: Icon(
-                        Icons.image_not_supported,
-                        size: 20,
-                        color: Colors.grey[700],
+                      fit: BoxFit.cover,
+                      errorWidget: Container(
+                        color: AppColor.white,
+                        width: 45,
+                        height: 45,
+                        child: Icon(
+                          Icons.image_not_supported,
+                          size: 20,
+                          color: Colors.grey[700],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                title: Text(
-                  table10List.first.managerName,
-                  style: AppTextStyle.ts14B(),
-                ),
-                subtitle: Text(
-                  table10List.first.designationName,
-                  style: AppTextStyle.ts14R(
-                    color: AppColor.black.withValues(alpha: 0.50),
+                  title: Text(
+                    table10List.first.managerName,
+                    style: AppTextStyle.ts14B(),
+                  ),
+                  subtitle: Text(
+                    table10List.first.designationName,
+                    style: AppTextStyle.ts14R(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                  trailing: Text(
+                    table10List.first.departmentName,
+                    style: AppTextStyle.ts14R(),
                   ),
                 ),
-                trailing: Text(
-                  table10List.first.departmentName,
-                  style: AppTextStyle.ts14R(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              InkWell(
-                onTap: () {
-                  _openEmail(table10List.first.managerEmail);
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          SvgPicture.asset(
-                            AppAssets.mailIcon,
-                            height: 16.0,
-                            width: 16.0,
-                          ),
-                          const SizedBox(width: 6.0),
-                          Text(
-                            table10List.first.managerEmail,
-                            style: AppTextStyle.ts14M(),
-                          ),
-                        ],
+                const SizedBox(height: 12),
+                InkWell(
+                  onTap: () {
+                    _openEmail(table10List.first.managerEmail);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SvgPicture.asset(
+                              AppAssets.mailIcon,
+                              height: 16.0,
+                              width: 16.0,
+                            ),
+                            const SizedBox(width: 6.0),
+                            Text(
+                              table10List.first.managerEmail,
+                              style: AppTextStyle.ts14M(),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        _openDialer(table10List.first.managerPhone);
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          SvgPicture.asset(
-                            AppAssets.phoneIcon,
-                            height: 16.0,
-                            width: 16.0,
-                          ),
-                          const SizedBox(width: 6.0),
-                          Text(
-                            table10List.first.managerPhone,
-                            style: AppTextStyle.ts14M(),
-                          ),
-                        ],
+                      InkWell(
+                        onTap: () {
+                          _openDialer(table10List.first.managerPhone);
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SvgPicture.asset(
+                              AppAssets.phoneIcon,
+                              height: 16.0,
+                              width: 16.0,
+                            ),
+                            const SizedBox(width: 6.0),
+                            Text(
+                              table10List.first.managerPhone,
+                              style: AppTextStyle.ts14M(),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "No Reporting Manager",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         );
