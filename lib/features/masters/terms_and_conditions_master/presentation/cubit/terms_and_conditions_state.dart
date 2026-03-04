@@ -8,11 +8,7 @@ class TermsAndConditionsState extends BaseState {
   final int bookingTotalNumberOfRecordTermsAndConditions;
   final int bookingCurrentPageTermsAndConditions;
   final String searchTextBooking;
-  final String currentSortColumnBooking;
-  final String currentSortDirectionBooking;
   final String searchTextMaterialRequisition;
-  final String currentSortColumnMaterialRequisition;
-  final String currentSortDirectionMaterialRequisition;
   final int currentTabIndex;
 
   const TermsAndConditionsState({
@@ -24,11 +20,7 @@ class TermsAndConditionsState extends BaseState {
     required this.bookingTotalNumberOfRecordTermsAndConditions,
     required this.bookingCurrentPageTermsAndConditions,
     required this.searchTextBooking,
-    required this.currentSortColumnBooking,
-    required this.currentSortDirectionBooking,
     required this.searchTextMaterialRequisition,
-    required this.currentSortColumnMaterialRequisition,
-    required this.currentSortDirectionMaterialRequisition,
     required this.currentTabIndex,
   });
 
@@ -41,11 +33,7 @@ class TermsAndConditionsState extends BaseState {
     bookingCurrentPageTermsAndConditions: 1,
     isLoading: true,
     searchTextBooking: "",
-    currentSortColumnBooking: "Created Date",
-    currentSortDirectionBooking: "DESC",
     searchTextMaterialRequisition: "",
-    currentSortColumnMaterialRequisition: "Created Date",
-    currentSortDirectionMaterialRequisition: "DESC",
     currentTabIndex: 0,
   );
 
@@ -58,38 +46,31 @@ class TermsAndConditionsState extends BaseState {
     int? bookingTotalNumberOfRecordTermsAndConditions,
     int? bookingCurrentPageTermsAndConditions,
     String? searchTextBooking,
-    String? currentSortColumnBooking,
-    String? currentSortDirectionBooking,
     String? searchTextMaterialRequisition,
-    String? currentSortColumnMaterialRequisition,
-    String? currentSortDirectionMaterialRequisition,
     int? currentTabIndex,
   }) {
     return TermsAndConditionsState(
       isLoading: isLoading ?? this.isLoading,
       materialRequisitionTermsAndConditionsList:
-      materialRequisitionTermsAndConditionsList ??
+          materialRequisitionTermsAndConditionsList ??
           this.materialRequisitionTermsAndConditionsList,
       bookingTermsAndConditionsList:
-      bookingTermsAndConditionsList ?? this.bookingTermsAndConditionsList,
+          bookingTermsAndConditionsList ?? this.bookingTermsAndConditionsList,
       materialRequisitionTotalNumberOfRecordTermsAndConditions:
-      materialRequisitionTotalNumberOfRecordTermsAndConditions ??
+          materialRequisitionTotalNumberOfRecordTermsAndConditions ??
           this.materialRequisitionTotalNumberOfRecordTermsAndConditions,
       materialRequisitionCurrentPageTermsAndConditions:
-      materialRequisitionCurrentPageTermsAndConditions ??
+          materialRequisitionCurrentPageTermsAndConditions ??
           this.materialRequisitionCurrentPageTermsAndConditions,
       bookingTotalNumberOfRecordTermsAndConditions:
-      bookingTotalNumberOfRecordTermsAndConditions ??
+          bookingTotalNumberOfRecordTermsAndConditions ??
           this.bookingTotalNumberOfRecordTermsAndConditions,
       bookingCurrentPageTermsAndConditions:
-      bookingCurrentPageTermsAndConditions ??
+          bookingCurrentPageTermsAndConditions ??
           this.bookingCurrentPageTermsAndConditions,
       searchTextBooking: searchTextBooking ?? this.searchTextBooking,
-      currentSortColumnBooking: currentSortColumnBooking ?? this.currentSortColumnBooking,
-      currentSortDirectionBooking: currentSortDirectionBooking ?? this.currentSortDirectionBooking,
-      searchTextMaterialRequisition: searchTextMaterialRequisition ?? this.searchTextMaterialRequisition,
-      currentSortColumnMaterialRequisition: currentSortColumnMaterialRequisition ?? this.currentSortColumnMaterialRequisition,
-      currentSortDirectionMaterialRequisition: currentSortDirectionMaterialRequisition ?? this.currentSortDirectionMaterialRequisition,
+      searchTextMaterialRequisition:
+          searchTextMaterialRequisition ?? this.searchTextMaterialRequisition,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
     );
   }
@@ -104,11 +85,7 @@ class TermsAndConditionsState extends BaseState {
     bookingTotalNumberOfRecordTermsAndConditions,
     bookingCurrentPageTermsAndConditions,
     searchTextBooking,
-    currentSortColumnBooking,
-    currentSortDirectionBooking,
     searchTextMaterialRequisition,
-    currentSortColumnMaterialRequisition,
-    currentSortDirectionMaterialRequisition,
     currentTabIndex,
   ];
 }

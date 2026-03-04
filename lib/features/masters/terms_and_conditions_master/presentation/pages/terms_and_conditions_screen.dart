@@ -54,6 +54,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
 
   int _lastHandledTabIndex = 0;
   bool _isHandlingTabChange = false;
+  bool ignoreSearch = false;
 
   @override
   void initState() {
@@ -100,9 +101,12 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
     if (_isHandlingTabChange) return;
     final index = _tabController.index;
     if (index == _lastHandledTabIndex) return;
+    ignoreSearch = true;
     _isHandlingTabChange = true;
     _lastHandledTabIndex = index;
-    _searchC.clear();
+
+    _searchC.text = "";
+
     _termsAndConditionsCubit.onTabChanged(index, context);
     if (index == 0) {
       _termsAndConditionsCubit.getMaterialRequisitionTermsAndConditionList(
@@ -110,13 +114,16 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
         1,
         searchOverride: "",
       );
-    } else if (index == 1) {
+    } else {
       _termsAndConditionsCubit.getBookingTermsAndConditionList(
         context,
         1,
         searchOverride: "",
       );
     }
+    Future.delayed(const Duration(milliseconds: 300), () {
+      ignoreSearch = false;
+    });
     _isHandlingTabChange = false;
   }
 
@@ -231,13 +238,13 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        key: ValueKey<int>(_tabController.index),
         screenTitle: "Terms And Conditions Master",
         authorization: _routeAuthorizationModel,
         searchHintText: "Search by Title",
         textController: _searchC,
         onSearchSubmit: (value) {
-          if (_termsAndConditionsCubit.state.currentTabIndex == 0) {
+          if (ignoreSearch) return;
+          if (_tabController.index == 0) {
             _termsAndConditionsCubit.searchMaterialRequisition(context, value);
           } else {
             _termsAndConditionsCubit.searchBooking(context, value);
@@ -252,7 +259,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
             },
           );
           if (context.mounted) {
-            if (_termsAndConditionsCubit.state.currentTabIndex == 0) {
+            if (_tabController.index == 0) {
               _termsAndConditionsCubit
                   .getMaterialRequisitionTermsAndConditionList(context, 1);
             } else {
@@ -264,7 +271,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
           }
         },
         onExportCallback: (value) {
-          if (_termsAndConditionsCubit.state.currentTabIndex == 0) {
+          if (_tabController.index == 0) {
             if (_termsAndConditionsCubit
                     .state
                     .materialRequisitionTotalNumberOfRecordTermsAndConditions ==
@@ -345,7 +352,11 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
                       if (state
                           .materialRequisitionTermsAndConditionsList
                           .isEmpty) {
-                        return Center(child: noDataWidget(message: "No terms & conditions found"));
+                        return Center(
+                          child: noDataWidget(
+                            message: "No terms & conditions found",
+                          ),
+                        );
                       }
                       return ListView.builder(
                         controller: _materialRequisitionScrollController,
@@ -396,7 +407,11 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
                         return Center(child: loader());
                       }
                       if (state.bookingTermsAndConditionsList.isEmpty) {
-                        return Center(child: noDataWidget(message: "No terms & conditions found"));
+                        return Center(
+                          child: noDataWidget(
+                            message: "No terms & conditions found",
+                          ),
+                        );
                       }
                       return ListView.builder(
                         controller: _bookingScrollController,
@@ -478,7 +493,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
                   ),
                 ),
               ),
-              if(_routeAuthorizationModel.isAction)...[
+              if (_routeAuthorizationModel.isAction) ...[
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -518,7 +533,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
                     ),
                   ],
                 ),
-              ]
+              ],
             ],
           ),
         ],

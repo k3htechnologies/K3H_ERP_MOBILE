@@ -22,12 +22,9 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     int pageNumber, {
     String? searchOverride,
   }) async {
+    final String searchText = searchOverride ?? "";
     emit(state.copyWith(isLoading: true));
-    final searchText = searchOverride ?? state.searchTextMaterialRequisition;
-    final Map<String, dynamic> queryParams = {
-      "SortBy":
-          "${state.currentSortColumnMaterialRequisition} ${state.currentSortDirectionMaterialRequisition}",
-    };
+    final Map<String, dynamic> queryParams = {};
     if (searchText.trim().isNotEmpty) {
       queryParams["Title"] = searchText.trim();
     }
@@ -61,6 +58,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
                         1
                     : response['totalNumberOfRecord'],
             materialRequisitionCurrentPageTermsAndConditions: pageNumber,
+            searchTextMaterialRequisition: searchText,
           ),
         );
       },
@@ -73,12 +71,9 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     int pageNumber, {
     String? searchOverride,
   }) async {
+    final String searchText = searchOverride ?? "";
     emit(state.copyWith(isLoading: true));
-    final searchText = searchOverride ?? state.searchTextBooking;
-    final Map<String, dynamic> queryParams = {
-      "SortBy":
-          "${state.currentSortColumnBooking} ${state.currentSortDirectionBooking}",
-    };
+    final Map<String, dynamic> queryParams = {};
     if (searchText.trim().isNotEmpty) {
       queryParams["Title"] = searchText.trim();
     }
@@ -111,6 +106,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
                     ? state.bookingTotalNumberOfRecordTermsAndConditions - 1
                     : response['totalNumberOfRecord'],
             bookingCurrentPageTermsAndConditions: pageNumber,
+            searchTextBooking: searchText,
           ),
         );
       },
@@ -386,22 +382,6 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     await getBookingTermsAndConditionList(context, 1, searchOverride: value);
   }
 
-  // <---- SORT BOOKING ---->
-  Future sortBooking(
-    BuildContext context,
-    String value,
-    String direction,
-  ) async {
-    emit(
-      state.copyWith(
-        currentSortColumnBooking: value,
-        currentSortDirectionBooking: direction,
-        bookingTermsAndConditionsList: [],
-      ),
-    );
-    await getBookingTermsAndConditionList(context, 1);
-  }
-
   // <---- SEARCH MATERIAL REQUISITION ---->
   Future searchMaterialRequisition(BuildContext context, String value) async {
     emit(
@@ -415,22 +395,6 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
       1,
       searchOverride: value,
     );
-  }
-
-  // <---- SORT MATERIAL REQUISITION ---->
-  Future sortMaterialRequisition(
-    BuildContext context,
-    String value,
-    String direction,
-  ) async {
-    emit(
-      state.copyWith(
-        currentSortColumnMaterialRequisition: value,
-        currentSortDirectionMaterialRequisition: direction,
-        materialRequisitionTermsAndConditionsList: [],
-      ),
-    );
-    await getMaterialRequisitionTermsAndConditionList(context, 1);
   }
 
   // <---- EXPORT EXCEL PDF ---->
@@ -510,9 +474,14 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
   void onTabChanged(int index, BuildContext context) {
     emit(
       state.copyWith(
+        isLoading: true,
         currentTabIndex: index,
         searchTextBooking: "",
         searchTextMaterialRequisition: "",
+        bookingTermsAndConditionsList: [],
+        materialRequisitionTermsAndConditionsList: [],
+        bookingCurrentPageTermsAndConditions: 1,
+        materialRequisitionCurrentPageTermsAndConditions: 1,
       ),
     );
   }
