@@ -22,6 +22,14 @@ abstract interface class BookingDatasource {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
+  Future<Map<String, dynamic>> apiCallPullPaymentScheduleStages({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int inventoryBuildingId,
+    required int inventoryFlatFloorBasementPodiumWingId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class BookingDatasourceImpl extends BookingDatasource {
@@ -148,6 +156,68 @@ class BookingDatasourceImpl extends BookingDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         apiCallAddUpdateBooking(body: body, fileList: fileList);
+      }
+      rethrow;
+    }
+  }
+
+  // ----------------------------------------------------------
+  // Pull Payment Schedule Stages
+  // ----------------------------------------------------------
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullPaymentScheduleStages({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+
+    required int inventoryBuildingId,
+    required int inventoryFlatFloorBasementPodiumWingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullPaymentScheduleStagesUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "Booking/PullPaymentScheduleStages"
+          "?PageSize=$pageSize"
+          "&PageNumber=$pageNumber"
+          "&ProjectId=$projectId"
+          "&InventoryBuildingId=$inventoryBuildingId"
+          "&InventoryFlatFloorBasementPodiumWingId=$inventoryFlatFloorBasementPodiumWingId";
+
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullPaymentScheduleStagesUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': List<Map<String, dynamic>>.from(networkResponse["data"] ?? []),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apiCallPullPaymentScheduleStages(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          projectId: projectId,
+          inventoryBuildingId: inventoryBuildingId,
+          inventoryFlatFloorBasementPodiumWingId:
+              inventoryFlatFloorBasementPodiumWingId,
+          queryParams: queryParams,
+        );
       }
       rethrow;
     }

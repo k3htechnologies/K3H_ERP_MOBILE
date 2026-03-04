@@ -3,7 +3,7 @@ import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule/data/datasource/payment_schedule.datasource.dart';
 
-abstract interface class PaymentScheduleMasterRepository {
+abstract interface class PaymentScheduleRepository {
   Future<Either<Failure, Map<String, dynamic>>> getPaymentScheduleMasterList({
     required int pageNumber,
     required int pageSize,
@@ -13,6 +13,12 @@ abstract interface class PaymentScheduleMasterRepository {
 
   Future<Either<Failure, Map<String, dynamic>>> addUpdatePaymentScheduleMaster({
     required Map<String, dynamic> body,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> deletePaymentSchedule({
+    required int paymentScheduleId,
+    required String uniqueKey,
+    required int projectId,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> exportPaymentScheduleMaster({
@@ -23,12 +29,14 @@ abstract interface class PaymentScheduleMasterRepository {
   });
 }
 
-class PaymentScheduleMasterRepositoryImpl
-    extends PaymentScheduleMasterRepository {
-  final PaymentScheduleMasterDatasource datasource;
+class PaymentScheduleRepositoryImpl extends PaymentScheduleRepository {
+  final PaymentScheduleDatasource paymentScheduleDatasource;
 
-  PaymentScheduleMasterRepositoryImpl({required this.datasource});
+  PaymentScheduleRepositoryImpl({required this.paymentScheduleDatasource});
 
+  // ----------------------------------------------------------
+  // Pull Payment Schedule Master
+  // ----------------------------------------------------------
   @override
   Future<Either<Failure, Map<String, dynamic>>> getPaymentScheduleMasterList({
     required int pageNumber,
@@ -37,25 +45,49 @@ class PaymentScheduleMasterRepositoryImpl
     Map<String, dynamic>? queryParams,
   }) async {
     try {
-      var result = await datasource.apicallPullPaymentScheduleMaster(
-        pageNumber: pageNumber,
-        pageSize: pageSize,
-        projectId: projectId,
-        queryParams: queryParams,
-      );
+      var result = await paymentScheduleDatasource
+          .apicallPullPaymentScheduleMaster(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            projectId: projectId,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
   }
 
+  // ----------------------------------------------------------
+  // Add Update Payment Schedule Master
+  // ----------------------------------------------------------
   @override
   Future<Either<Failure, Map<String, dynamic>>> addUpdatePaymentScheduleMaster({
     required Map<String, dynamic> body,
   }) async {
     try {
-      var result = await datasource.apicallAddUpdatePaymentScheduleMaster(
-        body: body,
+      var result = await paymentScheduleDatasource
+          .apicallAddUpdatePaymentScheduleMaster(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  // ----------------------------------------------------------
+  // Delete Payment Schedule
+  // ----------------------------------------------------------
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deletePaymentSchedule({
+    required int paymentScheduleId,
+    required String uniqueKey,
+    required int projectId,
+  }) async {
+    try {
+      var result = await paymentScheduleDatasource.apicallDeletePaymentSchedule(
+        paymentScheduleId: paymentScheduleId,
+        uniqueKey: uniqueKey,
+        projectId: projectId,
       );
       return right(result);
     } catch (error) {
@@ -63,6 +95,9 @@ class PaymentScheduleMasterRepositoryImpl
     }
   }
 
+  // ----------------------------------------------------------
+  // Export Payment Schedule Master
+  // ----------------------------------------------------------
   @override
   Future<Either<Failure, Map<String, dynamic>>> exportPaymentScheduleMaster({
     required int pageNumber,
@@ -71,12 +106,13 @@ class PaymentScheduleMasterRepositoryImpl
     Map<String, dynamic>? queryParams,
   }) async {
     try {
-      var result = await datasource.apicallPullPaymentScheduleMasterForExport(
-        pageNumber: pageNumber,
-        pageSize: pageSize,
-        projectId: projectId,
-        queryParams: queryParams,
-      );
+      var result = await paymentScheduleDatasource
+          .apicallPullPaymentScheduleMasterForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            projectId: projectId,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

@@ -1,5 +1,6 @@
 import 'package:k3h_erp_app/core/base_state.dart';
-import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_master.model.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule/data/model/payment_schedule.model.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
 
 class PaymentScheduleMasterState extends BaseState {
   final List<PaymentScheduleMasterModel> paymentScheduleMasterList;
@@ -9,6 +10,10 @@ class PaymentScheduleMasterState extends BaseState {
   final String currentSortColumn;
   final String currentSortDirection;
 
+  final PaymentScheduleSchemeModel? selectedScheme;
+
+  final double totalCumulativePercentage;
+
   const PaymentScheduleMasterState({
     required super.isLoading,
     required this.paymentScheduleMasterList,
@@ -17,6 +22,8 @@ class PaymentScheduleMasterState extends BaseState {
     required this.currentPage,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    this.selectedScheme,
+    required this.totalCumulativePercentage,
   });
 
   factory PaymentScheduleMasterState.initial() => PaymentScheduleMasterState(
@@ -27,6 +34,8 @@ class PaymentScheduleMasterState extends BaseState {
     currentPage: 1,
     currentSortColumn: "CreatedDate",
     currentSortDirection: "DESC",
+    selectedScheme: null,
+    totalCumulativePercentage: 0.0,
   );
 
   PaymentScheduleMasterState copyWith({
@@ -37,6 +46,8 @@ class PaymentScheduleMasterState extends BaseState {
     int? currentPage,
     String? currentSortColumn,
     String? currentSortDirection,
+    PaymentScheduleSchemeModel? selectedScheme,
+    double? totalCumulativePercentage,
   }) {
     return PaymentScheduleMasterState(
       isLoading: isLoading ?? this.isLoading,
@@ -47,6 +58,9 @@ class PaymentScheduleMasterState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      selectedScheme: selectedScheme ?? this.selectedScheme,
+      totalCumulativePercentage:
+          totalCumulativePercentage ?? this.totalCumulativePercentage,
     );
   }
 
@@ -59,5 +73,7 @@ class PaymentScheduleMasterState extends BaseState {
     currentPage,
     currentSortColumn,
     currentSortDirection,
+    selectedScheme,
+    totalCumulativePercentage,
   ];
 }

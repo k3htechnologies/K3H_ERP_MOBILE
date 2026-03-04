@@ -4,18 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_state.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule_summary/presentation/cubit/payment_schedule_summary_cubit.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_cubit.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule_summary/presentation/cubit/payment_schedule_summary_state.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
-import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
-import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddPaymentScheduleSchemeScreen extends StatefulWidget {
   final PaymentScheduleSchemeModel? paymentScheduleSchemeModel;
@@ -75,7 +71,7 @@ class _AddPaymentScheduleSchemeScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: isEditMode ? "Edit Scheme" : "Add Scheme",
+        screenTitle: isEditMode ? "Update Scheme" : "Add Scheme",
         authorization: AuthorizationModel(),
       ),
       body: BlocBuilder<PaymentScheduleSchemeCubit, PaymentScheduleSchemeState>(
@@ -189,8 +185,15 @@ class _AddPaymentScheduleSchemeScreenState
         child: Container(
           height: 70,
           padding: const EdgeInsets.all(16),
-          color: AppColor.white,
-          child: CustomButton(text: "Save", onPressed: _submitForm),
+          child: CustomButton(
+            leading: Icon(
+              isEditMode ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
+            text: isEditMode ? "Update" : "Add",
+            onPressed: _submitForm,
+          ),
         ),
       ),
     );

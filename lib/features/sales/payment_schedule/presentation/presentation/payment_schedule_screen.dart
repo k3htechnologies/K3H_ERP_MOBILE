@@ -1,6 +1,28 @@
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule/data/model/payment_schedule.model.dart'
+    show PaymentScheduleMasterModel;
+import 'package:k3h_erp_app/features/sales/payment_schedule/presentation/cubit/payment_schedule_cubit.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule/presentation/cubit/payment_schedule_state.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/repository/payment_schedule_scheme.repository.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class PaymentScheduleScreen extends StatefulWidget {
   const PaymentScheduleScreen({super.key});
@@ -10,105 +32,332 @@ class PaymentScheduleScreen extends StatefulWidget {
 }
 
 class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
-  late PaymentScheduleSchemeCubit _schemeCubit;
+  /// CUBIT
+  late PaymentScheduleCubit _paymentScheduleCubit;
+  // ROUTE AUTHORIZATION MODEL
+  late AuthorizationModel _routeAuthorizationModel;
 
-  final ValueNotifier<List<Map<String, dynamic>>> _selectedSchemeNotifier =
-      ValueNotifier([]);
+  // SCROLL CONTROLLER FOR PAGINATION
+  late ScrollController scrollController;
+  Timer? _debounce;
+  // REPOSITORY
+  final PaymentScheduleSchemeRepository _repository =
+      serviceLocator<PaymentScheduleSchemeRepository>();
 
   @override
   void initState() {
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.paymentSchedule]!;
+
+    _paymentScheduleCubit = context.read<PaymentScheduleCubit>();
     super.initState();
-    _schemeCubit = PaymentScheduleSchemeCubit();
-    // Optionally preload first page
-    _schemeCubit.getPaymentScheduleSchemeList(context, 1);
+    _onScroll();
   }
 
-  // ------------------- FETCH SCHEME -------------------
+  // ---------------- FETCH SCHEME ----------------
   Future<Map<String, dynamic>> _fetchPaymentScheduleScheme(
     int pageNumber, {
     String? value,
   }) async {
-    final pageSize = 15;
+    final result = await _repository.getPaymentScheduleSchemeList(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      projectId: getProject().projectId,
+      queryParams:
+          value != null && value.isNotEmpty
+              ? {"PaymentScheduleSchemeName": value}
+              : {},
+    );
 
-    // SEARCH MODE
-    if (value != null && value.isNotEmpty) {
-      final filtered =
-          _schemeCubit.state.paymentScheduleSchemeList
-              .where(
-                (scheme) =>
-                    scheme.paymentScheduleSchemeName?.toLowerCase().contains(
-                      value.toLowerCase(),
-                    ) ??
-                    false,
-              )
-              .toList();
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final paymentScheduleSchemes =
+            response['data'] as List<PaymentScheduleSchemeModel>;
 
-      return {
-        "itemList":
-            filtered
-                .map(
-                  (scheme) => {
-                    "PaymentScheduleSchemeMasterId":
-                        scheme.paymentScheduleSchemeMasterId,
-                    "PaymentScheduleScheme": scheme.paymentScheduleSchemeName,
-                  },
-                )
-                .toList(),
-        "totalNumberOfRecord": filtered.length,
-      };
+        return {
+          "itemList":
+              paymentScheduleSchemes.map((scheme) {
+                return {
+                  "zAttributesId": scheme.paymentScheduleSchemeMasterId,
+                  "DisplayName": scheme.paymentScheduleSchemeName,
+                  "paymentScheduleScheme": scheme,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
+      },
+    );
+  }
+
+  // ---------------- DELETE PAYMENT SCHEDULE ----------------
+  Future<void> _showPopupToDeletePaymentScheduleMaster(
+    BuildContext context,
+    PaymentScheduleMasterModel obj,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete this payment schedule?',
+      'Deleting this payment schedule will permanently remove it.',
+    );
+
+    if (result && context.mounted) {
+      _paymentScheduleCubit.deletePaymentSchedule(index, obj, context);
     }
+  }
+  // ----------------------------------------------------------
+  // PAGINATION
+  // ----------------------------------------------------------
 
-    // LOAD FROM API IF NEEDED
-    final currentCount = _schemeCubit.state.paymentScheduleSchemeList.length;
-    final totalCount = _schemeCubit.state.totalNumberOfRecord;
+  void _onScroll() {
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+              scrollController.position.maxScrollExtent - 100 &&
+          !_paymentScheduleCubit.state.isLoading! &&
+          _paymentScheduleCubit.state.paymentScheduleMasterList.length <
+              _paymentScheduleCubit.state.totalNumberOfRecord) {
+        if (_debounce?.isActive ?? false) _debounce?.cancel();
 
-    if (currentCount == 0 || currentCount < totalCount) {
-      await _schemeCubit.getPaymentScheduleSchemeList(context, pageNumber);
-    }
-
-    // RETURN LIST DIRECTLY
-    return {
-      "itemList":
-          _schemeCubit.state.paymentScheduleSchemeList
-              .map(
-                (scheme) => {
-                  "PaymentScheduleSchemeMasterId":
-                      scheme.paymentScheduleSchemeMasterId,
-                  "PaymentScheduleScheme": scheme.paymentScheduleSchemeName,
-                },
-              )
-              .toList(),
-      "totalNumberOfRecord":
-          totalCount > 0
-              ? totalCount
-              : _schemeCubit.state.paymentScheduleSchemeList.length,
-    };
+        _debounce = Timer(const Duration(milliseconds: 300), () {
+          _paymentScheduleCubit.getPaymentScheduleMasterList(
+            context,
+            _paymentScheduleCubit.state.currentPage + 1,
+            paymentScheduleSchemeMasterId:
+                _paymentScheduleCubit
+                    .state
+                    .selectedScheme!
+                    .paymentScheduleSchemeMasterId,
+          );
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Payment Schedule")),
+      appBar: CustomAppBarWithBackButton(
+        isMenuButton: true,
+        screenTitle: 'Payment Schedule',
+        authorization: _routeAuthorizationModel,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: ValueListenableBuilder<List<Map<String, dynamic>>>(
-          valueListenable: _selectedSchemeNotifier,
-          builder: (context, selectedScheme, child) {
-            return CustomMultipleSelectPopup(
-              title: "Select Scheme",
-              isRequired: true,
-              isMultiSelect: false,
-              initialValue: selectedScheme,
-              dataFetchCallBack: _fetchPaymentScheduleScheme,
-              onSelected: (value) {
-                _selectedSchemeNotifier.value = value;
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return "Payment Schedule Scheme is required";
-                }
-                return null;
-              },
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: BlocBuilder<PaymentScheduleCubit, PaymentScheduleMasterState>(
+          builder: (context, state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomMultipleSelectPopup(
+                  title: "Select Scheme",
+                  isRequired: true,
+                  isMultiSelect: false,
+                  initialValue:
+                      state.selectedScheme == null
+                          ? []
+                          : [
+                            {
+                              "zAttributesId":
+                                  state
+                                      .selectedScheme!
+                                      .paymentScheduleSchemeMasterId,
+                              "DisplayName":
+                                  state
+                                      .selectedScheme!
+                                      .paymentScheduleSchemeName,
+                              "paymentScheduleScheme": state.selectedScheme,
+                            },
+                          ],
+                  dataFetchCallBack: _fetchPaymentScheduleScheme,
+                  onSelected: (value) async {
+                    if (value.isNotEmpty) {
+                      final schemeModel =
+                          value.first["paymentScheduleScheme"]
+                              as PaymentScheduleSchemeModel;
+
+                      context.read<PaymentScheduleCubit>().selectScheme(
+                        schemeModel,
+                      );
+
+                      await context
+                          .read<PaymentScheduleCubit>()
+                          .getPaymentScheduleMasterList(
+                            context,
+                            1,
+                            paymentScheduleSchemeMasterId:
+                                schemeModel.paymentScheduleSchemeMasterId,
+                          );
+                    }
+                  },
+                  onClear: () {
+                    _paymentScheduleCubit.clearSelectedScheme();
+                  },
+                ),
+
+                verticalSpacing(height: 5),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Payment Schedule List", style: AppTextStyle.ts16M()),
+                    Visibility(
+                      visible:
+                          state.selectedScheme != null &&
+                          state.totalCumulativePercentage < 100,
+                      child: CustomIconButton(
+                        onPressed: () async {
+                          await goRouter.pushNamed(
+                            AppRoutes.addPaymentSchedule,
+                          );
+                        },
+                        icon: Icon(
+                          Icons.add,
+                          size: 16,
+                          color: AppColor.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(),
+
+                Expanded(
+                  child:
+                      state.isLoading == true
+                          ? const Center(child: CircularProgressIndicator())
+                          : state.paymentScheduleMasterList.isEmpty
+                          ? Center(child: noDataWidget())
+                          : ListView.builder(
+                            controller: scrollController,
+                            itemCount:
+                                state.paymentScheduleMasterList.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index ==
+                                  state.paymentScheduleMasterList.length) {
+                                return state.paymentScheduleMasterList.length <
+                                        state.totalNumberOfRecord
+                                    ? const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    )
+                                    : const SizedBox.shrink();
+                              }
+
+                              var item = state.paymentScheduleMasterList[index];
+
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 10),
+                                padding: const EdgeInsets.all(12),
+                                decoration: commonCardDecoration(),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            item.stage,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: AppTextStyle.ts16M(),
+                                          ),
+                                        ),
+                                        if (_routeAuthorizationModel
+                                            .isAction) ...[
+                                          Row(
+                                            children: [
+                                              CustomIconButton.edit(
+                                                onPressed: () async {
+                                                  await goRouter.pushNamed(
+                                                    AppRoutes
+                                                        .addPaymentSchedule,
+                                                    queryParameters: {
+                                                      "paymentSchedule":
+                                                          Uri.encodeQueryComponent(
+                                                            EncryptionManager.encryptData(
+                                                              jsonEncode(
+                                                                item.toJson(),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                      "index": index.toString(),
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                              const SizedBox(width: 8),
+                                              CustomIconButton.delete(
+                                                onPressed: () {
+                                                  _showPopupToDeletePaymentScheduleMaster(
+                                                    context,
+                                                    item,
+                                                    index,
+                                                  );
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Percentage",
+                                      value:
+                                          item.paymentSchedulePercentage
+                                              .toString(),
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Cumulative Percentage",
+                                      value:
+                                          item.paymentCummulativePercentage
+                                              .toString(),
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Created By",
+                                      value: item.createdBy,
+                                      singleLine: false,
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Created Date",
+                                      value:
+                                          item.createdDate == null
+                                              ? "-"
+                                              : formatDate(item.createdDate!),
+                                      singleLine: false,
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Modified By",
+                                      value:
+                                          item.modifiedBy.isEmpty
+                                              ? "-"
+                                              : item.modifiedBy,
+                                      singleLine: false,
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Modified Date",
+                                      value:
+                                          item.modifiedDate == null
+                                              ? "-"
+                                              : formatDate(item.modifiedDate!),
+                                      singleLine: false,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                ),
+              ],
             );
           },
         ),

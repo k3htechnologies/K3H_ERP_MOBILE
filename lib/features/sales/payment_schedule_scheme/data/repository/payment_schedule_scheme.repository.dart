@@ -14,6 +14,12 @@ abstract interface class PaymentScheduleSchemeRepository {
     required Map<String, dynamic> body,
   });
 
+  Future<Either<Failure, Map<String, dynamic>>> deletePaymentScheduleScheme({
+    required int paymentScheduleSchemeId,
+    required String uniqueKey,
+    required int projectId,
+  });
+
   Future<Either<Failure, Map<String, dynamic>>> exportPaymentScheduleScheme({
     required int pageNumber,
     required int pageSize,
@@ -64,6 +70,25 @@ class PaymentScheduleSchemeRepositoryImpl
       var result = await paymentScheduleSchemeDatasource
           .apicallAddUpdatePaymentScheduleScheme(body: body);
 
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deletePaymentScheduleScheme({
+    required int paymentScheduleSchemeId,
+    required String uniqueKey,
+    required int projectId,
+  }) async {
+    try {
+      var result = await paymentScheduleSchemeDatasource
+          .apicallDeletePaymentScheduleScheme(
+            paymentScheduleSchemeId: paymentScheduleSchemeId,
+            uniqueKey: uniqueKey,
+            projectId: projectId,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

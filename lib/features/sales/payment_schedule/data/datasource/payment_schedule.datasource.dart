@@ -1,8 +1,8 @@
-import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_master.model.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule/data/model/payment_schedule.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
-abstract interface class PaymentScheduleMasterDatasource {
+abstract interface class PaymentScheduleDatasource {
   Future<Map<String, dynamic>> apicallPullPaymentScheduleMaster({
     required int pageNumber,
     required int pageSize,
@@ -14,6 +14,12 @@ abstract interface class PaymentScheduleMasterDatasource {
     required Map<String, dynamic> body,
   });
 
+  Future<Map<String, dynamic>> apicallDeletePaymentSchedule({
+    required int paymentScheduleId,
+    required String uniqueKey,
+    required int projectId,
+  });
+
   Future<Map<String, dynamic>> apicallPullPaymentScheduleMasterForExport({
     required int pageNumber,
     required int pageSize,
@@ -22,8 +28,7 @@ abstract interface class PaymentScheduleMasterDatasource {
   });
 }
 
-class PaymentScheduleMasterDatasourceImpl
-    extends PaymentScheduleMasterDatasource {
+class PaymentScheduleDatasourceImpl extends PaymentScheduleDatasource {
   final BaseClient baseClient = BaseClient();
 
   // ----------------------------------------------------------
@@ -165,6 +170,44 @@ class PaymentScheduleMasterDatasourceImpl
           pageSize: pageSize,
           projectId: projectId,
           queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeletePaymentSchedule({
+    required int paymentScheduleId,
+    required String uniqueKey,
+    required int projectId,
+  }) async {
+    String deletePaymentScheduleUrl({
+      required int paymentScheduleId,
+      required String uniqueKey,
+      required int projectId,
+    }) {
+      return "PaymentScheduleMaster/DeletePaymentScheduleMaster?PaymentScheduleMasterId=$paymentScheduleId&Uniquekey=$uniqueKey&ProjectId=$projectId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deletePaymentScheduleUrl(
+          paymentScheduleId: paymentScheduleId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallDeletePaymentSchedule(
+          paymentScheduleId: paymentScheduleId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
         );
       }
       rethrow;

@@ -12,6 +12,12 @@ abstract interface class PaymentScheduleSchemeDatasource {
   Future<Map<String, dynamic>> apicallAddUpdatePaymentScheduleScheme({
     required Map<String, dynamic> body,
   });
+  Future<Map<String, dynamic>> apicallDeletePaymentScheduleScheme({
+    required int paymentScheduleSchemeId,
+    required String uniqueKey,
+    required int projectId,
+  });
+
   Future<Map<String, dynamic>> apicallPullScheduleSchemeForExport({
     required int pageNumber,
     required int pageSize,
@@ -110,6 +116,45 @@ class PaymentScheduleSchemeDatasourceImpl
       rethrow;
     }
   }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeletePaymentScheduleScheme({
+    required int paymentScheduleSchemeId,
+    required String uniqueKey,
+    required int projectId,
+  }) async {
+    String deletePaymentScheduleSchemeUrl({
+      required int paymentScheduleSchemeId,
+      required String uniqueKey,
+      required int projectId,
+    }) {
+      return "PaymentScheduleSchemeMaster/DeletePaymentScheduleSchemeMaster?PaymentScheduleSchemeMasterId=$paymentScheduleSchemeId&Uniquekey=$uniqueKey&ProjectId=$projectId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deletePaymentScheduleSchemeUrl(
+          paymentScheduleSchemeId: paymentScheduleSchemeId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallDeletePaymentScheduleScheme(
+          paymentScheduleSchemeId: paymentScheduleSchemeId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
+        );
+      }
+      rethrow;
+    }
+  }
+
   // ----------------------------------------------------------
   // Pull Payment Schedule Scheme For Export
   // ----------------------------------------------------------

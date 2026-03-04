@@ -15,7 +15,6 @@ class PaymentScheduleMasterModel {
 
   int ranking;
 
-
   PaymentScheduleMasterModel({
     required this.paymentScheduleMasterId,
     required this.uniquekey,

@@ -130,6 +130,7 @@ class AppRoutes {
 
   // PAYMENT SCHEDULE SUMMARY
   static String paymentSchedule = "/paymentSchedule";
+  static String addPaymentSchedule = "/addPaymentSchedule";
   static String paymentScheduleScheme = "/paymentScheduleScheme";
   static String addPaymentScheduleScheme = "/addPaymentScheduleScheme";
 

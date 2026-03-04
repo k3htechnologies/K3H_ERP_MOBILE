@@ -86,7 +86,7 @@ class _PaymentScheduleSchemeScreenState
   // DELETE
   // ----------------------------------------------------------
 
-  Future<void> _showPaymentScheduleDeletePopup(
+  Future<void> _showPaymentScheduleSchemeDeletePopup(
     BuildContext context,
     PaymentScheduleSchemeModel obj,
     int index,
@@ -98,7 +98,7 @@ class _PaymentScheduleSchemeScreenState
     );
 
     if (result && context.mounted) {
-      // If delete API added later, call here
+      _cubit.deletePaymentScheduleScheme(index, obj, context);
     }
   }
 
@@ -192,7 +192,7 @@ class _PaymentScheduleSchemeScreenState
                               horizontalSpacing(),
                               CustomIconButton.delete(
                                 onPressed: () async {
-                                  _showPaymentScheduleDeletePopup(
+                                  _showPaymentScheduleSchemeDeletePopup(
                                     context,
                                     scheme,
                                     index,

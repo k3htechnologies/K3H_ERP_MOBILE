@@ -2,14 +2,13 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 
 class PaymentScheduleMasterModel {
   int paymentScheduleMasterId;
-  String? uniquekey;
+  String uniquekey;
   int projectId;
   int inventoryBuildingId;
-  String? stage;
-  String? wing;
-  String? flatConfiguration;
+  String stage;
+  String wing;
   double paymentSchedulePercentage;
-  double paymentScheduleCummulativePercentage;
+  double paymentCummulativePercentage;
   int createdById;
   String createdBy;
   DateTime? createdDate;
@@ -21,14 +20,13 @@ class PaymentScheduleMasterModel {
 
   PaymentScheduleMasterModel({
     required this.paymentScheduleMasterId,
-    this.uniquekey,
+    required this.uniquekey,
     required this.projectId,
     required this.inventoryBuildingId,
-    this.stage,
-    this.wing,
-    this.flatConfiguration,
+    required this.stage,
+    required this.wing,
     required this.paymentSchedulePercentage,
-    required this.paymentScheduleCummulativePercentage,
+    required this.paymentCummulativePercentage,
     required this.createdById,
     required this.createdBy,
     this.createdDate,
@@ -45,19 +43,18 @@ class PaymentScheduleMasterModel {
           json,
           "PaymentScheduleMasterId",
         ),
-        uniquekey: parseValue<String?>(json, "Uniquekey"),
+        uniquekey: parseValue<String>(json, "Uniquekey"),
         projectId: parseValue<int>(json, "ProjectId"),
         inventoryBuildingId: parseValue<int>(json, "InventoryBuildingId"),
-        stage: parseValue<String?>(json, "Stage"),
-        wing: parseValue<String?>(json, "Wing"),
-        flatConfiguration: parseValue<String?>(json, "FlatConfiguration"),
+        stage: parseValue<String>(json, "Stage"),
+        wing: parseValue<String>(json, "Wing"),
         paymentSchedulePercentage: parseValue<double>(
           json,
           "PaymentSchedulePercentage",
         ),
-        paymentScheduleCummulativePercentage: parseValue<double>(
+        paymentCummulativePercentage: parseValue<double>(
           json,
-          "PaymentScheduleCummulativePercentage",
+          "PaymentCummulativePercentage",
         ),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
@@ -85,10 +82,8 @@ class PaymentScheduleMasterModel {
     "InventoryBuildingId": inventoryBuildingId,
     "Stage": stage,
     "Wing": wing,
-    "FlatConfiguration": flatConfiguration,
     "PaymentSchedulePercentage": paymentSchedulePercentage,
-    "PaymentScheduleCummulativePercentage":
-        paymentScheduleCummulativePercentage,
+    "PaymentCummulativePercentage": paymentCummulativePercentage,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate?.toIso8601String(),

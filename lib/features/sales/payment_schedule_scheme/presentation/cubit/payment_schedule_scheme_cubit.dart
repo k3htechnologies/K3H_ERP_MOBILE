@@ -128,7 +128,7 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
     DialogHelper.showProcessingOverlay(context);
 
     Map<String, dynamic> requestBody = {
-      "PaymentScheduleSchemeId": paymentScheduleSchemeId,
+      "PaymentScheduleSchemeMasterId": paymentScheduleSchemeId,
       "Uniquekey": uniqueKey,
       "ProjectId": getProject().projectId,
       "InventoryBuildingId": buildingId,
@@ -170,6 +170,49 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
       },
     );
   }
+
+  // <---- DELETE PAYMENT SCHEDULE SCHEME ---->
+  Future deletePaymentScheduleScheme(
+    int index,
+    PaymentScheduleSchemeModel paymentScheduleSchemeModel,
+    BuildContext context,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _repository.deletePaymentScheduleScheme(
+      paymentScheduleSchemeId:
+          paymentScheduleSchemeModel.paymentScheduleSchemeMasterId,
+      uniqueKey: paymentScheduleSchemeModel.uniquekey,
+      projectId: getProject().projectId,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+        return;
+      },
+      (success) {
+        final updatedList = List<PaymentScheduleSchemeModel>.from(
+          state.paymentScheduleSchemeList,
+        );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            paymentScheduleSchemeList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
+        showSuccessMessage(
+          context,
+          subTitle: "Payment Schedule Scheme Deleted Successfully",
+        );
+      },
+    );
+  }
+
   // ----------------------------------------------------------
   // EXPORT
   // ----------------------------------------------------------
