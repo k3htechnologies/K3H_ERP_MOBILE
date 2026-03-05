@@ -13,6 +13,7 @@ class CustomMultipleSelectPopup extends StatefulWidget {
   final List<Map<String, dynamic>>? initialValue;
   final String? title;
   final bool isRequired;
+  final String? hintText;
   final Future<Map<String, dynamic>> Function(int pageNumber, {String? value})
   dataFetchCallBack;
   final String? Function(List<Map<String, dynamic>>?)? validator;
@@ -25,6 +26,7 @@ class CustomMultipleSelectPopup extends StatefulWidget {
     required this.onSelected,
     this.title,
     this.isRequired = false,
+    this.hintText,
     this.validator,
     this.initialValue,
     this.dataList,
@@ -305,67 +307,42 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                                                     );
                                                   }).toList(),
                                             )
-                                            : Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 10,
-                                                      vertical: 6,
-                                                    ),
-                                                decoration: BoxDecoration(
-                                                  color: AppColor.primary
-                                                      .withValues(alpha: 0.50)
-                                                      .withValues(alpha: 0.12),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  border: Border.all(
-                                                    color: AppColor.grey30,
-                                                    width: 1,
+                                            : Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    selectedValues
+                                                            .first['DisplayName'] ??
+                                                        '',
+                                                    style: AppTextStyle.ts14M(),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
                                                 ),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Flexible(
-                                                      child: Text(
-                                                        selectedValues
-                                                                .first['DisplayName'] ??
-                                                            '',
-                                                        style:
-                                                            AppTextStyle.ts14M(),
-                                                        maxLines: 1,
-                                                        overflow:
-                                                            TextOverflow
-                                                                .ellipsis,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 6),
-                                                    GestureDetector(
-                                                      onTap: () {
-                                                        setState(() {
-                                                          selectedValues = [];
-                                                        });
-                                                        formFieldState
-                                                            .didChange(
-                                                              selectedValues,
-                                                            );
-                                                        widget.onSelected(
-                                                          selectedValues,
-                                                        );
-                                                        if (widget.onClear != null) {
-                                                          widget.onClear!();
-                                                        }
-                                                      },
-                                                      child: const Icon(
-                                                        Icons.close,
-                                                        size: 18,
-                                                      ),
-                                                    ),
-                                                  ],
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      selectedValues = [];
+                                                    });
+                                                    formFieldState.didChange(
+                                                      selectedValues,
+                                                    );
+                                                    widget.onSelected(
+                                                      selectedValues,
+                                                    );
+
+                                                    if (widget.onClear !=
+                                                        null) {
+                                                      widget.onClear!();
+                                                    }
+                                                  },
+                                                  child: const Icon(
+                                                    Icons.close,
+                                                    size: 18,
+                                                  ),
                                                 ),
-                                              ),
+                                              ],
                                             ),
                                   ),
                                   const Padding(
@@ -382,7 +359,7 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Select',
+                                    widget.hintText ?? 'Select',
                                     style: AppTextStyle.ts14R(
                                       color: AppColor.grey,
                                     ),
@@ -401,7 +378,11 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.info_outline,color: AppColor.error,size: 14,),
+                          Icon(
+                            Icons.info_outline,
+                            color: AppColor.error,
+                            size: 14,
+                          ),
                           horizontalSpacing(width: 5),
                           Text(
                             formFieldState.errorText ?? '',
@@ -765,17 +746,7 @@ class _DropdownListState extends State<DropdownList> {
                                   vertical: 8.0,
                                 ),
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Flexible(
-                                      child: Text(
-                                        item['DisplayName'],
-                                        style: AppTextStyle.ts14R(),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
                                     Padding(
                                       padding: const EdgeInsets.only(right: 10),
                                       child:
@@ -805,6 +776,14 @@ class _DropdownListState extends State<DropdownList> {
                                                     size: 20,
                                                   )),
                                     ),
+                                    Flexible(
+                                      child: Text(
+                                        item['DisplayName'],
+                                        style: AppTextStyle.ts14R(),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -826,68 +805,37 @@ class _DropdownListState extends State<DropdownList> {
                 fixedSize: WidgetStateProperty.all(const Size(30, 40)),
                 backgroundColor: WidgetStateProperty.all(AppColor.primary),
               ),
-    /*
-    onPressed: () {
+              onPressed: () {
                 if (widget.isMultiSelect) {
-                  // Use _localSelectedValues so all in-session selections are returned
+                  final result = List<Map<String, dynamic>>.from(
+                    _localSelectedValues,
+                  );
+
                   if (widget.onSelectCallback != null) {
-                    widget.onSelectCallback!(_localSelectedValues);
+                    widget.onSelectCallback!(result);
                   } else {
-                    Navigator.of(context).pop(_localSelectedValues);
+                    Navigator.of(context).pop(result);
                   }
                 } else {
-                  // For single select, return the currently checked item (visual selection)
                   final selectedItem = tempDataListForSearch.firstWhere(
                     (e) => e['isChecked'] == true,
                     orElse: () => <String, dynamic>{},
                   );
+
+                  List<Map<String, dynamic>> result;
+
                   if (selectedItem.isNotEmpty) {
-                    if (widget.onSelectCallback != null) {
-                      widget.onSelectCallback!([selectedItem]);
-                    } else {
-                      Navigator.of(context).pop([selectedItem]);
-                    }
+                    result = <Map<String, dynamic>>[selectedItem];
                   } else {
-                    if (widget.onSelectCallback != null) {
-                      widget.onSelectCallback!([]);
-                    } else {
-                      Navigator.of(context).pop([]);
-                    }
-                  }
-                }*/
-
-
-                onPressed: () {
-                  if (widget.isMultiSelect) {
-                    final result =
-                    List<Map<String, dynamic>>.from(_localSelectedValues);
-
-                    if (widget.onSelectCallback != null) {
-                      widget.onSelectCallback!(result);
-                    } else {
-                      Navigator.of(context).pop(result);
-                    }
-                  } else {
-                    final selectedItem = tempDataListForSearch.firstWhere(
-                          (e) => e['isChecked'] == true,
-                      orElse: () => <String, dynamic>{},
-                    );
-
-                    List<Map<String, dynamic>> result;
-
-                    if (selectedItem.isNotEmpty) {
-                      result = <Map<String, dynamic>>[selectedItem];
-                    } else {
-                      result = <Map<String, dynamic>>[];
-                    }
-
-                    if (widget.onSelectCallback != null) {
-                      widget.onSelectCallback!(result);
-                    } else {
-                      Navigator.of(context).pop(result);
-                    }
+                    result = <Map<String, dynamic>>[];
                   }
 
+                  if (widget.onSelectCallback != null) {
+                    widget.onSelectCallback!(result);
+                  } else {
+                    Navigator.of(context).pop(result);
+                  }
+                }
               },
               child: Text(
                 'Select',
