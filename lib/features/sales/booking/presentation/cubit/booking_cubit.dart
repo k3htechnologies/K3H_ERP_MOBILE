@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart
 import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/data/repository/other_charges.repository.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule/data/model/payment_schedule.model.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -821,22 +822,26 @@ class BookingCubit extends Cubit<BookingState> {
     );
   }
 
-  void updateRanking(int index, int ranking) {
-    final updatedList = List.of(state.paymentScheduleMasterList);
+  // void updateRanking(int index, int ranking) {
+  //   final updatedList = List.of(state.paymentScheduleMasterList);
 
-    updatedList[index].ranking = ranking;
+  //   updatedList[index].ranking = ranking;
 
-    emit(state.copyWith(paymentScheduleMasterList: updatedList));
-  }
+  //   emit(state.copyWith(paymentScheduleMasterList: updatedList));
+  // }
 
   // <---- GET PAYMENT SCHEDULE MASTER LIST ---->
   Future getPaymentScheduleMasterList(
     BuildContext context,
     int pageNumber,
     int projectId,
-    String wing,
-  ) async {
+    String wing, {
+    required double agreementValue,
+    required double agreementValueTds,
+    required double agreementValueGSTPercentage,
+  }) async {
     emit(state.copyWith(isLoading: true));
+
     var result = await _bookingRepository.getPaymentScheduleMasterList(
       pageNumber: pageNumber,
       pageSize: 100,
@@ -850,15 +855,63 @@ class BookingCubit extends Cubit<BookingState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        final masterList = List<PaymentScheduleMasterModel>.from(
+          response['data'] ?? [],
+        );
+
+        /// 🔥 Convert Master → Booking Model
+        final bookingList =
+            masterList.asMap().entries.map((entry) {
+              int index = entry.key;
+              final master = entry.value;
+
+              final amount =
+                  (agreementValue * master.paymentSchedulePercentage) / 100;
+
+              final gstAmount = (amount * agreementValueGSTPercentage) / 100;
+
+              final tdsAmount = (amount * agreementValueTds) / 100;
+
+              return BookingPaymentScheduleData(
+                bookingPaymentScheduleId: 0,
+                type: "Stage",
+                name: master.stage,
+                date: null,
+                paymentSchedulePercentage: master.paymentSchedulePercentage,
+                paymentScheduleAmount: amount,
+                paymentScheduleGSTAmount: gstAmount,
+                paymentScheduleTDSAmount: tdsAmount,
+                paymentCummulativePercentage:
+                    master.paymentCummulativePercentage,
+                ranking: index + 1, // 👈 initial ranking
+              );
+            }).toList();
+
         emit(
           state.copyWith(
-            paymentScheduleMasterList: List<PaymentScheduleMasterModel>.from(
-              response['data'] ?? [],
-            ),
+            bookingPaymentScheduleList: bookingList,
             isLoading: false,
           ),
         );
       },
     );
+  }
+
+  void reorderPaymentSchedule(int oldIndex, int newIndex) {
+    final updatedList = List.of(state.bookingPaymentScheduleList);
+
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+
+    final item = updatedList.removeAt(oldIndex);
+    updatedList.insert(newIndex, item);
+
+    /// Reassign ranking automatically
+    for (int i = 0; i < updatedList.length; i++) {
+      updatedList[i].ranking = i + 1;
+    }
+
+    emit(state.copyWith(bookingPaymentScheduleList: updatedList));
   }
 }

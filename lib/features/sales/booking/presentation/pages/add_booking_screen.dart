@@ -9,6 +9,8 @@ import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_applicant_screen.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/repository/payment_schedule_scheme.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -178,6 +180,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   //EDIT MODE
   bool get _isEditMode => widget.bookingModel != null;
 
+  // REPOSITORY
+  final PaymentScheduleSchemeRepository _paymentScheduleSchemeRepository =
+      serviceLocator<PaymentScheduleSchemeRepository>();
+
+  late ValueNotifier<List<Map<String, dynamic>>> schemeListNotifier;
+  late ValueNotifier<Map<String, dynamic>> selectedScheme;
   @override
   void initState() {
     super.initState();
@@ -191,13 +199,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _selectedFundingSource = fundingSourceList.first;
     _agreementValueNotifier.addListener(_calculateTds);
 
-    // PULL PAYMENT SCHEDULE MASTER
-    _bookingCubit.getPaymentScheduleMasterList(
-      context,
-      1,
-      _project.projectId,
-      widget.inventoryObject?[0]["wing"] ?? widget.bookingModel!.wing,
-    );
     // OTHER CHARGES
     _bookingCubit.getOtherChargesList(context, 1, _project.projectId);
 
@@ -230,6 +231,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             .whenComplete(() => _isFetchingEnquiry.value = false);
       }
     }
+    schemeListNotifier = ValueNotifier([]);
+    selectedScheme = ValueNotifier({});
+    loadPaymentScheduleSchemes();
   }
 
   @override
@@ -776,6 +780,52 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     return true;
   }
 
+  Future<void> loadPaymentScheduleSchemes({
+    int pageNumber = 1,
+    String? value,
+  }) async {
+    final result = await _paymentScheduleSchemeRepository
+        .getPaymentScheduleSchemeList(
+          pageNumber: pageNumber,
+          pageSize: 40,
+          projectId: _project.projectId,
+          queryParams:
+              value != null && value.isNotEmpty
+                  ? <String, dynamic>{"PaymentScheduleSchemeName": value}
+                  : <String, dynamic>{},
+        );
+
+    result.fold(
+      (failure) {
+        schemeListNotifier.value = <Map<String, dynamic>>[];
+        selectedScheme.value = <String, dynamic>{};
+      },
+      (response) {
+        final paymentScheduleSchemes =
+            response['data'] as List<PaymentScheduleSchemeModel>;
+
+        /// 🔥 FORCE TYPE HERE
+        final List<Map<String, dynamic>> apiList =
+            paymentScheduleSchemes
+                .map<Map<String, dynamic>>(
+                  (scheme) => <String, dynamic>{
+                    "zAttributesId": scheme.paymentScheduleSchemeMasterId,
+                    "DisplayName": scheme.paymentScheduleSchemeName,
+                  },
+                )
+                .toList();
+
+        /// 🔥 FORCE TYPE HERE ALSO
+        apiList.add(<String, dynamic>{
+          "zAttributesId": -1,
+          "DisplayName": "Other",
+        });
+
+        schemeListNotifier.value = apiList;
+      },
+    );
+  }
+
   // SUBMIT BOOKING FORM
   void _submitForm() async {
     String applicantMobile =
@@ -791,12 +841,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     showCompleteVerificationDialog(
       context,
       otpController: _otpController,
-      verificationSteps: {
-        "Basic Details": true,
-        "Source Details": true,
-        "Property Preferences": true,
-        "Follow-up Details": true,
-      },
+      verificationSteps: {},
       onResendOTP: () {
         _loginCubit.sendOTPModuleBased(
           context: context,
@@ -806,7 +851,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       },
       onVerifyOTP: () async {
         //TODO: NEED CONFORMATION
-        /*      await _bookingCubit.addBooking(
+        await _bookingCubit.addBooking(
           context: context,
 
           projectId: getProject().projectId,
@@ -858,8 +903,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
           otherChargesDetailJSON: _localOtherCharges.value,
 
-           paymentScheduleDetailJSON:
-             _bookingCubit.state.paymentScheduleMasterList,
+          paymentScheduleDetailJSON:
+              _bookingCubit.state.bookingPaymentScheduleList,
           bookingAmount: double.tryParse(_bookingAmountC.text) ?? 0.0,
 
           chequeRTGSNumber: _chequeNoC.text.trim(),
@@ -874,7 +919,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           otp: _otpController.text.trim(),
           addUpdateBookingApplicant: _applicants.value,
         );
-*/
+
         goRouter.pop();
       },
     );
@@ -1868,202 +1913,147 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     return Form(
       key: _paymentScheduleFormKey,
       child: Container(
-        padding: EdgeInsets.all(16),
-        child: GestureDetector(
-          onTap: () {
-            FocusScope.of(context).unfocus();
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    "Payment Schedule",
-                    style: AppTextStyle.ts14M(color: AppColor.grey),
-                  ),
-                  Spacer(),
-                  CustomIconButton(
-                    icon: Icon(Icons.add, size: 16, color: AppColor.darkGreen),
-                    onPressed: () {},
-                    backgroundColor: AppColor.lightGreen,
-                  ),
-                ],
-              ),
-              verticalSpacing(),
-              Expanded(
-                child: BlocBuilder<BookingCubit, BookingState>(
-                  buildWhen: (prev, curr) => true,
-                  builder: (context, state) {
-                    if (state.isLoading == true &&
-                        state.paymentScheduleMasterList.isEmpty) {
-                      return Center(child: CircularProgressIndicator());
-                    }
-
-                    if (state.paymentScheduleMasterList.isEmpty) {
-                      return Center(
-                        child: Text("No Payment Schedule Available"),
-                      );
-                    }
-
-                    if (_rankingControllers.length !=
-                        state.paymentScheduleMasterList.length) {
-                      _rankingControllers = List.generate(
-                        state.paymentScheduleMasterList.length,
-                        (index) => TextEditingController(
-                          text:
-                              state.paymentScheduleMasterList[index].ranking ==
-                                      0
-                                  ? ""
-                                  : state
-                                      .paymentScheduleMasterList[index]
-                                      .ranking
-                                      .toString(),
-                        ),
-                      );
-                    }
-
-                    return SingleChildScrollView(
-                      child: Column(
-                        children: List.generate(
-                          state.paymentScheduleMasterList.length,
-                          (index) {
-                            final paymentScheduleMaster =
-                                state.paymentScheduleMasterList[index];
-
-                            return Container(
-                              margin: EdgeInsets.only(bottom: 10),
-                              padding: EdgeInsets.all(12),
-                              decoration: commonCardDecoration(),
-                              child: Column(
-                                spacing: 10,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    spacing: 15,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Ranking",
-                                              style: AppTextStyle.ts12R(
-                                                color: AppColor.grey,
-                                              ),
-                                            ),
-                                            SizedBox(height: 4),
-                                            /*TextFormField(
-                                              keyboardType: TextInputType.number,
-                                              decoration: InputDecoration(
-                                                isDense: true,
-                                                border: OutlineInputBorder(),
-                                                enabledBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: _invalidRankingIndexes.contains(index)
-                                                        ? Colors.red
-                                                        : Colors.grey,
-                                                  ),
-                                                ),
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    color: _invalidRankingIndexes.contains(index)
-                                                        ? Colors.red
-                                                        : AppColor.primary,
-                                                    width: 1.5,
-                                                  ),
-                                                ),
-                                              ),
-                                              onChanged: (value) {
-                                                final parsed = int.tryParse(value) ?? 0;
-                                                _bookingCubit.updateRanking(index, parsed);
-
-                                                if (_invalidRankingIndexes.contains(index) && parsed != 0) {
-                                                  setState(() {
-                                                    _invalidRankingIndexes.remove(index);
-                                                  });
-                                                }
-                                              },
-                                            )*/
-                                            CustomTextField(
-                                              textController:
-                                                  _rankingControllers[index],
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              inputFormatterList: [
-                                                FilteringTextInputFormatter
-                                                    .digitsOnly,
-                                              ],
-                                              onChangeFunction: (value) {
-                                                final parsed =
-                                                    int.tryParse(value) ?? 0;
-
-                                                _bookingCubit.updateRanking(
-                                                  index,
-                                                  parsed,
-                                                );
-
-                                                if (_invalidRankingIndexes
-                                                        .contains(index) &&
-                                                    parsed != 0) {
-                                                  setState(() {
-                                                    _invalidRankingIndexes
-                                                        .remove(index);
-                                                  });
-                                                }
-                                              },
-                                              validator: (value) {
-                                                final parsed = int.tryParse(
-                                                  value ?? '',
-                                                );
-
-                                                if (parsed == null) {
-                                                  return "Ranking is required";
-                                                }
-                                                if (parsed == 0) {
-                                                  return "Ranking cannot be 0";
-                                                }
-
-                                                return null;
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      buildColumnTitleValue(
-                                        title: "Name",
-                                        value: paymentScheduleMaster.name,
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      buildColumnTitleValue(
-                                        title: "Percentage (%)",
-                                        value:
-                                            "${paymentScheduleMaster.paymentSchedulePercentage}",
-                                      ),
-                                      buildColumnTitleValue(
-                                        title: "Cumulative (%)",
-                                        value:
-                                            "${paymentScheduleMaster.paymentScheduleCummulativePercentage}",
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder<List<Map<String, dynamic>>>(
+              valueListenable: schemeListNotifier,
+              builder: (context, schemeList, _) {
+                return ValueListenableBuilder<Map<String, dynamic>>(
+                  valueListenable: selectedScheme,
+                  builder: (context, selectedValue, __) {
+                    return CustomDropDownWidget(
+                      title: "Payment Schedule Scheme",
+                      isRequired: true,
+                      dataList: schemeList,
+                      initialValue:
+                          selectedValue.isEmpty ? null : selectedValue,
+                      onSelected: (value) {
+                        if (selectedScheme.value["zAttributesId"] !=
+                            value["zAttributesId"]) {
+                          selectedScheme.value = value;
+                        }
+                      },
+                      validator: (value) {
+                        if (value == null ||
+                            value["zAttributesId"] == -1 ||
+                            value["zAttributesId"] == null) {
+                          return "Payment Schedule Scheme is required";
+                        }
+                        return null;
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Payment Schedule",
+                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                ),
+                ValueListenableBuilder(
+                  valueListenable: selectedScheme,
+                  builder: (context, value, child) {
+                    return Visibility(
+                      visible: value['DisplayName'] == 'Other',
+                      child: CustomButton(
+                        leading: Icon(Icons.add, size: 16),
+                        text: "Add",
+                        onPressed: () {},
                       ),
                     );
                   },
                 ),
+              ],
+            ),
+            verticalSpacing(),
+            Expanded(
+              child: BlocBuilder<BookingCubit, BookingState>(
+                builder: (context, state) {
+                  final list = state.bookingPaymentScheduleList;
+
+                  if (state.isLoading! && list.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (list.isEmpty) {
+                    return const Center(
+                      child: Text("No Payment Schedule Available"),
+                    );
+                  }
+
+                  return ReorderableListView.builder(
+                    itemCount: list.length,
+                    onReorder: (oldIndex, newIndex) {
+                      _bookingCubit.reorderPaymentSchedule(oldIndex, newIndex);
+                    },
+                    buildDefaultDragHandles: false,
+                    itemBuilder: (context, index) {
+                      final item = list[index];
+
+                      return Container(
+                        key: ValueKey(item.name + index.toString()),
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                /// Drag Handle
+                                ReorderableDragStartListener(
+                                  index: index,
+                                  child: const Padding(
+                                    padding: EdgeInsets.only(right: 8),
+                                    child: Icon(Icons.drag_handle),
+                                  ),
+                                ),
+
+                                /// Name
+                                Expanded(
+                                  child: buildColumnTitleValue(
+                                    title: "Stage Name",
+                                    value: item.name,
+                                  ),
+                                ),
+
+                                /// Ranking (Auto)
+                                buildColumnTitleValue(
+                                  title: "Ranking",
+                                  value: item.ranking.toString(),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            Row(
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Percentage (%)",
+                                  value: "${item.paymentSchedulePercentage}",
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Cumulative (%)",
+                                  value: "${item.paymentCummulativePercentage}",
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
