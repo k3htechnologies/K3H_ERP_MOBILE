@@ -236,6 +236,10 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
       context,
       subTitle: "Project Selected ${project.projectName}",
     );
+    //CLEAR SEARCH CONTROLLER
+    if (widget.textController != null) {
+      widget.textController!.clear();
+    }
 
     // Call the callback if provided
     if (widget.onProjectChangeCallback != null) {
@@ -268,7 +272,8 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
               ),
               child: Icon(
                 Icons.menu,
-                color: isDarkMode ? AppColor.white : AppColor.primary,size: 16,
+                color: isDarkMode ? AppColor.white : AppColor.primary,
+                size: 16,
               ),
             ),
           ),

@@ -102,10 +102,19 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
         onSearchSubmit: (value) {
           _channelPartnerCubit.searchChannelPartner(context, value);
         },
+        searchHintText: "Search By Full Name",
+        onProjectChangeCallback: (value) {
+          _channelPartnerCubit.resetSearch();
+          _channelPartnerCubit.getChannelPartnerList(context, 1);
+        },
         onAddCallback: () {
           goRouter.pushNamed(AppRoutes.addChannelPartner);
         },
         onExportCallback: (value) {
+          if (_channelPartnerCubit.state.totalNumberOfRecord == 0) {
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _channelPartnerCubit.exportExcelPdf(context, value);
         },
       ),
@@ -141,6 +150,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       spacing: 10,
                       children: [
@@ -170,14 +180,15 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
+
                                 children: [
-                                  Text(
-                                    channelPartner.name,
-                                    style: AppTextStyle.ts16M(
-                                      color: AppColor.primary,
+                                  Flexible(
+                                    child: Text(
+                                      channelPartner.name,
+                                      style: AppTextStyle.ts16M(
+                                        color: AppColor.primary,
+                                      ),
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
@@ -187,6 +198,19 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                         Row(
                           spacing: 10,
                           children: [
+                            if (channelPartner.isIncomplete) ...[
+                              CustomIconButton(
+                                onPressed: () {},
+                                icon: Icon(
+                                  Icons.warning_amber_outlined,
+                                  color: AppColor.yellow,
+                                  size: 16,
+                                ),
+                                backgroundColor: AppColor.yellow.withValues(
+                                  alpha: .2,
+                                ),
+                              ),
+                            ],
                             CustomIconButton.edit(
                               onPressed: () async {
                                 goRouter.pushNamed(
@@ -216,31 +240,23 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                       ],
                     ),
                     buildRowTitleValue(
-                      title: "Contact Number",
-                      value: channelPartner.mobileNumber,
-                      customValueWidget: CustomClickToContactText(
-                        value: channelPartner.mobileNumber,
-                      ),
-                    ),
-                    buildRowTitleValue(
-                      title: "Email Id",
-                      value: channelPartner.emailId,
-                      customValueWidget: CustomClickToContactText(
-                        value: channelPartner.emailId,
-                        type: ContactType.email,
-                      ),
+                      title: "CP Code",
+                      value: channelPartner.systemGeneratedCode,
                     ),
                     buildRowTitleValue(
                       title: "Company Name",
                       value: channelPartner.companyName,
                     ),
                     buildRowTitleValue(
-                      title: "RERA Number",
-                      value: channelPartner.reraNumber,
+                      title: "Mobile Number",
+                      value: channelPartner.mobileNumber,
+                      customValueWidget: CustomClickToContactText(
+                        value: channelPartner.mobileNumber,
+                      ),
                     ),
                     buildRowTitleValue(
-                      title: "Office Address",
-                      value: channelPartner.officeAddress,
+                      title: "RERA Number",
+                      value: channelPartner.reraNumber,
                     ),
                   ],
                 ),

@@ -1,99 +1,96 @@
 import 'package:k3h_erp_app/utils/common_function.dart';
 
-class PaymentScheduleSchemeModel {
-  int paymentScheduleSchemeMasterId;
+class PaymentScheduleMasterModel {
+  int paymentScheduleMasterId;
   String uniquekey;
   int projectId;
-  String paymentScheduleSchemeName;
-
   int inventoryBuildingId;
-  String buildingNumber;
+  String stage;
   String wing;
-  int inventoryFlatFloorBasementPodiumWingId;
-
+  double paymentSchedulePercentage;
+  double paymentCummulativePercentage;
   int createdById;
   String createdBy;
   DateTime? createdDate;
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String lastModifiedBy;
+  DateTime? lastModifiedDate;
 
-  PaymentScheduleSchemeModel({
-    required this.paymentScheduleSchemeMasterId,
+  PaymentScheduleMasterModel({
+    required this.paymentScheduleMasterId,
     required this.uniquekey,
     required this.projectId,
-    required this.paymentScheduleSchemeName,
     required this.inventoryBuildingId,
-    required this.buildingNumber,
+    required this.stage,
     required this.wing,
-    required this.inventoryFlatFloorBasementPodiumWingId,
+    required this.paymentSchedulePercentage,
+    required this.paymentCummulativePercentage,
     required this.createdById,
     required this.createdBy,
-    required this.createdDate,
+    this.createdDate,
     required this.modifiedById,
     required this.modifiedBy,
-    required this.modifiedDate,
+    this.modifiedDate,
+    required this.lastModifiedBy,
+    this.lastModifiedDate,
   });
 
-  factory PaymentScheduleSchemeModel.fromJson(Map<String, dynamic> json) =>
-      PaymentScheduleSchemeModel(
-        paymentScheduleSchemeMasterId: parseValue<int>(
+  factory PaymentScheduleMasterModel.fromJson(Map<String, dynamic> json) =>
+      PaymentScheduleMasterModel(
+        paymentScheduleMasterId: parseValue<int>(
           json,
-          "PaymentScheduleSchemeMasterId",
+          "PaymentScheduleMasterId",
         ),
-
         uniquekey: parseValue<String>(json, "Uniquekey"),
-
         projectId: parseValue<int>(json, "ProjectId"),
-
-        paymentScheduleSchemeName: parseValue<String>(
-          json,
-          "PaymentScheduleScheme",
-        ),
-
         inventoryBuildingId: parseValue<int>(json, "InventoryBuildingId"),
-
-        buildingNumber: parseValue<String>(json, "BuildingNumber"),
-
+        stage: parseValue<String>(json, "Stage"),
         wing: parseValue<String>(json, "Wing"),
-
-        inventoryFlatFloorBasementPodiumWingId: parseValue<int>(
+        paymentSchedulePercentage: parseValue<double>(
           json,
-          "InventoryFlatFloorBasementPodiumWingId",
+          "PaymentSchedulePercentage",
         ),
-
+        paymentCummulativePercentage: parseValue<double>(
+          json,
+          "PaymentCummulativePercentage",
+        ),
         createdById: parseValue<int>(json, "CreatedById"),
-
         createdBy: parseValue<String>(json, "CreatedBy"),
-
         createdDate:
             json["CreatedDate"] == null
                 ? null
                 : parseValue<DateTime>(json, "CreatedDate"),
-
         modifiedById: parseValue<int>(json, "ModifiedById"),
-
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
-
         modifiedDate:
             json["ModifiedDate"] == null
                 ? null
                 : parseValue<DateTime>(json, "ModifiedDate"),
+        lastModifiedBy: parseValue<String>(json, "LastModifiedBy"),
+        lastModifiedDate:
+            json["LastModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "LastModifiedDate"),
       );
 
   Map<String, dynamic> toJson() => {
-    "PaymentScheduleSchemeMasterId": paymentScheduleSchemeMasterId,
+    "PaymentScheduleMasterId": paymentScheduleMasterId,
     "Uniquekey": uniquekey,
     "ProjectId": projectId,
-    "PaymentScheduleScheme": paymentScheduleSchemeName,
     "InventoryBuildingId": inventoryBuildingId,
-    "InventoryFlatFloorBasementPodiumWingId":
-        inventoryFlatFloorBasementPodiumWingId,
+    "Stage": stage,
+    "Wing": wing,
+    "PaymentSchedulePercentage": paymentSchedulePercentage,
+    "PaymentCummulativePercentage": paymentCummulativePercentage,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate?.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "LastModifiedBy": lastModifiedBy,
+    "LastModifiedDate": lastModifiedDate?.toIso8601String(),
   };
 }

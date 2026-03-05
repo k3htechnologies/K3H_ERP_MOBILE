@@ -221,6 +221,11 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      verticalSpacing(height: 5),
+                      Text(
+                        widget.channelPartnerModel.systemGeneratedCode,
+                        style: AppTextStyle.ts16SB(color: AppColor.primary),
+                      ),
                       verticalSpacing(),
                       Container(
                         decoration: commonCardDecoration(),
@@ -242,7 +247,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                   value: widget.channelPartnerModel.name,
                                 ),
                                 buildColumnTitleValue(
-                                  title: "Contact No.",
+                                  title: "Mobile No.",
                                   value:
                                       widget.channelPartnerModel.mobileNumber,
                                   customValueWidget: CustomClickToContactText(

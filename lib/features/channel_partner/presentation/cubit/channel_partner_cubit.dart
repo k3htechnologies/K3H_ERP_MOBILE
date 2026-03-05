@@ -17,6 +17,10 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
   final ChannelPartnerRepository _channelPartnerRepository =
       serviceLocator<ChannelPartnerRepository>();
 
+  void resetSearch() {
+    emit(state.copyWith(searchText: ""));
+  }
+
   // <---- SEARCH CHANNEL PARTNER ---->
   Future searchChannelPartner(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, channelPartnerList: []));

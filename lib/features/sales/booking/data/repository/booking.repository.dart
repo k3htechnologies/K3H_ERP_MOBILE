@@ -22,7 +22,14 @@ abstract interface class BookingRepository {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
+  Future<Either<Failure, Map<String, dynamic>>> getPaymentScheduleStagesList({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int inventoryBuildingId,
+    required int inventoryFlatFloorBasementPodiumWingId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class BookingRepositoryImpl extends BookingRepository {
@@ -86,4 +93,33 @@ class BookingRepositoryImpl extends BookingRepository {
     }
   }
 
+  // ----------------------------------------------------------
+  // Pull Payment Schedule Stages
+  // ----------------------------------------------------------
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getPaymentScheduleStagesList({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int inventoryBuildingId,
+    required int inventoryFlatFloorBasementPodiumWingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await bookingDatasource.apiCallPullPaymentScheduleStages(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        projectId: projectId,
+        inventoryBuildingId: inventoryBuildingId,
+        inventoryFlatFloorBasementPodiumWingId:
+            inventoryFlatFloorBasementPodiumWingId,
+        queryParams: queryParams,
+      );
+
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
 }

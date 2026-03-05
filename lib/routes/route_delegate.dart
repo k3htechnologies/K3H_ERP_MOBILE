@@ -277,10 +277,13 @@ import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/view_enqui
 import 'package:k3h_erp_app/features/sales/other_charges/presentation/cubit/other_charges_cubit.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/presentation/pages/add_other_charges_screen.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/presentation/pages/other_charges_screen.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule/presentation/cubit/payment_schedule_cubit.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule/presentation/presentation/add_payment_schedule_screen.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule/presentation/presentation/payment_schedule_screen.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_cubit.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/pages/add_payment_schedule_scheme_screen.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/pages/payment_schedule_scheme_screen.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule_summary/presentation/cubit/payment_schedule_summary_cubit.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule_summary/presentation/pages/payment_schedule_summary_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sales_dashboard_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
@@ -300,6 +303,8 @@ import 'package:k3h_erp_app/features/vendor_management/presentation/pages/view_d
 import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
+
+import '../features/sales/payment_schedule/data/model/payment_schedule.model.dart';
 
 String? authenticateAndAuthorizeRoute(GoRouterState state) {
   // SPLASH || LOGIN
@@ -4012,11 +4017,11 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
-            // PAYMENT SCHEDULE SUMMARY
+            // PAYMENT SCHEDULE
             ShellRoute(
               builder: (context, state, child) {
                 return BlocProvider(
-                  create: (_) => PaymentScheduleSummaryCubit(),
+                  create: (_) => PaymentScheduleCubit(),
                   child: child,
                 );
               },
@@ -4025,7 +4030,39 @@ final GoRouter goRouter = GoRouter(
                   name: AppRoutes.paymentSchedule,
                   path: AppRoutes.paymentSchedule,
                   builder: (context, state) {
-                    return const PaymentScheduleSummaryScreen();
+                    return const PaymentScheduleScreen();
+                  },
+                ),
+
+                GoRoute(
+                  name: AppRoutes.addPaymentSchedule,
+                  path: AppRoutes.addPaymentSchedule,
+                  builder: (context, state) {
+                    final queryParameterPaymentSchedule =
+                        state.uri.queryParameters['paymentSchedule'];
+                    final paymentSchedule =
+                        queryParameterPaymentSchedule != null &&
+                                queryParameterPaymentSchedule.isNotEmpty
+                            ? PaymentScheduleMasterModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterPaymentSchedule,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddPaymentScheduleScreen(
+                      paymentScheduleMaster: paymentSchedule,
+                      index: index,
+                    );
                   },
                 ),
               ],
@@ -4044,6 +4081,37 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.paymentScheduleScheme,
                   builder: (context, state) {
                     return const PaymentScheduleSchemeScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addPaymentScheduleScheme,
+                  path: AppRoutes.addPaymentScheduleScheme,
+                  builder: (context, state) {
+                    final queryParameterPaymentScheduleScheme =
+                        state.uri.queryParameters['scheme'];
+                    final paymentScheduleScheme =
+                        queryParameterPaymentScheduleScheme != null &&
+                                queryParameterPaymentScheduleScheme.isNotEmpty
+                            ? PaymentScheduleSchemeModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterPaymentScheduleScheme,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddPaymentScheduleSchemeScreen(
+                      paymentScheduleSchemeModel: paymentScheduleScheme,
+                      index: index,
+                    );
                   },
                 ),
               ],

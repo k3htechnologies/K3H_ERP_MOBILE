@@ -86,7 +86,7 @@ class _PaymentScheduleSchemeScreenState
   // DELETE
   // ----------------------------------------------------------
 
-  Future<void> _showPaymentScheduleDeletePopup(
+  Future<void> _showPaymentScheduleSchemeDeletePopup(
     BuildContext context,
     PaymentScheduleSchemeModel obj,
     int index,
@@ -98,7 +98,7 @@ class _PaymentScheduleSchemeScreenState
     );
 
     if (result && context.mounted) {
-      // If delete API added later, call here
+      _cubit.deletePaymentScheduleScheme(index, obj, context);
     }
   }
 
@@ -109,18 +109,18 @@ class _PaymentScheduleSchemeScreenState
       appBar: CustomAppBar(
         screenTitle: 'Payment Schedule Scheme',
         authorization: _routeAuthorizationModel,
+        onProjectChangeCallback: (value) {
+          _cubit.getPaymentScheduleSchemeList(context, 1);
+        },
         onExportCallback: (value) {
           if (_cubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
-          _cubit.exportExcelPdf(context, value, 0);
+          _cubit.exportExcelPdf(context, value);
         },
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addPaymentScheduleScheme);
-          if (context.mounted) {
-            _cubit.getPaymentScheduleSchemeList(context, 1);
-          }
         },
         searchHintText: "Search by Scheme Name",
         onSearchSubmit: (value) {
@@ -168,45 +168,52 @@ class _PaymentScheduleSchemeScreenState
                         Expanded(
                           child: Text(
                             scheme.paymentScheduleSchemeName,
-                            style: AppTextStyle.ts14R(),
+                            style: AppTextStyle.ts16M(),
                           ),
                         ),
-                        Row(
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addPaymentScheduleScheme,
-                                  queryParameters: {
-                                    'scheme': Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(scheme.toJson()),
+                        if (_routeAuthorizationModel.isAction) ...[
+                          Row(
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addPaymentScheduleScheme,
+                                    queryParameters: {
+                                      'scheme': Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(scheme.toJson()),
+                                        ),
                                       ),
-                                    ),
-                                    'index': index.toString(),
-                                  },
-                                );
-                              },
-                            ),
-                            CustomIconButton.delete(
-                              onPressed: () async {
-                                _showPaymentScheduleDeletePopup(
-                                  context,
-                                  scheme,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              horizontalSpacing(),
+                              CustomIconButton.delete(
+                                onPressed: () async {
+                                  _showPaymentScheduleSchemeDeletePopup(
+                                    context,
+                                    scheme,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
 
                     verticalSpacing(),
-
                     buildRowTitleValue(
-                      title: "Order By",
-                      value: scheme.orderBy.toString(),
+                      title: "Building",
+                      value: scheme.buildingNumber,
+                      singleLine: false,
+                    ),
+                    buildRowTitleValue(
+                      title: "Wing",
+                      value: scheme.wing,
                       singleLine: false,
                     ),
                     buildRowTitleValue(

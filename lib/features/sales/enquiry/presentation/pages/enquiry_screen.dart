@@ -400,7 +400,6 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
       applyEnabledNotifier: applyEnabled,
     );
 
-    // Reset bottom sheet fields if closed manually
     if (!applied) {
       _startDateNotifier.value = initialStartDate;
       _endDateNotifier.value = initialEndDate;
@@ -408,12 +407,12 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     }
   }
 
+  // GETTER FOR FOLLOWUP STATUS
   String getFollowUpStatus(DateTime? nextFollowUpDate) {
     if (nextFollowUpDate == null) return "-";
 
     final DateTime today = DateTime.now();
 
-    // Remove time part for accurate day comparison
     final DateTime currentDate = DateTime(today.year, today.month, today.day);
     final DateTime followUpDate = DateTime(
       nextFollowUpDate.year,
@@ -448,6 +447,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         },
         onProjectChangeCallback: (value) {
           _project = value;
+          _enquiryCubit.resetSearch();
           _enquiryCubit.getEnquiryList(context, 1, value.projectId);
         },
         isFilterOn: true,
@@ -554,12 +554,12 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                     buildRowTitleValue(
                       title: "Enquiry Follow Up Days",
                       value: getFollowUpStatus(enquiry.nextFollowUpDate),
-                      singleLine: false
+                      singleLine: false,
                     ),
                     buildRowTitleValue(
                       title: "Requirement",
                       value: enquiry.requirement,
-                        singleLine: false
+                      singleLine: false,
                     ),
                     buildRowTitleValue(
                       title: "Stage",
