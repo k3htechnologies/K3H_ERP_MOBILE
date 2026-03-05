@@ -800,7 +800,8 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         selectedDesignationId: int.parse(
           _selectedDesignation[0]["zAttributesId"].toString(),
         ),
-        selectedReportingPersonId: selectedReportingPerson.first['zAttributesId'] as int,
+        selectedReportingPersonId:
+            selectedReportingPerson.first['zAttributesId'] as int,
         selectedCountryNameId: 1,
         selectedStateId: selectedState!["zAttributesId"],
         selectedDistrictId: selectedDistrict!["zAttributesId"],
@@ -846,7 +847,8 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         selectedDesignationId: int.parse(
           _selectedDesignation[0]["zAttributesId"].toString(),
         ),
-        selectedReportingPersonId: selectedReportingPerson.first['zAttributesId'] as int,
+        selectedReportingPersonId:
+            selectedReportingPerson.first['zAttributesId'] as int,
         selectedCountryNameId: 1,
         selectedStateId: selectedState!["zAttributesId"],
         selectedDistrictId: selectedDistrict!["zAttributesId"],
@@ -1290,7 +1292,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                       }
                       return null;
                     },
-                    onClear: (){
+                    onClear: () {
                       _selectedReportingPersonNotifier.value = [];
                     },
                   ),
@@ -1332,8 +1334,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                               buildColumnTitleValue(
                                 title: "Reporting Person",
                                 value:
-                                selectedEmployee
-                                    .first["reportingPerson"] ??
+                                    selectedEmployee.first["reportingPerson"] ??
                                     '',
                               ),
                             ],

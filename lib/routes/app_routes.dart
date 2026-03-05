@@ -133,6 +133,9 @@ class AppRoutes {
   static String paymentScheduleScheme = "/paymentScheduleScheme";
   static String addPaymentScheduleScheme = "/addPaymentScheduleScheme";
 
+  // SALES REPORT
+  static String performanceReport = "/performanceReport";
+
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PAYROLL MASTER
 

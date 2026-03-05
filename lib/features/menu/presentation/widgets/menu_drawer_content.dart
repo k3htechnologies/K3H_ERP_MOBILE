@@ -21,6 +21,17 @@ void removeHiddenSubSubModules(List<ModuleModel> modules) {
       subModule.subSubModuleData.removeWhere(
         (subSub) => subSub.isDisplay == false,
       );
+
+      if (module.moduleName.toLowerCase() == 'sale' &&
+          subModule.subModuleName.toLowerCase() == 'reports') {
+        // Hide unwanted reports
+        subModule.subSubModuleData.removeWhere(
+          (subSub) =>
+              subSub.subSubModuleName == "Incentive" ||
+              subSub.subSubModuleName == "Enquiry" ||
+              subSub.subSubModuleName == "CP Enquiry",
+        );
+      }
     }
   }
 }
