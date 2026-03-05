@@ -137,18 +137,18 @@ class BookingModel {
   });
 
   factory BookingModel.fromJson(
-      Map<String, dynamic> json, {
-        bool setOtherCharge = false,
-      }) => BookingModel(
+    Map<String, dynamic> json, {
+    bool setOtherCharge = false,
+  }) => BookingModel(
     bookingId: parseValue<int>(json, "BookingId"),
     uniquekey: parseValue<String>(json, "Uniquekey"),
     applicantName: parseValue<String>(json, "ApplicantName"),
     bookingApplicantData:
-    (json["BookingApplicantData"] as List<dynamic>)
-        .map(
-          (e) => BookingApplicantData.fromJson(e as Map<String, dynamic>),
-    )
-        .toList(),
+        (json["BookingApplicantData"] as List<dynamic>)
+            .map(
+              (e) => BookingApplicantData.fromJson(e as Map<String, dynamic>),
+            )
+            .toList(),
     permanentAddress: parseValue<String>(json, "PermanentAddress"),
     communicationAddress: parseValue<String>(json, "CommunicationAddress"),
     source: parseValue<String>(json, "Source"),
@@ -196,35 +196,35 @@ class BookingModel {
     isApproval: parseValue<bool>(json, "IsApproval"),
     bookingType: parseValue<String>(json, "BookingType"),
     bookingOtherChargesData:
-    (json["BookingOtherChargesData"] as List<dynamic>)
-        .map(
-          (e) =>
-      OtherChargeModel.fromJson(e as Map<String, dynamic>)
-        ..isSelected = setOtherCharge
-        ..isMaster = setOtherCharge,
-    )
-        .toList(),
+        (json["BookingOtherChargesData"] as List<dynamic>)
+            .map(
+              (e) =>
+                  OtherChargeModel.fromJson(e as Map<String, dynamic>)
+                    ..isSelected = setOtherCharge
+                    ..isMaster = setOtherCharge,
+            )
+            .toList(),
     bookingPaymentScheduleData:
-    (json["BookingPaymentScheduleData"] as List<dynamic>)
-        .map(
-          (e) => BookingPaymentScheduleData.fromJson(
-        e as Map<String, dynamic>,
-      ),
-    )
-        .toList(),
+        (json["BookingPaymentScheduleData"] as List<dynamic>)
+            .map(
+              (e) => BookingPaymentScheduleData.fromJson(
+                e as Map<String, dynamic>,
+              ),
+            )
+            .toList(),
     parkingData:
-    (json["ParkingData"] as List<dynamic>)
-        .map((e) => ParkingModel.fromJson(e as Map<String, dynamic>))
-        .toList(),
+        (json["ParkingData"] as List<dynamic>)
+            .map((e) => ParkingModel.fromJson(e as Map<String, dynamic>))
+            .toList(),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
     modifiedById: parseValue<int>(json, "ModifiedById"),
     modifiedBy: parseValue<String>(json, "ModifiedBy"),
     modifiedDate:
-    json["ModifiedDate"] == null
-        ? null
-        : parseValue<DateTime>(json, "ModifiedDate"),
+        json["ModifiedDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "ModifiedDate"),
     projectId: parseValue<int>(json, "ProjectId"),
     enquiryId: parseValue<int>(json, "EnquiryId"),
     projectName: parseValue<String>(json, "ProjectName"),
@@ -276,7 +276,7 @@ class BookingModel {
     "Uniquekey": uniquekey,
     "ApplicantName": applicantName,
     "BookingApplicantData":
-    bookingApplicantData.map((e) => e.toJson()).toList(),
+        bookingApplicantData.map((e) => e.toJson()).toList(),
     "PermanentAddress": permanentAddress,
     "CommunicationAddress": communicationAddress,
     "Source": source,
@@ -315,9 +315,9 @@ class BookingModel {
     "IsApproval": isApproval,
     "BookingType": bookingType,
     "BookingOtherChargesData":
-    bookingOtherChargesData.map((e) => e.toJson()).toList(),
+        bookingOtherChargesData.map((e) => e.toJson()).toList(),
     "BookingPaymentScheduleData":
-    bookingPaymentScheduleData.map((e) => e.toJson()).toList(),
+        bookingPaymentScheduleData.map((e) => e.toJson()).toList(),
     "ParkingData": parkingData.map((e) => e.toJson()).toList(),
     "CreatedById": createdById,
     "CreatedBy": createdBy,
@@ -336,13 +336,13 @@ class BookingModel {
     "FlatAlterationRequestIsApproval": flatAlterationRequestIsApproval,
     "FlatAlterationRequestApprovalStatus": flatAlterationRequestApprovalStatus,
     "ParkingModificationRequestIsApproval":
-    parkingModificationRequestIsApproval,
+        parkingModificationRequestIsApproval,
     "ParkingModificationRequestApprovalStatus":
-    parkingModificationRequestApprovalStatus,
+        parkingModificationRequestApprovalStatus,
     "BookingApplicantModificationRequestIsApproval":
-    bookingApplicantModificationRequestIsApproval,
+        bookingApplicantModificationRequestIsApproval,
     "BookingApplicantModificationRequestApprovalStatus":
-    bookingApplicantModificationRequestApprovalStatus,
+        bookingApplicantModificationRequestApprovalStatus,
   };
 }
 
@@ -470,9 +470,9 @@ class BookingApplicantData {
         modifiedById: parseValue<int>(json, "ModifiedById"),
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
         modifiedDate:
-        json["ModifiedDate"] == null
-            ? null
-            : parseValue<DateTime>(json, "ModifiedDate"),
+            json["ModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "ModifiedDate"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -509,43 +509,38 @@ class BookingPaymentScheduleData {
   String name;
   DateTime? date;
   double paymentSchedulePercentage;
+  double paymentCummulativePercentage;
   double paymentScheduleAmount;
   double paymentScheduleGSTAmount;
   double paymentScheduleTDSAmount;
-  int createdById;
-  String createdBy;
-  DateTime createdDate;
-  int modifiedById;
-  String modifiedBy;
-  DateTime? modifiedDate;
-
+  int ranking;
   BookingPaymentScheduleData({
     required this.bookingPaymentScheduleId,
     required this.type,
     required this.name,
     this.date,
     required this.paymentSchedulePercentage,
+    required this.paymentCummulativePercentage,
     required this.paymentScheduleAmount,
     required this.paymentScheduleGSTAmount,
     required this.paymentScheduleTDSAmount,
-    required this.createdById,
-    required this.createdBy,
-    required this.createdDate,
-    required this.modifiedById,
-    required this.modifiedBy,
-    required this.modifiedDate,
+    required this.ranking,
   });
 
   factory BookingPaymentScheduleData.fromJson(
-      Map<String, dynamic> json,
-      ) => BookingPaymentScheduleData(
+    Map<String, dynamic> json,
+  ) => BookingPaymentScheduleData(
     bookingPaymentScheduleId: parseValue<int>(json, "BookingPaymentScheduleId"),
     type: parseValue<String>(json, "Type"),
     name: parseValue<String>(json, "Name"),
-    date: parseValue<DateTime>(json, "Date"),
+    date: json["Date"] == null ? null : parseValue<DateTime>(json, "Date"),
     paymentSchedulePercentage: parseValue<double>(
       json,
       "PaymentSchedulePercentage",
+    ),
+    paymentCummulativePercentage: parseValue<double>(
+      json,
+      "PaymentCummulativePercentage",
     ),
     paymentScheduleAmount: parseValue<double>(json, "PaymentScheduleAmount"),
     paymentScheduleGSTAmount: parseValue<double>(
@@ -556,15 +551,7 @@ class BookingPaymentScheduleData {
       json,
       "PaymentScheduleTDSAmount",
     ),
-    createdById: parseValue<int>(json, "CreatedById"),
-    createdBy: parseValue<String>(json, "CreatedBy"),
-    createdDate: parseValue<DateTime>(json, "CreatedDate"),
-    modifiedById: parseValue<int>(json, "ModifiedById"),
-    modifiedBy: parseValue<String>(json, "ModifiedBy"),
-    modifiedDate:
-    json["ModifiedDate"] == null
-        ? null
-        : parseValue<DateTime>(json, "ModifiedDate"),
+    ranking: parseValue<int>(json, "Ranking"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -573,14 +560,10 @@ class BookingPaymentScheduleData {
     "Name": name,
     "Date": date?.toIso8601String(),
     "PaymentSchedulePercentage": paymentSchedulePercentage,
+    "PaymentCummulativePercentage": paymentCummulativePercentage,
     "PaymentScheduleAmount": paymentScheduleAmount,
     "PaymentScheduleGSTAmount": paymentScheduleGSTAmount,
     "PaymentScheduleTDSAmount": paymentScheduleTDSAmount,
-    "CreatedById": createdById,
-    "CreatedBy": createdBy,
-    "CreatedDate": createdDate.toIso8601String(),
-    "ModifiedById": modifiedById,
-    "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate?.toIso8601String(),
+    "Ranking": ranking,
   };
 }

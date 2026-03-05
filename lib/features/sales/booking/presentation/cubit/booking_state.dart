@@ -1,7 +1,7 @@
 part of 'booking_cubit.dart';
 
 class BookingState extends BaseState {
-  final List<PaymentScheduleMasterModel> paymentScheduleMasterList;
+  final List<BookingPaymentScheduleData> bookingPaymentScheduleList;
   final List<ParkingModel> parkingList;
   final List<TermsAndConditionsModel> termsList;
   final int totalNumberOfRecordParking;
@@ -21,7 +21,7 @@ class BookingState extends BaseState {
 
   const BookingState({
     super.isLoading,
-    required this.paymentScheduleMasterList,
+    required this.bookingPaymentScheduleList,
     required this.parkingList,
     required this.termsList,
     required this.totalNumberOfRecordParking,
@@ -42,7 +42,7 @@ class BookingState extends BaseState {
 
   factory BookingState.initial() => BookingState(
     isLoading: true,
-    paymentScheduleMasterList: [],
+    bookingPaymentScheduleList: [],
     parkingList: [],
     termsList: [],
     totalNumberOfRecordParking: 0,
@@ -63,7 +63,7 @@ class BookingState extends BaseState {
 
   BookingState copyWith({
     bool? isLoading,
-    List<PaymentScheduleMasterModel>? paymentScheduleMasterList,
+    List<BookingPaymentScheduleData>? bookingPaymentScheduleList,
     List<ParkingModel>? parkingList,
     List<TermsAndConditionsModel>? termsList,
     int? totalNumberOfRecordParking,
@@ -83,11 +83,14 @@ class BookingState extends BaseState {
   }) {
     return BookingState(
       isLoading: isLoading ?? this.isLoading,
-      paymentScheduleMasterList: paymentScheduleMasterList ?? this.paymentScheduleMasterList,
+      bookingPaymentScheduleList:
+          bookingPaymentScheduleList ?? this.bookingPaymentScheduleList,
       parkingList: parkingList ?? this.parkingList,
       termsList: termsList ?? this.termsList,
-      totalNumberOfRecordParking: totalNumberOfRecordParking ?? this.totalNumberOfRecordParking,
-      totalNumberOfRecordTerms: totalNumberOfRecordTerms ?? this.totalNumberOfRecordTerms,
+      totalNumberOfRecordParking:
+          totalNumberOfRecordParking ?? this.totalNumberOfRecordParking,
+      totalNumberOfRecordTerms:
+          totalNumberOfRecordTerms ?? this.totalNumberOfRecordTerms,
       currentPageParking: currentPageParking ?? this.currentPageParking,
       currentPageTerms: currentPageTerms ?? this.currentPageTerms,
       otherChargesList: otherChargesList ?? this.otherChargesList,
@@ -99,14 +102,15 @@ class BookingState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
-      currentTabIndexAddForm: currentTabIndexAddForm ?? this.currentTabIndexAddForm,
+      currentTabIndexAddForm:
+          currentTabIndexAddForm ?? this.currentTabIndexAddForm,
     );
   }
 
   @override
   List<Object?> get props => [
     isLoading,
-    paymentScheduleMasterList,
+    bookingPaymentScheduleList,
     parkingList,
     termsList,
     totalNumberOfRecordParking,

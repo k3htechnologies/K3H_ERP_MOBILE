@@ -41,7 +41,7 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
   late ScrollController scrollController;
   Timer? _debounce;
   // REPOSITORY
-  final PaymentScheduleSchemeRepository _repository =
+  final PaymentScheduleSchemeRepository _paymentScheduleSchemeRepository =
       serviceLocator<PaymentScheduleSchemeRepository>();
 
   @override
@@ -58,7 +58,7 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
     int pageNumber, {
     String? value,
   }) async {
-    final result = await _repository.getPaymentScheduleSchemeList(
+    final result = await _paymentScheduleSchemeRepository.getPaymentScheduleSchemeList(
       pageNumber: pageNumber,
       pageSize: 15,
       projectId: getProject().projectId,
