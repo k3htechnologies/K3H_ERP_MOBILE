@@ -20,6 +20,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:workmanager/workmanager.dart';
 
 // NAVIGATOR KEY
@@ -105,6 +106,11 @@ String _formatCallDateForApi(DateTime dt) {
 }
 
 Future<void> main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await requestPhonePermission();
+
   // INITIAL SETUP
   await initialSetup();
 
@@ -132,8 +138,18 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
+
+Future<void> requestPhonePermission() async {
+  final status = await Permission.phone.request();
+
+  if (status.isGranted) {
+    debugPrint("Phone permission granted");
+  } else {
+    debugPrint("Phone permission denied");
+  }
+}
+
 Future initialSetup() async {
-  WidgetsFlutterBinding.ensureInitialized();
   // REMOVE '#' FROM THE PATH
   setPathUrlStrategy();
   // LOCAL STORAGE
@@ -150,6 +166,7 @@ Future initialSetup() async {
   }
   // LOCATION PERMISSION
   handleLocationPermission();
+
   // ROUTING
   GoRouter.optionURLReflectsImperativeAPIs = true;
 }

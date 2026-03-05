@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/widgets/custom_file_preview_dialogue_content.dart';
 import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 // Function to return width
 double getActualWidth(BuildContext context) {
