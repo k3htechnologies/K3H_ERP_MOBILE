@@ -5,7 +5,7 @@ import 'package:k3h_erp_app/features/inventory/data/repository/inventory.reposit
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/repository/payment_schedule_scheme.repository.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_state.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule_summary/data/model/project_inventory_structure.model.dart';
+import 'package:k3h_erp_app/features/inventory/data/model/project_inventory_structure.model.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -112,6 +112,7 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
           context,
           subTitle: "Payment Schedule Scheme Added Successfully!!!",
         );
+        getPaymentScheduleSchemeList(context, 1);
       },
     );
   }

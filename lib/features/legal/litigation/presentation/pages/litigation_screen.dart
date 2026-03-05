@@ -98,6 +98,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
       appBar: CustomAppBar(
         screenTitle: "Litigation Master",
         authorization: _routeAuthorizationModel,
+        searchHintText: "Search By Title",
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addLitigation);
           if (context.mounted) {
@@ -106,6 +107,10 @@ class _LitigationScreenState extends State<LitigationScreen> {
         },
         textController: _searchC,
         onExportCallback: (value) {
+          if (_litigationCubit.state.litigationTotalRecords == 0) {
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
           _litigationCubit.exportExcelPdf(context, value);
         },
         onProjectChangeCallback: (value) {

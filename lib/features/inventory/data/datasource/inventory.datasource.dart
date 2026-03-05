@@ -1,5 +1,5 @@
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule_summary/data/model/project_inventory_structure.model.dart';
+import 'package:k3h_erp_app/features/inventory/data/model/project_inventory_structure.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 

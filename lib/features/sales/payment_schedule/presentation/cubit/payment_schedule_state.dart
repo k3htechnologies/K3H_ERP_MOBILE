@@ -9,9 +9,7 @@ class PaymentScheduleMasterState extends BaseState {
   final int currentPage;
   final String currentSortColumn;
   final String currentSortDirection;
-
   final PaymentScheduleSchemeModel? selectedScheme;
-
   final double totalCumulativePercentage;
 
   const PaymentScheduleMasterState({
@@ -46,7 +44,7 @@ class PaymentScheduleMasterState extends BaseState {
     int? currentPage,
     String? currentSortColumn,
     String? currentSortDirection,
-    PaymentScheduleSchemeModel? selectedScheme,
+    Object? selectedScheme = _noValue,
     double? totalCumulativePercentage,
   }) {
     return PaymentScheduleMasterState(
@@ -58,12 +56,17 @@ class PaymentScheduleMasterState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
-      selectedScheme: selectedScheme ?? this.selectedScheme,
+      selectedScheme:
+          selectedScheme == _noValue
+              ? this.selectedScheme
+              : selectedScheme as PaymentScheduleSchemeModel?,
+
       totalCumulativePercentage:
           totalCumulativePercentage ?? this.totalCumulativePercentage,
     );
   }
 
+  static const _noValue = Object();
   @override
   List<Object?> get props => [
     isLoading,

@@ -1,5 +1,5 @@
 import 'package:k3h_erp_app/core/base_state.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule_summary/data/model/project_inventory_structure.model.dart';
+import 'package:k3h_erp_app/features/inventory/data/model/project_inventory_structure.model.dart';
 import '../../data/model/payment_schedule_scheme.model.dart';
 
 class PaymentScheduleSchemeState extends BaseState {

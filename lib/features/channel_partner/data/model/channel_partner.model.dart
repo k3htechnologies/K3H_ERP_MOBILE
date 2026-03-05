@@ -180,3 +180,31 @@ class ChannelPartnerModel {
     "PaidBrokerageAmount": paidBrokerageAmount,
   };
 }
+
+extension ChannelPartnerValidation on ChannelPartnerModel {
+  bool get isIncomplete {
+    bool isBasicValid =
+        name.trim().isNotEmpty &&
+        mobileNumber.trim().isNotEmpty &&
+        companyName.trim().isNotEmpty &&
+        firmsType.trim().isNotEmpty &&
+        designation.trim().isNotEmpty &&
+        type.trim().isNotEmpty &&
+        speciality.trim().isNotEmpty &&
+        officeAddress.trim().isNotEmpty &&
+        stateName.trim().isNotEmpty &&
+        districtName.trim().isNotEmpty &&
+        cityName.trim().isNotEmpty &&
+        villageName.trim().isNotEmpty;
+
+    bool isPanValid = panNumber.trim().isEmpty == panCardUrl.trim().isEmpty;
+
+    bool isAadhaarValid =
+        aadhaarCardNumber.trim().isEmpty == aadhaarCardUrl.trim().isEmpty;
+
+    bool isGstValid =
+        gstNumber.trim().isEmpty == gstCertificateUrl.trim().isEmpty;
+
+    return !(isBasicValid && isPanValid && isAadhaarValid && isGstValid);
+  }
+}

@@ -29,12 +29,17 @@ class EnquiryCubit extends Cubit<EnquiryState> {
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
 
+  void resetSearch() {
+    emit(state.copyWith(searchText: ""));
+  }
+
   // <---- GET ENQUIRY LIST ---->
   Future getEnquiryList(
     BuildContext context,
     int pageNumber,
     int projectId,
   ) async {
+    print("Api Called--->");
     emit(state.copyWith(isLoading: true));
 
     // Build queryParams only with non-null / non-empty values

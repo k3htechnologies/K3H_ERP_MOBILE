@@ -192,7 +192,7 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
           inventoryFlatFloorBasementPodiumWingId,
       "Stage": stage,
       "PaymentSchedulePercentage": paymentSchedulePercentage,
-      "PaymentCummulativePercentage": cumulativePercentage, // ✅ correct total
+      "PaymentCummulativePercentage": cumulativePercentage,
       "PaymentScheduleSchemeMasterId": paymentScheduleSchemeMasterId,
     };
 
@@ -216,7 +216,7 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
         emit(
           state.copyWith(
             paymentScheduleMasterList: updatedList,
-            totalCumulativePercentage: cumulativePercentage, // ✅ update state
+            totalCumulativePercentage: cumulativePercentage,
           ),
         );
 

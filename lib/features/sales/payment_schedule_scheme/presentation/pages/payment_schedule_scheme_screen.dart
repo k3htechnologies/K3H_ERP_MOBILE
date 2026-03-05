@@ -109,6 +109,9 @@ class _PaymentScheduleSchemeScreenState
       appBar: CustomAppBar(
         screenTitle: 'Payment Schedule Scheme',
         authorization: _routeAuthorizationModel,
+        onProjectChangeCallback: (value) {
+          _cubit.getPaymentScheduleSchemeList(context, 1);
+        },
         onExportCallback: (value) {
           if (_cubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
@@ -118,9 +121,6 @@ class _PaymentScheduleSchemeScreenState
         },
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addPaymentScheduleScheme);
-          if (context.mounted) {
-            _cubit.getPaymentScheduleSchemeList(context, 1);
-          }
         },
         searchHintText: "Search by Scheme Name",
         onSearchSubmit: (value) {

@@ -48,7 +48,6 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
   void initState() {
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.paymentSchedule]!;
-
     _paymentScheduleCubit = context.read<PaymentScheduleCubit>();
     super.initState();
     _onScroll();
@@ -116,6 +115,7 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
+      if (_paymentScheduleCubit.state.selectedScheme == null) return;
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
           !_paymentScheduleCubit.state.isLoading! &&
@@ -145,6 +145,9 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
         isMenuButton: true,
         screenTitle: 'Payment Schedule',
         authorization: _routeAuthorizationModel,
+        onProjectChangeCallback: (value) {
+          _paymentScheduleCubit.clearSelectedScheme();
+        },
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -154,6 +157,9 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomMultipleSelectPopup(
+                  key: ValueKey(
+                    state.selectedScheme?.paymentScheduleSchemeMasterId ?? 0,
+                  ),
                   title: "Select Scheme",
                   isRequired: true,
                   isMultiSelect: false,
@@ -180,18 +186,14 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
                           value.first["paymentScheduleScheme"]
                               as PaymentScheduleSchemeModel;
 
-                      context.read<PaymentScheduleCubit>().selectScheme(
-                        schemeModel,
-                      );
+                      _paymentScheduleCubit.selectScheme(schemeModel);
 
-                      await context
-                          .read<PaymentScheduleCubit>()
-                          .getPaymentScheduleMasterList(
-                            context,
-                            1,
-                            paymentScheduleSchemeMasterId:
-                                schemeModel.paymentScheduleSchemeMasterId,
-                          );
+                      await _paymentScheduleCubit.getPaymentScheduleMasterList(
+                        context,
+                        1,
+                        paymentScheduleSchemeMasterId:
+                            schemeModel.paymentScheduleSchemeMasterId,
+                      );
                     }
                   },
                   onClear: () {

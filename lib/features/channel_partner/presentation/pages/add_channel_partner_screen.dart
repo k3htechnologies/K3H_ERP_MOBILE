@@ -87,7 +87,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     hasReraNumber = ValueNotifier(false);
     selectedCompany = ValueNotifier([]);
     selectedType = type[0];
-    if (widget.channelPartnerModel != null) {
+    if (_isEditMode) {
       _prefillChannelPartner(widget.channelPartnerModel!);
     }
   }
@@ -385,25 +385,31 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
             ? []
             : channelPartnerMasterModel.gstCertificateUrl.split(",");
 
-    selectedDistrict = {
-      "DisplayName": widget.channelPartnerModel!.districtName,
-      "zAttributesId": widget.channelPartnerModel!.districtMasterId,
-    };
+    if (widget.channelPartnerModel!.districtName.isNotEmpty) {
+      selectedDistrict = {
+        "DisplayName": widget.channelPartnerModel!.districtName,
+        "zAttributesId": widget.channelPartnerModel!.districtMasterId,
+      };
+    }
+    if (widget.channelPartnerModel!.cityName.isNotEmpty) {
+      selectedCity = {
+        "DisplayName": widget.channelPartnerModel!.cityName,
+        "zAttributesId": widget.channelPartnerModel!.cityMasterId,
+      };
+    }
+    if (widget.channelPartnerModel!.stateName.isNotEmpty) {
+      selectedState = {
+        "DisplayName": widget.channelPartnerModel!.stateName,
+        "zAttributesId": widget.channelPartnerModel!.stateMasterId,
+      };
+    }
 
-    selectedCity = {
-      "DisplayName": widget.channelPartnerModel!.cityName,
-      "zAttributesId": widget.channelPartnerModel!.cityMasterId,
-    };
-
-    selectedState = {
-      "DisplayName": widget.channelPartnerModel!.stateName,
-      "zAttributesId": widget.channelPartnerModel!.stateMasterId,
-    };
-
-    selectedVillage = {
-      "DisplayName": widget.channelPartnerModel!.villageName,
-      "zAttributesId": widget.channelPartnerModel!.villageMasterId,
-    };
+    if (widget.channelPartnerModel!.villageName.isNotEmpty) {
+      selectedVillage = {
+        "DisplayName": widget.channelPartnerModel!.villageName,
+        "zAttributesId": widget.channelPartnerModel!.villageMasterId,
+      };
+    }
   }
 
   void _verifyAndSubmitForm() {
@@ -820,7 +826,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         return ValueListenableBuilder(
                           valueListenable: hasReraNumber,
                           builder: (context, hasRera, _) {
-                            // ✅ AUTO CHECK IF RERA VALUE EXISTS
+                            // AUTO CHECK IF RERA VALUE EXISTS
                             if (_reraNumberC.text.trim().isNotEmpty &&
                                 !hasReraNumber.value) {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1059,13 +1065,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     verticalSpacing(),
                     AddressWidget(
                       formKey: _formKey,
-                      incomingStateId:
-                          widget.channelPartnerModel?.stateMasterId,
-                      incomingDistrictId:
-                          widget.channelPartnerModel?.districtMasterId,
-                      incomingCityId: widget.channelPartnerModel?.cityMasterId,
-                      incomingVillageId:
-                          widget.channelPartnerModel?.villageMasterId,
+                      incomingStateId: selectedState?['zAttributesId'],
+                      incomingDistrictId: selectedDistrict?['zAttributesId'],
+                      incomingCityId: selectedCity?['zAttributesId'],
+                      incomingVillageId: selectedVillage?['zAttributesId'],
                       stateChange: (selectedState) {
                         this.selectedState = selectedState;
                       },
