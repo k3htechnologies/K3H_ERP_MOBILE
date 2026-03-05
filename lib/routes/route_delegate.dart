@@ -290,7 +290,6 @@ import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/pages/sourcing_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/pages/sourcing_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/cubit/target_cubit.dart';
-import 'package:k3h_erp_app/features/sales/target/presentation/pages/add_target_screen.dart';
 import 'package:k3h_erp_app/features/sales/target/presentation/pages/target_screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
@@ -3739,13 +3738,6 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.salesTarget,
                   builder: (context, state) {
                     return const TargetScreen();
-                  },
-                ),
-                GoRoute(
-                  name: AppRoutes.addSalesTarget,
-                  path: AppRoutes.addSalesTarget,
-                  builder: (context, state) {
-                    return const AddTargetScreen();
                   },
                 ),
               ],

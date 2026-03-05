@@ -16,6 +16,13 @@ abstract interface class TargetRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> exportTarget({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class TargetRepositoryImpl extends TargetRepository {
@@ -57,6 +64,27 @@ class TargetRepositoryImpl extends TargetRepository {
         projectId: projectId,
         queryParams: queryParams,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> exportTarget({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await salesTargetDatasource
+          .apicallPullSaleTargetClosingExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            projectId: projectId,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

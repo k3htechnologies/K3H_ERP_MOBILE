@@ -33,16 +33,44 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     emit(state.copyWith(searchText: ""));
   }
 
+  // SEARCH
+  void search(BuildContext context, String searchText) {
+    emit(state.copyWith(searchText: searchText.trim()));
+    getEnquiryList(context, 1, getProject().projectId);
+  }
+
+  // NATIONALITY SELECTION FOR RADIO BUTTONS
+  void onSelectedOptionChanged(String value) {
+    emit(state.copyWith(selectedNationality: value));
+  }
+
+  // <---- CLEAR CHANNEL PARTNER MODEL ---->
+  void clearChannelPartner() {
+    emit(state.copyWith(clearChannelPartner: true, selectedNationality: null));
+  }
+
+  // <---- CLEAR ENQUIRY FOLLOWUP ---->
+  void clearEnquiryFollowUp() {
+    emit(state.copyWith(enquiryFollowUpList: [], isLoading: true));
+  }
+
+  void clearCurrentEnquiry() {
+    emit(
+      state.copyWith(
+        currentEnquiryDetails: null,
+        isFetchingEnquiryDetails: true,
+      ),
+    );
+  }
+
   // <---- GET ENQUIRY LIST ---->
   Future getEnquiryList(
     BuildContext context,
     int pageNumber,
     int projectId,
   ) async {
-    print("Api Called--->");
     emit(state.copyWith(isLoading: true));
 
-    // Build queryParams only with non-null / non-empty values
     Map<String, dynamic> queryParams = {
       "Name": state.searchText.trim(),
       "SystemGeneratedCode": state.filterSystemCode,
@@ -136,25 +164,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
                   : 'Enquiry Added Successfully',
         );
       },
-    );
-  }
-
-  // <---- CLEAR CHANNEL PARTNER MODEL ---->
-  void clearChannelPartner() {
-    emit(state.copyWith(clearChannelPartner: true, selectedNationality: null));
-  }
-
-  // <---- CLEAR ENQUIRY FOLLOWUP ---->
-  void clearEnquiryFollowUp() {
-    emit(state.copyWith(enquiryFollowUpList: [], isLoading: true));
-  }
-
-  void clearCurrentEnquiry() {
-    emit(
-      state.copyWith(
-        currentEnquiryDetails: null,
-        isFetchingEnquiryDetails: true,
-      ),
     );
   }
 
@@ -257,17 +266,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
         };
       },
     );
-  }
-
-  // SEARCH
-  void search(BuildContext context, String searchText) {
-    emit(state.copyWith(searchText: searchText.trim()));
-    getEnquiryList(context, 1, getProject().projectId);
-  }
-
-  // NATIONALITY SELECTION FOR RADIO BUTTONS
-  void onSelectedOptionChanged(String value) {
-    emit(state.copyWith(selectedNationality: value));
   }
 
   // <---- EXPORT EXCEL PDF ---->

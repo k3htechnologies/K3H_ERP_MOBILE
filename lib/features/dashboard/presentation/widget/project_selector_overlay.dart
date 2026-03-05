@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 
 /// Slide-in overlay from right to left to pick a project.
 class ProjectSelectorOverlay extends StatefulWidget {
@@ -88,7 +89,7 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
           child: Align(
             alignment: Alignment.centerRight,
             child: GestureDetector(
-              onTap: () {}, // Prevent tap from closing when tapping inside
+              onTap: () {},
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.67,
                 constraints: BoxConstraints(
@@ -117,11 +118,7 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                           Expanded(
                             child: Text(
                               selectedProject?.projectName ?? '',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF2b2b2b),
-                              ),
+                              style:AppTextStyle.ts16SB(),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -192,11 +189,7 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                                       Expanded(
                                         child: Text(
                                           project.projectName,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                            color: Color(0xFF1f2937),
-                                          ),
+                                          style: AppTextStyle.ts16M(),
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),

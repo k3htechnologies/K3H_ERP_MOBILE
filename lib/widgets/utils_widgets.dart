@@ -25,6 +25,27 @@ Widget noDataWidget({String? message}) => Container(
   ),
 );
 
+
+// BULLET TEXT
+Widget bulletText(String text) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      Text(
+        "•",
+        style: AppTextStyle.ts16M(color: AppColor.black),
+      ),
+      SizedBox(width: 6),
+      Expanded(
+        child: Text(
+          text,
+          style: AppTextStyle.ts12M(color: AppColor.grey),
+        ),
+      ),
+    ],
+  );
+}
+
 Widget loader() {
   return Container(
     decoration: const BoxDecoration(color: Colors.transparent),

@@ -8,11 +8,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/sales/target/data/repository/target.repository.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/custom_file_preview_dialogue_content.dart';
 import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:open_filex/open_filex.dart';
@@ -582,4 +587,95 @@ String calculateAge(DateTime? dateOfBirth) {
   }
 
   return age.toString();
+}
+
+// <---- IMPORT SAMPLE FILE FOR WEB ---->
+Future<bool> sampleExcelImport(BuildContext context, String tableName) async {
+  final UtilsRepository utilsRepository = serviceLocator<UtilsRepository>();
+  try {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await utilsRepository.pullExcelSample(tableName: tableName);
+    goRouter.pop();
+    return result.fold(
+      (failure) {
+        showErrorMessage(context, "Import Error", failure.message);
+        return false;
+      },
+      (response) {
+        exportExcelOrPdfMobile(
+          response["data"],
+          "${tableName}_sample_${DateTime.now()}.xlsx",
+        );
+        showSuccessMessage(context, subTitle: "Excel downloaded successfully");
+        return true;
+      },
+    );
+  } catch (e) {
+    return false;
+  }
+}
+
+// <---- IMPORT FILE FOR WEB ---->
+Future<bool> importExcel(
+  BuildContext context,
+  Map<String, String> body,
+  List<Map<String, dynamic>> fileList,
+) async {
+  final UtilsRepository utilsRepository = serviceLocator<UtilsRepository>();
+  try {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await utilsRepository.excelImport(
+      body: body,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    return result.fold(
+      (failure) {
+        showErrorMessage(context, "Import Error", failure.message);
+        return false;
+      },
+      (response) {
+        showSuccessMessage(context, subTitle: "Excel imported successfully");
+        return true;
+      },
+    );
+  } catch (e) {
+    return false;
+  }
+}
+
+// <---- IMPORT SALES TARGET SAMPLE FILE FOR WEB ---->
+Future<bool> salesTargetSampleExcelImport(BuildContext context) async {
+  final TargetRepository targetRepository = serviceLocator<TargetRepository>();
+  final ProjectModel project = getProject();
+  try {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await targetRepository.exportTarget(
+      pageNumber: 1,
+      pageSize: 1000000,
+      projectId: project.projectId,
+      queryParams: {
+        "ExportType": "Excel",
+        "IsSampleDownload": "true",
+        "IsCheckPermission": "true",
+      },
+    );
+    goRouter.pop();
+    return result.fold(
+      (failure) {
+        showErrorMessage(context, "Import Error", failure.message);
+        return false;
+      },
+      (response) {
+        exportExcelOrPdfMobile(
+          response["data"],
+          "TARGET SAMPLE ${DateTime.now()}.xlsx",
+        );
+        showSuccessMessage(context, subTitle: "Excel downloaded successfully");
+        return true;
+      },
+    );
+  } catch (e) {
+    return false;
+  }
 }

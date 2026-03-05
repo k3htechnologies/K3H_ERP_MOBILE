@@ -98,7 +98,7 @@ class _TargetScreenState extends State<TargetScreen>
     _searchC = TextEditingController();
   }
 
-  // Same as Call Tracker: clear search, update state, call API once. Guard against double fire.
+  // HANDLE TAB CHANGE
   void _handleTabChange() {
     if (_tabController.indexIsChanging) return;
     if (_isHandlingTabChange) return;
@@ -134,7 +134,7 @@ class _TargetScreenState extends State<TargetScreen>
     _isHandlingTabChange = false;
   }
 
-  // PAGINATION - SOURCING TARGET (only when on this tab, same as Call Tracker)
+  // PAGINATION - SOURCING TARGET
   void _onSourcingTargetScroll() {
     if (_tabController.index != 0) return;
 
@@ -334,6 +334,15 @@ class _TargetScreenState extends State<TargetScreen>
         onFilterTap: () {
           _showBottomSheetToFilterSalesTarget(context);
         },
+        importTableName: "SALES TARGET CLOSING",
+        onImportResult: (success) {
+          if (success) {
+            _targetCubit.getSalesTargetSourcingList(
+              context: context,
+              projectId: getProject().projectId,
+            );
+          }
+        },
       ),
       body: Column(
         children: [
@@ -470,6 +479,7 @@ class _TargetScreenState extends State<TargetScreen>
     );
   }
 
+  // BUILD SALES TARGET SOURCING CARD
   Widget _buildSalesTargetSourcingCard({
     required int index,
     SalesTargetSourcingModel? saleTargetSourcingModel,
@@ -530,6 +540,7 @@ class _TargetScreenState extends State<TargetScreen>
     );
   }
 
+  // BUILD SALES TARGET CLOSING CARD
   Widget _buildSalesTargetClosingCard({
     required int index,
     SaleTargetClosingModel? saleTargetClosingModel,
@@ -581,6 +592,7 @@ class _TargetScreenState extends State<TargetScreen>
     );
   }
 
+  // BUILD LEAVE ROW
   Widget _leaveRow({required String title, required String value}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),

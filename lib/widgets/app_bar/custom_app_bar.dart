@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,6 +16,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
@@ -39,6 +41,11 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool isFilterOn;
   final VoidCallback? onFilterTap;
 
+  final String? importTableName;
+  final int? projectId;
+  final int? buildingId;
+  final Function(bool)? onImportResult;
+
   const CustomAppBar({
     super.key,
     required this.screenTitle,
@@ -58,6 +65,11 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.onProjectChangeCallback,
     this.isFilterOn = false,
     this.onFilterTap,
+
+    this.importTableName,
+    this.projectId,
+    this.buildingId,
+    this.onImportResult,
   });
 
   static const double _baseHeight = 90;
@@ -390,6 +402,15 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                           ),
                           backgroundColor: AppColor.lightBlue,
                         ),
+                      if (widget.authorization.isExport &&
+                          widget.importTableName != null)
+                        importButton(
+                          context,
+                          widget.importTableName!,
+                          widget.onImportResult ?? (success) {},
+                          projectId: widget.projectId,
+                          buildingId: widget.buildingId,
+                        ),
                     ],
                   ),
                 ],
@@ -397,6 +418,68 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget importButton(
+    BuildContext context,
+    String importTableName,
+    Function(bool) onImportCallback, {
+    int? projectId,
+    int? buildingId,
+  }) {
+    Future<bool> importFile() async {
+      final dialogResult = await DialogHelper.showDeleteAllConfirmationDialog(
+        context: context,
+      );
+
+      if (dialogResult == null || !context.mounted) {
+        return false;
+      }
+
+      final bool deleteAll = dialogResult["deleteAll"];
+      final Uint8List fileBytes = dialogResult["fileBytes"];
+      final String fileName = dialogResult["fileName"];
+
+      var result = await importExcel(
+        context,
+        {
+          "TableName": importTableName,
+          "IsAllDelete": deleteAll ? "1" : "0",
+          "ProjectId": projectId?.toString() ?? "0",
+          "BuildingId": buildingId?.toString() ?? "0",
+        },
+        [
+          {"key": "ExcelFile", "value": fileBytes, "fileName": fileName},
+        ],
+      );
+
+      return result;
+    }
+
+    return CustomIconButton(
+      onPressed: () async {
+        final result = await DialogHelper.showUploadExcelDialog(context);
+        if (result != null) {
+          if (result == true) {
+            var resultValue = await importFile();
+            onImportCallback(resultValue);
+          } else if (result == false) {
+            if (context.mounted) {
+              if (importTableName == "SALES TARGET CLOSING") {
+                salesTargetSampleExcelImport(context);
+              } else {
+                sampleExcelImport(context, importTableName);
+              }
+            }
+          }
+        }
+      },
+      icon: Icon(
+        Icons.file_upload_outlined,
+        size: 16.0,
+        color: AppColor.primary,
       ),
     );
   }

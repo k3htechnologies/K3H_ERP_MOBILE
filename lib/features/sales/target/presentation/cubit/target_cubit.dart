@@ -15,6 +15,114 @@ class TargetCubit extends Cubit<TargetState> {
   final TargetRepository _salesTargetRepository =
       serviceLocator<TargetRepository>();
 
+  // <---- SEARCH SALES TARGET ---->
+  Future<void> searchSalesTarget(
+    BuildContext context,
+    int projectId,
+    int tabIndex,
+    String value,
+  ) async {
+    emit(
+      state.copyWith(
+        searchText: value.trim(),
+        salesTargetClosing: [],
+        salesTargetSourcing: [],
+        currentPage: 1,
+      ),
+    );
+
+    if (tabIndex == 0) {
+      await getSalesTargetSourcingList(
+        context: context,
+        projectId: projectId,
+        pageNumber: 1,
+      );
+    } else {
+      await getSalesTargetClosingList(
+        context: context,
+        projectId: projectId,
+        pageNumber: 1,
+      );
+    }
+  }
+
+  // <---- CLEAR FILTER ON SALES TARGET ---->
+  void clearFilterOnSalesTarget(
+    BuildContext context,
+    int projectId,
+    int tabIndex,
+  ) {
+    emit(
+      state.copyWith(
+        clearFilters: true,
+        salesTargetClosing: [],
+        salesTargetSourcing: [],
+        filterStartDate: null,
+        filterEndDate: null,
+      ),
+    );
+    if (tabIndex == 0) {
+      getSalesTargetSourcingList(
+        context: context,
+        pageNumber: 1,
+        projectId: projectId,
+      );
+    } else {
+      getSalesTargetClosingList(
+        context: context,
+        pageNumber: 1,
+        projectId: projectId,
+      );
+    }
+  }
+
+  // <---- APPLY FILTER ON SALES TARGET ---->
+  void applyFilterOnSalesTarget({
+    required BuildContext context,
+    DateTime? startDate,
+    DateTime? endDate,
+    required int projectId,
+    required int tabIndex,
+  }) {
+    emit(
+      state.copyWith(
+        filterStartDate: startDate,
+        filterEndDate: endDate,
+        salesTargetClosing: [],
+        salesTargetSourcing: [],
+      ),
+    );
+    if (tabIndex == 0) {
+      getSalesTargetSourcingList(
+        context: context,
+        pageNumber: 1,
+        projectId: projectId,
+      );
+    } else {
+      getSalesTargetClosingList(
+        context: context,
+        pageNumber: 1,
+        projectId: projectId,
+      );
+    }
+  }
+
+  // ON TAB CHANGE
+  void onTabChanged(int index, BuildContext context) {
+    emit(
+      state.copyWith(
+        isLoading: true,
+        filterStartDate: null,
+        filterEndDate: null,
+        salesTargetClosing: [],
+        salesTargetSourcing: [],
+        closingTotalNumberOfRecordSalesTarget: 1,
+        sourcingTotalNumberOfRecordSalesTarget: 1,
+        currentPage: 1,
+      ),
+    );
+  }
+
   // <---- GET SOURCING TARGET LIST ---->
   Future getSalesTargetSourcingList({
     required BuildContext context,
@@ -139,114 +247,6 @@ class TargetCubit extends Cubit<TargetState> {
           ),
         );
       },
-    );
-  }
-
-  // <---- SEARCH SALES TARGET ---->
-  Future<void> searchSalesTarget(
-    BuildContext context,
-    int projectId,
-    int tabIndex,
-    String value,
-  ) async {
-    emit(
-      state.copyWith(
-        searchText: value.trim(),
-        salesTargetClosing: [],
-        salesTargetSourcing: [],
-        currentPage: 1,
-      ),
-    );
-
-    if (tabIndex == 0) {
-      await getSalesTargetSourcingList(
-        context: context,
-        projectId: projectId,
-        pageNumber: 1,
-      );
-    } else {
-      await getSalesTargetClosingList(
-        context: context,
-        projectId: projectId,
-        pageNumber: 1,
-      );
-    }
-  }
-
-  // <---- CLEAR FILTER ON SALES TARGET ---->
-  void clearFilterOnSalesTarget(
-    BuildContext context,
-    int projectId,
-    int tabIndex,
-  ) {
-    emit(
-      state.copyWith(
-        clearFilters: true,
-        salesTargetClosing: [],
-        salesTargetSourcing: [],
-        filterStartDate: null,
-        filterEndDate: null,
-      ),
-    );
-    if (tabIndex == 0) {
-      getSalesTargetSourcingList(
-        context: context,
-        pageNumber: 1,
-        projectId: projectId,
-      );
-    } else {
-      getSalesTargetClosingList(
-        context: context,
-        pageNumber: 1,
-        projectId: projectId,
-      );
-    }
-  }
-
-  // <---- APPLY FILTER ON SALES TARGET ---->
-  void applyFilterOnSalesTarget({
-    required BuildContext context,
-    DateTime? startDate,
-    DateTime? endDate,
-    required int projectId,
-    required int tabIndex,
-  }) {
-    emit(
-      state.copyWith(
-        filterStartDate: startDate,
-        filterEndDate: endDate,
-        salesTargetClosing: [],
-        salesTargetSourcing: [],
-      ),
-    );
-    if (tabIndex == 0) {
-      getSalesTargetSourcingList(
-        context: context,
-        pageNumber: 1,
-        projectId: projectId,
-      );
-    } else {
-      getSalesTargetClosingList(
-        context: context,
-        pageNumber: 1,
-        projectId: projectId,
-      );
-    }
-  }
-
-  // Same as Call Tracker: only update state; screen calls the API on tab change.
-  void onTabChanged(int index, BuildContext context) {
-    emit(
-      state.copyWith(
-        isLoading: true,
-        filterStartDate: null,
-        filterEndDate: null,
-        salesTargetClosing: [],
-        salesTargetSourcing: [],
-        closingTotalNumberOfRecordSalesTarget: 1,
-        sourcingTotalNumberOfRecordSalesTarget: 1,
-        currentPage: 1,
-      ),
     );
   }
 }
