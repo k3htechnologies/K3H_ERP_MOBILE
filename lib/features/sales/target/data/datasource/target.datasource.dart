@@ -1,28 +1,19 @@
-import 'package:k3h_erp_app/features/sales/target/data/model/target.model.dart';
+import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_closing.model.dart';
+import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_sourcing.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
 abstract interface class TargetDatasource {
-  Future<Map<String, dynamic>> apicallPullTarget({
+  Future<Map<String, dynamic>> apicallPullSaleTargetClosing({
     required int pageNumber,
     required int pageSize,
     required int projectId,
-    required DateTime targetMonth,
     Map<String, dynamic>? queryParams,
   });
-
-  Future<Map<String, dynamic>> apicallAddUpdateTarget({
-    required Map<String, dynamic> body,
-  });
-
-  Future<Map<String, dynamic>> apicallDeleteTarget({
-    required int saleTargetId,
-    required String uniqueKey,
-    required int projectId,
-  });
-  Future<Map<String, dynamic>> apicallPullSalesTargetMasterForExport({
+  Future<Map<String, dynamic>> apicallPullSaleTargetSourcing({
     required int pageNumber,
     required int pageSize,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -31,110 +22,36 @@ class TargetDatasourceImpl extends TargetDatasource {
   final BaseClient baseClient = BaseClient();
 
   @override
-  Future<Map<String, dynamic>> apicallPullTarget({
+  Future<Map<String, dynamic>> apicallPullSaleTargetClosing({
     required int pageNumber,
     required int pageSize,
     required int projectId,
-    required DateTime targetMonth,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullTargetUrl({
-      required int pageSize,
-      required int pageNumber,
-      required int projectId,
-      required String targetMonth,
-      Map<String, dynamic>? queryParams,
-    }) {
+    String pullSaleTargetClosingUrl({Map<String, dynamic>? queryParams}) {
       String url =
-          "SaleTarget/PullSaleTarget?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&TargetMonth=$targetMonth";
+          "SaleTarget/PullSaleTargetClosing?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullTargetUrl(
-          pageSize: pageSize,
-          pageNumber: pageNumber,
-          projectId: projectId,
-          targetMonth: targetMonth.toIso8601String(),
-          queryParams: queryParams,
-        ),
+        pullSaleTargetClosingUrl(queryParams: queryParams),
       );
       return {
-        'data': List<TargetModel>.from(
-          networkResponse["data"].map((e) => TargetModel.fromJson(e)),
+        'data': List<SaleTargetClosingModel>.from(
+          networkResponse["data"].map(
+            (e) => SaleTargetClosingModel.fromJson(e),
+          ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallPullTarget(
+        apicallPullSaleTargetClosing(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          projectId: projectId,
-          targetMonth: targetMonth,
-          queryParams: queryParams,
-        );
-      }
-      rethrow;
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> apicallAddUpdateTarget({
-    required Map<String, dynamic> body,
-  }) async {
-    String addUpdateSaleTargetUrl = "SaleTarget/AddUpdateSaleTarget";
-
-    try {
-      var networkResponse = await baseClient.postRequestWithAuthentication(
-        addUpdateSaleTargetUrl,
-        body,
-      );
-      return {
-        'data': networkResponse["data"],
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
-      };
-    } catch (error) {
-      if (error is TokenExpiredException) {
-        apicallAddUpdateTarget(body: body);
-      }
-      rethrow;
-    }
-  }
-
-  @override
-  Future<Map<String, dynamic>> apicallDeleteTarget({
-    required int saleTargetId,
-    required String uniqueKey,
-    required int projectId,
-  }) async {
-    String deleteTargetUrl({
-      required int projectId,
-      required int saleTargetId,
-      required String uniqueKey,
-    }) {
-      return "SaleTarget/DeleteSaleTarget?SaleTargetId=$saleTargetId&Uniquekey=$uniqueKey&ProjectId=$projectId";
-    }
-
-    try {
-      var networkResponse = await baseClient.deleteRequestWithAuthentication(
-        deleteTargetUrl(
-          projectId: projectId,
-          saleTargetId: saleTargetId,
-          uniqueKey: uniqueKey,
-        ),
-      );
-      return {
-        'data': networkResponse["data"],
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
-      };
-    } catch (error) {
-      if (error is TokenExpiredException) {
-        apicallDeleteTarget(
-          saleTargetId: saleTargetId,
-          uniqueKey: uniqueKey,
           projectId: projectId,
         );
       }
@@ -143,40 +60,37 @@ class TargetDatasourceImpl extends TargetDatasource {
   }
 
   @override
-  Future<Map<String, dynamic>> apicallPullSalesTargetMasterForExport({
+  Future<Map<String, dynamic>> apicallPullSaleTargetSourcing({
     required int pageNumber,
     required int pageSize,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullSalesTargetExportUrl({
-      required int pageSize,
-      required int pageNumber,
-      Map<String, dynamic>? queryParams,
-    }) {
+    String pullSaleTargetSourcingUrl({Map<String, dynamic>? queryParams}) {
       String url =
-          "SaleTarget/PullSaleTarget?PageSize=$pageSize&PageNumber=$pageNumber";
+          "SaleTarget/PullSaleTargetSourcing?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullSalesTargetExportUrl(
-          pageSize: pageSize,
-          pageNumber: pageNumber,
-          queryParams: queryParams,
-        ),
+        pullSaleTargetSourcingUrl(queryParams: queryParams),
       );
       return {
-        'data': networkResponse["data"],
+        'data': List<SalesTargetSourcingModel>.from(
+          networkResponse["data"].map(
+            (e) => SalesTargetSourcingModel.fromJson(e),
+          ),
+        ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallPullSalesTargetMasterForExport(
+        apicallPullSaleTargetSourcing(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          queryParams: queryParams,
+          projectId: projectId,
         );
       }
       rethrow;

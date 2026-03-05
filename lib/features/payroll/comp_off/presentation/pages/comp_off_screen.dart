@@ -263,7 +263,7 @@ class _CompOffScreenState extends State<CompOffScreen> {
       return Center(child: loader());
     }
     if (state.compOffList.isEmpty) {
-      return Center(child: noDataWidget());
+      return Center(child: noDataWidget(message: "No Comp Off Found"));
     }
     return ListView.builder(
       controller: scrollController,

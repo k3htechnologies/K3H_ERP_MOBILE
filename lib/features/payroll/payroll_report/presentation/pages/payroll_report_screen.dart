@@ -673,7 +673,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         }
 
         if (state.attendanceList.isEmpty) {
-          return Center(child: noDataWidget());
+          return Center(child: noDataWidget(message: "No Attendance Found"));
         }
 
         final Map<String, List<AttendanceModel>> groupedData = {};

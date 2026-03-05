@@ -1,13 +1,12 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/sales/target/data/model/target.model.dart';
+import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_closing.model.dart';
+import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/target/data/repository/target.repository.dart';
-import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/dialog_helper.dart';
-
 part 'target_state.dart';
 
 class TargetCubit extends Cubit<TargetState> {
@@ -16,38 +15,36 @@ class TargetCubit extends Cubit<TargetState> {
   final TargetRepository _salesTargetRepository =
       serviceLocator<TargetRepository>();
 
-  // <---- SEARCH SALES TARGET ---->
-  Future<void> searchSalesTarget(
-    BuildContext context,
-    int projectId,
-    String value,
-  ) async {
-    emit(state.copyWith(searchText: value, salesTargets: []));
-    await getSalesTargetList(
-      context: context,
-      projectId: projectId,
-      pageNumber: 1,
-    );
-  }
-
-  // <---- GET TARGET LIST ---->
-  Future getSalesTargetList({
+  // <---- GET SOURCING TARGET LIST ---->
+  Future getSalesTargetSourcingList({
     required BuildContext context,
     required int projectId,
     int pageNumber = 1,
     Map<String, dynamic>? queryParams,
   }) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> searchQueryParams = {
-      "EmployeeName": state.searchText,
-      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
-      ...?queryParams,
-    };
-    var result = await _salesTargetRepository.getSalesTargets(
+    Map<String, dynamic> searchQueryParams = queryParams ?? {};
+
+    if (searchQueryParams.isEmpty) {
+      if (state.filterStartDate != null) {
+        searchQueryParams["FromDate"] = DateFormat(
+          'yyyy-MM-dd',
+        ).format(state.filterStartDate!);
+      }
+
+      if (state.filterEndDate != null) {
+        searchQueryParams["ToDate"] = DateFormat(
+          'yyyy-MM-dd',
+        ).format(state.filterEndDate!);
+      }
+      if (state.searchText.trim().isNotEmpty) {
+        searchQueryParams["EmployeeName"] = state.searchText.trim();
+      }
+    }
+    var result = await _salesTargetRepository.getSalesTargetSourcing(
       pageNumber: pageNumber,
       pageSize: 10,
       projectId: projectId,
-      targetMonth: state.currentTargetMonth,
       queryParams: searchQueryParams,
     );
 
@@ -57,18 +54,23 @@ class TargetCubit extends Cubit<TargetState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        final List<TargetModel> newData = List<TargetModel>.from(
-          response['data'] ?? [],
-        );
+        final List<SalesTargetSourcingModel> newData =
+            List<SalesTargetSourcingModel>.from(response['data'] ?? []);
 
-        final List<TargetModel> updatedList =
-            pageNumber == 1 ? newData : [...state.salesTargets, ...newData];
+        final List<SalesTargetSourcingModel> updatedList =
+            pageNumber == 1
+                ? newData
+                : [...state.salesTargetSourcing, ...newData];
 
         emit(
           state.copyWith(
-            salesTargets: updatedList,
             isLoading: false,
-            totalNumberOfRecords: response["totalNumberOfRecord"],
+            salesTargetSourcing: updatedList,
+            sourcingTotalNumberOfRecordSalesTarget:
+                response['totalNumberOfRecord'] == 0 &&
+                        state.sourcingTotalNumberOfRecordSalesTarget != 1
+                    ? state.sourcingTotalNumberOfRecordSalesTarget - 1
+                    : response['totalNumberOfRecord'],
             currentPage: pageNumber,
           ),
         );
@@ -76,30 +78,175 @@ class TargetCubit extends Cubit<TargetState> {
     );
   }
 
-  // <---- EXPORT EXCEL PDF ---->
-  Future exportExcelPdf(BuildContext context, String exportType) async {
-    DialogHelper.showProcessingOverlay(context);
-    var result = await _salesTargetRepository.exportSalesTarget(
-      pageNumber: 1,
-      pageSize: state.totalNumberOfRecords,
-      queryParams:
-          state.searchText != ""
-              ? {"EmployeeName": state.searchText, "ExportType": exportType}
-              : {"ExportType": exportType},
+  // <---- GET CLOSING TARGET LIST ---->
+  Future getSalesTargetClosingList({
+    required BuildContext context,
+    required int projectId,
+    int pageNumber = 1,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    Map<String, dynamic> searchQueryParams = queryParams ?? {};
+
+    if (searchQueryParams.isEmpty) {
+      if (state.filterStartDate != null) {
+        searchQueryParams["FromDate"] = DateFormat(
+          'yyyy-MM-dd',
+        ).format(state.filterStartDate!);
+      }
+
+      if (state.filterEndDate != null) {
+        searchQueryParams["ToDate"] = DateFormat(
+          'yyyy-MM-dd',
+        ).format(state.filterEndDate!);
+      }
+
+      if (state.searchText.trim().isNotEmpty) {
+        searchQueryParams["EmployeeName"] = state.searchText.trim();
+      }
+    }
+    var result = await _salesTargetRepository.getSalesTargetClosing(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      projectId: projectId,
+      queryParams: searchQueryParams,
     );
-    goRouter.pop();
+
     result.fold(
       (failure) {
+        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        exportExcelOrPdfMobile(
-          response["data"],
-          exportType.toLowerCase() == "pdf"
-              ? "sales_target_${DateTime.now()}.pdf"
-              : "sales_target_${DateTime.now()}.xlsx",
+        final List<SaleTargetClosingModel> newData =
+            List<SaleTargetClosingModel>.from(response['data'] ?? []);
+
+        final List<SaleTargetClosingModel> updatedList =
+            pageNumber == 1
+                ? newData
+                : [...state.salesTargetClosing, ...newData];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            salesTargetClosing: updatedList,
+            closingTotalNumberOfRecordSalesTarget:
+                response['totalNumberOfRecord'] == 0 &&
+                        state.closingTotalNumberOfRecordSalesTarget != 1
+                    ? state.closingTotalNumberOfRecordSalesTarget - 1
+                    : response['totalNumberOfRecord'],
+            currentPage: pageNumber,
+          ),
         );
       },
+    );
+  }
+
+  // <---- SEARCH SALES TARGET ---->
+  Future<void> searchSalesTarget(
+    BuildContext context,
+    int projectId,
+    int tabIndex,
+    String value,
+  ) async {
+    emit(
+      state.copyWith(
+        searchText: value.trim(),
+        salesTargetClosing: [],
+        salesTargetSourcing: [],
+        currentPage: 1,
+      ),
+    );
+
+    if (tabIndex == 0) {
+      await getSalesTargetSourcingList(
+        context: context,
+        projectId: projectId,
+        pageNumber: 1,
+      );
+    } else {
+      await getSalesTargetClosingList(
+        context: context,
+        projectId: projectId,
+        pageNumber: 1,
+      );
+    }
+  }
+
+  // <---- CLEAR FILTER ON SALES TARGET ---->
+  void clearFilterOnSalesTarget(
+    BuildContext context,
+    int projectId,
+    int tabIndex,
+  ) {
+    emit(
+      state.copyWith(
+        clearFilters: true,
+        salesTargetClosing: [],
+        salesTargetSourcing: [],
+        filterStartDate: null,
+        filterEndDate: null,
+      ),
+    );
+    if (tabIndex == 0) {
+      getSalesTargetSourcingList(
+        context: context,
+        pageNumber: 1,
+        projectId: projectId,
+      );
+    } else {
+      getSalesTargetClosingList(
+        context: context,
+        pageNumber: 1,
+        projectId: projectId,
+      );
+    }
+  }
+
+  // <---- APPLY FILTER ON SALES TARGET ---->
+  void applyFilterOnSalesTarget({
+    required BuildContext context,
+    DateTime? startDate,
+    DateTime? endDate,
+    required int projectId,
+    required int tabIndex,
+  }) {
+    emit(
+      state.copyWith(
+        filterStartDate: startDate,
+        filterEndDate: endDate,
+        salesTargetClosing: [],
+        salesTargetSourcing: [],
+      ),
+    );
+    if (tabIndex == 0) {
+      getSalesTargetSourcingList(
+        context: context,
+        pageNumber: 1,
+        projectId: projectId,
+      );
+    } else {
+      getSalesTargetClosingList(
+        context: context,
+        pageNumber: 1,
+        projectId: projectId,
+      );
+    }
+  }
+
+  // Same as Call Tracker: only update state; screen calls the API on tab change.
+  void onTabChanged(int index, BuildContext context) {
+    emit(
+      state.copyWith(
+        isLoading: true,
+        filterStartDate: null,
+        filterEndDate: null,
+        salesTargetClosing: [],
+        salesTargetSourcing: [],
+        closingTotalNumberOfRecordSalesTarget: 1,
+        sourcingTotalNumberOfRecordSalesTarget: 1,
+        currentPage: 1,
+      ),
     );
   }
 }

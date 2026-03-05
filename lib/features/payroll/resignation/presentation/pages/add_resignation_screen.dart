@@ -252,7 +252,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
                           keyboardType: TextInputType.number,
                         ),
                         CustomMultiFilePicker(
-                          title: "Upload Offer Letter",
+                          title: "Offer Letter",
                           filePickType: FilePickType.kycDocument,
                           isRequired: value,
                           readOnly: !value,

@@ -131,7 +131,6 @@ class SourcingCubit extends Cubit<SourcingState> {
     required int projectId,
     required String remark,
     required String support,
-    required String otp,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
@@ -141,7 +140,6 @@ class SourcingCubit extends Cubit<SourcingState> {
       "Support": support,
       "ProjectId": projectId,
       "SourcingRemark": remark,
-      "OTP": otp,
       "SourcingLatitude": 0,
       "SourcingLongitude": 0,
       "SourcingLocation": "string",
@@ -173,7 +171,6 @@ class SourcingCubit extends Cubit<SourcingState> {
     required int projectId,
     required String remark,
     required String support,
-    required String otp,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
@@ -184,7 +181,6 @@ class SourcingCubit extends Cubit<SourcingState> {
       "Support": support,
       "ProjectId": projectId,
       "SourcingRemark": remark,
-      "OTP": otp,
       "SourcingLatitude": 0,
       "SourcingLongitude": 0,
       "SourcingLocation": "string",
