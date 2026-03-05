@@ -109,7 +109,7 @@ class _ResignationScreenState extends State<ResignationScreen> {
             return Center(child: loader());
           }
           if (state.resignationList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(child: noDataWidget(message: "No Data Found"));
           }
           return ListView.builder(
             controller: scrollController,

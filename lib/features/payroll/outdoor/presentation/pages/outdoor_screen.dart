@@ -272,7 +272,9 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
             return Center(child: loader());
           }
           if (state.outdoorList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(
+              child: noDataWidget(message: "No Outdoor Records Found"),
+            );
           }
           return ListView.builder(
             controller: scrollController,

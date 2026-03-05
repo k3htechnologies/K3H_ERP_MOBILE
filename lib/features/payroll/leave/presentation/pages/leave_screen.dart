@@ -416,7 +416,7 @@ class _LeaveScreenState extends State<LeaveScreen>
               Expanded(
                 child:
                     state.leaveList.isEmpty
-                        ? Center(child: noDataWidget())
+                        ? Center(child: noDataWidget(message: "No Leave Found"))
                         : ListView.builder(
                           controller: scrollController,
                           padding: EdgeInsets.symmetric(

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
-import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/data/model/sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -16,12 +15,9 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/custom_verification_dialog.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-
-import '../../../../../routes/route_delegate.dart' show goRouter;
 
 class SourcingViewScreen extends StatefulWidget {
   final ChannelPartnerModel channelPartner;
@@ -44,10 +40,9 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
 
   // CUBIT
   late SourcingCubit _sourcingCubit;
-  late LoginCubit _loginCubit;
 
   // TEXT CONTROLLER
-  late TextEditingController _remarkC,otpController;
+  late TextEditingController _remarkC;
 
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
@@ -67,9 +62,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
   void initState() {
     super.initState();
     _sourcingCubit = context.read<SourcingCubit>();
-    _loginCubit = context.read<LoginCubit>();
     _remarkC = TextEditingController();
-    otpController = TextEditingController();
     selectedSupport = supportList.first;
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
@@ -80,7 +73,6 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     super.dispose();
     _tabController.dispose();
     _remarkC.dispose();
-    otpController.dispose();
     _sourcingCubit.clearSourcingList();
   }
 
@@ -213,7 +205,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                         text: "Update",
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            _submitForm(isIBM,obj);
+                            _submitForm(isIBM, obj);
                           }
                         },
                       ),
@@ -234,11 +226,12 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
   Future<void> _showBottomSheetToAddRemark(BuildContext context) async {
     final currentFilter = _sourcingCubit.state.selectedFilter;
 
-    bool isIBM = currentFilter == "IBM"
-        ? true
-        : currentFilter == "OBM"
-        ? false
-        : true;
+    bool isIBM =
+        currentFilter == "IBM"
+            ? true
+            : currentFilter == "OBM"
+            ? false
+            : true;
 
     await DialogHelper.showCustomBottomSheet(
       context,
@@ -316,7 +309,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                         text: "Save",
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            _submitForm(isIBM,null);
+                            _submitForm(isIBM, null);
                           }
                         },
                       ),
@@ -332,68 +325,35 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     _clearBottomSheet();
   }
 
-  // OTP LOGIC
   void _submitForm(bool isIBM, SourcingModel? obj) {
-
     if (!_formKey.currentState!.validate()) return;
 
-
-    // VERIFY OTP ONLY IN FIRST ONBOARDING STAGE
-    if (obj==null) {
-      //  SEND OTP FIRST
-      _loginCubit.sendOTPModuleBased(
+    if (obj == null) {
+      _sourcingCubit.addRemark(
         context: context,
-        mobileNumber: widget.channelPartner.mobileNumber,
-        module: "CHANNEL PARTNER SOURCING",
-      );
-
-      //  THEN SHOW VERIFICATION DIALOG
-      showCompleteVerificationDialog(
-        context,
-        otpController: otpController,
-        verificationSteps: {
-        },
-        onResendOTP: () {
-          _loginCubit.sendOTPModuleBased(
-            context: context,
-            mobileNumber: widget.channelPartner.mobileNumber,
-            module: "CHANNEL PARTNER SOURCING",
-          );
-        },
-        onVerifyOTP: () {
-          _sourcingCubit.addRemark(
-            context: context,
-            channelPartnerId:
-            widget.channelPartner.channelPartnerId,
-            type: isIBM ? "IBM" : "OBM",
-            projectId: widget.projectId,
-            remark: _remarkC.text,
-            support:
+        channelPartnerId: widget.channelPartner.channelPartnerId,
+        type: isIBM ? "IBM" : "OBM",
+        projectId: widget.projectId,
+        remark: _remarkC.text,
+        support:
             selectedSupport["zAttributesId"] == -1
                 ? ""
                 : selectedSupport["DisplayName"],
-            otp: otpController.text
-          );
-          goRouter.pop();
-        },
       );
     } else {
       _sourcingCubit.updateRemark(
-          context: context,
-          channelPartnerSourcingId:
-          obj.channelPartnerSourcingId ?? 0,
-          uniqueKey: obj.uniquekey!,
-          channelPartnerId:
-          obj.channelPartnerId ??
-              widget.channelPartner.channelPartnerId,
-          type: isIBM ? "IBM" : "OBM",
-          projectId: widget.projectId,
-          remark: _remarkC.text,
-          support:
-          selectedSupport["zAttributesId"] == -1
-              ? ""
-              : selectedSupport["DisplayName"],
-          otp: otpController.text
+        context: context,
+        channelPartnerSourcingId: obj.channelPartnerSourcingId ?? 0,
+        uniqueKey: obj.uniquekey!,
+        channelPartnerId:
+            obj.channelPartnerId ?? widget.channelPartner.channelPartnerId,
+        type: isIBM ? "IBM" : "OBM",
+        projectId: widget.projectId,
+        remark: _remarkC.text,
+        support:
+            selectedSupport["zAttributesId"] == -1
+                ? ""
+                : selectedSupport["DisplayName"],
       );
     }
   }
@@ -678,11 +638,12 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
   Widget _buildRemarkAndActivityTab() {
     return BlocBuilder<SourcingCubit, SourcingState>(
       builder: (context, state) {
-        final data = state.selectedFilter == "ALL"
-            ? state.sourcingList
-            : state.sourcingList
-            .where((e) => e.ibmObm == state.selectedFilter)
-            .toList();
+        final data =
+            state.selectedFilter == "ALL"
+                ? state.sourcingList
+                : state.sourcingList
+                    .where((e) => e.ibmObm == state.selectedFilter)
+                    .toList();
 
         final displayList = [...data]..sort(
           (a, b) => (b.createdDate ?? DateTime(0)).compareTo(
@@ -818,7 +779,11 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                         verticalSpacing(),
 
                                         Visibility(
-                                          visible: index == 0 && _isWithinLastThreeDays(item.createdDate),
+                                          visible:
+                                              index == 0 &&
+                                              _isWithinLastThreeDays(
+                                                item.createdDate,
+                                              ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
@@ -871,10 +836,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
           borderRadius: BorderRadius.circular(4),
           border: Border.all(color: AppColor.primary, width: .5),
         ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 6,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         child: Text(
           value,
           style: AppTextStyle.ts12M(
@@ -884,5 +846,4 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
       ),
     );
   }
-
 }
