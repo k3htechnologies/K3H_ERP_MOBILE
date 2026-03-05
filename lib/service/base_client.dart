@@ -286,7 +286,6 @@ import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import 'exceptions.dart';
-import 'package:dio/io.dart';
 
 class BaseClient {
   static final String baseUrl = ENV.baseUrl;

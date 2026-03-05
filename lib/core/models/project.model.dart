@@ -26,7 +26,7 @@ class ProjectModel {
   String cityName;
   String zipCode;
   String projectScope;
-  int projectEstimateCost;
+  double projectEstimateCost;
   String projectAreaInSqft;
   String onGoingBudgetCost;
   DateTime? surveyDate;
@@ -127,7 +127,7 @@ class ProjectModel {
     cityName: parseValue<String>(json, "CityName"),
     zipCode: parseValue<String>(json, "ZipCode"),
     projectScope: parseValue<String>(json, "ProjectScope"),
-    projectEstimateCost: parseValue<int>(json, "ProjectEstimateCost"),
+    projectEstimateCost: parseValue<double>(json, "ProjectEstimateCost"),
     projectAreaInSqft: parseValue<String>(json, "ProjectAreaInSqft"),
     onGoingBudgetCost: parseValue<String>(json, "OnGoingBudgetCost"),
     surveyDate:

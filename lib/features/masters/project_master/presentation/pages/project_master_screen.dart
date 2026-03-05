@@ -182,7 +182,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
           }
         },
         onExportCallback: (value) {
-          if(_projectMasterCubit.state.totalNumberOfRecord==0){
+          if (_projectMasterCubit.state.totalNumberOfRecord == 0) {
             showErrorMessage(context, "Error", "No Data Found");
             return;
           }
@@ -245,27 +245,30 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                               project.projectName,
                               style: AppTextStyle.ts16M(
                                 color: AppColor.primary,
-                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
+                              ),
                             ),
                           ),
                         ),
-                       if(_routeAuthorizationModel.isAction)...[
-                         CustomIconButton.edit(
-                           onPressed: () async {
-                             await goRouter.pushNamed(
-                               AppRoutes.addProjectMaster,
-                               queryParameters: {
-                                 "project": Uri.encodeQueryComponent(
-                                   EncryptionManager.encryptData(
-                                     jsonEncode(project),
-                                   ),
-                                 ),
-                                 'index': index.toString(),
-                               },
-                             );
-                           },
-                         ),
-                       ]
+                        if (_routeAuthorizationModel.isAction) ...[
+                          CustomIconButton.edit(
+                            onPressed: () async {
+                              await goRouter.pushNamed(
+                                AppRoutes.addProjectMaster,
+                                queryParameters: {
+                                  "project": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(project),
+                                    ),
+                                  ),
+                                  'index': index.toString(),
+                                },
+                              );
+                            },
+                          ),
+                        ],
                       ],
                     ),
                     verticalSpacing(),

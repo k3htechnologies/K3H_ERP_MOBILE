@@ -3,6 +3,7 @@ part of 'project_master_cubit.dart';
 class ProjectMasterState extends BaseState {
   final List<ProjectModel> projectList;
   final List<ModulesWorkflowApprovalModel> moduleWorkflowApprovalList;
+
   // PROJECT DETAILS SCREEN
   final List<UserModel> employeeByProject;
   final List<BankDetailsModel> bankByProject;
@@ -10,19 +11,31 @@ class ProjectMasterState extends BaseState {
 
   final String currentSortColumn;
   final String currentSortDirection;
+
   // ACCESS MODULE SCREEN
   final List<ModuleModel> modulesPermissionsList;
 
   final int totalNumberOfRecord;
   final int totalNumberOfRecordEmployee;
   final int totalNumberOfRecordCompany;
+
+  // NEW MASTER PAGINATION
+  final int totalNumberOfRecordCompanyMaster;
+  final int totalNumberOfRecordEmployeeMaster;
+
   final int currentPage;
   final int currentPageEmployee;
   final int currentPageCompany;
   final int currentPageBank;
+
+  // NEW MASTER PAGINATION
+  final int currentPageCompanyMaster;
+  final int currentPageEmployeeMaster;
+
   final int pageSize;
   final String searchText;
   final bool isAllSelected;
+
   final String filterProjectLocation;
   final String filterCTSNumber;
 
@@ -34,13 +47,22 @@ class ProjectMasterState extends BaseState {
     required this.employeeByProject,
     required this.modulesPermissionsList,
     super.stateType,
+
     required this.totalNumberOfRecord,
     required this.totalNumberOfRecordEmployee,
     required this.totalNumberOfRecordCompany,
+
+    required this.totalNumberOfRecordCompanyMaster,
+    required this.totalNumberOfRecordEmployeeMaster,
+
     required this.currentPage,
     required this.currentPageEmployee,
     required this.currentPageCompany,
     required this.currentPageBank,
+
+    required this.currentPageCompanyMaster,
+    required this.currentPageEmployeeMaster,
+
     required this.pageSize,
     required this.searchText,
     required this.filterProjectLocation,
@@ -48,6 +70,7 @@ class ProjectMasterState extends BaseState {
 
     required this.currentSortColumn,
     required this.currentSortDirection,
+
     this.isAllSelected = false,
     super.isLoading,
   });
@@ -59,19 +82,30 @@ class ProjectMasterState extends BaseState {
     bankByProject: [],
     companyByProject: [],
     modulesPermissionsList: [],
+
     totalNumberOfRecord: 0,
     totalNumberOfRecordEmployee: 0,
     totalNumberOfRecordCompany: 0,
+
+    totalNumberOfRecordCompanyMaster: 0,
+    totalNumberOfRecordEmployeeMaster: 0,
+
     currentPage: 1,
     currentPageEmployee: 1,
     currentPageCompany: 1,
     currentPageBank: 1,
+
+    currentPageCompanyMaster: 1,
+    currentPageEmployeeMaster: 1,
+
     pageSize: 10,
     searchText: "",
     filterCTSNumber: '',
     filterProjectLocation: '',
+
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
+
     isLoading: true,
   );
 
@@ -82,50 +116,77 @@ class ProjectMasterState extends BaseState {
     List<BankDetailsModel>? bankByProject,
     List<UserModel>? employeeByProject,
     List<ModuleModel>? modulesPermissionsList,
+
     String? filterProjectLocation,
     String? filterCTSNumber,
+
     StateType? stateType,
-    String? errorMessage,
     bool? isLoading,
     bool? isAllSelected,
+
     int? totalNumberOfRecord,
     int? totalNumberOfRecordEmployee,
     int? totalNumberOfRecordCompany,
+
+    int? totalNumberOfRecordCompanyMaster,
+    int? totalNumberOfRecordEmployeeMaster,
+
     int? currentPage,
     int? currentPageEmployee,
     int? currentPageCompany,
     int? currentPageBank,
+
+    int? currentPageCompanyMaster,
+    int? currentPageEmployeeMaster,
+
     int? pageSize,
     String? searchText,
+
     String? currentSortColumn,
     String? currentSortDirection,
   }) {
     return ProjectMasterState(
       projectList: projectList ?? this.projectList,
       moduleWorkflowApprovalList:
-          moduleWorkflowApprovalList ?? this.moduleWorkflowApprovalList,
+      moduleWorkflowApprovalList ?? this.moduleWorkflowApprovalList,
       companyByProject: companyByProject ?? this.companyByProject,
       bankByProject: bankByProject ?? this.bankByProject,
       employeeByProject: employeeByProject ?? this.employeeByProject,
       modulesPermissionsList:
-          modulesPermissionsList ?? this.modulesPermissionsList,
+      modulesPermissionsList ?? this.modulesPermissionsList,
+
       stateType: stateType ?? this.stateType,
+
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       totalNumberOfRecordEmployee:
-          totalNumberOfRecordEmployee ?? this.totalNumberOfRecordEmployee,
-      isAllSelected: isAllSelected ?? this.isAllSelected,
+      totalNumberOfRecordEmployee ?? this.totalNumberOfRecordEmployee,
       totalNumberOfRecordCompany:
-          totalNumberOfRecordCompany ?? this.totalNumberOfRecordCompany,
+      totalNumberOfRecordCompany ?? this.totalNumberOfRecordCompany,
+
+      totalNumberOfRecordCompanyMaster:
+      totalNumberOfRecordCompanyMaster ?? this.totalNumberOfRecordCompanyMaster,
+      totalNumberOfRecordEmployeeMaster:
+      totalNumberOfRecordEmployeeMaster ?? this.totalNumberOfRecordEmployeeMaster,
+
       currentPage: currentPage ?? this.currentPage,
       currentPageEmployee: currentPageEmployee ?? this.currentPageEmployee,
       currentPageCompany: currentPageCompany ?? this.currentPageCompany,
       currentPageBank: currentPageBank ?? this.currentPageBank,
+
+      currentPageCompanyMaster:
+      currentPageCompanyMaster ?? this.currentPageCompanyMaster,
+      currentPageEmployeeMaster:
+      currentPageEmployeeMaster ?? this.currentPageEmployeeMaster,
+
       pageSize: pageSize ?? this.pageSize,
       searchText: searchText ?? this.searchText,
+
       isLoading: isLoading ?? this.isLoading,
+      isAllSelected: isAllSelected ?? this.isAllSelected,
+
       filterCTSNumber: filterCTSNumber ?? this.filterCTSNumber,
       filterProjectLocation:
-          filterProjectLocation ?? this.filterProjectLocation,
+      filterProjectLocation ?? this.filterProjectLocation,
 
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
@@ -142,19 +203,28 @@ class ProjectMasterState extends BaseState {
     bankByProject,
     employeeByProject,
     modulesPermissionsList,
-    stateType,
+
     totalNumberOfRecord,
     totalNumberOfRecordEmployee,
     totalNumberOfRecordCompany,
+
+    totalNumberOfRecordCompanyMaster,
+    totalNumberOfRecordEmployeeMaster,
+
     currentPage,
     currentPageEmployee,
     currentPageCompany,
     currentPageBank,
+
+    currentPageCompanyMaster,
+    currentPageEmployeeMaster,
+
     pageSize,
     searchText,
 
     currentSortColumn,
     currentSortDirection,
+
     filterCTSNumber,
     filterProjectLocation,
   ];

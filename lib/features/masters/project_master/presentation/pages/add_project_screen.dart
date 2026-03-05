@@ -195,7 +195,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _ctsNumberC.text = widget.project!.ctsNumber;
     _businessCategoryC.text = widget.project!.bussinessCategory;
     _projectScopeC.text = widget.project!.projectScope;
-    // Project sub scheme is set via selectedProjectSubScheme below when scheme is set
+
     _pinCodeC.text = widget.project!.zipCode;
     _googleLocationC.text = widget.project!.googleLocation;
     _projectEstimateCostC.text = widget.project!.projectEstimateCost.toString();
@@ -205,14 +205,12 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _siteContactNameC.text = widget.project!.siteContactName;
     _siteContactMobileNumberC.text = widget.project!.siteContactMobileNumber;
 
-    // Prefill date fields
     surveyDate = widget.project!.surveyDate;
     expectedStartDate = widget.project!.expectedStartDate;
     executionStartDate = widget.project!.executionStartDate;
     reraCertificateDate = widget.project!.reraCertificateDate;
     reraCompletionDate = widget.project!.reraComplitionDate;
 
-    // Prefill project status dropdown
     if (widget.project!.projectStatus.isNotEmpty) {
       selectedProjectStatus = projectStatusList.firstWhere(
         (status) => status["DisplayName"] == widget.project!.projectStatus,
@@ -238,7 +236,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
           _currentSubSchemeList.isNotEmpty ? _currentSubSchemeList.first : null;
     }
 
-    // Prefill project photo
     projectPhotoImage.fileNameList =
         widget.project!.projectPhotoUrl
             .split(",")
@@ -246,7 +243,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             .where((e) => e.isNotEmpty)
             .toList();
 
-    // Prefill location data
     isRedevelopmentNotifier.value = widget.project!.isRedevelopment;
     selectedDistrict = {
       "DisplayName": widget.project!.districtName,

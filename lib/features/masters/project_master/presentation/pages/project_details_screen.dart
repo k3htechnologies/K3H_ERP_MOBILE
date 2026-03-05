@@ -9,7 +9,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/bank_details.model.dart';
-import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -692,6 +691,50 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
               ],
             ),
           ),
+          // ACTION DETaILS
+          Container(
+            padding: EdgeInsets.all(16),
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: commonCardDecoration(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Action Details", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Created By",
+                      value:
+                      widget.project.createdBy,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Created Date",
+                      value:formatDate(widget.project.createdDate),
+                    ),
+                  ],
+                ),
+                verticalSpacing(),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Modified By",
+                      value:
+                      widget.project.modifiedBy.isNotEmpty?widget.project.modifiedBy:"-",
+                    ),
+                    buildColumnTitleValue(
+                      title: "Modified Date",
+                      value:widget.project.modifiedDate!=null? formatDate(widget.project.modifiedDate):"-",
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -699,43 +742,48 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
 
   // EMPLOYEE
   Widget _employeeSection() {
-    return BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
-      builder: (context, state) {
-        if ((state.isLoading ?? true) && state.employeeByProject.isEmpty) {
-          return Center(child: loader());
-        }
-        if (state.employeeByProject.isEmpty) {
-          return Center(child: noDataWidget());
-        }
-
-        final paginatedEmployees =
-            _projectMasterCubit.getPaginatedEmployeeList();
-        const int pageSize = 10;
-        final int totalPages =
-            (state.employeeByProject.length / pageSize).ceil();
-        final bool hasMore = state.currentPageEmployee < totalPages;
-
-        return Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    return Column(
+      children: [
+        verticalSpacing(),
+        BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
+          builder: (context, state) {
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  Text("Update Employee Details", style: AppTextStyle.ts16SB()),
+                  Text("Employee Details", style: AppTextStyle.ts16SB()),
                   Spacer(),
                   CustomButton(
-                    text: "Add",
+                    text: state.employeeByProject.isEmpty ? "Add" : "Add/Update",
                     onPressed: () {
                       _showEmployeeSelectionBottomSheet(context);
                     },
-                    leading: Icon(Icons.add, color: AppColor.white, size: 16),
                     backgroundColor: AppColor.primary,
                     padding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),
                   ),
                 ],
               ),
-            ),
-            Expanded(
+            );
+          },
+        ),
+        verticalSpacing(),
+        BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.employeeByProject.isEmpty) {
+              return  Center(child: loader());
+            }
+            if (state.employeeByProject.isEmpty) {
+              return Flexible(child: Center(child: noDataWidget(message: "No Employee's Found")));
+            }
+
+            final paginatedEmployees =
+                _projectMasterCubit.getPaginatedEmployeeList();
+            const int pageSize = 10;
+            final int totalPages =
+                (state.employeeByProject.length / pageSize).ceil();
+            final bool hasMore = state.currentPageEmployee < totalPages;
+
+            return Expanded(
               child: ListView.builder(
                 controller: employeeScrollController,
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -872,10 +920,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   );
                 },
               ),
-            ),
-          ],
-        );
-      },
+            );
+          },
+        ),
+      ],
     );
   }
   
@@ -920,7 +968,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   )
                   .toList(),
           "totalNumberOfRecord":
-              _projectMasterCubit.state.totalNumberOfRecordEmployee,
+              _projectMasterCubit.state.totalNumberOfRecordEmployeeMaster,
         };
       },
     );
@@ -989,14 +1037,13 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
                 children: [
-                  Text("Update Company Details", style: AppTextStyle.ts16SB()),
+                  Text("Company Details", style: AppTextStyle.ts16SB()),
                   Spacer(),
                   CustomButton(
-                    text: "Add",
+                    text:state.companyByProject.isEmpty? "Add":"Add/Update",
                     onPressed: () {
                       _showCompanySelectionBottomSheet(context);
                     },
-                    leading: Icon(Icons.add, color: AppColor.white, size: 16),
                     backgroundColor: AppColor.primary,
                     padding: EdgeInsets.symmetric(vertical: 3, horizontal: 10),
                   ),
@@ -1004,7 +1051,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
               ),
             ),
             state.companyByProject.isEmpty
-                ? Expanded(child: noDataWidget())
+                ? Expanded(child: noDataWidget(message: "No Company's Found"))
                 : Expanded(
                   child: ListView.builder(
                     controller: companyScrollController,
@@ -1032,11 +1079,6 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                     company.companyName,
                                     style: AppTextStyle.ts16SB(),
                                   ),
-                                ),
-                                CustomIconButton.delete(
-                                  onPressed: () {
-                                    _showDeleteCompanyDialog(context, company);
-                                  },
                                 ),
                               ],
                             ),
@@ -1130,7 +1172,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 child: Row(
                   children: [
-                    Text("Update Bank Details", style: AppTextStyle.ts16SB()),
+                    Text("Bank Details", style: AppTextStyle.ts16SB()),
                     Spacer(),
                     CustomButton(
                       onPressed: () {
@@ -1142,12 +1184,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         vertical: 4,
                       ),
                       backgroundColor: AppColor.primary,
-                      leading: Icon(Icons.add, color: AppColor.white, size: 16),
                     ),
                   ],
                 ),
               ),
-              Expanded(child: Center(child: noDataWidget())),
+              Expanded(child: Center(child: noDataWidget(message: "No Banks Found"))),
             ],
           );
         }
@@ -1313,7 +1354,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   )
                   .toList(),
           "totalNumberOfRecord":
-              _projectMasterCubit.state.totalNumberOfRecordCompany,
+              _projectMasterCubit.state.totalNumberOfRecordCompanyMaster,
         };
       },
     );
@@ -1326,33 +1367,6 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
         projectId: widget.project.projectId.toString(),
         uniqueKey: widget.project.uniquekey,
         selectedCompanyIds: selectedCompanyIds,
-        context: context,
-        onSuccess: () {},
-      );
-    }
-  }
-
-  // <---- SHOW DELETE COMPANY DIALOG ---->
-  Future<void> _showDeleteCompanyDialog(
-    BuildContext context,
-    CompanyModel company,
-  ) async {
-    final result = await DialogHelper.deleteDialog(
-      context,
-      'You are about to remove a company from this project?',
-      'Removing this company will permanently remove them from the project.',
-    );
-    if (result && context.mounted) {
-      final remainingCompanies =
-          _projectMasterCubit.state.companyByProject
-              .where((c) => c.companyId != company.companyId)
-              .map((c) => c.companyId)
-              .toList();
-
-      await _projectMasterCubit.addUpdateProjectWithCompany(
-        projectId: widget.project.projectId.toString(),
-        uniqueKey: widget.project.uniquekey,
-        selectedCompanyIds: remainingCompanies,
         context: context,
         onSuccess: () {},
       );

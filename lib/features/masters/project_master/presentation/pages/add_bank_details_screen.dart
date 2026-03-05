@@ -4,6 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/bank_details.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -11,7 +14,7 @@ import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
-import 'package:k3h_erp_app/widgets/dropdown/custom_paginated_dropdown.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -32,6 +35,9 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
   late ProjectMasterCubit _projectMasterCubit;
   final _formKey = GlobalKey<FormState>();
 
+  final EmployeeMasterRepository _employeeMasterRepository =
+      serviceLocator<EmployeeMasterRepository>();
+
   // TEXT CONTROLLERS
   late TextEditingController _beneficiaryAccountHolderNameC;
   late TextEditingController _accountNumberC;
@@ -39,12 +45,12 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
   late TextEditingController _ifscCodeC;
 
   // DROPDOWN VARIABLES
-  Map<String, dynamic>? selectedBank;
+  late final ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
   Map<String, dynamic>? selectedAccountType;
 
   // ACCOUNT TYPE LIST
   final List<Map<String, dynamic>> accountTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select"},
+    {"zAttributesId": -1, "DisplayName": "Select Account Type"},
     {"zAttributesId": 1, "DisplayName": "Current"},
     {"zAttributesId": 2, "DisplayName": "DEMAT"},
     {"zAttributesId": 3, "DisplayName": "Fixed"},
@@ -55,6 +61,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedBankNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     _initializeTextControllers();
     _initializeDropdowns();
   }
@@ -68,6 +75,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
   @override
   void dispose() {
     _beneficiaryAccountHolderNameC.dispose();
+    _selectedBankNotifier.dispose();
     _accountNumberC.dispose();
     _branchC.dispose();
     _ifscCodeC.dispose();
@@ -93,7 +101,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
   // INITIALISING DROPDOWN
   void _initializeDropdowns() {
     if (widget.bankDetailsModel != null) {
-      selectedBank = {
+      _selectedBankNotifier.value.first = {
         'zAttributesId': widget.bankDetailsModel!.bankListMasterId,
         'DisplayName': widget.bankDetailsModel!.bankName,
       };
@@ -113,7 +121,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
         selectedAccountType = accountTypeList[0]; // Select
       }
     } else {
-      selectedBank = null;
+      _selectedBankNotifier.value.isNotEmpty;
       selectedAccountType = accountTypeList[0];
     }
   }
@@ -124,7 +132,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
       return;
     }
 
-    if (selectedBank == null || selectedBank!['zAttributesId'] == -1) {
+    if (_selectedBankNotifier.value.isNotEmpty|| _selectedBankNotifier.value.first['zAttributesId'] == -1) {
       showErrorMessage(context, "Error", "Please select a bank");
       return;
     }
@@ -143,7 +151,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
       "ProjectId": widget.project.projectId,
       "BeneficiaryAccountHolderName":
           _beneficiaryAccountHolderNameC.text.trim(),
-      "BankListMasterId": selectedBank!['zAttributesId'],
+      "BankListMasterId": _selectedBankNotifier.value.first['zAttributesId'],
       "AccountNumber": _accountNumberC.text.trim(),
       "Branch": _branchC.text.trim(),
       "IFSCCode": _ifscCodeC.text.trim(),
@@ -154,6 +162,39 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
       bankRequestBody: bankRequestBody,
       projectId: widget.project.projectId.toString(),
       context: context,
+    );
+  }
+
+  // FETCH BANKS
+  Future<Map<String, dynamic>> _fetchBanks(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final result = await _employeeMasterRepository.getBankList(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      query: value != null && value.isNotEmpty ? {"BankName": value} : {},
+    );
+
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final banks = response['data'] as List<BankListMasterModel>;
+
+        return {
+          "itemList":
+              banks.map((bank) {
+                return {
+                  "zAttributesId": bank.bankListMasterId,
+                  "DisplayName": bank.bankNameWithCode,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
+      },
     );
   }
 
@@ -186,35 +227,33 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                     inputFormatterList: InputValidator.textOnly(100),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Account Holder Name is required";
+                        return "Beneficiary Account Holder Name is required";
                       }
                       return null;
                     },
                   ),
-                  verticalSpacing(),
-                  CustomPaginationDropDownWidget(
-                    title: "Bank Name",
-                    isRequired: true,
-                    initialValue: selectedBank,
-                    dataFetchCallBack: (int pageNumber, {String? value}) async {
-                      return await _projectMasterCubit.getBankList(
-                        pageNumber,
-                        value: value,
+                  ValueListenableBuilder(
+                    valueListenable: _selectedBankNotifier,
+                    builder: (context, selectedEmployee, _) {
+                      return CustomMultipleSelectPopup(
+                        title: 'Bank',
+                        isRequired: true,
+                        isMultiSelect: false,
+                        initialValue: selectedEmployee,
+                        dataList: const [],
+                        onSelected: (value) {
+                          _selectedBankNotifier.value = value;
+                        },
+                        dataFetchCallBack: _fetchBanks,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Bank Name is required";
+                          }
+                          return null;
+                        },
                       );
                     },
-                    onSelected: (value) {
-                      setState(() {
-                        selectedBank = value;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null || value['zAttributesId'] == -1) {
-                        return 'Bank Name is required';
-                      }
-                      return null;
-                    },
                   ),
-                  verticalSpacing(),
                   CustomDropDownWidget(
                     title: "Account Type",
                     isRequired: true,
@@ -232,7 +271,6 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                       return null;
                     },
                   ),
-                  verticalSpacing(),
                   CustomTextField(
                     title: "Account Number",
                     textController: _accountNumberC,
@@ -247,7 +285,6 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                       return null;
                     },
                   ),
-                  verticalSpacing(),
                   CustomTextField(
                     title: "Branch Name",
                     textController: _branchC,
@@ -256,7 +293,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                     inputFormatterList: InputValidator.textOnly(100),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Branch is required";
+                        return "Bank Branch Name is required";
                       }
                       return null;
                     },
@@ -293,7 +330,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text: widget.bankDetailsModel == null ? "Add" : "Update",
+            text: widget.bankDetailsModel == null ? "Save Bank Details" : "Update Bank Details",
             onPressed: _handleSubmit,
             backgroundColor: AppColor.primary,
           ),
