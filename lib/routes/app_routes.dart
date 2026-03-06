@@ -13,6 +13,8 @@ class AppRoutes {
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// SETTINGS
 
+  /// SETTING DASHBAORD
+  static String settingDashboard = "/settingDashboard";
   // DEPARTMENT MASTER
   static String departmentMaster = "/departmentMaster";
   static String addDepartment = "/addDepartment";
@@ -134,8 +136,9 @@ class AppRoutes {
   static String paymentScheduleScheme = "/paymentScheduleScheme";
   static String addPaymentScheduleScheme = "/addPaymentScheduleScheme";
 
-  // SALES REPORT
-  static String performanceReport = "/performanceReport";
+  // SALES REPORT (PERFORMANCE)
+  static String performanceReport = "/performance";
+  static String viewPerformanceReport = "/viewPerformance";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PAYROLL MASTER

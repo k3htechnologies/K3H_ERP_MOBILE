@@ -24,7 +24,6 @@ void removeHiddenSubSubModules(List<ModuleModel> modules) {
 
       if (module.moduleName.toLowerCase() == 'sale' &&
           subModule.subModuleName.toLowerCase() == 'reports') {
-        // Hide unwanted reports
         subModule.subSubModuleData.removeWhere(
           (subSub) =>
               subSub.subSubModuleName == "Incentive" ||
@@ -244,6 +243,8 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
     final isSalesDashboard = menu.moduleName.trim().toLowerCase() == 'sale';
     final isInventoryDashboard =
         menu.moduleName.trim().toLowerCase() == 'inventory';
+    final isSettingsDashboard =
+        menu.moduleName.trim().toLowerCase() == 'setting';
 
     bool isCurrentModuleActive = menu.subModuleData.any(
       (sub) => _isActiveModule(sub),
@@ -266,6 +267,11 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
           isCurrentModuleActive ||
           _isRouteActive(_currentPathForBuild, AppRoutes.inventoryDashboard);
     }
+    if (isSettingsDashboard) {
+      isCurrentModuleActive =
+          isCurrentModuleActive ||
+          _isRouteActive(_currentPathForBuild, AppRoutes.settingDashboard);
+    }
 
     final tile = CustomModuleTile(
       key: ValueKey('module-${menu.moduleName}-$isCurrentModuleActive'),
@@ -280,6 +286,8 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
           await _onItemTap(navigateToPath: AppRoutes.salesDashboard);
         } else if (isInventoryDashboard) {
           await _onItemTap(navigateToPath: AppRoutes.inventoryDashboard);
+        } else if (isSettingsDashboard) {
+          await _onItemTap(navigateToPath: AppRoutes.settingDashboard);
         }
       },
       items:

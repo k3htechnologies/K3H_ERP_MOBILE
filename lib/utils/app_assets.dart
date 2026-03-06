@@ -92,6 +92,11 @@ class AppAssets {
   static const String buildingCountIcon = "$svgPath/buildingCountIcon.svg";
   static const String financialRentIcon = "$svgPath/financialRentIcon.svg";
   static const String alerttIcon = "$svgPath/alertIcon.svg";
+  static const String totalEmployeeeIcon = "$svgPath/totalEmployeeeIcon.svg";
+  static const String totalCompaniesIcon = "$svgPath/totalCompaniesIcon.svg";
+  static const String activeProjectsIcon = "$svgPath/activeProjectsIcon.svg";
+  static const String registeredVendorsIcon =
+      "$svgPath/registeredVendorsIcon.svg";
 
   // COMMON
   static const String backIcon = "$svgPath/backButtonIcon.svg";
