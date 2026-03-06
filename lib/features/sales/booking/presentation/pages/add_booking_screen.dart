@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_applicant_screen.dart';
+import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_payment_schedule_screen.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/repository/payment_schedule_scheme.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -54,10 +55,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // TAB CONTROLLER
   late TabController _tabController;
-
-  final Set<int> _invalidRankingIndexes = {};
-
-  late List<TextEditingController> _rankingControllers = [];
 
   // TEXT EDITING CONTROLLER
   late TextEditingController _enquiryUniqueCodeC,
@@ -251,9 +248,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _bookingSubscription?.cancel();
     _isFetchingEnquiry.dispose();
     _otpController.dispose();
-    for (final controller in _rankingControllers) {
-      controller.dispose();
-    }
     super.dispose();
   }
 
@@ -501,6 +495,37 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       currentApplicants.add(updatedApplicant);
     }
     _applicants.value = currentApplicants;
+  }
+
+  Future<void> _openPaymentScheduleForm() async {
+    final result = await Navigator.push<BookingPaymentScheduleData?>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AddBookingPaymentScheduleScreen(),
+      ),
+    );
+
+    if (result == null) return;
+
+    final currentSchedules = List<BookingPaymentScheduleData>.from(
+      _bookingCubit.state.bookingPaymentScheduleList,
+    );
+
+    currentSchedules.add(result);
+
+    /// Auto Ranking
+    for (int i = 0; i < currentSchedules.length; i++) {
+      currentSchedules[i].ranking = i + 1;
+    }
+
+    /// Auto cumulative %
+    double cumulative = 0;
+    for (var item in currentSchedules) {
+      cumulative += item.paymentSchedulePercentage;
+      item.paymentCummulativePercentage = cumulative;
+    }
+
+    _bookingCubit.updatePaymentScheduleList(currentSchedules);
   }
 
   // DELETE APPLICANT
@@ -804,7 +829,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         final paymentScheduleSchemes =
             response['data'] as List<PaymentScheduleSchemeModel>;
 
-        /// 🔥 FORCE TYPE HERE
         final List<Map<String, dynamic>> apiList =
             paymentScheduleSchemes
                 .map<Map<String, dynamic>>(
@@ -815,7 +839,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 )
                 .toList();
 
-        /// 🔥 FORCE TYPE HERE ALSO
         apiList.add(<String, dynamic>{
           "zAttributesId": -1,
           "DisplayName": "Other",
@@ -871,28 +894,28 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
           inventoryFlatId: widget.inventoryObject?[0]['inventoryFlatId'],
 
-          agreementValue: _agreementValueNotifier.value ?? 0.0,
+          agreementValue: _agreementValueNotifier.value,
 
-          agreementValueTds: _tdsNotifier.value ?? 0.0,
+          agreementValueTds: _tdsNotifier.value,
 
           agreementValueGSTPercentage:
               double.tryParse(_agreementGstPercentageC.text) ?? 0.0,
 
-          agreementValueGSTAmount: _agreementGstAmountNotifier.value ?? 0.0,
+          agreementValueGSTAmount: _agreementGstAmountNotifier.value,
 
           stampDutyPercentage:
               double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
 
-          stampDutyAmount: _stampDutyAmountNotifier.value ?? 0.0,
+          stampDutyAmount: _stampDutyAmountNotifier.value,
 
-          registrationFees: _registrationFeesNotifier.value ?? 0.0,
+          registrationFees: _registrationFeesNotifier.value,
 
           parkingId: null,
-          handoverType: _selectedHandOverType?['DisplayName'] ?? "",
+          handoverType: _selectedHandOverType['DisplayName'] ?? "",
 
           registrationDate: _selectedExpectedRegistrationDate ?? DateTime.now(),
 
-          modeOfPayment: _selectedFundingSource?['DisplayName'] ?? "",
+          modeOfPayment: _selectedFundingSource['DisplayName'] ?? "",
 
           flatAlterationRemark: _remarkC.text.trim(),
 
@@ -999,9 +1022,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             text: "Save",
             onPressed: () async {
               // TODO: NEED CONFIRMATION
-              // _submitForm();
+              _submitForm();
               if (await _validateAllTabs()) {
-                final formValues = {
+                /*final formValues = {
                   "enquiryUniqueCode": _enquiryUniqueCodeC.text,
                   "permanentAddress": _permanentAddressC.text,
                   "communicationAddress": _communicationAddressC.text,
@@ -1022,8 +1045,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   "bookingAmount": _bookingAmountC.text,
                   "chequeNo": _chequeNoC.text,
                   "chequeDate": _selectedChequeDate?.toIso8601String(),
-                };
-                print("AddBooking form values: $formValues");
+                };*/
               }
             },
           ),
@@ -1963,7 +1985,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       child: CustomButton(
                         leading: Icon(Icons.add, size: 16),
                         text: "Add",
-                        onPressed: () {},
+                        onPressed: _openPaymentScheduleForm,
                       ),
                     );
                   },
@@ -2082,7 +2104,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 textController: _remarkC,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    print("Remark Val: $value");
                     return "Remark is required";
                   }
                   return null;
