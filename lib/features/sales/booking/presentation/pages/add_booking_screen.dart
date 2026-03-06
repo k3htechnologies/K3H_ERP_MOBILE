@@ -55,10 +55,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   // TAB CONTROLLER
   late TabController _tabController;
 
-  final Set<int> _invalidRankingIndexes = {};
-
-  late List<TextEditingController> _rankingControllers = [];
-
   // TEXT EDITING CONTROLLER
   late TextEditingController _enquiryUniqueCodeC,
       _permanentAddressC,
@@ -251,9 +247,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _bookingSubscription?.cancel();
     _isFetchingEnquiry.dispose();
     _otpController.dispose();
-    for (final controller in _rankingControllers) {
-      controller.dispose();
-    }
     super.dispose();
   }
 
@@ -871,28 +864,28 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
           inventoryFlatId: widget.inventoryObject?[0]['inventoryFlatId'],
 
-          agreementValue: _agreementValueNotifier.value ?? 0.0,
+          agreementValue: _agreementValueNotifier.value,
 
-          agreementValueTds: _tdsNotifier.value ?? 0.0,
+          agreementValueTds: _tdsNotifier.value,
 
           agreementValueGSTPercentage:
               double.tryParse(_agreementGstPercentageC.text) ?? 0.0,
 
-          agreementValueGSTAmount: _agreementGstAmountNotifier.value ?? 0.0,
+          agreementValueGSTAmount: _agreementGstAmountNotifier.value,
 
           stampDutyPercentage:
               double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
 
-          stampDutyAmount: _stampDutyAmountNotifier.value ?? 0.0,
+          stampDutyAmount: _stampDutyAmountNotifier.value,
 
-          registrationFees: _registrationFeesNotifier.value ?? 0.0,
+          registrationFees: _registrationFeesNotifier.value,
 
           parkingId: null,
-          handoverType: _selectedHandOverType?['DisplayName'] ?? "",
+          handoverType: _selectedHandOverType['DisplayName'] ?? "",
 
           registrationDate: _selectedExpectedRegistrationDate ?? DateTime.now(),
 
-          modeOfPayment: _selectedFundingSource?['DisplayName'] ?? "",
+          modeOfPayment: _selectedFundingSource['DisplayName'] ?? "",
 
           flatAlterationRemark: _remarkC.text.trim(),
 
@@ -999,9 +992,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             text: "Save",
             onPressed: () async {
               // TODO: NEED CONFIRMATION
-              // _submitForm();
+              _submitForm();
               if (await _validateAllTabs()) {
-                final formValues = {
+                /*final formValues = {
                   "enquiryUniqueCode": _enquiryUniqueCodeC.text,
                   "permanentAddress": _permanentAddressC.text,
                   "communicationAddress": _communicationAddressC.text,
@@ -1022,8 +1015,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   "bookingAmount": _bookingAmountC.text,
                   "chequeNo": _chequeNoC.text,
                   "chequeDate": _selectedChequeDate?.toIso8601String(),
-                };
-                print("AddBooking form values: $formValues");
+                };*/
               }
             },
           ),
@@ -2082,7 +2074,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 textController: _remarkC,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    print("Remark Val: $value");
                     return "Remark is required";
                   }
                   return null;

@@ -9,7 +9,6 @@ import 'package:k3h_erp_app/features/parking/data/repository/parking.repository.
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/repository/terms_and_conditions.repository.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
-import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_master.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';

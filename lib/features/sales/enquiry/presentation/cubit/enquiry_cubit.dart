@@ -39,7 +39,6 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     int pageNumber,
     int projectId,
   ) async {
-    print("Api Called--->");
     emit(state.copyWith(isLoading: true));
 
     // Build queryParams only with non-null / non-empty values
