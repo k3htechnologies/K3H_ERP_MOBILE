@@ -120,6 +120,8 @@ import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/a
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_project_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/project_details_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/project_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/setting_dashboard/presentation/cubit/setting_dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/masters/setting_dashboard/presentation/pages/setting_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/cubit/terms_and_conditions_cubit.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/add_terms_and_conditions_screen.dart';
@@ -287,6 +289,8 @@ import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/pa
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_cubit.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/pages/add_payment_schedule_scheme_screen.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/pages/payment_schedule_scheme_screen.dart';
+import 'package:k3h_erp_app/features/sales/performance/presentation/pages/performance.screen.dart';
+import 'package:k3h_erp_app/features/sales/performance/presentation/pages/view_performance.screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/sales_dashboard_screen.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
@@ -448,6 +452,17 @@ final GoRouter goRouter = GoRouter(
             return BlocProvider(
               create: (_) => DashboardCubit(),
               child: DashboardScreen(),
+            );
+          },
+        ),
+
+        GoRoute(
+          path: AppRoutes.settingDashboard,
+          name: AppRoutes.settingDashboard,
+          builder: (context, state) {
+            return BlocProvider(
+              create: (_) => SettingDashboardCubit(),
+              child: SettingDashboardScreen(),
             );
           },
         ),
@@ -3758,6 +3773,20 @@ final GoRouter goRouter = GoRouter(
                 return BlocProvider(create: (_) => TargetCubit(), child: child);
               },
               routes: [
+                GoRoute(
+                  name: AppRoutes.performanceReport,
+                  path: AppRoutes.performanceReport,
+                  builder: (context, state) {
+                    return const PerformanceScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewPerformanceReport,
+                  path: AppRoutes.viewPerformanceReport,
+                  builder: (context, state) {
+                    return ViewPerformanceScreen();
+                  },
+                ),
                 GoRoute(
                   name: AppRoutes.salesTarget,
                   path: AppRoutes.salesTarget,
