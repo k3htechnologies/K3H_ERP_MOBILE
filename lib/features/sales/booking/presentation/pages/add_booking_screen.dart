@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
+import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_bank_details_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_applicant_screen.dart';
@@ -501,7 +502,20 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     final result = await Navigator.push<BookingPaymentScheduleData?>(
       context,
       MaterialPageRoute(
-        builder: (_) => const AddBookingPaymentScheduleScreen(),
+        builder:
+            (_) => AddBookingPaymentScheduleScreen(
+              inventoryBuildingId:
+                  widget.inventoryObject?[0]["inventoryBuildingId"],
+              inventoryFlatFloorBasementPodiumWingId:
+                  widget
+                      .inventoryObject?[0]["inventoryFlatFloorBasementPodiumWingId"],
+              agreementValue: _agreementValueNotifier.value, // Agreement value
+              agreementValueGST:
+                  _agreementGstAmountNotifier.value, // GST amount
+              agreementValueTds: _tdsNotifier.value, // TDS amount
+              currentSchedulesList:
+                  _bookingCubit.state.bookingPaymentScheduleList,
+            ),
       ),
     );
 
@@ -512,18 +526,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     );
 
     currentSchedules.add(result);
-
-    /// Auto Ranking
-    for (int i = 0; i < currentSchedules.length; i++) {
-      currentSchedules[i].ranking = i + 1;
-    }
-
-    /// Auto cumulative %
-    double cumulative = 0;
-    for (var item in currentSchedules) {
-      cumulative += item.paymentSchedulePercentage;
-      item.paymentCummulativePercentage = cumulative;
-    }
 
     _bookingCubit.updatePaymentScheduleList(currentSchedules);
   }
@@ -805,19 +807,19 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     return true;
   }
 
-  Future<void> loadPaymentScheduleSchemes({
-    int pageNumber = 1,
-    String? value,
-  }) async {
+  Future<void> loadPaymentScheduleSchemes({int pageNumber = 1}) async {
     final result = await _paymentScheduleSchemeRepository
         .getPaymentScheduleSchemeList(
           pageNumber: pageNumber,
           pageSize: 40,
           projectId: _project.projectId,
-          queryParams:
-              value != null && value.isNotEmpty
-                  ? <String, dynamic>{"PaymentScheduleSchemeName": value}
-                  : <String, dynamic>{},
+          queryParams: <String, dynamic>{
+            "InventoryBuildingId":
+                widget.inventoryObject?[0]["inventoryBuildingId"],
+            "InventoryFlatFloorBasementPodiumWingId":
+                widget
+                    .inventoryObject?[0]["inventoryFlatFloorBasementPodiumWingId"],
+          },
         );
 
     result.fold(
@@ -1096,7 +1098,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             title: "Enquiry Unique Code",
                             isRequired: true,
                             inputFormatterList: [
-                              LengthLimitingTextInputFormatter(8),
+                              UpperCaseTextFormatter(),
+                              LengthLimitingTextInputFormatter(18),
                             ],
                             hint: "Enter Enquiry Unique Code",
                             textController: _enquiryUniqueCodeC,
@@ -1105,7 +1108,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                 _debounce!.cancel();
                               }
 
-                              if (value.length != 8) {
+                              if (value.length != 18) {
                                 // Clear any previous enquiry results and fetch flags
                                 _bookingCubit.clearEnquiryList();
                                 _permanentAddressC.clear();
@@ -1118,7 +1121,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               _debounce = Timer(
                                 const Duration(milliseconds: 500),
                                 () async {
-                                  if (value.length == 8) {
+                                  if (value.length == 18) {
                                     _isFetchingEnquiry.value = true;
                                     _enquiryFetchTried.value = true;
                                     await _bookingCubit.getEnquiryList(
@@ -1627,6 +1630,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     onChangeFunction: (value) {
                       final parsed = double.tryParse(value) ?? 0.0;
                       _agreementValueNotifier.value = parsed;
+                      _bookingCubit.onUpdateBookingAmount(
+                        agreementValue: _agreementValueNotifier.value,
+                        agreementValueGST: _agreementGstAmountNotifier.value,
+                        agreementValueTds: _tdsNotifier.value,
+                      );
                     },
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -1676,6 +1684,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         title: "Agreement GST (%)",
                         hint: "Enter Agreement GST Percentage",
                         textController: _agreementGstPercentageC,
+
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return "Agreement GST Percentage is required";
@@ -1684,6 +1693,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         },
                         onChangeFunction: (value) {
                           _calculateGst();
+                          _bookingCubit.onUpdateBookingAmount(
+                            agreementValue: _agreementValueNotifier.value,
+                            agreementValueGST:
+                                _agreementGstAmountNotifier.value,
+                            agreementValueTds: _tdsNotifier.value,
+                          );
                         },
                       ),
                       ValueListenableBuilder<double>(
@@ -1955,6 +1970,22 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         if (selectedScheme.value["zAttributesId"] !=
                             value["zAttributesId"]) {
                           selectedScheme.value = value;
+                          _bookingCubit.getPaymentScheduleMasterList(
+                            context,
+                            1,
+                            paymentScheduleSchemeMasterId:
+                                selectedScheme.value["zAttributesId"],
+                            inventoryBuildingId:
+                                widget
+                                    .inventoryObject?[0]["inventoryBuildingId"],
+                            inventoryFlatFloorBasementPodiumWingId:
+                                widget
+                                    .inventoryObject?[0]["inventoryFlatFloorBasementPodiumWingId"],
+                            agreementValue: _agreementValueNotifier.value,
+                            agreementValueGST:
+                                _agreementGstAmountNotifier.value,
+                            agreementValueTds: _tdsNotifier.value,
+                          );
                         }
                       },
                       validator: (value) {
@@ -1983,7 +2014,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     return Visibility(
                       visible: value['DisplayName'] == 'Other',
                       child: CustomButton(
-                        leading: Icon(Icons.add, size: 16),
+                        leading: const Icon(Icons.add, size: 16),
                         text: "Add",
                         onPressed: _openPaymentScheduleForm,
                       ),
@@ -2003,8 +2034,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   }
 
                   if (list.isEmpty) {
-                    return const Center(
-                      child: Text("No Payment Schedule Available"),
+                    return Center(
+                      child: noDataWidget(
+                        message: "No Payment Schedule Available",
+                      ),
                     );
                   }
 
@@ -2017,58 +2050,113 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     itemBuilder: (context, index) {
                       final item = list[index];
 
-                      return Container(
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         key: ValueKey(item.name + index.toString()),
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.all(12),
-                        decoration: commonCardDecoration(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                /// Drag Handle
-                                ReorderableDragStartListener(
-                                  index: index,
-                                  child: const Padding(
-                                    padding: EdgeInsets.only(right: 8),
-                                    child: Icon(Icons.drag_handle),
+                        spacing: 10,
+                        children: [
+                          ReorderableDragStartListener(
+                            index: index,
+                            child: Builder(
+                              builder: (context) {
+                                final toolTipKey = GlobalKey<TooltipState>();
+                                return GestureDetector(
+                                  onTap: () {
+                                    toolTipKey.currentState
+                                        ?.ensureTooltipVisible();
+                                  },
+                                  child: Tooltip(
+                                    key: toolTipKey,
+                                    triggerMode: TooltipTriggerMode.manual,
+                                    message: "Drag to reorder payment schedule",
+                                    child: CircleAvatar(
+                                      maxRadius: 15,
+                                      backgroundColor: AppColor.lightBlue,
+                                      child: Icon(
+                                        Icons.drag_handle,
+                                        color: AppColor.primary,
+                                        size: 20,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                );
+                              },
+                            ),
+                          ),
+                          Flexible(
+                            child: Container(
+                              key: ValueKey(item.name + index.toString()),
+                              margin: const EdgeInsets.only(bottom: 10),
+                              padding: const EdgeInsets.all(12),
+                              decoration: commonCardDecoration(),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      /// Name
+                                      buildColumnTitleValue(
+                                        title: "Stage Name",
+                                        value: item.name,
+                                      ),
 
-                                /// Name
-                                Expanded(
-                                  child: buildColumnTitleValue(
-                                    title: "Stage Name",
-                                    value: item.name,
+                                      /// Ranking
+                                      buildColumnTitleValue(
+                                        title: "Ranking",
+                                        value: item.ranking.toString(),
+                                      ),
+                                    ],
                                   ),
-                                ),
-
-                                /// Ranking (Auto)
-                                buildColumnTitleValue(
-                                  title: "Ranking",
-                                  value: item.ranking.toString(),
-                                ),
-                              ],
+                                  verticalSpacing(),
+                                  Row(
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Percentage (%)",
+                                        value:
+                                            "${item.paymentSchedulePercentage}",
+                                      ),
+                                      buildColumnTitleValue(
+                                        title: "Cumulative (%)",
+                                        value:
+                                            "${item.paymentCummulativePercentage}",
+                                      ),
+                                    ],
+                                  ),
+                                  verticalSpacing(),
+                                  Row(
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Amount (₹)",
+                                        value: addCommasToInteger(
+                                          item.paymentScheduleAmount,
+                                        ),
+                                      ),
+                                      buildColumnTitleValue(
+                                        title: "GST Amount (₹)",
+                                        value: addCommasToInteger(
+                                          item.paymentScheduleGSTAmount,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  verticalSpacing(),
+                                  Row(
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "TDS Amount (₹)",
+                                        value: addCommasToInteger(
+                                          item.paymentScheduleTDSAmount,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-
-                            const SizedBox(height: 10),
-
-                            Row(
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Percentage (%)",
-                                  value: "${item.paymentSchedulePercentage}",
-                                ),
-                                buildColumnTitleValue(
-                                  title: "Cumulative (%)",
-                                  value: "${item.paymentCummulativePercentage}",
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       );
                     },
                   );

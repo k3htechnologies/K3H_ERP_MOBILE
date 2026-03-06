@@ -830,6 +830,9 @@ class _InventoryScreenState extends State<InventoryScreen>
                       onPressed: () {
                         List<Map<String, dynamic>> list = [
                           {
+                            "inventoryBuildingId": flat.inventoryBuildingId,
+                            "inventoryFlatFloorBasementPodiumWingId":
+                                flat.inventoryFlatFloorBasementPodiumWingId,
                             "inventoryFlatId": flat.inventoryFlatId,
                             "buildingNumber": flat.buildingNumber,
                             "wing": flat.wing,

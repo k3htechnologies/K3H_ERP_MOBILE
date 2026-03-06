@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/features/sales/payment_schedule/data/model/payment_s
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
 
 part 'booking_state.dart';
 
@@ -824,20 +825,29 @@ class BookingCubit extends Cubit<BookingState> {
   // <---- GET PAYMENT SCHEDULE MASTER LIST ---->
   Future getPaymentScheduleMasterList(
     BuildContext context,
-    int pageNumber,
-    int projectId,
-    String wing, {
+    int pageNumber, {
+    required int paymentScheduleSchemeMasterId,
+    required int inventoryBuildingId,
+    required int inventoryFlatFloorBasementPodiumWingId,
     required double agreementValue,
     required double agreementValueTds,
-    required double agreementValueGSTPercentage,
+    required double agreementValueGST,
   }) async {
     emit(state.copyWith(isLoading: true));
 
+    Map<String, dynamic> queryParams = {
+      "Stage": state.searchText,
+      "PaymentScheduleSchemeMasterId": paymentScheduleSchemeMasterId,
+      "InventoryBuildingId": inventoryBuildingId,
+      "InventoryFlatFloorBasementPodiumWingId":
+          inventoryFlatFloorBasementPodiumWingId,
+    };
+
     var result = await _bookingRepository.getPaymentScheduleMasterList(
       pageNumber: pageNumber,
-      pageSize: 100,
-      projectId: projectId,
-      queryParams: {"Wing": wing},
+      pageSize: 10,
+      projectId: getProject().projectId,
+      queryParams: queryParams,
     );
 
     result.fold(
@@ -846,12 +856,11 @@ class BookingCubit extends Cubit<BookingState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        final masterList = List<PaymentScheduleMasterModel>.from(
-          response['data'] ?? [],
-        );
+        final List<PaymentScheduleMasterModel> masterList =
+            List<PaymentScheduleMasterModel>.from(response['data'] ?? []);
 
-        ///  Convert Master → Booking Model
-        final bookingList =
+        /// Convert Master → Booking Model
+        final List<BookingPaymentScheduleData> newData =
             masterList.asMap().entries.map((entry) {
               int index = entry.key;
               final master = entry.value;
@@ -859,7 +868,7 @@ class BookingCubit extends Cubit<BookingState> {
               final amount =
                   (agreementValue * master.paymentSchedulePercentage) / 100;
 
-              final gstAmount = (amount * agreementValueGSTPercentage) / 100;
+              final gstAmount = (amount * agreementValueGST) / 100;
 
               final tdsAmount = (amount * agreementValueTds) / 100;
 
@@ -878,16 +887,25 @@ class BookingCubit extends Cubit<BookingState> {
               );
             }).toList();
 
+        final updatedList =
+            pageNumber == 1
+                ? newData
+                : [...state.bookingPaymentScheduleList, ...newData];
+
         emit(
           state.copyWith(
-            bookingPaymentScheduleList: bookingList,
+            bookingPaymentScheduleList: updatedList,
             isLoading: false,
+            // totalCumulativePercentage: calculateTotalCumulative(updatedList),
+            totalNumberOfRecord: response["totalNumberOfRecord"],
+            currentPage: pageNumber,
           ),
         );
       },
     );
   }
 
+  // REORDER PAYMENT SCHEDULE
   void reorderPaymentSchedule(int oldIndex, int newIndex) {
     final updatedList = List.of(state.bookingPaymentScheduleList);
 
@@ -898,9 +916,16 @@ class BookingCubit extends Cubit<BookingState> {
     final item = updatedList.removeAt(oldIndex);
     updatedList.insert(newIndex, item);
 
-    /// Reassign ranking automatically
+    // REASSIGN RANKING SEQUENTIALLY
     for (int i = 0; i < updatedList.length; i++) {
       updatedList[i].ranking = i + 1;
+    }
+
+    // RECALCULATE CUMULATIVE PERCENTAGE
+    double runningTotal = 0;
+    for (int i = 0; i < updatedList.length; i++) {
+      runningTotal += updatedList[i].paymentSchedulePercentage;
+      updatedList[i].paymentCummulativePercentage = runningTotal;
     }
 
     emit(state.copyWith(bookingPaymentScheduleList: updatedList));
@@ -910,5 +935,37 @@ class BookingCubit extends Cubit<BookingState> {
     List<BookingPaymentScheduleData> paymentScheduleList,
   ) {
     emit(state.copyWith(bookingPaymentScheduleList: paymentScheduleList));
+  }
+
+  void onUpdateBookingAmount({
+    required double agreementValue,
+    required double agreementValueTds,
+    required double agreementValueGST,
+  }) {
+    final List<BookingPaymentScheduleData> newData =
+        state.bookingPaymentScheduleList.asMap().entries.map((entry) {
+          final master = entry.value;
+
+          final amount =
+              (agreementValue * master.paymentSchedulePercentage) / 100;
+
+          final gstAmount = (amount * agreementValueGST) / 100;
+
+          final tdsAmount = (amount * agreementValueTds) / 100;
+
+          return BookingPaymentScheduleData(
+            bookingPaymentScheduleId: 0,
+            type: "Stage",
+            name: master.name,
+            date: master.date,
+            paymentSchedulePercentage: master.paymentSchedulePercentage,
+            paymentScheduleAmount: amount,
+            paymentScheduleGSTAmount: gstAmount,
+            paymentScheduleTDSAmount: tdsAmount,
+            paymentCummulativePercentage: master.paymentCummulativePercentage,
+            ranking: master.ranking,
+          );
+        }).toList();
+    emit(state.copyWith(bookingPaymentScheduleList: newData));
   }
 }

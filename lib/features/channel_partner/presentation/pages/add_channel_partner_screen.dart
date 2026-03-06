@@ -922,10 +922,21 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       inputFormatterList:
                           InputValidator.aadhaarNumberInputFormatter(),
                       validator: (value) {
-                        if (value != null &&
-                            value.trim().isNotEmpty &&
-                            !InputValidator.isValidAadharNumber(value)) {
-                          return "Invalid Aadhaar Number";
+                        if (selectedAadhaarForPopUpFile
+                            .fileNameList
+                            .isNotEmpty) {
+                          if (value == null || value.isEmpty) {
+                            return "Aadhaar Card Number is required";
+                          }
+                          if (!InputValidator.isValidPAN(value)) {
+                            return "Aadhaar Card Number is invalid";
+                          }
+                        } else {
+                          if (value != null &&
+                              value.isNotEmpty &&
+                              !InputValidator.isValidPAN(value)) {
+                            return "Aadhaar Card Number is invalid";
+                          }
                         }
                         return null;
                       },
@@ -953,7 +964,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         if (_aadhaarNumberC.text.isNotEmpty &&
                             _aadhaarNumberC.text.trim().length == 12 &&
                             (fileList == null || fileList.isEmpty)) {
-                          return "Aadhaar Card is required";
+                          return "Aadhaar Card document is required";
                         }
                         return null;
                       },
@@ -964,10 +975,19 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       textController: _panNumberC,
                       inputFormatterList: InputValidator.panInputFormatters(),
                       validator: (value) {
-                        if (value != null &&
-                            value.trim().isNotEmpty &&
-                            !InputValidator.isValidPAN(value)) {
-                          return "Invalid PAN Number";
+                        if (selectedPANForPopUpFile.fileNameList.isNotEmpty) {
+                          if (value == null || value.isEmpty) {
+                            return "PAN Number is required";
+                          }
+                          if (!InputValidator.isValidPAN(value)) {
+                            return "PAN Number is invalid";
+                          }
+                        } else {
+                          if (value != null &&
+                              value.isNotEmpty &&
+                              !InputValidator.isValidPAN(value)) {
+                            return "PAN Number is invalid";
+                          }
                         }
                         return null;
                       },
@@ -1006,16 +1026,27 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       textController: _gstNumberC,
                       inputFormatterList: InputValidator.gstInputFormatters(),
                       validator: (value) {
-                        if (value != null &&
-                            value.trim().isNotEmpty &&
-                            !InputValidator.isValidGST(value)) {
-                          return "Invalid GST Number";
+                        if (selectedGSTCertificateForPopUpFile
+                            .fileNameList
+                            .isNotEmpty) {
+                          if (value == null || value.isEmpty) {
+                            return "GST Number is required";
+                          }
+                          if (!InputValidator.isValidGST(value)) {
+                            return "GST Number is invalid";
+                          }
+                        } else {
+                          if (value != null &&
+                              value.isNotEmpty &&
+                              !InputValidator.isValidGST(value)) {
+                            return "GST Number is invalid";
+                          }
                         }
                         return null;
                       },
                     ),
                     CustomMultiFilePicker(
-                      title: "Upload GST Certificate",
+                      title: "GST Certificate",
                       filePickType: FilePickType.kycDocument,
                       initialFileList:
                           selectedGSTCertificateForPopUpFile.fileNameList,
@@ -1043,7 +1074,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               _gstNumberC.text.trim(),
                             ) &&
                             (value == null || value.isEmpty)) {
-                          return "GST Certificate is required";
+                          return "GST Certificate document is required";
                         }
                         return null;
                       },

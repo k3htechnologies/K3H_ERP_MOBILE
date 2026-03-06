@@ -679,3 +679,24 @@ Future<bool> salesTargetSampleExcelImport(BuildContext context) async {
     return false;
   }
 }
+
+  String addCommasToInteger(double value) {
+    String integerPart = value.toStringAsFixed(2);
+    // This function formats the integer part in Indian style, e.g., 14,34,000
+    if (integerPart.length <= 6) {
+      return integerPart; // No commas needed for values with 3 digits or fewer
+    }
+
+    // First part (last 3 digits, no commas needed)
+    String lastThreeDigits = integerPart.substring(integerPart.length - 6);
+
+    // Remaining part (grouping in pairs of 2 digits)
+    String remainingDigits = integerPart.substring(0, integerPart.length - 6);
+
+    // Group the remaining part in pairs and add commas
+    String groupedDigits = remainingDigits.replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{2})+(?!\d))'), (match) => '${match[1]},');
+
+    // Combine the grouped part and the last three digits
+    return '$groupedDigits,$lastThreeDigits';
+  }
