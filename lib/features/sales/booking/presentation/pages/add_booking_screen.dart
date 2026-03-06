@@ -797,7 +797,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         final paymentScheduleSchemes =
             response['data'] as List<PaymentScheduleSchemeModel>;
 
-        /// 🔥 FORCE TYPE HERE
+        ///FORCE TYPE HERE
         final List<Map<String, dynamic>> apiList =
             paymentScheduleSchemes
                 .map<Map<String, dynamic>>(
@@ -808,7 +808,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 )
                 .toList();
 
-        /// 🔥 FORCE TYPE HERE ALSO
+        ///FORCE TYPE HERE ALSO
         apiList.add(<String, dynamic>{
           "zAttributesId": -1,
           "DisplayName": "Other",
