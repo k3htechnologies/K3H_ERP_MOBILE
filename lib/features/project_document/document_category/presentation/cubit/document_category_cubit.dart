@@ -16,6 +16,39 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
   final DocumentCategoryRepository _documentCategoryRepository =
       serviceLocator<DocumentCategoryRepository>();
 
+  // <---- SEARCH CATEGORY ---->
+  Future searchCategory(
+      BuildContext context,
+      int projectId,
+      String value,
+      ) async {
+    emit(
+      state.copyWith(
+        searchText: value,
+        documentCategoryList: [],
+        currentPage: 1,
+      ),
+    );
+    await getDocumentCategoryList(context, 1, projectId);
+  }
+
+  // <---- CLEAR DOCUMENT CATEGORY LIST ---->
+  void clearDocumentCategory() {
+    try {
+      emit(
+        state.copyWith(
+          documentCategoryList: [],
+          currentPage: 1,
+          totalNumberOfRecord: 0,
+          isLoading: true,
+          searchText: "",
+        ),
+      );
+    } catch (e) {
+      // Cubit is closed, ignore
+    }
+  }
+
   // <---- GET DOCUMENT CATEGORY LIST ---->
   Future getDocumentCategoryList(
     BuildContext context,
@@ -59,39 +92,6 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
     );
   }
 
-  // <---- SEARCH CATEGORY ---->
-  Future searchCategory(
-    BuildContext context,
-    int projectId,
-    String value,
-  ) async {
-    emit(
-      state.copyWith(
-        searchText: value,
-        documentCategoryList: [],
-        currentPage: 1,
-      ),
-    );
-    await getDocumentCategoryList(context, 1, projectId);
-  }
-
-  // <---- CLEAR DOCUMENT CATEGORY LIST ---->
-  void clearDocumentCategory() {
-    try {
-      emit(
-        state.copyWith(
-          documentCategoryList: [],
-          currentPage: 1,
-          totalNumberOfRecord: 0,
-          isLoading: true,
-          searchText: "",
-        ),
-      );
-    } catch (e) {
-      // Cubit is closed, ignore
-    }
-  }
-
   // <---- DELETE DOCUMENT CATEGORY  ---->
   Future deleteDocumentCategory(
     int projectId,
@@ -116,7 +116,7 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
       (success) {
         showSuccessMessage(
           context,
-          subTitle: "Document Category Deleted Successfully",
+          subTitle: "Project Document Category Deleted Successfully",
         );
 
         getDocumentCategoryList(context, state.currentPage, projectId);
@@ -161,7 +161,7 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
         );
         showSuccessMessage(
           context,
-          subTitle: 'Week Off Mapping Added Successfully',
+          subTitle: 'Project Document Category Added Successfully',
         );
       },
     );
@@ -209,9 +209,39 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Week Off Mapping Updated Successfully",
+          subTitle: "Project Document Category Updated Successfully",
         );
       },
     );
   }
+
+  // <---- EXPORT EXCEL PDF ---->
+  Future exportExcelPdf(BuildContext context, String exportType,int projectId) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _documentCategoryRepository.exportDocumentCategory(
+      pageNumber: 1,
+      pageSize: state.totalNumberOfRecord,
+      projectId: projectId,
+      queryParams:
+      state.searchText != ""
+          ? {"ProjectDocumentCategory": state.searchText, "ExportType": exportType}
+          : {"ExportType": exportType},
+    );
+    goRouter.pop();
+    result.fold(
+          (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+          (response) {
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Project Document Category Master ${DateTime.now()}.pdf"
+              : "Project Document Category Master ${DateTime.now()}.xlsx",
+        );
+        showSuccessMessage(context, subTitle: 'Exported as $exportType Successfully');
+      },
+    );
+  }
+
 }

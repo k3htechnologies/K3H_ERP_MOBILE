@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_time_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -154,40 +155,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: IntrinsicWidth(
-                child: Container(
-                  height: 35,
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: AppColor.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppColor.grey.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: TabBar(
-                    controller: _tabController,
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.start,
-                    labelColor: AppColor.primary,
-                    unselectedLabelColor: AppColor.grey,
-                    indicator: BoxDecoration(
-                      color: AppColor.lightBlue,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    dividerColor: Colors.transparent,
-                    labelStyle: AppTextStyle.ts14M(),
-                    unselectedLabelStyle: AppTextStyle.ts14M(),
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: EdgeInsets.zero,
-                    tabs: const [Tab(text: 'Weekly'), Tab(text: 'Monthly')],
-                  ),
-                ),
-              ),
-            ),
+            ChipStyleTabBar(controller: _tabController, tabs: ["Weekly","Monthly"]),
             verticalSpacing(height: 16),
             Expanded(
               child: ValueListenableBuilder<DateTime>(

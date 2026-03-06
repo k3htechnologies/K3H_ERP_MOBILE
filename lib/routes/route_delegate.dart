@@ -20,6 +20,7 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_chan
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/dashboard/presentation/pages/project_overview_screen.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_inventory_specification_screen.dart';
@@ -268,6 +269,8 @@ import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_sc
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_tracker_cubit.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
+import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/cubit/classification_parameters_cubit.dart';
+import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/pages/classification_parameters_screen.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/add_enquiry_screen.dart';
@@ -445,6 +448,28 @@ final GoRouter goRouter = GoRouter(
             return BlocProvider(
               create: (_) => DashboardCubit(),
               child: DashboardScreen(),
+            );
+          },
+        ),
+        //
+        GoRoute(
+          path: AppRoutes.projectOverview,
+          name: AppRoutes.projectOverview,
+          builder: (context, state) {
+            final queryParameterProject = state.uri.queryParameters['project'];
+            final ProjectModel? projectModel =
+                queryParameterProject != null
+                    ? ProjectModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeQueryComponent(queryParameterProject),
+                        ),
+                      ),
+                    )
+                    : null;
+            return BlocProvider(
+              create: (context) => DashboardCubit(),
+              child: ProjectOverviewScreen(project: projectModel!),
             );
           },
         ),
@@ -4005,6 +4030,24 @@ final GoRouter goRouter = GoRouter(
                       index: index,
                       projectId: projectId,
                     );
+                  },
+                ),
+              ],
+            ),
+            // SALES CLASSIFICATION PARAMETERS
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => ClassificationParametersCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.classificationParameter,
+                  path: AppRoutes.classificationParameter,
+                  builder: (context, state) {
+                    return ClassificationParametersScreen();
                   },
                 ),
               ],

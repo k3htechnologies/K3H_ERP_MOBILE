@@ -545,33 +545,18 @@ class _TenantScreenState extends State<TenantScreen> {
                                           },
                                         );
                                       },
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 5,
-                                          vertical: 3,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                            bottom: BorderSide(
-                                              color: AppColor.primary,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          tenant.tenantApplicantData
-                                              .firstWhere(
-                                                (e) =>
-                                                    e.applicantType
-                                                        .toLowerCase() ==
-                                                    "applicant",
-                                              )
-                                              .applicantName,
-                                          style: AppTextStyle.ts16M(
-                                            color: AppColor.primary,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                                      child: Text(
+                                        tenant.tenantApplicantData
+                                            .firstWhere(
+                                              (e) =>
+                                          e.applicantType
+                                              .toLowerCase() ==
+                                              "applicant",
+                                        )
+                                            .applicantName,
+                                        style: AppTextStyle.ts16M(
+                                          color: AppColor.primary,
+                                        ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                                       ),
                                     ),
                                   ),

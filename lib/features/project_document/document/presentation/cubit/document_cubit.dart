@@ -284,7 +284,7 @@ class DocumentCubit extends Cubit<DocumentState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Project Document Updated Successfully",
+          subTitle: "Project Document Added Successfully",
         );
       },
     );

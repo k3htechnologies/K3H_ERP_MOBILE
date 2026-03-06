@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -375,40 +376,7 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
           return Column(
             children: [
               // MAIN TAB BAR
-              Align(
-                alignment: Alignment.centerLeft,
-                child: IntrinsicWidth(
-                  child: Container(
-                    height: 35,
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: AppColor.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppColor.grey.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    child: TabBar(
-                      controller: _tabController,
-                      isScrollable: true,
-                      tabAlignment: TabAlignment.start,
-                      labelColor: AppColor.primary,
-                      unselectedLabelColor: AppColor.grey,
-                      indicator: BoxDecoration(
-                        color: AppColor.lightBlue,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      dividerColor: Colors.transparent,
-                      labelStyle: AppTextStyle.ts14M(),
-                      unselectedLabelStyle: AppTextStyle.ts14M(),
-                      labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      padding: EdgeInsets.zero,
-                      tabs: tabTitles.map((title) => Tab(text: title)).toList(),
-                    ),
-                  ),
-                ),
-              ),
+              ChipStyleTabBar(controller: _tabController, tabs: tabTitles),
               // TENURE TAB BAR
               BlocBuilder<RentCubit, RentState>(
                 bloc: _rentCubit,
@@ -439,49 +407,10 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                       tenureList.isNotEmpty &&
                       _tenureTabController.length == tenureList.length &&
                       _tenureTabController.length > 0) {
-                    return Align(
-                      alignment: Alignment.centerLeft,
-                      child: IntrinsicWidth(
-                        child: Container(
-                          height: 35,
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColor.white,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: AppColor.grey.withValues(alpha: 0.2),
-                            ),
-                          ),
-                          child: TabBar(
-                            controller: _tenureTabController,
-                            isScrollable: true,
-                            tabAlignment: TabAlignment.start,
-                            labelColor: AppColor.primary,
-                            unselectedLabelColor: AppColor.grey,
-                            indicator: BoxDecoration(
-                              color: AppColor.lightBlue,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            dividerColor: Colors.transparent,
-                            labelStyle: AppTextStyle.ts14M(),
-                            unselectedLabelStyle: AppTextStyle.ts14M(),
-                            labelPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                            ),
-                            padding: EdgeInsets.zero,
-                            tabs:
-                                tenureList
-                                    .map(
-                                      (tenure) => Tab(text: "Tenure $tenure"),
-                                    )
-                                    .toList(),
-                          ),
-                        ),
-                      ),
+                    return ChipStyleTabBar(
+                      controller: _tenureTabController,
+                      tabs:
+                          tenureList.map((tenure) => "Tenure $tenure").toList(),
                     );
                   }
                   return const SizedBox.shrink();

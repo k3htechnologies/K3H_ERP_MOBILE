@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -195,10 +196,11 @@ class _DocumentScreenState extends State<DocumentScreen>
                 height: 70,
                 padding: EdgeInsets.symmetric(vertical: 16),
                 child: CustomButton(
+                  leading: Icon(documentModel != null?Icons.edit:Icons.add, size: 16, color: AppColor.white),
                   text:
                       documentModel != null
-                          ? "Update Document"
-                          : "Add Document",
+                          ? "Update Document Name"
+                          : "Add Document Name",
                   onPressed: () {
                     _submitForm(documentModel: documentModel, index: index);
                   },
@@ -220,9 +222,10 @@ class _DocumentScreenState extends State<DocumentScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "Document",
+        screenTitle: "Project Document",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
+        searchHintText: "Search by Document Name",
         onSearchSubmit: (value) {
           _documentCubit.searchDocument(value, context);
         },
@@ -234,14 +237,14 @@ class _DocumentScreenState extends State<DocumentScreen>
         },
         extraHeight: 20,
         secondaryBuilder:
-            (_) => CustomButton(
+            (_) => _routeAuthorizationModel.isAction? CustomButton(
               text: "Add",
               onPressed: () {
                 _showPopUpToAddUpdateDocument();
               },
               backgroundColor: AppColor.primary,
               leading: Icon(Icons.add, size: 16, color: AppColor.white),
-            ),
+            ):SizedBox(),
       ),
       body: SafeArea(
         child: BlocListener<DocumentCubit, DocumentState>(
@@ -265,7 +268,7 @@ class _DocumentScreenState extends State<DocumentScreen>
 
               // 2. Loaded but no categories
               if (state.documentCategoryModelList.isEmpty) {
-                return Center(child: noDataWidget());
+                return Center(child: noDataWidget(message: "No Project Document Data Found"));
               }
 
               // 3. Categories exist but controller not ready yet
@@ -313,45 +316,17 @@ class _DocumentScreenState extends State<DocumentScreen>
       return const SizedBox.shrink();
     }
 
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: IntrinsicWidth(
-        child: Container(
-          height: 35,
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: AppColor.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
-          ),
-          child: TabBar(
-            controller: _categoryTabController,
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            labelColor: AppColor.primary,
-            unselectedLabelColor: AppColor.grey,
-            indicator: BoxDecoration(
-              color: AppColor.lightBlue,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            indicatorSize: TabBarIndicatorSize.tab,
-            dividerColor: Colors.transparent,
-            labelStyle: AppTextStyle.ts14M(),
-            unselectedLabelStyle: AppTextStyle.ts14M(),
-            labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-            tabs:
-                state.documentCategoryModelList
-                    .map((b) => Tab(text: b.projectDocumentCategoryName))
-                    .toList(),
-          ),
-        ),
-      ),
+    return ChipStyleTabBar(
+      controller: _categoryTabController!,
+      tabs: state.documentCategoryModelList
+          .map((e) => e.projectDocumentCategoryName)
+          .toList(),
     );
   }
 
   Widget _buildDocumentListForCategory(DocumentState state) {
     if (state.documentList.isEmpty) {
-      return noDataWidget();
+      return noDataWidget(message: "No Project Document Data Found");
     }
 
     return BlocBuilder<DocumentCubit, DocumentState>(
@@ -419,67 +394,70 @@ class _DocumentScreenState extends State<DocumentScreen>
                           ),
                         ),
                       ),
+                      if(_routeAuthorizationModel.isAction)...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            CustomIconButton(
+                              icon: Icon(
+                                Icons.add,
+                                size: 16,
+                                color: AppColor.primary,
+                              ),
+                              onPressed: () async {
+                                goRouter.pushNamed(
+                                  AppRoutes.addDocument,
+                                  queryParameters: {
+                                    "document": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(document.toJson()),
+                                      ),
+                                    ),
+                                    "index": index.toString(),
 
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          CustomIconButton(
-                            icon: Icon(
-                              Icons.add,
-                              size: 16,
-                              color: AppColor.primary,
+                                    "isEdit": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        false.toString(),
+                                      ),
+                                    ),
+                                  },
+                                );
+                              },
                             ),
-                            onPressed: () async {
-                              goRouter.pushNamed(
-                                AppRoutes.addDocument,
-                                queryParameters: {
-                                  "document": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(document.toJson()),
-                                    ),
-                                  ),
-                                  "index": index.toString(),
-
-                                  "isEdit": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      false.toString(),
-                                    ),
-                                  ),
+                            horizontalSpacing(),
+                            CustomIconButton.edit(
+                              onPressed: () async {
+                                _showPopUpToAddUpdateDocument(
+                                  documentModel: document,
+                                  index: index,
+                                );
+                              },
+                            ),
+                            if(document.uploadedProjectDocumentCount==0)...[
+                              horizontalSpacing(),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteDocument(
+                                    context,
+                                    document,
+                                    index,
+                                  );
                                 },
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 8),
-                          CustomIconButton.edit(
-                            onPressed: () async {
-                              _showPopUpToAddUpdateDocument(
-                                documentModel: document,
-                                index: index,
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 8),
-                          CustomIconButton.delete(
-                            onPressed: () {
-                              _showPopupToDeleteDocument(
-                                context,
-                                document,
-                                index,
-                              );
-                            },
-                          ),
-                        ],
-                      ),
+                              ),
+                            ]
+                          ],
+                        ),
+                      ]
                     ],
                   ),
                   verticalSpacing(height: 10),
                   buildRowTitleValue(
-                    title: "Pending Approvals",
+                    title: "Approvals",
                     value:
-                        document.approvalPendingProjectDocumentCount.toString(),
+                        "${document.approvalPendingProjectDocumentCount} Pending",
                   ),
                   buildRowTitleValue(
-                    title: "Documents",
+                    title: "Document Count",
                     value: document.uploadedProjectDocumentCount.toString(),
                   ),
                 ],

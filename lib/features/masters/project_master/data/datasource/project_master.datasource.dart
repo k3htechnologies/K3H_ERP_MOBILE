@@ -24,6 +24,7 @@ abstract interface class ProjectMasterDatasource {
 
   Future<Map<String, dynamic>> apicallGetProjectWithEmployee({
     required String projectId,
+    Map<String, dynamic>? queryParams,
   });
 
   Future<Map<String, dynamic>> apicallAddUpdateProjectWithBankDetails({
@@ -183,9 +184,12 @@ class ProjectMasterDatasourceImpl implements ProjectMasterDatasource {
   @override
   Future<Map<String, dynamic>> apicallGetProjectWithEmployee({
     required String projectId,
+    Map<String, dynamic>? queryParams,
   }) async {
     String pullProjectWithEmployeeUrl({required int projectId}) {
-      return "Project/PullProjectWithEmployee?ProjectId=$projectId";
+      var url =  "Project/PullProjectWithEmployee?ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
     }
 
     try {

@@ -494,7 +494,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               isMenuButton: true,
               authorization: _routeAuthorization,
               onProjectChangeCallback: (_) {
-                _showOverlayNotifier.value = true;
+                final now = DateTime.now();
+                final start = DateTime(now.year, now.month, now.day);
+                final end = start;
+                _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
+                _dashboardCubit.getDashboardList(context);
               },
               showNotification: true,
             ),

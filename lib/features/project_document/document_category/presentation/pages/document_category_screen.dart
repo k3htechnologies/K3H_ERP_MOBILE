@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/data/model/document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/presentation/cubit/document_category_cubit.dart';
@@ -31,7 +32,7 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
   late AuthorizationModel _routeAuthorizationModel;
 
   //PROJECT ID
-  late int projectId;
+  late ProjectModel _project;
 
   // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
@@ -49,8 +50,12 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
     _initializeTextEditingController();
     _onScroll();
     //SET PROJECT ID
-    projectId = getProject().projectId;
-    _documentCategoryCubit.getDocumentCategoryList(context, 1, projectId);
+    _project = getProject();
+    _documentCategoryCubit.getDocumentCategoryList(
+      context,
+      1,
+      _project.projectId,
+    );
   }
 
   // PAGINATION
@@ -61,12 +66,12 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
           !_documentCategoryCubit.state.isLoading! &&
           _documentCategoryCubit.state.documentCategoryList.length <
               _documentCategoryCubit.state.totalNumberOfRecord) {
-        if (projectId != 0) {
+        if (_project.projectId != 0) {
           _documentCategoryCubit.getDocumentCategoryList(
             context,
             _documentCategoryCubit.state.currentPage + 1,
 
-            projectId,
+            _project.projectId,
           );
         }
       }
@@ -87,12 +92,16 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
   ) async {
     final shouldDelete = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a document category?',
-      'Deleting this document category will permanently remove its contents.',
+      'You are about to delete a project document category ?',
+      'Deleting this project document category will permanently remove all associated data.',
     );
 
     if (shouldDelete && context.mounted) {
-      _documentCategoryCubit.deleteDocumentCategory(projectId, obj, context);
+      _documentCategoryCubit.deleteDocumentCategory(
+        _project.projectId,
+        obj,
+        context,
+      );
     }
   }
 
@@ -100,20 +109,42 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "Category",
+        screenTitle: "Project Document Category",
         authorization: _routeAuthorizationModel,
         onSearchSubmit: (value) {
-          if (projectId != 0) {
-            _documentCategoryCubit.searchCategory(context, projectId, value);
+          if (_project.projectId != 0) {
+            _documentCategoryCubit.searchCategory(
+              context,
+              _project.projectId,
+              value,
+            );
           }
         },
         textController: _searchC,
+        searchHintText: "Search by Project Document Category",
         onAddCallback: () {
-          if (projectId == 0) {
+          if (_project.projectId == 0) {
             showErrorMessage(context, 'Error', 'Please select a project');
             return;
           }
           goRouter.pushNamed(AppRoutes.addDocumentCategory);
+        },
+        onProjectChangeCallback: (value) {
+          _project = value;
+          if (context.mounted) {
+            _documentCategoryCubit.getDocumentCategoryList(
+              context,
+              1,
+              value.projectId,
+            );
+          }
+        },
+        onExportCallback: (value) {
+          _documentCategoryCubit.exportExcelPdf(
+            context,
+            value,
+            _project.projectId,
+          );
         },
       ),
       body: BlocBuilder<DocumentCategoryCubit, DocumentCategoryState>(
@@ -123,7 +154,11 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
             return Center(child: loader());
           }
           if (state.documentCategoryList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(
+              child: noDataWidget(
+                message: "No Project Document Category Data Found",
+              ),
+            );
           }
           return ListView.builder(
             controller: scrollController,
@@ -165,24 +200,11 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
                                 },
                               );
                             },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Text(
-                                category.projectDocumentCategoryName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                            child: Text(
+                              category.projectDocumentCategoryName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                             ),
                           ),
                         ),
@@ -190,7 +212,7 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
                           children: [
                             CustomIconButton.edit(
                               onPressed: () async {
-                                if (projectId == 0) {
+                                if (_project.projectId == 0) {
                                   showErrorMessage(
                                     context,
                                     'Error',
@@ -212,7 +234,8 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
                                 );
                               },
                             ),
-                            const SizedBox(width: 8),
+                            horizontalSpacing(),
+                            if(category.documentCount!=0)
                             CustomIconButton.delete(
                               onPressed: () {
                                 _showPopupToDeleteDocumentCategory(
@@ -229,7 +252,7 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
                     ),
                     verticalSpacing(height: 8),
                     buildRowTitleValue(
-                      title: "Sequencce",
+                      title: "Sequence",
                       value: category.orderBy.toString(),
                     ),
                     buildRowTitleValue(

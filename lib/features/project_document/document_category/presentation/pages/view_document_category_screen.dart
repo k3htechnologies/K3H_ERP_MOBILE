@@ -16,7 +16,7 @@ class ViewDocumentCategoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Document Category",
+        screenTitle: "Project Document Category",
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(
@@ -37,6 +37,7 @@ class ViewDocumentCategoryScreen extends StatelessWidget {
                       style: AppTextStyle.ts16SB(),
                     ),
                     Row(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
@@ -45,7 +46,7 @@ class ViewDocumentCategoryScreen extends StatelessWidget {
                               documentCategoryModel.projectDocumentCategoryName,
                         ),
                         buildColumnTitleValue(
-                          title: "Order By",
+                          title: "Sequence",
                           value: documentCategoryModel.orderBy.toString(),
                         ),
                       ],
@@ -80,7 +81,7 @@ class ViewDocumentCategoryScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             documentCategoryModel.createdDate,
                           ),
                         ),
@@ -100,7 +101,7 @@ class ViewDocumentCategoryScreen extends StatelessWidget {
                           title: "Modified Date",
                           value:
                               documentCategoryModel.modifiedDate != null
-                                  ? formatDateTimeAsDDMMMYYYY(
+                                  ? formatDate(
                                     documentCategoryModel.modifiedDate!,
                                   )
                                   : '',

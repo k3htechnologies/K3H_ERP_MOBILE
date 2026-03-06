@@ -3,12 +3,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-/// Slide-in overlay from right to left to pick a project.
 class ProjectSelectorOverlay extends StatefulWidget {
   final List<ProjectModel> projects;
   final int? selectedProjectId;
@@ -31,10 +33,57 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
+  ProjectModel? selectedProject;
+  bool isLoadingProject = false;
+
+  // REPOSITORY
+  final ProjectMasterRepository _projectMasterRepository =
+      serviceLocator<ProjectMasterRepository>();
+
+  // FETCH PROJECT BY ID
+  Future<void> _fetchProjectById(int projectId) async {
+    setState(() {
+      isLoadingProject = true;
+    });
+
+    final result = await _projectMasterRepository.getProjectList(
+      pageNumber: 1,
+      pageSize: 1,
+      queryParams: {"ProjectId": projectId},
+    );
+
+    result.fold(
+      (failure) {
+        setState(() {
+          isLoadingProject = false;
+        });
+      },
+      (response) {
+        if (response["data"].isNotEmpty) {
+          setState(() {
+            selectedProject = response["data"].first;
+            isLoadingProject = false;
+          });
+        }
+      },
+    );
+  }
 
   @override
   void initState() {
     super.initState();
+    try {
+      selectedProject = widget.projects.firstWhere(
+        (p) => p.projectId == widget.selectedProjectId,
+      );
+    } catch (_) {
+      selectedProject =
+          widget.projects.isNotEmpty ? widget.projects.first : null;
+    }
+
+    if (widget.selectedProjectId != null) {
+      _fetchProjectById(widget.selectedProjectId!);
+    }
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -52,34 +101,30 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
     super.dispose();
   }
 
-  void _close() {
-    _controller.reverse().then((_) {
+  void _close() async {
+    if (mounted) {
+      await _controller.reverse();
       widget.onClose();
-    });
+    }
   }
 
   void _navigateToProjectDetails(ProjectModel project) {
-    final encryptedProject = Uri.encodeQueryComponent(
-      EncryptionManager.encryptData(jsonEncode(project.toJson())),
-    );
-    goRouter.pushNamed(
-      AppRoutes.projectDetails,
-      queryParameters: {'project': encryptedProject},
-    );
+    widget.onClose();
+
+    Future.delayed(const Duration(milliseconds: 150), () {
+      final encryptedProject = Uri.encodeQueryComponent(
+        EncryptionManager.encryptData(jsonEncode(project.toJson())),
+      );
+
+      goRouter.pushNamed(
+        AppRoutes.projectOverview,
+        queryParameters: {'project': encryptedProject},
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    ProjectModel? selectedProject;
-    try {
-      selectedProject = widget.projects.firstWhere(
-        (p) => p.projectId == widget.selectedProjectId,
-      );
-    } catch (_) {
-      selectedProject =
-          widget.projects.isNotEmpty ? widget.projects.first : null;
-    }
-
     return GestureDetector(
       onTap: _close,
       child: Material(
@@ -112,17 +157,8 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                         vertical: 14,
                       ),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _selectionDot(true),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              selectedProject?.projectName ?? '',
-                              style:AppTextStyle.ts16SB(),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
                           if (selectedProject != null)
                             GestureDetector(
                               onTap:
@@ -132,9 +168,18 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                               child: Icon(
                                 Icons.info_outline,
                                 color: AppColor.primary,
-                                size: 18,
+                                size: 20,
                               ),
                             ),
+                          horizontalSpacing(),
+                          Expanded(
+                            child: Text(
+                              selectedProject?.projectName ?? '',
+                              style: AppTextStyle.ts16SB(),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -174,10 +219,12 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                                 ),
                             itemBuilder: (context, index) {
                               final project = filteredProjects[index];
-                              return InkWell(
-                                onTap: () {
-                                  widget.onSelect(project);
-                                  _close();
+                              return GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () async {
+                                    await _controller.reverse();
+                                    widget.onSelect(project);
+                                    widget.onClose();
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(
@@ -207,21 +254,6 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _selectionDot(bool isSelected) {
-    return Container(
-      width: 20,
-      height: 20,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: isSelected ? const Color(0xFFd6d6d6) : Colors.transparent,
-        border: Border.all(
-          color: isSelected ? Colors.transparent : const Color(0xFFd6d6d6),
-          width: 1.2,
         ),
       ),
     );

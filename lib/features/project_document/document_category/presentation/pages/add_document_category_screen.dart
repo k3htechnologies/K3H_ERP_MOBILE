@@ -3,11 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/data/model/document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/presentation/cubit/document_category_cubit.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddDocumentCategoryScreen extends StatefulWidget {
   final DocumentCategoryModel? documentCategoryModel;
@@ -33,7 +37,7 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
-  //TEXTEDITING CONTROLLER
+  //TEXT EDITING CONTROLLER
   late TextEditingController _documentCategoryC, _orderByC;
 
   //EDIT MODE
@@ -98,48 +102,58 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle:
-            _isEditMode
-                ? "Update Project Document Category"
-                : "Add Project Document Category",
+        screenTitle: "Project Document Category",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                CustomTextField(
-                  title: "Project Document Category",
-                  hint: "Enter project document category",
-                  isRequired: true,
-                  textController: _documentCategoryC,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Project Document Category is required";
-                    }
-                    return null;
-                  },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _isEditMode
+                    ? "Update Project Document Category"
+                    : "Add Project Document Category",
+                style: AppTextStyle.ts16SB(),
+              ),
+              verticalSpacing(),
+              Container(
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    CustomTextField(
+                      title: "Project Document Category",
+                      hint: "Enter project document category",
+                      isRequired: true,
+                      textController: _documentCategoryC,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Project Document Category is required";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: "Sequence",
+                      hint: "Enter Sequence",
+                      isRequired: true,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digit(10),
+                      textController: _orderByC,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Sequence is required";
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
                 ),
-                CustomTextField(
-                  title: "Order By",
-                  hint: "Enter order by",
-                  isRequired: true,
-                  keyboardType: TextInputType.number,
-                  textController: _orderByC,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Order By is required";
-                    }
-                    return null;
-                  },
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -148,6 +162,11 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              size: 18,
+              color: AppColor.white,
+            ),
             text:
                 _isEditMode
                     ? "Update Document Category"

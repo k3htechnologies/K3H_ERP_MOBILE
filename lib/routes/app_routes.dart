@@ -9,6 +9,7 @@ class AppRoutes {
   /// MAIN DASHBOARD
   // DASHBOARD
   static String dashboardScreen = "/dashboard";
+  static String projectOverview = "/projectOverview";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// SETTINGS
@@ -136,6 +137,9 @@ class AppRoutes {
 
   // SALES REPORT
   static String performanceReport = "/performanceReport";
+
+  // SALES CLASSIFICATION PARAMETERS
+  static String classificationParameter = "/classificationParameter";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PAYROLL MASTER

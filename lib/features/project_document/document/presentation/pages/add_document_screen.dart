@@ -4,6 +4,7 @@ import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
 import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -34,7 +35,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
   //TEXTEDITNIG CONTROLLER
-  late TextEditingController _remarkC;
+  late TextEditingController _documentNameC, _remarkC;
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
   DateTime? expiryDate;
@@ -75,6 +76,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
   }
 
   void _initializeTextEditingController() {
+    _documentNameC = TextEditingController();
     _remarkC = TextEditingController();
   }
 
@@ -112,6 +114,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
   }
 
   void _prefillForm(DocumentModel document) {
+    _documentNameC.text = document.projectDocumentName;
     // Find the matching status in the list
     final matchedStatus = statusList.firstWhere(
       (status) => status['DisplayName'] == document.projectDocumentStatus,
@@ -152,6 +155,15 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
+                if (_isEditMode) ...[
+                  CustomTextField(
+                    title: "Document Name",
+                    hint: "Enter Document Name",
+                    isRequired: true,
+                    readOnly: true,
+                    textController: _documentNameC,
+                  ),
+                ],
                 CustomDropDownWidget(
                   title: "Status",
                   dataList: statusList,
@@ -161,9 +173,15 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
                   onSelected: (Map<String, dynamic> p1) {
                     _selectedStatus = [p1];
                   },
+                  validator: (value) {
+                    if (value == null || value['zAttributesId'] == -1) {
+                      return "Status is required";
+                    }
+                    return null;
+                  },
                 ),
                 CustomMultiFilePicker(
-                  maxFiles: 3,
+                  maxFiles: 5,
                   title: "Files",
                   initialFileList: selectedDocumentFile.fileNameList,
                   onFilePickedCallback: (bytesList, fileNameList) {
@@ -188,6 +206,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
                 CustomTextField(
                   title: "Remark",
                   hint: "Enter Remark",
+                  minLines: 3,
                   maxLines: 3,
                   textController: _remarkC,
                 ),
@@ -201,6 +220,11 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              size: 16,
+              color: AppColor.white,
+            ),
             text: _isEditMode ? "Update Document" : "Add Document",
             onPressed: _submitForm,
           ),

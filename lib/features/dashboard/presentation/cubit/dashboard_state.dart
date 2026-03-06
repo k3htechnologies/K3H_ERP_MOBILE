@@ -5,26 +5,35 @@ final class DashboardState extends BaseState {
   final UserDashboardModel? userData;
   final List<DashboardModel> dashboardModelList;
   final List<UserDashboardModel> userDashboardModelList;
+  final String searchEmployee;
+  final List<UserModel>? employeeByProject;
+  final int currentTabIndex;
   const DashboardState({
     super.isLoading,
     this.data,
     this.userData,
     required this.dashboardModelList,
     required this.userDashboardModelList,
+    required this.searchEmployee,
+    required this.employeeByProject,
+    this.currentTabIndex = 0,
   });
   factory DashboardState.initial() => DashboardState(
     dashboardModelList: [],
     isLoading: true,
     userDashboardModelList: [],
+    employeeByProject: [],
+    searchEmployee: "",
+    currentTabIndex: 0,
   );
   DashboardState copyWith({
     bool? isLoading,
-    int? totalNumberOfRecord,
-    int? currentPage,
     DashboardModel? data,
     UserDashboardModel? userData,
     List<DashboardModel>? dashboardModelList,
     List<UserDashboardModel>? userDashboardModelList,
+    String? searchEmployee,
+    List<UserModel>? employeeByProject,
     int? currentTabIndex,
     bool todayHasPunchIn = false,
   }) {
@@ -35,6 +44,9 @@ final class DashboardState extends BaseState {
       dashboardModelList: dashboardModelList ?? this.dashboardModelList,
       userDashboardModelList:
           userDashboardModelList ?? this.userDashboardModelList,
+      searchEmployee: searchEmployee ?? this.searchEmployee,
+      employeeByProject: employeeByProject ?? this.employeeByProject,
+      currentTabIndex: currentTabIndex ?? this.currentTabIndex,
     );
   }
 
@@ -45,5 +57,8 @@ final class DashboardState extends BaseState {
     data,
     userData,
     userDashboardModelList,
+    searchEmployee,
+    employeeByProject,
+    currentTabIndex,
   ];
 }

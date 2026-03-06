@@ -1,10 +1,12 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/dashboard.model.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
 import 'package:k3h_erp_app/features/dashboard/data/repository/dashboard.repository.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -17,6 +19,15 @@ class DashboardCubit extends Cubit<DashboardState> {
   // REPOSITORY
   final DashboardRepository _dashboardRepository =
       serviceLocator<DashboardRepository>();
+
+  // PROJECT MASTER REPO
+  final ProjectMasterRepository _projectMasterRepository =
+      serviceLocator<ProjectMasterRepository>();
+
+  //  ON TAB CHANGE METHOD
+  void onTabChanged(int index, BuildContext context) {
+    emit(state.copyWith(currentTabIndex: index));
+  }
 
   // <---- GET ATTENDANCE LIST ---->
   Future getAttendanceList(
@@ -170,6 +181,32 @@ class DashboardCubit extends Cubit<DashboardState> {
             isLoading: false,
           ),
         );
+      },
+    );
+  }
+
+  Future getProjectEmployeesList(
+    BuildContext context,
+    int projectId, {
+    String? searchText,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    var result = await _projectMasterRepository.getProjectWithEmployee(
+      projectId: projectId.toString(),
+      queryParams: {"FullName":searchText ?? ""},
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final employees =
+            (response['data'] as List? ?? [])
+                .map((e) => UserModel.fromJson(e))
+                .toList();
+        emit(state.copyWith(employeeByProject: employees, isLoading: false));
       },
     );
   }

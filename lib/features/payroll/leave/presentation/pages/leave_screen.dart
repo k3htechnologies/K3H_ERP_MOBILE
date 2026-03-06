@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
@@ -547,36 +548,9 @@ class _LeaveScreenState extends State<LeaveScreen>
   }
 
   Widget _buildStatusTabBar() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: IntrinsicWidth(
-        child: Container(
-          height: 40,
-          margin: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-          decoration: BoxDecoration(
-            color: AppColor.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
-          ),
-          child: TabBar(
-            controller: _tabController,
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            labelColor: AppColor.primary,
-            unselectedLabelColor: AppColor.grey,
-            indicator: BoxDecoration(
-              color: AppColor.lightBlue,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            indicatorSize: TabBarIndicatorSize.tab,
-            dividerColor: Colors.transparent,
-            labelStyle: AppTextStyle.ts14M(),
-            unselectedLabelStyle: AppTextStyle.ts14M(),
-            labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-            tabs: _statusTabs.map((t) => Tab(text: t)).toList(),
-          ),
-        ),
-      ),
+    return ChipStyleTabBar(
+      controller: _tabController!,
+      tabs: _statusTabs.map((t) => t).toList(),
     );
   }
 

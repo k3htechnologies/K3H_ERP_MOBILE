@@ -8,10 +8,10 @@ import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/widgets/employee_document_dialog.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
@@ -72,44 +72,19 @@ class _EmployeeMasterViewDetailsScreenState
             child: Column(
               children: [
                 verticalSpacing(),
-                Container(
-                  height: 35,
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: AppColor.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppColor.grey.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: TabBar(
-                    tabAlignment: TabAlignment.start,
-                    controller: _tabController,
-                    isScrollable: true,
-                    labelColor: AppColor.primary,
-                    unselectedLabelColor: AppColor.grey,
-                    indicator: BoxDecoration(
-                      color: AppColor.lightBlue,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    dividerColor: Colors.transparent,
-                    labelStyle: AppTextStyle.ts14M(),
-                    unselectedLabelStyle: AppTextStyle.ts14M(),
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: EdgeInsets.zero,
-                    tabs: const [
-                      Tab(text: 'Overview'),
-                      Tab(text: 'Education Details'),
-                      Tab(text: 'Experience Details'),
-                      Tab(text: 'Branch Associations'),
-                      Tab(text: 'Document'),
-                      Tab(text: 'Assets'),
-                      Tab(text: 'Project'),
-                      Tab(text: 'Shift Policy'),
-                      Tab(text: 'Week Off Policy'),
-                    ],
-                  ),
+                ChipStyleTabBar(
+                  controller: _tabController,
+                  tabs: const [
+                    "Overview",
+                    "Education Details",
+                    "Experience Details",
+                    "Branch Associations",
+                    "Document",
+                    "Assets",
+                    "Project",
+                    "Shift Policy",
+                    "Week Off Policy",
+                  ],
                 ),
                 Expanded(
                   child: TabBarView(
@@ -660,13 +635,7 @@ class _EmployeeMasterViewDetailsScreenState
 
         if (state.employeeEducationDetailsList.isEmpty) {
           return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Text(
-                "No education details found",
-                style: AppTextStyle.ts16M(color: AppColor.grey),
-              ),
-            ),
+            child: noDataWidget(message: "No Education Details Found"),
           );
         }
         return ListView.builder(
@@ -729,13 +698,7 @@ class _EmployeeMasterViewDetailsScreenState
 
         if (state.employeeExperienceDetailsList.isEmpty) {
           return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Text(
-                "No experience details found",
-                style: AppTextStyle.ts16M(color: AppColor.grey),
-              ),
-            ),
+            child: noDataWidget(message: "No Experience Details Found"),
           );
         }
         return ListView.builder(
@@ -797,13 +760,7 @@ class _EmployeeMasterViewDetailsScreenState
 
         if (state.branchAssociationList.isEmpty) {
           return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Text(
-                "No data found",
-                style: AppTextStyle.ts16M(color: AppColor.grey),
-              ),
-            ),
+            child: noDataWidget(message: "No Branch Associations Found"),
           );
         }
         return ListView.builder(
@@ -1048,18 +1005,7 @@ class _EmployeeMasterViewDetailsScreenState
               )
               : SizedBox(
                 height: getActualHeight(context) * 0.7,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      AppAssets.noDataImage,
-                      width: 150.0,
-                      height: 150.0,
-                    ),
-                    verticalSpacing(),
-                    Text("No Data Available!", style: AppTextStyle.ts14B()),
-                  ],
-                ),
+                child: noDataWidget(message: "No Assets Found"),
               );
         },
       ),
@@ -1206,18 +1152,7 @@ class _EmployeeMasterViewDetailsScreenState
               )
               : SizedBox(
                 height: getActualHeight(context) * 0.7,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      AppAssets.noDataImage,
-                      width: 150.0,
-                      height: 150.0,
-                    ),
-                    verticalSpacing(),
-                    Text("No Data Available!", style: AppTextStyle.ts14B()),
-                  ],
-                ),
+                child: noDataWidget(message: "No Shift Policies Found"),
               );
         },
       ),
@@ -1375,18 +1310,7 @@ class _EmployeeMasterViewDetailsScreenState
               )
               : SizedBox(
                 height: getActualHeight(context) * 0.7,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      AppAssets.noDataImage,
-                      width: 150.0,
-                      height: 150.0,
-                    ),
-                    verticalSpacing(),
-                    Text("No Data Available!", style: AppTextStyle.ts14B()),
-                  ],
-                ),
+                child: noDataWidget(message: "No Week Off Policies Found"),
               );
         },
       ),
@@ -1408,15 +1332,7 @@ class _EmployeeMasterViewDetailsScreenState
     }
 
     if (projectList.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Text(
-            "No projects found",
-            style: AppTextStyle.ts16M(color: AppColor.grey),
-          ),
-        ),
-      );
+      return Center(child: noDataWidget(message: "No Projects Found"));
     }
 
     return ListView.builder(

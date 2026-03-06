@@ -45,8 +45,11 @@ class ProfileCubit extends Cubit<ProfileState> {
   final BranchAssociationMasterRepository _branchAssociationMasterRepository =
       serviceLocator<BranchAssociationMasterRepository>();
 
+  // LOCAL STORAGE MANAGER
   final _localStorage = LocalStorageManager();
 
+
+  // LOAD USER DATA
   Future<void> _loadUserData() async {
     final user = await _getUser();
     final project = _getSelectedProject();
@@ -61,6 +64,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
+  // GET USER
   Future<UserModel?> _getUser() async {
     String? userString = _localStorage.getString(StorageKey.currentUser);
     if (userString == null) {
@@ -69,10 +73,12 @@ class ProfileCubit extends Cubit<ProfileState> {
     return UserModel.fromJson(jsonDecode(userString));
   }
 
+  // GET SELECTED PROJECT
   ProjectModel? _getSelectedProject() {
     return getProject();
   }
 
+  // FETCH PROJECT
   Future<void> fetchProjects(BuildContext context) async {
     if (state.user == null || state.user!.projectData.isEmpty) {
       return;
@@ -117,7 +123,6 @@ class ProfileCubit extends Cubit<ProfileState> {
                   .where((p) => projectIds.contains(p.projectId))
                   .toList();
 
-          // Use filtered projects if found, otherwise fallback to user's projectData
           emit(
             state.copyWith(
               projectList:
@@ -139,6 +144,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
+  // ON TAB CHANGES METHOD
   void onTabChanged(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndex: index));
     if (state.user == null) return;

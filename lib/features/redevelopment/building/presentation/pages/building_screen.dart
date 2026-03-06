@@ -328,26 +328,11 @@ class _BuildingScreenState extends State<BuildingScreen> {
                                       },
                                     );
                                   },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 0,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: AppColor.primary,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      building.buildingName,
-                                      style: AppTextStyle.ts16M(
-                                        color: AppColor.primary,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                                  child:  Text(
+                                    building.buildingName,
+                                    style: AppTextStyle.ts16M(
+                                      color: AppColor.primary,
+                                    ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                                   ),
                                 ),
                               ),

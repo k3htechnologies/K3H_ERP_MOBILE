@@ -97,12 +97,14 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
           spacing: 15,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 10,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.documentModel.projectDocumentName,
-                  style: AppTextStyle.ts16SB(),
+                Expanded(
+                  child: Text(
+                    widget.documentModel.projectDocumentName,
+                    style: AppTextStyle.ts16SB(),
+                  ),
                 ),
                 CustomButton(
                   leading: Icon(Icons.add, color: AppColor.white, size: 16),
@@ -136,7 +138,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                 }
 
                 if (state.subDocumentList.isEmpty) {
-                  return Expanded(child: Center(child: noDataWidget()));
+                  return Expanded(child: Center(child: noDataWidget(message: "No Document Found")));
                 }
 
                 return Expanded(
@@ -184,7 +186,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
             children: [
               Expanded(
                 child: Text(
-                  document.projectDocumentName,
+                  "${widget.documentModel.projectDocumentName} -${document.projectDocumentName}",
                   style: AppTextStyle.ts16SB(),
                 ),
               ),
@@ -247,24 +249,18 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
             children: [
               buildColumnTitleValue(
                 title: "Last Modified By",
-                value: document.modifiedBy,
+                value: document.modifiedBy.isEmpty? document.createdBy: document.modifiedBy,
               ),
               buildColumnTitleValue(
                 title: "Last Modified Date",
                 value:
-                    document.modifiedDate != null
-                        ? formatDateTimeAsDDMMMYYYY(document.modifiedDate!)
-                        : '-',
+                         formatDateTimeAsDDMMMYYYY(document.modifiedDate??document.createdDate)
+
               ),
             ],
           ),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              buildColumnTitleValue(
-                title: "Remark",
-                value: document.projectDocumentRemark,
-              ),
               buildColumnTitleValue(
                 title: "View Document",
                 value: document.projectDocumentURL,
@@ -281,6 +277,15 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                     ),
                   ],
                 ),
+              ),
+            ],
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Remark",
+                value: document.projectDocumentRemark,
               ),
             ],
           ),

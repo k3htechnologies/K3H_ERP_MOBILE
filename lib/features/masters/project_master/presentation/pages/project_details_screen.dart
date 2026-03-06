@@ -21,6 +21,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
@@ -199,38 +200,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
               ),
             ),
             verticalSpacing(),
-            Container(
-              height: 35,
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: AppColor.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
-              ),
-              child: TabBar(
-                tabAlignment: TabAlignment.start,
-                controller: _tabController,
-                isScrollable: true,
-                labelColor: AppColor.primary,
-                unselectedLabelColor: AppColor.grey,
-                indicator: BoxDecoration(
-                  color: AppColor.lightBlue,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                indicatorSize: TabBarIndicatorSize.tab,
-                dividerColor: Colors.transparent,
-                labelStyle: AppTextStyle.ts14M(),
-                unselectedLabelStyle: AppTextStyle.ts14M(),
-                labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                padding: EdgeInsets.zero,
-                tabs: const [
-                  Tab(text: 'Overview'),
-                  Tab(text: 'Employee'),
-                  Tab(text: 'Bank Details'),
-                  Tab(text: 'Company'),
-                ],
-              ),
-            ),
+            ChipStyleTabBar(controller: _tabController, tabs: ["Overview","Employee","Bank Details","Company"]),
             Expanded(
               child: TabBarView(
                 physics: NeverScrollableScrollPhysics(),
