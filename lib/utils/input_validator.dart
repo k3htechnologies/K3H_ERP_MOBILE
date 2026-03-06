@@ -100,6 +100,19 @@ class InputValidator {
     return emailRegex.hasMatch(input);
   }
 
+  static bool isValidPassport(String input) {
+    final passportRegex = RegExp(r'^[A-Z][0-9]{7}$');
+    return passportRegex.hasMatch(input);
+  }
+
+  static List<TextInputFormatter> passportInputFormatters() {
+    return [
+      UpperCaseTextFormatter(),
+      LengthLimitingTextInputFormatter(8),
+      FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
+    ];
+  }
+
   static List<TextInputFormatter> ifscInputFormatters() {
     return [
       LengthLimitingTextInputFormatter(11),
@@ -179,9 +192,25 @@ class InputValidator {
     return regex.hasMatch(dl);
   }
 
+  static List<TextInputFormatter> drivingLicenceInputFormatters() {
+    return [
+      UpperCaseTextFormatter(),
+      LengthLimitingTextInputFormatter(13),
+      FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
+    ];
+  }
+
   static bool isValidVoterId(String voterId) {
     final regex = RegExp(r'^[A-Z]{3}[0-9]{7}$');
     return regex.hasMatch(voterId);
+  }
+
+  static List<TextInputFormatter> voterIdInputFormatters() {
+    return [
+      UpperCaseTextFormatter(),
+      LengthLimitingTextInputFormatter(10),
+      FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
+    ];
   }
 
   static List<TextInputFormatter> panInputFormatters() {

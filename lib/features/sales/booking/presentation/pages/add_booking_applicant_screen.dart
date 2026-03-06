@@ -285,6 +285,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     isRequired: true,
                     hint: "Enter Mobile Number",
                     textController: _mobileC,
+                    keyboardType: TextInputType.phone,
                     inputFormatterList: InputValidator.digit(10),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -295,6 +296,23 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       }
                       return null;
                     },
+                    prefixWidget: IntrinsicHeight(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+
+                        children: [
+                          SizedBox(width: 10),
+                          Text("+91"),
+                          VerticalDivider(
+                            color: AppColor.black,
+                            thickness: 0.5,
+                            width: 15,
+                            indent: 5,
+                            endIndent: 5,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   CustomTextField(
                     title: 'Email Id',
@@ -340,12 +358,16 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                   CustomTextField(
                     title: 'Aadhaar Card Number',
                     hint: "Enter Aadhaar Card Number",
+                    isRequired: true,
                     textController: _aadharC,
+                    keyboardType: TextInputType.number,
                     inputFormatterList:
                         InputValidator.aadhaarNumberInputFormatter(),
                     validator: (value) {
-                      if (value != null &&
-                          value.trim().isNotEmpty &&
+                      if (value == null || value.isEmpty) {
+                        return "Aadhaar is required";
+                      }
+                      if (value.trim().isNotEmpty &&
                           !InputValidator.isValidAadharNumber(value.trim())) {
                         return "Invalid Aadhaar Card Number";
                       }
@@ -353,8 +375,9 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload Aadhaar Card",
+                    title: "Aadhaar Card",
                     filePickType: FilePickType.kycDocument,
+                    isRequired: true,
                     initialFileList: aadhaarFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       aadhaarFile.fileNameList = fileNameList;
@@ -369,6 +392,12 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       aadhaarFile.fileNameList = fileNameList;
                       aadhaarFile.deletedFileList = deleted;
                     },
+                    validator: (fileList) {
+                      if (fileList == null || fileList.isEmpty) {
+                        return "Aadhaar Card document is required";
+                      }
+                      return null;
+                    },
                   ),
                   CustomTextField(
                     title: 'PAN Number',
@@ -376,16 +405,25 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     textController: _panC,
                     inputFormatterList: InputValidator.panInputFormatters(),
                     validator: (value) {
-                      if (value != null &&
-                          value.trim().isNotEmpty &&
-                          !InputValidator.isValidPAN(value.trim())) {
-                        return "Invalid PAN Number";
+                      if (panFile.fileNameList.isNotEmpty) {
+                        if (value == null || value.isEmpty) {
+                          return "PAN Number is required";
+                        }
+                        if (!InputValidator.isValidPAN(value)) {
+                          return "PAN Number is invalid";
+                        }
+                      } else {
+                        if (value != null &&
+                            value.isNotEmpty &&
+                            !InputValidator.isValidPAN(value)) {
+                          return "PAN Number is invalid";
+                        }
                       }
                       return null;
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload PAN",
+                    title: "PAN Card",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: panFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -401,15 +439,41 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       panFile.fileNameList = fileNameList;
                       panFile.deletedFileList = deleted;
                     },
+                    validator: (fileList) {
+                      if (_panC.text.isNotEmpty &&
+                          InputValidator.isValidPAN(_panC.text.trim()) &&
+                          (fileList == null || fileList.isEmpty)) {
+                        return "PAN Card document is required";
+                      }
+                      return null;
+                    },
                   ),
                   CustomTextField(
                     title: 'Passport Number',
                     hint: "Enter Passport Number",
                     textController: _passportC,
-                    inputFormatterList: [LengthLimitingTextInputFormatter(20)],
+                    inputFormatterList:
+                        InputValidator.passportInputFormatters(),
+                    validator: (value) {
+                      if (passportFile.fileNameList.isNotEmpty) {
+                        if (value == null || value.isEmpty) {
+                          return "Passport Number is required";
+                        }
+                        if (!InputValidator.isValidPassport(value)) {
+                          return "Passport Number is invalid";
+                        }
+                      } else {
+                        if (value != null &&
+                            value.isNotEmpty &&
+                            !InputValidator.isValidPassport(value)) {
+                          return "Passport Number is invalid";
+                        }
+                      }
+                      return null;
+                    },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload Passport",
+                    title: "Passport Document",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: passportFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -425,29 +489,43 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       passportFile.fileNameList = fileNameList;
                       passportFile.deletedFileList = deleted;
                     },
+                    validator: (fileList) {
+                      if (_passportC.text.isNotEmpty &&
+                          !InputValidator.isValidPassport(
+                            _passportC.text.trim(),
+                          ) &&
+                          (fileList == null || fileList.isEmpty)) {
+                        return "Passport document is required";
+                      }
+                      return null;
+                    },
                   ),
                   CustomTextField(
                     title: 'Driving License Number',
                     hint: "Enter Driving License Number",
                     textController: _drivingLicenseC,
-                    inputFormatterList: InputValidator.textDigit(20),
+                    inputFormatterList:
+                        InputValidator.drivingLicenceInputFormatters(),
                     validator: (value) {
-                      if (drivingLicenseFile.fileNameList.isEmpty) {
-                        return null;
+                      if (drivingLicenseFile.fileNameList.isNotEmpty) {
+                        if (value == null || value.isEmpty) {
+                          return "Driving License Number is required";
+                        }
+                        if (!InputValidator.isValidDrivingLicence(value)) {
+                          return "Driving License Number invalid";
+                        }
+                      } else {
+                        if (value != null &&
+                            value.isNotEmpty &&
+                            !InputValidator.isValidDrivingLicence(value)) {
+                          return "Driving License Number is invalid";
+                        }
                       }
-                      if (value == null || value.isEmpty) {
-                        return "Driving License is required";
-                      }
-
-                      if (InputValidator.isValidDrivingLicence(value)) {
-                        return "Driving License Number is invalid";
-                      }
-
                       return null;
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload Driving License",
+                    title: "Driving License Document",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: drivingLicenseFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -463,12 +541,22 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       drivingLicenseFile.fileNameList = fileNameList;
                       drivingLicenseFile.deletedFileList = deleted;
                     },
+                    validator: (fileList) {
+                      if (_drivingLicenseC.text.isNotEmpty &&
+                          InputValidator.isValidDrivingLicence(
+                            _drivingLicenseC.text.trim(),
+                          ) &&
+                          (fileList == null || fileList.isEmpty)) {
+                        return "Driving License document is required";
+                      }
+                      return null;
+                    },
                   ),
                   CustomTextField(
                     title: 'Voting ID Number',
                     textController: _votingIdC,
                     hint: "Enter Voting ID Number",
-                    inputFormatterList: InputValidator.textDigit(20),
+                    inputFormatterList: InputValidator.voterIdInputFormatters(),
                     validator: (value) {
                       if (votingIdFile.fileNameList.isNotEmpty) {
                         if (value == null || value.isEmpty) {
@@ -488,7 +576,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload Voting ID",
+                    title: "Voting ID Document",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: votingIdFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -503,6 +591,16 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       votingIdFile.fileBytesList = fileBytesList;
                       votingIdFile.fileNameList = fileNameList;
                       votingIdFile.deletedFileList = deleted;
+                    },
+                    validator: (fileList) {
+                      if (_votingIdC.text.isNotEmpty &&
+                          InputValidator.isValidVoterId(
+                            _votingIdC.text.trim(),
+                          ) &&
+                          (fileList == null || fileList.isEmpty)) {
+                        return "Voting Id document is required";
+                      }
+                      return null;
                     },
                   ),
                   CustomTextField(
@@ -529,7 +627,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload GST Document",
+                    title: "GST Certificate",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: gstFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -544,6 +642,14 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       gstFile.fileBytesList = fileBytesList;
                       gstFile.fileNameList = fileNameList;
                       gstFile.deletedFileList = deleted;
+                    },
+                    validator: (fileList) {
+                      if (_gstC.text.isNotEmpty &&
+                          !InputValidator.isValidGST(_gstC.text.trim()) &&
+                          (fileList == null || fileList.isEmpty)) {
+                        return "GST Certificate document is required";
+                      }
+                      return null;
                     },
                   ),
                   verticalSpacing(height: 20),

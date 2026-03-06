@@ -109,7 +109,9 @@ class _PaymentScheduleSchemeScreenState
       appBar: CustomAppBar(
         screenTitle: 'Payment Schedule Scheme',
         authorization: _routeAuthorizationModel,
+        textController: _searchC,
         onProjectChangeCallback: (value) {
+          _cubit.resetSearch();
           _cubit.getPaymentScheduleSchemeList(context, 1);
         },
         onExportCallback: (value) {
@@ -126,7 +128,6 @@ class _PaymentScheduleSchemeScreenState
         onSearchSubmit: (value) {
           _cubit.searchPaymentScheduleScheme(context, value);
         },
-        textController: _searchC,
       ),
       body: BlocBuilder<PaymentScheduleSchemeCubit, PaymentScheduleSchemeState>(
         builder: (context, state) {

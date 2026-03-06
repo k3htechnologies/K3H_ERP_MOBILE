@@ -24,6 +24,10 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
   // SEARCH
   // ----------------------------------------------------------
 
+  void resetSearch() {
+    emit(state.copyWith(searchText: ""));
+  }
+
   Future searchPaymentScheduleScheme(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, paymentScheduleSchemeList: []));
     await getPaymentScheduleSchemeList(context, 1);

@@ -40,6 +40,7 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
   // SCROLL CONTROLLER FOR PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
+
   // REPOSITORY
   final PaymentScheduleSchemeRepository _paymentScheduleSchemeRepository =
       serviceLocator<PaymentScheduleSchemeRepository>();
@@ -58,15 +59,16 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
     int pageNumber, {
     String? value,
   }) async {
-    final result = await _paymentScheduleSchemeRepository.getPaymentScheduleSchemeList(
-      pageNumber: pageNumber,
-      pageSize: 15,
-      projectId: getProject().projectId,
-      queryParams:
-          value != null && value.isNotEmpty
-              ? {"PaymentScheduleSchemeName": value}
-              : {},
-    );
+    final result = await _paymentScheduleSchemeRepository
+        .getPaymentScheduleSchemeList(
+          pageNumber: pageNumber,
+          pageSize: 15,
+          projectId: getProject().projectId,
+          queryParams:
+              value != null && value.isNotEmpty
+                  ? {"PaymentScheduleSchemeName": value}
+                  : {},
+        );
 
     return result.fold(
       (failure) => {
