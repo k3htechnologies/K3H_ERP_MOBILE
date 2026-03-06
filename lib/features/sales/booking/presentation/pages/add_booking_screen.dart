@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_applicant_screen.dart';
+import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_payment_schedule_screen.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/repository/payment_schedule_scheme.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -496,6 +497,37 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _applicants.value = currentApplicants;
   }
 
+  Future<void> _openPaymentScheduleForm() async {
+    final result = await Navigator.push<BookingPaymentScheduleData?>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AddBookingPaymentScheduleScreen(),
+      ),
+    );
+
+    if (result == null) return;
+
+    final currentSchedules = List<BookingPaymentScheduleData>.from(
+      _bookingCubit.state.bookingPaymentScheduleList,
+    );
+
+    currentSchedules.add(result);
+
+    /// Auto Ranking
+    for (int i = 0; i < currentSchedules.length; i++) {
+      currentSchedules[i].ranking = i + 1;
+    }
+
+    /// Auto cumulative %
+    double cumulative = 0;
+    for (var item in currentSchedules) {
+      cumulative += item.paymentSchedulePercentage;
+      item.paymentCummulativePercentage = cumulative;
+    }
+
+    _bookingCubit.updatePaymentScheduleList(currentSchedules);
+  }
+
   // DELETE APPLICANT
   void _deleteApplicant(int index) {
     final currentApplicants = List<BookingApplicantData>.from(
@@ -797,7 +829,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         final paymentScheduleSchemes =
             response['data'] as List<PaymentScheduleSchemeModel>;
 
-        ///FORCE TYPE HERE
         final List<Map<String, dynamic>> apiList =
             paymentScheduleSchemes
                 .map<Map<String, dynamic>>(
@@ -808,7 +839,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 )
                 .toList();
 
-        ///FORCE TYPE HERE ALSO
         apiList.add(<String, dynamic>{
           "zAttributesId": -1,
           "DisplayName": "Other",
@@ -1955,7 +1985,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       child: CustomButton(
                         leading: Icon(Icons.add, size: 16),
                         text: "Add",
-                        onPressed: () {},
+                        onPressed: _openPaymentScheduleForm,
                       ),
                     );
                   },

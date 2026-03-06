@@ -821,14 +821,6 @@ class BookingCubit extends Cubit<BookingState> {
     );
   }
 
-  // void updateRanking(int index, int ranking) {
-  //   final updatedList = List.of(state.paymentScheduleMasterList);
-
-  //   updatedList[index].ranking = ranking;
-
-  //   emit(state.copyWith(paymentScheduleMasterList: updatedList));
-  // }
-
   // <---- GET PAYMENT SCHEDULE MASTER LIST ---->
   Future getPaymentScheduleMasterList(
     BuildContext context,
@@ -858,7 +850,7 @@ class BookingCubit extends Cubit<BookingState> {
           response['data'] ?? [],
         );
 
-        /// 🔥 Convert Master → Booking Model
+        ///  Convert Master → Booking Model
         final bookingList =
             masterList.asMap().entries.map((entry) {
               int index = entry.key;
@@ -882,7 +874,7 @@ class BookingCubit extends Cubit<BookingState> {
                 paymentScheduleTDSAmount: tdsAmount,
                 paymentCummulativePercentage:
                     master.paymentCummulativePercentage,
-                ranking: index + 1, // 👈 initial ranking
+                ranking: index + 1,
               );
             }).toList();
 
@@ -912,5 +904,11 @@ class BookingCubit extends Cubit<BookingState> {
     }
 
     emit(state.copyWith(bookingPaymentScheduleList: updatedList));
+  }
+
+  void updatePaymentScheduleList(
+    List<BookingPaymentScheduleData> paymentScheduleList,
+  ) {
+    emit(state.copyWith(bookingPaymentScheduleList: paymentScheduleList));
   }
 }
