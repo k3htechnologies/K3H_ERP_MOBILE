@@ -36,6 +36,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     DateTime startDate,
     DateTime endDate,
     int attendanceId,
+    int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
     String formatDate(DateTime d) =>
@@ -193,7 +194,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     emit(state.copyWith(isLoading: true));
     var result = await _projectMasterRepository.getProjectWithEmployee(
       projectId: projectId.toString(),
-      queryParams: {"FullName":searchText ?? ""},
+      queryParams: {"FullName": searchText ?? ""},
     );
 
     result.fold(

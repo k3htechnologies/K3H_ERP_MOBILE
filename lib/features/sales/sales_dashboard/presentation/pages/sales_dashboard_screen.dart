@@ -123,10 +123,8 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
     if (shouldRemove == true) {
       final removedItem = enquiriesList[index];
 
-      // Remove from list first
       enquiriesList.removeAt(index);
 
-      // Trigger animation
       _listKey.currentState?.removeItem(
         index,
         (context, animation) => _buildAnimatedItem(removedItem, animation),
@@ -268,23 +266,33 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                         ),
                       ),
                       verticalSpacing(),
+                      // COUNTS WIDGET (INCLUDING TOTAL ENQUIRIES, NEW ENQURIES, ACTIVE FOLLOW - UPS, LOST ENQURIES, TOTAL BOOKINGS, TOTAL BOOKING VALUE, TARGET VS ACHIEVED, CP CONTRIBUTION)
                       _buildOverviewWidget(context),
+                      // ENQUIRY OVERVIEW WIDGET
                       _buildEnquiryOverviewWidget(context),
                       verticalSpacing(),
+                      // ENQURIES LIST WIDGET
                       _buildEnquiriesWidget(context),
                       verticalSpacing(),
+                      // TARGET PERFORMANCE WIDGET
                       _buildTargetPerformanceWidget(context),
                       verticalSpacing(),
+                      // ACTIVE FOLLOW-UPS WIDGET (ACCORDING TO STATUS)
                       _buildActiveFollowUpsWidget(context),
                       verticalSpacing(),
+                      // CALL TRACKER AND TOP CALLER LIST WIDGET
                       _buildCallTrackerWidget(context),
                       verticalSpacing(),
+                      // SALES DISTRIBUTION (SOURCE WISE DISTRIBUTION, AREA WISE DISTRIBUTION {COMMERCIAL AND RESIDENTIAL},BUDGET WISE DISTRIBUTION AND CONVERSION RATE COUNT)
                       _buildSalesDistributionWidget(context),
                       verticalSpacing(),
+                      // REPORTS WIDGET
                       _buildReportsWidget(context),
                       verticalSpacing(),
+                      // CHANNEL PARTNER COUNT WIDGET
                       _buildChannelPartnerWidget(context),
                       verticalSpacing(),
+                      // SALES LEADERBOARD WIDGET
                       _buildSalesLeaderboardWidget(context),
                     ],
                   ),
@@ -304,17 +312,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
           return Center(child: loader());
         }
         final salesData = state.salesData;
-        if (salesData == null || salesData.table0.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Attendance Data Available")),
-          );
-        }
-        final table0 = salesData.table0.first;
+        final table0 = salesData?.table0.first;
         return GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
@@ -325,14 +323,14 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
           children: [
             DashboardStatCard(
               title: "Total Enquiries",
-              value: "${table0.totalEnquiries}",
+              value: "${table0?.totalEnquiries ?? 0}",
               titleColor: AppColor.white,
               footer: RichText(
                 text: TextSpan(
                   children: [
                     TextSpan(
                       text:
-                          "↑ ${table0.increaseEnquiryPercentage.toDouble()}% ",
+                          "↑ ${table0?.increaseEnquiryPercentage.toDouble() ?? 0.0}% ",
                       style: AppTextStyle.ts12R(color: AppColor.green),
                     ),
                     TextSpan(
@@ -351,7 +349,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
             DashboardStatCard(
               title: "New Enquiries",
               titleColor: AppColor.black.withValues(alpha: 0.50),
-              value: "${table0.newLeadsThisMonth}",
+              value: "${table0?.newLeadsThisMonth ?? 0.0}",
               footer: Text(
                 "This Month",
                 style: AppTextStyle.ts12R(
@@ -366,9 +364,9 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
             DashboardStatCard(
               title: "Active Follow-Ups",
               titleColor: AppColor.black.withValues(alpha: 0.50),
-              value: "${table0.activeFollowUps}",
+              value: "${table0?.activeFollowUps ?? 0.0}",
               footer: Text(
-                "${table0.todaysFollowUpDues} Due Today",
+                "${table0?.todaysFollowUpDues ?? 0.0} Due Today",
                 style: AppTextStyle.ts12R(color: AppColor.yellow),
               ),
               decoration: BoxDecoration(
@@ -379,7 +377,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
             DashboardStatCard(
               title: "Lost Enquiries",
               titleColor: AppColor.black.withValues(alpha: 0.50),
-              value: "${table0.lostLeadsToday}",
+              value: "${table0?.lostLeadsToday ?? 0.0}",
               footer: Text(
                 "High Alert",
                 style: AppTextStyle.ts12R(color: AppColor.red),
@@ -397,12 +395,12 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
             DashboardStatCard(
               title: "Total Bookings",
               titleColor: AppColor.black.withValues(alpha: 0.50),
-              value: "${table0.todayBookings}",
+              value: "${table0?.todayBookings ?? 0.0}",
               footer: RichText(
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: "↑ ${table0.totalBookingConversion}% ",
+                      text: "↑ ${table0?.totalBookingConversion ?? 0.0}% ",
                       style: AppTextStyle.ts12R(color: AppColor.green),
                     ),
                     TextSpan(
@@ -420,16 +418,16 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
             DashboardStatCard(
               title: "Total Booking Value",
               titleColor: AppColor.black.withValues(alpha: 0.50),
-              value: "₹ ${table0.todayBookingValue}",
+              value: "₹ ${table0?.todayBookingValue ?? 0.0}",
               footer: Text(
-                "Avg: ₹${table0.averageBookingValue.toDouble()}L",
+                "Avg: ₹${table0?.averageBookingValue.toDouble() ?? 0.0}L",
                 style: AppTextStyle.ts12R(color: AppColor.primary),
               ),
             ),
             DashboardStatCard(
               title: "Target vs Achieved",
               titleColor: AppColor.black.withValues(alpha: 0.50),
-              value: "${table0.achieved}%",
+              value: "${table0?.achieved ?? 0.0}%",
               footer: Text(
                 "out of 100 %",
                 style: AppTextStyle.ts12R(
@@ -440,9 +438,9 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
             DashboardStatCard(
               title: "CP Contribution",
               titleColor: AppColor.black.withValues(alpha: 0.50),
-              value: "${table0.cpPercentage}%",
+              value: "${table0?.cpPercentage ?? 0.0}%",
               footer: Text(
-                "${table0.activeCp} active partners",
+                "${table0?.activeCp ?? 0.0} active partners",
                 style: AppTextStyle.ts12R(color: AppColor.primary),
               ),
               decoration: BoxDecoration(
@@ -465,17 +463,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
 
         final salesData = state.salesData;
 
-        if (salesData == null || salesData.table1.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Daily Attendance Data")),
-          );
-        }
-        final table1 = salesData.table1.first;
+        final table1 = salesData?.table1.first;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -498,35 +486,49 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
               verticalSpacing(),
               _buildEnquiryOverviewProgress(),
               verticalSpacing(),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  color: AppColor.blueBgColor,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Overall Conversion Rate",
-                      style: AppTextStyle.ts12R(
-                        color: AppColor.lightGreyBackground,
+              if (table1 != null) ...[
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 12.0,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.0),
+                    color: AppColor.blueBgColor,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Overall Conversion Rate",
+                        style: AppTextStyle.ts12R(
+                          color: AppColor.lightGreyBackground,
+                        ),
                       ),
-                    ),
-                    Text(
-                      "${table1.enquiryConversionRate.toDouble()}",
-                      style: AppTextStyle.ts16SB(color: AppColor.white),
-                    ),
-                    Text(
-                      "From enquiry to closed deal",
-                      style: AppTextStyle.ts12R(
-                        color: AppColor.lightGreyBackground,
+                      Text(
+                        "${table1.enquiryConversionRate.toDouble()}",
+                        style: AppTextStyle.ts16SB(color: AppColor.white),
                       ),
-                    ),
-                  ],
+                      Text(
+                        "From enquiry to closed deal",
+                        style: AppTextStyle.ts12R(
+                          color: AppColor.lightGreyBackground,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "No Enquiry Overview Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         );
@@ -543,48 +545,41 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
 
         final salesData = state.salesData;
 
-        if (salesData == null || salesData.table1.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Daily Attendance Data")),
-          );
-        }
-        final table1List = salesData.table1;
+        final table1List = salesData?.table1;
         return Column(
           children: [
-            EnquiryProgressBar(
-              title: "Enquiry",
-              percentage: table1List.first.totalEnquiry,
-              breakdownText: "hotWarmCold",
-            ),
-            EnquiryProgressBar(
-              title: "Site Visit",
-              percentage: table1List.first.siteVisit,
-              conversionText:
-                  "Conversion: ${table1List.first.siteVisitConversion}%",
-            ),
-            EnquiryProgressBar(
-              title: "Negotiation",
-              percentage: table1List.first.negotiation,
-              conversionText:
-                  "Conversion: ${table1List.first.negotiationConversion}%",
-            ),
-            EnquiryProgressBar(
-              title: "Booking",
-              percentage: table1List.first.bookingStage,
-              conversionText:
-                  "Conversion: ${table1List.first.bookingConversion}%",
-            ),
-            EnquiryProgressBar(
-              title: "Closed",
-              percentage: table1List.first.closedStage,
-              conversionText:
-                  "Conversion: ${table1List.first.closingConversion}%",
-            ),
+            if (table1List != null && table1List.isNotEmpty) ...[
+              EnquiryProgressBar(
+                title: "Enquiry",
+                percentage: table1List.first.totalEnquiry,
+                breakdownText: "hotWarmCold",
+              ),
+              EnquiryProgressBar(
+                title: "Site Visit",
+                percentage: table1List.first.siteVisit,
+                conversionText:
+                    "Conversion: ${table1List.first.siteVisitConversion}%",
+              ),
+              EnquiryProgressBar(
+                title: "Negotiation",
+                percentage: table1List.first.negotiation,
+                conversionText:
+                    "Conversion: ${table1List.first.negotiationConversion}%",
+              ),
+              EnquiryProgressBar(
+                title: "Booking",
+                percentage: table1List.first.bookingStage,
+                conversionText:
+                    "Conversion: ${table1List.first.bookingConversion}%",
+              ),
+              EnquiryProgressBar(
+                title: "Closed",
+                percentage: table1List.first.closedStage,
+                conversionText:
+                    "Conversion: ${table1List.first.closingConversion}%",
+              ),
+            ] else
+              ...[],
           ],
         );
       },
@@ -594,13 +589,13 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
   Color _getPerformanceBgColor(String status) {
     switch (status.toLowerCase()) {
       case 'excellent':
-        return const Color(0xFFE8F8F1); // light green bg
+        return const Color(0xFFE8F8F1);
       case 'good':
-        return const Color(0xFFEAF6FB); // light blue bg
+        return const Color(0xFFEAF6FB);
       case 'average':
-        return const Color(0xFFFFF4E5); // light yellow bg
+        return const Color(0xFFFFF4E5);
       case 'at risk':
-        return const Color(0xFFFFEBEE); // light red bg
+        return const Color(0xFFFFEBEE);
       default:
         return AppColor.white;
     }
@@ -609,13 +604,13 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
   Color _getPerformancePrimaryColor(String status) {
     switch (status.toLowerCase()) {
       case 'excellent':
-        return const Color(0xFF1ABC9C); // green
+        return const Color(0xFF1ABC9C);
       case 'good':
-        return const Color(0xFF2D9CDB); // blue
+        return const Color(0xFF2D9CDB);
       case 'average':
-        return const Color(0xFFF2C94C); // yellow
+        return const Color(0xFFF2C94C);
       case 'at risk':
-        return const Color(0xFFEB5757); // red
+        return const Color(0xFFEB5757);
       default:
         return AppColor.primary;
     }
@@ -630,17 +625,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
 
         final salesData = state.salesData;
 
-        if (salesData == null || salesData.table3.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Daily Attendance Data")),
-          );
-        }
-        final table3List = salesData.table3;
+        final table3List = salesData?.table3;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -661,100 +646,112 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                 ],
               ),
               verticalSpacing(),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                child: Row(
-                  children: List.generate(table3List.length, (index) {
-                    final item = table3List[index];
-                    final bgColor = _getPerformanceBgColor(
-                      item.performanceStatus,
-                    );
+              if (table3List != null) ...[
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: Row(
+                    children: List.generate(table3List.length, (index) {
+                      final item = table3List[index];
+                      final bgColor = _getPerformanceBgColor(
+                        item.performanceStatus,
+                      );
 
-                    return Container(
-                      width: 260,
-                      margin: const EdgeInsets.only(right: 12),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4.0),
-                        color: bgColor,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            children: [
-                              ClipOval(
-                                child: NetworkImageWidget(
-                                  imageUrl:
-                                      'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                                  width: 42,
-                                  height: 42,
-                                  fit: BoxFit.cover,
+                      return Container(
+                        width: 260,
+                        margin: const EdgeInsets.only(right: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4.0),
+                          color: bgColor,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                ClipOval(
+                                  child: NetworkImageWidget(
+                                    imageUrl:
+                                        'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
+                                    width: 42,
+                                    height: 42,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
-                              ),
-                              horizontalSpacing(),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.fullName,
-                                      style: AppTextStyle.ts16M(),
-                                    ),
-                                    Text(
-                                      item.designation,
-                                      style: AppTextStyle.ts14R(
-                                        color: AppColor.black.withValues(
-                                          alpha: 0.5,
+                                horizontalSpacing(),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.fullName,
+                                        style: AppTextStyle.ts16M(),
+                                      ),
+                                      Text(
+                                        item.designation,
+                                        style: AppTextStyle.ts14R(
+                                          color: AppColor.black.withValues(
+                                            alpha: 0.5,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            _leaveRow(
+                              title: "Target",
+                              value: "${item.targetAmount}",
+                            ),
+                            _leaveRow(
+                              title: "Achieved",
+                              value: "${item.achievedAmount}",
+                            ),
+                            verticalSpacing(),
+                            SizedBox(
+                              width: 208,
+                              child: LinearProgressIndicator(
+                                value: 100.0,
+                                minHeight: 7,
+                                borderRadius: BorderRadius.circular(2.0),
+                                color: _getPerformancePrimaryColor(
+                                  item.performanceStatus,
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          _leaveRow(
-                            title: "Target",
-                            value: "${item.targetAmount}",
-                          ),
-                          _leaveRow(
-                            title: "Achieved",
-                            value: "${item.achievedAmount}",
-                          ),
-                          verticalSpacing(),
-                          SizedBox(
-                            width: 208,
-                            child: LinearProgressIndicator(
-                              value: 100.0,
-                              minHeight: 7,
-                              borderRadius: BorderRadius.circular(2.0),
-                              color: _getPerformancePrimaryColor(
-                                item.performanceStatus,
+                            ),
+                            verticalSpacing(),
+                            Text(
+                              "${item.achievementPercent.toDouble()} % Achieved",
+                              style: AppTextStyle.ts14SB(
+                                color: _getPerformancePrimaryColor(
+                                  item.performanceStatus,
+                                ),
                               ),
                             ),
-                          ),
-                          verticalSpacing(),
-                          Text(
-                            "${item.achievementPercent.toDouble()} % Achieved",
-                            style: AppTextStyle.ts14SB(
-                              color: _getPerformancePrimaryColor(
-                                item.performanceStatus,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
                 ),
-              ),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "No Target Performance Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         );
@@ -1047,19 +1044,9 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
 
         final salesData = state.salesData;
 
-        if (salesData == null || salesData.table6.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Daily Attendance Data")),
-          );
-        }
-        final table6List = salesData.table6.first;
-        final table0 = salesData.table0.first;
-        final table8List = salesData.table8;
+        final table6List = salesData?.table6.first;
+        final table0 = salesData?.table0.first;
+        final table8List = salesData?.table8;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -1080,43 +1067,55 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                 ],
               ),
               verticalSpacing(height: 20.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  summaryOverallWidget(
-                    title: "Total Calls",
-                    subTitle: table6List.totalCalls.toString(),
-                    color: Color(0xFF06B6D4),
+              if (table6List != null) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    summaryOverallWidget(
+                      title: "Total Calls",
+                      subTitle: table6List.totalCalls.toString(),
+                      color: Color(0xFF06B6D4),
+                    ),
+                    summaryOverallWidget(
+                      title: "Pending",
+                      subTitle: table6List.pending.toString(),
+                      color: AppColor.yellow,
+                    ),
+                    summaryOverallWidget(
+                      title: "Overdue",
+                      subTitle: table6List.overdue.toString(),
+                      color: AppColor.red,
+                    ),
+                    summaryOverallWidget(
+                      title: "Avg Duration",
+                      subTitle: table6List.avgDurationMinutes.toString(),
+                      color: AppColor.green,
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CallTrackerRadialChart(
+                      connected: table0?.todayConnected ?? 0,
+                      notConnected: table0?.todayNotConnected ?? 0,
+                      rescheduled: table0?.todayRescheduled ?? 0,
+                      closed: table0?.todayClosed ?? 0,
+                    ),
+                  ],
+                ),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "No Call Tracker Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
                   ),
-                  summaryOverallWidget(
-                    title: "Pending",
-                    subTitle: table6List.pending.toString(),
-                    color: AppColor.yellow,
-                  ),
-                  summaryOverallWidget(
-                    title: "Overdue",
-                    subTitle: table6List.overdue.toString(),
-                    color: AppColor.red,
-                  ),
-                  summaryOverallWidget(
-                    title: "Avg Duration",
-                    subTitle: table6List.avgDurationMinutes.toString(),
-                    color: AppColor.green,
-                  ),
-                ],
-              ),
-              verticalSpacing(height: 20.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CallTrackerRadialChart(
-                    connected: table0.todayConnected,
-                    notConnected: table0.todayNotConnected,
-                    rescheduled: table0.todayRescheduled,
-                    closed: table0.todayClosed,
-                  ),
-                ],
-              ),
+                ),
+              ],
+
               verticalSpacing(height: 20.0),
               Divider(
                 color: AppColor.black.withValues(alpha: 0.50),
@@ -1128,36 +1127,49 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                 style: AppTextStyle.ts12SB(color: AppColor.black),
               ),
               verticalSpacing(),
-              Column(
-                children:
-                    table8List.map((topCallerData) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              topCallerData["FullName"],
-                              style: AppTextStyle.ts16M(),
+              if (table8List != null) ...[
+                Column(
+                  children:
+                      table8List.map((topCallerData) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                topCallerData["FullName"],
+                                style: AppTextStyle.ts16M(),
+                              ),
                             ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 2.0,
-                              horizontal: 6.0,
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 2.0,
+                                horizontal: 6.0,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6.0),
+                                color: AppColor.grey50.withValues(alpha: 0.50),
+                              ),
+                              child: Text(
+                                topCallerData["TotalCalls"].toString(),
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.black,
+                                ),
+                              ),
                             ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6.0),
-                              color: AppColor.grey50.withValues(alpha: 0.50),
-                            ),
-                            child: Text(
-                              topCallerData["TotalCalls"].toString(),
-                              style: AppTextStyle.ts16M(color: AppColor.black),
-                            ),
-                          ),
-                        ],
-                      );
-                    }).toList(),
-              ),
+                          ],
+                        );
+                      }).toList(),
+                ),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "No Top Caller Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         );
@@ -1189,21 +1201,11 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
 
         final salesData = state.salesData;
 
-        if (salesData == null || salesData.table9.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Daily Attendance Data")),
-          );
-        }
-        final table9List = salesData.table9.first;
-        final table12 = salesData.table12;
-        final table13 = salesData.table13;
-        final table14 = salesData.table14;
-        final table1List = salesData.table1.first;
+        final table9List = salesData?.table9.first;
+        final table12 = salesData?.table12;
+        final table13 = salesData?.table13;
+        final table14 = salesData?.table14;
+        final table1List = salesData?.table1.first;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -1231,40 +1233,53 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
               verticalSpacing(),
               Text("Source Wise Distribution", style: AppTextStyle.ts14SB()),
               verticalSpacing(),
-              Row(
-                children: [
-                  Expanded(
-                    child: _sourceCard(
-                      title: "Direct Booking",
-                      percentage: table9List.directBookingPct,
-                      bgColor: const Color(0xFFFFF7ED),
-                      borderColor: const Color(0xFFFFA742),
-                      valueColor: const Color(0xFFFF8A00),
+              if ((table9List != null) &&
+                  table12 != null &&
+                  table12.isNotEmpty) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: _sourceCard(
+                        title: "Direct Booking",
+                        percentage: table9List.directBookingPct,
+                        bgColor: const Color(0xFFFFF7ED),
+                        borderColor: const Color(0xFFFFA742),
+                        valueColor: const Color(0xFFFF8A00),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _sourceCard(
+                        title: "Channel Partner\nBooking",
+                        percentage: table9List.channelPartnerBookingPct,
+                        bgColor: Color(0xFFEFF4FF),
+                        borderColor: const Color(0xFF2563EB),
+                        valueColor: const Color(0xFF2563EB),
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children:
+                      table12.map((subSourceData) {
+                        return SourceProgressBar(
+                          title: subSourceData.sourceName,
+                          percentage: subSourceData.sourcePct,
+                        );
+                      }).toList(),
+                ),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "No Source Wise Distribution Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _sourceCard(
-                      title: "Channel Partner\nBooking",
-                      percentage: table9List.channelPartnerBookingPct,
-                      bgColor: Color(0xFFEFF4FF),
-                      borderColor: const Color(0xFF2563EB),
-                      valueColor: const Color(0xFF2563EB),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
               verticalSpacing(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children:
-                    table12.map((subSourceData) {
-                      return SourceProgressBar(
-                        title: subSourceData.sourceName,
-                        percentage: subSourceData.sourcePct,
-                      );
-                    }).toList(),
-              ),
               Divider(
                 color: AppColor.black.withValues(alpha: 0.50),
                 thickness: 0.3,
@@ -1274,7 +1289,19 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
               verticalSpacing(),
               areaToggle(),
               verticalSpacing(height: 16.0),
-              _buildAreaWiseList(table13: table13, table14: table14),
+              if ((table13 != null && table13.isNotEmpty) &&
+                  (table14 != null && table14.isNotEmpty)) ...[
+                _buildAreaWiseList(table13: table13, table14: table14),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "No Area Wise Distribution Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                ),
+              ],
               Divider(
                 color: AppColor.black.withValues(alpha: 0.50),
                 thickness: 0.3,
@@ -1300,7 +1327,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                       ),
                     ),
                     Text(
-                      "${table1List.bookingConversion.toDouble()}",
+                      "${table1List?.bookingConversion.toDouble() ?? 0.0}",
                       style: AppTextStyle.ts16SB(color: AppColor.white),
                     ),
                     Text(
@@ -1336,8 +1363,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
           labelStyle: AppTextStyle.ts12R(
             color: AppColor.black.withValues(alpha: 0.4),
           ),
-
-          /// 👇 This makes bottom labels like Figma slabs
           axisLabelFormatter: (AxisLabelRenderDetails details) {
             final value = details.value.toInt();
             switch (value) {
@@ -1357,7 +1382,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
           },
         ),
 
-        /// ⭐ Y AXIS = MONTH (LEFT SIDE like Figma)
+        // Y AXIS = MONTH
         primaryYAxis: CategoryAxis(
           labelStyle: AppTextStyle.ts14M(
             color: AppColor.black.withValues(alpha: 0.5),
@@ -1365,16 +1390,14 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
           axisLine: const AxisLine(width: 1),
           majorTickLines: const MajorTickLines(size: 6),
         ),
-
-        /// ⭐ CRITICAL: <T, String> (because Y axis is category)
         series: <CartesianSeries<BudgetChartData, dynamic>>[
           BarSeries<BudgetChartData, dynamic>(
             dataSource: chartData,
 
-            /// LEFT → Month (STRING ✔)
+            // LEFT → MONTH
             yValueMapper: (BudgetChartData data, _) => data.value,
 
-            /// BAR LENGTH → MUST be DOUBLE ✔ (THIS FIXES YOUR ERROR)
+            // BAR LENGTH (VALUE)
             xValueMapper: (BudgetChartData data, _) => data.value,
 
             borderRadius: BorderRadius.circular(6),
@@ -1430,7 +1453,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Title
           Expanded(
             child: Text(
               title,
@@ -1439,7 +1461,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
               ),
             ),
           ),
-          // Percentage
           Text(
             "${percentage.toStringAsFixed(0)}%",
             style: AppTextStyle.ts16SB(color: AppColor.black),
@@ -1561,18 +1582,8 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
 
         final salesData = state.salesData;
 
-        if (salesData == null || salesData.table18.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Daily Attendance Data")),
-          );
-        }
-        final table18List = salesData.table18.first;
-        final table17 = salesData.table17;
+        final table18List = salesData?.table18.first;
+        final table17 = salesData?.table17;
         return Container(
           padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 12.0),
           decoration: commonCardDecoration(),
@@ -1592,90 +1603,112 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                 ],
               ),
               verticalSpacing(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: _sourceChannelPartnerCard(
-                      title: "IBM",
-                      percentage: table18List.inboundConversionRate,
-                      subTitle: "Inbound Meetings",
-                      subTitleColor: const Color(0xFFFF8A00),
-                      bgColor: const Color(0xFFFFF7ED),
-                      borderColor: const Color(0xFFFFA742),
-                      valueColor: const Color(0xFFFF8A00),
+              if (table18List != null) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: _sourceChannelPartnerCard(
+                        title: "IBM",
+                        percentage: table18List.inboundConversionRate,
+                        subTitle: "Inbound Meetings",
+                        subTitleColor: const Color(0xFFFF8A00),
+                        bgColor: const Color(0xFFFFF7ED),
+                        borderColor: const Color(0xFFFFA742),
+                        valueColor: const Color(0xFFFF8A00),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _sourceChannelPartnerCard(
-                      title: "OBM",
-                      percentage: table18List.outboundConversionRate,
-                      subTitle: "Outbound Meetings",
-                      subTitleColor: AppColor.purple,
-                      bgColor: AppColor.lightPurple,
-                      borderColor: AppColor.purple,
-                      valueColor: AppColor.purple,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _sourceChannelPartnerCard(
+                        title: "OBM",
+                        percentage: table18List.outboundConversionRate,
+                        subTitle: "Outbound Meetings",
+                        subTitleColor: AppColor.purple,
+                        bgColor: AppColor.lightPurple,
+                        borderColor: AppColor.purple,
+                        valueColor: AppColor.purple,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ] else ...[
+                const SizedBox.shrink(),
+              ],
               verticalSpacing(),
-              ListView.builder(
-                itemCount: table17.length,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemBuilder: (context, int index) {
-                  var item = table17[index];
-                  return Container(
-                    margin: EdgeInsets.all(8.0),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 16.0,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4.0),
-                      color: AppColor.lightGreyBackground,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                item.channelPartnerName,
-                                style: AppTextStyle.ts14SB(),
-                              ),
-                            ),
-                            Text(
-                              item.bookingValueInCr.toString(),
-                              style: AppTextStyle.ts14SB(color: AppColor.green),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                "${item.totalBookings.toString()} bookings",
-                                style: AppTextStyle.ts12R(
-                                  color: AppColor.black.withValues(alpha: 0.50),
+              if (table17 != null && table17.isNotEmpty) ...[
+                ListView.builder(
+                  itemCount: table17.length,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, int index) {
+                    var item = table17[index];
+                    return Container(
+                      margin: EdgeInsets.all(8.0),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 16.0,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4.0),
+                        color: AppColor.lightGreyBackground,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  item.channelPartnerName,
+                                  style: AppTextStyle.ts14SB(),
                                 ),
                               ),
-                            ),
-                            Text(
-                              "${item.conversionPercent}% conv",
-                              style: AppTextStyle.ts12R(),
-                            ),
-                          ],
-                        ),
-                      ],
+                              Text(
+                                item.bookingValueInCr.toString(),
+                                style: AppTextStyle.ts14SB(
+                                  color: AppColor.green,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  "${item.totalBookings.toString()} bookings",
+                                  style: AppTextStyle.ts12R(
+                                    color: AppColor.black.withValues(
+                                      alpha: 0.50,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                "${item.conversionPercent}% conv",
+                                style: AppTextStyle.ts12R(),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ] else ...[
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Text(
+                      "No Channel Partner Data Available",
+                      style: AppTextStyle.ts12M(
+                        color: AppColor.black.withValues(alpha: 0.50),
+                      ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ],
           ),
         );
@@ -1733,17 +1766,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
 
         final salesData = state.salesData;
 
-        if (salesData == null || salesData.table3.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Daily Attendance Data")),
-          );
-        }
-        final table3 = salesData.table3;
+        final table3 = salesData?.table3;
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -1765,118 +1788,135 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                 ],
               ),
               verticalSpacing(height: 20),
-              ListView.builder(
-                itemCount: table3.length,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemBuilder: (context, int index) {
-                  var item = table3[index];
-                  final bool isLast = index == table3.length - 1;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          ClipOval(
-                            child: NetworkImageWidget(
-                              imageUrl:
-                                  'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                              width: 42,
-                              height: 42,
-                              fit: BoxFit.cover,
+              if (table3 != null && table3.isNotEmpty) ...[
+                ListView.builder(
+                  itemCount: table3.length,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, int index) {
+                    var item = table3[index];
+                    final bool isLast = index == table3.length - 1;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            ClipOval(
+                              child: NetworkImageWidget(
+                                imageUrl:
+                                    'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
+                                width: 42,
+                                height: 42,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                          ),
-                          horizontalSpacing(),
-                          Expanded(
-                            child: Column(
+                            horizontalSpacing(),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item.fullName,
+                                    style: AppTextStyle.ts16M(),
+                                  ),
+                                  Text(
+                                    item.designation,
+                                    style: AppTextStyle.ts14R(
+                                      color: AppColor.black.withValues(
+                                        alpha: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(height: 20.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  item.fullName,
-                                  style: AppTextStyle.ts16M(),
+                                  "Bookings",
+                                  style: AppTextStyle.ts12R(
+                                    color: AppColor.black.withValues(
+                                      alpha: 0.50,
+                                    ),
+                                  ),
                                 ),
                                 Text(
-                                  item.designation,
-                                  style: AppTextStyle.ts14R(
-                                    color: AppColor.black.withValues(
-                                      alpha: 0.5,
-                                    ),
+                                  item.bookingFromEnquiry.toString(),
+                                  style: AppTextStyle.ts14SB(
+                                    color: AppColor.black,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                      verticalSpacing(height: 20.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Bookings",
-                                style: AppTextStyle.ts12R(
-                                  color: AppColor.black.withValues(alpha: 0.50),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Booking Value",
+                                  style: AppTextStyle.ts12R(
+                                    color: AppColor.black.withValues(
+                                      alpha: 0.50,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                item.bookingFromEnquiry.toString(),
-                                style: AppTextStyle.ts14SB(
-                                  color: AppColor.black,
+                                Text(
+                                  "₹${item.achievedAmount}",
+                                  style: AppTextStyle.ts14SB(
+                                    color: AppColor.black,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Booking Value",
-                                style: AppTextStyle.ts12R(
-                                  color: AppColor.black.withValues(alpha: 0.50),
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Conversation Rate",
+                                  style: AppTextStyle.ts12R(
+                                    color: AppColor.black.withValues(
+                                      alpha: 0.50,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                "₹${item.achievedAmount}",
-                                style: AppTextStyle.ts14SB(
-                                  color: AppColor.black,
+                                Text(
+                                  "31%",
+                                  style: AppTextStyle.ts14SB(
+                                    color: AppColor.green,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Conversation Rate",
-                                style: AppTextStyle.ts12R(
-                                  color: AppColor.black.withValues(alpha: 0.50),
-                                ),
-                              ),
-                              Text(
-                                "31%",
-                                style: AppTextStyle.ts14SB(
-                                  color: AppColor.green,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      verticalSpacing(height: 20.0),
-                      if (!isLast) ...[
-                        Divider(
-                          thickness: 0.5,
-                          color: AppColor.black.withValues(alpha: 0.5),
+                              ],
+                            ),
+                          ],
                         ),
                         verticalSpacing(height: 20.0),
+                        if (!isLast) ...[
+                          Divider(
+                            thickness: 0.5,
+                            color: AppColor.black.withValues(alpha: 0.5),
+                          ),
+                          verticalSpacing(height: 20.0),
+                        ],
                       ],
-                    ],
-                  );
-                },
-              ),
+                    );
+                  },
+                ),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "No Leaderboard Data Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         );
@@ -2126,7 +2166,7 @@ class CallTrackerRadialChart extends StatelessWidget {
 
   Widget _legend(Color color, int value, String text) {
     return Row(
-      mainAxisSize: MainAxisSize.min, // ⭐ prevents flex overflow
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           height: 14,
@@ -2140,7 +2180,6 @@ class CallTrackerRadialChart extends StatelessWidget {
         Text(value.toString().padLeft(2, '0'), style: AppTextStyle.ts16SB()),
         const SizedBox(width: 6),
         Flexible(
-          // ⭐ NOT Expanded
           child: Text(
             text,
             overflow: TextOverflow.ellipsis,
@@ -2184,7 +2223,6 @@ class RadialPainter extends CustomPainter {
           ..strokeWidth = stroke
           ..strokeCap = StrokeCap.round;
 
-    // Total degrees available after gaps
     final usable = 360 - (gapDegrees * 3);
 
     final connectedSweep = (connected / total) * usable;
@@ -2192,7 +2230,6 @@ class RadialPainter extends CustomPainter {
     final rescheduledSweep = (rescheduled / total) * usable;
     final closedSweep = (closed / total) * usable;
 
-    // ⭐ KEY: center PRESENT arc at top
     double start = -90 - (connectedSweep / 2);
 
     void draw(Color color, double sweep) {
@@ -2201,10 +2238,10 @@ class RadialPainter extends CustomPainter {
       start += sweep + gapDegrees;
     }
 
-    draw(AppColor.primary, rescheduledSweep); // Rescheduled
-    draw(AppColor.blue, connectedSweep); // Connected
-    draw(AppColor.grey50, notConnectedSweep); // Not Connected
-    draw(AppColor.black, closedSweep); // Closed
+    draw(AppColor.primary, rescheduledSweep); // RESCHDULED
+    draw(AppColor.blue, connectedSweep); // CONNECTED
+    draw(AppColor.grey50, notConnectedSweep); // NOT CONNECTED
+    draw(AppColor.black, closedSweep); // CLOSED
   }
 
   double _deg(double d) => d * pi / 180;
@@ -2278,8 +2315,8 @@ class SourceProgressBar extends StatelessWidget {
 
 class BudgetChartData {
   final String month;
-  final double value; // numeric for bar length
-  final String slab; // label shown on X axis
+  final double value; // NUMERIC FOR BAR LENGTH
+  final String slab; // LABEL SHOWN ON X AXIS
 
   BudgetChartData({
     required this.month,

@@ -172,6 +172,7 @@ class _RedevelopmentDashboardScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ACCORDING TO PROJECT BUILDING WILL BE DISPLAYED
                   CustomMultipleSelectPopup(
                     isMultiSelect: false,
                     initialValue: selectedBuilding,
@@ -250,6 +251,7 @@ class _RedevelopmentDashboardScreenState
                     ],
                   ),
                   verticalSpacing(),
+                  // BUILDING COUNT WIDGET
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 16.0,
@@ -295,6 +297,7 @@ class _RedevelopmentDashboardScreenState
                     ),
                   ),
                   verticalSpacing(),
+                  // FINANCIAL COUNT WIDGET
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 16.0,
@@ -343,6 +346,7 @@ class _RedevelopmentDashboardScreenState
                     ),
                   ),
                   verticalSpacing(),
+                  // ALERT COUNT WIDGET
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 16.0,
@@ -388,20 +392,28 @@ class _RedevelopmentDashboardScreenState
                     ),
                   ),
                   verticalSpacing(),
+                  // PROJECT PROGRESS WIDGET
                   _buildProjectProgressWidget(context),
                   verticalSpacing(),
+                  // FINANCIAL OVERVIEW WIDGET
                   _buildFinancialOverviewWidget(context),
                   verticalSpacing(),
+                  // AREA UTILIZATION SUMMARY WIDGET
                   _buildAreaUtilizationSummaryWidget(context),
                   verticalSpacing(),
+                  // TENANT OVERVIEW WIDGET (RESIDENTIAL AND COMMERCIAL COUNT)
                   _buildTenantOverviewWidget(context),
                   verticalSpacing(),
+                  // BUILDING DETAILS WIDGET
                   _buildBuildingDetailsWidget(context),
                   verticalSpacing(),
+                  // ALERT WIDGET
                   _buildAlertsWidget(context),
                   verticalSpacing(),
+                  // PROPOSED PLAN WIDGET (NO. OF FLOORS, UNITS AND TOTAL PARKINGS, BUILDING TYPE PLANS)
                   _buildProposedPlanWidget(context),
                   verticalSpacing(),
+                  // AMENITIES WIDGET
                   _buildProposedOfferWidget(context),
                 ],
               ),
@@ -506,7 +518,6 @@ class _RedevelopmentDashboardScreenState
         children: [
           Column(
             children: [
-              // Circle
               Container(
                 width: 20,
                 height: 20,
@@ -536,10 +547,7 @@ class _RedevelopmentDashboardScreenState
                 ),
             ],
           ),
-
           horizontalSpacing(width: 16),
-
-          // Content
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(bottom: isLast ? 0 : 20),
