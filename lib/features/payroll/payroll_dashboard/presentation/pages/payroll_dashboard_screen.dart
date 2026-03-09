@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class PayrollDashboardScreen extends StatefulWidget {
@@ -54,7 +55,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
         child: BlocBuilder<PayrollDashboardCubit, PayrollDashboardState>(
           builder: (context, state) {
             return Column(
-              children: [_overview(state), verticalSpacing(), _quickAction()],
+              children: [_overview(state), verticalSpacing(), _quickAction(),_attendanceOverview(state),_buildLeaveManagementWidget()],
             );
           },
         ),
@@ -103,7 +104,6 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                     AppColor.yellow,
                     BlendMode.srcIn,
                   ),
-
                 ),
                 iconColor: AppColor.yellow,
                 backgroundColor: AppColor.lightYellow.withValues(alpha: .5),
@@ -119,9 +119,9 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                 title: "Pending Approval",
                 value: data.pendingApproval.toString(),
                 icon: SvgPicture.asset(
-                  AppAssets.calenderIcon,
-                  height: 16,
-                  width: 16,
+                  AppAssets.regularizeIcon,
+                  height: 18,
+                  width: 18,
                 ),
                 iconColor: AppColor.darkGreen,
                 backgroundColor: AppColor.lightGreen.withValues(alpha: .5),
@@ -132,7 +132,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                 title: "Attendance Alert",
                 value: data.attendanceAlert.toString(),
                 icon: SvgPicture.asset(
-                  AppAssets.calenderIcon,
+                  AppAssets.raiseTaskIcon,
                   height: 16,
                   width: 16,
                 ),
@@ -182,6 +182,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
   // QUICK ACTION
   Widget _quickAction() {
     return Container(
+      margin: EdgeInsets.only(bottom: 10),
       decoration: commonCardDecoration(),
       padding: EdgeInsets.all(10),
       child: Column(
@@ -200,7 +201,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                     CustomIconButton(
                       onPressed: () {},
                       icon: SvgPicture.asset(
-                        AppAssets.calenderIcon,
+                        AppAssets.applyLeaveIcon,
                         height: 16,
                         width: 16,
                         colorFilter: ColorFilter.mode(
@@ -220,10 +221,14 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                   children: [
                     CustomIconButton(
                       onPressed: () {},
-                      icon: Icon(
-                        Icons.watch_later_outlined,
-                        size: 16,
-                        color: AppColor.darkGreen,
+                      icon: SvgPicture.asset(
+                        AppAssets.regularizeIcon,
+                        height: 18,
+                        width: 16,
+                        colorFilter: ColorFilter.mode(
+                          AppColor.green,
+                          BlendMode.srcIn,
+                        ),
                       ),
                       backgroundColor: AppColor.lightGreen.withValues(
                         alpha: .5,
@@ -252,4 +257,51 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
       ),
     );
   }
+
+  // ATTENDANCE OVERVIEW
+  Widget _attendanceOverview(PayrollDashboardState state) {
+    return Container(
+      padding: EdgeInsets.all(10),
+      margin: EdgeInsets.only(bottom: 10),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Attendance Overview", style: AppTextStyle.ts14M(color: AppColor.grey)),
+          verticalSpacing(height: 25),
+          CommonRadialChart(
+            total: 12,
+            items: [
+              RadialChartItem(
+                title: "Present",
+                value: 9,
+                color: AppColor.primary,
+              ),
+              RadialChartItem(title: "Absent", value: 2, color: AppColor.blue),
+              RadialChartItem(
+                title: "On Leave",
+                value: 1,
+                color: AppColor.grey50,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // LEAVE MANAGEMENT WIDGET
+  Widget _buildLeaveManagementWidget() {
+    return Container(
+      decoration: commonCardDecoration(),
+      padding: EdgeInsets.all(16),
+      child: Column(
+        children: [
+          Text("Leave Management",style: AppTextStyle.ts14M(color: AppColor.grey),),
+          verticalSpacing(),
+        ],
+      ),
+    );
+  }
+
 }

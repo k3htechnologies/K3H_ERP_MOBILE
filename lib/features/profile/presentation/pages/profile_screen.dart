@@ -10,7 +10,6 @@ import 'package:k3h_erp_app/features/masters/employee_master/presentation/widget
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
@@ -1116,21 +1115,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
         if (state.assetMappingList.isEmpty) {
           return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    AppAssets.noDataImage,
-                    width: 150.0,
-                    height: 150.0,
-                  ),
-                  verticalSpacing(),
-                  Text("No Data Available!", style: AppTextStyle.ts14B()),
-                ],
-              ),
-            ),
+            child: noDataWidget(message: "No Assets Found")
           );
         }
 
@@ -1256,21 +1241,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
         if (state.shiftManagementList.isEmpty) {
           return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    AppAssets.noDataImage,
-                    width: 150.0,
-                    height: 150.0,
-                  ),
-                  verticalSpacing(),
-                  Text("No Data Available!", style: AppTextStyle.ts14B()),
-                ],
-              ),
-            ),
+            child: noDataWidget(message: "No Shift Policy Found"),
           );
         }
 
@@ -1389,21 +1360,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
         if (state.weekOffMappingList.isEmpty) {
           return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    AppAssets.noDataImage,
-                    width: 150.0,
-                    height: 150.0,
-                  ),
-                  verticalSpacing(),
-                  Text("No Data Available!", style: AppTextStyle.ts14B()),
-                ],
-              ),
-            ),
+            child: noDataWidget(message: "No Week Off Policy Found")
           );
         }
 
@@ -1558,13 +1515,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
                 if (state.employeeEducationDetailsList.isEmpty) {
                   return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Text(
-                        "No education details found",
-                        style: AppTextStyle.ts16M(color: AppColor.grey),
-                      ),
-                    ),
+                    child: noDataWidget(message: "No education details found"),
                   );
                 }
                 return ListView.builder(
@@ -1675,13 +1626,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
                 if (state.employeeExperienceDetailsList.isEmpty) {
                   return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Text(
-                        "No experience details found",
-                        style: AppTextStyle.ts16M(color: AppColor.grey),
-                      ),
-                    ),
+                    child: noDataWidget(message: "No experience details found")
                   );
                 }
                 return ListView.builder(
@@ -1773,13 +1718,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
         if (state.branchAssociationList.isEmpty) {
           return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Text(
-                "No data found",
-                style: AppTextStyle.ts16M(color: AppColor.grey),
-              ),
-            ),
+            child: noDataWidget(message: "No Branch Associations Details Found")
           );
         }
         return ListView.builder(

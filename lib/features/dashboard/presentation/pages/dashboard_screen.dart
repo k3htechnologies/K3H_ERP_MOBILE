@@ -22,6 +22,7 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -829,67 +830,99 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // BUILD QUICK ACTIONS WIDGET
   Widget _buildQuickActionsWidget(BuildContext context) {
+    final actions = [
+      _QuickActionItem(
+        icon: SvgPicture.asset(AppAssets.applyLeaveIcon),
+        text: "Apply Leave",
+        backgroundColor: AppColor.lightBlue,
+      ),
+      _QuickActionItem(
+        icon: SvgPicture.asset(AppAssets.raiseTaskIcon),
+        text: "Raise Task",
+        backgroundColor: AppColor.purple20.withValues(alpha: .08),
+      ),
+      _QuickActionItem(
+        icon: SvgPicture.asset(AppAssets.applyAdvanceIcon),
+        text: "Apply Advance",
+        backgroundColor: AppColor.lightYellow.withValues(alpha: .5),
+      ),
+      _QuickActionItem(
+        icon: SvgPicture.asset(AppAssets.regularizeIcon),
+        text: "Regularize",
+        backgroundColor: AppColor.lightGreen.withValues(alpha: .5),
+      ),
+      _QuickActionItem(
+        icon: SvgPicture.asset(AppAssets.requestAssetIcon),
+        text: "Request Asset",
+        backgroundColor: AppColor.lightOrangenBg.withValues(alpha: .5),
+      ),
+      _QuickActionItem(
+        icon: SvgPicture.asset(AppAssets.payslipIcon),
+        text: "Payslip",
+        backgroundColor: AppColor.red.withValues(alpha: .08),
+      ),
+    ];
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: commonCardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  "Quick Actions",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.50),
-                  ),
-                ),
-              ),
-            ],
+          Text(
+            "Quick Actions",
+            style: AppTextStyle.ts14M(
+              color: AppColor.black.withValues(alpha: 0.50),
+            ),
           ),
+
           const SizedBox(height: 20),
-          GridView.count(
-            crossAxisCount: 3,
+
+          GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            crossAxisSpacing: 26.0,
-            children: [
-              QuickActionTile(
-                icon: AppAssets.applyLeaveIcon,
-                title: "Apply Leave",
+            itemCount: actions.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              crossAxisSpacing: 10,
+              childAspectRatio: 1,
+            ),
+            itemBuilder: (context, index) {
+              final item = actions[index];
+
+              return _quickActionCard(
+                icon: item.icon,
+                text: item.text,
+                backgroundColor: item.backgroundColor,
                 onTap: () {},
-              ),
-              QuickActionTile(
-                icon: AppAssets.raiseTaskIcon,
-                title: "Raise Task",
-                onTap: () {},
-              ),
-              QuickActionTile(
-                icon: AppAssets.applyAdvanceIcon,
-                title: "Apply Advance",
-                onTap: () {},
-              ),
-              QuickActionTile(
-                icon: AppAssets.regularizeIcon,
-                title: "Regularize",
-                onTap: () {},
-              ),
-              QuickActionTile(
-                icon: AppAssets.requestAssetIcon,
-                title: "Request Asset",
-                onTap: () {},
-              ),
-              QuickActionTile(
-                icon: AppAssets.payslipIcon,
-                title: "Payslip",
-                onTap: () {},
-              ),
-            ],
+              );
+            },
           ),
         ],
       ),
+    );
+  }
+
+  // QUICK ACTION CARD
+  Widget _quickActionCard({
+    required Widget icon,
+    required String text,
+    required VoidCallback onTap,
+    Color? backgroundColor,
+  }) {
+    return Column(
+      spacing: 10,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        CustomIconButton(
+          onPressed: onTap,
+          icon: icon,
+          backgroundColor: backgroundColor ?? AppColor.lightBlue,
+        ),
+        Text(text, style: AppTextStyle.ts12M(), textAlign: TextAlign.center),
+      ],
     );
   }
 
@@ -2114,4 +2147,17 @@ class ValueListenableBuilder2<A, B> extends StatelessWidget {
       },
     );
   }
+}
+
+// HELPER MODEL
+class _QuickActionItem {
+  final Widget icon;
+  final String text;
+  final Color backgroundColor;
+
+  _QuickActionItem({
+    required this.icon,
+    required this.text,
+    required this.backgroundColor,
+  });
 }
