@@ -224,6 +224,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
         screenTitle: "Approval Document",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
+        searchHintText: "Search By Document Name",
         onSearchSubmit: (value) {
           _documentCubit.searchApprovalDocument(value, context);
         },
@@ -266,7 +267,11 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
 
               // 2. Loaded but no categories
               if (state.documentCategoryModelList.isEmpty) {
-                return Center(child: noDataWidget());
+                return Center(
+                  child: noDataWidget(
+                    message: "No Approval Document Data Found",
+                  ),
+                );
               }
 
               // 3. Categories exist but controller not ready yet

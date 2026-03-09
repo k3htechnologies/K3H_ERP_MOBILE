@@ -168,11 +168,14 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                                 },
                               );
                             },
-                            child:  Text(
+                            child: Text(
                               channelPartner.name,
                               style: AppTextStyle.ts16M(
                                 color: AppColor.primary,
-                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
+                              ),
                             ),
                           ),
                         ),

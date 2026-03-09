@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/approval_category/data/model/approval_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/approval_category/presentation/cubit/approval_category_cubit.dart';
@@ -31,8 +32,8 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
 
-  //PROJECT ID
-  late int projectId;
+  //PROJECT
+  late ProjectModel projectId;
 
   // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
@@ -50,11 +51,11 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
     _initializeTextEditingController();
     _onScroll();
     //SET PROJECT ID
-    projectId = getProject().projectId;
+    projectId = getProject();
     _documentCategoryCubit.getApprovalapprovalCategoryList(
       context,
       1,
-      projectId,
+      projectId.projectId,
     );
   }
 
@@ -66,14 +67,12 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
           !_documentCategoryCubit.state.isLoading! &&
           _documentCategoryCubit.state.approvalCategoryList.length <
               _documentCategoryCubit.state.totalNumberOfRecord) {
-        if (projectId != 0) {
-          _documentCategoryCubit.getApprovalapprovalCategoryList(
-            context,
-            _documentCategoryCubit.state.currentPage + 1,
+        _documentCategoryCubit.getApprovalapprovalCategoryList(
+          context,
+          _documentCategoryCubit.state.currentPage + 1,
 
-            projectId,
-          );
-        }
+          projectId.projectId,
+        );
       }
     });
   }
@@ -98,7 +97,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
 
     if (shouldDelete && context.mounted) {
       _documentCategoryCubit.deleteApprovalDocumentCategory(
-        projectId,
+        projectId.projectId,
         obj,
         context,
       );
@@ -113,10 +112,24 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
         authorization: _routeAuthorizationModel,
         onSearchSubmit: (value) {
           if (projectId != 0) {
-            _documentCategoryCubit.searchCategory(context, projectId, value);
+            _documentCategoryCubit.searchCategory(
+              context,
+              projectId.projectId,
+              value,
+            );
           }
         },
+        searchHintText: "Search By Approval Document Category",
         textController: _searchC,
+
+        onProjectChangeCallback: (value) {
+          projectId = value;
+          _documentCategoryCubit.getApprovalapprovalCategoryList(
+            context,
+            1,
+            projectId.projectId,
+          );
+        },
         onAddCallback: () {
           if (projectId == 0) {
             showErrorMessage(context, 'Error', 'Please select a project');
@@ -132,7 +145,11 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
             return Center(child: loader());
           }
           if (state.approvalCategoryList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(
+              child: noDataWidget(
+                message: "No Approval Document Category Data Found",
+              ),
+            );
           }
           return ListView.builder(
             controller: scrollController,
@@ -256,5 +273,4 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
       ),
     );
   }
-
 }

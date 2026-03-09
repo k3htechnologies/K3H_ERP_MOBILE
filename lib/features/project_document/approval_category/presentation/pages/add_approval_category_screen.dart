@@ -100,8 +100,8 @@ class _AddApprovalCategoryScreenState extends State<AddApprovalCategoryScreen> {
       appBar: CustomAppBarWithBackButton(
         screenTitle:
             _isEditMode
-                ? "Update Project Document Category"
-                : "Add Project Document Category",
+                ? "Update Approval Document Category"
+                : "Add Approval Document Category",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(
@@ -114,26 +114,26 @@ class _AddApprovalCategoryScreenState extends State<AddApprovalCategoryScreen> {
             child: Column(
               children: [
                 CustomTextField(
-                  title: "Project Document Category",
-                  hint: "Enter project document category",
+                  title: "Approval Document Category",
+                  hint: "Enter approval document category",
                   isRequired: true,
                   textController: _documentCategoryC,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Project Document Category is required";
+                      return "Approval Document Category is required";
                     }
                     return null;
                   },
                 ),
                 CustomTextField(
-                  title: "Order By",
-                  hint: "Enter order by",
+                  title: "Sequence",
+                  hint: "Enter Sequence",
                   isRequired: true,
                   keyboardType: TextInputType.number,
                   textController: _orderByC,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Order By is required";
+                      return "Sequence is required";
                     }
                     return null;
                   },
@@ -148,10 +148,7 @@ class _AddApprovalCategoryScreenState extends State<AddApprovalCategoryScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text:
-                _isEditMode
-                    ? "Update Document Category"
-                    : "Add Document Category",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

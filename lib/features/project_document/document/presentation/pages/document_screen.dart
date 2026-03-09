@@ -196,7 +196,11 @@ class _DocumentScreenState extends State<DocumentScreen>
                 height: 70,
                 padding: EdgeInsets.symmetric(vertical: 16),
                 child: CustomButton(
-                  leading: Icon(documentModel != null?Icons.edit:Icons.add, size: 16, color: AppColor.white),
+                  leading: Icon(
+                    documentModel != null ? Icons.edit : Icons.add,
+                    size: 16,
+                    color: AppColor.white,
+                  ),
                   text:
                       documentModel != null
                           ? "Update Document Name"
@@ -235,16 +239,26 @@ class _DocumentScreenState extends State<DocumentScreen>
             _documentCubit.getCategoryList(context, 1, projectId);
           }
         },
+        onExportCallback: (value) {
+          if (_documentCubit.state.totalNumberOfRecord == 0) {
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
+          _documentCubit.exportExcelPdf(context, value, projectId);
+        },
         extraHeight: 20,
         secondaryBuilder:
-            (_) => _routeAuthorizationModel.isAction? CustomButton(
-              text: "Add",
-              onPressed: () {
-                _showPopUpToAddUpdateDocument();
-              },
-              backgroundColor: AppColor.primary,
-              leading: Icon(Icons.add, size: 16, color: AppColor.white),
-            ):SizedBox(),
+            (_) =>
+                _routeAuthorizationModel.isAction
+                    ? CustomButton(
+                      text: "Add",
+                      onPressed: () {
+                        _showPopUpToAddUpdateDocument();
+                      },
+                      backgroundColor: AppColor.primary,
+                      leading: Icon(Icons.add, size: 16, color: AppColor.white),
+                    )
+                    : SizedBox(),
       ),
       body: SafeArea(
         child: BlocListener<DocumentCubit, DocumentState>(
@@ -268,7 +282,11 @@ class _DocumentScreenState extends State<DocumentScreen>
 
               // 2. Loaded but no categories
               if (state.documentCategoryModelList.isEmpty) {
-                return Center(child: noDataWidget(message: "No Project Document Data Found"));
+                return Center(
+                  child: noDataWidget(
+                    message: "No Project Document Data Found",
+                  ),
+                );
               }
 
               // 3. Categories exist but controller not ready yet
@@ -318,9 +336,10 @@ class _DocumentScreenState extends State<DocumentScreen>
 
     return ChipStyleTabBar(
       controller: _categoryTabController!,
-      tabs: state.documentCategoryModelList
-          .map((e) => e.projectDocumentCategoryName)
-          .toList(),
+      tabs:
+          state.documentCategoryModelList
+              .map((e) => e.projectDocumentCategoryName)
+              .toList(),
     );
   }
 
@@ -394,7 +413,7 @@ class _DocumentScreenState extends State<DocumentScreen>
                           ),
                         ),
                       ),
-                      if(_routeAuthorizationModel.isAction)...[
+                      if (_routeAuthorizationModel.isAction) ...[
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -433,7 +452,7 @@ class _DocumentScreenState extends State<DocumentScreen>
                                 );
                               },
                             ),
-                            if(document.uploadedProjectDocumentCount==0)...[
+                            if (document.uploadedProjectDocumentCount == 0) ...[
                               horizontalSpacing(),
                               CustomIconButton.delete(
                                 onPressed: () {
@@ -444,10 +463,10 @@ class _DocumentScreenState extends State<DocumentScreen>
                                   );
                                 },
                               ),
-                            ]
+                            ],
                           ],
                         ),
-                      ]
+                      ],
                     ],
                   ),
                   verticalSpacing(height: 10),
