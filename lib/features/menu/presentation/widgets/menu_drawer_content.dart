@@ -241,6 +241,7 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
         menu.moduleName.trim().toLowerCase() == 'redevelopment';
 
     final isSalesDashboard = menu.moduleName.trim().toLowerCase() == 'sale';
+    final isPayrollDashboard = menu.moduleName.trim().toLowerCase() == 'payroll';
     final isInventoryDashboard =
         menu.moduleName.trim().toLowerCase() == 'inventory';
     final isSettingsDashboard =
@@ -261,6 +262,11 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
       isCurrentModuleActive =
           isCurrentModuleActive ||
           _isRouteActive(_currentPathForBuild, AppRoutes.salesDashboard);
+    }
+    if (isPayrollDashboard) {
+      isCurrentModuleActive =
+          isCurrentModuleActive ||
+          _isRouteActive(_currentPathForBuild, AppRoutes.payrollDashboard);
     }
     if (isInventoryDashboard) {
       isCurrentModuleActive =
@@ -284,7 +290,10 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
           await _onItemTap(navigateToPath: AppRoutes.redevelopmentDashboard);
         } else if (isSalesDashboard) {
           await _onItemTap(navigateToPath: AppRoutes.salesDashboard);
-        } else if (isInventoryDashboard) {
+        }else if (isPayrollDashboard) {
+          await _onItemTap(navigateToPath: AppRoutes.payrollDashboard);
+        }
+        else if (isInventoryDashboard) {
           await _onItemTap(navigateToPath: AppRoutes.inventoryDashboard);
         } else if (isSettingsDashboard) {
           await _onItemTap(navigateToPath: AppRoutes.settingDashboard);

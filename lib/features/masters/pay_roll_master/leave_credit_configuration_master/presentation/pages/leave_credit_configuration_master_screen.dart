@@ -383,6 +383,7 @@ class _LeaveCreditConfigurationMasterScreenState
         screenTitle: "Leave Credit Configuration",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
+        searchHintText: "Search by Department Name",
         onSearchSubmit: (value) {
           _leaveCreditConfigurationMasterCubit.searchLeaveCreditConfiguration(
             context,
@@ -419,7 +420,11 @@ class _LeaveCreditConfigurationMasterScreenState
             return Center(child: loader());
           }
           if (state.leaveCreditConfigurationMasterList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(
+              child: noDataWidget(
+                message: "No Leave Credit Configuration Data Found",
+              ),
+            );
           }
           return ListView.builder(
             controller: scrollController,

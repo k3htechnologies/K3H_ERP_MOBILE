@@ -189,62 +189,11 @@ class _LeaveCreditConfigurationMasterViewScreenState
             ),
           ),
           // ACTION DETAILS
-          Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Action Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(height: 15),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Created By",
-                      value: widget.leaveCreditConfigurationMaster.createdBy,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Created Date",
-                      value: formatDate(
-                        widget.leaveCreditConfigurationMaster.createdDate,
-                      ),
-                    ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Modified By",
-                      value:
-                          widget
-                                  .leaveCreditConfigurationMaster
-                                  .modifiedBy
-                                  .isEmpty
-                              ? "-"
-                              : widget
-                                  .leaveCreditConfigurationMaster
-                                  .modifiedBy,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Modified Date",
-                      value:
-                          widget.leaveCreditConfigurationMaster.modifiedDate !=
-                                  null
-                              ? formatDate(
-                                widget
-                                    .leaveCreditConfigurationMaster
-                                    .modifiedDate!,
-                              )
-                              : "-",
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          actionCardWidget(
+            createdBy: widget.leaveCreditConfigurationMaster.createdBy,
+            createdDate: widget.leaveCreditConfigurationMaster.createdDate,
+            modifiedBy: widget.leaveCreditConfigurationMaster.modifiedBy,
+            modifiedDate: widget.leaveCreditConfigurationMaster.modifiedDate,
           ),
         ],
       ),

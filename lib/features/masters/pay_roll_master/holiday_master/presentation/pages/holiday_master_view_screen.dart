@@ -61,58 +61,17 @@ class HolidayMasterViewScreen extends StatelessWidget {
                             isDisable: holidayMaster.holidayUrl.isEmpty,
                           ),
                         ),
-                        Expanded(child: SizedBox())
+                        Expanded(child: SizedBox()),
                       ],
                     ),
                   ],
                 ),
               ),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Action Details", style: AppTextStyle.ts16SB()),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Created By",
-                          value: holidayMaster.createdBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Created Date",
-                          value: formatDate(
-                            holidayMaster.createdDate,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Modified By",
-                          value:
-                              holidayMaster.modifiedBy.isEmpty
-                                  ? "-"
-                                  : holidayMaster.modifiedBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Modified Date",
-                          value:
-                              holidayMaster.modifiedDate != null
-                                  ? formatDate(
-                                    holidayMaster.modifiedDate!,
-                                  )
-                                  : "-",
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              actionCardWidget(
+                createdBy: holidayMaster.createdBy,
+                createdDate: holidayMaster.createdDate,
+                modifiedBy: holidayMaster.modifiedBy,
+                modifiedDate: holidayMaster.modifiedDate,
               ),
             ],
           ),

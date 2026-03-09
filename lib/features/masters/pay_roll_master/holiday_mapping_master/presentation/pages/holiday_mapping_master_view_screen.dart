@@ -65,52 +65,11 @@ class HolidayMappingMasterViewScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Action Details", style: AppTextStyle.ts16SB()),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Created By",
-                          value: holidayMapping.createdBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Created Date",
-                          value: formatDate(
-                            holidayMapping.createdDate,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Modified By",
-                          value:
-                              holidayMapping.modifiedBy.isEmpty
-                                  ? "-"
-                                  : holidayMapping.modifiedBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Modified Date",
-                          value:
-                              holidayMapping.modifiedDate != null
-                                  ? formatDate(
-                                    holidayMapping.modifiedDate!,
-                                  )
-                                  : "-",
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              actionCardWidget(
+                createdBy: holidayMapping.createdBy,
+                createdDate: holidayMapping.createdDate,
+                modifiedBy: holidayMapping.modifiedBy,
+                modifiedDate: holidayMapping.modifiedDate,
               ),
             ],
           ),

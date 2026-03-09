@@ -98,47 +98,11 @@ class ViewShiftMappingMasterScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Action Details", style: AppTextStyle.ts16SB()),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Created By",
-                          value: shiftMappingModel.createdBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Created Date",
-                          value: formatDate(
-                            shiftMappingModel.createdDate,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Modified By",
-                          value: shiftMappingModel.modifiedBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Modified Date",
-                          value: formatDate(
-                            shiftMappingModel.modifiedDate,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              actionCardWidget(
+                createdBy: shiftMappingModel.createdBy,
+                createdDate: shiftMappingModel.createdDate,
+                modifiedBy: shiftMappingModel.modifiedBy,
+                modifiedDate: shiftMappingModel.modifiedDate,
               ),
             ],
           ),

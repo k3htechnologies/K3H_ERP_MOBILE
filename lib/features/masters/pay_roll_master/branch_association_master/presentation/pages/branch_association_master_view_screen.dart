@@ -54,53 +54,11 @@ class BranchAssociationMasterViewScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Action Details", style: AppTextStyle.ts16SB()),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Created By",
-                          value: branchAssociation.createdBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Created Date",
-                          value: formatDate(
-                            branchAssociation.createdDate,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Modified By",
-                          value:
-                              branchAssociation.modifiedBy.isEmpty
-                                  ? "-"
-                                  : branchAssociation.modifiedBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Modified Date",
-                          value:
-                              branchAssociation.modifiedDate != null
-                                  ? formatDate(
-                                    branchAssociation.modifiedDate!,
-                                  )
-                                  : "-",
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              actionCardWidget(
+                createdBy: branchAssociation.createdBy,
+                createdDate: branchAssociation.createdDate,
+                modifiedBy: branchAssociation.modifiedBy,
+                modifiedDate: branchAssociation.modifiedDate,
               ),
             ],
           ),

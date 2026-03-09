@@ -68,6 +68,7 @@ class AppAssets {
   static const String clockIcon = "$svgPath/clock.svg";
   static const String courtIcon = "$svgPath/courtIcon.svg";
   static const String communityIcon = "$svgPath/community.svg";
+  static const String payrollOnLeaveIcon = "$svgPath/payrollOnLeaveIcon.svg";
 
   static const String sortASC = "$svgPath/sort_asc.svg";
   static const String sortDESC = "$svgPath/sort_desc.svg";

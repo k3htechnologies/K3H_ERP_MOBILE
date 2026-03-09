@@ -83,53 +83,11 @@ class EarningMasterViewScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Action Details", style: AppTextStyle.ts16SB()),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Created By",
-                          value: earningMasterModel.createdBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Created Date",
-                          value: formatDate(
-                            earningMasterModel.createdDate,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Modified By",
-                          value:
-                              earningMasterModel.modifiedBy.isEmpty
-                                  ? "-"
-                                  : earningMasterModel.modifiedBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Modified Date",
-                          value:
-                              earningMasterModel.modifiedDate != null
-                                  ? formatDate(
-                                    earningMasterModel.modifiedDate!,
-                                  )
-                                  : "-",
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              actionCardWidget(
+                createdBy: earningMasterModel.createdBy,
+                createdDate: earningMasterModel.createdDate,
+                modifiedBy: earningMasterModel.modifiedBy,
+                modifiedDate: earningMasterModel.modifiedDate,
               ),
             ],
           ),

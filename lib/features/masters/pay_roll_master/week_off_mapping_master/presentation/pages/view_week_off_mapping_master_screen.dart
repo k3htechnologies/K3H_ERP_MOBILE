@@ -114,50 +114,11 @@ class ViewWeekOffMappingMasterScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Action Details", style: AppTextStyle.ts16SB()),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Created By",
-                          value: weekOffMappingMasterModel.createdBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Created Date",
-                          value: formatDate(
-                            weekOffMappingMasterModel.createdDate,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Modified By",
-                          value: weekOffMappingMasterModel.modifiedBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Modified Date",
-                          value:
-                              weekOffMappingMasterModel.modifiedDate != null
-                                  ? formatDate(
-                                    weekOffMappingMasterModel.modifiedDate!,
-                                  )
-                                  : '',
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              actionCardWidget(
+                createdBy: weekOffMappingMasterModel.createdBy,
+                createdDate: weekOffMappingMasterModel.createdDate,
+                modifiedBy: weekOffMappingMasterModel.modifiedBy,
+                modifiedDate: weekOffMappingMasterModel.modifiedDate,
               ),
             ],
           ),

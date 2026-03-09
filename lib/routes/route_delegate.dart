@@ -157,6 +157,8 @@ import 'package:k3h_erp_app/features/payroll/outdoor/presentation/cubit/outdoor_
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/pages/add_outdoor_screen.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/pages/outdoor_screen.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/pages/outdoor_view_screen.dart';
+import 'package:k3h_erp_app/features/payroll/payroll_dashboard/presentation/cubit/payroll_dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/payroll/payroll_dashboard/presentation/pages/payroll_dashboard_screen.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/cubit/payroll_report_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/payroll_report_screen.dart';
 import 'package:k3h_erp_app/features/payroll/resignation/data/model/resignation.model.dart';
@@ -3556,7 +3558,24 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
-
+            // PAYROLL DASHBOARD CUBIT
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(
+                  create: (_) => PayrollDashboardCubit(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.payrollDashboard,
+                  path: AppRoutes.payrollDashboard,
+                  builder: (context, state) {
+                    return const PayrollDashboardScreen();
+                  },
+                ),
+              ],
+            ),
             // OUTDOOR
             ShellRoute(
               builder: (context, state, child) {

@@ -113,55 +113,11 @@ class DeductionMasterViewScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Action Details", style: AppTextStyle.ts16SB()),
-                    Row(
-                      spacing: 10,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Created By",
-                          value: deductionMasterModel.createdBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Created Date",
-                          value: formatDate(
-                            deductionMasterModel.createdDate,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      spacing: 10,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Modified By",
-                          value:
-                              deductionMasterModel.modifiedBy.isEmpty
-                                  ? "-"
-                                  : deductionMasterModel.modifiedBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Modified Date",
-                          value:
-                              deductionMasterModel.modifiedDate != null
-                                  ? formatDate(
-                                    deductionMasterModel.modifiedDate!,
-                                  )
-                                  : "-",
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              actionCardWidget(
+                createdBy: deductionMasterModel.createdBy,
+                createdDate: deductionMasterModel.createdDate,
+                modifiedBy: deductionMasterModel.modifiedBy,
+                modifiedDate: deductionMasterModel.modifiedDate,
               ),
             ],
           ),

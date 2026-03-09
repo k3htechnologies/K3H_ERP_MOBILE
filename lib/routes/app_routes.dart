@@ -259,6 +259,9 @@ class AppRoutes {
 
   /// PAYROLL
 
+  // PAYROLL DASHBOARD
+  static String payrollDashboard = "/payroll";
+
   // OUTDOOR
   static String outdoor = "/outdoor";
   static String addOutdoor = "/addOutdoor";
