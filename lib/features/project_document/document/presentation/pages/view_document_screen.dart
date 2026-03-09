@@ -138,7 +138,11 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                 }
 
                 if (state.subDocumentList.isEmpty) {
-                  return Expanded(child: Center(child: noDataWidget(message: "No Document Found")));
+                  return Expanded(
+                    child: Center(
+                      child: noDataWidget(message: "No Document Found"),
+                    ),
+                  );
                 }
 
                 return Expanded(
@@ -209,6 +213,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                   );
                 },
               ),
+              CustomIconButton.delete(onPressed: () {}),
             ],
           ),
           Row(
@@ -249,13 +254,16 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
             children: [
               buildColumnTitleValue(
                 title: "Last Modified By",
-                value: document.modifiedBy.isEmpty? document.createdBy: document.modifiedBy,
+                value:
+                    document.modifiedBy.isEmpty
+                        ? document.createdBy
+                        : document.modifiedBy,
               ),
               buildColumnTitleValue(
                 title: "Last Modified Date",
-                value:
-                         formatDateTimeAsDDMMMYYYY(document.modifiedDate??document.createdDate)
-
+                value: formatDateTimeAsDDMMMYYYY(
+                  document.modifiedDate ?? document.createdDate,
+                ),
               ),
             ],
           ),

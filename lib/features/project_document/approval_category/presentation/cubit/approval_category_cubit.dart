@@ -160,7 +160,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
         );
         showSuccessMessage(
           context,
-          subTitle: 'Week Off Mapping Added Successfully',
+          subTitle: 'Approval Category Added Successfully',
         );
       },
     );
@@ -208,7 +208,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Week Off Mapping Updated Successfully",
+          subTitle: "Approval Category Updated Successfully",
         );
       },
     );

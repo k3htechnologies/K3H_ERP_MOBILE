@@ -20,6 +20,12 @@ abstract interface class DocumentDatasource {
     required int projectDocumentCategoryId,
     required String uniqueKey,
   });
+  Future<Map<String, dynamic>> apicallPullProjectDocumentForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class DocumentDatasourceImpl implements DocumentDatasource {
@@ -137,6 +143,49 @@ class DocumentDatasourceImpl implements DocumentDatasource {
           projectId: projectId,
           projectDocumentCategoryId: projectDocumentCategoryId,
           uniqueKey: uniqueKey,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullProjectDocumentForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullChannelPartnerExportUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "ProjectDocument/PullProjectDocument?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullChannelPartnerExportUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullProjectDocumentForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+          projectId: projectId,
         );
       }
       rethrow;
