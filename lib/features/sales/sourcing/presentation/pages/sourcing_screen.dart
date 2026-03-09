@@ -93,6 +93,7 @@ class _SourcingScreenState extends State<SourcingScreen> {
         screenTitle: "Sourcing",
         authorization: _routeAuthorizationModel,
         textController: _searchC,
+        searchHintText: "Search by Mobile Number",
         onSearchSubmit: (value) {
           _sourcingCubit.searchChannelPartner(context, value);
         },

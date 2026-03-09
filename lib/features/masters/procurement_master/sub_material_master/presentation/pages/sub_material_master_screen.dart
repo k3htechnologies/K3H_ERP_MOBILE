@@ -142,7 +142,9 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
             return Center(child: loader());
           }
           if (state.subMaterialList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Sub Materials Data Found"));
+            return Center(
+              child: noDataWidget(message: "No Sub Materials Data Found"),
+            );
           }
           return ListView.builder(
             controller: scrollController,
@@ -184,60 +186,50 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
                               );
                             },
 
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Text(
-                                subMaterial.subMaterialName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
+                            child: Text(
+                              subMaterial.subMaterialName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
                               ),
                             ),
                           ),
                         ),
-                       if(_routeAuthorizationModel.isAction)...[
-                         Row(
-                           mainAxisSize: MainAxisSize.min,
-                           children: [
-                             CustomIconButton.edit(
-                               onPressed: () async {
-                                 await goRouter.pushNamed(
-                                   AppRoutes.addSubMaterialMaster,
-                                   queryParameters: {
-                                     "subMaterial": Uri.encodeQueryComponent(
-                                       EncryptionManager.encryptData(
-                                         jsonEncode(subMaterial.toJson()),
-                                       ),
-                                     ),
-                                     'index': index.toString(),
-                                   },
-                                 );
-                               },
-                             ),
-                             horizontalSpacing(),
-                             CustomIconButton.delete(
-                               onPressed: () {
-                                 _showPopupToDeleteSubMaterialMaster(
-                                   context,
-                                   subMaterial,
-                                   state.currentPage,
-                                   index,
-                                 );
-                               },
-                             ),
-                           ],
-                         ),
-                       ]
+                        if (_routeAuthorizationModel.isAction) ...[
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addSubMaterialMaster,
+                                    queryParameters: {
+                                      "subMaterial": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(subMaterial.toJson()),
+                                        ),
+                                      ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              horizontalSpacing(),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteSubMaterialMaster(
+                                    context,
+                                    subMaterial,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                     verticalSpacing(height: 12),

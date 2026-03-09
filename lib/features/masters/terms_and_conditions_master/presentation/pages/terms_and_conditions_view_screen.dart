@@ -11,14 +11,16 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class TermsAndConditionsViewScreen extends StatelessWidget {
   final TermsAndConditionsModel termsAndCondition;
-  const TermsAndConditionsViewScreen({super.key, required this.termsAndCondition});
+  const TermsAndConditionsViewScreen({
+    super.key,
+    required this.termsAndCondition,
+  });
 
   @override
   Widget build(BuildContext context) {
-
     final isHtml =
         termsAndCondition.description.contains('<') &&
-            termsAndCondition.description.contains('>');
+        termsAndCondition.description.contains('>');
 
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
@@ -31,7 +33,7 @@ class TermsAndConditionsViewScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(termsAndCondition.title,style: AppTextStyle.ts16M(),),
+              Text(termsAndCondition.title, style: AppTextStyle.ts16M()),
               verticalSpacing(),
               Container(
                 padding: EdgeInsets.all(16),
@@ -40,57 +42,34 @@ class TermsAndConditionsViewScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Description",style: AppTextStyle.ts16SB(),),
+                    Text("Description", style: AppTextStyle.ts16SB()),
                     verticalSpacing(),
                     isHtml
                         ? Html(
-                      data: termsAndCondition.description,
-                      style: {
-                        "body": Style(
-                          fontSize: FontSize(14),
-                          margin: Margins.zero,
-                          padding: HtmlPaddings.zero,
-                        ),
-                      },
-                    )
+                          data: termsAndCondition.description,
+                          style: {
+                            "body": Style(
+                              fontSize: FontSize(14),
+                              margin: Margins.zero,
+                              padding: HtmlPaddings.zero,
+                            ),
+                          },
+                        )
                         : Text(
-                      termsAndCondition.description,
-                      style: AppTextStyle.ts14R(color: AppColor.grey),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                          termsAndCondition.description,
+                          style: AppTextStyle.ts14R(color: AppColor.grey),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                   ],
                 ),
               ),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Action Details",style: AppTextStyle.ts16SB(),),
-                    verticalSpacing(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 10,
-                      children: [
-                        buildColumnTitleValue(title: "Created By", value: termsAndCondition.createdBy),
-                        buildColumnTitleValue(title: "Created On", value: formatDate(termsAndCondition.createdDate)),
-                      ],
-                    ),
-        
-                    verticalSpacing(),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 10,
-                      children: [
-                        buildColumnTitleValue(title: "Modified By", value: termsAndCondition.modifiedBy.isEmpty?"-":termsAndCondition.modifiedBy),
-                        buildColumnTitleValue(title: "Modified On", value: termsAndCondition.modifiedDate!=null? formatDate(termsAndCondition.modifiedDate):"-"),
-                      ],
-                    )
-                  ],
-                ),
-              )
+              actionCardWidget(
+                createdBy: termsAndCondition.createdBy,
+                createdDate: termsAndCondition.createdDate,
+                modifiedBy: termsAndCondition.modifiedBy,
+                modifiedDate: termsAndCondition.modifiedDate,
+              ),
             ],
           ),
         ),

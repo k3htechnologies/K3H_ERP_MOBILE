@@ -297,6 +297,7 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: SearchWidget(
               isFilterOn: false,
+              hintText: "Search by Title",
               onSubmit: (value) {
                 _contentDocumentCubit.searchContentDocument(
                   context,
@@ -338,7 +339,7 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
                     if (empty) {
                       return SizedBox(
                         height: boundedHeight,
-                        child: Center(child: noDataWidget()),
+                        child: Center(child: noDataWidget(message: "No Content Data Found")),
                       );
                     }
                     if (index == list.length) {
@@ -434,12 +435,13 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
                                             title: "Modified Date",
                                             value:
                                                 files.modifiedDate == null
-                                                    ? formatDateTimeAsDDMMMYYYY(
+                                                    ? formatDate(
                                                       files.createdDate,
                                                     )
-                                                    : formatDateTimeAsDDMMMYYYY(
+                                                    : formatDate(
                                                       files.modifiedDate!,
                                                     ),
+                                            singleLine: false
                                           ),
                                         ],
                                       ),

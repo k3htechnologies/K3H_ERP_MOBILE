@@ -60,52 +60,11 @@ class SubMaterialMasterViewScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Action Details", style: AppTextStyle.ts16SB()),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Created By",
-                          value: subMaterial.createdBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Created Date",
-                          value: formatDate(
-                            subMaterial.createdDate,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Modified By",
-                          value:
-                              subMaterial.modifiedBy.isEmpty
-                                  ? "-"
-                                  : subMaterial.modifiedBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Modified Date",
-                          value:
-                              subMaterial.modifiedDate != null
-                                  ? formatDate(
-                                    subMaterial.modifiedDate!,
-                                  )
-                                  : "-",
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              actionCardWidget(
+                createdBy: subMaterial.createdBy,
+                createdDate: subMaterial.createdDate,
+                modifiedBy: subMaterial.modifiedBy,
+                modifiedDate: subMaterial.modifiedDate,
               ),
             ],
           ),

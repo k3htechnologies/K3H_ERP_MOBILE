@@ -265,28 +265,16 @@ class _CompanyMasterViewMobileScreenState
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              _buildTitle(title: "Document"),
-            ],
+            children: [_buildTitle(title: "Document")],
           ),
           verticalSpacing(),
-          Column(
-            children: [
-              _buildDocumentCard(
-                context,
-                widget.company!,
-              ),
-            ],
-          )
+          Column(children: [_buildDocumentCard(context, widget.company!)]),
         ],
       ),
     );
   }
 
-  Widget _buildDocumentCard(
-      BuildContext context,
-      CompanyModel company,
-      ) {
+  Widget _buildDocumentCard(BuildContext context, CompanyModel company) {
     final List<Map<String, String>> documents = [
       {
         "title": "GST",
@@ -311,14 +299,16 @@ class _CompanyMasterViewMobileScreenState
     ];
 
     final validDocuments =
-    documents.where((doc) => (doc["url"] ?? "").isNotEmpty).toList();
+        documents.where((doc) => (doc["url"] ?? "").isNotEmpty).toList();
 
     if (validDocuments.isEmpty) {
       return Column(
         children: [
-          Icon(Icons.insert_drive_file_outlined,
-              size: 40,
-              color: AppColor.grey),
+          Icon(
+            Icons.insert_drive_file_outlined,
+            size: 40,
+            color: AppColor.grey,
+          ),
           const SizedBox(height: 8),
           Text(
             "No Documents Uploaded",
@@ -331,104 +321,63 @@ class _CompanyMasterViewMobileScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children:
-      validDocuments.map((doc) {
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: AppColor.white,
-            border: Border.all(color: AppColor.primary, width: 0.3),
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: AppColor.black.withValues(alpha: 0.05),
-                blurRadius: 2,
-                offset: const Offset(0, 2),
+          validDocuments.map((doc) {
+            return Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppColor.white,
+                border: Border.all(color: AppColor.primary, width: 0.3),
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColor.black.withValues(alpha: 0.05),
+                    blurRadius: 2,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      doc["title"] ?? "",
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          doc["title"] ?? "",
+                          style: AppTextStyle.ts14M(color: AppColor.grey),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(doc["number"] ?? "", style: AppTextStyle.ts14M()),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(doc["number"] ?? "", style: AppTextStyle.ts14M()),
-                  ],
-                ),
+                  ),
+                  horizontalSpacing(),
+                  CustomButton.documentOutline(
+                    onPressed: () {
+                      final url = doc["url"] ?? "";
+                      if (url.isNotEmpty) {
+                        showFilePreviewDialog(context, url.split(","));
+                      }
+                    },
+                  ),
+                ],
               ),
-              horizontalSpacing(),
-              CustomButton.documentOutline(
-                onPressed: () {
-                  final url = doc["url"] ?? "";
-                  if (url.isNotEmpty) {
-                    showFilePreviewDialog(context, url.split(","));
-                  }
-                },
-              ),
-            ],
-          ),
-        );
-      }).toList(),
+            );
+          }).toList(),
     );
   }
 
   // ACTION DETAILS SECTION
   Widget _buildActionDetailsSection() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      margin: EdgeInsets.only(bottom: 10),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTitle(title: "Action Details"),
-          verticalSpacing(height: 15),
-          Row(
-            spacing: 10,
-            children: [
-              buildColumnTitleValue(
-                title: "Created By",
-                value: widget.company!.createdBy,
-              ),
-              buildColumnTitleValue(
-                title: "Created On",
-                value: formatDate(widget.company!.createdDate),
-              ),
-            ],
-          ),
-          verticalSpacing(),
-          Row(
-            spacing: 10,
-            children: [
-              buildColumnTitleValue(
-                title: "Modified By",
-                value:
-                    widget.company!.modifiedBy.isEmpty
-                        ? "-"
-                        : widget.company!.modifiedBy,
-              ),
-              buildColumnTitleValue(
-                title: "Modified On",
-                value:
-                    widget.company!.modifiedDate != null
-                        ? formatDate(
-                          widget.company!.modifiedDate!,
-                        )
-                        : "-",
-              ),
-            ],
-          ),
-        ],
-      ),
+    return actionCardWidget(
+      createdBy: widget.company!.createdBy,
+      createdDate: widget.company!.createdDate,
+      modifiedBy: widget.company!.modifiedBy,
+      modifiedDate: widget.company!.modifiedDate,
     );
   }
 }

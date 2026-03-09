@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 // BUILD ROW TITLE VALUE
@@ -74,6 +75,7 @@ Widget buildColumnTitleValue({
   );
 }
 
+// STATUS CHIP
 Widget statusChip(String text, Color bg, Color txt, {bool expand = false}) {
   final chip = Container(
     padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
@@ -93,4 +95,55 @@ Widget statusChip(String text, Color bg, Color txt, {bool expand = false}) {
   }
 
   return chip;
+}
+
+// BUILD COMMON ACTION CARD
+Widget actionCardWidget({required String createdBy, required DateTime createdDate, String? modifiedBy,DateTime? modifiedDate}){
+  return Container(
+    padding: EdgeInsets.all(16),
+    decoration: commonCardDecoration(),
+    child: Column(
+      spacing: 10,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Action Details", style: AppTextStyle.ts16SB()),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildColumnTitleValue(
+              title: "Created By",
+              value: createdBy,
+            ),
+            buildColumnTitleValue(
+              title: "Created Date",
+              value: formatDate(
+                createdDate,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildColumnTitleValue(
+              title: "Modified By",
+              value:
+              (modifiedBy!=null || modifiedBy!.isNotEmpty)
+                  ? modifiedBy
+                  : "-",
+            ),
+            buildColumnTitleValue(
+              title: "Modified Date",
+              value:
+              modifiedDate != null
+                  ? formatDate(
+                modifiedDate,
+              )
+                  : "-",
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
 }

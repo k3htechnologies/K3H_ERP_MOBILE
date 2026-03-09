@@ -168,30 +168,11 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                                 },
                               );
                             },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      channelPartner.name,
-                                      style: AppTextStyle.ts16M(
-                                        color: AppColor.primary,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            child:  Text(
+                              channelPartner.name,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                             ),
                           ),
                         ),

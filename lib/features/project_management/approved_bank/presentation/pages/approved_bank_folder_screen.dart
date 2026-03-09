@@ -80,6 +80,7 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
       appBar: CustomAppBar(
         screenTitle: 'Approved Bank',
         authorization: AuthorizationModel(isAction: true),
+        searchHintText: "Search by Bank Name",
         onSearchSubmit: (value) {
           _approvedBankCubit.searchFolder(context, value, _project.projectId);
         },
@@ -108,7 +109,7 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
               return loader();
             }
             if (state.approvedBankFolderList.isEmpty) {
-              return Center(child: noDataWidget());
+              return Center(child: noDataWidget(message: "No Approved Bank Found"));
             }
             return ListView.builder(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),

@@ -571,48 +571,11 @@ class _EmployeeMasterViewDetailsScreenState
             ),
           ),
           // ACTION DETAILS
-          Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Action Details", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Created By",
-                      value: user.createdBy,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Created Date",
-                      value: formatDate(user.createdDate),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Modified By",
-                      value: user.modifiedBy.isNotEmpty ? user.modifiedBy : "-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Modified Date",
-                      value:
-                          user.modifiedDate != null
-                              ? formatDate(user.modifiedDate!)
-                              : "-",
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          actionCardWidget(
+            createdBy: user.createdBy,
+            createdDate: user.createdDate,
+            modifiedBy: user.modifiedBy,
+            modifiedDate: user.modifiedDate,
           ),
         ],
       ),

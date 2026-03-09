@@ -276,47 +276,11 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
 
   // BUILD ACTION DETAILS SECTION
   Widget _buildActionDetailsSection() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      margin: EdgeInsets.only(bottom: 10),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTitle(title: "Action Details"),
-          verticalSpacing(height: 15),
-          Row(
-            children: [
-              buildColumnTitleValue(
-                title: "Created By",
-                value: widget.vendor.createdBy,
-              ),
-              buildColumnTitleValue(
-                title: "Created On",
-                value: formatDate(widget.vendor.createdDate),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              buildColumnTitleValue(
-                title: "Modified By",
-                value:
-                    widget.vendor.modifiedBy.isEmpty
-                        ? "-"
-                        : widget.vendor.modifiedBy,
-              ),
-              buildColumnTitleValue(
-                title: "Modified On",
-                value:
-                    widget.vendor.modifiedDate != null
-                        ? formatDate(widget.vendor.modifiedDate!)
-                        : "-",
-              ),
-            ],
-          ),
-        ],
-      ),
+    return actionCardWidget(
+      createdBy: widget.vendor.createdBy,
+      createdDate: widget.vendor.createdDate,
+      modifiedBy: widget.vendor.modifiedBy,
+      modifiedDate: widget.vendor.modifiedDate,
     );
   }
 }

@@ -195,7 +195,9 @@ extension ChannelPartnerValidation on ChannelPartnerModel {
         stateName.trim().isNotEmpty &&
         districtName.trim().isNotEmpty &&
         cityName.trim().isNotEmpty &&
-        villageName.trim().isNotEmpty;
+        villageName.trim().isNotEmpty &&
+        emailId.trim().isNotEmpty &&
+        speciality.trim().isNotEmpty;
 
     bool isPanValid = panNumber.trim().isEmpty == panCardUrl.trim().isEmpty;
 

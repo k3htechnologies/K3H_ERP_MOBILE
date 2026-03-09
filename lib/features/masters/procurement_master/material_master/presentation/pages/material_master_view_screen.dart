@@ -48,52 +48,11 @@ class MaterialMasterViewScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Action Details", style: AppTextStyle.ts16SB()),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Created By",
-                          value: material.createdBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Created Date",
-                          value: formatDate(
-                            material.createdDate,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Modified By",
-                          value:
-                              material.modifiedBy.isEmpty
-                                  ? "-"
-                                  : material.modifiedBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Modified Date",
-                          value:
-                              material.modifiedDate != null
-                                  ? formatDate(
-                                    material.modifiedDate!,
-                                  )
-                                  : "-",
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              actionCardWidget(
+                createdBy: material.createdBy,
+                createdDate: material.createdDate,
+                modifiedBy: material.modifiedBy,
+                modifiedDate: material.modifiedDate,
               ),
             ],
           ),

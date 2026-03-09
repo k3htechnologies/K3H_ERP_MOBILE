@@ -200,7 +200,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
               ),
             ),
             verticalSpacing(),
-            ChipStyleTabBar(controller: _tabController, tabs: ["Overview","Employee","Bank Details","Company"]),
+            ChipStyleTabBar(
+              controller: _tabController,
+              tabs: ["Overview", "Employee", "Bank Details", "Company"],
+            ),
             Expanded(
               child: TabBarView(
                 physics: NeverScrollableScrollPhysics(),
@@ -369,7 +372,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Redevelopment",
-                      value: widget.project.isRedevelopment?"Yes":"No",
+                      value: widget.project.isRedevelopment ? "Yes" : "No",
                     ),
                     buildColumnTitleValue(
                       title: "Project Name",
@@ -406,13 +409,22 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 verticalSpacing(),
                 Row(
                   children: [
-                    buildColumnTitleValue(title: "Project Location", value: widget.project.projectLocation)
+                    buildColumnTitleValue(
+                      title: "Project Location",
+                      value: widget.project.projectLocation,
+                    ),
                   ],
                 ),
                 verticalSpacing(),
                 Row(
                   children: [
-                    buildColumnTitleValue(title: "Google Location", value: widget.project.googleLocation,valueTextStyle: AppTextStyle.ts14M(color: AppColor.primary))
+                    buildColumnTitleValue(
+                      title: "Google Location",
+                      value: widget.project.googleLocation,
+                      valueTextStyle: AppTextStyle.ts14M(
+                        color: AppColor.primary,
+                      ),
+                    ),
                   ],
                 ),
                 verticalSpacing(),
@@ -446,7 +458,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 verticalSpacing(),
                 Row(
                   children: [
-                    buildColumnTitleValue(title: "PIN Code", value: widget.project.zipCode)
+                    buildColumnTitleValue(
+                      title: "PIN Code",
+                      value: widget.project.zipCode,
+                    ),
                   ],
                 ),
               ],
@@ -466,16 +481,25 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValue(title: "Project Scope", value: widget.project.projectScope),
-                    buildColumnTitleValue(title: "Project Scheme", value: widget.project.projectScheme),
+                    buildColumnTitleValue(
+                      title: "Project Scope",
+                      value: widget.project.projectScope,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Project Scheme",
+                      value: widget.project.projectScheme,
+                    ),
                   ],
                 ),
                 verticalSpacing(),
                 Row(
                   children: [
-                    buildColumnTitleValue(title: "Project Sub Scope", value: widget.project.projectSubScheme)
+                    buildColumnTitleValue(
+                      title: "Project Sub Scope",
+                      value: widget.project.projectSubScheme,
+                    ),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -503,11 +527,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                     buildColumnTitleValue(
                       title: "RERA Certificate Date",
                       value:
-                      widget.project.reraCertificateDate != null
-                          ? formatDateTimeAsDDMMMYYYY(
-                        widget.project.reraCertificateDate!,
-                      )
-                          : "-",
+                          widget.project.reraCertificateDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                widget.project.reraCertificateDate!,
+                              )
+                              : "-",
                     ),
                   ],
                 ),
@@ -592,11 +616,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                     buildColumnTitleValue(
                       title: "Expected Start Date",
                       value:
-                      widget.project.expectedStartDate != null
-                          ? formatDateTimeAsDDMMMYYYY(
-                        widget.project.expectedStartDate!,
-                      )
-                          : "-",
+                          widget.project.expectedStartDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                widget.project.expectedStartDate!,
+                              )
+                              : "-",
                     ),
                   ],
                 ),
@@ -642,10 +666,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                     buildColumnTitleValue(
                       title: "Site Contact Mobile Number",
                       value:
-                      widget.project.siteContactMobileNumber.isNotEmpty
-                          ? widget.project.siteContactMobileNumber
-                          : "-",
-                      customValueWidget:   CustomClickToContactText(
+                          widget.project.siteContactMobileNumber.isNotEmpty
+                              ? widget.project.siteContactMobileNumber
+                              : "-",
+                      customValueWidget: CustomClickToContactText(
                         value: widget.project.siteContactMobileNumber,
                       ),
                     ),
@@ -655,55 +679,21 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                   buildColumnTitleValue(title: "Project Status", value: widget.project.projectStatus)
+                    buildColumnTitleValue(
+                      title: "Project Status",
+                      value: widget.project.projectStatus,
+                    ),
                   ],
                 ),
               ],
             ),
           ),
           // ACTION DETaILS
-          Container(
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Action Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Created By",
-                      value:
-                      widget.project.createdBy,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Created Date",
-                      value:formatDate(widget.project.createdDate),
-                    ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Modified By",
-                      value:
-                      widget.project.modifiedBy.isNotEmpty?widget.project.modifiedBy:"-",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Modified Date",
-                      value:widget.project.modifiedDate!=null? formatDate(widget.project.modifiedDate):"-",
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          actionCardWidget(
+            createdBy: widget.project.createdBy,
+            createdDate: widget.project.createdDate,
+            modifiedBy: widget.project.modifiedBy,
+            modifiedDate: widget.project.modifiedDate,
           ),
         ],
       ),
@@ -724,7 +714,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   Text("Employee Details", style: AppTextStyle.ts16SB()),
                   Spacer(),
                   CustomButton(
-                    text: state.employeeByProject.isEmpty ? "Add" : "Add/Update",
+                    text:
+                        state.employeeByProject.isEmpty ? "Add" : "Add/Update",
                     onPressed: () {
                       _showEmployeeSelectionBottomSheet(context);
                     },
@@ -740,10 +731,14 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
         BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
           builder: (context, state) {
             if ((state.isLoading ?? true) && state.employeeByProject.isEmpty) {
-              return  Center(child: loader());
+              return Center(child: loader());
             }
             if (state.employeeByProject.isEmpty) {
-              return Flexible(child: Center(child: noDataWidget(message: "No Employee's Found")));
+              return Flexible(
+                child: Center(
+                  child: noDataWidget(message: "No Employee's Found"),
+                ),
+              );
             }
 
             final paginatedEmployees =
@@ -896,7 +891,6 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
       ],
     );
   }
-  
 
   // <---- SHOW EMPLOYEE SELECTION BOTTOM SHEET ---->
   Future<void> _showEmployeeSelectionBottomSheet(BuildContext context) async {
@@ -1010,7 +1004,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   Text("Company Details", style: AppTextStyle.ts16SB()),
                   Spacer(),
                   CustomButton(
-                    text:state.companyByProject.isEmpty? "Add":"Add/Update",
+                    text: state.companyByProject.isEmpty ? "Add" : "Add/Update",
                     onPressed: () {
                       _showCompanySelectionBottomSheet(context);
                     },
@@ -1158,7 +1152,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   ],
                 ),
               ),
-              Expanded(child: Center(child: noDataWidget(message: "No Banks Found"))),
+              Expanded(
+                child: Center(child: noDataWidget(message: "No Banks Found")),
+              ),
             ],
           );
         }

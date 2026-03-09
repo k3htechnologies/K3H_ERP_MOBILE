@@ -148,8 +148,9 @@ class _ContentFolderScreenState extends State<ContentFolderScreen> {
     return Scaffold(
       backgroundColor: AppColor.greyBackground,
       appBar: CustomAppBar(
-        screenTitle: 'Marketing - Content',
+        screenTitle: 'Content',
         authorization: AuthorizationModel(isAction: true),
+        searchHintText: "Search by Content Name",
         onSearchSubmit: (value) {
           _marketingCubit.searchContentFolder(
             context,
@@ -174,7 +175,7 @@ class _ContentFolderScreenState extends State<ContentFolderScreen> {
               return loader();
             }
             if (state.marketingContentFolderList.isEmpty) {
-              return Center(child: noDataWidget());
+              return Center(child: noDataWidget(message: "No Content Folder Found"));
             }
             return ListView.builder(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),

@@ -859,53 +859,14 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                 ),
               ),
 
-              /// ACTION DETAILS
-              _buildCard(
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSectionTitle("Action Details"),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Created By",
-                          value:
-                              enquiry.createdBy.isNotEmpty
-                                  ? enquiry.createdBy
-                                  : "-",
-                        ),
-                        buildColumnTitleValue(
-                          title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(enquiry.createdDate),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Modified By",
-                          value:
-                              enquiry.modifiedBy.isNotEmpty
-                                  ? enquiry.modifiedBy
-                                  : "-",
-                        ),
-                        buildColumnTitleValue(
-                          title: "Modified Date",
-                          value:
-                              enquiry.modifiedDate != null
-                                  ? formatDateTimeAsDDMMMYYYY(
-                                    enquiry.modifiedDate!,
-                                  )
-                                  : "-",
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              // ACTION DETAILS
+              actionCardWidget(
+                createdBy: enquiry.createdBy,
+                createdDate: enquiry.createdDate,
+                modifiedBy: enquiry.modifiedBy,
+                modifiedDate: enquiry.modifiedDate,
               ),
+              verticalSpacing()
             ],
           ),
         );

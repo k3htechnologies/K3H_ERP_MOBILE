@@ -76,7 +76,10 @@ class _TenantViewScreenState extends State<TenantViewScreen>
       body: SafeArea(
         child: Column(
           children: [
-            ChipStyleTabBar(controller: _tabController, tabs: ["Overview","Document"]),
+            ChipStyleTabBar(
+              controller: _tabController,
+              tabs: ["Overview", "Document"],
+            ),
             Expanded(
               child: TabBarView(
                 physics: NeverScrollableScrollPhysics(),
@@ -113,7 +116,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                     itemCount: widget.tenant.tenantApplicantData.length,
                     itemBuilder: (_, index) {
                       final applicant =
-                      widget.tenant.tenantApplicantData[index];
+                          widget.tenant.tenantApplicantData[index];
                       return Container(
                         margin: EdgeInsets.only(bottom: 10),
                         padding: EdgeInsets.all(12),
@@ -153,16 +156,16 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                 buildColumnTitleValue(
                                   title: "Contact Number",
                                   value:
-                                  applicant.applicantMobileNumber.isEmpty
-                                      ? "-"
-                                      : applicant.applicantMobileNumber,
+                                      applicant.applicantMobileNumber.isEmpty
+                                          ? "-"
+                                          : applicant.applicantMobileNumber,
                                 ),
                                 buildColumnTitleValue(
                                   title: "Email ID",
                                   value:
-                                  applicant.applicantEmailId.isEmpty
-                                      ? "-"
-                                      : applicant.applicantEmailId,
+                                      applicant.applicantEmailId.isEmpty
+                                          ? "-"
+                                          : applicant.applicantEmailId,
                                 ),
                               ],
                             ),
@@ -173,33 +176,33 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                 buildColumnTitleValue(
                                   title: "Aadhaar Card No.",
                                   value:
-                                  applicant.aadharCardNumber.isEmpty
-                                      ? "-"
-                                      : applicant.aadharCardNumber,
+                                      applicant.aadharCardNumber.isEmpty
+                                          ? "-"
+                                          : applicant.aadharCardNumber,
                                 ),
                                 buildColumnTitleValue(
                                   title: "Aadhaar Card",
                                   value:
-                                  applicant.aadharCardURL.isEmpty
-                                      ? "-"
-                                      : applicant.aadharCardURL,
+                                      applicant.aadharCardURL.isEmpty
+                                          ? "-"
+                                          : applicant.aadharCardURL,
                                   customValueWidget:
-                                  CustomButton.documentOutline(
-                                    onPressed: () {
-                                      if (applicant
-                                          .aadharCardURL
-                                          .isNotEmpty) {
-                                        showFilePreviewDialog(
-                                          context,
-                                          applicant.aadharCardURL.split(
-                                            ",",
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    isDisable:
-                                    applicant.aadharCardURL.isEmpty,
-                                  ),
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant
+                                              .aadharCardURL
+                                              .isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              context,
+                                              applicant.aadharCardURL.split(
+                                                ",",
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        isDisable:
+                                            applicant.aadharCardURL.isEmpty,
+                                      ),
                                 ),
                               ],
                             ),
@@ -210,28 +213,28 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                 buildColumnTitleValue(
                                   title: "PAN Card No.",
                                   value:
-                                  applicant.panNumber.isEmpty
-                                      ? "-"
-                                      : applicant.panNumber,
+                                      applicant.panNumber.isEmpty
+                                          ? "-"
+                                          : applicant.panNumber,
                                 ),
                                 buildColumnTitleValue(
                                   title: "PAN Card.",
                                   value:
-                                  applicant.panCardURL.isEmpty
-                                      ? "-"
-                                      : applicant.panCardURL,
+                                      applicant.panCardURL.isEmpty
+                                          ? "-"
+                                          : applicant.panCardURL,
                                   customValueWidget:
-                                  CustomButton.documentOutline(
-                                    onPressed: () {
-                                      if (applicant.panCardURL.isNotEmpty) {
-                                        showFilePreviewDialog(
-                                          context,
-                                          applicant.panCardURL.split(","),
-                                        );
-                                      }
-                                    },
-                                    isDisable: applicant.panCardURL.isEmpty,
-                                  ),
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant.panCardURL.isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              context,
+                                              applicant.panCardURL.split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable: applicant.panCardURL.isEmpty,
+                                      ),
                                 ),
                               ],
                             ),
@@ -242,33 +245,33 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                 buildColumnTitleValue(
                                   title: "Driving License",
                                   value:
-                                  applicant.drivingLicenseNumber.isEmpty
-                                      ? "-"
-                                      : applicant.drivingLicenseNumber,
+                                      applicant.drivingLicenseNumber.isEmpty
+                                          ? "-"
+                                          : applicant.drivingLicenseNumber,
                                 ),
                                 buildColumnTitleValue(
                                   title: "Driving License",
                                   value:
-                                  applicant.drivingLicenseURL.isEmpty
-                                      ? "-"
-                                      : applicant.drivingLicenseURL,
+                                      applicant.drivingLicenseURL.isEmpty
+                                          ? "-"
+                                          : applicant.drivingLicenseURL,
                                   customValueWidget:
-                                  CustomButton.documentOutline(
-                                    onPressed: () {
-                                      if (applicant
-                                          .drivingLicenseURL
-                                          .isNotEmpty) {
-                                        showFilePreviewDialog(
-                                          context,
-                                          applicant.drivingLicenseURL.split(
-                                            ",",
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    isDisable:
-                                    applicant.drivingLicenseURL.isEmpty,
-                                  ),
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant
+                                              .drivingLicenseURL
+                                              .isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              context,
+                                              applicant.drivingLicenseURL.split(
+                                                ",",
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        isDisable:
+                                            applicant.drivingLicenseURL.isEmpty,
+                                      ),
                                 ),
                               ],
                             ),
@@ -279,31 +282,31 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                 buildColumnTitleValue(
                                   title: "Voting ID No.",
                                   value:
-                                  applicant.votingIdNumber.isEmpty
-                                      ? "-"
-                                      : applicant.votingIdNumber,
+                                      applicant.votingIdNumber.isEmpty
+                                          ? "-"
+                                          : applicant.votingIdNumber,
                                 ),
                                 buildColumnTitleValue(
                                   title: "Voting ID",
                                   value:
-                                  applicant.votingIdURL.isEmpty
-                                      ? "-"
-                                      : applicant.votingIdURL,
+                                      applicant.votingIdURL.isEmpty
+                                          ? "-"
+                                          : applicant.votingIdURL,
                                   customValueWidget:
-                                  CustomButton.documentOutline(
-                                    onPressed: () {
-                                      if (applicant
-                                          .votingIdURL
-                                          .isNotEmpty) {
-                                        showFilePreviewDialog(
-                                          context,
-                                          applicant.votingIdURL.split(","),
-                                        );
-                                      }
-                                    },
-                                    isDisable:
-                                    applicant.votingIdURL.isEmpty,
-                                  ),
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant
+                                              .votingIdURL
+                                              .isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              context,
+                                              applicant.votingIdURL.split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable:
+                                            applicant.votingIdURL.isEmpty,
+                                      ),
                                 ),
                               ],
                             ),
@@ -314,31 +317,31 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                 buildColumnTitleValue(
                                   title: "Passport No.",
                                   value:
-                                  applicant.passportNumber.isEmpty
-                                      ? "-"
-                                      : applicant.passportNumber,
+                                      applicant.passportNumber.isEmpty
+                                          ? "-"
+                                          : applicant.passportNumber,
                                 ),
                                 buildColumnTitleValue(
                                   title: "Passport",
                                   value:
-                                  applicant.passportURL.isEmpty
-                                      ? "-"
-                                      : applicant.passportURL,
+                                      applicant.passportURL.isEmpty
+                                          ? "-"
+                                          : applicant.passportURL,
                                   customValueWidget:
-                                  CustomButton.documentOutline(
-                                    onPressed: () {
-                                      if (applicant
-                                          .passportURL
-                                          .isNotEmpty) {
-                                        showFilePreviewDialog(
-                                          context,
-                                          applicant.passportURL.split(","),
-                                        );
-                                      }
-                                    },
-                                    isDisable:
-                                    applicant.passportURL.isEmpty,
-                                  ),
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant
+                                              .passportURL
+                                              .isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              context,
+                                              applicant.passportURL.split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable:
+                                            applicant.passportURL.isEmpty,
+                                      ),
                                 ),
                               ],
                             ),
@@ -349,31 +352,31 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                 buildColumnTitleValue(
                                   title: "GST No.",
                                   value:
-                                  applicant.gstNumber.isEmpty
-                                      ? "-"
-                                      : applicant.gstNumber,
+                                      applicant.gstNumber.isEmpty
+                                          ? "-"
+                                          : applicant.gstNumber,
                                 ),
                                 buildColumnTitleValue(
                                   title: "GST",
                                   value:
-                                  applicant.gstNumberURL.isEmpty
-                                      ? "-"
-                                      : applicant.gstNumberURL,
+                                      applicant.gstNumberURL.isEmpty
+                                          ? "-"
+                                          : applicant.gstNumberURL,
                                   customValueWidget:
-                                  CustomButton.documentOutline(
-                                    onPressed: () {
-                                      if (applicant
-                                          .gstNumberURL
-                                          .isNotEmpty) {
-                                        showFilePreviewDialog(
-                                          context,
-                                          applicant.gstNumberURL.split(","),
-                                        );
-                                      }
-                                    },
-                                    isDisable:
-                                    applicant.gstNumberURL.isEmpty,
-                                  ),
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant
+                                              .gstNumberURL
+                                              .isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              context,
+                                              applicant.gstNumberURL.split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable:
+                                            applicant.gstNumberURL.isEmpty,
+                                      ),
                                 ),
                               ],
                             ),
@@ -384,40 +387,40 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                 buildColumnTitleValue(
                                   title: "Cheque",
                                   value:
-                                  applicant.chequeURL.isEmpty
-                                      ? "-"
-                                      : applicant.chequeURL,
+                                      applicant.chequeURL.isEmpty
+                                          ? "-"
+                                          : applicant.chequeURL,
                                   customValueWidget:
-                                  CustomButton.documentOutline(
-                                    onPressed: () {
-                                      if (applicant.chequeURL.isNotEmpty) {
-                                        showFilePreviewDialog(
-                                          context,
-                                          applicant.chequeURL.split(","),
-                                        );
-                                      }
-                                    },
-                                    isDisable: applicant.chequeURL.isEmpty,
-                                  ),
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant.chequeURL.isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              context,
+                                              applicant.chequeURL.split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable: applicant.chequeURL.isEmpty,
+                                      ),
                                 ),
                                 buildColumnTitleValue(
                                   title: "Profile Photo",
                                   value:
-                                  applicant.photoURL.isEmpty
-                                      ? "-"
-                                      : applicant.photoURL,
+                                      applicant.photoURL.isEmpty
+                                          ? "-"
+                                          : applicant.photoURL,
                                   customValueWidget:
-                                  CustomButton.documentOutline(
-                                    onPressed: () {
-                                      if (applicant.photoURL.isNotEmpty) {
-                                        showFilePreviewDialog(
-                                          context,
-                                          applicant.photoURL.split(","),
-                                        );
-                                      }
-                                    },
-                                    isDisable: applicant.photoURL.isEmpty,
-                                  ),
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant.photoURL.isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              context,
+                                              applicant.photoURL.split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable: applicant.photoURL.isEmpty,
+                                      ),
                                 ),
                               ],
                             ),
@@ -427,16 +430,16 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                 buildColumnTitleValue(
                                   title: "Bank Name",
                                   value:
-                                  applicant.bankName.isEmpty
-                                      ? "-"
-                                      : applicant.bankName,
+                                      applicant.bankName.isEmpty
+                                          ? "-"
+                                          : applicant.bankName,
                                 ),
                                 buildColumnTitleValue(
                                   title: "Account No.",
                                   value:
-                                  applicant.accountNumber.isEmpty
-                                      ? "-"
-                                      : applicant.accountNumber,
+                                      applicant.accountNumber.isEmpty
+                                          ? "-"
+                                          : applicant.accountNumber,
                                 ),
                               ],
                             ),
@@ -446,9 +449,9 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                 buildColumnTitleValue(
                                   title: "IFSC Code",
                                   value:
-                                  applicant.ifscCode.isEmpty
-                                      ? "-"
-                                      : applicant.ifscCode,
+                                      applicant.ifscCode.isEmpty
+                                          ? "-"
+                                          : applicant.ifscCode,
                                 ),
                                 Expanded(child: SizedBox()),
                               ],
@@ -480,11 +483,11 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                     buildColumnTitleValue(
                       title: "Free Area Offered(Sq.ft)",
                       value:
-                      widget.tenant.freeAreaOfferedPercentage == 0
-                          ? "0"
-                          : (widget.tenant.flatCarpetAreaSqFt /
-                          widget.tenant.freeAreaOfferedPercentage)
-                          .toString(),
+                          widget.tenant.freeAreaOfferedPercentage == 0
+                              ? "0"
+                              : (widget.tenant.flatCarpetAreaSqFt /
+                                      widget.tenant.freeAreaOfferedPercentage)
+                                  .toString(),
                     ),
                   ],
                 ),
@@ -515,9 +518,9 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                     buildColumnTitleValue(
                       title: "Unit Number",
                       value:
-                      widget.tenant.flatNumber.isEmpty
-                          ? "-"
-                          : widget.tenant.flatNumber,
+                          widget.tenant.flatNumber.isEmpty
+                              ? "-"
+                              : widget.tenant.flatNumber,
                     ),
                     buildColumnTitleValue(
                       title: "Carpet Area (Sq ft)",
@@ -531,16 +534,16 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                     buildColumnTitleValue(
                       title: "Unit Facing",
                       value:
-                      widget.tenant.facing.isEmpty
-                          ? "-"
-                          : widget.tenant.facing,
+                          widget.tenant.facing.isEmpty
+                              ? "-"
+                              : widget.tenant.facing,
                     ),
                     buildColumnTitleValue(
                       title: "Unit Type",
                       value:
-                      widget.tenant.flatType.isEmpty
-                          ? "-"
-                          : widget.tenant.flatType,
+                          widget.tenant.flatType.isEmpty
+                              ? "-"
+                              : widget.tenant.flatType,
                     ),
                   ],
                 ),
@@ -550,9 +553,9 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                     buildColumnTitleValue(
                       title: "Unit Configuration",
                       value:
-                      widget.tenant.flatConfiguration.isEmpty
-                          ? "-"
-                          : widget.tenant.flatConfiguration,
+                          widget.tenant.flatConfiguration.isEmpty
+                              ? "-"
+                              : widget.tenant.flatConfiguration,
                     ),
                     Expanded(child: SizedBox()),
                   ],
@@ -616,6 +619,12 @@ class _TenantViewScreenState extends State<TenantViewScreen>
               ],
             ),
           ),
+          actionCardWidget(
+            createdBy: widget.tenant.createdBy,
+            createdDate: widget.tenant.createdDate,
+            modifiedBy: widget.tenant.modifiedBy,
+            modifiedDate: widget.tenant.modifiedDate,
+          ),
         ],
       ),
     );
@@ -646,11 +655,11 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                 );
                 if (mounted) {
                   _tenantCubit.getTenantDocumentList(
-                  context: context,
-                  projectId: widget.tenant.projectId,
-                  buildingId: widget.tenant.buildingId,
-                  tenantId: widget.tenant.tenantId,
-                );
+                    context: context,
+                    projectId: widget.tenant.projectId,
+                    buildingId: widget.tenant.buildingId,
+                    tenantId: widget.tenant.tenantId,
+                  );
                 }
               },
             ),
@@ -659,16 +668,18 @@ class _TenantViewScreenState extends State<TenantViewScreen>
         Expanded(
           child: BlocBuilder<TenantCubit, TenantState>(
             builder: (context, state) {
-              if ((state.isLoading ?? true) && state.tenantDocumentList.isEmpty) {
+              if ((state.isLoading ?? true) &&
+                  state.tenantDocumentList.isEmpty) {
                 return Center(child: loader());
               }
               if (state.tenantDocumentList.isEmpty) {
                 return Center(child: noDataWidget());
               }
 
-              final filteredDocuments = state.tenantDocumentList
-                  .where((e) => e.documentUrl.trim().isNotEmpty)
-                  .toList();
+              final filteredDocuments =
+                  state.tenantDocumentList
+                      .where((e) => e.documentUrl.trim().isNotEmpty)
+                      .toList();
 
               if (filteredDocuments.isEmpty) {
                 return Center(child: noDataWidget());
@@ -683,9 +694,10 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                 itemCount: filteredDocuments.length,
                 itemBuilder: (context, index) {
                   final doc = filteredDocuments[index];
-                  final urls = doc.documentUrl.isEmpty
-                      ? <String>[]
-                      : doc.documentUrl.split(',');
+                  final urls =
+                      doc.documentUrl.isEmpty
+                          ? <String>[]
+                          : doc.documentUrl.split(',');
 
                   return Container(
                     margin: const EdgeInsets.only(bottom: 10),
@@ -702,10 +714,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                         ),
                         CustomIconButton(
                           onPressed: () {
-                            showFilePreviewDialog(
-                              context,
-                              urls,
-                            );
+                            showFilePreviewDialog(context, urls);
                           },
                           icon: Icon(
                             Icons.remove_red_eye_outlined,
@@ -732,18 +741,18 @@ class _TenantViewScreenState extends State<TenantViewScreen>
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color:
-        type.toLowerCase() == "applicant"
-            ? AppColor.lightBlue
-            : AppColor.purple.withValues(alpha: .2),
+            type.toLowerCase() == "applicant"
+                ? AppColor.lightBlue
+                : AppColor.purple.withValues(alpha: .2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         type,
         style: AppTextStyle.ts12M(
           color:
-          type.toLowerCase() == "applicant"
-              ? AppColor.primary
-              : AppColor.purple,
+              type.toLowerCase() == "applicant"
+                  ? AppColor.primary
+                  : AppColor.purple,
         ),
       ),
     );

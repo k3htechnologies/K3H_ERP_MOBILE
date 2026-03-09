@@ -237,7 +237,7 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
             ),
           ),
           Visibility(
-            visible: widget.assetMaster.status.toLowerCase()=="booked",
+            visible: widget.assetMaster.status.toLowerCase() == "booked",
             child: Container(
               padding: EdgeInsets.all(16),
               decoration: commonCardDecoration(),
@@ -291,52 +291,11 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
               ),
             ),
           ),
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: commonCardDecoration(),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Action Details", style: AppTextStyle.ts16SB()),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Created By",
-                      value: widget.assetMaster.createdBy,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Created Date",
-                      value: formatDate(
-                        widget.assetMaster.createdDate,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Modified By",
-                      value:
-                          widget.assetMaster.modifiedBy.isEmpty
-                              ? "-"
-                              : widget.assetMaster.modifiedBy,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Modified Date",
-                      value:
-                          widget.assetMaster.modifiedDate != null
-                              ? formatDate(
-                                widget.assetMaster.modifiedDate!,
-                              )
-                              : "-",
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          actionCardWidget(
+            createdBy: widget.assetMaster.createdBy,
+            createdDate: widget.assetMaster.createdDate,
+            modifiedBy: widget.assetMaster.modifiedBy,
+            modifiedDate: widget.assetMaster.modifiedDate,
           ),
         ],
       ),

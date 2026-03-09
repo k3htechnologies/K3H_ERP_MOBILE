@@ -91,7 +91,7 @@ class SourcingCubit extends Cubit<SourcingState> {
   // <---- GET CHANNEL PARTNER LIST ---->
   Future getChannelPartnerList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {"ChannelPartnerName": state.searchText};
+    Map<String, dynamic> queryParams = {"MobileNumber": state.searchText};
     var result = await _channelPartnerRepository.getChannelPartnerList(
       pageNumber: pageNumber,
       pageSize: 10,

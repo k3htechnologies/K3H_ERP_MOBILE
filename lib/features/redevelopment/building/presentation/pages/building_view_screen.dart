@@ -99,7 +99,10 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
       body: SafeArea(
         child: Column(
           children: [
-            ChipStyleTabBar(controller: _tabController, tabs: ["Overview","Details","Document"]),
+            ChipStyleTabBar(
+              controller: _tabController,
+              tabs: ["Overview", "Details", "Document"],
+            ),
             Expanded(
               child: TabBarView(
                 physics: NeverScrollableScrollPhysics(),
@@ -416,54 +419,11 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
             ),
           ),
           // ACTION DETAILS
-          Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Action Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(height: 15),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Created By",
-                      value: widget.building.createdBy,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Created Date",
-                      value: formatDate(
-                        widget.building.createdDate,
-                      ),
-                    ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Modified By",
-                      value:
-                          widget.building.modifiedBy.isEmpty
-                              ? "-"
-                              : widget.building.modifiedBy,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Modified Date",
-                      value:
-                          widget.building.modifiedDate != null
-                              ? formatDate(
-                                widget.building.modifiedDate!,
-                              )
-                              : "-",
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          actionCardWidget(
+            createdBy: widget.building.createdBy,
+            createdDate: widget.building.createdDate,
+            modifiedBy: widget.building.modifiedBy,
+            modifiedDate: widget.building.modifiedDate,
           ),
         ],
       ),
@@ -740,9 +700,10 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
 
         final parentDocuments = state.buildingDocumentList;
 
-        final filteredDocuments = parentDocuments
-            .where((e) => (e.uploadedBuildingDocumentCount) > 0)
-            .toList();
+        final filteredDocuments =
+            parentDocuments
+                .where((e) => (e.uploadedBuildingDocumentCount) > 0)
+                .toList();
 
         if (filteredDocuments.isEmpty) {
           return Center(child: noDataWidget());
@@ -857,9 +818,9 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                                             List<BuildingDocumentModel>
                                           >.from(_childDocuments.value);
                                           childrenMap[doc.buildingDocumentId] =
-                                              List<
-                                                BuildingDocumentModel
-                                              >.from(children);
+                                              List<BuildingDocumentModel>.from(
+                                                children,
+                                              );
                                           _childDocuments.value = childrenMap;
 
                                           // Set loading false
@@ -873,10 +834,10 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                                           _loadingChildDocuments.value =
                                               loadingMapDone;
 
-                                          _expandedDocumentIds.value =
-                                              Set<int>.from(
-                                                _expandedDocumentIds.value,
-                                              );
+                                          _expandedDocumentIds
+                                              .value = Set<int>.from(
+                                            _expandedDocumentIds.value,
+                                          );
                                         });
                                   }
                                 }

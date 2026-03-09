@@ -441,66 +441,11 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                           ],
                         ),
                       ),
-                      Container(
-                        decoration: commonCardDecoration(),
-                        padding: const EdgeInsets.all(16),
-                        margin: const EdgeInsets.only(bottom: 10),
-                        child: Column(
-                          spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Action Details",
-                              style: AppTextStyle.ts16SB(),
-                            ),
-                            Row(
-                              spacing: 10,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Created By",
-                                  value: widget.channelPartnerModel.createdBy,
-                                ),
-                                buildColumnTitleValue(
-                                  title: "Created Date",
-                                  value: formatDate(
-                                    widget.channelPartnerModel.createdDate,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 10,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Modified By",
-                                  value:
-                                      widget
-                                              .channelPartnerModel
-                                              .modifiedBy
-                                              .isNotEmpty
-                                          ? widget
-                                              .channelPartnerModel
-                                              .modifiedBy
-                                          : "-",
-                                ),
-                                buildColumnTitleValue(
-                                  title: "Modified Date",
-                                  value:
-                                      widget.channelPartnerModel.modifiedDate !=
-                                              null
-                                          ? formatDate(
-                                            widget
-                                                .channelPartnerModel
-                                                .modifiedDate!,
-                                          )
-                                          : "-",
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                      actionCardWidget(
+                        createdBy: widget.channelPartnerModel.createdBy,
+                        createdDate: widget.channelPartnerModel.createdDate,
+                        modifiedBy: widget.channelPartnerModel.modifiedBy,
+                        modifiedDate: widget.channelPartnerModel.modifiedDate,
                       ),
                     ],
                   ),
@@ -570,7 +515,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                               Row(
                                 children: [
                                   Expanded(
-                                    flex: 7,
+                                    flex: 4,
                                     child: Text(
                                       "Mobile Number",
                                       style: AppTextStyle.ts14R(
@@ -588,8 +533,11 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                   ),
                                   Expanded(
                                     flex: 6,
-                                    child: CustomClickToContactText(
-                                      value: member.mobileNumber,
+                                    child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: CustomClickToContactText(
+                                        value: member.mobileNumber,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -598,7 +546,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                               Row(
                                 children: [
                                   Expanded(
-                                    flex: 7,
+                                    flex: 4,
                                     child: Text(
                                       "Email ID",
                                       style: AppTextStyle.ts14R(
@@ -618,9 +566,12 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                                     flex: 6,
                                     child:
                                         member.emailId.isNotEmpty
-                                            ? CustomClickToContactText(
-                                              value: member.emailId,
-                                              type: ContactType.email,
+                                            ? Align(
+                                              alignment: Alignment.centerRight,
+                                              child: CustomClickToContactText(
+                                                value: member.emailId,
+                                                type: ContactType.email,
+                                              ),
                                             )
                                             : Text(
                                               "-",

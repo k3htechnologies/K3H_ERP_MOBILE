@@ -236,52 +236,11 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Action Details", style: AppTextStyle.ts16SB()),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Created By",
-                          value: assetMapping.createdBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Created Date",
-                          value: formatDate(
-                            assetMapping.createdDate,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Modified By",
-                          value:
-                              assetMapping.modifiedBy.isEmpty
-                                  ? "-"
-                                  : assetMapping.modifiedBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Modified Date",
-                          value:
-                              assetMapping.modifiedDate != null
-                                  ? formatDate(
-                                    assetMapping.modifiedDate!,
-                                  )
-                                  : "-",
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              actionCardWidget(
+                createdBy: assetMapping.createdBy,
+                createdDate: assetMapping.createdDate,
+                modifiedBy: assetMapping.modifiedBy,
+                modifiedDate: assetMapping.modifiedDate,
               ),
             ],
           ),
