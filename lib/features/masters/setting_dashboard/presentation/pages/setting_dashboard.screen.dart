@@ -78,13 +78,18 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // TOTAL COMPANINES, EMPLOYEES, ACTIVE PROJECT AND REGISTERED VENDORS COUNT WIDGET
                           _buildSettingsDashboardOverview(context),
+                          // COMPANY SETUP WIDGET
                           _buildCompanySetupWidget(context),
                           verticalSpacing(height: 15.0),
+                          // PROCUREMENT MASTER WIDGET
                           _buildProcurementMasterWidget(context),
                           verticalSpacing(height: 15.0),
+                          // PROJECT MANAGEMENT WIDGET
                           _buildProjectManagementWidget(context),
                           verticalSpacing(height: 15.0),
+                          // VENDOR MANAGEMENT WIDGET
                           _buildVendorManagementWidget(context),
                         ],
                       ),
@@ -639,16 +644,30 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                 ],
               ),
               verticalSpacing(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children:
-                    table5!.map((subSourceData) {
-                      return SourceProgressBar(
-                        title: subSourceData.companyType,
-                        percentage: subSourceData.vendorCount,
-                      );
-                    }).toList(),
-              ),
+              if (table5 != null && table5.isNotEmpty) ...[
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children:
+                      table5.map((subSourceData) {
+                        return SourceProgressBar(
+                          title: subSourceData.companyType,
+                          percentage: subSourceData.vendorCount,
+                        );
+                      }).toList(),
+                ),
+              ] else ...[
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Text(
+                      "No Vendor Distribution Available",
+                      style: AppTextStyle.ts12M(
+                        color: AppColor.black.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               verticalSpacing(),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
@@ -717,7 +736,6 @@ class ProjectManagementRadialChart extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        /// Center Chart
         Center(
           child: SizedBox(
             height: 120,
@@ -783,8 +801,8 @@ class UnitRadialPainter extends CustomPainter {
     required this.planning,
   });
 
-  final double stroke = 20; // thicker like UI
-  final double gap = 25; // smooth gap between arcs
+  final double stroke = 20;
+  final double gap = 25;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -802,7 +820,7 @@ class UnitRadialPainter extends CustomPainter {
           ..strokeCap = StrokeCap.round;
 
     final usableDegrees = 360 - (gap * 5);
-    double startAngle = -90; // start from top
+    double startAngle = -90;
 
     void drawSegment(int value, Color color) {
       if (value == 0) return;
@@ -818,7 +836,6 @@ class UnitRadialPainter extends CustomPainter {
       startAngle += sweep + gap;
     }
 
-    /// Order matches screenshot colors
     drawSegment(ongoing, AppColor.primary);
     drawSegment(onHold, AppColor.yellow);
     drawSegment(completed, AppColor.green);

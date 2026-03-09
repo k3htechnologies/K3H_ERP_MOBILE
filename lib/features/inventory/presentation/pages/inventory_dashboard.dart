@@ -53,6 +53,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // SELECTED PROJECT TEXT PROJECT CUSTOM TEXT FIELD (ONLY DISPLAY)
                   CustomTextField(
                     readOnly: true,
                     textController: TextEditingController(
@@ -105,6 +106,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                     ],
                   ),
                   verticalSpacing(),
+                  // TOTOAL BUILDING COUNT WIDGET
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 16.0,
@@ -156,6 +158,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                     ),
                   ),
                   verticalSpacing(),
+                  // BASEMENT AND PODIUM COUNT WIDGET
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -269,6 +272,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                     ],
                   ),
                   verticalSpacing(),
+                  // WINGS AND FLOORS COUNT WIDGET
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -382,12 +386,16 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                     ],
                   ),
                   verticalSpacing(),
+                  // UNIT STATUS DISTRIBUTION WIDGET
                   _buildUnitStatusDistributionWidget(context),
                   verticalSpacing(),
+                  // PARKING DISTRIBUTION WIDGET
                   _buildParkingDistributionWidget(context),
                   verticalSpacing(),
+                  // BUILDING OVERVIEW WIDGET
                   _buildBuildingOverviewWidget(context),
                   verticalSpacing(),
+                  // ATLERT WIDGET
                   _buildAlertsWidget(context),
                 ],
               ),
@@ -555,11 +563,10 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
 
           verticalSpacing(height: 10),
 
-          // Progress Bar (like your design)
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: progress, // 🔥 IMPORTANT: 0 to 1 only
+              value: progress,
               minHeight: 10,
               borderRadius: BorderRadius.circular(4.0),
               backgroundColor: AppColor.primary.withValues(alpha: 0.25),
@@ -613,7 +620,6 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Top Row
                         Row(
                           children: [
                             _buildOverviewItem("02", "Basement"),
@@ -736,7 +742,6 @@ class UnitStatusDistributionRadialChart extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        /// Center Chart
         Center(
           child: SizedBox(
             height: 120,
@@ -764,7 +769,7 @@ class UnitStatusDistributionRadialChart extends StatelessWidget {
         const SizedBox(height: 14),
         _legendRow(AppColor.red, "Sold Units", sold),
         const SizedBox(height: 14),
-        _legendRow(const Color(0xFFB3B300), "Hold Units", hold),
+        _legendRow(AppColor.yellow, "Hold Units", hold),
         const SizedBox(height: 14),
         _legendRow(AppColor.green, "Available Units", available),
       ],
@@ -804,8 +809,8 @@ class UnitRadialPainter extends CustomPainter {
     required this.available,
   });
 
-  final double stroke = 20; // thicker like UI
-  final double gap = 25; // smooth gap between arcs
+  final double stroke = 20;
+  final double gap = 25;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -823,7 +828,7 @@ class UnitRadialPainter extends CustomPainter {
           ..strokeCap = StrokeCap.round;
 
     final usableDegrees = 360 - (gap * 5);
-    double startAngle = -90; // start from top
+    double startAngle = -90;
 
     void drawSegment(int value, Color color) {
       if (value == 0) return;
@@ -839,11 +844,10 @@ class UnitRadialPainter extends CustomPainter {
       startAngle += sweep + gap;
     }
 
-    /// Order matches screenshot colors
     drawSegment(sold, AppColor.red);
     drawSegment(allotted, AppColor.purple);
     drawSegment(blocked, AppColor.grey);
-    drawSegment(hold, const Color(0xFFB3B300));
+    drawSegment(hold, AppColor.yellow);
     drawSegment(available, AppColor.green);
   }
 

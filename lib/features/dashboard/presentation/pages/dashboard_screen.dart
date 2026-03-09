@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_null_comparison
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -11,22 +10,17 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
-import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/dashboard.model.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
-import 'package:k3h_erp_app/features/dashboard/presentation/widget/project_selector_overlay.dart';
-import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/route_map_screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/storage_key.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -41,26 +35,16 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  // PROJECT MASTER REPOSITORY
-  final ProjectMasterRepository _projectMasterRepository =
-      serviceLocator<ProjectMasterRepository>();
-
   // CUBIT
   late DashboardCubit _dashboardCubit;
 
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorization;
 
-  final ValueNotifier<List<ProjectModel>> _projectListNotifier = ValueNotifier(
-    [],
-  );
-
   final ValueNotifier<double> dragPositionNotifier = ValueNotifier(0.0);
   final ValueNotifier<bool> isPunchedInNotifier = ValueNotifier(false);
 
-  final ValueNotifier<bool> _showOverlayNotifier = ValueNotifier(false);
-
-  ProjectModel? _selectedProject;
+  late ProjectModel _selectedProject;
 
   late DateTime punchInTime;
   DateTime? punchOutTime;
@@ -77,99 +61,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _routeAuthorization =
         Authorization.routeAuthorizationMap[AppRoutes.dashboardScreen]!;
     _dashboardCubit = context.read<DashboardCubit>();
-    _loadProjects();
+
+    _selectedProject = getProject();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final now = DateTime.now();
       final start = DateTime(now.year, now.month, now.day);
       final end = start;
 
-      _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
+      _dashboardCubit.getAttendanceList(
+        context,
+        1,
+        start,
+        end,
+        0,
+        _selectedProject.projectId,
+      );
     });
     _dashboardCubit.getDashboardList(context);
   }
 
   @override
   void dispose() {
-    _showOverlayNotifier.dispose();
     isPunchedInNotifier.dispose();
     dragPositionNotifier.dispose();
     workedDuration.dispose();
     _timer?.cancel();
     super.dispose();
-  }
-
-  Future<void> _loadProjects() async {
-    await _fetchProjects(1);
-    final projects = _projectListNotifier.value;
-    ProjectModel? storedProject;
-    final storedJson = LocalStorageManager().getString(
-      StorageKey.selectedProject,
-    );
-    if (storedJson != null && storedJson.isNotEmpty) {
-      storedProject = ProjectModel.fromJson(jsonDecode(storedJson));
-    }
-    if (storedProject != null &&
-        projects.any((p) => p.projectId == storedProject!.projectId)) {
-      _selectedProject = storedProject;
-    } else if (projects.isNotEmpty) {
-      _selectedProject = projects.first;
-      LocalStorageManager().setString(
-        StorageKey.selectedProject,
-        jsonEncode(_selectedProject!.toJson()),
-      );
-    }
-  }
-
-  // FETCH PROJECTS
-  Future<Map<String, dynamic>> _fetchProjects(
-    int pageNumber, {
-    String? value,
-  }) async {
-    final userJson = jsonDecode(
-      LocalStorageManager().getString(StorageKey.currentUser) ?? '',
-    );
-    final user = UserModel.fromJson(userJson);
-
-    final result = await _projectMasterRepository.getProjectList(
-      pageNumber: pageNumber,
-      pageSize: 100,
-      queryParams: {
-        'EmployeeId': user.employeeId.toString(),
-        if (value != null && value.isNotEmpty) 'ProjectName': value,
-      },
-    );
-
-    return result.fold(
-      (failure) {
-        return {"itemList": <Map<String, dynamic>>[], "totalNumberOfRecord": 0};
-      },
-      (response) {
-        final List<ProjectModel> projects =
-            (response['data'] as List<ProjectModel>);
-        if (pageNumber == 1) {
-          _projectListNotifier.value = projects;
-        } else {
-          _projectListNotifier.value = [
-            ..._projectListNotifier.value,
-            ...projects,
-          ];
-        }
-        final List<Map<String, dynamic>> itemList =
-            projects
-                .map(
-                  (project) => {
-                    'zAttributesId': project.projectId,
-                    'DisplayName': project.projectName,
-                  },
-                )
-                .toList();
-        return {
-          "itemList": itemList,
-          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
-        };
-      },
-    );
   }
 
   void _startTimerFrom(DateTime start) {
@@ -340,7 +258,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final start = DateTime(now.year, now.month, now.day);
       final end = start;
 
-      await _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
+      await _dashboardCubit.getAttendanceList(
+        context,
+        1,
+        start,
+        end,
+        0,
+        _selectedProject.projectId,
+      );
 
       dragPositionNotifier.value = 0;
     } else {
@@ -493,11 +418,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
               screenTitle: "Dashboard",
               isMenuButton: true,
               authorization: _routeAuthorization,
-              onProjectChangeCallback: (_) {
+              onProjectChangeCallback: (value) {
+                _selectedProject = value;
                 final now = DateTime.now();
                 final start = DateTime(now.year, now.month, now.day);
                 final end = start;
-                _dashboardCubit.getAttendanceList(context, 1, start, end, 0);
+                _dashboardCubit.getAttendanceList(
+                  context,
+                  1,
+                  start,
+                  end,
+                  0,
+                  _selectedProject.projectId,
+                );
                 _dashboardCubit.getDashboardList(context);
               },
               showNotification: true,
@@ -520,42 +453,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                         verticalSpacing(),
+                        // PUNCH IN - PUNCH OUT WIDGET
                         _buildWordayOverviewWidget(state, context),
                         verticalSpacing(),
+                        //  SCHEDULED TASK WIDGET
                         _buildScheduledTaskWidget(context),
                         verticalSpacing(),
+                        //  QUICK ACTIONS WIDGET
                         _buildQuickActionsWidget(context),
                         verticalSpacing(),
+                        // ATTENDANCE SUMMARY WIGET
                         _buildAttendanceSummaryWidget(context),
                         verticalSpacing(),
+                        // WORKING HOUR SUMMARY WIGET
                         _buildWorkingHourSummaryWidget(context),
                         verticalSpacing(),
+                        // TEAM ATTENDANCE WIDGET
                         _buildTeamAttendanceSummaryWidget(context),
                         verticalSpacing(),
                         _buildLeaveBalanceSummaryWidget(context),
                         verticalSpacing(),
+                        // HOLIDAY WIDGET
                         _buildHolidaySummaryWidget(context),
                         verticalSpacing(),
+                        // EVENTS WIDGET (BIRTHDAY'S AND EVENTS)
                         _buildEventsAndMoreWidget(context),
                         verticalSpacing(),
+                        // REPORTING MANAGER WIDGET
                         _buildReportingManagerWidget(context),
                       ],
                     ),
                   ),
-                ),
-                ValueListenableBuilder<bool>(
-                  valueListenable: _showOverlayNotifier,
-                  builder: (context, showOverlay, _) {
-                    if (!showOverlay) return const SizedBox.shrink();
-                    return ProjectSelectorOverlay(
-                      projects: _projectListNotifier.value,
-                      selectedProjectId: _selectedProject?.projectId,
-                      onSelect: _onProjectSelected,
-                      onClose: () {
-                        _showOverlayNotifier.value = false;
-                      },
-                    );
-                  },
                 ),
               ],
             ),
@@ -1534,10 +1462,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   },
                 ),
               ] else ...[
-                Text(
-                  "No Data Available",
-                  style: AppTextStyle.ts12M(
-                    color: AppColor.black.withValues(alpha: 0.50),
+                Center(
+                  child: Text(
+                    "No Upcoming Events Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
                   ),
                 ),
               ],
@@ -1776,18 +1706,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               }).toList(),
         );
       },
-    );
-  }
-
-  void _onProjectSelected(ProjectModel project) {
-    _selectedProject = project;
-    LocalStorageManager().setString(
-      StorageKey.selectedProject,
-      jsonEncode(project.toJson()),
-    );
-    showSuccessMessage(
-      context,
-      subTitle: "Project Selected ${project.projectName}",
     );
   }
 }
