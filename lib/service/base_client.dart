@@ -278,6 +278,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:k3h_erp_app/env/env.dart';
@@ -314,6 +315,17 @@ class BaseClient {
         },
       ),
     );
+
+
+    // REMOVE THIS IN PRODUCTION (BY PASSiNG CERTIFICATE VERIFICATION)
+    if (!kIsWeb) {
+      (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+        final client = HttpClient();
+        client.badCertificateCallback =
+            (X509Certificate cert, String host, int port) => true;
+        return client;
+      };
+    }
 
     _addInterceptors();
   }
