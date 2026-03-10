@@ -197,6 +197,14 @@ Future<void> logOutUser(BuildContext context) async {
   );
 
   if (isConfirmed == true) {
+
+    if (context.mounted) {
+      await showSuccessMessage(
+        context,
+        subTitle: "Logged out successfully",
+      );
+    }
+
     await LocalStorageManager().removeAll();
 
     if (context.mounted) {
