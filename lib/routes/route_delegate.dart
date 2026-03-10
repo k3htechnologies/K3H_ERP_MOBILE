@@ -27,6 +27,8 @@ import 'package:k3h_erp_app/features/inventory/presentation/pages/add_inventory_
 import 'package:k3h_erp_app/features/inventory/presentation/pages/add_unit_specification_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_dashboard.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/unit_specification_view_screen.dart';
+import 'package:k3h_erp_app/features/legal/dashboard/presentation/cubit/litigation_dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/legal/dashboard/presentation/pages/litigation_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/data/model/litigation_hearing.model.dart';
 import 'package:k3h_erp_app/features/legal/litigation/presentation/cubit/litigation_cubit.dart';
@@ -3452,12 +3454,26 @@ final GoRouter goRouter = GoRouter(
             //LEGAL (LITIGATION)
             ShellRoute(
               builder: (context, state, child) {
-                return BlocProvider<LitigationCubit>(
-                  create: (_) => LitigationCubit(),
+                return MultiBlocProvider(
+                  providers: [
+                    BlocProvider<LitigationDashboardCubit>(
+                      create: (_) => LitigationDashboardCubit(),
+                    ),
+                    BlocProvider<LitigationCubit>(
+                      create: (_) => LitigationCubit(),
+                    ),
+                  ],
                   child: child,
                 );
               },
               routes: [
+                GoRoute(
+                  name: AppRoutes.litigationDashboard,
+                  path: AppRoutes.litigationDashboard,
+                  builder: (context, state) {
+                    return const LitigationDashboardScreen();
+                  },
+                ),
                 GoRoute(
                   name: AppRoutes.litigation,
                   path: AppRoutes.litigation,

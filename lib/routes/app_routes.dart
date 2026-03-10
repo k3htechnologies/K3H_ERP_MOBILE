@@ -317,6 +317,8 @@ class AppRoutes {
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
 
   // LEGAL
+
+  static String litigationDashboard = "/litigationDashboard";
   static String litigation = "/litigation";
   static String addLitigation = "/addLitigation";
   static String viewLitigation = "/viewLitigation";
