@@ -1,77 +1,97 @@
-// import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/common_function.dart';
 
-// class PaymentScheduleMasterModel {
-//   int paymentScheduleMasterId;
-//   String uniquekey;
-//   String name;
-//   double paymentSchedulePercentage;
-//   double paymentScheduleCummulativePercentage;
-//   int createdById;
-//   String createdBy;
-//   DateTime createdDate;
-//   int modifiedById;
-//   String modifiedBy;
-//   DateTime? modifiedDate;
+class BookingPaymentScheduleData {
+  int bookingPaymentScheduleId;
+  String type;
+  String name;
+  DateTime? date;
+  double paymentSchedulePercentage;
+  double paymentCummulativePercentage;
+  double paymentScheduleAmount;
+  double paymentScheduleGSTAmount;
+  double paymentScheduleTDSAmount;
+  int ranking;
+  BookingPaymentScheduleData({
+    required this.bookingPaymentScheduleId,
+    required this.type,
+    required this.name,
+    this.date,
+    required this.paymentSchedulePercentage,
+    required this.paymentCummulativePercentage,
+    required this.paymentScheduleAmount,
+    required this.paymentScheduleGSTAmount,
+    required this.paymentScheduleTDSAmount,
+    required this.ranking,
+  });
 
-//   int ranking;
+  factory BookingPaymentScheduleData.fromJson(
+    Map<String, dynamic> json,
+  ) => BookingPaymentScheduleData(
+    bookingPaymentScheduleId: parseValue<int>(json, "BookingPaymentScheduleId"),
+    type: parseValue<String>(json, "Type"),
+    name: parseValue<String>(json, "Name"),
+    date: json["Date"] == null ? null : parseValue<DateTime>(json, "Date"),
+    paymentSchedulePercentage: parseValue<double>(
+      json,
+      "PaymentSchedulePercentage",
+    ),
+    paymentCummulativePercentage: parseValue<double>(
+      json,
+      "PaymentCummulativePercentage",
+    ),
+    paymentScheduleAmount: parseValue<double>(json, "PaymentScheduleAmount"),
+    paymentScheduleGSTAmount: parseValue<double>(
+      json,
+      "PaymentScheduleGSTAmount",
+    ),
+    paymentScheduleTDSAmount: parseValue<double>(
+      json,
+      "PaymentScheduleTDSAmount",
+    ),
+    ranking: parseValue<int>(json, "Ranking"),
+  );
 
-//   PaymentScheduleMasterModel({
-//     required this.paymentScheduleMasterId,
-//     required this.uniquekey,
-//     required this.name,
-//     required this.paymentSchedulePercentage,
-//     required this.paymentScheduleCummulativePercentage,
-//     required this.createdById,
-//     required this.createdBy,
-//     required this.createdDate,
-//     required this.modifiedById,
-//     required this.modifiedBy,
-//     required this.modifiedDate,
-
-//     this.ranking = 0,
-//   });
-
-//   factory PaymentScheduleMasterModel.fromJson(Map<String, dynamic> json) =>
-//       PaymentScheduleMasterModel(
-//         paymentScheduleMasterId: parseValue<int>(
-//           json,
-//           "PaymentScheduleMasterId",
-//         ),
-//         uniquekey: parseValue<String>(json, "Uniquekey"),
-//         name: parseValue<String>(json, "Name"),
-//         paymentSchedulePercentage: parseValue<double>(
-//           json,
-//           "PaymentSchedulePercentage",
-//         ),
-//         paymentScheduleCummulativePercentage: parseValue<double>(
-//           json,
-//           "PaymentScheduleCummulativePercentage",
-//         ),
-//         createdById: parseValue<int>(json, "CreatedById"),
-//         createdBy: parseValue<String>(json, "CreatedBy"),
-//         createdDate: parseValue<DateTime>(json, "CreatedDate"),
-//         modifiedById: parseValue<int>(json, "ModifiedById"),
-//         modifiedBy: parseValue<String>(json, "ModifiedBy"),
-//         modifiedDate:
-//             json["ModifiedDate"] == null
-//                 ? null
-//                 : parseValue<DateTime>(json, "ModifiedDate"),
-//       );
-
-//   Map<String, dynamic> toJson() => {
-//     "PaymentScheduleMasterId": paymentScheduleMasterId,
-//     "Uniquekey": uniquekey,
-//     "Name": name,
-//     "PaymentSchedulePercentage": paymentSchedulePercentage,
-//     "PaymentScheduleCummulativePercentage":
-//         paymentScheduleCummulativePercentage,
-//     "CreatedById": createdById,
-//     "CreatedBy": createdBy,
-//     "CreatedDate": createdDate.toIso8601String(),
-//     "ModifiedById": modifiedById,
-//     "ModifiedBy": modifiedBy,
-//     "ModifiedDate": modifiedDate,
-
-//     "Ranking": ranking,
-//   };
-// }
+  Map<String, dynamic> toJson() => {
+    "BookingPaymentScheduleId": bookingPaymentScheduleId,
+    "Type": type,
+    "Name": name,
+    "Date": date?.toIso8601String(),
+    "PaymentSchedulePercentage": paymentSchedulePercentage,
+    "PaymentCummulativePercentage": paymentCummulativePercentage,
+    "PaymentScheduleAmount": paymentScheduleAmount,
+    "PaymentScheduleGSTAmount": paymentScheduleGSTAmount,
+    "PaymentScheduleTDSAmount": paymentScheduleTDSAmount,
+    "Ranking": ranking,
+  };
+  BookingPaymentScheduleData copyWith({
+    int? bookingPaymentScheduleId,
+    String? type,
+    String? name,
+    DateTime? date,
+    double? paymentSchedulePercentage,
+    double? paymentCummulativePercentage,
+    double? paymentScheduleAmount,
+    double? paymentScheduleGSTAmount,
+    double? paymentScheduleTDSAmount,
+    int? ranking,
+  }) {
+    return BookingPaymentScheduleData(
+      bookingPaymentScheduleId:
+          bookingPaymentScheduleId ?? this.bookingPaymentScheduleId,
+      type: type ?? this.type,
+      name: name ?? this.name,
+      date: date ?? this.date,
+      paymentSchedulePercentage:
+          paymentSchedulePercentage ?? this.paymentSchedulePercentage,
+      paymentCummulativePercentage:
+          paymentCummulativePercentage ?? this.paymentCummulativePercentage,
+      paymentScheduleAmount:
+          paymentScheduleAmount ?? this.paymentScheduleAmount,
+      paymentScheduleGSTAmount:
+          paymentScheduleGSTAmount ?? this.paymentScheduleGSTAmount,
+      paymentScheduleTDSAmount:
+          paymentScheduleTDSAmount ?? this.paymentScheduleTDSAmount,
+      ranking: ranking ?? this.ranking,
+    );
+  }
+}

@@ -30,6 +30,13 @@ abstract interface class BookingDatasource {
     required int inventoryFlatFloorBasementPodiumWingId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apiCallCancelBooking({
+    required int bookingId,
+    required String uniqueKey,
+    required int projectId,
+    required String parkingId,
+    required int inventoryFlatId,
+  });
 }
 
 class BookingDatasourceImpl extends BookingDatasource {
@@ -217,6 +224,57 @@ class BookingDatasourceImpl extends BookingDatasource {
           inventoryFlatFloorBasementPodiumWingId:
               inventoryFlatFloorBasementPodiumWingId,
           queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallCancelBooking({
+    required int bookingId,
+    required String uniqueKey,
+    required int projectId,
+    required String parkingId,
+    required int inventoryFlatId,
+  }) async {
+    String cancelBookingUrl({
+      required int bookingId,
+      required String uniqueKey,
+      required int projectId,
+      required int inventoryFlatId,
+      required String parkingId,
+    }) {
+      return "Booking/CancelBooking?"
+          "BookingId=$bookingId&"
+          "Uniquekey=$uniqueKey&"
+          "ProjectId=$projectId&"
+          "InventoryFlatId=$inventoryFlatId&"
+          "ParkingId=$parkingId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        cancelBookingUrl(
+          bookingId: bookingId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
+          inventoryFlatId: inventoryFlatId,
+          parkingId: parkingId,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallCancelBooking(
+          bookingId: bookingId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
+          inventoryFlatId: inventoryFlatId,
+          parkingId: parkingId,
         );
       }
       rethrow;

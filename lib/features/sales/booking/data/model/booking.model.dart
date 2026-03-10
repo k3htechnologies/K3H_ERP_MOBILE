@@ -1,5 +1,6 @@
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_master.model.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 
@@ -9,7 +10,18 @@ class BookingModel {
   String applicantName;
   List<BookingApplicantData> bookingApplicantData;
   String permanentAddress;
+  String systemGeneratedCode;
+  int inventoryFlatFloorBasementPodiumWingId;
+  int inventoryBuildingId;
+  String paymentRemark;
+  String otherRemark;
+  int transferBookingId;
+  String transferFlat;
+  int tenantId;
+  int paymentScheduleSchemeMasterId;
+  String paymentScheduleScheme;
   String communicationAddress;
+  String sourceOfFunding;
   String source;
   String subSource;
   String channelPartnerName;
@@ -17,6 +29,12 @@ class BookingModel {
   String channelPartnerMobileNumber;
   double brokeragePercentage;
   double brokerageAmount;
+  double referelPercentage;
+  double referelAmount;
+  double loyaltyPercentage;
+  double loyaltyAmount;
+  double employeeReferencePercentage;
+  double employeeReferenceAmount;
   int inventoryFlatId;
   String buildingNumber;
   String wing;
@@ -75,7 +93,19 @@ class BookingModel {
     required this.applicantName,
     required this.bookingApplicantData,
     required this.permanentAddress,
+    required this.systemGeneratedCode,
+    required this.inventoryFlatFloorBasementPodiumWingId,
+    required this.inventoryBuildingId,
+    required this.paymentRemark,
+    required this.otherRemark,
+    required this.transferBookingId,
+    required this.transferFlat,
+    required this.tenantId,
+    required this.paymentScheduleSchemeMasterId,
+    required this.paymentScheduleScheme,
     required this.communicationAddress,
+    required this.sourceOfFunding,
+
     required this.source,
     required this.subSource,
     required this.channelPartnerName,
@@ -83,6 +113,12 @@ class BookingModel {
     required this.channelPartnerMobileNumber,
     required this.brokeragePercentage,
     required this.brokerageAmount,
+    required this.referelPercentage,
+    required this.referelAmount,
+    required this.loyaltyPercentage,
+    required this.loyaltyAmount,
+    required this.employeeReferencePercentage,
+    required this.employeeReferenceAmount,
     required this.inventoryFlatId,
     required this.buildingNumber,
     required this.wing,
@@ -135,7 +171,6 @@ class BookingModel {
     required this.bookingApplicantModificationRequestIsApproval,
     required this.bookingApplicantModificationRequestApprovalStatus,
   });
-
   factory BookingModel.fromJson(
     Map<String, dynamic> json, {
     bool setOtherCharge = false,
@@ -159,8 +194,36 @@ class BookingModel {
       json,
       "ChannelPartnerMobileNumber",
     ),
+    inventoryFlatFloorBasementPodiumWingId: parseValue<int>(
+      json,
+      "InventoryFlatFloorBasementPodiumWingId",
+    ),
+    inventoryBuildingId: parseValue<int>(json, "InventoryBuildingId"),
+    paymentScheduleSchemeMasterId: parseValue<int>(
+      json,
+      "PaymentScheduleSchemeMasterId",
+    ),
+    paymentScheduleScheme: parseValue<String>(json, "PaymentScheduleScheme"),
+    paymentRemark: parseValue<String>(json, "PaymentRemark"),
+    otherRemark: parseValue<String>(json, "OtherRemark"),
+    sourceOfFunding: parseValue<String>(json, "SourceOfFunding"),
+    transferBookingId: parseValue<int>(json, "TransferBookingId"),
+    transferFlat: parseValue<String>(json, "TransferFlat"),
+    tenantId: parseValue<int>(json, "TenantId"),
     brokeragePercentage: parseValue<double>(json, "BrokeragePercentage"),
     brokerageAmount: parseValue<double>(json, "BrokerageAmount"),
+    referelPercentage: parseValue<double>(json, "ReferelPercentage"),
+    referelAmount: parseValue<double>(json, "ReferelAmount"),
+    loyaltyPercentage: parseValue<double>(json, "LoyaltyPercentage"),
+    loyaltyAmount: parseValue<double>(json, "LoyaltyAmount"),
+    employeeReferencePercentage: parseValue<double>(
+      json,
+      "EmployeeReferencePercentage",
+    ),
+    employeeReferenceAmount: parseValue<double>(
+      json,
+      "EmployeeReferenceAmount",
+    ),
     inventoryFlatId: parseValue<int>(json, "InventoryFlatId"),
     buildingNumber: parseValue<String>(json, "BuildingNumber"),
     wing: parseValue<String>(json, "Wing"),
@@ -169,6 +232,7 @@ class BookingModel {
     flatType: parseValue<String>(json, "FlatType"),
     reraCarpetAreaSqFt: parseValue<double>(json, "RERACarpetAreaSqFt"),
     flatConfiguration: parseValue<String>(json, "FlatConfiguration"),
+    systemGeneratedCode: parseValue<String>(json, "SystemGeneratedCode"),
     agreementValue: parseValue<double>(json, "AgreementValue"),
     agreementValueTDS: parseValue<double>(json, "AgreementValueTDS"),
     agreementValueGSTPercentage: parseValue<double>(
@@ -195,6 +259,7 @@ class BookingModel {
     approvalStatus: parseValue<String>(json, "ApprovalStatus"),
     isApproval: parseValue<bool>(json, "IsApproval"),
     bookingType: parseValue<String>(json, "BookingType"),
+
     bookingOtherChargesData:
         (json["BookingOtherChargesData"] as List<dynamic>)
             .map(
@@ -286,12 +351,29 @@ class BookingModel {
     "ChannelPartnerMobileNumber": channelPartnerMobileNumber,
     "BrokeragePercentage": brokeragePercentage,
     "BrokerageAmount": brokerageAmount,
+    "ReferelPercentage": referelPercentage,
+    "ReferelAmount": referelAmount,
+    "LoyaltyPercentage": loyaltyPercentage,
+    "LoyaltyAmount": loyaltyAmount,
+    "EmployeeReferencePercentage": employeeReferencePercentage,
+    "EmployeeReferenceAmount": employeeReferenceAmount,
     "InventoryFlatId": inventoryFlatId,
     "BuildingNumber": buildingNumber,
     "Wing": wing,
     "Floor": floor,
     "Flat": flat,
     "FlatType": flatType,
+    "InventoryFlatFloorBasementPodiumWingId":
+        inventoryFlatFloorBasementPodiumWingId,
+    "InventoryBuildingId": inventoryBuildingId,
+    "PaymentScheduleSchemeMasterId": paymentScheduleSchemeMasterId,
+    "PaymentScheduleScheme": paymentScheduleScheme,
+    "PaymentRemark": paymentRemark,
+    "OtherRemark": otherRemark,
+    "SourceOfFunding": sourceOfFunding,
+    "TransferBookingId": transferBookingId,
+    "TransferFlat": transferFlat,
+    "TenantId": tenantId,
     "RERACarpetAreaSqFt": reraCarpetAreaSqFt,
     "FlatConfiguration": flatConfiguration,
     "AgreementValue": agreementValue,
@@ -328,6 +410,7 @@ class BookingModel {
     "ProjectId": projectId,
     "EnquiryId": enquiryId,
     "ProjectName": projectName,
+    "SystemGeneratedCode": systemGeneratedCode,
     "FlatAlterationRemark": flatAlterationRemark,
     "TermsAndConditionsDescription": termsAndConditionsDescription,
     "TotalAmountReceivedAgainstBooking": totalAmountReceivedAgainstBooking,
@@ -500,70 +583,5 @@ class BookingApplicantData {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
-  };
-}
-
-class BookingPaymentScheduleData {
-  int bookingPaymentScheduleId;
-  String type;
-  String name;
-  DateTime? date;
-  double paymentSchedulePercentage;
-  double paymentCummulativePercentage;
-  double paymentScheduleAmount;
-  double paymentScheduleGSTAmount;
-  double paymentScheduleTDSAmount;
-  int ranking;
-  BookingPaymentScheduleData({
-    required this.bookingPaymentScheduleId,
-    required this.type,
-    required this.name,
-    this.date,
-    required this.paymentSchedulePercentage,
-    required this.paymentCummulativePercentage,
-    required this.paymentScheduleAmount,
-    required this.paymentScheduleGSTAmount,
-    required this.paymentScheduleTDSAmount,
-    required this.ranking,
-  });
-
-  factory BookingPaymentScheduleData.fromJson(
-    Map<String, dynamic> json,
-  ) => BookingPaymentScheduleData(
-    bookingPaymentScheduleId: parseValue<int>(json, "BookingPaymentScheduleId"),
-    type: parseValue<String>(json, "Type"),
-    name: parseValue<String>(json, "Name"),
-    date: json["Date"] == null ? null : parseValue<DateTime>(json, "Date"),
-    paymentSchedulePercentage: parseValue<double>(
-      json,
-      "PaymentSchedulePercentage",
-    ),
-    paymentCummulativePercentage: parseValue<double>(
-      json,
-      "PaymentCummulativePercentage",
-    ),
-    paymentScheduleAmount: parseValue<double>(json, "PaymentScheduleAmount"),
-    paymentScheduleGSTAmount: parseValue<double>(
-      json,
-      "PaymentScheduleGSTAmount",
-    ),
-    paymentScheduleTDSAmount: parseValue<double>(
-      json,
-      "PaymentScheduleTDSAmount",
-    ),
-    ranking: parseValue<int>(json, "Ranking"),
-  );
-
-  Map<String, dynamic> toJson() => {
-    "BookingPaymentScheduleId": bookingPaymentScheduleId,
-    "Type": type,
-    "Name": name,
-    "Date": date?.toIso8601String(),
-    "PaymentSchedulePercentage": paymentSchedulePercentage,
-    "PaymentCummulativePercentage": paymentCummulativePercentage,
-    "PaymentScheduleAmount": paymentScheduleAmount,
-    "PaymentScheduleGSTAmount": paymentScheduleGSTAmount,
-    "PaymentScheduleTDSAmount": paymentScheduleTDSAmount,
-    "Ranking": ranking,
   };
 }

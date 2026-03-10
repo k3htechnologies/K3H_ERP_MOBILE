@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
@@ -9,6 +10,7 @@ import 'package:k3h_erp_app/features/parking/data/repository/parking.repository.
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/repository/terms_and_conditions.repository.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_master.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
@@ -49,6 +51,11 @@ class BookingCubit extends Cubit<BookingState> {
   // VIEW BOOKINGS TAB
   void onTabChanged(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndex: index));
+  }
+
+  Future searchBooking(BuildContext context, String value) async {
+    emit(state.copyWith(searchText: value, bookingList: []));
+    await getBookingList(context, 1, getProject().projectId);
   }
 
   // ADD FORM TAB
@@ -199,11 +206,13 @@ class BookingCubit extends Cubit<BookingState> {
     BuildContext context,
     int pageNumber,
     int projectId,
+    double reraArea, // pass this from widget/inventory
   ) async {
     emit(state.copyWith(isLoading: true));
+
     var result = await _otherChargesRepository.getOtherChargesList(
       pageNumber: pageNumber,
-      pageSize: 1,
+      pageSize: 500,
       projectId: projectId,
     );
 
@@ -213,11 +222,26 @@ class BookingCubit extends Cubit<BookingState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        final rawList = List<OtherChargeModel>.from(response['data'] ?? []);
+
+        // Perform calculations here
+        final calculatedList =
+            rawList.map((oc) {
+              final baseAmount =
+                  oc.calculatedOn == "Per Sq Ft"
+                      ? oc.value * reraArea
+                      : oc.value;
+
+              final gstValue = (oc.gstPercentage / 100) * baseAmount;
+
+              // reuse existing fields: value = base amount, gstValue = GST
+              return oc.copyWith(value: baseAmount, gstValue: gstValue);
+            }).toList();
+
         emit(
           state.copyWith(
-            otherChargesList: List<OtherChargeModel>.from(
-              response['data'] ?? [],
-            ),
+            originalOtherChargesList: rawList,
+            otherChargesList: calculatedList,
             isLoading: false,
           ),
         );
@@ -314,6 +338,10 @@ class BookingCubit extends Cubit<BookingState> {
 
   // <---- ADD BOOKING ---->
   Future addBooking({
+    required int buildingIndex,
+    required int wingIndex,
+    required int floorIndex,
+    required int flatIndex,
     required BuildContext context,
     required int projectId,
     required int enquiryId,
@@ -335,6 +363,14 @@ class BookingCubit extends Cubit<BookingState> {
     required String modeOfPayment,
 
     /// CHANGE LATER IN API
+    required double referelPercentage,
+    required double referelAmount,
+
+    required double loyaltyPercentage,
+    required double loyaltyAmount,
+
+    required double employeeReferencePercentage,
+    required double employeeReferenceAmount,
     required String flatAlterationRemark,
     required String termsAndConditionsDescription,
     String bookingType = 'FLAT',
@@ -358,6 +394,15 @@ class BookingCubit extends Cubit<BookingState> {
       "CommunicationAddress": communicationAddress,
       "BrokeragePercentage": brokeragePercentage.toString(),
       "BrokerageAmount": brokerageAmount.toString(),
+
+      "ReferelPercentage": referelPercentage.toString(),
+      "ReferelAmount": referelAmount.toString(),
+
+      "LoyaltyPercentage": loyaltyPercentage.toString(),
+      "LoyaltyAmount": loyaltyAmount.toString(),
+
+      "EmployeeReferencePercentage": employeeReferencePercentage.toString(),
+      "EmployeeReferenceAmount": employeeReferenceAmount.toString(),
       "InventoryFlatId": inventoryFlatId.toString(),
       "AgreementValue": agreementValue.toString(),
       "AgreementValueTDS": agreementValueTds.toString(),
@@ -555,12 +600,22 @@ class BookingCubit extends Cubit<BookingState> {
       body: requestBody,
       fileList: fileList,
     );
-    goRouter.pop();
 
-    addResult.fold((failure) async {
-      showErrorMessage(context, 'Error Message', failure.message);
-      return;
-    }, (response) async {});
+    addResult.fold(
+      (failure) async {
+        goRouter.pop();
+
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) async {
+        goRouter.pop({"status": "Booked"});
+
+        showSuccessMessage(context, subTitle: 'Booking Added Successfully');
+
+        goRouter.pop({"status": "Booked"});
+      },
+    );
   }
 
   // <---- UPDATE BOOKING ---->
@@ -589,6 +644,14 @@ class BookingCubit extends Cubit<BookingState> {
     required String modeOfPayment,
 
     /// CHANGE LATER IN API
+    required double referelPercentage,
+    required double referelAmount,
+
+    required double loyaltyPercentage,
+    required double loyaltyAmount,
+
+    required double employeeReferencePercentage,
+    required double employeeReferenceAmount,
     required String flatAlterationRemark,
     required String termsAndConditionsDescription,
     String bookingType = 'FLAT',
@@ -604,10 +667,12 @@ class BookingCubit extends Cubit<BookingState> {
     required List<BookingApplicantData> addUpdateBookingApplicant,
   }) async {
     DialogHelper.showProcessingOverlay(context);
+
     Map<String, String> requestBody = {
-      "BookingId": transferBookingId != null ? '0' : bookingId.toString(),
+      "BookingId": bookingId.toString(),
       "Uniquekey": uniqueKey,
       "ProjectId": projectId.toString(),
+      "EnquiryId": enquiryId.toString(),
       "PermanentAddress": permanentAddress,
       "CommunicationAddress": communicationAddress,
       "BrokeragePercentage": brokeragePercentage.toString(),
@@ -620,12 +685,16 @@ class BookingCubit extends Cubit<BookingState> {
       "StampDutyPercentage": stampDutyPercentage.toString(),
       "StampDutyAmount": stampDutyAmount.toString(),
       "RegistrationFees": registrationFees.toString(),
-      if (parkingId != null) "ParkingId": parkingId.toString(),
+      if (parkingId != null && parkingId.isNotEmpty) "ParkingId": parkingId,
       "HandoverType": handoverType,
       "RegistrationDate": registrationDate.toIso8601String(),
       "ModeOfPayment": modeOfPayment,
-
-      /// CHANGE IT LATER IN API
+      "ReferelPercentage": referelPercentage.toString(),
+      "ReferelAmount": referelAmount.toString(),
+      "EmployeeReferencePercentage": employeeReferencePercentage.toString(),
+      "EmployeeReferenceAmount": employeeReferenceAmount.toString(),
+      "LoyaltyPercentage": loyaltyPercentage.toString(),
+      "LoyaltyAmount": loyaltyAmount.toString(),
       "FlatAlterationRemark": flatAlterationRemark,
       "TermsAndConditionsDescription": termsAndConditionsDescription,
       "BookingType": bookingType,
@@ -661,7 +730,7 @@ class BookingCubit extends Cubit<BookingState> {
             )
             .toList(),
       ),
-      'BookingAmount': bookingAmount.toString(),
+      "BookingAmount": bookingAmount.toString(),
       "ChequeRTGSNumber": chequeRTGSNumber,
       if (chequeRTGSDate != null)
         "ChequeRTGSDate": chequeRTGSDate.toIso8601String(),
@@ -673,6 +742,7 @@ class BookingCubit extends Cubit<BookingState> {
       "OTP": otp,
     };
 
+    // Add applicant fields as string map
     for (int i = 0; i < addUpdateBookingApplicant.length; i++) {
       var e = addUpdateBookingApplicant[i];
       requestBody.addAll({
@@ -707,97 +777,80 @@ class BookingCubit extends Cubit<BookingState> {
       });
     }
 
+    // Prepare file list (no changes)
     List<Map<String, dynamic>> fileList = [];
-
     for (var applicantData in addUpdateBookingApplicant) {
       for (
         int i = 0;
         i < applicantData.profilePhotoImage.fileNameList.length;
         i++
       ) {
-        if (applicantData.profilePhotoImage.fileNameList[i].contains("http")) {
+        if (applicantData.profilePhotoImage.fileNameList[i].contains("http"))
           continue;
-        }
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].PhotoURL",
           "value": applicantData.profilePhotoImage.fileBytesList[i],
           "fileName": applicantData.profilePhotoImage.fileNameList[i],
         });
       }
-
       for (int i = 0; i < applicantData.aadhaarImage.fileNameList.length; i++) {
-        if (applicantData.aadhaarImage.fileNameList[i].contains("http")) {
+        if (applicantData.aadhaarImage.fileNameList[i].contains("http"))
           continue;
-        }
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].AadharCardURL",
           "value": applicantData.aadhaarImage.fileBytesList[i],
           "fileName": applicantData.aadhaarImage.fileNameList[i],
         });
       }
-
       for (int i = 0; i < applicantData.panImage.fileNameList.length; i++) {
-        if (applicantData.panImage.fileNameList[i].contains("http")) {
-          continue;
-        }
+        if (applicantData.panImage.fileNameList[i].contains("http")) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].PanCardURL",
           "value": applicantData.panImage.fileBytesList[i],
           "fileName": applicantData.panImage.fileNameList[i],
         });
       }
-
       for (
         int i = 0;
         i < applicantData.passportImage.fileNameList.length;
         i++
       ) {
-        if (applicantData.passportImage.fileNameList[i].contains("http")) {
+        if (applicantData.passportImage.fileNameList[i].contains("http"))
           continue;
-        }
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].PassportURL",
           "value": applicantData.passportImage.fileBytesList[i],
           "fileName": applicantData.passportImage.fileNameList[i],
         });
       }
-
       for (
         int i = 0;
         i < applicantData.drivingLicenseImage.fileNameList.length;
         i++
       ) {
-        if (applicantData.drivingLicenseImage.fileNameList[i].contains(
-          "http",
-        )) {
+        if (applicantData.drivingLicenseImage.fileNameList[i].contains("http"))
           continue;
-        }
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].DrivingLicenseURL",
           "value": applicantData.drivingLicenseImage.fileBytesList[i],
           "fileName": applicantData.drivingLicenseImage.fileNameList[i],
         });
       }
-
       for (
         int i = 0;
         i < applicantData.votingIdImage.fileNameList.length;
         i++
       ) {
-        if (applicantData.votingIdImage.fileNameList[i].contains("http")) {
+        if (applicantData.votingIdImage.fileNameList[i].contains("http"))
           continue;
-        }
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].VotingIdURL",
           "value": applicantData.votingIdImage.fileBytesList[i],
           "fileName": applicantData.votingIdImage.fileNameList[i],
         });
       }
-
       for (int i = 0; i < applicantData.gstImage.fileNameList.length; i++) {
-        if (applicantData.gstImage.fileNameList[i].contains("http")) {
-          continue;
-        }
+        if (applicantData.gstImage.fileNameList[i].contains("http")) continue;
         fileList.add({
           "key": "AddUpdateBookingApplicant[$i].GstNumberURL",
           "value": applicantData.gstImage.fileBytesList[i],
@@ -806,24 +859,27 @@ class BookingCubit extends Cubit<BookingState> {
       }
     }
 
+    // Call repository
     var updateResult = await _bookingRepository.addUpdateBooking(
       body: requestBody,
       fileList: fileList,
     );
+
     goRouter.pop();
+
     updateResult.fold(
       (failure) async {
         await showErrorMessage(context, 'Error Message', failure.message);
         return;
       },
       (response) {
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: 'Booking Updated Successfully');
       },
     );
   }
 
   // <---- GET PAYMENT SCHEDULE MASTER LIST ---->
-  Future getPaymentScheduleMasterList(
+  Future<bool> getPaymentScheduleMasterList(
     BuildContext context,
     int pageNumber, {
     required int paymentScheduleSchemeMasterId,
@@ -850,16 +906,16 @@ class BookingCubit extends Cubit<BookingState> {
       queryParams: queryParams,
     );
 
-    result.fold(
+    return result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
+        return false;
       },
       (response) {
         final List<PaymentScheduleMasterModel> masterList =
             List<PaymentScheduleMasterModel>.from(response['data'] ?? []);
 
-        /// Convert Master → Booking Model
         final List<BookingPaymentScheduleData> newData =
             masterList.asMap().entries.map((entry) {
               int index = entry.key;
@@ -867,9 +923,7 @@ class BookingCubit extends Cubit<BookingState> {
 
               final amount =
                   (agreementValue * master.paymentSchedulePercentage) / 100;
-
               final gstAmount = (amount * agreementValueGST) / 100;
-
               final tdsAmount = (amount * agreementValueTds) / 100;
 
               return BookingPaymentScheduleData(
@@ -896,11 +950,11 @@ class BookingCubit extends Cubit<BookingState> {
           state.copyWith(
             bookingPaymentScheduleList: updatedList,
             isLoading: false,
-            // totalCumulativePercentage: calculateTotalCumulative(updatedList),
             totalNumberOfRecord: response["totalNumberOfRecord"],
             currentPage: pageNumber,
           ),
         );
+        return true;
       },
     );
   }
@@ -937,6 +991,14 @@ class BookingCubit extends Cubit<BookingState> {
     emit(state.copyWith(bookingPaymentScheduleList: paymentScheduleList));
   }
 
+  void updateOtherChargesList(List<OtherChargeModel> otherChargeList) {
+    emit(state.copyWith(otherChargesList: otherChargeList));
+  }
+
+  void clearPaymentScheduleList() {
+    emit(state.copyWith(bookingPaymentScheduleList: []));
+  }
+
   void onUpdateBookingAmount({
     required double agreementValue,
     required double agreementValueTds,
@@ -967,5 +1029,68 @@ class BookingCubit extends Cubit<BookingState> {
           );
         }).toList();
     emit(state.copyWith(bookingPaymentScheduleList: newData));
+  }
+
+  // Inside BookingCubit
+  double get cumulativePercentage {
+    return state.bookingPaymentScheduleList.fold(
+      0.0,
+      (sum, item) => sum + item.paymentSchedulePercentage,
+    );
+  }
+
+  double get remainingPercentage {
+    final total = cumulativePercentage;
+    return (100 - total).clamp(0, 100); // Ensure no negative value
+  }
+
+  // <---- DELETE PAYMENT SCHEDULE  ---->
+  Future deletePaymentSchedule(int index, BuildContext context) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    goRouter.pop();
+    final updatedList = List<BookingPaymentScheduleData>.from(
+      state.bookingPaymentScheduleList,
+    );
+    updatedList.removeAt(index);
+
+    emit(state.copyWith(bookingPaymentScheduleList: updatedList));
+  }
+
+  Future cancelBooking(
+    int index,
+    BookingModel bookingModel,
+    BuildContext context,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _bookingRepository.cancelBooking(
+      bookingId: bookingModel.bookingId,
+      uniqueKey: bookingModel.uniquekey,
+      inventoryFlatId: bookingModel.inventoryFlatId,
+      parkingId: bookingModel.parkingId,
+      projectId: bookingModel.projectId,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+        return;
+      },
+      (success) {
+        final updatedList = List<BookingModel>.from(state.bookingList);
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            bookingList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
+        showSuccessMessage(context, subTitle: "Booking Cancelled Successfully");
+      },
+    );
   }
 }

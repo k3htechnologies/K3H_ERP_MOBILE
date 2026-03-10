@@ -27,7 +27,7 @@ class InventoryCubit extends Cubit<InventoryState> {
     if (_isApiCallInProgress) {
       return;
     }
-    
+
     // If we have data and are loading, don't call again
     if (state.isLoading == true && state.buildingList.isNotEmpty) {
       return;
@@ -35,16 +35,12 @@ class InventoryCubit extends Cubit<InventoryState> {
 
     _isApiCallInProgress = true;
     // Reset currentTabIndex and clear building list when project changes
-    emit(state.copyWith(
-      isLoading: true,
-      buildingList: [],
-      currentTabIndex: 0,
-    ));
+    emit(state.copyWith(isLoading: true, buildingList: [], currentTabIndex: 0));
     final result = await _inventoryRepository.getInventory(
       projectId: projectId,
     );
     _isApiCallInProgress = false;
-    
+
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -186,34 +182,34 @@ class InventoryCubit extends Cubit<InventoryState> {
 
   // DELETE INVENTORY FLAT
   Future deleteInventoryFlat(
-      BuildContext context,
-      int floorIndex,
-      int wingIndex,
-      int buildingIndex,
-      int flatIndex, {
-        required int projectId,
-        required int inventoryBuildingId,
-        required int inventoryFlatFloorBasementPodiumWingId,
-        required int inventoryFloorId,
-        required int inventoryFlat,
-      }) async {
+    BuildContext context,
+    int floorIndex,
+    int wingIndex,
+    int buildingIndex,
+    int flatIndex, {
+    required int projectId,
+    required int inventoryBuildingId,
+    required int inventoryFlatFloorBasementPodiumWingId,
+    required int inventoryFloorId,
+    required int inventoryFlat,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
     var deleteResult = await _inventoryRepository.deleteInventoryFlat(
       projectId: projectId,
       inventoryFloorId: inventoryFloorId,
       inventoryBuildingId: inventoryBuildingId,
       inventoryFlatFloorBasementPodiumWingId:
-      inventoryFlatFloorBasementPodiumWingId,
+          inventoryFlatFloorBasementPodiumWingId,
       inventoryFlatId: inventoryFlat,
     );
     goRouter.pop();
     deleteResult.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-          (response) async {
+      (response) async {
         showSuccessMessage(context, subTitle: "Unit Deleted Successfully");
         await getInventory(context, projectId);
       },
@@ -248,5 +244,35 @@ class InventoryCubit extends Cubit<InventoryState> {
 
   void onTabChanged(int index, BuildContext context) {
     emit(state.copyWith(currentTabIndex: index));
+  }
+
+  void updateFlatStatus({
+    required int inventoryFlatId,
+    required String flatStatus,
+  }) {
+    final updatedBuildingList =
+        state.buildingList.map((building) {
+          final updatedWingList =
+              building.wingList.map((wing) {
+                final updatedFloorList =
+                    wing.floorList.map((floor) {
+                      final updatedFlatList =
+                          floor.flatList.map((flat) {
+                            if (flat.inventoryFlatId == inventoryFlatId) {
+                              return flat.copyWith(flatStatus: flatStatus);
+                            }
+                            return flat;
+                          }).toList();
+
+                      return floor.copyWith(flatList: updatedFlatList);
+                    }).toList();
+
+                return wing.copyWith(floorList: updatedFloorList);
+              }).toList();
+
+          return building.copyWith(wingList: updatedWingList);
+        }).toList();
+
+    emit(state.copyWith(buildingList: updatedBuildingList));
   }
 }

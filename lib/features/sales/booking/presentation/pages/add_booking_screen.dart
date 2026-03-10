@@ -3,10 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
-import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_bank_details_screen.dart';
+import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_applicant_screen.dart';
@@ -17,6 +18,8 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -30,7 +33,6 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/sales/other_charges/data/model/other_charges.model.dart';
 
 class AddBookingScreen extends StatefulWidget {
   final List<Map<String, dynamic>>? inventoryObject;
@@ -73,8 +75,15 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       _termsAndConditionDescriptionC,
       _bookingAmountC,
       _chequeNoC,
-      _otpController;
-
+      _otpController,
+      _referencePercentageC,
+      _referenceAmountC,
+      _employeeRefPercentageC,
+      _employeeRefAmountC,
+      _loyaltyPercentageC,
+      _loyaltyAmountC,
+      _brokeragePercentageC,
+      _brokerageAmountC;
   // AGREEMENT VALUE NOTIFIER
   final ValueNotifier<double> _agreementValueNotifier = ValueNotifier<double>(
     0.0,
@@ -160,8 +169,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       ValueNotifier([]);
 
   // LOCAL COPY OF OTHER CHARGES (editable by UI, not tied to cubit)
-  final ValueNotifier<List<OtherChargeModel>> _localOtherCharges =
-      ValueNotifier<List<OtherChargeModel>>([]);
+  // final ValueNotifier<List<OtherChargeModel>> _localOtherCharges =
+  //     ValueNotifier<List<OtherChargeModel>>([]);
 
   // BANK SELECTION
   final ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier =
@@ -184,6 +193,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   late ValueNotifier<List<Map<String, dynamic>>> schemeListNotifier;
   late ValueNotifier<Map<String, dynamic>> selectedScheme;
+
+  // MANUAL PAYMENT SCHEDULE HANDLER
+  bool isAutoPaymentSchedule = false;
   @override
   void initState() {
     super.initState();
@@ -196,13 +208,14 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _selectedHandOverType = handOverTypeList.first;
     _selectedFundingSource = fundingSourceList.first;
     _agreementValueNotifier.addListener(_calculateTds);
-
-    // OTHER CHARGES
-    _bookingCubit.getOtherChargesList(context, 1, _project.projectId);
+    schemeListNotifier = ValueNotifier([]);
+    selectedScheme = ValueNotifier({});
 
     if (_isEditMode) {
       final bm = widget.bookingModel!;
-      _prefill(bm);
+      loadPaymentScheduleSchemes().then((_) {
+        _prefill(bm);
+      });
 
       // subscribe to cubit to listen for enquiryListById results (to fill enquiry unique code)
       _bookingSubscription = _bookingCubit.stream.listen((state) {
@@ -228,10 +241,16 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             .getEnquiryListById(context, 1, _project.projectId, bm.enquiryId)
             .whenComplete(() => _isFetchingEnquiry.value = false);
       }
+    } else {
+      loadPaymentScheduleSchemes();
+      // OTHER CHARGES
+      _bookingCubit.getOtherChargesList(
+        context,
+        1,
+        _project.projectId,
+        widget.inventoryObject?[0]["reraCarpetAreaSqFt"],
+      );
     }
-    schemeListNotifier = ValueNotifier([]);
-    selectedScheme = ValueNotifier({});
-    loadPaymentScheduleSchemes();
   }
 
   @override
@@ -245,7 +264,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _agreementGstAmountNotifier.dispose();
     _stampDutyAmountNotifier.dispose();
     _registrationFeesNotifier.dispose();
-    _localOtherCharges.dispose();
     _bookingSubscription?.cancel();
     _isFetchingEnquiry.dispose();
     _otpController.dispose();
@@ -278,6 +296,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _bookingAmountC = TextEditingController();
     _chequeNoC = TextEditingController();
     _otpController = TextEditingController();
+    _referencePercentageC = TextEditingController();
+    _referenceAmountC = TextEditingController();
+
+    _employeeRefPercentageC = TextEditingController();
+    _employeeRefAmountC = TextEditingController();
+
+    _loyaltyPercentageC = TextEditingController();
+    _loyaltyAmountC = TextEditingController();
+
+    _brokeragePercentageC = TextEditingController();
+    _brokerageAmountC = TextEditingController();
   }
 
   // Prefill form from booking model
@@ -305,10 +334,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _remarkC.text = bm.flatAlterationRemark;
     _termsAndConditionDescriptionC.text = bm.termsAndConditionsDescription;
 
-    // Other charges - initialize local editable copy
-    _localOtherCharges.value = List<OtherChargeModel>.from(
-      bm.bookingOtherChargesData,
-    );
+    // Other charges
+    _bookingCubit.updateOtherChargesList(bm.bookingOtherChargesData);
 
     // Parking - convert to select maps
     if (bm.parkingData.isNotEmpty) {
@@ -334,6 +361,27 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         {"zAttributesId": bm.bankListMasterId, "DisplayName": bm.bankName},
       ];
     }
+    _bookingCubit.updatePaymentScheduleList(bm.bookingPaymentScheduleData);
+    _selectedHandOverType = handOverTypeList.firstWhere(
+      (item) => item["DisplayName"] == bm.handoverType,
+      orElse: () => handOverTypeList.first,
+    );
+    _referencePercentageC.text = bm.referelPercentage.toString();
+    _referenceAmountC.text = bm.referelAmount.toString();
+
+    _employeeRefPercentageC.text = bm.employeeReferencePercentage.toString();
+    _employeeRefAmountC.text = bm.employeeReferenceAmount.toString();
+
+    _loyaltyPercentageC.text = bm.loyaltyPercentage.toString();
+    _loyaltyAmountC.text = bm.loyaltyAmount.toString();
+
+    _brokeragePercentageC.text = bm.brokeragePercentage.toString();
+    _brokerageAmountC.text = bm.brokerageAmount.toString();
+    selectedScheme.value = schemeListNotifier.value.firstWhere(
+      (item) => item["DisplayName"] == bm.paymentScheduleScheme,
+      orElse: () => {},
+    );
+    print("SelectedScheme: ${schemeListNotifier.value}");
   }
 
   // DISPOSE TEXT CONTROLLERS
@@ -353,6 +401,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _termsAndConditionDescriptionC.dispose();
     _bookingAmountC.dispose();
     _chequeNoC.dispose();
+    _referencePercentageC.dispose();
+    _referenceAmountC.dispose();
+
+    _employeeRefPercentageC.dispose();
+    _employeeRefAmountC.dispose();
+
+    _loyaltyPercentageC.dispose();
+    _loyaltyAmountC.dispose();
+
+    _brokeragePercentageC.dispose();
+    _brokerageAmountC.dispose();
   }
 
   // CALCULATE TDS
@@ -498,8 +557,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _applicants.value = currentApplicants;
   }
 
-  Future<void> _openPaymentScheduleForm() async {
-    final result = await Navigator.push<BookingPaymentScheduleData?>(
+  Future<void> _openPaymentScheduleForm({int? index}) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder:
@@ -509,25 +568,15 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               inventoryFlatFloorBasementPodiumWingId:
                   widget
                       .inventoryObject?[0]["inventoryFlatFloorBasementPodiumWingId"],
-              agreementValue: _agreementValueNotifier.value, // Agreement value
-              agreementValueGST:
-                  _agreementGstAmountNotifier.value, // GST amount
-              agreementValueTds: _tdsNotifier.value, // TDS amount
-              currentSchedulesList:
-                  _bookingCubit.state.bookingPaymentScheduleList,
+              agreementValue: _agreementValueNotifier.value,
+              agreementValueGST: _agreementGstAmountNotifier.value,
+              agreementValueTds: _tdsNotifier.value,
+              index: index,
             ),
       ),
     );
 
-    if (result == null) return;
-
-    final currentSchedules = List<BookingPaymentScheduleData>.from(
-      _bookingCubit.state.bookingPaymentScheduleList,
-    );
-
-    currentSchedules.add(result);
-
-    _bookingCubit.updatePaymentScheduleList(currentSchedules);
+    isAutoPaymentSchedule = false;
   }
 
   // DELETE APPLICANT
@@ -713,32 +762,22 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       query: null,
     );
     return result.fold(
-      (failure) {
-        return {"itemList": [], "totalNumberOfRecord": 0};
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
       },
       (response) {
-        final data = response['data'] as List? ?? [];
-        final banks =
-            data
-                .map(
-                  (e) => Map<String, dynamic>.from(e as Map<String, dynamic>),
-                )
-                .toList();
-        final Map<int, Map<String, dynamic>> unique = {};
-        for (final b in banks) {
-          final id =
-              b['BankListMasterId'] is int
-                  ? b['BankListMasterId'] as int
-                  : int.tryParse(b['BankListMasterId'].toString()) ?? -1;
-          unique[id] = {
-            "zAttributesId": id,
-            "DisplayName": b['BankNameWithCode'],
-          };
-        }
-        final total = response['totalNumberOfRecord'] ?? unique.length;
+        final project = response['data'] as List<BankListMasterModel>;
+
         return {
-          "itemList": unique.values.toList(),
-          "totalNumberOfRecord": total,
+          "itemList":
+              project.map((pr) {
+                return {
+                  "zAttributesId": pr.bankListMasterId,
+                  "DisplayName": pr.bankNameWithCode,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
       },
     );
@@ -782,15 +821,28 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       _remarkFormKey.currentState?.validate();
     }
     // Now decide where to go
-
     if (!detailsValid) {
       _tabController.animateTo(0);
       return false;
     }
+    if (_applicants.value.isEmpty) {
+      _tabController.animateTo(0);
+      showErrorMessage(context, "", "Add Applicant");
+      return false;
+    }
+    bool hasApplicantType = _applicants.value.any(
+      (a) => a.applicantType == "Applicant",
+    );
 
-    if (!rankingValid) {
+    if (!hasApplicantType) {
+      _tabController.animateTo(0);
+      showErrorMessage(context, "", "Add Primary Applicant");
+      return false;
+    }
+    if (!rankingValid &&
+        _bookingCubit.state.bookingPaymentScheduleList.isEmpty) {
       _tabController.animateTo(2);
-      showErrorMessage(context, "", "Ranking cannot be 0");
+      showErrorMessage(context, "", "Add Payment Schedule Details");
       return false;
     }
 
@@ -837,6 +889,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   (scheme) => <String, dynamic>{
                     "zAttributesId": scheme.paymentScheduleSchemeMasterId,
                     "DisplayName": scheme.paymentScheduleSchemeName,
+                    "inventoryFlatFloorBasementPodiumWingId":
+                        scheme.inventoryFlatFloorBasementPodiumWingId,
+                    "inventoryBuildingId": scheme.inventoryBuildingId,
                   },
                 )
                 .toList();
@@ -850,6 +905,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       },
     );
   }
+
+  String get selectedParkings => _selectedParkingNotifier.value
+      .map((v) => v["zAttributesId"].toString())
+      .toSet()
+      .join(",");
 
   // SUBMIT BOOKING FORM
   void _submitForm() async {
@@ -875,79 +935,190 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         );
       },
       onVerifyOTP: () async {
-        //TODO: NEED CONFORMATION
-        await _bookingCubit.addBooking(
-          context: context,
+        final enquiry =
+            _bookingCubit.state.enquiryList.isNotEmpty
+                ? _bookingCubit.state.enquiryList.first
+                : _bookingCubit.state.enquiryListById.first;
 
-          projectId: getProject().projectId,
-          enquiryId:
-              _isEditMode
-                  ? widget.bookingModel!.enquiryId
-                  : _bookingCubit.state.enquiryList.isNotEmpty
-                  ? _bookingCubit.state.enquiryList.first.enquiryId
-                  : _bookingCubit.state.enquiryListById.first.enquiryId,
+        // COMMISSION VARIABLE
+        double brokeragePercentage = 0.0, brokerageAmount = 0.0;
+        double referencePercentage = 0.0, referenceAmount = 0.0;
+        double employeeRefPercentage = 0.0, employeeRefAmount = 0.0;
+        double loyaltyPercentage = 0.0, loyaltyAmount = 0.0;
 
-          permanentAddress: _permanentAddressC.text.trim(),
-          communicationAddress: _communicationAddressC.text.trim(),
+        //SET BASED ON ENQUIRY TYPE (SOURCE)
+        switch (enquiry.subSource) {
+          case "Reference":
+            referencePercentage =
+                double.tryParse(_referencePercentageC.text) ?? 0.0;
+            referenceAmount = double.tryParse(_referenceAmountC.text) ?? 0.0;
+            break;
+          case "Employee Reference":
+            employeeRefPercentage =
+                double.tryParse(_employeeRefPercentageC.text) ?? 0.0;
+            employeeRefAmount =
+                double.tryParse(_employeeRefAmountC.text) ?? 0.0;
+            break;
+          case "Loyalty":
+            loyaltyPercentage =
+                double.tryParse(_loyaltyPercentageC.text) ?? 0.0;
+            loyaltyAmount = double.tryParse(_loyaltyAmountC.text) ?? 0.0;
+            break;
+        }
 
-          brokeragePercentage: 0.0,
+        if (enquiry.source == "Channel Partner") {
+          brokeragePercentage =
+              double.tryParse(_brokeragePercentageC.text) ?? 0.0;
+          brokerageAmount = double.tryParse(_brokerageAmountC.text) ?? 0.0;
+        }
 
-          brokerageAmount: 0.0,
+        final registrationDate =
+            _selectedExpectedRegistrationDate ?? DateTime.now();
+        final chequeDate = _selectedChequeDate;
+        final parkingId = selectedParkings;
+        final modeOfPayment = _selectedFundingSource['DisplayName'] ?? "";
+        final handoverType = _selectedHandOverType['DisplayName'] ?? "";
+        final inventoryFlatId =
+            widget.inventoryObject?[0]['inventoryFlatId'] ?? 0;
+        final bankId =
+            _selectedBankNotifier.value.isNotEmpty
+                ? _selectedBankNotifier.value.first['zAttributesId']
+                : null;
 
-          inventoryFlatId: widget.inventoryObject?[0]['inventoryFlatId'],
+        if (_isEditMode) {
+          await _bookingCubit.updateBooking(
+            context: context,
+            index: widget.index!,
+            bookingId: widget.bookingModel!.bookingId,
+            uniqueKey: widget.bookingModel!.uniquekey,
+            projectId: _project.projectId,
+            enquiryId:
+                _bookingCubit.state.enquiryList.isNotEmpty
+                    ? _bookingCubit.state.enquiryList.first.enquiryId
+                    : _bookingCubit.state.enquiryListById.first.enquiryId,
+            permanentAddress: _permanentAddressC.text.trim(),
+            communicationAddress: _communicationAddressC.text.trim(),
+            brokeragePercentage: brokeragePercentage,
+            brokerageAmount: brokerageAmount,
+            referelPercentage: referencePercentage,
+            referelAmount: referenceAmount,
+            employeeReferencePercentage: employeeRefPercentage,
+            employeeReferenceAmount: employeeRefAmount,
+            loyaltyPercentage: loyaltyPercentage,
+            loyaltyAmount: loyaltyAmount,
+            inventoryFlatId: inventoryFlatId,
+            agreementValue: _agreementValueNotifier.value,
+            agreementValueTds: _tdsNotifier.value,
+            agreementValueGSTPercentage:
+                double.tryParse(_agreementGstPercentageC.text) ?? 0.0,
+            agreementValueGSTAmount: _agreementGstAmountNotifier.value,
+            stampDutyPercentage:
+                double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
+            stampDutyAmount: _stampDutyAmountNotifier.value,
+            registrationFees: _registrationFeesNotifier.value,
+            parkingId: parkingId,
+            handoverType: handoverType,
+            registrationDate: registrationDate,
+            modeOfPayment: modeOfPayment,
+            flatAlterationRemark: _remarkC.text.trim(),
+            termsAndConditionsDescription:
+                _termsAndConditionDescriptionC.text.trim(),
+            bookingType: 'FLAT',
+            otherChargesDetailJSON: _bookingCubit.state.otherChargesList,
+            paymentScheduleDetailJSON:
+                _bookingCubit.state.bookingPaymentScheduleList,
+            bookingAmount: double.tryParse(_bookingAmountC.text) ?? 0.0,
+            chequeRTGSNumber: _chequeNoC.text.trim(),
+            chequeRTGSDate: chequeDate,
+            bankListMasterId: bankId,
+            transferBookingId: null,
+            tenantId: 0,
+            otp: _otpController.text.trim(),
+            addUpdateBookingApplicant: _applicants.value,
+          );
+        } else {
+          await _bookingCubit.addBooking(
+            context: context,
+            projectId: _project.projectId,
+            enquiryId:
+                _bookingCubit.state.enquiryList.isNotEmpty
+                    ? _bookingCubit.state.enquiryList.first.enquiryId
+                    : _bookingCubit.state.enquiryListById.first.enquiryId,
+            permanentAddress: _permanentAddressC.text.trim(),
+            communicationAddress: _communicationAddressC.text.trim(),
+            brokeragePercentage: brokeragePercentage,
+            brokerageAmount: brokerageAmount,
+            referelPercentage: referencePercentage,
+            referelAmount: referenceAmount,
+            employeeReferencePercentage: employeeRefPercentage,
+            employeeReferenceAmount: employeeRefAmount,
+            loyaltyPercentage: loyaltyPercentage,
+            loyaltyAmount: loyaltyAmount,
+            inventoryFlatId: inventoryFlatId,
+            agreementValue: _agreementValueNotifier.value,
+            agreementValueTds: _tdsNotifier.value,
+            agreementValueGSTPercentage:
+                double.tryParse(_agreementGstPercentageC.text) ?? 0.0,
+            agreementValueGSTAmount: _agreementGstAmountNotifier.value,
+            stampDutyPercentage:
+                double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
+            stampDutyAmount: _stampDutyAmountNotifier.value,
+            registrationFees: _registrationFeesNotifier.value,
+            parkingId: parkingId,
+            handoverType: handoverType,
+            registrationDate: registrationDate,
+            modeOfPayment: modeOfPayment,
+            flatAlterationRemark: _remarkC.text.trim(),
+            termsAndConditionsDescription:
+                _termsAndConditionDescriptionC.text.trim(),
+            bookingType: 'FLAT',
+            otherChargesDetailJSON: _bookingCubit.state.otherChargesList,
 
-          agreementValue: _agreementValueNotifier.value,
-
-          agreementValueTds: _tdsNotifier.value,
-
-          agreementValueGSTPercentage:
-              double.tryParse(_agreementGstPercentageC.text) ?? 0.0,
-
-          agreementValueGSTAmount: _agreementGstAmountNotifier.value,
-
-          stampDutyPercentage:
-              double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
-
-          stampDutyAmount: _stampDutyAmountNotifier.value,
-
-          registrationFees: _registrationFeesNotifier.value,
-
-          parkingId: null,
-          handoverType: _selectedHandOverType['DisplayName'] ?? "",
-
-          registrationDate: _selectedExpectedRegistrationDate ?? DateTime.now(),
-
-          modeOfPayment: _selectedFundingSource['DisplayName'] ?? "",
-
-          flatAlterationRemark: _remarkC.text.trim(),
-
-          termsAndConditionsDescription:
-              _termsAndConditionDescriptionC.text.trim(),
-
-          bookingType: 'FLAT',
-
-          otherChargesDetailJSON: _localOtherCharges.value,
-
-          paymentScheduleDetailJSON:
-              _bookingCubit.state.bookingPaymentScheduleList,
-          bookingAmount: double.tryParse(_bookingAmountC.text) ?? 0.0,
-
-          chequeRTGSNumber: _chequeNoC.text.trim(),
-
-          chequeRTGSDate: _selectedChequeDate,
-
-          bankListMasterId: null,
-
-          transferBookingId: null,
-          tenantId: 0,
-
-          otp: _otpController.text.trim(),
-          addUpdateBookingApplicant: _applicants.value,
-        );
-
+            paymentScheduleDetailJSON:
+                _bookingCubit.state.bookingPaymentScheduleList,
+            bookingAmount: double.tryParse(_bookingAmountC.text) ?? 0.0,
+            chequeRTGSNumber: _chequeNoC.text.trim(),
+            chequeRTGSDate: chequeDate,
+            bankListMasterId: bankId,
+            transferBookingId: null,
+            tenantId: 0,
+            otp: _otpController.text.trim(),
+            addUpdateBookingApplicant: _applicants.value,
+            buildingIndex: widget.inventoryObject?[0]["buildingIndex"],
+            wingIndex: widget.inventoryObject?[0]["wingIndex"],
+            floorIndex: widget.inventoryObject?[0]["floorIndex"],
+            flatIndex: widget.inventoryObject?[0]["flatIndex"],
+          );
+        }
         goRouter.pop();
       },
     );
+  }
+
+  Future<void> _showPopupToDeletePaymentScheduleMaster(
+    BuildContext context,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete this payment schedule?',
+      'Deleting this payment schedule will permanently remove it.',
+    );
+
+    if (result && context.mounted) {
+      _bookingCubit.deletePaymentSchedule(index, context);
+    }
+  }
+
+  void calculateAmount({
+    required double agreementAmount,
+    required TextEditingController percentController,
+    required TextEditingController amountController,
+  }) {
+    final percent = double.tryParse(percentController.text) ?? 0.0;
+    final amount = (agreementAmount * percent) / 100;
+
+    amountController.text = amount.toStringAsFixed(2);
   }
 
   @override
@@ -1023,31 +1194,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           child: CustomButton(
             text: "Save",
             onPressed: () async {
-              // TODO: NEED CONFIRMATION
-              _submitForm();
               if (await _validateAllTabs()) {
-                /*final formValues = {
-                  "enquiryUniqueCode": _enquiryUniqueCodeC.text,
-                  "permanentAddress": _permanentAddressC.text,
-                  "communicationAddress": _communicationAddressC.text,
-                  "agreementValueWithTds": _agreementValueWithTdsC.text,
-                  "tds": _tdsC.text,
-                  "agreementValueWithoutTds": _agreementValueWithoutTdsC.text,
-                  "agreementGstPercentage": _agreementGstPercentageC.text,
-                  "agreementGstAmount": _agreementGstAmountC.text,
-                  "stampDutyPercentage": _stampDutyPercentageC.text,
-                  "stampDutyAmount": _stampDutyAmountC.text,
-                  "registrationFees": _registrationFeesC.text,
-                  "remark": _remarkC.text,
-                  "selectedParking": _selectedParkingNotifier.value,
-                  "selectedTerms": _selectedTermsNotifier.value,
-                  "otherChargesLocal":
-                      _localOtherCharges.value.map((e) => e.toJson()).toList(),
-                  "selectedBanks": _selectedBankNotifier.value,
-                  "bookingAmount": _bookingAmountC.text,
-                  "chequeNo": _chequeNoC.text,
-                  "chequeDate": _selectedChequeDate?.toIso8601String(),
-                };*/
+                _submitForm();
               }
             },
           ),
@@ -1233,6 +1381,79 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                   ),
                                 ],
                               ),
+                            ),
+                            Column(
+                              children: [
+                                if (enquiry.subSource == "Reference")
+                                  infoCard([
+                                    {
+                                      "title": "Referral Name",
+                                      "value": enquiry.referelName,
+                                    },
+                                    {
+                                      "title": "Referral Mobile",
+                                      "value": enquiry.referelMobileNumber,
+                                    },
+                                    {
+                                      "title": "Referral Project",
+                                      "value": enquiry.referelProjectName,
+                                    },
+                                    {
+                                      "title": "Referral Unit No",
+                                      "value": enquiry.referelUnitNumber,
+                                    },
+                                  ]),
+
+                                if (enquiry.subSource == "Employee Reference")
+                                  infoCard([
+                                    {
+                                      "title": "Employee Name",
+                                      "value": enquiry.employeeReferenceName,
+                                    },
+                                    {
+                                      "title": "Employee Mobile",
+                                      "value":
+                                          enquiry.employeeReferenceMobileNumber,
+                                    },
+                                  ]),
+
+                                if (enquiry.subSource == "Loyalty")
+                                  infoCard([
+                                    {
+                                      "title": "Existing Project",
+                                      "value":
+                                          enquiry.loyaltyExistingProjectName,
+                                    },
+                                    {
+                                      "title": "Existing Unit No",
+                                      "value":
+                                          enquiry.loyaltyExistingUnitNumber,
+                                    },
+                                  ]),
+                                if (enquiry.source == "Channel Partner")
+                                  infoCard([
+                                    {
+                                      "title": "Channel Partner",
+                                      "value": enquiry.channelPartnerName,
+                                    },
+                                    {
+                                      "title": "CP Mobile",
+                                      "value":
+                                          enquiry.channelPartnerMobileNumber,
+                                    },
+                                    {
+                                      "title": "CP Team Member",
+                                      "value":
+                                          enquiry.channelPartnerTeamMemberName,
+                                    },
+                                    {
+                                      "title": "CP Team Mobile",
+                                      "value":
+                                          enquiry
+                                              .channelPartnerTeamMemberMobileNumber,
+                                    },
+                                  ]),
+                              ],
                             ),
                             verticalSpacing(),
                           ] else if (_enquiryUniqueCodeC.text.trim().length ==
@@ -1684,7 +1905,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         title: "Agreement GST (%)",
                         hint: "Enter Agreement GST Percentage",
                         textController: _agreementGstPercentageC,
-
+                        keyboardType: TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatterList: InputValidator.percentage(),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return "Agreement GST Percentage is required";
@@ -1716,6 +1940,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         isRequired: true,
                         title: "Stamp Duty (%)",
                         hint: "Enter Stamp Duty Percentage",
+                        keyboardType: TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatterList: InputValidator.percentage(),
                         textController: _stampDutyPercentageC,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
@@ -1754,6 +1982,62 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 ],
               ),
             ),
+            BlocBuilder<BookingCubit, BookingState>(
+              builder: (context, state) {
+                final enquiry =
+                    state.enquiryList.isNotEmpty
+                        ? state.enquiryList.first
+                        : (state.enquiryListById.isNotEmpty
+                            ? state.enquiryListById.first
+                            : null);
+
+                if (enquiry == null) return const SizedBox();
+
+                return Column(
+                  children: [
+                    if (enquiry.subSource == "Reference")
+                      commissionSection(
+                        title: "Referel Details",
+                        percentageTitle: "Referel",
+                        amountTitle: "Referel Amount",
+                        percentController: _referencePercentageC,
+                        amountController: _referenceAmountC,
+                        agreementNotifier: _agreementValueNotifier,
+                      ),
+
+                    if (enquiry.subSource == "Employee Reference")
+                      commissionSection(
+                        title: "Employee Reference Details",
+                        percentageTitle: "Employee Reference",
+                        amountTitle: "Employee Reference Amount",
+                        percentController: _employeeRefPercentageC,
+                        amountController: _employeeRefAmountC,
+                        agreementNotifier: _agreementValueNotifier,
+                      ),
+
+                    if (enquiry.subSource == "Loyalty")
+                      commissionSection(
+                        title: "Loyalty Details",
+                        percentageTitle: "Loyalty",
+                        amountTitle: "Loyalty Amount",
+                        percentController: _loyaltyPercentageC,
+                        amountController: _loyaltyAmountC,
+                        agreementNotifier: _agreementValueNotifier,
+                      ),
+
+                    if (enquiry.source == "Channel Partner")
+                      commissionSection(
+                        title: "Brokerage Details",
+                        percentageTitle: "Channel Partner Brokerage",
+                        amountTitle: "Brokerage Amount",
+                        percentController: _brokeragePercentageC,
+                        amountController: _brokerageAmountC,
+                        agreementNotifier: _agreementValueNotifier,
+                      ),
+                  ],
+                );
+              },
+            ),
             // OTHER DETAILS
             Container(
               decoration: commonCardDecoration(),
@@ -1770,8 +2054,16 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       return ValueListenableBuilder<List<Map<String, dynamic>>>(
                         valueListenable: _selectedParkingNotifier,
                         builder: (context, selectedBuilding, child) {
+                          final bool hasParkingSelected =
+                              selectedBuilding.isNotEmpty;
+
                           return CustomMultipleSelectPopup(
                             title: "Parking",
+                            key: ValueKey(
+                              hasParkingSelected
+                                  ? selectedBuilding.first['zAttributesId']
+                                  : 'empty',
+                            ),
                             isRequired: true,
                             isMultiSelect: true,
                             initialValue: selectedBuilding,
@@ -1810,6 +2102,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   CustomDropDownWidget(
                     title: "Handover Type",
                     isRequired: true,
+                    initialValue: _selectedHandOverType,
                     dataList: handOverTypeList,
                     onSelected: (value) {
                       _selectedHandOverType = value;
@@ -1869,74 +2162,71 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       child: BlocBuilder<BookingCubit, BookingState>(
         builder: (context, state) {
           // Initialize local copy only once when cubit returns data
-          if (state.otherChargesList.isNotEmpty &&
-              _localOtherCharges.value.isEmpty) {
-            _localOtherCharges.value =
-                state.otherChargesList.map((e) => e).toList();
-          }
 
-          if (_localOtherCharges.value.isEmpty) {
+          if (state.otherChargesList.isEmpty) {
             return Center(child: Text("No Charges Available"));
           }
 
-          return ValueListenableBuilder<List<OtherChargeModel>>(
-            valueListenable: _localOtherCharges,
-            builder: (context, localList, child) {
-              return ListView.builder(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                shrinkWrap: true,
-                itemCount: localList.length,
-                itemBuilder: (_, index) {
-                  final oc = localList[index];
-                  return Container(
-                    decoration: commonCardDecoration(),
-                    margin: EdgeInsets.only(bottom: 10),
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      spacing: 10,
+          return ListView.builder(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            shrinkWrap: true,
+            itemCount: state.otherChargesList.length,
+            itemBuilder: (_, index) {
+              final oc = state.otherChargesList[index];
+              // final originalOc = state.originalOtherChargesList[index];
+
+              return Container(
+                decoration: commonCardDecoration(),
+                margin: EdgeInsets.only(bottom: 10),
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  spacing: 10,
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            Text(oc.chargeName, style: AppTextStyle.ts14M()),
-                            Spacer(),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                final updated = List<OtherChargeModel>.from(
-                                  localList,
-                                )..removeAt(index);
-                                _localOtherCharges.value = updated;
-                              },
-                            ),
-                          ],
+                        Text(oc.chargeName, style: AppTextStyle.ts14M()),
+                        Spacer(),
+                        CustomIconButton.delete(onPressed: () {}),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Calculated On",
+                          value: oc.calculatedOn,
                         ),
-                        Row(
-                          children: [
-                            buildColumnTitleValue(
-                              title: "Calculated On",
-                              value: oc.calculatedOn,
-                            ),
-                            buildColumnTitleValue(
-                              title: "Amount",
-                              value: "₹ ${oc.value}",
-                            ),
-                          ],
+                        // buildColumnTitleValue(
+                        //   title: "Value (₹)",
+                        //   value: addCommasToInteger(originalOc.value),
+                        // ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Amount (₹)",
+                          value: addCommasToInteger(oc.value),
                         ),
-                        Row(
-                          children: [
-                            buildColumnTitleValue(
-                              title: "GST(%)",
-                              value: "${oc.gstPercentage} %",
-                            ),
-                            buildColumnTitleValue(
-                              title: "GST Value",
-                              value: "₹ ${oc.gstValue}",
-                            ),
-                          ],
+                        buildColumnTitleValue(
+                          title: "GST(%)",
+                          value: "${oc.gstPercentage} %",
                         ),
                       ],
                     ),
-                  );
-                },
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "GST Value (₹)",
+                          value: addCommasToInteger(oc.gstValue),
+                        ),
+                        buildColumnTitleValue(
+                          title: "Total Value (₹)",
+                          value: addCommasToInteger(oc.value + oc.gstValue),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               );
             },
           );
@@ -1947,225 +2237,318 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // BUILD PAYMENT SCHEDULE
   Widget _buildPaymentSchedule() {
-    return Form(
-      key: _paymentScheduleFormKey,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ValueListenableBuilder<List<Map<String, dynamic>>>(
-              valueListenable: schemeListNotifier,
-              builder: (context, schemeList, _) {
-                return ValueListenableBuilder<Map<String, dynamic>>(
-                  valueListenable: selectedScheme,
-                  builder: (context, selectedValue, __) {
-                    return CustomDropDownWidget(
-                      title: "Payment Schedule Scheme",
-                      isRequired: true,
-                      dataList: schemeList,
-                      initialValue:
-                          selectedValue.isEmpty ? null : selectedValue,
-                      onSelected: (value) {
-                        if (selectedScheme.value["zAttributesId"] !=
-                            value["zAttributesId"]) {
-                          selectedScheme.value = value;
-                          _bookingCubit.getPaymentScheduleMasterList(
-                            context,
-                            1,
-                            paymentScheduleSchemeMasterId:
-                                selectedScheme.value["zAttributesId"],
-                            inventoryBuildingId:
-                                widget
-                                    .inventoryObject?[0]["inventoryBuildingId"],
-                            inventoryFlatFloorBasementPodiumWingId:
-                                widget
-                                    .inventoryObject?[0]["inventoryFlatFloorBasementPodiumWingId"],
-                            agreementValue: _agreementValueNotifier.value,
-                            agreementValueGST:
-                                _agreementGstAmountNotifier.value,
-                            agreementValueTds: _tdsNotifier.value,
-                          );
-                        }
-                      },
-                      validator: (value) {
-                        if (value == null ||
-                            value["zAttributesId"] == -1 ||
-                            value["zAttributesId"] == null) {
-                          return "Payment Schedule Scheme is required";
-                        }
-                        return null;
+    return BlocBuilder<BookingCubit, BookingState>(
+      builder: (context, state) {
+        final list = state.bookingPaymentScheduleList;
+
+        return Form(
+          key: _paymentScheduleFormKey,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                verticalSpacing(height: 20),
+                ValueListenableBuilder<List<Map<String, dynamic>>>(
+                  valueListenable: schemeListNotifier,
+                  builder: (context, schemeList, _) {
+                    return ValueListenableBuilder<Map<String, dynamic>>(
+                      valueListenable: selectedScheme,
+                      builder: (context, selectedValue, __) {
+                        return CustomDropDownWidget(
+                          title: "Payment Schedule Scheme",
+                          isRequired: true,
+                          dataList: schemeList,
+                          initialValue:
+                              selectedValue.isEmpty ? null : selectedValue,
+                          onSelected: (value) async {
+                            if (selectedScheme.value["zAttributesId"] !=
+                                value["zAttributesId"]) {
+                              selectedScheme.value = value;
+
+                              if (selectedScheme.value["DisplayName"] !=
+                                  'Other') {
+                                isAutoPaymentSchedule = await _bookingCubit
+                                    .getPaymentScheduleMasterList(
+                                      context,
+                                      1,
+                                      paymentScheduleSchemeMasterId:
+                                          selectedScheme.value["zAttributesId"],
+                                      inventoryBuildingId:
+                                          selectedScheme
+                                              .value["inventoryBuildingId"],
+                                      inventoryFlatFloorBasementPodiumWingId:
+                                          selectedScheme
+                                              .value["inventoryFlatFloorBasementPodiumWingId"],
+                                      agreementValue:
+                                          _agreementValueNotifier.value,
+                                      agreementValueGST:
+                                          _agreementGstAmountNotifier.value,
+                                      agreementValueTds: _tdsNotifier.value,
+                                    );
+                              } else {
+                                _bookingCubit.clearPaymentScheduleList();
+                              }
+                            }
+                          },
+                          validator: (value) {
+                            if (value == null ||
+                                value["zAttributesId"] == null) {
+                              return "Payment Schedule Scheme is required";
+                            }
+                            return null;
+                          },
+                        );
                       },
                     );
                   },
-                );
-              },
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Payment Schedule",
-                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                ),
+
+                /// Header Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Payment Schedule",
+                      style: AppTextStyle.ts14M(color: AppColor.grey),
+                    ),
+
+                    ValueListenableBuilder(
+                      valueListenable: selectedScheme,
+                      builder: (context, value, child) {
+                        if (_bookingCubit.cumulativePercentage == 100) {
+                          return RichText(
+                            text: TextSpan(
+                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                              children: [
+                                TextSpan(
+                                  text: "Total: ",
+                                  style: AppTextStyle.ts14M(),
+                                ),
+                                TextSpan(
+                                  text:
+                                      "${_bookingCubit.cumulativePercentage.toStringAsFixed(2)}%",
+                                  style: AppTextStyle.ts14M(
+                                    color: AppColor.green,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return Visibility(
+                          visible:
+                              (value['DisplayName'] == 'Other' &&
+                                  _bookingCubit.cumulativePercentage != 100),
+                          child: CustomButton(
+                            leading: const Icon(Icons.add, size: 16),
+                            text: "Add",
+                            onPressed: _openPaymentScheduleForm,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 ValueListenableBuilder(
                   valueListenable: selectedScheme,
                   builder: (context, value, child) {
-                    return Visibility(
-                      visible: value['DisplayName'] == 'Other',
-                      child: CustomButton(
-                        leading: const Icon(Icons.add, size: 16),
-                        text: "Add",
-                        onPressed: _openPaymentScheduleForm,
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            verticalSpacing(),
-            Expanded(
-              child: BlocBuilder<BookingCubit, BookingState>(
-                builder: (context, state) {
-                  final list = state.bookingPaymentScheduleList;
+                    // HIDE WHEN SCHEME IS NOT SELECTED
+                    if (selectedScheme.value.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
 
-                  if (state.isLoading! && list.isEmpty) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+                    // HIDE WHEN CUMULATIVE IS 100
+                    if (_bookingCubit.cumulativePercentage >= 100) {
+                      return const SizedBox.shrink();
+                    }
 
-                  if (list.isEmpty) {
-                    return Center(
-                      child: noDataWidget(
-                        message: "No Payment Schedule Available",
-                      ),
-                    );
-                  }
-
-                  return ReorderableListView.builder(
-                    itemCount: list.length,
-                    onReorder: (oldIndex, newIndex) {
-                      _bookingCubit.reorderPaymentSchedule(oldIndex, newIndex);
-                    },
-                    buildDefaultDragHandles: false,
-                    itemBuilder: (context, index) {
-                      final item = list[index];
-
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        key: ValueKey(item.name + index.toString()),
-                        spacing: 10,
-                        children: [
-                          ReorderableDragStartListener(
-                            index: index,
-                            child: Builder(
-                              builder: (context) {
-                                final toolTipKey = GlobalKey<TooltipState>();
-                                return GestureDetector(
-                                  onTap: () {
-                                    toolTipKey.currentState
-                                        ?.ensureTooltipVisible();
-                                  },
-                                  child: Tooltip(
-                                    key: toolTipKey,
-                                    triggerMode: TooltipTriggerMode.manual,
-                                    message: "Drag to reorder payment schedule",
-                                    child: CircleAvatar(
-                                      maxRadius: 15,
-                                      backgroundColor: AppColor.lightBlue,
-                                      child: Icon(
-                                        Icons.drag_handle,
-                                        color: AppColor.primary,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          Flexible(
-                            child: Container(
-                              key: ValueKey(item.name + index.toString()),
-                              margin: const EdgeInsets.only(bottom: 10),
-                              padding: const EdgeInsets.all(12),
-                              decoration: commonCardDecoration(),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                    return Column(
+                      children: [
+                        verticalSpacing(height: 5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            RichText(
+                              text: TextSpan(
+                                style: AppTextStyle.ts12M(color: AppColor.grey),
                                 children: [
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      /// Name
-                                      buildColumnTitleValue(
-                                        title: "Stage Name",
-                                        value: item.name,
-                                      ),
-
-                                      /// Ranking
-                                      buildColumnTitleValue(
-                                        title: "Ranking",
-                                        value: item.ranking.toString(),
-                                      ),
-                                    ],
-                                  ),
-                                  verticalSpacing(),
-                                  Row(
-                                    children: [
-                                      buildColumnTitleValue(
-                                        title: "Percentage (%)",
-                                        value:
-                                            "${item.paymentSchedulePercentage}",
-                                      ),
-                                      buildColumnTitleValue(
-                                        title: "Cumulative (%)",
-                                        value:
-                                            "${item.paymentCummulativePercentage}",
-                                      ),
-                                    ],
-                                  ),
-                                  verticalSpacing(),
-                                  Row(
-                                    children: [
-                                      buildColumnTitleValue(
-                                        title: "Amount (₹)",
-                                        value: addCommasToInteger(
-                                          item.paymentScheduleAmount,
-                                        ),
-                                      ),
-                                      buildColumnTitleValue(
-                                        title: "GST Amount (₹)",
-                                        value: addCommasToInteger(
-                                          item.paymentScheduleGSTAmount,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  verticalSpacing(),
-                                  Row(
-                                    children: [
-                                      buildColumnTitleValue(
-                                        title: "TDS Amount (₹)",
-                                        value: addCommasToInteger(
-                                          item.paymentScheduleTDSAmount,
-                                        ),
-                                      ),
-                                    ],
+                                  const TextSpan(text: "Total: "),
+                                  TextSpan(
+                                    text:
+                                        "${_bookingCubit.cumulativePercentage.toStringAsFixed(2)}%",
+                                    style: AppTextStyle.ts12M(
+                                      color: AppColor.green,
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
+                            RichText(
+                              text: TextSpan(
+                                style: AppTextStyle.ts12M(color: AppColor.grey),
+                                children: [
+                                  const TextSpan(text: "Missing: "),
+                                  TextSpan(
+                                    text:
+                                        "${_bookingCubit.remainingPercentage.toStringAsFixed(2)}%",
+                                    style: AppTextStyle.ts12M(
+                                      color: AppColor.red,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                verticalSpacing(height: 15),
+
+                /// List
+                Expanded(
+                  child: Builder(
+                    builder: (context) {
+                      if (state.isLoading! && list.isEmpty) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (list.isEmpty) {
+                        return Center(
+                          child: noDataWidget(
+                            message: "No Payment Schedule Available",
                           ),
-                        ],
+                        );
+                      }
+
+                      return ReorderableListView.builder(
+                        itemCount: list.length,
+                        onReorder: (oldIndex, newIndex) {
+                          _bookingCubit.reorderPaymentSchedule(
+                            oldIndex,
+                            newIndex,
+                          );
+                        },
+                        buildDefaultDragHandles: false,
+                        itemBuilder: (context, index) {
+                          final item = list[index];
+                          String stageName =
+                              item.type == 'Date'
+                                  ? DateFormat(
+                                    "dd-MM-yyyy",
+                                  ).format(item.date!).toString()
+                                  : item.name;
+                          return Row(
+                            key: ValueKey(item.name + index.toString()),
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ReorderableDragStartListener(
+                                index: index,
+                                child: CircleAvatar(
+                                  maxRadius: 15,
+                                  backgroundColor: AppColor.lightBlue,
+                                  child: Icon(
+                                    Icons.drag_handle,
+                                    color: AppColor.primary,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                              horizontalSpacing(),
+
+                              /// Card
+                              Flexible(
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: commonCardDecoration(),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "Stage Name",
+                                            value: stageName,
+                                          ),
+                                          if (!isAutoPaymentSchedule)
+                                            Row(
+                                              spacing: 10,
+                                              children: [
+                                                CustomIconButton.edit(
+                                                  onPressed: () {
+                                                    _openPaymentScheduleForm(
+                                                      index: index,
+                                                    );
+                                                  },
+                                                ),
+                                                CustomIconButton.delete(
+                                                  onPressed: () {
+                                                    _showPopupToDeletePaymentScheduleMaster(
+                                                      context,
+                                                      index,
+                                                    );
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                        ],
+                                      ),
+                                      verticalSpacing(),
+
+                                      Row(
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "Ranking",
+                                            value: item.ranking.toString(),
+                                          ),
+                                          buildColumnTitleValue(
+                                            title: "Cumulative (%)",
+                                            value:
+                                                "${item.paymentCummulativePercentage}",
+                                          ),
+                                        ],
+                                      ),
+
+                                      verticalSpacing(),
+
+                                      Row(
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "Percentage (%)",
+                                            value:
+                                                "${item.paymentSchedulePercentage}",
+                                          ),
+                                          buildColumnTitleValue(
+                                            title: "Amount (₹)",
+                                            value: addCommasToInteger(
+                                              item.paymentScheduleAmount,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       );
                     },
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -2310,6 +2693,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     isRequired: true,
                     title: "Booking Amount (₹)",
                     hint: "Enter Booking Amount",
+                    keyboardType: TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     textController: _bookingAmountC,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -2453,6 +2839,113 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Widget infoCard(List<Map<String, String>> items) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColor.lightBlue,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColor.primary, width: .5),
+      ),
+      child: Column(
+        children: List.generate((items.length / 2).ceil(), (index) {
+          final first = items[index * 2];
+          final second =
+              (index * 2 + 1 < items.length) ? items[index * 2 + 1] : null;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: buildColumnTitleValue(
+                    title: first["title"] ?? "",
+                    value: first["value"] ?? "-",
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child:
+                      second != null
+                          ? buildColumnTitleValue(
+                            title: second["title"] ?? "",
+                            value: second["value"] ?? "-",
+                          )
+                          : const SizedBox(),
+                ),
+              ],
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget commissionSection({
+    required String title,
+    required String percentageTitle,
+    required String amountTitle,
+    required TextEditingController percentController,
+    required TextEditingController amountController,
+    required ValueNotifier<double> agreementNotifier,
+  }) {
+    return ValueListenableBuilder<double>(
+      valueListenable: agreementNotifier,
+      builder: (context, agreementAmount, child) {
+        calculateAmount(
+          percentController: percentController,
+          amountController: amountController,
+          agreementAmount: agreementAmount,
+        );
+
+        return Container(
+          decoration: commonCardDecoration(),
+          margin: EdgeInsets.only(bottom: 10),
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: AppTextStyle.ts16SB()),
+              verticalSpacing(),
+
+              CustomTextField(
+                title: "$percentageTitle (%)",
+                hint: "Enter Percentage",
+                isRequired: true,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                inputFormatterList: InputValidator.percentage(),
+                textController: percentController,
+                onChangeFunction: (value) {
+                  calculateAmount(
+                    percentController: percentController,
+                    amountController: amountController,
+                    agreementAmount: agreementAmount,
+                  );
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter Percentage';
+                  }
+                  return null;
+                },
+              ),
+
+              CustomTextField(
+                readOnly: true,
+                isRequired: true,
+                title: "$amountTitle (₹)",
+                hint: "$title Amount",
+                textController: amountController,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

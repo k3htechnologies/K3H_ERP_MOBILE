@@ -94,7 +94,9 @@ class _BookingScreenState extends State<BookingScreen> {
         screenTitle: "Booking",
         authorization: _routhAuthorizationModel,
         textController: _searchC,
-        onSearchSubmit: (value) {},
+        onSearchSubmit: (value) {
+          _bookingCubit.searchBooking(context, value);
+        },
         onExportCallback: (value) {},
         onProjectChangeCallback: (value) {
           _project = value;
@@ -107,7 +109,9 @@ class _BookingScreenState extends State<BookingScreen> {
             return Center(child: loader());
           }
           if (state.bookingList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Booking Data Found"));
+            return Center(
+              child: noDataWidget(message: "No Booking Data Found"),
+            );
           }
           return ListView.builder(
             controller: scrollController,
@@ -180,8 +184,6 @@ class _BookingScreenState extends State<BookingScreen> {
                                 );
                               },
                             ),
-                            horizontalSpacing(),
-                            CustomIconButton.delete(onPressed: () {}),
                           ],
                         ),
                       ],

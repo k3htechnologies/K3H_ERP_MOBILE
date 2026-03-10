@@ -63,27 +63,50 @@ class InputValidator {
 
   static List<TextInputFormatter> percentage() {
     return [
-      // allow values like 0, 0., 0.5, 10.25, 100, 100.00
-      FilteringTextInputFormatter.allow(RegExp(r'^\d{0,3}(\.\d{0,2})?$')),
+      FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
 
-      // post-formatter to clamp value between 0 and 100
       TextInputFormatter.withFunction((oldValue, newValue) {
         final text = newValue.text;
 
-        // allow empty / typing stage
-        if (text.isEmpty || text == "." || text.endsWith(".")) {
+        // allow empty
+        if (text.isEmpty) return newValue;
+
+        // prevent multiple decimals
+        if (".".allMatches(text).length > 1) {
+          return oldValue;
+        }
+
+        // prevent decimal after 100
+        if (text.startsWith("100") && text.contains(".")) {
+          return oldValue;
+        }
+
+        // allow typing state like 10.
+        if (text.endsWith(".")) {
+          final value = int.tryParse(text.replaceAll(".", ""));
+          if (value != null && value >= 100) {
+            return oldValue;
+          }
           return newValue;
         }
 
         final value = double.tryParse(text);
         if (value == null) return oldValue;
 
-        // clamp between 0 and 100
+        // limit range
         if (value < 0 || value > 100) {
-          return oldValue; // reject
+          return oldValue;
         }
 
-        return newValue; // accept
+        // allow only 2 decimal places
+        if (text.contains(".")) {
+          final decimal = text.split(".")[1];
+          if (decimal.length > 2) {
+            return oldValue;
+          }
+        }
+
+        return newValue;
       }),
     ];
   }

@@ -106,7 +106,6 @@ String _formatCallDateForApi(DateTime dt) {
 }
 
 Future<void> main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
 
   await requestPhonePermission();
@@ -137,7 +136,6 @@ Future<void> main() async {
   // RUN APP
   runApp(const MyApp());
 }
-
 
 Future<void> requestPhonePermission() async {
   final status = await Permission.phone.request();

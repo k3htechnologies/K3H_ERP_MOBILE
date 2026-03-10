@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_master.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
+import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -21,8 +23,7 @@ class AddBookingPaymentScheduleScreen extends StatefulWidget {
   final double agreementValue;
   final double agreementValueGST;
   final double agreementValueTds;
-  final List<BookingPaymentScheduleData> currentSchedulesList;
-  final BookingPaymentScheduleData? currentSchedules;
+  final int? index;
 
   const AddBookingPaymentScheduleScreen({
     super.key,
@@ -31,8 +32,7 @@ class AddBookingPaymentScheduleScreen extends StatefulWidget {
     required this.agreementValue,
     required this.agreementValueGST,
     required this.agreementValueTds,
-    this.currentSchedulesList = const [],
-    this.currentSchedules,
+    this.index,
   });
 
   @override
@@ -43,6 +43,8 @@ class AddBookingPaymentScheduleScreen extends StatefulWidget {
 class _AddBookingPaymentScheduleScreenState
     extends State<AddBookingPaymentScheduleScreen>
     with SingleTickerProviderStateMixin {
+  late BookingCubit _bookingCubit;
+
   final _formKey = GlobalKey<FormState>();
 
   final BookingRepository _bookingRepository =
@@ -58,12 +60,41 @@ class _AddBookingPaymentScheduleScreenState
 
   late TabController _tabController;
 
-  bool get _isEditMode => widget.currentSchedules != null;
+  bool get _isEditMode => widget.index != null;
 
   @override
   void initState() {
     super.initState();
+    _bookingCubit = context.read<BookingCubit>();
+
     _tabController = TabController(length: 2, vsync: this);
+    _prefillData();
+  }
+
+  void _prefillData() {
+    if (!_isEditMode) return;
+    print("Index: ${widget.index}");
+    final data = _bookingCubit.state.bookingPaymentScheduleList[widget.index!];
+
+    /// percentage
+    _percentageC.text = data.paymentSchedulePercentage.toString();
+
+    /// select tab
+    if (data.type == "Date") {
+      _tabController.index = 0;
+      date = data.date;
+    } else {
+      _tabController.index = 1;
+
+      _selectedStage.value = [
+        {"zAttributesId": 1, "DisplayName": data.name},
+      ];
+
+      /// if stage not from list treat as other
+      if (data.name == "Other") {
+        _otherStageC.text = data.name;
+      }
+    }
   }
 
   @override
@@ -82,14 +113,25 @@ class _AddBookingPaymentScheduleScreenState
     final percentage = double.parse(_percentageC.text);
     final isDateTab = _tabController.index == 0;
 
-    /// 🚫 DUPLICATE DATE CHECK
+    /// DATE VALIDATION
+    if (isDateTab && date == null) {
+      showErrorMessage(context, "Date Required", "Please select a date.");
+      return;
+    }
+
+    final schedules = List<BookingPaymentScheduleData>.from(
+      _bookingCubit.state.bookingPaymentScheduleList,
+    );
+
+    /// DUPLICATE DATE CHECK
     if (isDateTab) {
       final selectedDate = DateFormat("dd-MM-yyyy").format(date!);
 
-      final alreadyExists = widget.currentSchedulesList.any(
+      final alreadyExists = schedules.any(
         (e) =>
             e.type == "Date" &&
-            DateFormat("dd-MM-yyyy").format(e.date!) == selectedDate,
+            DateFormat("dd-MM-yyyy").format(e.date!) == selectedDate &&
+            schedules.indexOf(e) != widget.index,
       );
 
       if (alreadyExists) {
@@ -102,15 +144,16 @@ class _AddBookingPaymentScheduleScreenState
       }
     }
 
-    /// 🚫 DUPLICATE STAGE CHECK
+    /// DUPLICATE STAGE CHECK
     if (!isDateTab) {
       final selectedStageName =
           _selectedStage.value?.first["DisplayName"] ?? "";
 
-      final alreadyExists = widget.currentSchedulesList.any(
+      final alreadyExists = schedules.any(
         (e) =>
             e.type == "Stage" &&
-            e.name.toLowerCase() == selectedStageName.toLowerCase(),
+            e.name.toLowerCase() == selectedStageName.toLowerCase() &&
+            schedules.indexOf(e) != widget.index,
       );
 
       if (alreadyExists) {
@@ -123,17 +166,19 @@ class _AddBookingPaymentScheduleScreenState
       }
     }
 
-    final cumulativePercentage =
-        widget.currentSchedulesList
-            .map((e) => e.paymentSchedulePercentage)
-            .fold(0.0, (a, b) => a + b) +
-        percentage;
-
-    final ranking = widget.currentSchedulesList.length + 1;
-
+    /// CALCULATIONS
     final amount = (widget.agreementValue * percentage) / 100;
     final gstAmount = (widget.agreementValueGST * percentage) / 100;
     final tdsAmount = (widget.agreementValueTds * percentage) / 100;
+
+    final ranking =
+        _isEditMode ? schedules[widget.index!].ranking : schedules.length + 1;
+
+    final cumulativePercentage =
+        schedules
+            .map((e) => e.paymentSchedulePercentage)
+            .fold(0.0, (a, b) => a + b) +
+        percentage;
 
     final model = BookingPaymentScheduleData(
       bookingPaymentScheduleId: 0,
@@ -141,7 +186,9 @@ class _AddBookingPaymentScheduleScreenState
       name:
           isDateTab
               ? DateFormat("dd-MM-yyyy").format(date!)
-              : (_selectedStage.value?.first["DisplayName"] ?? "Stage"),
+              : (_selectedStage.value?.first["DisplayName"] == "Other"
+                  ? _otherStageC.text.trim()
+                  : _selectedStage.value?.first["DisplayName"] ?? "Stage"),
       date: isDateTab ? date : null,
       paymentSchedulePercentage: percentage,
       paymentCummulativePercentage: cumulativePercentage,
@@ -151,7 +198,28 @@ class _AddBookingPaymentScheduleScreenState
       ranking: ranking,
     );
 
-    Navigator.pop(context, model);
+    /// ADD / EDIT LOGIC
+    if (_isEditMode) {
+      schedules[widget.index!] = model;
+    } else {
+      schedules.add(model);
+    }
+
+    /// RECALCULATE CUMULATIVE
+    double runningTotal = 0;
+
+    for (int i = 0; i < schedules.length; i++) {
+      runningTotal += schedules[i].paymentSchedulePercentage;
+
+      schedules[i] = schedules[i].copyWith(
+        paymentCummulativePercentage: runningTotal,
+      );
+    }
+
+    /// UPDATE CUBIT
+    _bookingCubit.updatePaymentScheduleList(schedules);
+
+    Navigator.pop(context);
   }
 
   /// FETCH STAGES
@@ -196,15 +264,19 @@ class _AddBookingPaymentScheduleScreenState
       isRequired: true,
       hint: "Enter Percentage",
       textController: _percentageC,
-      inputFormatterList: [FilteringTextInputFormatter.digitsOnly],
+      inputFormatterList: InputValidator.percentage(),
+      keyboardType: TextInputType.number,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return "Percentage is required";
         }
-        final percent = int.tryParse(value);
+
+        final percent = double.tryParse(value);
+
         if (percent == null || percent <= 0 || percent > 100) {
           return "Enter valid percentage";
         }
+
         return null;
       },
     );
@@ -316,6 +388,15 @@ class _AddBookingPaymentScheduleScreenState
                     dividerColor: Colors.transparent,
                     labelStyle: AppTextStyle.ts14M(),
                     unselectedLabelStyle: AppTextStyle.ts14M(),
+                    onTap: (index) {
+                      if (_isEditMode) return;
+
+                      if (index == 0) {
+                        _selectedStage.value = null;
+                      } else {
+                        date = null;
+                      }
+                    },
                     tabs: const [Tab(text: "Date"), Tab(text: "Stage")],
                   ),
                 ),
@@ -325,6 +406,7 @@ class _AddBookingPaymentScheduleScreenState
                 Expanded(
                   child: TabBarView(
                     controller: _tabController,
+                    physics: NeverScrollableScrollPhysics(),
                     children: [_dateTab(), _stageTab()],
                   ),
                 ),

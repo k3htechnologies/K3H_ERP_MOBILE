@@ -827,7 +827,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                         color: AppColor.white,
                       ),
                       text: "Book",
-                      onPressed: () {
+                      onPressed: () async {
                         List<Map<String, dynamic>> list = [
                           {
                             "inventoryBuildingId": flat.inventoryBuildingId,
@@ -841,10 +841,14 @@ class _InventoryScreenState extends State<InventoryScreen>
                             "flatType": flat.flatType,
                             "flatConfiguration": flat.flatConfiguration,
                             "reraCarpetAreaSqFt": flat.reraCarpetAreaSqFt,
+                            "buildingIndex": buildingIndex,
+                            "wingIndex": wingIndex,
+                            "floorIndex": floorIndex,
+                            "flatIndex": flatIndex,
                           },
                         ];
 
-                        goRouter.pushNamed(
+                        final result = await goRouter.pushNamed(
                           AppRoutes.addBooking,
                           queryParameters: {
                             "inventoryObject": Uri.encodeComponent(
@@ -852,6 +856,17 @@ class _InventoryScreenState extends State<InventoryScreen>
                             ),
                           },
                         );
+
+                        // CAST result to Map<String, dynamic>
+                        if (result != null &&
+                            result is Map<String, dynamic> &&
+                            context.mounted) {
+                          print("Wee are here!");
+                          _inventoryCubit.updateFlatStatus(
+                            inventoryFlatId: flat.inventoryFlatId,
+                            flatStatus: result["status"],
+                          );
+                        }
                       },
                     ),
                   ],

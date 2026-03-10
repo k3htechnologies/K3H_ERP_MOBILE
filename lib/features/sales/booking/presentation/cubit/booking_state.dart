@@ -9,6 +9,7 @@ class BookingState extends BaseState {
   final int currentPageParking;
   final int currentPageTerms;
   final List<OtherChargeModel> otherChargesList;
+  final List<OtherChargeModel> originalOtherChargesList;
   final List<EnquiryModel> enquiryList;
   final List<EnquiryModel> enquiryListById;
   final List<BookingModel> bookingListById;
@@ -29,6 +30,7 @@ class BookingState extends BaseState {
     required this.currentPageParking,
     required this.currentPageTerms,
     required this.otherChargesList,
+    required this.originalOtherChargesList,
     required this.enquiryList,
     required this.enquiryListById,
     required this.bookingListById,
@@ -50,6 +52,7 @@ class BookingState extends BaseState {
     currentPageParking: 1,
     currentPageTerms: 1,
     otherChargesList: [],
+    originalOtherChargesList: [],
     enquiryList: [],
     enquiryListById: [],
     bookingListById: [],
@@ -70,6 +73,7 @@ class BookingState extends BaseState {
     int? totalNumberOfRecordTerms,
     int? currentPageParking,
     int? currentPageTerms,
+    List<OtherChargeModel>? originalOtherChargesList,
     List<OtherChargeModel>? otherChargesList,
     List<EnquiryModel>? enquiryList,
     List<EnquiryModel>? enquiryListById,
@@ -94,6 +98,8 @@ class BookingState extends BaseState {
       currentPageParking: currentPageParking ?? this.currentPageParking,
       currentPageTerms: currentPageTerms ?? this.currentPageTerms,
       otherChargesList: otherChargesList ?? this.otherChargesList,
+      originalOtherChargesList:
+          originalOtherChargesList ?? this.originalOtherChargesList,
       enquiryList: enquiryList ?? this.enquiryList,
       enquiryListById: enquiryListById ?? this.enquiryListById,
       bookingListById: bookingListById ?? this.bookingListById,
@@ -118,6 +124,7 @@ class BookingState extends BaseState {
     currentPageParking,
     currentPageTerms,
     otherChargesList,
+    originalOtherChargesList,
     enquiryList,
     enquiryListById,
     bookingListById,

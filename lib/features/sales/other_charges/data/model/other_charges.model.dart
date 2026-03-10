@@ -53,9 +53,9 @@ class OtherChargeModel {
         modifiedById: parseValue<int>(json, "ModifiedById"),
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
         modifiedDate:
-        json["ModifiedDate"] == null
-            ? null
-            : parseValue<DateTime>(json, "ModifiedDate"),
+            json["ModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "ModifiedDate"),
         isSelected: parseValue<bool>(json, "IsSelected"),
         isMaster: parseValue<bool>(json, "IsMaster"),
       );
@@ -78,4 +78,43 @@ class OtherChargeModel {
     "IsSelected": isSelected,
     "IsMaster": isMaster,
   };
+
+  OtherChargeModel copyWith({
+    int? otherChargesId,
+    String? uniquekey,
+    int? bookingOtherChargesId,
+    String? chargeName,
+    String? calculatedOn,
+    double? value,
+    double? gstPercentage,
+    double? gstValue,
+    int? createdById,
+    String? createdBy,
+    DateTime? createdDate,
+    int? modifiedById,
+    String? modifiedBy,
+    DateTime? modifiedDate,
+    bool? isSelected,
+    bool? isMaster,
+  }) {
+    return OtherChargeModel(
+      otherChargesId: otherChargesId ?? this.otherChargesId,
+      uniquekey: uniquekey ?? this.uniquekey,
+      bookingOtherChargesId:
+          bookingOtherChargesId ?? this.bookingOtherChargesId,
+      chargeName: chargeName ?? this.chargeName,
+      calculatedOn: calculatedOn ?? this.calculatedOn,
+      value: value ?? this.value,
+      gstPercentage: gstPercentage ?? this.gstPercentage,
+      gstValue: gstValue ?? this.gstValue,
+      createdById: createdById ?? this.createdById,
+      createdBy: createdBy ?? this.createdBy,
+      createdDate: createdDate ?? this.createdDate,
+      modifiedById: modifiedById ?? this.modifiedById,
+      modifiedBy: modifiedBy ?? this.modifiedBy,
+      modifiedDate: modifiedDate ?? this.modifiedDate,
+      isSelected: isSelected ?? this.isSelected,
+      isMaster: isMaster ?? this.isMaster,
+    );
+  }
 }
