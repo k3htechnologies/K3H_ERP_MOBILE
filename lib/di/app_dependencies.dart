@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/dashboard/dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/legal/litigation/litigation.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/legal/litigation_dashboard/litigation_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/marketing/content/content.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/holiday_mapping_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/leave_encashment_master.dependencies.dart';
@@ -11,7 +12,6 @@ import 'package:k3h_erp_app/di/feature_dependencies/masters/shift_master.depende
 import 'package:k3h_erp_app/di/feature_dependencies/masters/week_off_mapping_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/week_off_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/notification/notification.dependencies.dart';
-import 'package:k3h_erp_app/di/feature_dependencies/payroll/payroll_dashboard/payroll_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/payroll/resignation/resignation.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/profile/profile.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/approval_category/approval_category.dependencies.dart';
@@ -201,8 +201,8 @@ void initDependencies() {
   registerPaymentScheduleSchemeDependencies(serviceLocator);
   // PAYMENT SCHEDULE DEPENDENCIES
   registerPaymentScheduleDependencies(serviceLocator);
-  // SETTING DASHBOARD
+  // SETTING DASHBAORD
   registerSettingDashboardDependencies(serviceLocator);
-  // PAYROLL DASHBOARD
-  registerPayrollDashboardDependencies(serviceLocator);
+  // LITIGATION DASHBOARD
+  registerLitigationDashboardDependencies(serviceLocator);
 }

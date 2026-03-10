@@ -247,6 +247,8 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
     final isSettingsDashboard =
         menu.moduleName.trim().toLowerCase() == 'setting';
 
+    final isLitigationDashboard =
+        menu.moduleName.trim().toLowerCase() == "legal";
     bool isCurrentModuleActive = menu.subModuleData.any(
       (sub) => _isActiveModule(sub),
     );
@@ -278,6 +280,11 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
           isCurrentModuleActive ||
           _isRouteActive(_currentPathForBuild, AppRoutes.settingDashboard);
     }
+    if (isLitigationDashboard) {
+      isCurrentModuleActive =
+          isCurrentModuleActive ||
+          _isRouteActive(_currentPathForBuild, AppRoutes.settingDashboard);
+    }
 
     final tile = CustomModuleTile(
       key: ValueKey('module-${menu.moduleName}-$isCurrentModuleActive'),
@@ -297,6 +304,8 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
           await _onItemTap(navigateToPath: AppRoutes.inventoryDashboard);
         } else if (isSettingsDashboard) {
           await _onItemTap(navigateToPath: AppRoutes.settingDashboard);
+        } else if (isLitigationDashboard) {
+          await _onItemTap(navigateToPath: AppRoutes.litigationDashboard);
         }
       },
       items:
