@@ -54,6 +54,7 @@ import 'feature_dependencies/payroll/attendance/attendance.dependencies.dart';
 import 'feature_dependencies/payroll/comp_off/comp_off.dependencies.dart';
 import 'feature_dependencies/payroll/leave/leave.dependencies.dart';
 import 'feature_dependencies/payroll/outdoor/outdoor.dependencies.dart';
+import 'feature_dependencies/payroll/payroll_dashboard/payroll_dashboard.dependencies.dart';
 import 'feature_dependencies/payroll/payroll_report/payroll_report.dependencies.dart';
 import 'feature_dependencies/project_document/document/document.dependencies.dart';
 import 'feature_dependencies/project_document/document_category/document_category.dependencies.dart';
@@ -201,8 +202,10 @@ void initDependencies() {
   registerPaymentScheduleSchemeDependencies(serviceLocator);
   // PAYMENT SCHEDULE DEPENDENCIES
   registerPaymentScheduleDependencies(serviceLocator);
-  // SETTING DASHBAORD
+  // SETTING DASHBOARD
   registerSettingDashboardDependencies(serviceLocator);
   // LITIGATION DASHBOARD
   registerLitigationDashboardDependencies(serviceLocator);
+  // PAYROLL DASHBOARD
+  registerPayrollDashboardDependencies(serviceLocator);
 }
