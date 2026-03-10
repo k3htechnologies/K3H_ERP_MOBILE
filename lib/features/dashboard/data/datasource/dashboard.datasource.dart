@@ -1,5 +1,5 @@
-import 'package:k3h_erp_app/features/dashboard/data/model/dashboard.model.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
+import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
@@ -45,8 +45,8 @@ class DashboardDatasourceImpl implements DashboardDatasource {
         ),
       );
       return {
-        'data': List<DashboardModel>.from(
-          networkResponse["data"].map((e) => DashboardModel.fromJson(e)),
+        'data': List<AttendanceModel>.from(
+          networkResponse["data"].map((e) => AttendanceModel.fromJson(e)),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
@@ -73,8 +73,8 @@ class DashboardDatasourceImpl implements DashboardDatasource {
         body,
       );
       return {
-        'data': List<DashboardModel>.from(
-          networkResponse["data"].map((e) => DashboardModel.fromJson(e)),
+        'data': List<AttendanceModel>.from(
+          networkResponse["data"].map((e) => AttendanceModel.fromJson(e)),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };

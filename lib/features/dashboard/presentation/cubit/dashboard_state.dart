@@ -1,9 +1,9 @@
 part of 'dashboard_cubit.dart';
 
 final class DashboardState extends BaseState {
-  final DashboardModel? data;
+  final AttendanceModel? data;
   final UserDashboardModel? userData;
-  final List<DashboardModel> dashboardModelList;
+  final List<AttendanceModel> dashboardModelList;
   final List<UserDashboardModel> userDashboardModelList;
   final String searchEmployee;
   final List<UserModel>? employeeByProject;
@@ -28,9 +28,9 @@ final class DashboardState extends BaseState {
   );
   DashboardState copyWith({
     bool? isLoading,
-    DashboardModel? data,
+    AttendanceModel? data,
     UserDashboardModel? userData,
-    List<DashboardModel>? dashboardModelList,
+    List<AttendanceModel>? dashboardModelList,
     List<UserDashboardModel>? userDashboardModelList,
     String? searchEmployee,
     List<UserModel>? employeeByProject,
