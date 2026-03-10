@@ -4,6 +4,7 @@ class AttendanceModel {
   int employeeId;
   String fullName;
   int attendanceId;
+  final String uniquekey;
   DateTime attendanceDate;
   DateTime? punchIn;
   DateTime? punchOut;
@@ -27,6 +28,7 @@ class AttendanceModel {
   AttendanceModel({
     required this.employeeId,
     required this.fullName,
+    required this.uniquekey,
     required this.attendanceId,
     required this.attendanceDate,
     required this.punchIn,
@@ -52,6 +54,7 @@ class AttendanceModel {
   factory AttendanceModel.fromJson(Map<String, dynamic> json) =>
       AttendanceModel(
         employeeId: parseValue<int>(json, "EmployeeId"),
+        uniquekey: parseValue<String>(json, "Uniquekey"),
         fullName: parseValue<String>(json, "FullName"),
         attendanceId: parseValue<int>(json, "AttendanceId"),
         attendanceDate: parseValue<DateTime>(json, "AttendanceDate"),
@@ -89,6 +92,7 @@ class AttendanceModel {
 
   Map<String, dynamic> toJson() => {
     "EmployeeId": employeeId,
+    "Uniquekey": uniquekey,
     "FullName": fullName,
     "AttendanceId": attendanceId,
     "AttendanceDate": attendanceDate.toIso8601String(),

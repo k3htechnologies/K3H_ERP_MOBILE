@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/dashboard/data/model/dashboard.model.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
 import 'package:k3h_erp_app/features/dashboard/data/repository/dashboard.repository.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
+import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -63,7 +63,7 @@ class DashboardCubit extends Cubit<DashboardState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        final List<DashboardModel> newData = List<DashboardModel>.from(
+        final List<AttendanceModel> newData = List<AttendanceModel>.from(
           response['data'] ?? [],
         );
 

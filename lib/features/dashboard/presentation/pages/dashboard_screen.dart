@@ -12,8 +12,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/dashboard/data/model/dashboard.model.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/route_map_screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -28,7 +28,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DashboardScreen extends StatefulWidget {
-  final DashboardModel? data;
+  final AttendanceModel? data;
   const DashboardScreen({super.key, this.data});
 
   @override
@@ -163,10 +163,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       routePoints.add(startLatLng!);
       lastPoint = startLatLng;
       totalDistance = 0.0;
-
-      // 🔥 KEY LOGIC
-      final int attendanceIdToSend =
-          currentAttendanceId ?? 0; // if exists → update, else → insert
+      final int attendanceIdToSend = currentAttendanceId ?? 0;
 
       final result = await _dashboardCubit.addAttendance(
         context,
@@ -183,13 +180,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (result != null) {
         currentAttendanceId = result['AttendanceId'];
         currentUniquekey = result['Uniquekey'];
-
-        // setState(() {
-        //   isPunchedInNotifier.value = true;
-        //   dragPositionNotifier.value = maxWidth;
-        // });
-
-        // _startLocationTracking();
       }
     } catch (e) {
       debugPrint("Punch In GPS Error: $e");
@@ -199,7 +189,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void _handleDragEnd() async {
     if (!isPunchedInNotifier.value &&
         dragPositionNotifier.value > maxWidth * 0.75) {
-      // // PUNCH IN
+      // PUNCH IN
       await punchIn(context);
 
       dragPositionNotifier.value = maxWidth;
@@ -272,8 +262,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     } else {
       dragPositionNotifier.value = isPunchedInNotifier.value ? maxWidth : 0;
     }
-
-    //  setState(() {});
   }
 
   double _calculateDistance(List<LatLng> points) {
@@ -498,151 +486,162 @@ class _DashboardScreenState extends State<DashboardScreen> {
     DashboardState state,
     BuildContext context,
   ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      decoration: commonCardDecoration(),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        if (state.isLoading == true) {
+          return Center(child: loader());
+        }
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          decoration: commonCardDecoration(),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    "Workday Overview",
-                    style: AppTextStyle.ts14M(
-                      color: AppColor.black.withValues(alpha: 0.50),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6.0,
-                      vertical: 4.0,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4.0),
-                      color: AppColor.primary.withValues(alpha: 0.13),
-                    ),
-                    child: Center(
+                Row(
+                  children: [
+                    Expanded(
                       child: Text(
-                        dateFormatterDDMMYYYYDAY(
-                          DateTime.now(),
-                          isDayNotRequired: true,
+                        "Workday Overview",
+                        style: AppTextStyle.ts14M(
+                          color: AppColor.black.withValues(alpha: 0.50),
                         ),
-                        style: AppTextStyle.ts12M(color: AppColor.primary),
                       ),
                     ),
-                  ),
-                ),
-              ],
-            ),
-            Divider(
-              thickness: 0.3,
-              color: AppColor.black.withValues(alpha: 0.50),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 32),
-              alignment: Alignment.center,
-              child: ValueListenableBuilder<Duration>(
-                valueListenable: workedDuration,
-                builder: (context, duration, _) {
-                  return RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: formatDuration(duration),
-                          style: AppTextStyle.ts24SB().copyWith(
-                            fontFamily: "semibold",
-                            fontSize: 34,
-                            color: AppColor.black,
-                          ),
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 6.0,
+                          vertical: 4.0,
                         ),
-                        TextSpan(
-                          text: "/\n9:00:00",
-                          style: AppTextStyle.ts12M().copyWith(
-                            color: AppColor.black.withValues(alpha: 0.5),
-                          ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4.0),
+                          color: AppColor.primary.withValues(alpha: 0.13),
                         ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-            ValueListenableBuilder2<bool, double>(
-              first: isPunchedInNotifier,
-              second: dragPositionNotifier,
-              builder: (context, isPunchedIn, dragPosition, _) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    maxWidth = constraints.maxWidth - 42;
-
-                    return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 24.0),
-                      height: 50,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: AppColor.primary.withValues(alpha: 0.16),
-                      ),
-                      child: Stack(
-                        children: [
-                          Center(
-                            child: Text(
-                              isPunchedIn
-                                  ? "Swipe to Punch Out"
-                                  : "Swipe to Punch In",
-                              style: AppTextStyle.ts12M(),
+                        child: Center(
+                          child: Text(
+                            dateFormatterDDMMYYYYDAY(
+                              DateTime.now(),
+                              isDayNotRequired: true,
                             ),
+                            style: AppTextStyle.ts12M(color: AppColor.primary),
                           ),
-                          AnimatedPositioned(
-                            duration: const Duration(milliseconds: 200),
-                            left: dragPosition,
-                            top: 0,
-                            bottom: 0,
-                            child: GestureDetector(
-                              onHorizontalDragUpdate: (details) {
-                                double newPos =
-                                    dragPositionNotifier.value +
-                                    details.delta.dx;
-                                newPos = newPos.clamp(0, maxWidth);
-                                dragPositionNotifier.value = newPos;
-                              },
-                              onHorizontalDragEnd: (_) => _handleDragEnd(),
-                              child: Container(
-                                width: 42,
-                                decoration: BoxDecoration(
-                                  color: AppColor.primary,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  isPunchedIn
-                                      ? Icons.arrow_back_ios_new_outlined
-                                      : Icons.arrow_forward_ios_outlined,
-                                  color: Colors.white,
-                                ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Divider(
+                  thickness: 0.3,
+                  color: AppColor.black.withValues(alpha: 0.50),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 32),
+                  alignment: Alignment.center,
+                  child: ValueListenableBuilder<Duration>(
+                    valueListenable: workedDuration,
+                    builder: (context, duration, _) {
+                      return RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: formatDuration(duration),
+                              style: AppTextStyle.ts24SB().copyWith(
+                                fontFamily: "semibold",
+                                fontSize: 34,
+                                color: AppColor.black,
                               ),
                             ),
+                            TextSpan(
+                              text: "/\n9:00:00",
+                              style: AppTextStyle.ts12M().copyWith(
+                                color: AppColor.black.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                ValueListenableBuilder2<bool, double>(
+                  first: isPunchedInNotifier,
+                  second: dragPositionNotifier,
+                  builder: (context, isPunchedIn, dragPosition, _) {
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        maxWidth = constraints.maxWidth - 42;
+
+                        return Container(
+                          margin: const EdgeInsets.symmetric(vertical: 24.0),
+                          height: 50,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: AppColor.primary.withValues(alpha: 0.16),
                           ),
-                        ],
-                      ),
+                          child: Stack(
+                            children: [
+                              Center(
+                                child: Text(
+                                  isPunchedIn
+                                      ? "Swipe to Punch Out"
+                                      : "Swipe to Punch In",
+                                  style: AppTextStyle.ts12M(),
+                                ),
+                              ),
+                              AnimatedPositioned(
+                                duration: const Duration(milliseconds: 200),
+                                left: dragPosition,
+                                top: 0,
+                                bottom: 0,
+                                child: GestureDetector(
+                                  onHorizontalDragUpdate: (details) {
+                                    double newPos =
+                                        dragPositionNotifier.value +
+                                        details.delta.dx;
+                                    newPos = newPos.clamp(0, maxWidth);
+                                    dragPositionNotifier.value = newPos;
+                                  },
+                                  onHorizontalDragEnd: (_) => _handleDragEnd(),
+                                  child: Container(
+                                    width: 42,
+                                    decoration: BoxDecoration(
+                                      color: AppColor.primary,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      isPunchedIn
+                                          ? Icons.arrow_back_ios_new_outlined
+                                          : Icons.arrow_forward_ios_outlined,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     );
                   },
-                );
-              },
+                ),
+                if (state.dashboardModelList.isNotEmpty)
+                  if (state.dashboardModelList.isNotEmpty)
+                    _buildDashboardPunchInPunchOutWidget(
+                      state.dashboardModelList.first,
+                      context,
+                    ),
+              ],
             ),
-            if (state.dashboardModelList.isNotEmpty)
-              _buildDashboardPunchInPunchOutWidget(state.data!, context),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildDashboardPunchInPunchOutWidget(
-    DashboardModel data,
+    AttendanceModel data,
     BuildContext context,
   ) {
     return Column(
