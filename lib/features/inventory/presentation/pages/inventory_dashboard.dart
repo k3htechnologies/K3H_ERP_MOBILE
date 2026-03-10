@@ -44,363 +44,365 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
         showNotification: true,
       ),
 
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // SELECTED PROJECT TEXT PROJECT CUSTOM TEXT FIELD (ONLY DISPLAY)
-                  CustomTextField(
-                    readOnly: true,
-                    textController: TextEditingController(
-                      text: _selectedProject.projectName,
-                    ),
-                    hint: 'Select Project',
-                  ),
-                  // GENERATE REPORT AND ADD BUTTON
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 5.0,
-                          horizontal: 12.0,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6.0),
-                          color: AppColor.lightBlue,
-                        ),
-                        child: Row(
-                          children: [
-                            SvgPicture.asset(
-                              AppAssets.generateReportIcon,
-                              width: 16,
-                              height: 16,
-                            ),
-                            horizontalSpacing(),
-                            Text(
-                              "Generate Report",
-                              style: AppTextStyle.ts14M(
-                                color: AppColor.primary,
-                              ),
-                            ),
-                          ],
-                        ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // SELECTED PROJECT TEXT PROJECT CUSTOM TEXT FIELD (ONLY DISPLAY)
+                    CustomTextField(
+                      readOnly: true,
+                      textController: TextEditingController(
+                        text: _selectedProject.projectName,
                       ),
-                      horizontalSpacing(width: 20.0),
-                      Expanded(
-                        child: CustomButton(
-                          leading: Icon(
-                            Icons.add,
-                            size: 18,
-                            color: AppColor.white,
-                          ),
-                          text: "Add",
-                          onPressed: () {},
-                        ),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(),
-                  // TOTOAL BUILDING COUNT WIDGET
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 16.0,
+                      hint: 'Select Project',
                     ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.0),
-                      color: AppColor.white,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    // GENERATE REPORT AND ADD BUTTON
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            ClipOval(
-                              child: NetworkImageWidget(
-                                imageUrl:
-                                    'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                                width: 42,
-                                height: 42,
-                                fit: BoxFit.cover,
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 5.0,
+                            horizontal: 12.0,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(6.0),
+                            color: AppColor.lightBlue,
+                          ),
+                          child: Row(
+                            children: [
+                              SvgPicture.asset(
+                                AppAssets.generateReportIcon,
+                                width: 16,
+                                height: 16,
                               ),
-                            ),
-                            horizontalSpacing(width: 16.0),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Total Buildings",
-                                    style: AppTextStyle.ts14M(
-                                      color: AppColor.black.withValues(
-                                        alpha: 0.5,
-                                      ),
-                                    ),
-                                  ),
-                                  Text(
-                                    "10",
-                                    style: AppTextStyle.ts20SB(
-                                      color: AppColor.black,
-                                    ),
-                                  ),
-                                ],
+                              horizontalSpacing(),
+                              Text(
+                                "Generate Report",
+                                style: AppTextStyle.ts14M(
+                                  color: AppColor.primary,
+                                ),
                               ),
+                            ],
+                          ),
+                        ),
+                        horizontalSpacing(width: 20.0),
+                        Expanded(
+                          child: CustomButton(
+                            leading: Icon(
+                              Icons.add,
+                              size: 18,
+                              color: AppColor.white,
                             ),
-                          ],
+                            text: "Add",
+                            onPressed: () {},
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  verticalSpacing(),
-                  // BASEMENT AND PODIUM COUNT WIDGET
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 16.0,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: AppColor.white,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    verticalSpacing(),
+                    // TOTOAL BUILDING COUNT WIDGET
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 16.0,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: AppColor.white,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  ClipOval(
-                                    child: NetworkImageWidget(
-                                      imageUrl:
-                                          'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                                      width: 42,
-                                      height: 42,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  horizontalSpacing(width: 16.0),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Basement",
-                                          style: AppTextStyle.ts14M(
-                                            color: AppColor.black.withValues(
-                                              alpha: 0.5,
-                                            ),
-                                          ),
+                              ClipOval(
+                                child: NetworkImageWidget(
+                                  imageUrl:
+                                      'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
+                                  width: 42,
+                                  height: 42,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              horizontalSpacing(width: 16.0),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Total Buildings",
+                                      style: AppTextStyle.ts14M(
+                                        color: AppColor.black.withValues(
+                                          alpha: 0.5,
                                         ),
-                                        Text(
-                                          "02",
-                                          style: AppTextStyle.ts20SB(
-                                            color: AppColor.black,
-                                          ),
-                                        ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                    Text(
+                                      "10",
+                                      style: AppTextStyle.ts20SB(
+                                        color: AppColor.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                        ),
+                        ],
                       ),
-                      horizontalSpacing(),
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 16.0,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: AppColor.white,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  ClipOval(
-                                    child: NetworkImageWidget(
-                                      imageUrl:
-                                          'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                                      width: 42,
-                                      height: 42,
-                                      fit: BoxFit.cover,
+                    ),
+                    verticalSpacing(),
+                    // BASEMENT AND PODIUM COUNT WIDGET
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 16.0,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.0),
+                              color: AppColor.white,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    ClipOval(
+                                      child: NetworkImageWidget(
+                                        imageUrl:
+                                            'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
+                                        width: 42,
+                                        height: 42,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
-                                  ),
-                                  horizontalSpacing(width: 16.0),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Podium",
-                                          style: AppTextStyle.ts14M(
-                                            color: AppColor.black.withValues(
-                                              alpha: 0.5,
+                                    horizontalSpacing(width: 16.0),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Basement",
+                                            style: AppTextStyle.ts14M(
+                                              color: AppColor.black.withValues(
+                                                alpha: 0.5,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        Text(
-                                          "04",
-                                          style: AppTextStyle.ts20SB(
-                                            color: AppColor.black,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(),
-                  // WINGS AND FLOORS COUNT WIDGET
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 16.0,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: AppColor.white,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  ClipOval(
-                                    child: NetworkImageWidget(
-                                      imageUrl:
-                                          'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                                      width: 42,
-                                      height: 42,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  horizontalSpacing(width: 16.0),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Wings",
-                                          style: AppTextStyle.ts14M(
-                                            color: AppColor.black.withValues(
-                                              alpha: 0.5,
+                                          Text(
+                                            "02",
+                                            style: AppTextStyle.ts20SB(
+                                              color: AppColor.black,
                                             ),
                                           ),
-                                        ),
-                                        Text(
-                                          "40",
-                                          style: AppTextStyle.ts20SB(
-                                            color: AppColor.black,
-                                          ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      horizontalSpacing(),
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 16.0,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: AppColor.white,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  ClipOval(
-                                    child: NetworkImageWidget(
-                                      imageUrl:
-                                          'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                                      width: 42,
-                                      height: 42,
-                                      fit: BoxFit.cover,
+                        horizontalSpacing(),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 16.0,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.0),
+                              color: AppColor.white,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    ClipOval(
+                                      child: NetworkImageWidget(
+                                        imageUrl:
+                                            'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
+                                        width: 42,
+                                        height: 42,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
-                                  ),
-                                  horizontalSpacing(width: 16.0),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Floors",
-                                          style: AppTextStyle.ts14M(
-                                            color: AppColor.black.withValues(
-                                              alpha: 0.5,
+                                    horizontalSpacing(width: 16.0),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Podium",
+                                            style: AppTextStyle.ts14M(
+                                              color: AppColor.black.withValues(
+                                                alpha: 0.5,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        Text(
-                                          "120",
-                                          style: AppTextStyle.ts20SB(
-                                            color: AppColor.black,
+                                          Text(
+                                            "04",
+                                            style: AppTextStyle.ts20SB(
+                                              color: AppColor.black,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(),
-                  // UNIT STATUS DISTRIBUTION WIDGET
-                  _buildUnitStatusDistributionWidget(context),
-                  verticalSpacing(),
-                  // PARKING DISTRIBUTION WIDGET
-                  _buildParkingDistributionWidget(context),
-                  verticalSpacing(),
-                  // BUILDING OVERVIEW WIDGET
-                  _buildBuildingOverviewWidget(context),
-                  verticalSpacing(),
-                  // ATLERT WIDGET
-                  _buildAlertsWidget(context),
-                ],
+                      ],
+                    ),
+                    verticalSpacing(),
+                    // WINGS AND FLOORS COUNT WIDGET
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 16.0,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.0),
+                              color: AppColor.white,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    ClipOval(
+                                      child: NetworkImageWidget(
+                                        imageUrl:
+                                            'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
+                                        width: 42,
+                                        height: 42,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    horizontalSpacing(width: 16.0),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Wings",
+                                            style: AppTextStyle.ts14M(
+                                              color: AppColor.black.withValues(
+                                                alpha: 0.5,
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            "40",
+                                            style: AppTextStyle.ts20SB(
+                                              color: AppColor.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        horizontalSpacing(),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 16.0,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.0),
+                              color: AppColor.white,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    ClipOval(
+                                      child: NetworkImageWidget(
+                                        imageUrl:
+                                            'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
+                                        width: 42,
+                                        height: 42,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    horizontalSpacing(width: 16.0),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Floors",
+                                            style: AppTextStyle.ts14M(
+                                              color: AppColor.black.withValues(
+                                                alpha: 0.5,
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            "120",
+                                            style: AppTextStyle.ts20SB(
+                                              color: AppColor.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    // UNIT STATUS DISTRIBUTION WIDGET
+                    _buildUnitStatusDistributionWidget(context),
+                    verticalSpacing(),
+                    // PARKING DISTRIBUTION WIDGET
+                    _buildParkingDistributionWidget(context),
+                    verticalSpacing(),
+                    // BUILDING OVERVIEW WIDGET
+                    _buildBuildingOverviewWidget(context),
+                    verticalSpacing(),
+                    // ATLERT WIDGET
+                    _buildAlertsWidget(context),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

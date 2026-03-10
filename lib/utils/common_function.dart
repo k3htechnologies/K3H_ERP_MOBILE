@@ -205,12 +205,14 @@ Future<void> logOutUser(BuildContext context) async {
       );
     }
 
-    await LocalStorageManager().removeAll();
 
-    if (context.mounted) {
-      goRouter.go(AppRoutes.splashScreen);
-    }
-  }
+    Future.delayed(Duration(seconds: 1),() async {
+      await LocalStorageManager().removeAll();
+
+      if (context.mounted) {
+        goRouter.go(AppRoutes.splashScreen);
+      }
+    });}
 }
 
 // SHOW SUCCESS MESSAGE

@@ -189,8 +189,6 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
                                 decoration: TextDecoration.underline,
                                 decorationColor: AppColor.primary,
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),

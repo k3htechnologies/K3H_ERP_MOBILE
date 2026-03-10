@@ -16,6 +16,14 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
   final TermsAndConditionsMasterRepository _termsAndConditionsMasterRepository =
       serviceLocator<TermsAndConditionsMasterRepository>();
 
+  // CLEAR SEARCH
+  void clearSearch(){
+    emit(state.copyWith(
+      searchTextBooking: "",
+      searchTextMaterialRequisition: "",
+    ));
+  }
+
   // <---- GET MATERIAL REQUISITION LIST ---->
   Future getMaterialRequisitionTermsAndConditionList(
     BuildContext context,
@@ -484,5 +492,6 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
         materialRequisitionCurrentPageTermsAndConditions: 1,
       ),
     );
+    clearSearch();
   }
 }
