@@ -124,7 +124,6 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.urls);
     return Dialog(
       insetPadding: const EdgeInsets.all(20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
