@@ -15,7 +15,6 @@ class OtherChargeModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-  bool isSelected; // USED IN BOOKING FORM
   bool isMaster;
 
   OtherChargeModel({
@@ -33,7 +32,6 @@ class OtherChargeModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
-    required this.isSelected,
     required this.isMaster,
   });
 
@@ -53,10 +51,9 @@ class OtherChargeModel {
         modifiedById: parseValue<int>(json, "ModifiedById"),
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
         modifiedDate:
-        json["ModifiedDate"] == null
-            ? null
-            : parseValue<DateTime>(json, "ModifiedDate"),
-        isSelected: parseValue<bool>(json, "IsSelected"),
+            json["ModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "ModifiedDate"),
         isMaster: parseValue<bool>(json, "IsMaster"),
       );
 
@@ -75,7 +72,44 @@ class OtherChargeModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
-    "IsSelected": isSelected,
     "IsMaster": isMaster,
   };
+
+  OtherChargeModel copyWith({
+    int? otherChargesId,
+    String? uniquekey,
+    int? bookingOtherChargesId,
+    String? chargeName,
+    String? calculatedOn,
+    double? value,
+    double? gstPercentage,
+    double? gstValue,
+    int? createdById,
+    String? createdBy,
+    DateTime? createdDate,
+    int? modifiedById,
+    String? modifiedBy,
+    DateTime? modifiedDate,
+    bool? isSelected,
+    bool? isMaster,
+  }) {
+    return OtherChargeModel(
+      otherChargesId: otherChargesId ?? this.otherChargesId,
+      uniquekey: uniquekey ?? this.uniquekey,
+      bookingOtherChargesId:
+          bookingOtherChargesId ?? this.bookingOtherChargesId,
+      chargeName: chargeName ?? this.chargeName,
+      calculatedOn: calculatedOn ?? this.calculatedOn,
+      value: value ?? this.value,
+      gstPercentage: gstPercentage ?? this.gstPercentage,
+      gstValue: gstValue ?? this.gstValue,
+      createdById: createdById ?? this.createdById,
+      createdBy: createdBy ?? this.createdBy,
+      createdDate: createdDate ?? this.createdDate,
+      modifiedById: modifiedById ?? this.modifiedById,
+      modifiedBy: modifiedBy ?? this.modifiedBy,
+      modifiedDate: modifiedDate ?? this.modifiedDate,
+      isMaster: isMaster ?? this.isMaster,
+    );
+  }
 }

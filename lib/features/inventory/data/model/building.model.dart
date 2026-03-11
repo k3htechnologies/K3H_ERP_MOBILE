@@ -48,17 +48,17 @@ class BuildingModel {
     modifiedById: parseValue<int>(json, "ModifiedById"),
     modifiedBy: parseValue<String>(json, "ModifiedBy"),
     modifiedDate:
-    json["ModifiedDate"] == null
-        ? null
-        : parseValue<DateTime>(json, "ModifiedDate"),
+        json["ModifiedDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "ModifiedDate"),
     wingList:
-    json["InventoryFlatFloorBasementPodiumWingData"] == null
-        ? []
-        : List<WingModel>.from(
-      json["InventoryFlatFloorBasementPodiumWingData"].map(
-            (x) => WingModel.fromJson(x),
-      ),
-    ),
+        json["InventoryFlatFloorBasementPodiumWingData"] == null
+            ? []
+            : List<WingModel>.from(
+              json["InventoryFlatFloorBasementPodiumWingData"].map(
+                (x) => WingModel.fromJson(x),
+              ),
+            ),
   );
 
   Map<String, dynamic> toJson() => {
@@ -79,6 +79,39 @@ class BuildingModel {
       wingList.map((x) => x.toJson()),
     ),
   };
+  BuildingModel copyWith({
+    int? inventoryBuildingId,
+    String? uniquekey,
+    int? projectId,
+    String? buildingNumber,
+    int? noOfBasement,
+    int? noOfPodium,
+    int? noOfWings,
+    int? createdById,
+    String? createdBy,
+    DateTime? createdDate,
+    int? modifiedById,
+    String? modifiedBy,
+    DateTime? modifiedDate,
+    List<WingModel>? wingList,
+  }) {
+    return BuildingModel(
+      inventoryBuildingId: inventoryBuildingId ?? this.inventoryBuildingId,
+      uniquekey: uniquekey ?? this.uniquekey,
+      projectId: projectId ?? this.projectId,
+      buildingNumber: buildingNumber ?? this.buildingNumber,
+      noOfBasement: noOfBasement ?? this.noOfBasement,
+      noOfPodium: noOfPodium ?? this.noOfPodium,
+      noOfWings: noOfWings ?? this.noOfWings,
+      createdById: createdById ?? this.createdById,
+      createdBy: createdBy ?? this.createdBy,
+      createdDate: createdDate ?? this.createdDate,
+      modifiedById: modifiedById ?? this.modifiedById,
+      modifiedBy: modifiedBy ?? this.modifiedBy,
+      modifiedDate: modifiedDate ?? this.modifiedDate,
+      wingList: wingList ?? this.wingList,
+    );
+  }
 }
 
 class WingModel {
@@ -117,11 +150,11 @@ class WingModel {
 
   factory WingModel.fromJson(Map<String, dynamic> json) {
     List<FloorModel> floorList =
-    json["InventoryFloorData"] == null
-        ? []
-        : List<FloorModel>.from(
-      json["InventoryFloorData"].map((x) => FloorModel.fromJson(x)),
-    );
+        json["InventoryFloorData"] == null
+            ? []
+            : List<FloorModel>.from(
+              json["InventoryFloorData"].map((x) => FloorModel.fromJson(x)),
+            );
     int availableFlat = floorList.map((e) => e.availableFlat).sum;
     int bookedFlat = floorList.map((e) => e.bookedFlat).sum;
     int blockedFlat = floorList.map((e) => e.blockedFlat).sum;
@@ -154,7 +187,7 @@ class WingModel {
 
   Map<String, dynamic> toJson() => {
     "InventoryFlatFloorBasementPodiumWingId":
-    inventoryFlatFloorBasementPodiumWingId,
+        inventoryFlatFloorBasementPodiumWingId,
     "Uniquekey": uniquekey,
     "InventoryBuildingId": inventoryBuildingId,
     "MaxNoOfFlatPerFloor": maxNoOfFlatPerFloor,
@@ -164,6 +197,42 @@ class WingModel {
     "ApprovalStatus": approvalStatus,
     "InventoryFloorData": List<dynamic>.from(floorList.map((x) => x.toJson())),
   };
+  WingModel copyWith({
+    int? inventoryFlatFloorBasementPodiumWingId,
+    String? uniquekey,
+    int? inventoryBuildingId,
+    int? maxNoOfFlatPerFloor,
+    int? noOfFloorExcludingPodium,
+    String? wing,
+    bool? isApproval,
+    String? approvalStatus,
+    List<FloorModel>? floorList,
+    int? availableFlat,
+    int? bookedFlat,
+    int? blockedFlat,
+    int? holdFlat,
+    int? allotedFlat,
+  }) {
+    return WingModel(
+      inventoryFlatFloorBasementPodiumWingId:
+          inventoryFlatFloorBasementPodiumWingId ??
+          this.inventoryFlatFloorBasementPodiumWingId,
+      uniquekey: uniquekey ?? this.uniquekey,
+      inventoryBuildingId: inventoryBuildingId ?? this.inventoryBuildingId,
+      maxNoOfFlatPerFloor: maxNoOfFlatPerFloor ?? this.maxNoOfFlatPerFloor,
+      noOfFloorExcludingPodium:
+          noOfFloorExcludingPodium ?? this.noOfFloorExcludingPodium,
+      wing: wing ?? this.wing,
+      isApproval: isApproval ?? this.isApproval,
+      approvalStatus: approvalStatus ?? this.approvalStatus,
+      floorList: floorList ?? this.floorList,
+      availableFlat: availableFlat ?? this.availableFlat,
+      bookedFlat: bookedFlat ?? this.bookedFlat,
+      blockedFlat: blockedFlat ?? this.blockedFlat,
+      holdFlat: holdFlat ?? this.holdFlat,
+      allotedFlat: allotedFlat ?? this.allotedFlat,
+    );
+  }
 }
 
 class FloorModel {
@@ -202,11 +271,11 @@ class FloorModel {
 
   factory FloorModel.fromJson(Map<String, dynamic> json) {
     List<FlatModel> flatList =
-    json["InventoryFlatData"] == null
-        ? []
-        : List<FlatModel>.from(
-      json["InventoryFlatData"].map((x) => FlatModel.fromJson(x)),
-    );
+        json["InventoryFlatData"] == null
+            ? []
+            : List<FlatModel>.from(
+              json["InventoryFlatData"].map((x) => FlatModel.fromJson(x)),
+            );
     int availableCount =
         flatList.where((flat) => flat.flatStatus == "Available").length;
     int bookedFlat =
@@ -243,12 +312,47 @@ class FloorModel {
     "Uniquekey": uniquekey,
     "InventoryBuildingId": inventoryBuildingId,
     "InventoryFlatFloorBasementPodiumWingId":
-    inventoryFlatFloorBasementPodiumWingId,
+        inventoryFlatFloorBasementPodiumWingId,
     "Floor": floor,
     "SlabHeight": slabHeight,
     "ParkingCount": parkingCount,
     "InventoryFlatData": List<dynamic>.from(flatList.map((x) => x.toJson())),
   };
+  FloorModel copyWith({
+    int? inventoryFloorId,
+    String? uniquekey,
+    int? inventoryBuildingId,
+    int? inventoryFlatFloorBasementPodiumWingId,
+    String? floor,
+    double? slabHeight,
+    int? parkingCount,
+    List<FlatModel>? flatList,
+    int? totalFlat,
+    int? availableFlat,
+    int? bookedFlat,
+    int? blockedFlat,
+    int? holdFlat,
+    int? allotedFlat,
+  }) {
+    return FloorModel(
+      inventoryFloorId: inventoryFloorId ?? this.inventoryFloorId,
+      uniquekey: uniquekey ?? this.uniquekey,
+      inventoryBuildingId: inventoryBuildingId ?? this.inventoryBuildingId,
+      inventoryFlatFloorBasementPodiumWingId:
+          inventoryFlatFloorBasementPodiumWingId ??
+          this.inventoryFlatFloorBasementPodiumWingId,
+      floor: floor ?? this.floor,
+      slabHeight: slabHeight ?? this.slabHeight,
+      parkingCount: parkingCount ?? this.parkingCount,
+      flatList: flatList ?? this.flatList,
+      totalFlat: totalFlat ?? this.totalFlat,
+      availableFlat: availableFlat ?? this.availableFlat,
+      bookedFlat: bookedFlat ?? this.bookedFlat,
+      blockedFlat: blockedFlat ?? this.blockedFlat,
+      holdFlat: holdFlat ?? this.holdFlat,
+      allotedFlat: allotedFlat ?? this.allotedFlat,
+    );
+  }
 }
 
 class FlatModel {
@@ -319,17 +423,17 @@ class FlatModel {
     bookingCreatedById: parseValue<int>(json, "BookingCreatedById"),
     bookingCreatedBy: parseValue<String>(json, "BookingCreatedBy"),
     bookingCreatedDate:
-    json["BookingCreatedDate"] == null
-        ? null
-        : parseValue<DateTime>(json, "BookingCreatedDate"),
+        json["BookingCreatedDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "BookingCreatedDate"),
     specificationList:
-    json["InventoryFlatSpecificationData"] == null
-        ? []
-        : List<FlatSpecificationModel>.from(
-      json["InventoryFlatSpecificationData"].map(
-            (x) => FlatSpecificationModel.fromJson(x),
-      ),
-    ),
+        json["InventoryFlatSpecificationData"] == null
+            ? []
+            : List<FlatSpecificationModel>.from(
+              json["InventoryFlatSpecificationData"].map(
+                (x) => FlatSpecificationModel.fromJson(x),
+              ),
+            ),
   );
 
   Map<String, dynamic> toJson() => {
@@ -338,7 +442,7 @@ class FlatModel {
     "InventoryBuildingId": inventoryBuildingId,
     "BuildingNumber": buildingNumber,
     "InventoryFlatFloorBasementPodiumWingId":
-    inventoryFlatFloorBasementPodiumWingId,
+        inventoryFlatFloorBasementPodiumWingId,
     "Wing": wing,
     "InventoryFloorId": inventoryFloorId,
     "Floor": floor,
@@ -357,6 +461,54 @@ class FlatModel {
       specificationList.map((x) => x.toJson()),
     ),
   };
+
+  FlatModel copyWith({
+    int? inventoryFlatId,
+    String? uniquekey,
+    int? inventoryBuildingId,
+    String? buildingNumber,
+    int? inventoryFlatFloorBasementPodiumWingId,
+    String? wing,
+    int? inventoryFloorId,
+    String? floor,
+    String? flat,
+    double? reraCarpetAreaSqFt,
+    String? flatType,
+    String? flatConfiguration,
+    String? flatStatus,
+    String? ownerName,
+    String? flatFacing,
+    int? bookingId,
+    int? bookingCreatedById,
+    String? bookingCreatedBy,
+    DateTime? bookingCreatedDate,
+    List<FlatSpecificationModel>? specificationList,
+  }) {
+    return FlatModel(
+      inventoryFlatId: inventoryFlatId ?? this.inventoryFlatId,
+      uniquekey: uniquekey ?? this.uniquekey,
+      inventoryBuildingId: inventoryBuildingId ?? this.inventoryBuildingId,
+      buildingNumber: buildingNumber ?? this.buildingNumber,
+      inventoryFlatFloorBasementPodiumWingId:
+          inventoryFlatFloorBasementPodiumWingId ??
+          this.inventoryFlatFloorBasementPodiumWingId,
+      wing: wing ?? this.wing,
+      inventoryFloorId: inventoryFloorId ?? this.inventoryFloorId,
+      floor: floor ?? this.floor,
+      flat: flat ?? this.flat,
+      reraCarpetAreaSqFt: reraCarpetAreaSqFt ?? this.reraCarpetAreaSqFt,
+      flatType: flatType ?? this.flatType,
+      flatConfiguration: flatConfiguration ?? this.flatConfiguration,
+      flatStatus: flatStatus ?? this.flatStatus,
+      ownerName: ownerName ?? this.ownerName,
+      flatFacing: flatFacing ?? this.flatFacing,
+      bookingId: bookingId ?? this.bookingId,
+      bookingCreatedById: bookingCreatedById ?? this.bookingCreatedById,
+      bookingCreatedBy: bookingCreatedBy ?? this.bookingCreatedBy,
+      bookingCreatedDate: bookingCreatedDate ?? this.bookingCreatedDate,
+      specificationList: specificationList ?? this.specificationList,
+    );
+  }
 }
 
 class FlatSpecificationModel {
@@ -412,7 +564,7 @@ class FlatSpecificationModel {
     "Uniquekey": uniquekey,
     "InventoryBuildingId": inventoryBuildingId,
     "InventoryFlatFloorBasementPodiumWingId":
-    inventoryFlatFloorBasementPodiumWingId,
+        inventoryFlatFloorBasementPodiumWingId,
     "InventoryFloorId": inventoryFloorId,
     "InventoryFlatId": inventoryFlatId,
     "FlatLayout": flatLayout,

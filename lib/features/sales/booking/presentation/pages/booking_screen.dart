@@ -94,8 +94,16 @@ class _BookingScreenState extends State<BookingScreen> {
         screenTitle: "Booking",
         authorization: _routhAuthorizationModel,
         textController: _searchC,
-        onSearchSubmit: (value) {},
-        onExportCallback: (value) {},
+        onSearchSubmit: (value) {
+          _bookingCubit.searchBooking(context, value);
+        },
+        onExportCallback: (value) {
+          if (_bookingCubit.state.totalNumberOfRecord == 0) {
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
+          _bookingCubit.exportExcelPdf(context, value, getProject().projectId);
+        },
         onProjectChangeCallback: (value) {
           _project = value;
           _bookingCubit.getBookingList(context, 1, value.projectId);
@@ -107,7 +115,9 @@ class _BookingScreenState extends State<BookingScreen> {
             return Center(child: loader());
           }
           if (state.bookingList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Booking Data Found"));
+            return Center(
+              child: noDataWidget(message: "No Booking Data Found"),
+            );
           }
           return ListView.builder(
             controller: scrollController,
@@ -162,28 +172,30 @@ class _BookingScreenState extends State<BookingScreen> {
                           style: AppTextStyle.ts14M(),
                         ),
                         horizontalSpacing(),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.addBooking,
-                                  queryParameters: {
-                                    "booking": Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(booking),
-                                      ),
-                                    ),
-                                    "index": index.toString(),
+                        _routhAuthorizationModel.isAction &&
+                                booking.approvalStatus.toLowerCase() !=
+                                    'approved'
+                            ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () {
+                                    goRouter.pushNamed(
+                                      AppRoutes.addBooking,
+                                      queryParameters: {
+                                        "booking": Uri.encodeComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(booking),
+                                          ),
+                                        ),
+                                        "index": index.toString(),
+                                      },
+                                    );
                                   },
-                                );
-                              },
-                            ),
-                            horizontalSpacing(),
-                            CustomIconButton.delete(onPressed: () {}),
-                          ],
-                        ),
+                                ),
+                              ],
+                            )
+                            : SizedBox.shrink(),
                       ],
                     ),
                     buildRowTitleValue(

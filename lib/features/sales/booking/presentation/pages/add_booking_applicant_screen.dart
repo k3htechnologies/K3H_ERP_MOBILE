@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
@@ -187,19 +186,42 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
       applicantMobileNumber: _mobileC.text.trim(),
       applicantEmailId: _emailC.text.trim(),
 
-      photoURL: widget.applicant?.photoURL ?? '',
+      photoURL:
+          profilePhotoFile.fileNameList.isNotEmpty
+              ? profilePhotoFile.fileNameList.join(",")
+              : widget.applicant?.photoURL ?? '',
+      aadharCardURL:
+          aadhaarFile.fileNameList.isNotEmpty
+              ? aadhaarFile.fileNameList.join(",")
+              : widget.applicant?.aadharCardURL ?? '',
+      panCardURL:
+          panFile.fileNameList.isNotEmpty
+              ? panFile.fileNameList.join(",")
+              : widget.applicant?.panCardURL ?? '',
+      passportURL:
+          passportFile.fileNameList.isNotEmpty
+              ? passportFile.fileNameList.join(",")
+              : widget.applicant?.passportURL ?? '',
+      drivingLicenseURL:
+          drivingLicenseFile.fileNameList.isNotEmpty
+              ? drivingLicenseFile.fileNameList.join(",")
+              : widget.applicant?.drivingLicenseURL ?? '',
+      votingIdURL:
+          votingIdFile.fileNameList.isNotEmpty
+              ? votingIdFile.fileNameList.join(",")
+              : widget.applicant?.votingIdURL ?? '',
+      gstNumberURL:
+          gstFile.fileNameList.isNotEmpty
+              ? gstFile.fileNameList.join(",")
+              : widget.applicant?.gstNumberURL ?? '',
+
+      // Text fields
       aadharCardNumber: _aadharC.text.trim(),
-      aadharCardURL: widget.applicant?.aadharCardURL ?? '',
       panNumber: _panC.text.trim(),
-      panCardURL: widget.applicant?.panCardURL ?? '',
       passportNumber: _passportC.text.trim(),
-      passportURL: widget.applicant?.passportURL ?? '',
       drivingLicenseNumber: _drivingLicenseC.text.trim(),
-      drivingLicenseURL: widget.applicant?.drivingLicenseURL ?? '',
       votingIdNumber: _votingIdC.text.trim(),
-      votingIdURL: widget.applicant?.votingIdURL ?? '',
       gstNumber: _gstC.text.trim(),
-      gstNumberURL: widget.applicant?.gstNumberURL ?? '',
 
       createdById: widget.applicant?.createdById ?? -1,
       createdBy: widget.applicant?.createdBy ?? '',
@@ -209,7 +231,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
       modifiedDate: DateTime.now(),
     );
 
-    // 🔥 Attach file picker models
+    // ✅ NOW set image objects (for UI/display purposes)
     applicant.profilePhotoImage = profilePhotoFile;
     applicant.aadhaarImage = aadhaarFile;
     applicant.panImage = panFile;
@@ -365,7 +387,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                         InputValidator.aadhaarNumberInputFormatter(),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Aadhaar is required";
+                        return "Aadhaar Card Number is required";
                       }
                       if (value.trim().isNotEmpty &&
                           !InputValidator.isValidAadharNumber(value.trim())) {
