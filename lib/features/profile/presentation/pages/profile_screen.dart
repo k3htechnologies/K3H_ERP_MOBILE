@@ -473,9 +473,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                     "Shift Policy",
                     "Week Off Policy",
                   ],
-                  onTabChanged: (index) {
-                    print("Hahahaha : $index");
-                  },
                 ),
                 Expanded(
                   child: TabBarView(
