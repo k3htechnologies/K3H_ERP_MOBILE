@@ -172,26 +172,30 @@ class _BookingScreenState extends State<BookingScreen> {
                           style: AppTextStyle.ts14M(),
                         ),
                         horizontalSpacing(),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.addBooking,
-                                  queryParameters: {
-                                    "booking": Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(booking),
-                                      ),
-                                    ),
-                                    "index": index.toString(),
+                        _routhAuthorizationModel.isAction &&
+                                booking.approvalStatus.toLowerCase() !=
+                                    'approved'
+                            ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () {
+                                    goRouter.pushNamed(
+                                      AppRoutes.addBooking,
+                                      queryParameters: {
+                                        "booking": Uri.encodeComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(booking),
+                                          ),
+                                        ),
+                                        "index": index.toString(),
+                                      },
+                                    );
                                   },
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                ),
+                              ],
+                            )
+                            : SizedBox.shrink(),
                       ],
                     ),
                     buildRowTitleValue(
