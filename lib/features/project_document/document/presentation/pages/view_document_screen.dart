@@ -106,27 +106,29 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                     style: AppTextStyle.ts16SB(),
                   ),
                 ),
-                CustomButton(
-                  leading: Icon(Icons.add, color: AppColor.white, size: 16),
-                  text: "Add",
-                  onPressed: () {
-                    goRouter.pushNamed(
-                      AppRoutes.addDocument,
-                      queryParameters: {
-                        "document": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(widget.documentModel.toJson()),
-                          ),
-                        ),
-                        "index": widget.index.toString(),
+                _routeAuthorizationModel.isAction
+                    ? CustomButton(
+                      leading: Icon(Icons.add, color: AppColor.white, size: 16),
+                      text: "Add",
+                      onPressed: () {
+                        goRouter.pushNamed(
+                          AppRoutes.addDocument,
+                          queryParameters: {
+                            "document": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(widget.documentModel.toJson()),
+                              ),
+                            ),
+                            "index": widget.index.toString(),
 
-                        "isEdit": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(false.toString()),
-                        ),
+                            "isEdit": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(false.toString()),
+                            ),
+                          },
+                        );
                       },
-                    );
-                  },
-                ),
+                    )
+                    : SizedBox.shrink(),
               ],
             ),
 

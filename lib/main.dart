@@ -106,7 +106,6 @@ String _formatCallDateForApi(DateTime dt) {
 }
 
 Future<void> main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
 
   await requestPhonePermission();
@@ -138,7 +137,6 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-
 Future<void> requestPhonePermission() async {
   final status = await Permission.phone.request();
 
@@ -149,6 +147,15 @@ Future<void> requestPhonePermission() async {
   }
 }
 
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
+
 Future initialSetup() async {
   // REMOVE '#' FROM THE PATH
   setPathUrlStrategy();
@@ -156,6 +163,8 @@ Future initialSetup() async {
   await LocalStorageManager().init();
   // DEPENDENCY INJECTION
   initDependencies();
+  HttpOverrides.global = MyHttpOverrides();
+
   // MENU LIST
   var decodedMenuData = LocalStorageManager().getString(StorageKey.menu);
   if (decodedMenuData != null) {

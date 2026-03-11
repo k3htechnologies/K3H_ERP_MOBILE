@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/data/model/rera_document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/cubit/rera_document_category_cubit.dart';
@@ -33,8 +34,8 @@ class _RERADocumentCategoryScreenState
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
 
-  //PROJECT ID
-  late int projectId;
+  //PROJECT
+  late ProjectModel projectId;
 
   // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
@@ -52,11 +53,11 @@ class _RERADocumentCategoryScreenState
     _initializeTextEditingController();
     _onScroll();
     //SET PROJECT ID
-    projectId = getProject().projectId;
+    projectId = getProject();
     _reraDocumentCategoryCubit.getRERADocumentCategoryList(
       context,
       1,
-      projectId,
+      projectId.projectId,
     );
   }
 
@@ -73,7 +74,7 @@ class _RERADocumentCategoryScreenState
             context,
             _reraDocumentCategoryCubit.state.currentPage + 1,
 
-            projectId,
+            projectId.projectId,
           );
         }
       }
@@ -100,7 +101,7 @@ class _RERADocumentCategoryScreenState
 
     if (shouldDelete && context.mounted) {
       _reraDocumentCategoryCubit.deleteRERADocumentCategory(
-        projectId,
+        projectId.projectId,
         obj,
         context,
       );
@@ -111,13 +112,14 @@ class _RERADocumentCategoryScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        screenTitle: "RERA Category",
+        screenTitle: "RERA Document Category",
         authorization: _routeAuthorizationModel,
+        searchHintText: "Search By Project RERA Document Category",
         onSearchSubmit: (value) {
           if (projectId != 0) {
             _reraDocumentCategoryCubit.searchCategory(
               context,
-              projectId,
+              projectId.projectId,
               value,
             );
           }
@@ -130,6 +132,14 @@ class _RERADocumentCategoryScreenState
           }
           goRouter.pushNamed(AppRoutes.addReraDocumentCategory);
         },
+        onProjectChangeCallback: (value) {
+          projectId = value;
+          _reraDocumentCategoryCubit.getRERADocumentCategoryList(
+            context,
+            1,
+            projectId.projectId,
+          );
+        },
       ),
       body: BlocBuilder<RERADocumentCategoryCubit, RERADocumentCategoryState>(
         bloc: _reraDocumentCategoryCubit,
@@ -139,7 +149,11 @@ class _RERADocumentCategoryScreenState
             return Center(child: loader());
           }
           if (state.reraDocumentCategoryList.isEmpty) {
-            return Center(child: noDataWidget());
+            return Center(
+              child: noDataWidget(
+                message: "No Project RERA Document Category Data Found",
+              ),
+            );
           }
           return ListView.builder(
             controller: scrollController,

@@ -95,6 +95,7 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
         approvalDocumentStatus: _selectedStatus[0]['DisplayName'],
         approvalDocumentExpiryDate: expiryDate,
         approvalDocumentRemark: _remarkC.text.trim(),
+        approvalDocumentName: widget.documentModel!.approvalDocumentName,
       );
     } else {
       _documentCubit.updateSubApprovalDocument(
@@ -153,6 +154,16 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
+                Visibility(
+                  visible: _isEditMode,
+                  child: CustomTextField(
+                    title: "Document Name",
+                    hint: widget.documentModel!.approvalDocumentName,
+                    isRequired: true,
+                    readOnly: true,
+                    textController: TextEditingController(),
+                  ),
+                ),
                 CustomDropDownWidget(
                   title: "Status",
                   dataList: statusList,
@@ -162,9 +173,15 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
                   onSelected: (Map<String, dynamic> p1) {
                     _selectedStatus = [p1];
                   },
+                  validator: (value) {
+                    if (value == null || value["zAttributesId"] == -1) {
+                      return 'Status is required';
+                    }
+                    return null;
+                  },
                 ),
                 CustomMultiFilePicker(
-                  maxFiles: 3,
+                  maxFiles: 5,
                   title: "Files",
                   initialFileList: selectedApprovalDocumentFile.fileNameList,
                   onFilePickedCallback: (bytesList, fileNameList) {
@@ -189,7 +206,8 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
                 CustomTextField(
                   title: "Remark",
                   hint: "Enter Remark",
-                  maxLines: 3,
+                  maxLines: 10,
+                  minLines: 3,
                   textController: _remarkC,
                 ),
               ],

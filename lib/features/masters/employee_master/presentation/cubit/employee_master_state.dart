@@ -202,11 +202,11 @@ class EmployeeMasterState extends BaseState {
       isLoading: isLoading ?? this.isLoading,
       stateType: stateType ?? this.stateType,
       employeeExperienceDetailsList:
-      employeeExperienceDetailsList ?? this.employeeExperienceDetailsList,
+          employeeExperienceDetailsList ?? this.employeeExperienceDetailsList,
       employeeEducationDetailsList:
-      employeeEducationDetailsList ?? this.employeeEducationDetailsList,
+          employeeEducationDetailsList ?? this.employeeEducationDetailsList,
       branchAssociationList:
-      branchAssociationList ?? this.branchAssociationList,
+          branchAssociationList ?? this.branchAssociationList,
       employeeMasterList: employeeMasterList ?? this.employeeMasterList,
       employeeDocumentList: employeeDocumentList ?? this.employeeDocumentList,
       departmentList: departmentList ?? this.departmentList,

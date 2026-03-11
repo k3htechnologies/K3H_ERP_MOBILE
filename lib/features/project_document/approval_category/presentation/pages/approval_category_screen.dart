@@ -46,7 +46,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
     super.initState();
     _documentCategoryCubit = context.read<ApprovalCategoryCubit>();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.category]!;
+        Authorization.routeAuthorizationMap[AppRoutes.approvalCategory]!;
 
     _initializeTextEditingController();
     _onScroll();
@@ -212,47 +212,49 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                             ),
                           ),
                         ),
-                        Row(
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                if (projectId == 0) {
-                                  showErrorMessage(
-                                    context,
-                                    'Error',
-                                    'Please select a project',
-                                  );
-                                  return;
-                                }
-                                await goRouter.pushNamed(
-                                  AppRoutes.addApprovalCategory,
-                                  queryParameters: {
-                                    "approvalCategory":
-                                        Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(
-                                              approvalCategory.toJson(),
+                        if (_routeAuthorizationModel.isAction) ...[
+                          Row(
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  if (projectId == 0) {
+                                    showErrorMessage(
+                                      context,
+                                      'Error',
+                                      'Please select a project',
+                                    );
+                                    return;
+                                  }
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addApprovalCategory,
+                                    queryParameters: {
+                                      "approvalCategory":
+                                          Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(
+                                                approvalCategory.toJson(),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                    'index': index.toString(),
-                                  },
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteApprovalDocumentCategory(
-                                  context,
-                                  approvalCategory,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteApprovalDocumentCategory(
+                                    context,
+                                    approvalCategory,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                     verticalSpacing(height: 8),

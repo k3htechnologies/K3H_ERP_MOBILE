@@ -13,6 +13,9 @@ class ProfileState extends BaseState {
   final List<EmployeeEducationDetailsModel> employeeEducationDetailsList;
   final List<EmployeeExperienceDetailsModel> employeeExperienceDetailsList;
   final List<BranchAssociationModel> branchAssociationList;
+  final List<UserModel> employeeMasterList;
+  final int currentPage;
+  final int totalNumberOfRecord;
 
   const ProfileState({
     super.isLoading,
@@ -28,6 +31,9 @@ class ProfileState extends BaseState {
     required this.employeeEducationDetailsList,
     required this.employeeExperienceDetailsList,
     required this.branchAssociationList,
+    required this.employeeMasterList,
+    required this.currentPage,
+    required this.totalNumberOfRecord,
   });
 
   factory ProfileState.initial() => const ProfileState(
@@ -42,6 +48,9 @@ class ProfileState extends BaseState {
     employeeEducationDetailsList: [],
     employeeExperienceDetailsList: [],
     branchAssociationList: [],
+    employeeMasterList: [],
+    currentPage: 1,
+    totalNumberOfRecord: 0,
   );
 
   ProfileState copyWith({
@@ -58,6 +67,9 @@ class ProfileState extends BaseState {
     List<EmployeeEducationDetailsModel>? employeeEducationDetailsList,
     List<EmployeeExperienceDetailsModel>? employeeExperienceDetailsList,
     List<BranchAssociationModel>? branchAssociationList,
+    List<UserModel>? employeeMasterList,
+    int? currentPage,
+    int? totalNumberOfRecord,
   }) {
     return ProfileState(
       isLoading: isLoading ?? this.isLoading,
@@ -70,9 +82,15 @@ class ProfileState extends BaseState {
       assetMappingList: assetMappingList ?? this.assetMappingList,
       shiftManagementList: shiftManagementList ?? this.shiftManagementList,
       weekOffMappingList: weekOffMappingList ?? this.weekOffMappingList,
-      employeeEducationDetailsList: employeeEducationDetailsList ?? this.employeeEducationDetailsList,
-      employeeExperienceDetailsList: employeeExperienceDetailsList ?? this.employeeExperienceDetailsList,
-      branchAssociationList: branchAssociationList ?? this.branchAssociationList,
+      employeeEducationDetailsList:
+          employeeEducationDetailsList ?? this.employeeEducationDetailsList,
+      employeeExperienceDetailsList:
+          employeeExperienceDetailsList ?? this.employeeExperienceDetailsList,
+      branchAssociationList:
+          branchAssociationList ?? this.branchAssociationList,
+      employeeMasterList: employeeMasterList ?? this.employeeMasterList,
+      currentPage: currentPage ?? this.currentPage,
+      totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
     );
   }
 
@@ -91,5 +109,8 @@ class ProfileState extends BaseState {
     employeeEducationDetailsList,
     employeeExperienceDetailsList,
     branchAssociationList,
+    employeeMasterList,
+    currentPage,
+    totalNumberOfRecord,
   ];
 }

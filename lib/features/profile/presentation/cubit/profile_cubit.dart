@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_ma
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
+import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -48,11 +49,11 @@ class ProfileCubit extends Cubit<ProfileState> {
   // LOCAL STORAGE MANAGER
   final _localStorage = LocalStorageManager();
 
-
   // LOAD USER DATA
   Future<void> _loadUserData() async {
     final user = await _getUser();
     final project = _getSelectedProject();
+
     if (user != null) {
       emit(
         state.copyWith(
@@ -60,6 +61,14 @@ class ProfileCubit extends Cubit<ProfileState> {
           selectedProject: project,
           projectList: user.projectData,
         ),
+      );
+
+      /// AUTO LOAD OVERVIEW
+      getEmployeeMasterList(
+        navigatorKey.currentContext!,
+        1,
+        100,
+        user.employeeId,
       );
     }
   }
@@ -150,7 +159,9 @@ class ProfileCubit extends Cubit<ProfileState> {
     if (state.user == null) return;
 
     final employeeId = state.user!.employeeId;
-    if (index == 1) {
+    if (index == 0) {
+      getEmployeeMasterList(context, 1, 100, employeeId);
+    } else if (index == 1) {
       // Education tab
       getEmployeeEducationDetailsList(context, 1, 100, employeeId);
     } else if (index == 2) {
@@ -177,6 +188,40 @@ class ProfileCubit extends Cubit<ProfileState> {
       // Week Off Policy tab
       getWeekOffMappingList(context, 1, 100, employeeId);
     }
+  }
+
+  // <---- GET EMPLOYEE MASTER LIST ---->
+  Future getEmployeeMasterList(
+    BuildContext context,
+    int pageNumber,
+    int pageSize,
+    int employeeId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await _employeeMasterRepository.getEmployeeMasterList(
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      queryParams: {"EmployeeId": employeeId, "IsCheckPermission": false},
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final dataList = response['data'] as List;
+        List<UserModel> newList =
+            pageNumber == 1
+                ? List<UserModel>.from(dataList)
+                : [
+                  ...state.employeeMasterList,
+                  ...List<UserModel>.from(dataList),
+                ];
+        emit(state.copyWith(isLoading: false, employeeMasterList: newList));
+      },
+    );
   }
 
   // <---- GET EMPLOYEE DOCUMENT LIST ---->

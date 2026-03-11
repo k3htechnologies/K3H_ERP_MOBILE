@@ -21,7 +21,8 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final UserModel? data;
+  const ProfileScreen({super.key, this.data});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -45,7 +46,6 @@ class _ProfileScreenState extends State<ProfileScreen>
   final _educationFormKey = GlobalKey<FormState>();
   final _experienceFormKey = GlobalKey<FormState>();
   final _mpinFormKey = GlobalKey<FormState>();
-
   @override
   void initState() {
     super.initState();
@@ -53,6 +53,13 @@ class _ProfileScreenState extends State<ProfileScreen>
     _initializeTextEditingControllers();
     _tabController = TabController(length: 9, vsync: this);
     _tabController.addListener(_handleTabChange);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = _profileCubit.state.user;
+
+      if (user != null) {
+        _profileCubit.getEmployeeMasterList(context, 1, 100, user.employeeId);
+      }
+    });
   }
 
   @override
@@ -135,9 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     isRequired: true,
                     hint: "Enter Qualification",
                     textController: _qualificationC,
-                    inputFormatterList: [
-                      LengthLimitingTextInputFormatter(250)
-                    ],
+                    inputFormatterList: [LengthLimitingTextInputFormatter(250)],
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Qualification is required';
@@ -149,9 +154,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     title: "College Name",
                     isRequired: true,
                     hint: "Enter College Name",
-                    inputFormatterList: [
-                      LengthLimitingTextInputFormatter(250)
-                    ],
+                    inputFormatterList: [LengthLimitingTextInputFormatter(250)],
                     textController: _collageNameC,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -470,6 +473,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                       child: TabBar(
                         controller: _tabController,
                         isScrollable: true,
+                        onTap: (index) {
+                          _profileCubit.onTabChanged(index, context);
+                        },
                         tabAlignment: TabAlignment.start,
                         labelColor: AppColor.primary,
                         unselectedLabelColor: AppColor.grey,
@@ -505,7 +511,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     physics: NeverScrollableScrollPhysics(),
                     controller: _tabController,
                     children: [
-                      _buildOverviewTab(state.user!),
+                      _buildOverviewTab(),
                       _buildEducationDetailsTab(),
                       _buildExperienceDetailsTab(),
                       _buildBranchAssociationTab(),
@@ -728,8 +734,8 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   // BUILD EMPLOYEE REPORTING CYCLE CARD
   Widget _buildEmployeeReportingCycleCard(
-      List<Map<String, dynamic>> employeeReportingCycleData,
-      ) {
+    List<Map<String, dynamic>> employeeReportingCycleData,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
@@ -737,10 +743,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Reporting Structure',
-            style: AppTextStyle.ts16SB(),
-          ),
+          Text('Reporting Structure', style: AppTextStyle.ts16SB()),
           const SizedBox(height: 16),
 
           // TIMELINE LIST
@@ -799,43 +802,48 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 Flexible(
                                   child: Text(
                                     _getDisplayValue(
-                                        employee['FullName']?.toString()),
+                                      employee['FullName']?.toString(),
+                                    ),
                                     style: AppTextStyle.ts14SB(),
                                   ),
                                 ),
                                 horizontalSpacing(),
-                                if(employee['EmployeeCode']!=null && employee['EmployeeCode']!.isNotEmpty)
-                                Container(
-                                  decoration: BoxDecoration(),
-                                    child: Text("(${employee['EmployeeCode'] ?? '-'})",style: AppTextStyle.ts12R(color: AppColor.grey),))
+                                if (employee['EmployeeCode'] != null &&
+                                    employee['EmployeeCode']!.isNotEmpty)
+                                  Container(
+                                    decoration: BoxDecoration(),
+                                    child: Text(
+                                      "(${employee['EmployeeCode'] ?? '-'})",
+                                      style: AppTextStyle.ts12R(
+                                        color: AppColor.grey,
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
                             const SizedBox(height: 4),
                             Text(
                               _getDisplayValue(
-                                  employee['Designation']?.toString()),
-                              style: AppTextStyle.ts12R(
-                                color: AppColor.grey,
+                                employee['Designation']?.toString(),
                               ),
+                              style: AppTextStyle.ts12R(color: AppColor.grey),
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              _getDisplayValue(
-                                  employee['EmailId']?.toString()),
-                              style: AppTextStyle.ts12R(
-                                color: AppColor.grey,
-                              ),
+                              _getDisplayValue(employee['EmailId']?.toString()),
+                              style: AppTextStyle.ts12R(color: AppColor.grey),
                             ),
-                            if(employee['PersonalMobileNumber']!=null && employee['PersonalMobileNumber']!.isNotEmpty)...[
+                            if (employee['PersonalMobileNumber'] != null &&
+                                employee['PersonalMobileNumber']!
+                                    .isNotEmpty) ...[
                               const SizedBox(height: 6),
                               Text(
                                 _getDisplayValue(
-                                    employee['PersonalMobileNumber']?.toString()),
-                                style: AppTextStyle.ts12R(
-                                  color: AppColor.grey,
+                                  employee['PersonalMobileNumber']?.toString(),
                                 ),
+                                style: AppTextStyle.ts12R(color: AppColor.grey),
                               ),
-                            ]
+                            ],
                           ],
                         ),
                       ),
@@ -887,103 +895,133 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   // BUILD OVERVIEW TAB
-  Widget _buildOverviewTab(UserModel user) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          verticalSpacing(),
-          _buildInfoCard(
-            title: 'Basic Information',
-            items: [
-              {'label': 'Employee Code', 'value': user.employeeCode},
-              {'label': 'Full Name', 'value': user.fullName},
-              {
-                'label': 'Date of Birth',
-                'value':
-                    user.dateOfBirth != null
-                        ? formatDateTimeAsDDMMMYYYY(user.dateOfBirth!)
-                        : '-',
-              },
-              {'label': 'Gender', 'value': user.gender},
-              {'label': 'Marital Status', 'value': user.maritalStatus},
-              {'label': 'Blood Group', 'value': user.bloodGroup},
-              {
-                'label': 'Communication Address',
-                'value': user.communicationAddress,
-                'fullWidth': 'true',
-              },
-              {
-                'label': 'Permanent Address',
-                'value': user.permanentAddress,
-                'fullWidth': 'true',
-              },
-            ],
-          ),
-          verticalSpacing(),
-          _buildInfoCard(
-            title: 'Contact Information',
-            items: [
-              {'label': 'Personal Mobile No.', 'value': user.personalMobileNumber},
-              {'label': 'Office Mobile', 'value': user.officeMobileNumber},
-              {'label': 'Email Id', 'value': user.emailId},
-              {'label': 'Office Email Id', 'value': user.officeEmailId},
-              {
-                'label': 'Relation to Emergency Contact',
-                'value': user.emergencyContactPersonRelationship,
-              },
-              {
-                'label': 'Emergency Contact No.',
-                'value': user.emergencyMobileNumber,
-              },
-            ],
-          ),
-          verticalSpacing(),
-          _buildInfoCard(
-            title: 'Professional Information',
-            items: [
-              {'label': 'Company Name', 'value': user.companyName},
-              {'label': 'Department', 'value': user.department},
-              {'label': 'Designation', 'value': user.designation},
-              {'label': 'Branch', 'value': user.branch},
-              {'label': 'Employment Type', 'value': user.employeeType},
-              {'label': 'Reporting Person', 'value': user.reportPersonName},
-              if (user.joiningDate != null)
-                {
-                  'label': 'Joining Date',
-                  'value': formatDateTimeAsDDMMMYYYY(user.joiningDate!),
-                },
-            ],
-          ),
-          verticalSpacing(),
-          _buildInfoCard(
-            title: 'Address Information',
-            items: [
-              {'label': 'Country', 'value': user.countryName},
-              {'label': 'State', 'value': user.stateName},
-              {'label': 'District', 'value': user.districtName},
-              {'label': 'City', 'value': user.cityName},
-            ],
-          ),
-          verticalSpacing(),
-          if (_hasBankDetails(user))
-            _buildInfoCard(
-              title: 'Bank Details',
-              items: [
-                {'label': 'Bank Name', 'value': user.bankName},
-                {'label': 'Bank Branch', 'value': user.bankBranchName},
-                {'label': 'IFSC Code', 'value': user.ifscCode},
-                {'label': 'Account Number', 'value': user.accountNo},
-              ],
+  Widget _buildOverviewTab() {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        if (state.isLoading == true && state.employeeMasterList.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: CircularProgressIndicator(),
             ),
-          if (_hasBankDetails(user)) verticalSpacing(),
-          if (user.employeeReportingCycleData.isNotEmpty)
-            _buildEmployeeReportingCycleCard(user.employeeReportingCycleData),
-          if (user.employeeReportingCycleData.isNotEmpty) verticalSpacing(),
-          _buildLogoutButton(context),
-          verticalSpacing(height: 20),
-        ],
-      ),
+          );
+        }
+
+        if (state.employeeMasterList.isEmpty) {
+          return Center(child: noDataWidget(message: "yrredytfjhgyh"));
+        }
+        final overview = state.employeeMasterList[0];
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              verticalSpacing(),
+              _buildInfoCard(
+                title: 'Basic Details',
+                items: [
+                  {'label': 'Employee Code', 'value': overview.employeeCode},
+                  {'label': 'Full Name', 'value': overview.fullName},
+                  {'label': 'Gender', 'value': overview.gender},
+                  {'label': 'Marital Status', 'value': overview.maritalStatus},
+                  {'label': 'Blood Group', 'value': overview.bloodGroup},
+                  {
+                    'label': 'Date of Birth',
+                    'value':
+                        overview.dateOfBirth != null
+                            ? formatDateTimeAsDDMMMYYYY(overview.dateOfBirth!)
+                            : '-',
+                  },
+
+                  {
+                    'label': 'Communication Address',
+                    'value': overview.communicationAddress,
+                    'fullWidth': 'true',
+                  },
+                  {
+                    'label': 'Permanent Address',
+                    'value': overview.permanentAddress,
+                    'fullWidth': 'true',
+                  },
+                ],
+              ),
+              verticalSpacing(),
+              _buildInfoCard(
+                title: 'Contact Information',
+                items: [
+                  {
+                    'label': 'Personal Mobile No.',
+                    'value': overview.personalMobileNumber,
+                  },
+                  {
+                    'label': 'Office Mobile',
+                    'value': overview.officeMobileNumber,
+                  },
+                  {'label': 'Email Id', 'value': overview.emailId},
+                  {'label': 'Office Email Id', 'value': overview.officeEmailId},
+                  {
+                    'label': 'Relation to Emergency Contact',
+                    'value': overview.emergencyContactPersonRelationship,
+                  },
+                  {
+                    'label': 'Emergency Contact No.',
+                    'value': overview.emergencyMobileNumber,
+                  },
+                ],
+              ),
+              verticalSpacing(),
+              _buildInfoCard(
+                title: 'Professional Information',
+                items: [
+                  {'label': 'Company Name', 'value': overview.companyName},
+                  {'label': 'Department', 'value': overview.department},
+                  {'label': 'Designation', 'value': overview.designation},
+                  {'label': 'Branch', 'value': overview.branch},
+                  {'label': 'Employment Type', 'value': overview.employeeType},
+                  {
+                    'label': 'Reporting Person',
+                    'value': overview.reportPersonName,
+                  },
+                  if (overview.joiningDate != null)
+                    {
+                      'label': 'Joining Date',
+                      'value': formatDate(overview.joiningDate!),
+                    },
+                ],
+              ),
+              verticalSpacing(),
+              _buildInfoCard(
+                title: 'Address Information',
+                items: [
+                  {'label': 'Country', 'value': overview.countryName},
+                  {'label': 'State', 'value': overview.stateName},
+                  {'label': 'District', 'value': overview.districtName},
+                  {'label': 'City', 'value': overview.cityName},
+                ],
+              ),
+              verticalSpacing(),
+              if (_hasBankDetails(overview))
+                _buildInfoCard(
+                  title: 'Bank Details',
+                  items: [
+                    {'label': 'Bank Name', 'value': overview.bankName},
+                    {'label': 'Bank Branch', 'value': overview.bankBranchName},
+                    {'label': 'IFSC Code', 'value': overview.ifscCode},
+                    {'label': 'Account Number', 'value': overview.accountNo},
+                  ],
+                ),
+              if (_hasBankDetails(overview)) verticalSpacing(),
+              if (overview.employeeReportingCycleData.isNotEmpty)
+                _buildEmployeeReportingCycleCard(
+                  overview.employeeReportingCycleData,
+                ),
+              if (overview.employeeReportingCycleData.isNotEmpty)
+                verticalSpacing(),
+              _buildLogoutButton(context),
+              verticalSpacing(height: 20),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -1114,9 +1152,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         }
 
         if (state.assetMappingList.isEmpty) {
-          return Center(
-            child: noDataWidget(message: "No Assets Found")
-          );
+          return Center(child: noDataWidget(message: "No Assets Found"));
         }
 
         return SingleChildScrollView(
@@ -1240,9 +1276,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         }
 
         if (state.shiftManagementList.isEmpty) {
-          return Center(
-            child: noDataWidget(message: "No Shift Policy Found"),
-          );
+          return Center(child: noDataWidget(message: "No Shift Policy Found"));
         }
 
         return SingleChildScrollView(
@@ -1360,7 +1394,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
         if (state.weekOffMappingList.isEmpty) {
           return Center(
-            child: noDataWidget(message: "No Week Off Policy Found")
+            child: noDataWidget(message: "No Week Off Policy Found"),
           );
         }
 
@@ -1547,6 +1581,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                             ],
                           ),
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               buildColumnTitleValue(
                                 title: "Passing Year",
@@ -1626,7 +1661,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
                 if (state.employeeExperienceDetailsList.isEmpty) {
                   return Center(
-                    child: noDataWidget(message: "No experience details found")
+                    child: noDataWidget(message: "No experience details found"),
                   );
                 }
                 return ListView.builder(
@@ -1718,7 +1753,9 @@ class _ProfileScreenState extends State<ProfileScreen>
 
         if (state.branchAssociationList.isEmpty) {
           return Center(
-            child: noDataWidget(message: "No Branch Associations Details Found")
+            child: noDataWidget(
+              message: "No Branch Associations Details Found",
+            ),
           );
         }
         return ListView.builder(

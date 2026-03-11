@@ -242,7 +242,7 @@ class _ViewApprovalDocumentScreenState
                 title: "Last Modified Date",
                 value:
                     document.modifiedDate != null
-                        ? formatDateTimeAsDDMMMYYYY(document.modifiedDate!)
+                        ? formatDate(document.modifiedDate!)
                         : '-',
               ),
             ],
@@ -262,10 +262,10 @@ class _ViewApprovalDocumentScreenState
                     CustomButton.documentOutline(
                       isDisable: document.approvalDocumentURL.isEmpty,
                       onPressed: () {
-                        showFilePreviewDialog(
-                          context,
-                          document.approvalDocumentURL.split(","),
-                        );
+                        final url = document.approvalDocumentURL;
+                        if (url.isNotEmpty) {
+                          showFilePreviewDialog(context, url.split(","));
+                        }
                       },
                     ),
                   ],

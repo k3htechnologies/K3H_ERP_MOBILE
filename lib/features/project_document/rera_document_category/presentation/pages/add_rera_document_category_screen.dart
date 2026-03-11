@@ -128,14 +128,14 @@ class _AddRERADocumentCategoryScreenState
                   },
                 ),
                 CustomTextField(
-                  title: "Order By",
-                  hint: "Enter order by",
+                  title: "Sequence",
+                  hint: "Enter Sequence",
                   isRequired: true,
                   keyboardType: TextInputType.number,
                   textController: _orderByC,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Order By is required";
+                      return "Sequence is required";
                     }
                     return null;
                   },
