@@ -37,6 +37,12 @@ abstract interface class BookingDatasource {
     required String parkingId,
     required int inventoryFlatId,
   });
+  Future<Map<String, dynamic>> apiCallPullBookingForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class BookingDatasourceImpl extends BookingDatasource {
@@ -275,6 +281,51 @@ class BookingDatasourceImpl extends BookingDatasource {
           projectId: projectId,
           inventoryFlatId: inventoryFlatId,
           parkingId: parkingId,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullBookingForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullBookingUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "Booking/PullBooking?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullBookingUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallPullBooking(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          projectId: projectId,
+          queryParams: queryParams,
         );
       }
       rethrow;

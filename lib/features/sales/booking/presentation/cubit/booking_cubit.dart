@@ -900,8 +900,7 @@ class BookingCubit extends Cubit<BookingState> {
         return;
       },
       (response) {
-        final updatedBooking =
-            (response['data'] as List<BookingModel>).first;
+        final updatedBooking = (response['data'] as List<BookingModel>).first;
 
         if (state.bookingList.isNotEmpty && index < state.bookingList.length) {
           final updatedList = List<BookingModel>.from(state.bookingList);
@@ -1105,39 +1104,33 @@ class BookingCubit extends Cubit<BookingState> {
     emit(state.copyWith(otherChargesList: updatedList));
   }
 
-  Future cancelBooking(
-    int index,
-    BookingModel bookingModel,
+  Future exportExcelPdf(
     BuildContext context,
+    String exportType,
+    int projectId,
   ) async {
     DialogHelper.showProcessingOverlay(context);
-    var result = await _bookingRepository.cancelBooking(
-      bookingId: bookingModel.bookingId,
-      uniqueKey: bookingModel.uniquekey,
-      inventoryFlatId: bookingModel.inventoryFlatId,
-      parkingId: bookingModel.parkingId,
-      projectId: bookingModel.projectId,
+    var result = await _bookingRepository.exportBooking(
+      pageNumber: 1,
+      pageSize: state.totalNumberOfRecord,
+      projectId: projectId,
+      queryParams:
+          state.searchText != ""
+              ? {"ApplicantName": state.searchText, "ExportType": exportType}
+              : {"ExportType": exportType},
     );
     goRouter.pop();
     result.fold(
       (failure) {
-        showErrorMessage(context, "Error", failure.message);
-        return;
+        showErrorMessage(context, 'Error', failure.message);
       },
-      (success) {
-        final updatedList = List<BookingModel>.from(state.bookingList);
-        updatedList.removeAt(index);
-        emit(
-          state.copyWith(
-            bookingList: updatedList,
-            isLoading: false,
-            totalNumberOfRecord:
-                state.totalNumberOfRecord > 0
-                    ? state.totalNumberOfRecord - 1
-                    : 0,
-          ),
+      (response) {
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "booking_${DateTime.now()}.pdf"
+              : "booking_${DateTime.now()}.xlsx",
         );
-        showSuccessMessage(context, subTitle: "Booking Cancelled Successfully");
       },
     );
   }

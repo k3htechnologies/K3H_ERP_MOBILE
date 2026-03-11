@@ -60,6 +60,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   late TabController _tabController;
 
   // TEXT EDITING CONTROLLER
+  late final List<TextEditingController> _controllers;
   late TextEditingController _enquiryUniqueCodeC,
       _permanentAddressC,
       _communicationAddressC,
@@ -87,6 +88,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       _brokeragePercentageC,
       _brokerageAmountC,
       _noOfParkingC;
+
   // AGREEMENT VALUE NOTIFIER
   final ValueNotifier<double> _agreementValueNotifier = ValueNotifier<double>(
     0.0,
@@ -192,7 +194,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   // REPOSITORY
   final PaymentScheduleSchemeRepository _paymentScheduleSchemeRepository =
       serviceLocator<PaymentScheduleSchemeRepository>();
-
+  // SCHEME DROPDOWN VARIABLES
   late ValueNotifier<List<Map<String, dynamic>>> schemeListNotifier;
   late ValueNotifier<Map<String, dynamic>> selectedScheme;
 
@@ -208,7 +210,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _project = getProject();
 
     _tabController = TabController(length: 6, vsync: this);
-    _tabController.addListener(_handleTabChange);
+    // _tabController.addListener(_handleTabChange);
 
     _selectedHandOverType.value = handOverTypeList.first;
     _selectedFundingSource.value = fundingSourceList.first;
@@ -262,7 +264,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   @override
   void dispose() {
     _tabController.dispose();
-    _disposeTextControllers();
+    //DISPOSE TEXTCONTROLLERS
+    for (final controller in _controllers) {
+      controller.dispose();
+    }
     _bookingCubit.clearEnquiryList();
     _agreementValueNotifier.dispose();
     _tdsNotifier.dispose();
@@ -276,46 +281,40 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     super.dispose();
   }
 
-  // HANDLE TAB CHANGE
-  void _handleTabChange() {
-    if (!_tabController.indexIsChanging) {
-      setState(() {});
-      _bookingCubit.onTabChangedAddForm(_tabController.index, context);
-    }
-  }
-
   // INITIALIZE TEXT CONTROLLERS
   void _initializeTextControllers() {
-    _enquiryUniqueCodeC = TextEditingController();
-    _permanentAddressC = TextEditingController();
-    _communicationAddressC = TextEditingController();
-    _agreementValueWithTdsC = TextEditingController();
-    _tdsC = TextEditingController();
-    _agreementValueWithoutTdsC = TextEditingController();
-    _agreementGstPercentageC = TextEditingController();
-    _agreementGstAmountC = TextEditingController();
-    _stampDutyPercentageC = TextEditingController();
-    _stampDutyAmountC = TextEditingController();
-    _registrationFeesC = TextEditingController();
-    _otherRemarkC = TextEditingController();
-    _unitModCustomizationRemarkC = TextEditingController();
-    _paymentRemarkC = TextEditingController();
-    _termsAndConditionDescriptionC = TextEditingController();
-    _bookingAmountC = TextEditingController();
-    _chequeNoC = TextEditingController();
-    _otpController = TextEditingController();
-    _referencePercentageC = TextEditingController();
-    _referenceAmountC = TextEditingController();
+    _controllers = [
+      _enquiryUniqueCodeC = TextEditingController(),
+      _permanentAddressC = TextEditingController(),
+      _communicationAddressC = TextEditingController(),
+      _agreementValueWithTdsC = TextEditingController(),
+      _tdsC = TextEditingController(),
+      _agreementValueWithoutTdsC = TextEditingController(),
+      _agreementGstPercentageC = TextEditingController(),
+      _agreementGstAmountC = TextEditingController(),
+      _stampDutyPercentageC = TextEditingController(),
+      _stampDutyAmountC = TextEditingController(),
+      _registrationFeesC = TextEditingController(),
+      _otherRemarkC = TextEditingController(),
+      _unitModCustomizationRemarkC = TextEditingController(),
+      _paymentRemarkC = TextEditingController(),
+      _termsAndConditionDescriptionC = TextEditingController(),
+      _bookingAmountC = TextEditingController(),
+      _chequeNoC = TextEditingController(),
+      _otpController = TextEditingController(),
+      _referencePercentageC = TextEditingController(),
+      _referenceAmountC = TextEditingController(),
 
-    _employeeRefPercentageC = TextEditingController();
-    _employeeRefAmountC = TextEditingController();
+      _employeeRefPercentageC = TextEditingController(),
+      _employeeRefAmountC = TextEditingController(),
 
-    _loyaltyPercentageC = TextEditingController();
-    _loyaltyAmountC = TextEditingController();
+      _loyaltyPercentageC = TextEditingController(),
+      _loyaltyAmountC = TextEditingController(),
 
-    _brokeragePercentageC = TextEditingController();
-    _brokerageAmountC = TextEditingController();
-    _noOfParkingC = TextEditingController();
+      _brokeragePercentageC = TextEditingController(),
+      _brokerageAmountC = TextEditingController(),
+      _noOfParkingC = TextEditingController(),
+    ];
   }
 
   // Prefill form from booking model
@@ -413,36 +412,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       (item) => item["DisplayName"] == bm.paymentScheduleScheme,
       orElse: () => {},
     );
-  }
-
-  // DISPOSE TEXT CONTROLLERS
-  void _disposeTextControllers() {
-    _enquiryUniqueCodeC.dispose();
-    _permanentAddressC.dispose();
-    _communicationAddressC.dispose();
-    _agreementValueWithTdsC.dispose();
-    _tdsC.dispose();
-    _agreementValueWithoutTdsC.dispose();
-    _agreementGstPercentageC.dispose();
-    _agreementGstAmountC.dispose();
-    _stampDutyPercentageC.dispose();
-    _stampDutyAmountC.dispose();
-    _registrationFeesC.dispose();
-    _otherRemarkC.dispose();
-    _termsAndConditionDescriptionC.dispose();
-    _bookingAmountC.dispose();
-    _chequeNoC.dispose();
-    _referencePercentageC.dispose();
-    _referenceAmountC.dispose();
-
-    _employeeRefPercentageC.dispose();
-    _employeeRefAmountC.dispose();
-
-    _loyaltyPercentageC.dispose();
-    _loyaltyAmountC.dispose();
-
-    _brokeragePercentageC.dispose();
-    _brokerageAmountC.dispose();
   }
 
   // CALCULATE TDS
@@ -846,11 +815,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       showErrorMessage(context, "", "Add Applicant");
       return false;
     }
-    bool hasApplicantType = _applicants.value.any(
-      (a) => a.applicantType == "Applicant",
-    );
 
-    if (!hasApplicantType) {
+    if (!_hasPrimaryApplicant(_applicants.value)) {
       _tabController.animateTo(0);
       showErrorMessage(context, "", "Add Primary Applicant");
       return false;
@@ -1175,63 +1141,70 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         screenTitle: "Booking Form",
         authorization: AuthorizationModel(),
       ),
-      body: Column(
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IntrinsicWidth(
-              child: Container(
-                height: 35,
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: AppColor.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppColor.grey.withValues(alpha: 0.2),
+      body: BlocBuilder<BookingCubit, BookingState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IntrinsicWidth(
+                  child: Container(
+                    height: 35,
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: AppColor.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: AppColor.grey.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: TabBar(
+                      controller: _tabController,
+                      isScrollable: true,
+                      tabAlignment: TabAlignment.start,
+                      labelColor: AppColor.primary,
+                      unselectedLabelColor: AppColor.grey,
+                      indicator: BoxDecoration(
+                        color: AppColor.lightBlue,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      dividerColor: Colors.transparent,
+                      labelStyle: AppTextStyle.ts14M(),
+                      unselectedLabelStyle: AppTextStyle.ts14M(),
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.zero,
+                      onTap: (index) {
+                        _bookingCubit.onTabChangedAddForm(index, context);
+                      },
+                      tabs: const [
+                        Tab(text: 'Details'),
+                        Tab(text: 'Other Charges'),
+                        Tab(text: 'Payment Schedule'),
+                        Tab(text: 'Remark'),
+                        Tab(text: 'Terms & Condition'),
+                        Tab(text: 'Payment Details'),
+                      ],
+                    ),
                   ),
                 ),
-                child: TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.start,
-                  labelColor: AppColor.primary,
-                  unselectedLabelColor: AppColor.grey,
-                  indicator: BoxDecoration(
-                    color: AppColor.lightBlue,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  labelStyle: AppTextStyle.ts14M(),
-                  unselectedLabelStyle: AppTextStyle.ts14M(),
-                  labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  padding: EdgeInsets.zero,
-                  tabs: const [
-                    Tab(text: 'Details'),
-                    Tab(text: 'Other Charges'),
-                    Tab(text: 'Payment Schedule'),
-                    Tab(text: 'Remark'),
-                    Tab(text: 'Terms & Condition'),
-                    Tab(text: 'Payment Details'),
+              ),
+              Expanded(
+                child: IndexedStack(
+                  index: state.currentTabIndexAddForm,
+                  children: [
+                    _buildDetails(),
+                    _buildOtherCharges(),
+                    _buildPaymentSchedule(),
+                    _buildRemark(),
+                    _buildTermsAndCondition(),
+                    _buildPaymentDetails(),
                   ],
                 ),
               ),
-            ),
-          ),
-          Expanded(
-            child: IndexedStack(
-              index: _tabController.index,
-              children: [
-                _buildDetails(),
-                _buildOtherCharges(),
-                _buildPaymentSchedule(),
-                _buildRemark(),
-                _buildTermsAndCondition(),
-                _buildPaymentDetails(),
-              ],
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
       bottomNavigationBar: SafeArea(
         child: Container(

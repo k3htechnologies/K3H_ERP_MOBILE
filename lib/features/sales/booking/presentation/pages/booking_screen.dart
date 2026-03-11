@@ -97,7 +97,13 @@ class _BookingScreenState extends State<BookingScreen> {
         onSearchSubmit: (value) {
           _bookingCubit.searchBooking(context, value);
         },
-        onExportCallback: (value) {},
+        onExportCallback: (value) {
+          if (_bookingCubit.state.totalNumberOfRecord == 0) {
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
+          _bookingCubit.exportExcelPdf(context, value, getProject().projectId);
+        },
         onProjectChangeCallback: (value) {
           _project = value;
           _bookingCubit.getBookingList(context, 1, value.projectId);
