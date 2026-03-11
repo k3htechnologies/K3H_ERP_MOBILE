@@ -51,6 +51,7 @@ class _UOMMasterScreenState extends State<UOMMasterScreen> {
     super.dispose();
   }
 
+  // INITIALIZE TEXT CONTROLLER
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
   }

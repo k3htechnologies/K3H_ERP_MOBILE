@@ -29,7 +29,7 @@ class _AddHolidayMasterScreenState extends State<AddHolidayMasterScreen> {
   // TEXT EDITING CONTROLLERS
   late TextEditingController _holidayNameC;
 
-  //
+  // FILE PICKER
   MultiFilePickerModel holidayFile = MultiFilePickerModel(
     fileNameList: [],
     fileBytesList: [],
@@ -62,11 +62,13 @@ class _AddHolidayMasterScreenState extends State<AddHolidayMasterScreen> {
     _holidayNameC = TextEditingController(text: holidayMaster?.holidayName);
   }
 
+  // POPULATE FORM FIELDS
   void _populateFormFields(HolidayMasterModel holiday) {
     _holidayNameC.text = holiday.holidayName;
     holidayFile.fileNameList = holiday.holidayUrl.split(",");
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -161,7 +163,11 @@ class _AddHolidayMasterScreenState extends State<AddHolidayMasterScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
             text: _isEditMode ? "Update Holiday" : "Add Holiday",
             onPressed: _submitForm,
           ),

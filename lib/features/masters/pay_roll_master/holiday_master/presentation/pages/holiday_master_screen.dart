@@ -213,6 +213,9 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
         searchHintText: "Search by Holiday Name",
         onAddCallback: () {
           goRouter.pushNamed(AppRoutes.addHolidayMaster);
+          if (context.mounted) {
+            holidayMasterCubit.searchHolidays("", context);
+          }
         },
         onExportCallback: (value) {
           if (holidayMasterCubit.state.totalNumberOfRecord == 0) {

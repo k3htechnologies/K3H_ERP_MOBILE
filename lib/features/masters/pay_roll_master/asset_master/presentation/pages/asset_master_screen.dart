@@ -301,7 +301,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addAssetMaster);
           if (context.mounted) {
-            _assetMasterCubit.getAssetsList(context: context, pageNumber: 1);
+            _assetMasterCubit.searchAsset("", context);
           }
         },
         onExportCallback: (value) {
@@ -433,6 +433,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     );
   }
 
+  // <---- BUILD STATUS WIDGET ---->
   Widget _buildStatusWidget(String status) {
     if (status.isEmpty) return const SizedBox.shrink();
 

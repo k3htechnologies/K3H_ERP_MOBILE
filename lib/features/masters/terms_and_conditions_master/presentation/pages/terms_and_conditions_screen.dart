@@ -261,13 +261,9 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
           );
           if (context.mounted) {
             if (_tabController.index == 0) {
-              _termsAndConditionsCubit
-                  .getMaterialRequisitionTermsAndConditionList(context, 1);
+              _termsAndConditionsCubit.searchMaterialRequisition(context, "");
             } else {
-              _termsAndConditionsCubit.getBookingTermsAndConditionList(
-                context,
-                1,
-              );
+              _termsAndConditionsCubit.searchBooking(context, "");
             }
           }
         },
@@ -299,7 +295,10 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
       body: SafeArea(
         child: Column(
           children: [
-            ChipStyleTabBar(controller: _tabController, tabs: ["Material Requisition","Booking"]),
+            ChipStyleTabBar(
+              controller: _tabController,
+              tabs: ["Material Requisition", "Booking"],
+            ),
             Expanded(
               child: TabBarView(
                 physics: NeverScrollableScrollPhysics(),

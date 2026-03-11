@@ -232,19 +232,19 @@ class DialogHelper {
             child: Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                border: Border.all(color: AppColor.primary, width: 0.5),
+                border: Border.all(color: AppColor.error, width: 0.5),
                 color: AppColor.white,
                 borderRadius: BorderRadius.circular(25.0),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.logout, color: AppColor.primary, size: 32),
+                  Icon(Icons.logout, color: AppColor.error, size: 32),
                   verticalSpacing(height: 15),
 
                   Text(
                     title,
-                    style: AppTextStyle.ts20R(color: AppColor.primary),
+                    style: AppTextStyle.ts20R(color: AppColor.error),
                     textAlign: TextAlign.center,
                   ),
 
@@ -269,10 +269,10 @@ class DialogHelper {
                       horizontalSpacing(),
                       Expanded(
                         child: CustomButton(
-                          backgroundColor: AppColor.primary,
+                          backgroundColor: AppColor.error,
                           textColor: AppColor.white,
                           onPressed: () => goRouter.pop(true),
-                          text: "Confirm",
+                          text: "Log out",
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
                             vertical: 9,

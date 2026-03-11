@@ -252,7 +252,6 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
     if (widget.textController != null) {
       widget.textController!.clear();
     }
-
     // Call the callback if provided
     if (widget.onProjectChangeCallback != null) {
       widget.onProjectChangeCallback!(project);
@@ -394,7 +393,12 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                       if (widget.authorization.isAction &&
                           widget.onAddCallback != null)
                         CustomIconButton(
-                          onPressed: () => widget.onAddCallback!(),
+                          onPressed: () {
+                            if (widget.textController != null) {
+                              widget.textController!.clear();
+                            }
+                            widget.onAddCallback!();
+                          },
                           icon: const Icon(
                             Icons.add,
                             size: 16,

@@ -51,6 +51,14 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
     _shiftMasterCubit.getShiftList(context: context, pageNumber: 1);
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    scrollController.dispose();
+    _searchC.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
   }
@@ -76,6 +84,7 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
     });
   }
 
+  // DELETE SHIFT
   Future<void> _showPopupToDeleteShiftMaster(
     BuildContext context,
     ShiftMasterModel obj,
@@ -199,8 +208,11 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
       appBar: CustomAppBar(
         screenTitle: "Shift Master",
         authorization: _routeAuthorizationModel,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addShiftMaster);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addShiftMaster);
+          if (context.mounted) {
+            _shiftMasterCubit.searchShift("", context);
+          }
         },
         textController: _searchC,
         searchHintText: "Search by Shift Name",

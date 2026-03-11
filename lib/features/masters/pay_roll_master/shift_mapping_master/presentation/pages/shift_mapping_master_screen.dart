@@ -55,6 +55,16 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    scrollController.dispose();
+    _searchC.dispose();
+    _filterDepartmentC.dispose();
+    _filterEmployeeNameC.dispose();
+    super.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _filterEmployeeNameC = TextEditingController();
@@ -82,6 +92,7 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
     });
   }
 
+  // DELETE SHIFT MAPPING MASTER
   Future<void> _showPopupToDeleteShiftMappingMaster(
     BuildContext context,
     ShiftMappingModel obj,
@@ -243,22 +254,16 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
   }
 
   @override
-  void dispose() {
-    scrollController.dispose();
-    _searchC.dispose();
-    _filterDepartmentC.dispose();
-    _filterEmployeeNameC.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
         screenTitle: "Shift Mapping Master",
         authorization: _routeAuthorizationModel,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addShiftMappingMaster);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addShiftMappingMaster);
+          if (context.mounted) {
+            _shiftMappingMasterCubit.searchShiftMapping("", context);
+          }
         },
         textController: _searchC,
         searchHintText: "Search by Shift Name",

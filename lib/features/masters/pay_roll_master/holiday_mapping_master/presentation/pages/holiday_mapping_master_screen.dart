@@ -67,6 +67,7 @@ class _HolidayMappingMasterScreenState
     super.dispose();
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _filterBranchNameC = TextEditingController();
@@ -110,6 +111,7 @@ class _HolidayMappingMasterScreenState
     }
   }
 
+  // SORT BOTTOM SHEET - HOLIDAY (HOLIDAY NAME)
   Future<void> _showBottomSheetToFilterHolidayMapping(
     BuildContext context,
   ) async {
@@ -142,11 +144,11 @@ class _HolidayMappingMasterScreenState
             (selectedDirection != initialDirection) ||
             (filterFromDate != initialFromDate) ||
             (filterToDate != initialToDate);
-        // Disable Apply when only one of From/To is set (both or neither required)
+
         final bool onlyOneSet =
             (filterFromDate != null && filterToDate == null) ||
             (filterToDate != null && filterFromDate == null);
-        // Disable Apply when From > To (invalid range)
+
         final bool invalidRange =
             filterFromDate != null &&
             filterToDate != null &&
@@ -363,10 +365,7 @@ class _HolidayMappingMasterScreenState
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addHolidayMappingMaster);
           if (context.mounted) {
-            _holidayMappingMasterCubit.getHolidayMappingList(
-              context: context,
-              pageNumber: 1,
-            );
+            _holidayMappingMasterCubit.searchHolidayMapping("", context);
           }
         },
         onExportCallback: (value) {
@@ -387,7 +386,9 @@ class _HolidayMappingMasterScreenState
             return Center(child: loader());
           }
           if (state.holidayMappingList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Holiday Mapping Data Found"));
+            return Center(
+              child: noDataWidget(message: "No Holiday Mapping Data Found"),
+            );
           }
           return ListView.builder(
             controller: scrollController,
@@ -428,11 +429,14 @@ class _HolidayMappingMasterScreenState
                                 },
                               );
                             },
-                            child:  Text(
+                            child: Text(
                               holidayMapping.holidayName,
                               style: AppTextStyle.ts16M(
                                 color: AppColor.primary,
-                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
+                              ),
                             ),
                           ),
                         ),

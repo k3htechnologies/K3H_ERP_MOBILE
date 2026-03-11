@@ -61,6 +61,7 @@ class _AddWeekOffMappingMasterScreenState
     }
   }
 
+  // POPULATE FORM FIELDS
   void _populateFormFields(WeekOffMappingModel weekOffMapping) {
     if (weekOffMapping.employeeId.isNotEmpty) {
       _selectedEmployee = [
@@ -93,6 +94,7 @@ class _AddWeekOffMappingMasterScreenState
     }
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -141,7 +143,7 @@ class _AddWeekOffMappingMasterScreenState
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBarWithBackButton(
-        screenTitle:"Week Off Mapping Master",
+        screenTitle: "Week Off Mapping Master",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(
@@ -151,7 +153,12 @@ class _AddWeekOffMappingMasterScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(_isEditMode ? "Update Week Off Mapping" : "Add Week Off Mapping",style: AppTextStyle.ts16SB(),),
+              Text(
+                _isEditMode
+                    ? "Update Week Off Mapping"
+                    : "Add Week Off Mapping",
+                style: AppTextStyle.ts16SB(),
+              ),
               verticalSpacing(),
               Container(
                 decoration: commonCardDecoration(),
@@ -188,9 +195,8 @@ class _AddWeekOffMappingMasterScreenState
                               value: state.options[0],
                               groupValue: state.selectedOption,
                               onChanged: (value) {
-                                _weekOffMappingMasterCubit.onSelectedOptionChanged(
-                                  value!,
-                                );
+                                _weekOffMappingMasterCubit
+                                    .onSelectedOptionChanged(value!);
                               },
                             ),
                             Text("Employee", style: AppTextStyle.ts14R()),
@@ -199,9 +205,8 @@ class _AddWeekOffMappingMasterScreenState
                               value: state.options[1],
                               groupValue: state.selectedOption,
                               onChanged: (value) {
-                                _weekOffMappingMasterCubit.onSelectedOptionChanged(
-                                  value!,
-                                );
+                                _weekOffMappingMasterCubit
+                                    .onSelectedOptionChanged(value!);
                               },
                             ),
                             Text("Department", style: AppTextStyle.ts14R()),
@@ -269,7 +274,11 @@ class _AddWeekOffMappingMasterScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
             text:
                 _isEditMode
                     ? "Update Week Off Mapping"

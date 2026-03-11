@@ -65,7 +65,7 @@ class _MainScreenState extends State<MainScreen>
                 child: Row(
                   children: [
                     GestureDetector(
-                      onTap: ()  {
+                      onTap: () {
                         goRouter.pop();
                         goRouter.go(AppRoutes.profile);
                       },
@@ -86,7 +86,7 @@ class _MainScreenState extends State<MainScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           GestureDetector(
-                            onTap: ()  {
+                            onTap: () {
                               goRouter.pop();
                               goRouter.go(AppRoutes.profile);
                             },
@@ -112,7 +112,9 @@ class _MainScreenState extends State<MainScreen>
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            user.personalMobileNumber.isNotEmpty ? user.personalMobileNumber : '-',
+                            user.personalMobileNumber.isNotEmpty
+                                ? user.personalMobileNumber
+                                : '-',
                             style: AppTextStyle.ts14M(color: AppColor.grey),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -126,18 +128,19 @@ class _MainScreenState extends State<MainScreen>
               Divider(height: 1, color: AppColor.grey50),
               Expanded(child: MenuDrawerContent()),
               Divider(height: 1, color: AppColor.grey50),
-              SizedBox(height: 20),
+              verticalSpacing(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: CustomButton(
                   leading: Icon(Icons.login, size: 18, color: AppColor.white),
                   text: "Log out",
+                  backgroundColor: AppColor.error,
                   onPressed: () async {
                     logOutUser(context);
                   },
                 ),
               ),
-              SizedBox(height: 30),
+              verticalSpacing(height: 30),
             ],
           ),
         ),

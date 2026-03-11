@@ -309,7 +309,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addCompany);
           if (context.mounted) {
-            _companyMasterCubit.getCompanyMaster(context, 1);
+            _companyMasterCubit.searchCompany(context, "");
           }
         },
         textController: _searchC,

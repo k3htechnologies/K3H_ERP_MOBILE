@@ -62,6 +62,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     super.dispose();
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _filterEmployeeNameC = TextEditingController();
@@ -250,10 +251,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addAssetMappingMaster);
           if (context.mounted) {
-            _assetMappingMasterCubit.getAssetMappingList(
-              context: context,
-              pageNumber: 1,
-            );
+            _assetMappingMasterCubit.searchAssetMapping("", context);
           }
         },
         onExportCallback: (value) {

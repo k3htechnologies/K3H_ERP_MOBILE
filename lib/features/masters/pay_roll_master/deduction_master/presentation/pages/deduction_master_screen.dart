@@ -58,6 +58,7 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
     super.dispose();
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
   }
@@ -206,16 +207,13 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
         screenTitle: "Deduction",
         authorization: _routeAuthorizationModel,
         onSearchSubmit: (value) {
-          _deductionMasterCubit.searchAssetMapping(value, context);
+          _deductionMasterCubit.searchDeductionMaster(value, context);
         },
         textController: _searchC,
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addDeductionMaster);
           if (context.mounted) {
-            _deductionMasterCubit.getDeductionList(
-              context: context,
-              pageNumber: 1,
-            );
+            _deductionMasterCubit.searchDeductionMaster("", context);
           }
         },
         onExportCallback: (value) {

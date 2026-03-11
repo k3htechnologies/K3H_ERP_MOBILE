@@ -593,7 +593,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addUpdateEmployee);
           if (context.mounted) {
-            _employeeMasterCubit.getEmployeeMasterList(context, 1);
+            _employeeMasterCubit.searchEmployee(context, "");
           }
         },
         isFilterOn: true,

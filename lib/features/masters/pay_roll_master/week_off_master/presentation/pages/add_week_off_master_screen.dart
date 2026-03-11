@@ -88,6 +88,26 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _weekOffNameC.dispose();
+    _weekOffCodeC.dispose();
+    _weekDaysC.dispose();
+    _weekOff2TypeC.dispose();
+    _weekDaysStartsOnC.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLERS
+  void _initializeTextEditingControllers() {
+    _weekOffNameC = TextEditingController();
+    _weekOffCodeC = TextEditingController();
+    _weekDaysC = TextEditingController();
+    _weekOff2TypeC = TextEditingController();
+    _weekDaysStartsOnC = TextEditingController();
+  }
+
+  // POPULATE FORM FIELDS
   void _populateFormFields(WeekOffMasterModel weekOffMaster) {
     _selectWeekOff = [
       {"DisplayName": weekOffMaster.weeklyOff},
@@ -115,6 +135,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
       .map((month) => month["DisplayName"])
       .join(", ");
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -154,14 +175,6 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
         notApplicableForMonths: selectedMonthNames,
       );
     }
-  }
-
-  void _initializeTextEditingControllers() {
-    _weekOffNameC = TextEditingController();
-    _weekOffCodeC = TextEditingController();
-    _weekDaysC = TextEditingController();
-    _weekOff2TypeC = TextEditingController();
-    _weekDaysStartsOnC = TextEditingController();
   }
 
   @override

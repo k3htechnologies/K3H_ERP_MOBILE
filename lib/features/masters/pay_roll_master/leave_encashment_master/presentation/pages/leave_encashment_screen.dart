@@ -50,6 +50,12 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    scrollController.dispose();
+  }
+
   // <---- PAGINATION ---->
   void _onScroll() {
     scrollController = ScrollController();

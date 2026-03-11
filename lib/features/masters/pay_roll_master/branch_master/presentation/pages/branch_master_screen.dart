@@ -54,21 +54,20 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
     _branchMasterCubit.getBranchList(context: context, pageNumber: 1);
   }
 
-  // INITIALIZE TEXT EDITING CONTROLLERS
-  void _initializeTextEditingController() {
-    _searchC = TextEditingController();
-    _filterBranchCodeC = TextEditingController();
-    _filterBranchLocationC = TextEditingController();
-  }
-
   @override
   void dispose() {
     scrollController.dispose();
     _searchC.dispose();
     _filterBranchCodeC.dispose();
     _filterBranchLocationC.dispose();
-
     super.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLERS
+  void _initializeTextEditingController() {
+    _searchC = TextEditingController();
+    _filterBranchCodeC = TextEditingController();
+    _filterBranchLocationC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -114,6 +113,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
     }
   }
 
+  // <---- FILTER BRANCH ---->
   Future<void> _showBottomSheetToFilterBranch(BuildContext context) async {
     final state = _branchMasterCubit.state;
 
@@ -267,7 +267,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addBranchMaster);
           if (context.mounted) {
-            _branchMasterCubit.getBranchList(context: context, pageNumber: 1);
+            _branchMasterCubit.searchBranch("", context);
           }
         },
         onExportCallback: (value) {
@@ -328,11 +328,14 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
                                 },
                               );
                             },
-                            child:  Text(
+                            child: Text(
                               branch.branchName,
                               style: AppTextStyle.ts16M(
                                 color: AppColor.primary,
-                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
+                              ),
                             ),
                           ),
                         ),
@@ -353,7 +356,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
                                 );
                               },
                             ),
-                            if(branch.numberOfEmployee==0)...[
+                            if (branch.numberOfEmployee == 0) ...[
                               const SizedBox(width: 8),
                               CustomIconButton.delete(
                                 onPressed: () {
@@ -365,7 +368,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
                                   );
                                 },
                               ),
-                            ]
+                            ],
                           ],
                         ),
                       ],

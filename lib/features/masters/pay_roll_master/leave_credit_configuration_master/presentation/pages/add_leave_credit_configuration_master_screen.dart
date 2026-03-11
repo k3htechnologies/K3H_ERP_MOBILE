@@ -79,7 +79,6 @@ class _AddLeaveCreditConfigurationMasterScreenState
         context.read<LeaveCreditConfigurationMasterCubit>();
     selectedLeavePeriod = leavePeriodList.first;
 
-    // Initialize with existing data if in edit mode
     if (_isEditMode && widget.leaveCreditConfigurationMasterModel != null) {
       final model = widget.leaveCreditConfigurationMasterModel!;
 
@@ -89,11 +88,9 @@ class _AddLeaveCreditConfigurationMasterScreenState
         orElse: () => leavePeriodList.first,
       );
 
-      // Set dates
       _startDateNotifier.value = model.financialYearStartDate;
       _endDateNotifier.value = model.financialYearEndDate;
 
-      // Set department
       _selectedDepartmentNotifier.value = [
         {
           "zAttributesId": model.departmentMasterId,
@@ -101,7 +98,6 @@ class _AddLeaveCreditConfigurationMasterScreenState
         },
       ];
 
-      // Set designation (can be multiple, comma-separated)
       final designationIds = model.designationId.split(',');
       final designationNames = model.designationName.split(',');
       _selectedDesignationNotifier.value = List.generate(
@@ -115,7 +111,6 @@ class _AddLeaveCreditConfigurationMasterScreenState
         },
       );
 
-      // Set leave balance types
       _leaveBalanceTypeListNotifier.value = List.from(model.leaveBalanceType);
     }
   }

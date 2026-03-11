@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -46,6 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   final _educationFormKey = GlobalKey<FormState>();
   final _experienceFormKey = GlobalKey<FormState>();
   final _mpinFormKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -151,7 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     },
                   ),
                   CustomTextField(
-                    title: "College Name",
+                    title: "School/College Name",
                     isRequired: true,
                     hint: "Enter College Name",
                     inputFormatterList: [LengthLimitingTextInputFormatter(250)],
@@ -306,6 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     title: "Tenure",
                     isRequired: true,
                     hint: "Enter Tenure (e.g. 2 years)",
+                    inputFormatterList: [LengthLimitingTextInputFormatter(20)],
                     textController: _tenureC,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -457,54 +460,19 @@ class _ProfileScreenState extends State<ProfileScreen>
                 verticalSpacing(),
                 _buildHeader(state.user!, state.selectedProject),
                 verticalSpacing(),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IntrinsicWidth(
-                    child: Container(
-                      height: 35,
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: AppColor.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: AppColor.grey.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: TabBar(
-                        controller: _tabController,
-                        isScrollable: true,
-                        onTap: (index) {
-                          _profileCubit.onTabChanged(index, context);
-                        },
-                        tabAlignment: TabAlignment.start,
-                        labelColor: AppColor.primary,
-                        unselectedLabelColor: AppColor.grey,
-                        indicator: BoxDecoration(
-                          color: AppColor.lightBlue,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        dividerColor: Colors.transparent,
-                        labelStyle: AppTextStyle.ts14M(),
-                        unselectedLabelStyle: AppTextStyle.ts14M(),
-                        labelPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                        ),
-                        padding: EdgeInsets.zero,
-                        tabs: const [
-                          Tab(text: 'Overview'),
-                          Tab(text: 'Education Details'),
-                          Tab(text: 'Experience Details'),
-                          Tab(text: 'Branch Associations'),
-                          Tab(text: 'Document'),
-                          Tab(text: 'Assets'),
-                          Tab(text: 'Project'),
-                          Tab(text: 'Shift Policy'),
-                          Tab(text: 'Week Off Policy'),
-                        ],
-                      ),
-                    ),
-                  ),
+                ChipStyleTabBar(
+                  controller: _tabController,
+                  tabs: [
+                    "Overview",
+                    "Education Details",
+                    "Experience Details",
+                    "Branch Associations",
+                    "Document",
+                    "Assets",
+                    "Project",
+                    "Shift Policy",
+                    "Week Off Policy",
+                  ],
                 ),
                 Expanded(
                   child: TabBarView(
@@ -862,34 +830,13 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget _buildLogoutButton(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(16),
-      child: InkWell(
-        onTap: () async => await logOutUser(context),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColor.primary,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                offset: Offset(0, 4),
-                color: AppColor.black.withValues(alpha: 0.12),
-                spreadRadius: 0,
-                blurRadius: 4,
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.logout, color: AppColor.white),
-              const SizedBox(width: 8),
-              Text(
-                "Log Out",
-                style: AppTextStyle.ts16SB(color: AppColor.white),
-              ),
-            ],
-          ),
-        ),
+      child: CustomButton(
+        text: "Log Out",
+        leading: Icon(Icons.login, size: 18, color: AppColor.white),
+        backgroundColor: AppColor.error,
+        onPressed: () async {
+          logOutUser(context);
+        },
       ),
     );
   }
@@ -908,7 +855,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         }
 
         if (state.employeeMasterList.isEmpty) {
-          return Center(child: noDataWidget(message: "yrredytfjhgyh"));
+          return Center(child: noDataWidget(message: "No Overview Data Found"));
         }
         final overview = state.employeeMasterList[0];
         return SingleChildScrollView(
@@ -1575,7 +1522,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           Row(
                             children: [
                               buildColumnTitleValue(
-                                title: "College",
+                                title: "School/College",
                                 value: education.collegeName,
                               ),
                             ],
@@ -1760,6 +1707,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         }
         return ListView.builder(
           shrinkWrap: true,
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           itemCount: state.branchAssociationList.length,
           itemBuilder: (_, index) {
             final branch = state.branchAssociationList[index];
@@ -1775,6 +1723,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  // BUILD DOCUMENT TAB
   Widget _buildDocumentTab() {
     return SingleChildScrollView(
       child: BlocBuilder<ProfileCubit, ProfileState>(

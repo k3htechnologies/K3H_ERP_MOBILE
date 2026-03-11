@@ -20,7 +20,7 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
     emit(DeductionMasterState.initial());
   }
 
-  void searchAssetMapping(String value, BuildContext context) {
+  void searchDeductionMaster(String value, BuildContext context) {
     emit(
       state.copyWith(
         deductionList: [],

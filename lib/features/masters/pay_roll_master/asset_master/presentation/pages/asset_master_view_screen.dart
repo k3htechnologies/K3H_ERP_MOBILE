@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/data/model/asset_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/cubit/asset_master_cubit.dart';
-import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -64,42 +64,9 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
       body: SafeArea(
         child: Column(
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: IntrinsicWidth(
-                child: Container(
-                  height: 35,
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: AppColor.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppColor.grey.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: TabBar(
-                    controller: _tabController,
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.start,
-                    labelColor: AppColor.primary,
-                    unselectedLabelColor: AppColor.grey,
-                    indicator: BoxDecoration(
-                      color: AppColor.lightBlue,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    dividerColor: Colors.transparent,
-                    labelStyle: AppTextStyle.ts14M(),
-                    unselectedLabelStyle: AppTextStyle.ts14M(),
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: EdgeInsets.zero,
-                    tabs: const [
-                      Tab(text: 'Overview'),
-                      Tab(text: 'Return History'),
-                    ],
-                  ),
-                ),
-              ),
+            ChipStyleTabBar(
+              controller: _tabController,
+              tabs: ["Overview", "Return History"],
             ),
             Expanded(
               child: TabBarView(

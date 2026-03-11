@@ -45,7 +45,7 @@ class _AddBranchAssociationMasterScreenState
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
-  // DROPDOWN SELECTIONS (ValueNotifier – no setState)
+  // DROPDOWN SELECTIONS
   late final ValueNotifier<List<Map<String, dynamic>>>
   _selectedEmployeeNotifier;
   late final ValueNotifier<List<Map<String, dynamic>>> _selectedBranchNotifier;
@@ -75,6 +75,7 @@ class _AddBranchAssociationMasterScreenState
     super.dispose();
   }
 
+  // POPULATE FORM FIELDS
   void _populateFormFields(BranchAssociationModel branchAssociation) {
     _selectedEmployeeNotifier.value = [
       {
@@ -88,11 +89,10 @@ class _AddBranchAssociationMasterScreenState
         'DisplayName': branchAssociation.branchName,
       },
     ];
-    // Fetch full employee details so the employee card shows department, designation, branch, etc.
     _fetchEmployeeDetailsForEdit(branchAssociation.employeeId);
   }
 
-  /// In edit mode, load full employee by id from Employee API and update selected employee.
+  // FETCH EMPLOYEE DETAILS FOR EDIT
   Future<void> _fetchEmployeeDetailsForEdit(int employeeId) async {
     final result = await _employeeMasterRepository.getEmployeeMasterList(
       pageNumber: 1,
@@ -120,6 +120,7 @@ class _AddBranchAssociationMasterScreenState
     });
   }
 
+  // FETCH EMPLOYEES
   Future<Map<String, dynamic>> _fetchEmployees(
     int pageNumber, {
     String? value,
@@ -160,6 +161,7 @@ class _AddBranchAssociationMasterScreenState
     );
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -198,6 +200,7 @@ class _AddBranchAssociationMasterScreenState
     }
   }
 
+  // FETCH BRANCH
   Future<Map<String, dynamic>> _fetchBranch(
     int pageNumber, {
     String? value,
@@ -321,58 +324,62 @@ class _AddBranchAssociationMasterScreenState
                                   children: [
                                     Row(
                                       spacing: 10,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Department",
                                           value:
-                                          selectedEmployee
-                                              .first["department"] ??
+                                              selectedEmployee
+                                                  .first["department"] ??
                                               '',
                                         ),
                                         buildColumnTitleValue(
                                           title: "Designation",
                                           value:
-                                          selectedEmployee
-                                              .first["designation"] ??
+                                              selectedEmployee
+                                                  .first["designation"] ??
                                               '',
                                         ),
                                       ],
                                     ),
                                     Row(
                                       spacing: 10,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Branch",
                                           value:
-                                          selectedEmployee.first["branch"] ??
+                                              selectedEmployee
+                                                  .first["branch"] ??
                                               '',
                                         ),
                                         buildColumnTitleValue(
                                           title: "Reporting Person",
                                           value:
-                                          selectedEmployee
-                                              .first["reportingPerson"] ??
+                                              selectedEmployee
+                                                  .first["reportingPerson"] ??
                                               '',
                                         ),
                                       ],
                                     ),
                                     Row(
                                       spacing: 10,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Email Id",
                                           value:
-                                          selectedEmployee.first["email"] ??
+                                              selectedEmployee.first["email"] ??
                                               '',
                                         ),
                                         buildColumnTitleValue(
                                           title: "Personal Mobile Number",
                                           value:
-                                          selectedEmployee
-                                              .first["personalNumber"] ??
+                                              selectedEmployee
+                                                  .first["personalNumber"] ??
                                               '',
                                         ),
                                       ],
@@ -397,7 +404,11 @@ class _AddBranchAssociationMasterScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
             text:
                 _isEditMode
                     ? "Update Branch Association"

@@ -53,6 +53,14 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
     _leaveTypeMasterCubit.getLeaveTypeList(context: context, pageNumber: 1);
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    scrollController.dispose();
+    _searchC.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
   }
@@ -78,6 +86,7 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
     });
   }
 
+  // DELETE LEAVE TYPE MASTER
   Future<void> _showPopupToDeleteLeaveTypeMaster(
     BuildContext context,
     LeaveTypeModel obj,
@@ -201,8 +210,11 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
       appBar: CustomAppBar(
         screenTitle: "Leave Type Master",
         authorization: _routeAuthorizationModel,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addLeaveTypeMaster);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addLeaveTypeMaster);
+          if (context.mounted) {
+            _leaveTypeMasterCubit.searchLeaveType("", context);
+          }
         },
         textController: _searchC,
         searchHintText: "Search by Leave Type",
@@ -227,7 +239,9 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
             return Center(child: loader());
           }
           if (state.leaveTypeList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Leave Types Data Found"));
+            return Center(
+              child: noDataWidget(message: "No Leave Types Data Found"),
+            );
           }
           return ListView.builder(
             controller: scrollController,

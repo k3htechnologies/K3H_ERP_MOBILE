@@ -57,6 +57,7 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
     super.dispose();
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
   }
@@ -122,9 +123,8 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
         },
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addMaterialMaster);
-          // Refresh list when returning from add screen
           if (context.mounted) {
-            _materialMasterCubit.getMaterialMasterList(context, 1, 10);
+            _materialMasterCubit.searchMaterial(context, "");
           }
         },
         onSearchSubmit: (value) {
@@ -249,6 +249,7 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
     );
   }
 
+  // <---- BUILD INFO CHIP ---->
   Widget _buildInfoChip({required String label, required String value}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

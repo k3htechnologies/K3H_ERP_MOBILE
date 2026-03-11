@@ -106,6 +106,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     _disposeTextEditingControllers();
   }
 
+  // DISPOSE TEXT EDITING CONTROLLERS
   void _disposeTextEditingControllers() {
     _nameC.dispose();
     _valueC.dispose();
@@ -121,6 +122,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     _maxSalaryC = TextEditingController();
   }
 
+  // POPULATE FORM FIELDS
   void _populateFormFields(DeductionMasterModel deductionMasterModel) {
     _nameC.text = deductionMasterModel.name;
     _valueC.text = deductionMasterModel.value.toString();
@@ -151,6 +153,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     ];
   }
 
+  // API CALL FOR PULL COUNTRY STATE CITY DISTRICT VILLAGE
   Future apiCallPullCountryStateCityDistrictVillage() async {
     String pullCountryStateCityDistrictVillage =
         'Static/PullCountryStateCityDistrictVillage';
@@ -181,6 +184,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     }
   }
 
+  // FETCH STATIC DEDUCTION TYPES
   Future<Map<String, dynamic>> _fetchStaticDeductionTypes(
     int pageNumber, {
     String? value,
@@ -235,6 +239,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     );
   }
 
+  // FETCH STATES
   Future<Map<String, dynamic>> _fetchStates(
     int pageNumber, {
     String? value,
@@ -256,6 +261,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     };
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;

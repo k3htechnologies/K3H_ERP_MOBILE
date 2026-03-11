@@ -284,7 +284,10 @@ class _AddSubMaterialMasterScreenState
                 widget.subMaterial != null
                     ? const Icon(Icons.edit, size: 18, color: AppColor.white)
                     : const Icon(Icons.add, size: 18, color: AppColor.white),
-            text: widget.subMaterial != null ? 'Update Sub Material' : 'Add Sub Material',
+            text:
+                widget.subMaterial != null
+                    ? 'Update Sub Material'
+                    : 'Add Sub Material',
             backgroundColor: AppColor.primary,
             onPressed: _addUpdateSubMaterial,
           ),

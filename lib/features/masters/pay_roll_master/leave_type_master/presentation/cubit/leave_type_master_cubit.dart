@@ -221,16 +221,14 @@ class LeaveTypeMasterCubit extends Cubit<LeaveTypeMasterState> {
   }
 
   // SEARCH BASED ON LEAVE TYPE
-  void searchLeaveType(String value, BuildContext context) {
+  Future<void> searchLeaveType(String value, BuildContext context) async {
     emit(
       state.copyWith(
         leaveTypeList: [],
-        isLoading: true,
         searchText: value,
-        currentPage: 1,
       ),
     );
-    getLeaveTypeList(context: context, pageNumber: 1);
+    await getLeaveTypeList(context: context, pageNumber: 1);
   }
 
   Future<void> applyFilterAndSort({

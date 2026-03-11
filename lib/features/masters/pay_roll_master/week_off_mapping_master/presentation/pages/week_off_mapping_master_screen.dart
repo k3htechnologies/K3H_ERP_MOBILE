@@ -57,6 +57,16 @@ class _WeekOffMappingMasterScreenState
     );
   }
 
+  @override
+  void dispose() {
+    scrollController.dispose();
+    _searchC.dispose();
+    _filterDepartmentC.dispose();
+    _filterEmployeeNameC.dispose();
+    super.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _filterDepartmentC = TextEditingController();
@@ -84,6 +94,7 @@ class _WeekOffMappingMasterScreenState
     });
   }
 
+  // DELETE WEEK OFF MAPPING
   Future<void> _showPopupToDeleteWeekOffMappingMaster(
     BuildContext context,
     WeekOffMappingModel obj,
@@ -243,22 +254,16 @@ class _WeekOffMappingMasterScreenState
   }
 
   @override
-  void dispose() {
-    scrollController.dispose();
-    _searchC.dispose();
-    _filterDepartmentC.dispose();
-    _filterEmployeeNameC.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
         screenTitle: "Week Off Mapping Master",
         authorization: _routeAuthorizationModel,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addWeekOffMappingMaster);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addWeekOffMappingMaster);
+          if (context.mounted) {
+            _weekOffMappingMasterCubit.searchWeekOffMapping("", context);
+          }
         },
         textController: _searchC,
         searchHintText: "Search by Week Off Policy Name",

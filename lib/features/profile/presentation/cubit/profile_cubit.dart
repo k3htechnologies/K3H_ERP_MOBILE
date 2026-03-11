@@ -264,7 +264,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     final result = await _employeeMasterRepository.getEmployeeAssetList(
       pageNumber: pageNumber,
       pageSize: pageSize,
-      queryParams: {"EmployeeId": employeeId},
+      queryParams: {"EmployeeId": employeeId,"IsCheckPermission":"false"},
     );
 
     result.fold(
@@ -300,7 +300,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         .getEmployeeShiftManagementList(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          queryParams: {"EmployeeId": employeeId},
+          queryParams: {"EmployeeId": employeeId,"IsCheckPermission":"false"},
         );
 
     result.fold(
@@ -336,7 +336,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         .getEmployeeWeekOffMappingList(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          queryParams: {"EmployeeId": employeeId},
+          queryParams: {"EmployeeId": employeeId,"IsCheckPermission":"false"},
         );
 
     result.fold(
@@ -730,7 +730,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         .getBranchAssociationList(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          queryParams: {"EmployeeId": employeeId},
+          queryParams: {"EmployeeId": employeeId,"IsCheckPermission":"false"},
         );
 
     result.fold(

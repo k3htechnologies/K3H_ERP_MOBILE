@@ -125,9 +125,8 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
         },
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addSubMaterialMaster);
-          // Refresh list when returning from add screen
           if (context.mounted) {
-            _subMaterialMasterCubit.getSubMaterialMasterList(context, 1, 10);
+            _subMaterialMasterCubit.searchSubMaterial(context, "");
           }
         },
         onSearchSubmit: (value) {
@@ -254,6 +253,7 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
     );
   }
 
+  // BUILD INFO CHIP
   Widget _buildInfoChip({required String label, required String value}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

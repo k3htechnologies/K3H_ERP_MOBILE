@@ -17,7 +17,7 @@ class NetworkImageWidget extends StatelessWidget {
     super.key,
     required this.imageUrl,
     this.fit,
-    this.borderRadius=BorderRadius.zero,
+    this.borderRadius = BorderRadius.zero,
     this.width,
     this.height,
     this.placeholder,
@@ -46,13 +46,12 @@ class NetworkImageWidget extends StatelessWidget {
     if (imageUrl.isEmpty) {
       return ClipRRect(
         borderRadius: borderRadius ?? BorderRadius.zero,
-        child: errorWidget ??
+        child:
+            errorWidget ??
             Container(
               width: width,
               height: height,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-              ),
+              decoration: BoxDecoration(color: Colors.grey[300]),
               child: const Icon(Icons.image_not_supported, size: 50),
             ),
       );
@@ -66,14 +65,19 @@ class NetworkImageWidget extends StatelessWidget {
         width: width,
         height: height,
         httpHeaders: httpHeaders,
-        placeholder: (context, url) => placeholder ?? _buildShimmerPlaceholder(),
-        errorWidget: (context, url, error) => errorWidget ??
-            Container(
-              width: width,
-              height: height,
-              color: Colors.grey[300],
-              child: const Icon(Icons.broken_image, size: 50),
-            ),
+        cacheKey: imageUrl,
+        placeholder:
+            (context, url) => placeholder ?? _buildShimmerPlaceholder(),
+        errorWidget: (context, url, error) {
+          debugPrint("IMAGE ERROR: $error");
+          return errorWidget ??
+              Container(
+                width: width,
+                height: height,
+                color: Colors.grey[300],
+                child: const Icon(Icons.broken_image, size: 50),
+              );
+        },
       ),
     );
   }
@@ -86,8 +90,8 @@ class NetworkImageWidget extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: borderRadius
+          color: Colors.grey[300],
+          borderRadius: borderRadius,
         ),
       ),
     );

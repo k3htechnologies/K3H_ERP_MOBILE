@@ -63,6 +63,7 @@ class _BranchAssociationMasterScreenState
     super.dispose();
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
   }
@@ -220,15 +221,12 @@ class _BranchAssociationMasterScreenState
         textController: _searchC,
         searchHintText: "Search by Employee Name",
         onSearchSubmit: (value) {
-          _branchAssociationMasterCubit.searchAssetMapping(value, context);
+          _branchAssociationMasterCubit.branchAssociationMaster(value, context);
         },
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addBranchAssociation);
           if (context.mounted) {
-            _branchAssociationMasterCubit.getBranchAssociationList(
-              context: context,
-              pageNumber: 1,
-            );
+            _branchAssociationMasterCubit.branchAssociationMaster("", context);
           }
         },
         onExportCallback: (value) {

@@ -217,7 +217,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addDepartment);
           if (context.mounted) {
-            _departmentMasterCubit.getDepartmentList(context, 1);
+            _departmentMasterCubit.searchDepartment(context, "");
           }
         },
         searchHintText: "Search by Department Name",

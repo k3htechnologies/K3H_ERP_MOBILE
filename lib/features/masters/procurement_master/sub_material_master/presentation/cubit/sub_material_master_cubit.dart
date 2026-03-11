@@ -17,6 +17,12 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
   final SubMaterialMasterRepository _subMaterialMasterRepository =
       serviceLocator<SubMaterialMasterRepository>();
 
+  // <---- SEARCH SUB MATERIAL ---->
+  Future searchSubMaterial(BuildContext context, String value) async {
+    emit(state.copyWith(searchText: value, subMaterialList: []));
+    await getSubMaterialMasterList(context, 1, 10);
+  }
+
   // <---- GET SUB MATERIAL MASTER LIST ---->
   Future getSubMaterialMasterList(
     BuildContext context,
@@ -54,12 +60,6 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
         );
       },
     );
-  }
-
-  // <---- SEARCH SUB MATERIAL ---->
-  Future searchSubMaterial(BuildContext context, String value) async {
-    emit(state.copyWith(searchText: value, subMaterialList: []));
-    await getSubMaterialMasterList(context, 1, 10);
   }
 
   // <---- ADD SUB MATERIAL ---->
@@ -188,50 +188,6 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
           // Refresh the list from API
           getSubMaterialMasterList(context, 1, pageSize);
         }
-      },
-    );
-  }
-
-  // <---- SORT SUB MATERIAL ---->
-  Future sortSubMaterial(
-    BuildContext context,
-    String sortType,
-    String sortOrder,
-  ) async {
-    emit(state.copyWith(isLoading: true, subMaterialList: []));
-    Map<String, dynamic> queryParams = {
-      "SubMaterialName": state.searchText,
-      "SortBy":
-          sortType == "Created Date"
-              ? "CreatedDate"
-              : sortType == "Modified Date"
-              ? "ModifiedDate"
-              : sortType == "Sub Material Name"
-              ? "SubMaterialName"
-              : "CreatedDate",
-      "SortOrder": sortOrder,
-    };
-    var result = await _subMaterialMasterRepository.getSubMaterialList(
-      pageNumber: 1,
-      pageSize: 10,
-      queryParams: queryParams,
-    );
-    result.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false, errorMessage: failure.message));
-        showErrorMessage(context, 'Error', failure.message);
-      },
-      (response) {
-        List<SubMaterialMasterModel> updatedList =
-            (response['data'] as List).cast<SubMaterialMasterModel>();
-        emit(
-          state.copyWith(
-            isLoading: false,
-            subMaterialList: updatedList,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
-            currentPage: 1,
-          ),
-        );
       },
     );
   }

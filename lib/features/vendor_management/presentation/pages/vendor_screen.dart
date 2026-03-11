@@ -264,7 +264,7 @@ class _VendorScreenState extends State<VendorScreen> {
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addVendor);
           if (context.mounted) {
-            _vendorCubit.getVendors(context, 1);
+            _vendorCubit.searchVendor(context, "");
           }
         },
         searchHintText: "Search by Vendor Name",

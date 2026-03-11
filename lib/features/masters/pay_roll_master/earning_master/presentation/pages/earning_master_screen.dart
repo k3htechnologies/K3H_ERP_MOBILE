@@ -209,7 +209,7 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addEarningMaster);
           if (context.mounted) {
-            _earningMasterCubit.getEarningList(context: context, pageNumber: 1);
+            _earningMasterCubit.searchEarning("", context);
           }
         },
         onSearchSubmit: (value) {

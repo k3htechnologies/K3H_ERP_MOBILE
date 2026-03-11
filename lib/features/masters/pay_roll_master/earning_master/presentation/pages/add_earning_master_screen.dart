@@ -77,6 +77,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
     _maxSalaryC = TextEditingController();
   }
 
+  // POPULATE FORM FIELDS
   void _populateFormFields(EarningMasterModel earningMasterModel) {
     _nameC.text = earningMasterModel.name;
     _typeC.text = earningMasterModel.type;
@@ -124,6 +125,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
     );
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;

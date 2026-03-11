@@ -93,18 +93,21 @@ class _AddAssetMappingMasterScreenState
     super.dispose();
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingControllers() {
     _conditionOnIssueC = TextEditingController();
     _conditionOnReturnC = TextEditingController();
     _remarksC = TextEditingController();
   }
 
+  // DISPOSE TEXT EDITING CONTROLLERS
   void _disposeTextEditingControllers() {
     _conditionOnIssueC.dispose();
     _conditionOnReturnC.dispose();
     _remarksC.dispose();
   }
 
+  // POPULATE FORM FIELDS
   void _populateFormFields(AssetMappingModel assetMapping) {
     // Set employee with available data; full details fetched below in edit mode
     _selectedEmployeeNotifier.value = [
@@ -130,7 +133,6 @@ class _AddAssetMappingMasterScreenState
     _conditionOnReturnC.text = assetMapping.conditionOnReturn;
     _remarksC.text = assetMapping.remarks;
 
-    // Fetch full employee data so the employee card shows department, designation, branch, etc.
     _fetchEmployeeDetailsForEdit(assetMapping.employeeId);
   }
 
@@ -163,6 +165,7 @@ class _AddAssetMappingMasterScreenState
     });
   }
 
+  // FETCH EMPLOYEES
   Future<Map<String, dynamic>> _fetchEmployees(
     int pageNumber, {
     String? value,
@@ -202,6 +205,7 @@ class _AddAssetMappingMasterScreenState
     );
   }
 
+  // FETCH ASSETS
   Future<Map<String, dynamic>> _fetchAssets(
     int pageNumber, {
     String? value,
@@ -240,6 +244,7 @@ class _AddAssetMappingMasterScreenState
     );
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -312,7 +317,10 @@ class _AddAssetMappingMasterScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(_isEditMode ? "Update Asset Mapping" : "Add Asset Mapping",style: AppTextStyle.ts16M()),
+              Text(
+                _isEditMode ? "Update Asset Mapping" : "Add Asset Mapping",
+                style: AppTextStyle.ts16M(),
+              ),
               verticalSpacing(),
               Container(
                 decoration: commonCardDecoration(),
@@ -357,54 +365,63 @@ class _AddAssetMappingMasterScreenState
                                   children: [
                                     Row(
                                       spacing: 10,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Asset Code",
                                           value:
-                                              selectedAsset.first["assetCode"] ??
+                                              selectedAsset
+                                                  .first["assetCode"] ??
                                               '',
                                         ),
                                         buildColumnTitleValue(
                                           title: "Asset Name",
                                           value:
-                                              selectedAsset.first["DisplayName"] ??
+                                              selectedAsset
+                                                  .first["DisplayName"] ??
                                               '',
                                         ),
                                       ],
                                     ),
                                     Row(
                                       spacing: 10,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Asset Type",
                                           value:
-                                              selectedAsset.first["assetType"] ??
+                                              selectedAsset
+                                                  .first["assetType"] ??
                                               '',
                                         ),
                                         buildColumnTitleValue(
                                           title: "Asset Model",
                                           value:
-                                              selectedAsset.first["assetModel"] ??
+                                              selectedAsset
+                                                  .first["assetModel"] ??
                                               '',
                                         ),
                                       ],
                                     ),
                                     Row(
                                       spacing: 10,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Asset Brand",
                                           value:
-                                              selectedAsset.first["assetBrand"] ??
+                                              selectedAsset
+                                                  .first["assetBrand"] ??
                                               '',
                                         ),
                                         buildColumnTitleValue(
                                           title: "Serial Number",
                                           value:
-                                              selectedAsset.first["serialNumber"] ??
+                                              selectedAsset
+                                                  .first["serialNumber"] ??
                                               '',
                                         ),
                                       ],
@@ -454,7 +471,8 @@ class _AddAssetMappingMasterScreenState
                                   children: [
                                     Row(
                                       spacing: 10,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Department",
@@ -474,12 +492,14 @@ class _AddAssetMappingMasterScreenState
                                     ),
                                     Row(
                                       spacing: 10,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Branch",
                                           value:
-                                              selectedEmployee.first["branch"] ??
+                                              selectedEmployee
+                                                  .first["branch"] ??
                                               '',
                                         ),
                                         buildColumnTitleValue(
@@ -493,12 +513,14 @@ class _AddAssetMappingMasterScreenState
                                     ),
                                     Row(
                                       spacing: 10,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
                                           title: "Email Id",
                                           value:
-                                              selectedEmployee.first["email"] ?? '',
+                                              selectedEmployee.first["email"] ??
+                                              '',
                                         ),
                                         buildColumnTitleValue(
                                           title: "Personal Mobile Number",
@@ -605,7 +627,9 @@ class _AddAssetMappingMasterScreenState
                                 title: 'Condition on Return',
                                 textController: _conditionOnReturnC,
                                 hint: "Enter Condition on Return",
-                                inputFormatterList: InputValidator.textOnly(200),
+                                inputFormatterList: InputValidator.textOnly(
+                                  200,
+                                ),
                                 validator: (value) {
                                   if ((value == null || value.trim().isEmpty) &&
                                       isInactive) {

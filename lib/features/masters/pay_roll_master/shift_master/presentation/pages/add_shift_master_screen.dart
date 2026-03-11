@@ -69,6 +69,22 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _shiftNameC.dispose();
+    _shiftCodeC.dispose();
+    _remarksC.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLERS
+  void _initializeTextEditingControllers() {
+    _shiftNameC = TextEditingController();
+    _shiftCodeC = TextEditingController();
+    _remarksC = TextEditingController();
+  }
+
+  // POPULATE FORM FIELDS
   void _populateFormFields(ShiftMasterModel shiftMasterModel) {
     _shiftNameC.text = shiftMasterModel.shiftName;
     _shiftCodeC.text = shiftMasterModel.shiftCode;
@@ -88,12 +104,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
     _remarksC.text = shiftMasterModel.remarks;
   }
 
-  void _initializeTextEditingControllers() {
-    _shiftNameC = TextEditingController();
-    _shiftCodeC = TextEditingController();
-    _remarksC = TextEditingController();
-  }
-
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;

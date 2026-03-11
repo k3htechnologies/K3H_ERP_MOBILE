@@ -76,6 +76,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
     super.dispose();
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingControllers() {
     _assetNameC = TextEditingController();
     _assetCodeC = TextEditingController();
@@ -87,6 +88,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
     _assetCostC = TextEditingController();
   }
 
+  // DISPOSE TEXT EDITING CONTROLLERS
   void _disposeTextEditingControllers() {
     _assetNameC.dispose();
     _assetCodeC.dispose();
@@ -98,6 +100,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
     _assetCostC.dispose();
   }
 
+  // POPULATE FORM FIELDS
   void _populateFormFields(AssetMasterModel asset) {
     _assetNameC.text = asset.assetName;
     _assetCodeC.text = asset.assetCode;
@@ -117,6 +120,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
     );
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -350,7 +354,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
                         assetInvoiceFile.fileNameList = fileNameList;
                         assetInvoiceFile.deletedFileList = deletedUrl;
                       },
-                      validator: (value){
+                      validator: (value) {
                         if (assetInvoiceFile.fileNameList.isEmpty) {
                           return "Please upload at least one file";
                         }

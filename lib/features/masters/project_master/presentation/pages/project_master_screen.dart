@@ -178,7 +178,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addProjectMaster);
           if (context.mounted) {
-            _projectMasterCubit.getProjectList(context: context, pageNumber: 1);
+            _projectMasterCubit.searchProject(context, "");
           }
         },
         onExportCallback: (value) {

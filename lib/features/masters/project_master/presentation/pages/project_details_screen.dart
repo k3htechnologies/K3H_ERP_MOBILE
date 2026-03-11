@@ -40,7 +40,6 @@ class ProjectDetailsScreen extends StatefulWidget {
 class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  int _lastTabIndex = 0;
   late final Future<void> _delayFuture;
 
   late final PageController pageController;
@@ -98,9 +97,6 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
   // <---- TAB CHANGE ---->
   void _handleTabChange() {
     final index = _tabController.index;
-    if (index == _lastTabIndex) return;
-
-    _lastTabIndex = index;
 
     context.read<ProjectMasterCubit>().onTabChanged(
       context,

@@ -57,6 +57,7 @@ class _AddShiftMappingMasterScreenState
     }
   }
 
+  // POPULATE FORM FIELDS
   void _populateFormFields(ShiftMappingModel shiftMapping) {
     _selectedEmployee = [
       {
@@ -78,6 +79,7 @@ class _AddShiftMappingMasterScreenState
     ];
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;

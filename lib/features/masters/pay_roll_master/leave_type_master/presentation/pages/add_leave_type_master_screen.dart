@@ -63,12 +63,22 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _leaveTypeC.dispose();
+    _leaveTypeCodeC.dispose();
+    _maxCarryForwardC.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingControllers() {
     _leaveTypeC = TextEditingController();
     _leaveTypeCodeC = TextEditingController();
     _maxCarryForwardC = TextEditingController();
   }
 
+  // POPULATE FORM FIELDS
   void _populateFormFields(LeaveTypeModel leaveTypeModel) {
     _leaveTypeC.text = leaveTypeModel.leaveType;
     _leaveTypeCodeC.text = leaveTypeModel.leaveTypeCode;
@@ -77,6 +87,7 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
     isEncashable.value = leaveTypeModel.isEncashable;
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;

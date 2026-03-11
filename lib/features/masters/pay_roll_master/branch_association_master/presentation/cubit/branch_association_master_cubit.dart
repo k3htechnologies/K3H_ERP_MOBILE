@@ -21,7 +21,7 @@ class BranchAssociationMasterCubit extends Cubit<BranchAssociationMasterState> {
     emit(BranchAssociationMasterState.initial());
   }
 
-  void searchAssetMapping(String value, BuildContext context) {
+  void branchAssociationMaster(String value, BuildContext context) {
     emit(
       state.copyWith(
         branchAssociationList: [],

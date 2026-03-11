@@ -59,18 +59,29 @@ class _AddLeaveEncashmentMasterScreenState
     }
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _minSalaryC.dispose();
+    _maxSalaryC.dispose();
+    _encashmentRateC.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingControllers() {
     _minSalaryC = TextEditingController();
     _maxSalaryC = TextEditingController();
     _encashmentRateC = TextEditingController();
   }
 
+  // POPULATE FORM FIELDS
   void _populateFormFields(LeaveEncashmentMasterModel leaveEncashmentModel) {
     _minSalaryC.text = leaveEncashmentModel.minSalary.toString();
     _maxSalaryC.text = leaveEncashmentModel.maxSalary.toString();
     _encashmentRateC.text = leaveEncashmentModel.encashmentRate.toString();
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;

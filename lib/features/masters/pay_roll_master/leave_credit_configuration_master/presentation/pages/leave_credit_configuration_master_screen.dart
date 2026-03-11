@@ -393,8 +393,10 @@ class _LeaveCreditConfigurationMasterScreenState
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addLeaveCreditConfigurationMaster);
           if (context.mounted) {
-            _leaveCreditConfigurationMasterCubit
-                .getLeaveCreditConfigurationList(context, 1);
+            _leaveCreditConfigurationMasterCubit.searchLeaveCreditConfiguration(
+              context,
+              "",
+            );
           }
         },
         onExportCallback: (value) {

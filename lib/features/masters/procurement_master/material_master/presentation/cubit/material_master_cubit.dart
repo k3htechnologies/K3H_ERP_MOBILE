@@ -17,6 +17,13 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
   final MaterialMasterRepository _materialMasterRepository =
       serviceLocator<MaterialMasterRepository>();
 
+  // <---- SEARCH MATERIAL ---->
+  Future searchMaterial(BuildContext context, String value) async {
+    emit(state.copyWith(searchText: value, materialList: []));
+    await getMaterialMasterList(context, 1, 20);
+  }
+
+
   // <---- GET MATERIAL MASTER ---->
   Future getMaterialMasterList(
     BuildContext context,
@@ -162,28 +169,6 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
         }
       },
     );
-  }
-
-  // <---- SEARCH MATERIAL ---->
-  Future searchMaterial(BuildContext context, String value) async {
-    emit(state.copyWith(searchText: value, materialList: []));
-    await getMaterialMasterList(context, 1, 20);
-  }
-
-  // <----- SORT MATERIAL ----->
-  Future sortMaterial(
-    BuildContext context,
-    String value,
-    String direction,
-  ) async {
-    emit(
-      state.copyWith(
-        currentSortColumn: value,
-        currentSortDirection: direction,
-        materialList: [],
-      ),
-    );
-    await getMaterialMasterList(context, 1, 10);
   }
 
   // <---- EXPORT EXCEL PDF ---->

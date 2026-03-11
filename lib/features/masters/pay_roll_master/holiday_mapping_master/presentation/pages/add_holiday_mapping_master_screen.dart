@@ -68,6 +68,7 @@ class _AddHolidayMappingMasterScreenState
     }
   }
 
+  // POPULATE FORM FIELDS
   void _populateFormFields(HolidayMappingModel holidayMapping) {
     _selectedBranch = [
       {
@@ -152,6 +153,7 @@ class _AddHolidayMappingMasterScreenState
     );
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;

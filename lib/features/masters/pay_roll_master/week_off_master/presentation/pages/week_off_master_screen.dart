@@ -51,6 +51,7 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
     _weekOffMasterCubit.getWeekOffList(context: context, pageNumber: 1);
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
   }
@@ -76,6 +77,7 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
     });
   }
 
+  // DELETE WEEK OFF
   Future<void> _showPopupToDeleteWeekOffMaster(
     BuildContext context,
     WeekOffMasterModel obj,
@@ -199,8 +201,11 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
       appBar: CustomAppBar(
         screenTitle: "Week Off Master",
         authorization: _routeAuthorizationModel,
-        onAddCallback: () {
-          goRouter.pushNamed(AppRoutes.addWeekOffMaster);
+        onAddCallback: () async {
+          await goRouter.pushNamed(AppRoutes.addWeekOffMaster);
+          if (context.mounted) {
+            _weekOffMasterCubit.searchWeekOff("", context);
+          }
         },
         textController: _searchC,
         searchHintText: "Search by Week Off Name",
@@ -344,7 +349,7 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
                     buildRowTitleValue(
                       title: "Not Applicable For Months",
                       value: weekOffMaster.notApplicableForMonths,
-                      singleLine: false
+                      singleLine: false,
                     ),
                   ],
                 ),
