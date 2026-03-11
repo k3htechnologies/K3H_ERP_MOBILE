@@ -219,6 +219,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
     String? approvalDocumentStatus,
     String? approvalDocumentRemark,
     MultiFilePickerModel? documents,
+    required String approvalDocumentName,
   }) async {
     List<Map<String, dynamic>> fileList = [];
     DialogHelper.showProcessingOverlay(context);
@@ -229,7 +230,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       "ApprovalDocumentCategoryId": approvalDocumentCategoryId.toString(),
       //isMaster is 0 means add subdoc in document group
       "IsMaster": 0.toString(),
-
+      "ApprovalDocumentName": approvalDocumentName,
       "ApprovalDocumentExpiryDate":
           approvalDocumentExpiryDate != null
               ? approvalDocumentExpiryDate.toIso8601String()
@@ -290,7 +291,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Approval Document Updated Successfully",
+          subTitle: "Approval Document Added Successfully",
         );
       },
     );

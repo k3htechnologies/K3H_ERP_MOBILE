@@ -197,11 +197,17 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
                               ],
                             )
                             : isPdf(url)
-                            ? Expanded(
-                              child:
-                                  hasBytes
-                                      ? SfPdfViewer.memory(bytes!)
-                                      : SfPdfViewer.network(url),
+                            ? Column(
+                              children: [
+                                Expanded(
+                                  child:
+                                      hasBytes
+                                          ? SfPdfViewer.memory(bytes!)
+                                          : SfPdfViewer.network(url),
+                                ),
+                                verticalSpacing(height: 8),
+                                Text(getFileName(url)),
+                              ],
                             )
                             : Center(
                               child: Column(

@@ -186,79 +186,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> punchOut(BuildContext context) async {
+    final address = await _getAddressFromGPS();
+
+    await positionStream?.cancel();
+
+    final currentPosition = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.bestForNavigation,
+    );
+
+    final endPoint = LatLng(
+      currentPosition.latitude,
+      currentPosition.longitude,
+    );
+
+    final finalDistance =
+        routePoints.length > 1 ? _calculateDistance(routePoints) : 0.0;
+
+    final finalPolyline =
+        routePoints.length > 1 ? PolylineEncoder.encode(routePoints) : "";
+
+    await _dashboardCubit.updateAttendance(
+      context,
+      attendanceId: currentAttendanceId!,
+      uniquekey: currentUniquekey!,
+      punchAddress: address,
+      startLatitude: startLatLng?.latitude ?? routePoints.first.latitude,
+      startLongitude: startLatLng?.longitude ?? routePoints.first.longitude,
+      endLatitude: endPoint.latitude,
+      endLongitude: endPoint.longitude,
+      polyline: finalPolyline,
+      distance: finalDistance,
+    );
+
+    _timer?.cancel();
+
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, now.day);
+
+    await _dashboardCubit.getAttendanceList(
+      context,
+      1,
+      start,
+      start,
+      0,
+      _selectedProject.projectId,
+    );
+
+    isPunchedInNotifier.value = false;
+    dragPositionNotifier.value = 0;
+  }
+
   void _handleDragEnd() async {
     if (!isPunchedInNotifier.value &&
         dragPositionNotifier.value > maxWidth * 0.75) {
       // PUNCH IN
       await punchIn(context);
-
+      isPunchedInNotifier.value = true;
       dragPositionNotifier.value = maxWidth;
     } else if (isPunchedInNotifier.value &&
-        dragPositionNotifier.value < maxWidth * 0.25) {
-      final address = await _getAddressFromGPS();
-
-      await positionStream?.cancel();
-
-      final currentPosition = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.bestForNavigation,
-      );
-
-      final endPoint = LatLng(
-        currentPosition.latitude,
-        currentPosition.longitude,
-      );
-      if (routePoints.isEmpty && startLatLng != null) {
-        routePoints.add(startLatLng!);
-      }
-
-      if (routePoints.length == 1) {
-        routePoints.add(endPoint);
-      } else {
-        routePoints.add(endPoint);
-      }
-      if (startLatLng == null && routePoints.isNotEmpty) {
-        startLatLng = routePoints.first;
-      }
-      if (routePoints.length < 2) {
-        debugPrint("Not enough GPS points to calculate route");
-      }
-      final finalDistance =
-          routePoints.length > 1 ? _calculateDistance(routePoints) : 0.0;
-
-      final finalPolyline =
-          routePoints.length > 1 ? PolylineEncoder.encode(routePoints) : "";
-
-      await _dashboardCubit.updateAttendance(
-        context,
-        attendanceId: currentAttendanceId!,
-        uniquekey: currentUniquekey!,
-        punchAddress: address,
-
-        startLatitude: startLatLng?.latitude ?? routePoints.first.latitude,
-        startLongitude: startLatLng?.longitude ?? routePoints.first.longitude,
-
-        endLatitude: endPoint.latitude,
-        endLongitude: endPoint.longitude,
-        polyline: finalPolyline,
-        distance: finalDistance,
-      );
-
-      _timer?.cancel();
-
-      final now = DateTime.now();
-      final start = DateTime(now.year, now.month, now.day);
-      final end = start;
-
-      await _dashboardCubit.getAttendanceList(
-        context,
-        1,
-        start,
-        end,
-        0,
-        _selectedProject.projectId,
-      );
-
-      dragPositionNotifier.value = 0;
+        dragPositionNotifier.value < maxWidth * 0.5) {
+      await punchOut(context);
     } else {
       dragPositionNotifier.value = isPunchedInNotifier.value ? maxWidth : 0;
     }
@@ -371,6 +359,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         currentAttendanceId = record.attendanceId;
         currentUniquekey = record.uniquekey;
+        // PUNCH OUT SESSION
         if (record.punchOut == null) {
           isPunchedInNotifier.value = true;
           dragPositionNotifier.value = maxWidth;
@@ -602,8 +591,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         details.delta.dx;
                                     newPos = newPos.clamp(0, maxWidth);
                                     dragPositionNotifier.value = newPos;
+
+                                    /// AUTO PUNCH OUT
+                                    if (isPunchedInNotifier.value &&
+                                        newPos < maxWidth * 0.4) {
+                                      _handleDragEnd();
+                                    }
+
+                                    /// AUTO PUNCH IN
+                                    if (!isPunchedInNotifier.value &&
+                                        newPos > maxWidth * 0.7) {
+                                      _handleDragEnd();
+                                    }
                                   },
                                   onHorizontalDragEnd: (_) => _handleDragEnd(),
+
                                   child: Container(
                                     width: 42,
                                     decoration: BoxDecoration(
@@ -627,11 +629,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   },
                 ),
                 if (state.dashboardModelList.isNotEmpty)
-                  if (state.dashboardModelList.isNotEmpty)
-                    _buildDashboardPunchInPunchOutWidget(
-                      state.dashboardModelList.first,
-                      context,
-                    ),
+                  _buildDashboardPunchInPunchOutWidget(
+                    state.dashboardModelList.first,
+                    context,
+                  ),
               ],
             ),
           ),

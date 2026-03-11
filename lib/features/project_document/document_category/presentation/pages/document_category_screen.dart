@@ -204,50 +204,54 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
                               category.projectDocumentCategoryName,
                               style: AppTextStyle.ts16M(
                                 color: AppColor.primary,
-                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
+                              ),
                             ),
                           ),
                         ),
-                        Row(
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                if (_project.projectId == 0) {
-                                  showErrorMessage(
-                                    context,
-                                    'Error',
-                                    'Please select a project',
-                                  );
-                                  return;
-                                }
-                                await goRouter.pushNamed(
-                                  AppRoutes.addDocumentCategory,
-                                  queryParameters: {
-                                    "documentCategory":
-                                        Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(category.toJson()),
-                                          ),
-                                        ),
-                                    'index': index.toString(),
+                        _routeAuthorizationModel.isAction
+                            ? Row(
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    if (_project.projectId == 0) {
+                                      showErrorMessage(
+                                        context,
+                                        'Error',
+                                        'Please select a project',
+                                      );
+                                      return;
+                                    }
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addDocumentCategory,
+                                      queryParameters: {
+                                        "documentCategory":
+                                            Uri.encodeQueryComponent(
+                                              EncryptionManager.encryptData(
+                                                jsonEncode(category.toJson()),
+                                              ),
+                                            ),
+                                        'index': index.toString(),
+                                      },
+                                    );
                                   },
-                                );
-                              },
-                            ),
-                            horizontalSpacing(),
-                            if(category.documentCount!=0)
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteDocumentCategory(
-                                  context,
-                                  category,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                ),
+                                horizontalSpacing(),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showPopupToDeleteDocumentCategory(
+                                      context,
+                                      category,
+                                      state.currentPage,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
+                            )
+                            : SizedBox.shrink(),
                       ],
                     ),
                     verticalSpacing(height: 8),

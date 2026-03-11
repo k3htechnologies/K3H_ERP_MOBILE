@@ -602,33 +602,31 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   }
 
   Future<void> getBankList(
-      BuildContext context,
-      int pageNumber,
-      int pageSize,{
-        String? searchQuery,
-      }
-      ) async {
-
+    BuildContext context,
+    int pageNumber,
+    int pageSize, {
+    String? searchQuery,
+  }) async {
     var queryParams = {"BankName": searchQuery ?? ""};
 
     emit(state.copyWith(isLoading: true));
 
     final result = await employeeMasterRepository.getBankList(
-        pageNumber: pageNumber,
-        pageSize: pageSize,
-        query: queryParams
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      query: queryParams,
     );
 
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         final newData = List<BankListMasterModel>.from(response['data']);
 
         final List<BankListMasterModel> updatedList =
-        pageNumber == 1 ? newData : [...state.bankList, ...newData];
+            pageNumber == 1 ? newData : [...state.bankList, ...newData];
 
         final totalCount = response['totalNumberOfRecord'] ?? 0;
 
@@ -768,33 +766,33 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
 
   // <---- REPORTING PERSON DROPDOWN ---->
   Future<void> getEmployee(
-      BuildContext context,
-      int pageNumber,
-      int pageSize,{
-        String? searchQuery,
-      }
-      ) async {
-
+    BuildContext context,
+    int pageNumber,
+    int pageSize, {
+    String? searchQuery,
+  }) async {
     var queryParams = {"EmployeeName": searchQuery ?? ""};
 
     emit(state.copyWith(isLoading: true));
 
     final result = await employeeMasterRepository.getEmployeeMasterList(
-        pageNumber: pageNumber,
-        pageSize: pageSize,
-        queryParams: queryParams
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      queryParams: queryParams,
     );
 
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         final newData = List<UserModel>.from(response['data']);
 
         final List<UserModel> updatedList =
-        pageNumber == 1 ? newData : [...state.reportingPersonList, ...newData];
+            pageNumber == 1
+                ? newData
+                : [...state.reportingPersonList, ...newData];
 
         final totalCount = response['totalNumberOfRecord'] ?? 0;
 
@@ -813,11 +811,9 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   Future<void> getBranch(
     BuildContext context,
     int pageNumber,
-    int pageSize,{
-        String? searchQuery,
-      }
-  ) async {
-
+    int pageSize, {
+    String? searchQuery,
+  }) async {
     var queryParams = {"BranchName": searchQuery ?? ""};
 
     emit(state.copyWith(isLoading: true));
@@ -825,7 +821,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     final result = await employeeMasterRepository.getBranchList(
       pageNumber: pageNumber,
       pageSize: pageSize,
-      query: queryParams
+      query: queryParams,
     );
 
     result.fold(

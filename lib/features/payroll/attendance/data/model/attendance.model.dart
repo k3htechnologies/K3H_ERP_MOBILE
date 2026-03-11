@@ -31,8 +31,8 @@ class AttendanceModel {
     required this.uniquekey,
     required this.attendanceId,
     required this.attendanceDate,
-    required this.punchIn,
-    required this.punchOut,
+    this.punchIn,
+    this.punchOut,
     required this.punchInAddress,
     required this.punchOutAddress,
     required this.workingHours,
@@ -58,14 +58,8 @@ class AttendanceModel {
         fullName: parseValue<String>(json, "FullName"),
         attendanceId: parseValue<int>(json, "AttendanceId"),
         attendanceDate: parseValue<DateTime>(json, "AttendanceDate"),
-        punchIn:
-            json["PunchIn"] == null
-                ? null
-                : parseValue<DateTime>(json, "PunchIn"),
-        punchOut:
-            json["PunchOut"] == null
-                ? null
-                : parseValue<DateTime>(json, "PunchOut"),
+        punchIn: parseApiDate(json["PunchIn"]),
+        punchOut: parseApiDate(json["PunchOut"]),
         punchInAddress: parseValue<String>(json, "PunchInAddress"),
         punchOutAddress: parseValue<String>(json, "PunchOutAddress"),
         workingHours: json["WorkingHours"],
