@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -48,6 +49,16 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
     _initializeTeamPagination();
   }
 
+  @override
+  void dispose() {
+    _tabController.removeListener(_onTabChanged);
+    _tabController.dispose();
+    _teamMembersNotifier.dispose();
+    _isLoadingNotifier.dispose();
+    super.dispose();
+  }
+
+  // INITIALIZE TEAM PAGINATION
   void _initializeTeamPagination() {
     _teamScrollController = ScrollController();
     _teamScrollController.addListener(_onTeamScroll);
@@ -58,7 +69,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
             _teamScrollController.position.maxScrollExtent - 100 &&
         !_isTeamLoadingMore &&
         _teamMembersNotifier.value.length < _totalTeamRecords) {
-      // DEBOUNCE - EXACTLY LIKE LITIGATIONSCREEN
+      // DEBOUNCE - EXACTLY LIKE LITIGATION SCREEN
       if (_teamDebounce?.isActive ?? false) _teamDebounce?.cancel();
       _teamDebounce = Timer(const Duration(milliseconds: 300), () {
         _loadMoreTeamMembers();
@@ -66,17 +77,18 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
     }
   }
 
+  // LOAD MORE TEAM MEMBERS
   Future<void> _loadMoreTeamMembers() async {
     _isTeamLoadingMore = true;
     try {
       final result = await _channelPartnerRepository.getChannelPartnerList(
         pageNumber: _currentTeamPage + 1,
-        pageSize: 20, // Smaller page size for pagination
+        pageSize: 20,
         queryParams: {"CompanyName": widget.channelPartnerModel.companyName},
       );
 
       result.fold(
-        (failure) => debugPrint("❌ Load more error: ${failure.message}"),
+        (failure) => debugPrint("Load more error: ${failure.message}"),
         (response) {
           final newPartners = List<ChannelPartnerModel>.from(
             response['data'] ?? [],
@@ -106,21 +118,14 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
     }
   }
 
+  // TAB CHANGE METHOD
   void _onTabChanged() {
     if (_tabController.index == 1) {
       _pullChannelPartnerMaster();
     }
   }
 
-  @override
-  void dispose() {
-    _tabController.removeListener(_onTabChanged);
-    _tabController.dispose();
-    _teamMembersNotifier.dispose();
-    _isLoadingNotifier.dispose();
-    super.dispose();
-  }
-
+  // PULL CHANNEL PARTNER MASTER
   Future<void> _pullChannelPartnerMaster() async {
     _isLoadingNotifier.value = true;
     try {
@@ -168,45 +173,13 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Tab Bar
-          IntrinsicWidth(
-            child: Container(
-              height: 35,
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: AppColor.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
-              ),
-              child: TabBar(
-                controller: _tabController,
-                isScrollable: true,
-                tabAlignment: TabAlignment.start,
-                labelColor: AppColor.primary,
-                unselectedLabelColor: AppColor.grey,
-                indicator: BoxDecoration(
-                  color: AppColor.lightBlue,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                indicatorSize: TabBarIndicatorSize.tab,
-                dividerColor: Colors.transparent,
-                labelStyle: AppTextStyle.ts14M(),
-                unselectedLabelStyle: AppTextStyle.ts14M(),
-                labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                tabs: [
-                  const Tab(text: "Overview"),
-                  ValueListenableBuilder<List<ChannelPartnerModel>>(
-                    valueListenable: _teamMembersNotifier,
-                    builder: (context, teamMembers, child) {
-                      return Tab(text: "Team Members");
-                    },
-                  ),
-                ],
-              ),
-            ),
+          // TAB BAR
+          ChipStyleTabBar(
+            controller: _tabController,
+            tabs: ["Overview", "Team Members"],
           ),
 
-          // Tab Bar View
+          // TAB BAR VIEW
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -494,7 +467,6 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Name & Designation
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -597,7 +569,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
     );
   }
 
-  /// DOCUMENT CARD
+  // DOCUMENT CARD
   Widget _buildDocumentCard(
     BuildContext context,
     ChannelPartnerModel channelPartner,

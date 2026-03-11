@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
@@ -35,8 +34,7 @@ class _RedevelopmentDashboardScreenState
       serviceLocator<BuildingRepository>();
 
   // CUBIT
-  late RedevlopmentDashboardCubit _redevlopmentDashboardCubit;
-  late ProjectModel selectedProject;
+  late RedevlopmentDashboardCubit _redevelopmentDashboardCubit;
 
   List<Map<String, dynamic>> selectedBuilding = [];
   int selectedAreaIndex = 0;
@@ -44,10 +42,10 @@ class _RedevelopmentDashboardScreenState
   @override
   void initState() {
     super.initState();
-    _redevlopmentDashboardCubit = context.read<RedevlopmentDashboardCubit>();
+    _redevelopmentDashboardCubit = context.read<RedevlopmentDashboardCubit>();
 
     final project = getProject();
-    _redevlopmentDashboardCubit.getRedevelopmentDashboardList(
+    _redevelopmentDashboardCubit.getRedevelopmentDashboardList(
       context,
       project.projectId,
     );
@@ -104,7 +102,7 @@ class _RedevelopmentDashboardScreenState
         isMenuButton: true,
         authorization: AuthorizationModel(),
         onProjectChangeCallback: (value) {
-          _redevlopmentDashboardCubit.getRedevelopmentDashboardList(
+          _redevelopmentDashboardCubit.getRedevelopmentDashboardList(
             context,
             getProject().projectId,
           );
@@ -187,7 +185,7 @@ class _RedevelopmentDashboardScreenState
                         buildingId =
                             selectedValue.first['zAttributesId'] as int;
                       }
-                      _redevlopmentDashboardCubit.getRedevelopmentDashboardList(
+                      _redevelopmentDashboardCubit.getRedevelopmentDashboardList(
                         context,
                         getProject().projectId,
                         buildingId: buildingId,
@@ -410,7 +408,7 @@ class _RedevelopmentDashboardScreenState
                   // ALERT WIDGET
                   _buildAlertsWidget(context),
                   verticalSpacing(),
-                  // PROPOSED PLAN WIDGET (NO. OF FLOORS, UNITS AND TOTAL PARKINGS, BUILDING TYPE PLANS)
+                  // PROPOSED PLAN WIDGET (NO. OF FLOORS, UNITS AND TOTAL PARKING, BUILDING TYPE PLANS)
                   _buildProposedPlanWidget(context),
                   verticalSpacing(),
                   // AMENITIES WIDGET
@@ -424,6 +422,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // BUILD PROJECT PROGRESS WIDGET
   Widget _buildProjectProgressWidget(BuildContext context) {
     final steps = [
       ProjectProgressStep(
@@ -479,6 +478,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // BUILD PROGRESS STEPS
   Widget _buildProgressStep({
     required ProjectProgressStep step,
     required bool isLast,
@@ -587,6 +587,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // BUILD STATUS CHIP
   Widget _buildStatusChip(String status) {
     Color bgColor;
     Color textColor;
@@ -615,6 +616,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // BUILD FINANCIAL OVERVIEW WIDGET
   Widget _buildFinancialOverviewWidget(BuildContext context) {
     return BlocBuilder<RedevlopmentDashboardCubit, RedevlopmentDashboardState>(
       builder: (context, state) {
@@ -738,6 +740,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // LEAVE ROW WIDGET
   Widget _leaveRow({required String title, required String value}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12.0),
@@ -775,6 +778,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // BUILD AREA UTILIZATION SUMMARY WIDGET
   Widget _buildAreaUtilizationSummaryWidget(BuildContext context) {
     return BlocBuilder<RedevlopmentDashboardCubit, RedevlopmentDashboardState>(
       builder: (context, state) {
@@ -951,6 +955,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // LEGEND ITEM WIDGET
   Widget _legendItem(Color color, String text) {
     return Row(
       children: [
@@ -970,6 +975,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // BUILD TENANT OVERVIEW WIDGET
   Widget _buildTenantOverviewWidget(BuildContext context) {
     return BlocBuilder<RedevlopmentDashboardCubit, RedevlopmentDashboardState>(
       builder: (context, state) {
@@ -1079,6 +1085,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // BUILD BUILDING DETAILS WIDGET
   Widget _buildBuildingDetailsWidget(BuildContext context) {
     return BlocBuilder<RedevlopmentDashboardCubit, RedevlopmentDashboardState>(
       builder: (context, state) {
@@ -1192,6 +1199,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // BUILD ALERT WIDGET
   Widget _buildAlertsWidget(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -1255,6 +1263,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // BUILD PROPOSED PLAN WIDGET
   Widget _buildProposedPlanWidget(BuildContext context) {
     return BlocBuilder<RedevlopmentDashboardCubit, RedevlopmentDashboardState>(
       builder: (context, state) {
@@ -1377,6 +1386,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // AREA TOGGLE WIDGET
   Widget areaToggle() {
     return Container(
       decoration: BoxDecoration(
@@ -1391,6 +1401,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // AREA TOGGLE ITEM WIDGET
   Widget _toggleItem(String title, int index) {
     final bool isSelected = selectedAreaIndex == index;
 
@@ -1423,6 +1434,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // BUILD AREA WISE LIST WIDGET
   Widget _buildAreaWiseList({required List<Table3> table3}) {
     final filteredList =
         selectedAreaIndex == 0
@@ -1480,6 +1492,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // AREA TILE WIDGET
   Widget _areaTile({required String title, required int count}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -1496,6 +1509,7 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
+  // BUILD PROPOSED OFFER WIDGET
   Widget _buildProposedOfferWidget(BuildContext context) {
     return BlocBuilder<RedevlopmentDashboardCubit, RedevlopmentDashboardState>(
       builder: (context, state) {

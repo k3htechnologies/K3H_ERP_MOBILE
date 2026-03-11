@@ -276,6 +276,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     }
   }
 
+  // PULL CHANNEL PARTNER MASTER
   Future<void> _pullChannelPartnerMaster(int channelPartnerId) async {
     try {
       final result = await _channelPartnerRepository.getChannelPartnerList(
@@ -412,6 +413,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     }
   }
 
+  // SUBMIT FORM BY OTP VARIFICATION
   void _verifyAndSubmitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -658,7 +660,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (typeId == 2) ...[
-                              /// COMPANY DROPDOWN
+                              // COMPANY DROPDOWN
                               CustomMultipleSelectPopup(
                                 title: "Company",
                                 isRequired: true,
@@ -701,7 +703,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               ),
                               const SizedBox(height: 12),
 
-                              /// COMPANY NAME (READ ONLY)
+                              // COMPANY NAME (READ ONLY)
                               CustomTextField(
                                 title: 'Company Name',
                                 isRequired: true,
@@ -1145,7 +1147,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
               size: 18,
               color: AppColor.white,
             ),
-            text: _isEditMode ? "Update" : "Add",
+            text: _isEditMode ? "Update Channel Partner" : "Add Channel Partner",
             onPressed: _verifyAndSubmitForm,
           ),
         ),

@@ -286,70 +286,6 @@ class _EditBuildingDetailsScreenState extends State<EditBuildingDetailsScreen> {
     }
   }
 
-  // BUILD CONTACT SECTION
-  Widget _buildContactSection(
-    String contactType,
-    TextEditingController nameController,
-    TextEditingController mobileController,
-    TextEditingController emailController,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColor.grey30),
-        borderRadius: BorderRadius.circular(8.0),
-        color: AppColor.grey30.withValues(alpha: 0.1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            contactType,
-            style: AppTextStyle.ts14M(color: AppColor.primary),
-          ),
-          verticalSpacing(),
-          CustomTextField(
-            title: 'Contact Name',
-            textController: nameController,
-            hint: 'Enter Contact Name',
-            inputFormatterList: InputValidator.textOnly(50),
-          ),
-          verticalSpacing(),
-          CustomTextField(
-            title: 'Mobile Number',
-            textController: mobileController,
-            hint: 'Enter Mobile Number',
-            keyboardType: TextInputType.number,
-            inputFormatterList: InputValidator.digit(10),
-            validator: (value) {
-              if (value != null && value.isNotEmpty) {
-                if (!InputValidator.isValidMobileNumber(value)) {
-                  return 'Invalid Mobile Number';
-                }
-              }
-              return null;
-            },
-          ),
-          verticalSpacing(),
-          CustomTextField(
-            title: 'Email ID',
-            textController: emailController,
-            hint: 'Enter Email ID',
-            inputFormatterList: InputValidator.emailInputFormatters(),
-            validator: (value) {
-              if (value != null && value.isNotEmpty) {
-                if (!InputValidator.isValidEmail(value)) {
-                  return 'Email id is invalid';
-                }
-              }
-              return null;
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -644,4 +580,69 @@ class _EditBuildingDetailsScreenState extends State<EditBuildingDetailsScreen> {
       ),
     );
   }
+
+  // BUILD CONTACT SECTION
+  Widget _buildContactSection(
+      String contactType,
+      TextEditingController nameController,
+      TextEditingController mobileController,
+      TextEditingController emailController,
+      ) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColor.grey30),
+        borderRadius: BorderRadius.circular(8.0),
+        color: AppColor.grey30.withValues(alpha: 0.1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            contactType,
+            style: AppTextStyle.ts14M(color: AppColor.primary),
+          ),
+          verticalSpacing(),
+          CustomTextField(
+            title: 'Contact Name',
+            textController: nameController,
+            hint: 'Enter Contact Name',
+            inputFormatterList: InputValidator.textOnly(50),
+          ),
+          verticalSpacing(),
+          CustomTextField(
+            title: 'Mobile Number',
+            textController: mobileController,
+            hint: 'Enter Mobile Number',
+            keyboardType: TextInputType.number,
+            inputFormatterList: InputValidator.digit(10),
+            validator: (value) {
+              if (value != null && value.isNotEmpty) {
+                if (!InputValidator.isValidMobileNumber(value)) {
+                  return 'Invalid Mobile Number';
+                }
+              }
+              return null;
+            },
+          ),
+          verticalSpacing(),
+          CustomTextField(
+            title: 'Email ID',
+            textController: emailController,
+            hint: 'Enter Email ID',
+            inputFormatterList: InputValidator.emailInputFormatters(),
+            validator: (value) {
+              if (value != null && value.isNotEmpty) {
+                if (!InputValidator.isValidEmail(value)) {
+                  return 'Email id is invalid';
+                }
+              }
+              return null;
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
 }
