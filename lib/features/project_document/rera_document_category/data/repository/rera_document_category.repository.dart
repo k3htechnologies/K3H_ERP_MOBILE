@@ -20,6 +20,12 @@ abstract interface class RERADocumentCategoryRepository {
     required int projectId,
     required String uniqueKey,
   });
+  Future<Either<Failure, Map<String, dynamic>>> exportReraDocumentCategory({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class RERADocumentCategoryRepositoryImpl
@@ -76,6 +82,27 @@ class RERADocumentCategoryRepositoryImpl
             projectDocumentCategoryId: projectRERADocumentCategoryId,
             projectId: projectId,
             uniqueKey: uniqueKey,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> exportReraDocumentCategory({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await reraDocumentCategoryDatasource
+          .apicallPullProjectRERADocumentCategoryForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            queryParams: queryParams,
+            projectId: projectId,
           );
       return right(result);
     } catch (error) {

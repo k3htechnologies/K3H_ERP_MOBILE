@@ -140,6 +140,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     String? projectRERADocumentStatus,
     String? projectRERADocumentRemark,
     MultiFilePickerModel? documents,
+    required String projectRERADocumentName,
   }) async {
     List<Map<String, dynamic>> fileList = [];
     DialogHelper.showProcessingOverlay(context);
@@ -149,6 +150,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       "ProjectId": getProject().projectId.toString(),
       "ProjectRERADocumentCategoryId": projectRERADocumentCategoryId.toString(),
       "IsMaster": 0.toString(),
+      "ProjectRERADocumentName": projectRERADocumentName,
       "ProjectRERADocumentExpiryDate":
           projectRERADocumentExpiryDate != null
               ? projectRERADocumentExpiryDate.toIso8601String()
@@ -218,6 +220,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     String? projectRERADocumentStatus,
     String? projectRERADocumentRemark,
     MultiFilePickerModel? documents,
+    required String projectRERADocumentName,
   }) async {
     List<Map<String, dynamic>> fileList = [];
     DialogHelper.showProcessingOverlay(context);
@@ -228,7 +231,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       "ProjectRERADocumentCategoryId": projectRERADocumentCategoryId.toString(),
       //isMaster is 0 means add subdoc in document group
       "IsMaster": 0.toString(),
-
+      "ProjectRERADocumentName": projectRERADocumentName,
       "ProjectRERADocumentExpiryDate":
           projectRERADocumentExpiryDate != null
               ? projectRERADocumentExpiryDate.toIso8601String()
@@ -434,6 +437,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
   // <---- DELETE RERA DOCUMENT FROM CATEGORY  ---->
   Future deleteDocument(
     RERADocumentModel document,
+    int projectRERADocumentCategoryId,
     BuildContext context,
     int index,
   ) async {
@@ -457,15 +461,17 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       },
       (success) {
         final updatedList = List<RERADocumentModel>.from(
-          state.reraDocumentList,
+          state.reraSubDocumentList,
         );
+
         updatedList.removeAt(index);
+
         emit(
           state.copyWith(
-            reraDocumentList: updatedList,
-            totalNumberOfRecord:
-                state.totalNumberOfRecord > 0
-                    ? state.totalNumberOfRecord - 1
+            reraSubDocumentList: updatedList,
+            totalNumberOfRecordOfSubDoc:
+                state.totalNumberOfRecordOfSubDoc > 0
+                    ? state.totalNumberOfRecordOfSubDoc - 1
                     : 0,
           ),
         );

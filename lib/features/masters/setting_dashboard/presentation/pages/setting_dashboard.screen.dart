@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -13,6 +11,7 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class SettingDashboardScreen extends StatefulWidget {
@@ -493,14 +492,35 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
                   ),
                 ],
               ),
-              verticalSpacing(),
-              verticalSpacing(height: 20),
-              ProjectManagementRadialChart(
-                ongoing: 7,
-                onHold: 1,
-                completed: 2,
-                cancelled: 5,
-                planning: 5,
+              verticalSpacing(height: 20.0),
+              CommonRadialChart(
+                items: [
+                  RadialChartItem(
+                    title: "Ongoing Projects",
+                    value: 9,
+                    color: AppColor.primary,
+                  ),
+                  RadialChartItem(
+                    title: "On hold Projects",
+                    value: 2,
+                    color: AppColor.yellow,
+                  ),
+                  RadialChartItem(
+                    title: "Completed Projects",
+                    value: 2,
+                    color: AppColor.green,
+                  ),
+                  RadialChartItem(
+                    title: "Cancelled Projects",
+                    value: 2,
+                    color: AppColor.grey,
+                  ),
+                  RadialChartItem(
+                    title: "Planning Projects",
+                    value: 2,
+                    color: AppColor.blue,
+                  ),
+                ],
               ),
             ],
           ),
@@ -711,140 +731,4 @@ class _SettingDashboardScreenState extends State<SettingDashboardScreen> {
       },
     );
   }
-}
-
-class ProjectManagementRadialChart extends StatelessWidget {
-  final int ongoing;
-  final int onHold;
-  final int completed;
-  final int cancelled;
-  final int planning;
-
-  const ProjectManagementRadialChart({
-    super.key,
-    required this.ongoing,
-    required this.onHold,
-    required this.completed,
-    required this.cancelled,
-    required this.planning,
-  });
-
-  int get total => ongoing + onHold + completed + cancelled + planning;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Center(
-          child: SizedBox(
-            height: 120,
-            width: 120,
-            child: CustomPaint(
-              painter: UnitRadialPainter(
-                ongoing: ongoing,
-                onHold: onHold,
-                completed: completed,
-                cancelled: cancelled,
-                planning: planning,
-              ),
-              child: Center(
-                child: Text(total.toString(), style: AppTextStyle.ts16SB()),
-              ),
-            ),
-          ),
-        ),
-        verticalSpacing(height: 20),
-        _legendRow(AppColor.primary, "Ongoing Projects", ongoing),
-        verticalSpacing(height: 14),
-        _legendRow(AppColor.yellow, "On hold Projects", onHold),
-        verticalSpacing(height: 14),
-        _legendRow(AppColor.green, "Completed Projects", completed),
-        verticalSpacing(height: 14),
-        _legendRow(AppColor.grey, "Cancelled Projects", cancelled),
-        verticalSpacing(height: 14),
-        _legendRow(AppColor.blue, "Planning Projects", planning),
-      ],
-    );
-  }
-
-  Widget _legendRow(Color color, String title, int value) {
-    return Row(
-      children: [
-        Container(
-          height: 6,
-          width: 6,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        horizontalSpacing(),
-
-        Expanded(child: Text(title, style: AppTextStyle.ts14M(color: color))),
-
-        Text(value.toString(), style: AppTextStyle.ts16B(color: color)),
-      ],
-    );
-  }
-}
-
-class UnitRadialPainter extends CustomPainter {
-  final int ongoing;
-  final int onHold;
-  final int completed;
-  final int cancelled;
-  final int planning;
-
-  UnitRadialPainter({
-    required this.ongoing,
-    required this.onHold,
-    required this.completed,
-    required this.cancelled,
-    required this.planning,
-  });
-
-  final double stroke = 20;
-  final double gap = 25;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final total = ongoing + onHold + completed + cancelled + planning;
-    if (total == 0) return;
-
-    final center = size.center(Offset.zero);
-    final radius = size.width / 2.4;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-
-    final paint =
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = stroke
-          ..strokeCap = StrokeCap.round;
-
-    final usableDegrees = 360 - (gap * 5);
-    double startAngle = -90;
-
-    void drawSegment(int value, Color color) {
-      if (value == 0) return;
-      final sweep = (value / total) * usableDegrees;
-      paint.color = color;
-      canvas.drawArc(
-        rect,
-        _degToRad(startAngle),
-        _degToRad(sweep),
-        false,
-        paint,
-      );
-      startAngle += sweep + gap;
-    }
-
-    drawSegment(ongoing, AppColor.primary);
-    drawSegment(onHold, AppColor.yellow);
-    drawSegment(completed, AppColor.green);
-    drawSegment(cancelled, AppColor.grey);
-    drawSegment(planning, AppColor.blue);
-  }
-
-  double _degToRad(double deg) => deg * pi / 180;
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

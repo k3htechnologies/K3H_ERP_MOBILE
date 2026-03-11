@@ -14,6 +14,10 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
   final RERADocumentCategoryRepository _reraDocumentCategoryRepository =
       serviceLocator<RERADocumentCategoryRepository>();
 
+  Future<void> resetSearch() async {
+    emit(state.copyWith(searchText: ""));
+  }
+
   // <---- GET RERA DOCUMENT CATEGORY LIST ---->
   Future getRERADocumentCategoryList(
     BuildContext context,
@@ -148,19 +152,12 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
       },
       (response) {
         goRouter.pop();
-        final newResponse = response['data'][0] as RERADocumentCategoryModel;
 
-        var list = [newResponse, ...state.reraDocumentCategoryList];
-        emit(
-          state.copyWith(
-            documentCategoryList: list,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
-          ),
-        );
         showSuccessMessage(
           context,
-          subTitle: 'Week Off Mapping Added Successfully',
+          subTitle: 'Project RERA document category added successfully',
         );
+        getRERADocumentCategoryList(context, 1, projectId);
       },
     );
   }
@@ -206,7 +203,43 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
 
         showSuccessMessage(
           context,
-          subTitle: "Week Off Mapping Updated Successfully",
+          subTitle: "Project RERA document category updated successfully",
+        );
+      },
+    );
+  }
+
+  // <---- EXPORT EXCEL PDF ---->
+  Future exportExcelPdf(
+    BuildContext context,
+    String exportType,
+    int projectId,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _reraDocumentCategoryRepository
+        .exportReraDocumentCategory(
+          pageNumber: 1,
+          pageSize: state.totalNumberOfRecord,
+          projectId: projectId,
+          queryParams:
+              state.searchText != ""
+                  ? {
+                    "ProjectRERADocumentCategory": state.searchText,
+                    "ExportType": exportType,
+                  }
+                  : {"ExportType": exportType},
+        );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "rera_document_category_${DateTime.now()}.pdf"
+              : "rera_document_category_${DateTime.now()}.xlsx",
         );
       },
     );

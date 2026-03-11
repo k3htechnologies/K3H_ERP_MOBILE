@@ -116,7 +116,7 @@ class _RERADocumentCategoryScreenState
         authorization: _routeAuthorizationModel,
         searchHintText: "Search By Project RERA Document Category",
         onSearchSubmit: (value) {
-          if (projectId != 0) {
+          if (projectId.projectId != 0) {
             _reraDocumentCategoryCubit.searchCategory(
               context,
               projectId.projectId,
@@ -125,12 +125,33 @@ class _RERADocumentCategoryScreenState
           }
         },
         textController: _searchC,
-        onAddCallback: () {
-          if (projectId == 0) {
+        onAddCallback: () async {
+          if (projectId.projectId == 0) {
             showErrorMessage(context, 'Error', 'Please select a project');
             return;
           }
-          goRouter.pushNamed(AppRoutes.addReraDocumentCategory);
+          _searchC.clear();
+          await _reraDocumentCategoryCubit.resetSearch();
+          goRouter.pushNamed(AppRoutes.addReraDocumentCategory).then((_) {
+            if (context.mounted) {
+              _reraDocumentCategoryCubit.getRERADocumentCategoryList(
+                context,
+                1,
+                projectId.projectId,
+              );
+            }
+          });
+        },
+        onExportCallback: (value) {
+          if (_reraDocumentCategoryCubit.state.totalNumberOfRecord == 0) {
+            showErrorMessage(context, "Error", "No Data Found");
+            return;
+          }
+          _reraDocumentCategoryCubit.exportExcelPdf(
+            context,
+            value,
+            projectId.projectId,
+          );
         },
         onProjectChangeCallback: (value) {
           projectId = value;
@@ -142,7 +163,6 @@ class _RERADocumentCategoryScreenState
         },
       ),
       body: BlocBuilder<RERADocumentCategoryCubit, RERADocumentCategoryState>(
-        bloc: _reraDocumentCategoryCubit,
         builder: (context, state) {
           if ((state.isLoading ?? true) &&
               state.reraDocumentCategoryList.isEmpty) {

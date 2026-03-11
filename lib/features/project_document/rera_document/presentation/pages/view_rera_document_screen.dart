@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -77,6 +78,29 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
         });
       }
     });
+  }
+
+  // DELETE RERA DOCUMENT
+  Future<void> _showPopupToDeleteRERADocument(
+    BuildContext context,
+    RERADocumentModel obj,
+    // int page,
+    int index,
+  ) async {
+    final shouldDelete = await DialogHelper.deleteDialog(
+      context,
+      'You are about to RERA delete a document?',
+      'Deleting this RERA document will permanently remove its contents.',
+    );
+
+    if (shouldDelete && context.mounted) {
+      _documentCubit.deleteDocument(
+        obj,
+        obj.projectRERADocumentCategoryId,
+        context,
+        index,
+      );
+    }
   }
 
   @override
@@ -200,6 +224,11 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                   );
                 },
               ),
+              CustomIconButton.delete(
+                onPressed: () {
+                  _showPopupToDeleteRERADocument(context, document, index);
+                },
+              ),
             ],
           ),
           Row(
@@ -248,7 +277,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                 title: "Last Modified Date",
                 value:
                     document.modifiedDate != null
-                        ? formatDateTimeAsDDMMMYYYY(document.modifiedDate!)
+                        ? formatDate(document.modifiedDate!)
                         : '-',
               ),
             ],

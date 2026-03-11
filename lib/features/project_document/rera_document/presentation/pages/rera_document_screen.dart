@@ -145,24 +145,6 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     _reraDocumentC.text = documentModel.projectRERADocumentName;
   }
 
-  // DELETE RERA DOCUMENT
-  Future<void> _showPopupToDeleteRERADocument(
-    BuildContext context,
-    RERADocumentModel obj,
-    // int page,
-    int index,
-  ) async {
-    final shouldDelete = await DialogHelper.deleteDialog(
-      context,
-      'You are about to RERA delete a document?',
-      'Deleting this RERA document will permanently remove its contents.',
-    );
-
-    if (shouldDelete && context.mounted) {
-      _reraDocumentCubit.deleteDocument(obj, context, index);
-    }
-  }
-
   Future<void> _showPopUpToAddUpdateRERADocument({
     RERADocumentModel? documentModel,
     int? index,
@@ -219,97 +201,111 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "RERA Document",
-        authorization: _routeAuthorizationModel,
-        textController: _searchC,
-        onSearchSubmit: (value) {
-          _reraDocumentCubit.searchDocument(value, context);
-        },
-        onProjectChangeCallback: (project) {
-          projectId = project.projectId;
-          _reraDocumentCubit.getCategoryList(context, 1, projectId);
-        },
-        extraHeight: 20,
-        secondaryBuilder:
-            (_) => CustomButton(
-              text: "Add",
-              onPressed: () {
-                _showPopUpToAddUpdateRERADocument();
-              },
-              backgroundColor: AppColor.primary,
-              leading: Icon(Icons.add, size: 16, color: AppColor.white),
-            ),
-      ),
-      body: SafeArea(
-        child: BlocListener<RERADocumentCubit, RERADocumentState>(
-          listener: (context, state) {
-            if (!mounted) return;
-            if (!state.isLoading! &&
-                state.documentCategoryModelList.isNotEmpty) {
-              if (_categoryTabController == null ||
-                  _categoryTabController!.length !=
-                      state.documentCategoryModelList.length) {
-                _initCategoryController(state);
-              }
-            }
-          },
-          child: BlocBuilder<RERADocumentCubit, RERADocumentState>(
-            builder: (context, state) {
-              // 1. Initial loading
-              if (state.isLoading! && state.documentCategoryModelList.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              // 2. Loaded but no categories
-              if (state.documentCategoryModelList.isEmpty) {
-                return Center(child: noDataWidget());
-              }
-
-              // 3. Categories exist but controller not ready yet
-              if (_categoryTabController == null) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              return Column(
-                children: [
-                  // CATEGORY TAB
-                  _buildCategoryTab(state),
-                  verticalSpacing(),
-                  Expanded(
-                    child: TabBarView(
-                      physics: NeverScrollableScrollPhysics(),
-                      controller: _categoryTabController,
-                      children:
-                          state.documentCategoryModelList.map((category) {
-                            final documentsForCategory =
-                                state.reraDocumentList
-                                    .where(
-                                      (d) =>
-                                          d.projectRERADocumentCategoryId ==
-                                          category
-                                              .projectRERADocumentCategoryId,
-                                    )
-                                    .toList();
-
-                            return (state.reraDocumentList.isEmpty &&
-                                    state.isLoading!)
-                                ? const Center(
-                                  child: CircularProgressIndicator(),
-                                )
-                                : _buildDocumentListForCategory(
-                                  documentsForCategory,
-                                );
-                          }).toList(),
-                    ),
-                  ),
-                ],
-              );
+    return BlocBuilder<RERADocumentCubit, RERADocumentState>(
+      builder: (context, state) {
+        return Scaffold(
+          appBar: CustomAppBar(
+            screenTitle: "RERA Document",
+            authorization: _routeAuthorizationModel,
+            textController: _searchC,
+            searchHintText: "Search By Document Name",
+            onSearchSubmit: (value) {
+              _reraDocumentCubit.searchDocument(value, context);
             },
+            onProjectChangeCallback: (project) {
+              projectId = project.projectId;
+              _reraDocumentCubit.getCategoryList(context, 1, projectId);
+            },
+            extraHeight: 20,
+            secondaryBuilder:
+                (_) =>
+                    _routeAuthorizationModel.isAction &&
+                            state.reraDocumentList.isNotEmpty
+                        ? CustomButton(
+                          text: "Add",
+                          onPressed: () {
+                            _showPopUpToAddUpdateRERADocument();
+                          },
+                          backgroundColor: AppColor.primary,
+                          leading: Icon(
+                            Icons.add,
+                            size: 16,
+                            color: AppColor.white,
+                          ),
+                        )
+                        : SizedBox.shrink(),
           ),
-        ),
-      ),
+          body: SafeArea(
+            child: BlocListener<RERADocumentCubit, RERADocumentState>(
+              listener: (context, state) {
+                if (!mounted) return;
+                if (!state.isLoading! &&
+                    state.documentCategoryModelList.isNotEmpty) {
+                  if (_categoryTabController == null ||
+                      _categoryTabController!.length !=
+                          state.documentCategoryModelList.length) {
+                    _initCategoryController(state);
+                  }
+                }
+              },
+              child: BlocBuilder<RERADocumentCubit, RERADocumentState>(
+                builder: (context, state) {
+                  // 1. Initial loading
+                  if (state.isLoading! &&
+                      state.documentCategoryModelList.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  // 2. Loaded but no categories
+                  if (state.documentCategoryModelList.isEmpty) {
+                    return Center(child: noDataWidget());
+                  }
+
+                  // 3. Categories exist but controller not ready yet
+                  if (_categoryTabController == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  return Column(
+                    children: [
+                      // CATEGORY TAB
+                      _buildCategoryTab(state),
+                      verticalSpacing(),
+                      Expanded(
+                        child: TabBarView(
+                          physics: NeverScrollableScrollPhysics(),
+                          controller: _categoryTabController,
+                          children:
+                              state.documentCategoryModelList.map((category) {
+                                final documentsForCategory =
+                                    state.reraDocumentList
+                                        .where(
+                                          (d) =>
+                                              d.projectRERADocumentCategoryId ==
+                                              category
+                                                  .projectRERADocumentCategoryId,
+                                        )
+                                        .toList();
+
+                                return (state.reraDocumentList.isEmpty &&
+                                        state.isLoading!)
+                                    ? const Center(
+                                      child: CircularProgressIndicator(),
+                                    )
+                                    : _buildDocumentListForCategory(
+                                      documentsForCategory,
+                                    );
+                              }).toList(),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -459,38 +455,19 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                               );
                             },
                           ),
-                          const SizedBox(width: 8),
-                          CustomIconButton.edit(
-                            onPressed: () async {
-                              _showPopUpToAddUpdateRERADocument(
-                                documentModel: document,
-                                index: index,
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 8),
-                          CustomIconButton.delete(
-                            onPressed: () {
-                              _showPopupToDeleteRERADocument(
-                                context,
-                                document,
-                                index,
-                              );
-                            },
-                          ),
                         ],
                       ),
                     ],
                   ),
                   verticalSpacing(height: 10),
                   buildRowTitleValue(
-                    title: "Pending Approvals",
+                    title: "Approval",
                     value:
                         document.approvalPendingProjectRERADocumentCount
                             .toString(),
                   ),
                   buildRowTitleValue(
-                    title: "Documents",
+                    title: "Document Count",
                     value: document.uploadedProjectRERADocumentCount.toString(),
                   ),
                 ],

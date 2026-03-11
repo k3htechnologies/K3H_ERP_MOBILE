@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -10,6 +8,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class LitigationDashboardScreen extends StatefulWidget {
@@ -190,6 +189,15 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
             (litigationDashboardModel?.table2.isNotEmpty ?? false)
                 ? litigationDashboardModel!.table2
                 : null;
+        final civil =
+            table2List
+                ?.firstWhere((e) => e.caseType.toLowerCase() == "civil")
+                .totalCases;
+
+        final criminal =
+            table2List
+                ?.firstWhere((e) => e.caseType.toLowerCase() == "criminal")
+                .totalCases;
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
           decoration: commonCardDecoration(),
@@ -211,19 +219,19 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
               ),
               verticalSpacing(),
               if (table2List != null) ...[
-                CaseTypeDistributionChart(
-                  civilCase:
-                      table2List
-                          .firstWhere(
-                            (e) => e.caseType.toLowerCase() == "civil",
-                          )
-                          .totalCases,
-                  criminalCase:
-                      table2List
-                          .firstWhere(
-                            (e) => e.caseType.toLowerCase() == "criminal",
-                          )
-                          .totalCases,
+                CommonRadialChart(
+                  items: [
+                    RadialChartItem(
+                      title: "Civil",
+                      value: civil!,
+                      color: AppColor.primary,
+                    ),
+                    RadialChartItem(
+                      title: "Criminal",
+                      value: criminal!,
+                      color: AppColor.error,
+                    ),
+                  ],
                 ),
               ] else ...[
                 Center(
@@ -724,115 +732,4 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
       },
     );
   }
-}
-
-class CaseTypeDistributionChart extends StatelessWidget {
-  final int civilCase;
-  final int criminalCase;
-
-  const CaseTypeDistributionChart({
-    super.key,
-    required this.civilCase,
-    required this.criminalCase,
-  });
-
-  int get total => civilCase + criminalCase;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Center(
-          child: SizedBox(
-            height: 120,
-            width: 120,
-            child: CustomPaint(
-              painter: CaseTypeRadialPainter(
-                civilCase: civilCase,
-                criminalCase: criminalCase,
-              ),
-            ),
-          ),
-        ),
-        verticalSpacing(),
-        Center(
-          child: Text("Total Units : $total", style: AppTextStyle.ts16SB()),
-        ),
-        verticalSpacing(),
-
-        _legendRow(AppColor.primary, "Civil Case", civilCase),
-        verticalSpacing(height: 14),
-        _legendRow(AppColor.blueBgColor, "Criminal Case", criminalCase),
-      ],
-    );
-  }
-
-  Widget _legendRow(Color color, String title, int value) {
-    return Row(
-      children: [
-        Container(
-          height: 6,
-          width: 6,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        horizontalSpacing(),
-
-        Expanded(child: Text(title, style: AppTextStyle.ts14M(color: color))),
-
-        Text(value.toString(), style: AppTextStyle.ts16B(color: color)),
-      ],
-    );
-  }
-}
-
-class CaseTypeRadialPainter extends CustomPainter {
-  final int civilCase;
-  final int criminalCase;
-
-  CaseTypeRadialPainter({required this.civilCase, required this.criminalCase});
-
-  final double stroke = 20;
-  final double gap = 25;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final total = civilCase + criminalCase;
-    if (total == 0) return;
-
-    final center = size.center(Offset.zero);
-    final radius = size.width / 2.4;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-
-    final paint =
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = stroke
-          ..strokeCap = StrokeCap.round;
-
-    final usableDegrees = 360 - (gap * 5);
-    double startAngle = -90;
-
-    void drawSegment(int value, Color color) {
-      if (value == 0) return;
-      final sweep = (value / total) * usableDegrees;
-      paint.color = color;
-      canvas.drawArc(
-        rect,
-        _degToRad(startAngle),
-        _degToRad(sweep),
-        false,
-        paint,
-      );
-      startAngle += sweep + gap;
-    }
-
-    drawSegment(civilCase, AppColor.primary);
-    drawSegment(criminalCase, AppColor.blueBgColor);
-  }
-
-  double _degToRad(double deg) => deg * pi / 180;
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
