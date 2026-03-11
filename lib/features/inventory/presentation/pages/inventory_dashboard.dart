@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -11,6 +9,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -429,12 +428,34 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
             ],
           ),
           verticalSpacing(height: 20),
-          UnitStatusDistributionRadialChart(
-            blocked: 100,
-            allotted: 200,
-            sold: 300,
-            hold: 400,
-            available: 500,
+          CommonRadialChart(
+            items: [
+              RadialChartItem(
+                title: "Blocked Units",
+                value: 9,
+                color: AppColor.black.withValues(alpha: 0.5),
+              ),
+              RadialChartItem(
+                title: "Allotted Units",
+                value: 2,
+                color: AppColor.purple,
+              ),
+              RadialChartItem(
+                title: "Sold Units",
+                value: 1,
+                color: AppColor.error,
+              ),
+              RadialChartItem(
+                title: "Hold Units",
+                value: 1,
+                color: AppColor.yellow,
+              ),
+              RadialChartItem(
+                title: "Available Units",
+                value: 1,
+                color: AppColor.green,
+              ),
+            ],
           ),
         ],
       ),
@@ -719,142 +740,4 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
       ),
     );
   }
-}
-
-class UnitStatusDistributionRadialChart extends StatelessWidget {
-  final int blocked;
-  final int allotted;
-  final int sold;
-  final int hold;
-  final int available;
-
-  const UnitStatusDistributionRadialChart({
-    super.key,
-    required this.blocked,
-    required this.allotted,
-    required this.sold,
-    required this.hold,
-    required this.available,
-  });
-
-  int get total => blocked + allotted + sold + hold + available;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Center(
-          child: SizedBox(
-            height: 120,
-            width: 120,
-            child: CustomPaint(
-              painter: UnitRadialPainter(
-                blocked: blocked,
-                allotted: allotted,
-                sold: sold,
-                hold: hold,
-                available: available,
-              ),
-            ),
-          ),
-        ),
-        verticalSpacing(),
-        Center(
-          child: Text("Total Units : $total", style: AppTextStyle.ts16SB()),
-        ),
-        verticalSpacing(),
-
-        _legendRow(AppColor.grey, "Blocked Units", blocked),
-        const SizedBox(height: 14),
-        _legendRow(AppColor.purple, "Allotted Units", allotted),
-        const SizedBox(height: 14),
-        _legendRow(AppColor.red, "Sold Units", sold),
-        const SizedBox(height: 14),
-        _legendRow(AppColor.yellow, "Hold Units", hold),
-        const SizedBox(height: 14),
-        _legendRow(AppColor.green, "Available Units", available),
-      ],
-    );
-  }
-
-  Widget _legendRow(Color color, String title, int value) {
-    return Row(
-      children: [
-        Container(
-          height: 6,
-          width: 6,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        horizontalSpacing(),
-
-        Expanded(child: Text(title, style: AppTextStyle.ts14M(color: color))),
-
-        Text(value.toString(), style: AppTextStyle.ts16B(color: color)),
-      ],
-    );
-  }
-}
-
-class UnitRadialPainter extends CustomPainter {
-  final int blocked;
-  final int allotted;
-  final int sold;
-  final int hold;
-  final int available;
-
-  UnitRadialPainter({
-    required this.blocked,
-    required this.allotted,
-    required this.sold,
-    required this.hold,
-    required this.available,
-  });
-
-  final double stroke = 20;
-  final double gap = 25;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final total = blocked + allotted + sold + hold + available;
-    if (total == 0) return;
-
-    final center = size.center(Offset.zero);
-    final radius = size.width / 2.4;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-
-    final paint =
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = stroke
-          ..strokeCap = StrokeCap.round;
-
-    final usableDegrees = 360 - (gap * 5);
-    double startAngle = -90;
-
-    void drawSegment(int value, Color color) {
-      if (value == 0) return;
-      final sweep = (value / total) * usableDegrees;
-      paint.color = color;
-      canvas.drawArc(
-        rect,
-        _degToRad(startAngle),
-        _degToRad(sweep),
-        false,
-        paint,
-      );
-      startAngle += sweep + gap;
-    }
-
-    drawSegment(sold, AppColor.red);
-    drawSegment(allotted, AppColor.purple);
-    drawSegment(blocked, AppColor.grey);
-    drawSegment(hold, AppColor.yellow);
-    drawSegment(available, AppColor.green);
-  }
-
-  double _degToRad(double deg) => deg * pi / 180;
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -15,6 +14,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -229,76 +229,71 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
             },
             showNotification: true,
           ),
-          body: Stack(
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // GENERATE REPORT
-                      Container(
-                        width: 160,
-                        padding: EdgeInsets.symmetric(
-                          vertical: 5.0,
-                          horizontal: 6.0,
+          body: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // GENERATE REPORT
+                  Container(
+                    width: 160,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 5.0,
+                      horizontal: 6.0,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6.0),
+                      color: AppColor.lightBlue,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SvgPicture.asset(
+                          AppAssets.generateReportIcon,
+                          width: 16,
+                          height: 16,
                         ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6.0),
-                          color: AppColor.lightBlue,
+                        horizontalSpacing(),
+                        Text(
+                          "Generate Report",
+                          style: AppTextStyle.ts14M(color: AppColor.primary),
                         ),
-                        child: Row(
-                          children: [
-                            SvgPicture.asset(
-                              AppAssets.generateReportIcon,
-                              width: 16,
-                              height: 16,
-                            ),
-                            horizontalSpacing(),
-                            Text(
-                              "Generate Report",
-                              style: AppTextStyle.ts14M(
-                                color: AppColor.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      verticalSpacing(),
-                      // COUNTS WIDGET (INCLUDING TOTAL ENQUIRIES, NEW ENQURIES, ACTIVE FOLLOW - UPS, LOST ENQURIES, TOTAL BOOKINGS, TOTAL BOOKING VALUE, TARGET VS ACHIEVED, CP CONTRIBUTION)
-                      _buildOverviewWidget(context),
-                      // ENQUIRY OVERVIEW WIDGET
-                      _buildEnquiryOverviewWidget(context),
-                      verticalSpacing(),
-                      // ENQURIES LIST WIDGET
-                      _buildEnquiriesWidget(context),
-                      verticalSpacing(),
-                      // TARGET PERFORMANCE WIDGET
-                      _buildTargetPerformanceWidget(context),
-                      verticalSpacing(),
-                      // ACTIVE FOLLOW-UPS WIDGET (ACCORDING TO STATUS)
-                      _buildActiveFollowUpsWidget(context),
-                      verticalSpacing(),
-                      // CALL TRACKER AND TOP CALLER LIST WIDGET
-                      _buildCallTrackerWidget(context),
-                      verticalSpacing(),
-                      // SALES DISTRIBUTION (SOURCE WISE DISTRIBUTION, AREA WISE DISTRIBUTION {COMMERCIAL AND RESIDENTIAL},BUDGET WISE DISTRIBUTION AND CONVERSION RATE COUNT)
-                      _buildSalesDistributionWidget(context),
-                      verticalSpacing(),
-                      // REPORTS WIDGET
-                      _buildReportsWidget(context),
-                      verticalSpacing(),
-                      // CHANNEL PARTNER COUNT WIDGET
-                      _buildChannelPartnerWidget(context),
-                      verticalSpacing(),
-                      // SALES LEADERBOARD WIDGET
-                      _buildSalesLeaderboardWidget(context),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                  verticalSpacing(),
+                  // COUNTS WIDGET (INCLUDING TOTAL ENQUIRIES, NEW ENQURIES, ACTIVE FOLLOW - UPS, LOST ENQURIES, TOTAL BOOKINGS, TOTAL BOOKING VALUE, TARGET VS ACHIEVED, CP CONTRIBUTION)
+                  _buildOverviewWidget(context),
+                  // ENQUIRY OVERVIEW WIDGET
+                  _buildEnquiryOverviewWidget(context),
+                  verticalSpacing(),
+                  // ENQURIES LIST WIDGET
+                  _buildEnquiriesWidget(context),
+                  verticalSpacing(),
+                  // TARGET PERFORMANCE WIDGET
+                  _buildTargetPerformanceWidget(context),
+                  verticalSpacing(),
+                  // ACTIVE FOLLOW-UPS WIDGET (ACCORDING TO STATUS)
+                  _buildActiveFollowUpsWidget(context),
+                  verticalSpacing(),
+                  // CALL TRACKER AND TOP CALLER LIST WIDGET
+                  _buildCallTrackerWidget(context),
+                  verticalSpacing(),
+                  // SALES DISTRIBUTION (SOURCE WISE DISTRIBUTION, AREA WISE DISTRIBUTION {COMMERCIAL AND RESIDENTIAL},BUDGET WISE DISTRIBUTION AND CONVERSION RATE COUNT)
+                  _buildSalesDistributionWidget(context),
+                  verticalSpacing(),
+                  // REPORTS WIDGET
+                  _buildReportsWidget(context),
+                  verticalSpacing(),
+                  // CHANNEL PARTNER COUNT WIDGET
+                  _buildChannelPartnerWidget(context),
+                  verticalSpacing(),
+                  // SALES LEADERBOARD WIDGET
+                  _buildSalesLeaderboardWidget(context),
+                ],
               ),
-            ],
+            ),
           ),
         );
       },
@@ -312,7 +307,10 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
           return Center(child: loader());
         }
         final salesData = state.salesData;
-        final table0 = salesData?.table0.first;
+        final table0 =
+            (salesData?.table0 != null && salesData!.table0.isNotEmpty)
+                ? salesData.table0.first
+                : null;
         return GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
@@ -1094,14 +1092,27 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                   ],
                 ),
                 verticalSpacing(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CallTrackerRadialChart(
-                      connected: table0?.todayConnected ?? 0,
-                      notConnected: table0?.todayNotConnected ?? 0,
-                      rescheduled: table0?.todayRescheduled ?? 0,
-                      closed: table0?.todayClosed ?? 0,
+                CommonRadialChart(
+                  items: [
+                    RadialChartItem(
+                      title: "Connected",
+                      value: table0?.todayConnected ?? 0,
+                      color: AppColor.blue,
+                    ),
+                    RadialChartItem(
+                      title: "Not Connected",
+                      value: table0?.todayNotConnected ?? 0,
+                      color: AppColor.grey50,
+                    ),
+                    RadialChartItem(
+                      title: "Rescheduled",
+                      value: table0?.todayRescheduled ?? 0,
+                      color: AppColor.primary,
+                    ),
+                    RadialChartItem(
+                      title: "Closed",
+                      value: table0?.todayClosed ?? 0,
+                      color: AppColor.black,
                     ),
                   ],
                 ),
@@ -2105,149 +2116,6 @@ class EnquiryProgressBar extends StatelessWidget {
       },
     );
   }
-}
-
-class CallTrackerRadialChart extends StatelessWidget {
-  final int connected;
-  final int notConnected;
-  final int rescheduled;
-  final int closed;
-
-  const CallTrackerRadialChart({
-    super.key,
-    required this.connected,
-    required this.notConnected,
-    required this.rescheduled,
-    required this.closed,
-  });
-
-  int get total => connected + notConnected + rescheduled + closed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(
-              height: 110,
-              width: 110,
-              child: CustomPaint(
-                painter: RadialPainter(
-                  connected: connected,
-                  notConnected: notConnected,
-                  rescheduled: rescheduled,
-                  closed: closed,
-                ),
-              ),
-            ),
-            const SizedBox(width: 30),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _legend(AppColor.primary, rescheduled, "Rescheduled"),
-                const SizedBox(height: 8),
-                _legend(AppColor.blue, connected, "Connected"),
-                const SizedBox(height: 8),
-                _legend(AppColor.grey50, notConnected, "Not Connected"),
-                const SizedBox(height: 8),
-                _legend(AppColor.black, closed, "Closed"),
-              ],
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _legend(Color color, int value, String text) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          height: 14,
-          width: 14,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(100),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(value.toString().padLeft(2, '0'), style: AppTextStyle.ts16SB()),
-        const SizedBox(width: 6),
-        Flexible(
-          child: Text(
-            text,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyle.ts16M(
-              color: AppColor.black.withValues(alpha: 0.5),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class RadialPainter extends CustomPainter {
-  final int connected;
-  final int notConnected;
-  final int rescheduled;
-  final int closed;
-
-  RadialPainter({
-    required this.connected,
-    required this.notConnected,
-    required this.rescheduled,
-    required this.closed,
-  });
-
-  final double stroke = 20;
-  final double gapDegrees = 25;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final total = connected + notConnected + rescheduled + closed;
-
-    final center = size.center(Offset.zero);
-    final radius = size.width / 2.2;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-
-    final paint =
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = stroke
-          ..strokeCap = StrokeCap.round;
-
-    final usable = 360 - (gapDegrees * 3);
-
-    final connectedSweep = (connected / total) * usable;
-    final notConnectedSweep = (notConnected / total) * usable;
-    final rescheduledSweep = (rescheduled / total) * usable;
-    final closedSweep = (closed / total) * usable;
-
-    double start = -90 - (connectedSweep / 2);
-
-    void draw(Color color, double sweep) {
-      paint.color = color;
-      canvas.drawArc(rect, _deg(start), _deg(sweep), false, paint);
-      start += sweep + gapDegrees;
-    }
-
-    draw(AppColor.primary, rescheduledSweep); // RESCHDULED
-    draw(AppColor.blue, connectedSweep); // CONNECTED
-    draw(AppColor.grey50, notConnectedSweep); // NOT CONNECTED
-    draw(AppColor.black, closedSweep); // CLOSED
-  }
-
-  double _deg(double d) => d * pi / 180;
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 class SourceProgressBar extends StatelessWidget {

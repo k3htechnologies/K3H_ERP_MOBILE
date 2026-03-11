@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_null_comparison
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,6 +22,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -1105,10 +1105,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 20),
               (table3 != null && table3.isNotEmpty)
-                  ? Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      AttendanceRadialChart(present: 8, absent: 3, leave: 1),
+                  ? CommonRadialChart(
+                    items: [
+                      RadialChartItem(
+                        title: "Present",
+                        value: 9,
+                        color: AppColor.primary,
+                      ),
+                      RadialChartItem(
+                        title: "Absent",
+                        value: 2,
+                        color: AppColor.blue,
+                      ),
+                      RadialChartItem(
+                        title: "Leave",
+                        value: 2,
+                        color: AppColor.grey50,
+                      ),
                     ],
                   )
                   : Center(
@@ -1938,187 +1951,6 @@ class DayWorkProgress extends StatelessWidget {
       ],
     );
   }
-}
-
-class AttendanceRadialChart extends StatelessWidget {
-  final int present;
-  final int absent;
-  final int leave;
-
-  const AttendanceRadialChart({
-    super.key,
-    required this.present,
-    required this.absent,
-    required this.leave,
-  });
-
-  int get total => present + absent + leave;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<DashboardCubit, DashboardState>(
-      builder: (context, state) {
-        if (state.isLoading == true) {
-          return Center(child: loader());
-        }
-
-        final userData = state.userData;
-
-        if (userData == null || userData.table3.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Daily Attendance Data")),
-          );
-        }
-
-        final table7List = userData.table7;
-        var total = table7List.first.totalEmployees;
-        var present = table7List.first.presentCount;
-        var absent = table7List.first.absentCount;
-        var leave = table7List.first.onLeaveCount;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(
-                  height: 110,
-                  width: 110,
-                  child: CustomPaint(
-                    painter: RadialPainter(
-                      present: present,
-                      absent: present,
-                      leave: present,
-                    ),
-                    child: Center(
-                      child: Text("$total", style: AppTextStyle.ts16SB()),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 30),
-                SizedBox(
-                  height: 110,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: _legend(AppColor.primary, present, "Present"),
-                        ),
-                      ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: _legend(AppColor.blue, absent, "Absent"),
-                        ),
-                      ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.bottomLeft,
-                          child: _legend(AppColor.grey50, leave, "On Leave"),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            verticalSpacing(height: 20.0),
-            Text(
-              "$total Total Employee",
-              style: AppTextStyle.ts12SB(
-                color: AppColor.black.withValues(alpha: 0.50),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _legend(Color color, int value, String text) {
-    return Row(
-      children: [
-        Container(
-          height: 14,
-          width: 14,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(100),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Text(value.toString().padLeft(2, '0'), style: AppTextStyle.ts16SB()),
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: AppTextStyle.ts16M(
-            color: AppColor.black.withValues(alpha: 0.5),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class RadialPainter extends CustomPainter {
-  final int present;
-  final int absent;
-  final int leave;
-
-  RadialPainter({
-    required this.present,
-    required this.absent,
-    required this.leave,
-  });
-
-  final double stroke = 20;
-  final double gapDegrees = 25;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final total = present + absent + leave;
-
-    final center = size.center(Offset.zero);
-    final radius = size.width / 2.2;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-
-    final paint =
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = stroke
-          ..strokeCap = StrokeCap.round;
-
-    final usable = 360 - (gapDegrees * 3);
-
-    final presentSweep = (present / total) * usable;
-    final absentSweep = (absent / total) * usable;
-    final leaveSweep = (leave / total) * usable;
-
-    double start = -90 - (presentSweep / 2);
-
-    void draw(Color color, double sweep) {
-      paint.color = color;
-      canvas.drawArc(rect, _deg(start), _deg(sweep), false, paint);
-      start += sweep + gapDegrees;
-    }
-
-    draw(AppColor.primary, presentSweep); // Present
-    draw(AppColor.blue, absentSweep); // Absent
-    draw(AppColor.grey50, leaveSweep); // Leave
-  }
-
-  double _deg(double d) => d * pi / 180;
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 class ValueListenableBuilder2<A, B> extends StatelessWidget {

@@ -114,7 +114,8 @@ class RERADocumentDatasourceImpl implements RERADocumentDatasource {
       required int projectId,
       required String uniqueKey,
     }) {
-      return "ProjectRERADocument/DeleteProjectRERADocument?ProjectRERADocumentId=$projectRERADocumentId&ProjectId=$projectId&ProjectRERADocumentCategoryId=$projectRERADocumentCategoryId&Uniquekey=$uniqueKey";
+      // return "ProjectRERADocument/DeleteProjectRERADocument?ProjectRERADocumentId=$projectRERADocumentId&ProjectId=$projectId&ProjectRERADocumentCategoryId=$projectRERADocumentCategoryId&Uniquekey=$uniqueKey";
+      return "ProjectRERADocument/DeleteProjectRERADocument?ProjectRERADocumentId=$projectRERADocumentId&Uniquekey=$uniqueKey&projectId=$projectId&ProjectRERADocumentCategoryId=$projectRERADocumentCategoryId";
     }
 
     try {

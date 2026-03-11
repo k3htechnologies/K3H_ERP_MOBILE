@@ -46,7 +46,7 @@ class ViewRERADocumentCategoryScreen extends StatelessWidget {
                                   .projectRERADocumentCategoryName,
                         ),
                         buildColumnTitleValue(
-                          title: "Order By",
+                          title: "Sequence",
                           value: reraDocumentCategoryModel.orderBy.toString(),
                         ),
                       ],
@@ -83,7 +83,7 @@ class ViewRERADocumentCategoryScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(
+                          value: formatDate(
                             reraDocumentCategoryModel.createdDate,
                           ),
                         ),
@@ -103,7 +103,7 @@ class ViewRERADocumentCategoryScreen extends StatelessWidget {
                           title: "Modified Date",
                           value:
                               reraDocumentCategoryModel.modifiedDate != null
-                                  ? formatDateTimeAsDDMMMYYYY(
+                                  ? formatDate(
                                     reraDocumentCategoryModel.modifiedDate!,
                                   )
                                   : '',

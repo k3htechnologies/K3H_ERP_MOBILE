@@ -568,10 +568,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Resignation",
-            style: AppTextStyle.ts14M(color: AppColor.grey),
-          ),
+          Text("Resignation", style: AppTextStyle.ts14M(color: AppColor.grey)),
           verticalSpacing(),
           SizedBox(
             height: 300,

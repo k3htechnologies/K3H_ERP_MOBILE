@@ -102,7 +102,7 @@ class _AddRERADocumentCategoryScreenState
       appBar: CustomAppBarWithBackButton(
         screenTitle:
             _isEditMode
-                ? "Add Project RERA Document Category"
+                ? "Update Project RERA Document Category"
                 : "Add Project RERA Document Category",
         authorization: _routeAuthorizationModel,
       ),
@@ -150,10 +150,7 @@ class _AddRERADocumentCategoryScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text:
-                _isEditMode
-                    ? "Update RERA Document Category"
-                    : "Add RERA Document Category",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

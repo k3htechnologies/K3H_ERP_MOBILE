@@ -94,6 +94,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
         projectRERADocumentStatus: _selectedStatus[0]['DisplayName'],
         projectRERADocumentExpiryDate: expiryDate,
         projectRERADocumentRemark: _remarkC.text.trim(),
+        projectRERADocumentName: widget.documentModel!.projectRERADocumentName,
       );
     } else {
       _documentCubit.updateRERASubDocument(
@@ -107,6 +108,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
         projectRERADocumentStatus: _selectedStatus[0]['DisplayName'],
         projectRERADocumentExpiryDate: expiryDate,
         projectRERADocumentRemark: _remarkC.text.trim(),
+        projectRERADocumentName: widget.documentModel!.projectRERADocumentName,
       );
     }
   }
@@ -161,9 +163,15 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
                   onSelected: (Map<String, dynamic> p1) {
                     _selectedStatus = [p1];
                   },
+                  validator: (value) {
+                    if (value == null || value["zAttributesId"] == -1) {
+                      return 'Status is required';
+                    }
+                    return null;
+                  },
                 ),
                 CustomMultiFilePicker(
-                  maxFiles: 3,
+                  maxFiles: 5,
                   title: "Files",
                   initialFileList: selectedDocumentFile.fileNameList,
                   onFilePickedCallback: (bytesList, fileNameList) {
@@ -188,7 +196,8 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
                 CustomTextField(
                   title: "Remark",
                   hint: "Enter Remark",
-                  maxLines: 3,
+                  minLines: 3,
+                  maxLines: 10,
                   textController: _remarkC,
                 ),
               ],
@@ -201,7 +210,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text: _isEditMode ? "Update Document" : "Add Document",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

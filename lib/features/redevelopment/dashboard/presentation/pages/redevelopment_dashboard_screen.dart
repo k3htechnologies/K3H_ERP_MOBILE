@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -185,11 +186,12 @@ class _RedevelopmentDashboardScreenState
                         buildingId =
                             selectedValue.first['zAttributesId'] as int;
                       }
-                      _redevelopmentDashboardCubit.getRedevelopmentDashboardList(
-                        context,
-                        getProject().projectId,
-                        buildingId: buildingId,
-                      );
+                      _redevelopmentDashboardCubit
+                          .getRedevelopmentDashboardList(
+                            context,
+                            getProject().projectId,
+                            buildingId: buildingId,
+                          );
                     },
                   ),
                   // GENERATE REPORT AND VIEW PROJECT BUTTONS
@@ -1016,9 +1018,19 @@ class _RedevelopmentDashboardScreenState
                 ],
               ),
               verticalSpacing(),
-              TenantRadialChart(
-                residential: residentialCount,
-                commercial: commercialCount,
+              CommonRadialChart(
+                items: [
+                  RadialChartItem(
+                    title: "Present",
+                    value: residentialCount,
+                    color: AppColor.primary,
+                  ),
+                  RadialChartItem(
+                    title: "Present",
+                    value: commercialCount,
+                    color: AppColor.blueBgColor,
+                  ),
+                ],
               ),
               verticalSpacing(height: 20.0),
               Row(
