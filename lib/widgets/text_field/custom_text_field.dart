@@ -153,12 +153,15 @@ class CustomTextField extends StatelessWidget {
                   margin: EdgeInsets.only(bottom: 10),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.info_outline,color: AppColor.error,size: 14,),
+                      Icon(Icons.info_outline, color: AppColor.error, size: 14),
                       horizontalSpacing(width: 5),
-                      Text(
-                        formFieldState.errorText ?? "",
-                        style: AppTextStyle.ts12R(color: AppColor.error),
+                      Expanded(
+                        child: Text(
+                          formFieldState.errorText ?? "",
+                          style: AppTextStyle.ts12R(color: AppColor.error),
+                        ),
                       ),
                     ],
                   ),

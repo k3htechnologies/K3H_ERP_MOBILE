@@ -76,7 +76,7 @@ class _ChannelPartnerViewScreenState extends State<ChannelPartnerViewScreen>
       );
 
       result.fold(
-        (failure) => debugPrint("❌ Load more error: ${failure.message}"),
+        (failure) => debugPrint("Load more error: ${failure.message}"),
         (response) {
           final newPartners = List<ChannelPartnerModel>.from(
             response['data'] ?? [],

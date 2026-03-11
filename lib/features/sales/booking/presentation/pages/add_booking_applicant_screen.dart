@@ -240,7 +240,6 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
     applicant.votingIdImage = votingIdFile;
     applicant.gstImage = gstFile;
 
-    print("Applicant--: ${applicant.toJson()}");
     Navigator.pop(context, {"applicant": applicant, "index": widget.index});
   }
 
@@ -361,7 +360,6 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     onFilePickedCallback: (bytesList, fileNameList) {
                       profilePhotoFile.fileNameList = fileNameList;
                       profilePhotoFile.fileBytesList = bytesList;
-                      print("Picked profile: $profilePhotoFile");
                     },
                     onFileDeleteCallback: (
                       fileBytesList,
@@ -389,7 +387,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                         InputValidator.aadhaarNumberInputFormatter(),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Aadhaar is required";
+                        return "Aadhaar Card Number is required";
                       }
                       if (value.trim().isNotEmpty &&
                           !InputValidator.isValidAadharNumber(value.trim())) {

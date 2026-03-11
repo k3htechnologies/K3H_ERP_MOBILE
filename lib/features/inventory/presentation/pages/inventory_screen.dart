@@ -857,11 +857,9 @@ class _InventoryScreenState extends State<InventoryScreen>
                           },
                         );
 
-                        // CAST result to Map<String, dynamic>
                         if (result != null &&
                             result is Map<String, dynamic> &&
                             context.mounted) {
-                          print("Wee are here!");
                           _inventoryCubit.updateFlatStatus(
                             inventoryFlatId: flat.inventoryFlatId,
                             flatStatus: result["status"],

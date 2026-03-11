@@ -71,7 +71,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       _stampDutyPercentageC,
       _stampDutyAmountC,
       _registrationFeesC,
-      _remarkC,
+      _otherRemarkC,
+      _unitModCustomizationRemarkC,
+      _paymentRemarkC,
       _termsAndConditionDescriptionC,
       _bookingAmountC,
       _chequeNoC,
@@ -83,7 +85,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       _loyaltyPercentageC,
       _loyaltyAmountC,
       _brokeragePercentageC,
-      _brokerageAmountC;
+      _brokerageAmountC,
+      _noOfParkingC;
   // AGREEMENT VALUE NOTIFIER
   final ValueNotifier<double> _agreementValueNotifier = ValueNotifier<double>(
     0.0,
@@ -119,7 +122,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   int? _lastFetchedBuildingId;
 
   // DATE PICKER
-  DateTime? _selectedExpectedRegistrationDate;
+  final ValueNotifier<DateTime?> _selectedExpectedRegistrationDate =
+      ValueNotifier<DateTime?>(null);
   // subscription to booking cubit stream
   StreamSubscription<BookingState>? _bookingSubscription;
   // fetching flag for enquiry API to avoid relying on global isLoading
@@ -136,7 +140,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   ];
 
   // SELECTED HAND OVER TYPE
-  late Map<String, dynamic> _selectedHandOverType;
+  final ValueNotifier<Map<String, dynamic>> _selectedHandOverType =
+      ValueNotifier({});
 
   // STATIC HAND OVER TYPE LIST
   final List<Map<String, dynamic>> fundingSourceList = [
@@ -147,7 +152,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   ];
 
   // SELECTED SOURCE OF FUNDING
-  late Map<String, dynamic> _selectedFundingSource;
+  final ValueNotifier<Map<String, dynamic>> _selectedFundingSource =
+      ValueNotifier({});
 
   // METHODS TO CHECK IF APPLICANT TYPE IS PRIMARY
   bool _isApplicantType(String type) =>
@@ -167,10 +173,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   // TERMS AND CONDITIONS SELECTION
   final ValueNotifier<List<Map<String, dynamic>>> _selectedTermsNotifier =
       ValueNotifier([]);
-
-  // LOCAL COPY OF OTHER CHARGES (editable by UI, not tied to cubit)
-  // final ValueNotifier<List<OtherChargeModel>> _localOtherCharges =
-  //     ValueNotifier<List<OtherChargeModel>>([]);
 
   // BANK SELECTION
   final ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier =
@@ -196,6 +198,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // MANUAL PAYMENT SCHEDULE HANDLER
   bool isAutoPaymentSchedule = false;
+
   @override
   void initState() {
     super.initState();
@@ -203,53 +206,56 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _bookingCubit = context.read<BookingCubit>();
     _loginCubit = context.read<LoginCubit>();
     _project = getProject();
+
     _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(_handleTabChange);
-    _selectedHandOverType = handOverTypeList.first;
-    _selectedFundingSource = fundingSourceList.first;
+
+    _selectedHandOverType.value = handOverTypeList.first;
+    _selectedFundingSource.value = fundingSourceList.first;
+
     _agreementValueNotifier.addListener(_calculateTds);
+
     schemeListNotifier = ValueNotifier([]);
     selectedScheme = ValueNotifier({});
 
     if (_isEditMode) {
-      final bm = widget.bookingModel!;
-      loadPaymentScheduleSchemes().then((_) {
-        _prefill(bm);
-      });
-
-      // subscribe to cubit to listen for enquiryListById results (to fill enquiry unique code)
-      _bookingSubscription = _bookingCubit.stream.listen((state) {
-        if (state.enquiryListById.isNotEmpty) {
-          final enquiry = state.enquiryListById.first;
-          _enquiryUniqueCodeC.text = enquiry.systemGeneratedCode;
-        }
-      });
-
-      // Still fetch server-side details for consistency
-      _bookingCubit.getBookingListById(
-        context,
-        1,
-        _project.projectId,
-        bm.bookingId,
-      );
-
-      // Fetch enquiry by id to get system generated code and populate enquiry field
-      if (bm.enquiryId != 0) {
-        _isFetchingEnquiry.value = true;
-        _enquiryFetchTried.value = true;
-        _bookingCubit
-            .getEnquiryListById(context, 1, _project.projectId, bm.enquiryId)
-            .whenComplete(() => _isFetchingEnquiry.value = false);
-      }
+      _initEditMode();
     } else {
       loadPaymentScheduleSchemes();
-      // OTHER CHARGES
       _bookingCubit.getOtherChargesList(
         context,
         1,
         _project.projectId,
         widget.inventoryObject?[0]["reraCarpetAreaSqFt"],
       );
+    }
+  }
+
+  Future<void> _initEditMode() async {
+    final bm = widget.bookingModel!;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DialogHelper.showProcessingOverlay(context);
+    });
+
+    try {
+      await _bookingCubit.getEnquiryList(
+        context,
+        1,
+        _project.projectId,
+        null,
+        bm.enquiryId,
+      );
+
+      await loadPaymentScheduleSchemes();
+
+      _prefill(bm);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      if (mounted) {
+        goRouter.pop();
+      }
     }
   }
 
@@ -291,7 +297,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _stampDutyPercentageC = TextEditingController();
     _stampDutyAmountC = TextEditingController();
     _registrationFeesC = TextEditingController();
-    _remarkC = TextEditingController();
+    _otherRemarkC = TextEditingController();
+    _unitModCustomizationRemarkC = TextEditingController();
+    _paymentRemarkC = TextEditingController();
     _termsAndConditionDescriptionC = TextEditingController();
     _bookingAmountC = TextEditingController();
     _chequeNoC = TextEditingController();
@@ -307,6 +315,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
     _brokeragePercentageC = TextEditingController();
     _brokerageAmountC = TextEditingController();
+    _noOfParkingC = TextEditingController();
   }
 
   // Prefill form from booking model
@@ -319,6 +328,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _applicants.value = List<BookingApplicantData>.from(
       bm.bookingApplicantData,
     );
+    final enquiry = _bookingCubit.state.enquiryList.first;
+
+    _enquiryUniqueCodeC.text = enquiry.systemGeneratedCode;
 
     // Agreement / financials
     _agreementValueWithTdsC.text = bm.agreementValue.toString();
@@ -331,8 +343,22 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _registrationFeesC.text = bm.registrationFees.toString();
 
     // Remark / terms description
-    _remarkC.text = bm.flatAlterationRemark;
-    _termsAndConditionDescriptionC.text = bm.termsAndConditionsDescription;
+    _unitModCustomizationRemarkC.text = bm.flatAlterationRemark;
+    _paymentRemarkC.text = bm.paymentRemark;
+    _otherRemarkC.text = bm.otherRemark;
+
+    if (bm.termsAndConditionsDescription.isNotEmpty) {
+      _selectedTermsNotifier.value = [
+        {
+          "zAttributesId": 1,
+          "DisplayName": "Terms & Conditions",
+          "Description": bm.termsAndConditionsDescription,
+        },
+      ];
+    }
+    _termsAndConditionDescriptionC.text = _selectedTermsNotifier.value
+        .map((e) => e['Description'] ?? '')
+        .join('\n\n');
 
     // Other charges
     _bookingCubit.updateOtherChargesList(bm.bookingOtherChargesData);
@@ -362,10 +388,16 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       ];
     }
     _bookingCubit.updatePaymentScheduleList(bm.bookingPaymentScheduleData);
-    _selectedHandOverType = handOverTypeList.firstWhere(
+    _selectedHandOverType.value = handOverTypeList.firstWhere(
       (item) => item["DisplayName"] == bm.handoverType,
       orElse: () => handOverTypeList.first,
     );
+    _selectedFundingSource.value = fundingSourceList.firstWhere(
+      (item) => item["DisplayName"] == bm.sourceOfFunding,
+      orElse: () => fundingSourceList.first,
+    );
+    _noOfParkingC.text = bm.numberOfParking.toString();
+    _selectedExpectedRegistrationDate.value = bm.registrationDate;
     _referencePercentageC.text = bm.referelPercentage.toString();
     _referenceAmountC.text = bm.referelAmount.toString();
 
@@ -381,7 +413,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       (item) => item["DisplayName"] == bm.paymentScheduleScheme,
       orElse: () => {},
     );
-    print("SelectedScheme: ${schemeListNotifier.value}");
   }
 
   // DISPOSE TEXT CONTROLLERS
@@ -397,7 +428,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _stampDutyPercentageC.dispose();
     _stampDutyAmountC.dispose();
     _registrationFeesC.dispose();
-    _remarkC.dispose();
+    _otherRemarkC.dispose();
     _termsAndConditionDescriptionC.dispose();
     _bookingAmountC.dispose();
     _chequeNoC.dispose();
@@ -511,6 +542,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     BookingApplicantData? applicant,
     int? index,
   }) async {
+    if (mounted) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
     final result = await Navigator.push<Map<String, dynamic>?>(
       context,
       MaterialPageRoute(
@@ -791,28 +825,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         _paymentScheduleFormKey.currentState?.validate() ?? false;
 
     // Manual validation for Payment Details (NO TAB SWITCH)
-    bool paymentDetailsValid = true;
 
     bool remarkValid = true;
 
-    if (_bookingAmountC.text.trim().isEmpty) {
-      paymentDetailsValid = false;
-    }
-
-    if (_chequeNoC.text.trim().isEmpty) {
-      paymentDetailsValid = false;
-    }
-
-    if (_selectedChequeDate == null) {
-      paymentDetailsValid = false;
-    }
-
-    // Trigger rebuild so CustomTextField shows errors
-    if (!paymentDetailsValid) {
-      _paymentDetailsFormKey.currentState?.validate();
-    }
-
-    if (_remarkC.text.trim().isEmpty) {
+    if (_unitModCustomizationRemarkC.text.trim().isEmpty) {
       remarkValid = false;
     }
 
@@ -848,11 +864,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
     if (!remarkValid) {
       _tabController.animateTo(3);
-      return false;
-    }
-
-    if (!paymentDetailsValid) {
-      _tabController.animateTo(5);
       return false;
     }
 
@@ -913,186 +924,207 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // SUBMIT BOOKING FORM
   void _submitForm() async {
-    String applicantMobile =
-        _applicants.value
-            .firstWhere((a) => a.applicantType == "Applicant")
-            .applicantMobileNumber;
+    if (_isEditMode) {
+      submit();
+      return;
+    }
+    {
+      String applicantMobile =
+          _applicants.value
+              .firstWhere((a) => a.applicantType == "Applicant")
+              .applicantMobileNumber;
 
-    _loginCubit.sendOTPModuleBased(
-      context: context,
-      mobileNumber: applicantMobile,
-      module: "BOOKING",
-    );
-    showCompleteVerificationDialog(
-      context,
-      otpController: _otpController,
-      verificationSteps: {},
-      onResendOTP: () {
-        _loginCubit.sendOTPModuleBased(
-          context: context,
-          mobileNumber: applicantMobile,
-          module: "BOOKING",
-        );
-      },
-      onVerifyOTP: () async {
-        final enquiry =
+      _loginCubit.sendOTPModuleBased(
+        context: context,
+        mobileNumber: applicantMobile,
+        module: "BOOKING",
+      );
+      showCompleteVerificationDialog(
+        context,
+        otpController: _otpController,
+        verificationSteps: {},
+        onResendOTP: () {
+          _loginCubit.sendOTPModuleBased(
+            context: context,
+            mobileNumber: applicantMobile,
+            module: "BOOKING",
+          );
+        },
+        onVerifyOTP: () async {
+          submit();
+          goRouter.pop();
+        },
+      );
+    }
+  }
+
+  void submit() async {
+    final enquiry =
+        _bookingCubit.state.enquiryList.isNotEmpty
+            ? _bookingCubit.state.enquiryList.first
+            : _bookingCubit.state.enquiryListById.first;
+
+    // COMMISSION VARIABLE
+    double brokeragePercentage = 0.0, brokerageAmount = 0.0;
+    double referencePercentage = 0.0, referenceAmount = 0.0;
+    double employeeRefPercentage = 0.0, employeeRefAmount = 0.0;
+    double loyaltyPercentage = 0.0, loyaltyAmount = 0.0;
+
+    //SET BASED ON ENQUIRY TYPE (SOURCE)
+    switch (enquiry.subSource) {
+      case "Reference":
+        referencePercentage =
+            double.tryParse(_referencePercentageC.text) ?? 0.0;
+        referenceAmount = double.tryParse(_referenceAmountC.text) ?? 0.0;
+        break;
+      case "Employee Reference":
+        employeeRefPercentage =
+            double.tryParse(_employeeRefPercentageC.text) ?? 0.0;
+        employeeRefAmount = double.tryParse(_employeeRefAmountC.text) ?? 0.0;
+        break;
+      case "Loyalty":
+        loyaltyPercentage = double.tryParse(_loyaltyPercentageC.text) ?? 0.0;
+        loyaltyAmount = double.tryParse(_loyaltyAmountC.text) ?? 0.0;
+        break;
+    }
+
+    if (enquiry.source == "Channel Partner") {
+      brokeragePercentage = double.tryParse(_brokeragePercentageC.text) ?? 0.0;
+      brokerageAmount = double.tryParse(_brokerageAmountC.text) ?? 0.0;
+    }
+
+    final registrationDate =
+        _selectedExpectedRegistrationDate.value ?? DateTime.now();
+    final chequeDate = _selectedChequeDate;
+    final parkingId = selectedParkings;
+    final modeOfPayment = _selectedFundingSource.value['DisplayName'] ?? "";
+    final handoverType = _selectedHandOverType.value['DisplayName'] ?? "";
+    final inventoryFlatId =
+        widget.inventoryObject?[0]['inventoryFlatId'] ??
+        widget.bookingModel!.inventoryFlatId;
+    final bankId =
+        _selectedBankNotifier.value.isNotEmpty
+            ? _selectedBankNotifier.value.first['zAttributesId']
+            : null;
+
+    if (_isEditMode) {
+      await _bookingCubit.updateBooking(
+        context: context,
+        index: widget.index!,
+        bookingId: widget.bookingModel!.bookingId,
+        uniqueKey: widget.bookingModel!.uniquekey,
+        projectId: _project.projectId,
+        enquiryId:
             _bookingCubit.state.enquiryList.isNotEmpty
-                ? _bookingCubit.state.enquiryList.first
-                : _bookingCubit.state.enquiryListById.first;
+                ? _bookingCubit.state.enquiryList.first.enquiryId
+                : _bookingCubit.state.enquiryListById.first.enquiryId,
+        permanentAddress: _permanentAddressC.text.trim(),
+        communicationAddress: _communicationAddressC.text.trim(),
+        brokeragePercentage: brokeragePercentage,
+        brokerageAmount: brokerageAmount,
+        referelPercentage: referencePercentage,
+        referelAmount: referenceAmount,
+        employeeReferencePercentage: employeeRefPercentage,
+        employeeReferenceAmount: employeeRefAmount,
+        loyaltyPercentage: loyaltyPercentage,
+        loyaltyAmount: loyaltyAmount,
+        inventoryFlatId: inventoryFlatId,
+        agreementValue: _agreementValueNotifier.value,
+        agreementValueTds: _tdsNotifier.value,
+        sourceOfFunding: _selectedFundingSource.value['DisplayName'] ?? "",
 
-        // COMMISSION VARIABLE
-        double brokeragePercentage = 0.0, brokerageAmount = 0.0;
-        double referencePercentage = 0.0, referenceAmount = 0.0;
-        double employeeRefPercentage = 0.0, employeeRefAmount = 0.0;
-        double loyaltyPercentage = 0.0, loyaltyAmount = 0.0;
+        agreementValueGSTPercentage:
+            double.tryParse(_agreementGstPercentageC.text) ?? 0.0,
+        agreementValueGSTAmount: _agreementGstAmountNotifier.value,
+        stampDutyPercentage: double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
+        stampDutyAmount: double.parse(_stampDutyAmountC.text.trim()),
+        registrationFees: double.parse(_registrationFeesC.text.trim()),
+        parkingId: parkingId,
+        handoverType: handoverType,
+        registrationDate: registrationDate,
+        modeOfPayment: modeOfPayment,
+        flatAlterationRemark: _unitModCustomizationRemarkC.text.trim(),
+        paymentRemark: _paymentRemarkC.text.trim(),
+        otherRemark: _otherRemarkC.text.trim(),
+        termsAndConditionsDescription:
+            _termsAndConditionDescriptionC.text.trim(),
+        bookingType: 'FLAT',
+        otherChargesDetailJSON: _bookingCubit.state.otherChargesList,
+        paymentScheduleDetailJSON:
+            _bookingCubit.state.bookingPaymentScheduleList,
+        bookingAmount: double.tryParse(_bookingAmountC.text) ?? 0.0,
+        chequeRTGSNumber: _chequeNoC.text.trim(),
+        chequeRTGSDate: chequeDate,
+        bankListMasterId: bankId,
+        transferBookingId: null,
+        tenantId: 0,
+        otp: _otpController.text.trim(),
+        addUpdateBookingApplicant: _applicants.value,
+        numberOfParking:
+            _noOfParkingC.text.trim().isNotEmpty
+                ? int.parse(_noOfParkingC.text.trim())
+                : 0,
+      );
+    } else {
+      await _bookingCubit.addBooking(
+        context: context,
+        projectId: _project.projectId,
+        enquiryId:
+            _bookingCubit.state.enquiryList.isNotEmpty
+                ? _bookingCubit.state.enquiryList.first.enquiryId
+                : _bookingCubit.state.enquiryListById.first.enquiryId,
+        permanentAddress: _permanentAddressC.text.trim(),
+        communicationAddress: _communicationAddressC.text.trim(),
+        brokeragePercentage: brokeragePercentage,
+        brokerageAmount: brokerageAmount,
+        referelPercentage: referencePercentage,
+        referelAmount: referenceAmount,
+        employeeReferencePercentage: employeeRefPercentage,
+        employeeReferenceAmount: employeeRefAmount,
+        loyaltyPercentage: loyaltyPercentage,
+        loyaltyAmount: loyaltyAmount,
+        inventoryFlatId: inventoryFlatId,
+        agreementValue: _agreementValueNotifier.value,
+        agreementValueTds: _tdsNotifier.value,
+        agreementValueGSTPercentage:
+            double.tryParse(_agreementGstPercentageC.text) ?? 0.0,
+        agreementValueGSTAmount: _agreementGstAmountNotifier.value,
+        stampDutyPercentage: double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
+        stampDutyAmount: double.parse(_stampDutyAmountC.text.trim()),
+        registrationFees: double.parse(_registrationFeesC.text.trim()),
+        sourceOfFunding: _selectedFundingSource.value['DisplayName'] ?? "",
+        parkingId: parkingId,
+        numberOfParking:
+            _noOfParkingC.text.trim().isNotEmpty
+                ? int.parse(_noOfParkingC.text.trim())
+                : 0,
+        handoverType: handoverType,
+        registrationDate: registrationDate,
+        modeOfPayment: modeOfPayment,
+        flatAlterationRemark: _unitModCustomizationRemarkC.text.trim(),
+        paymentRemark: _paymentRemarkC.text.trim(),
+        otherRemark: _otherRemarkC.text.trim(),
+        termsAndConditionsDescription:
+            _termsAndConditionDescriptionC.text.trim(),
+        bookingType: 'FLAT',
+        otherChargesDetailJSON: _bookingCubit.state.otherChargesList,
 
-        //SET BASED ON ENQUIRY TYPE (SOURCE)
-        switch (enquiry.subSource) {
-          case "Reference":
-            referencePercentage =
-                double.tryParse(_referencePercentageC.text) ?? 0.0;
-            referenceAmount = double.tryParse(_referenceAmountC.text) ?? 0.0;
-            break;
-          case "Employee Reference":
-            employeeRefPercentage =
-                double.tryParse(_employeeRefPercentageC.text) ?? 0.0;
-            employeeRefAmount =
-                double.tryParse(_employeeRefAmountC.text) ?? 0.0;
-            break;
-          case "Loyalty":
-            loyaltyPercentage =
-                double.tryParse(_loyaltyPercentageC.text) ?? 0.0;
-            loyaltyAmount = double.tryParse(_loyaltyAmountC.text) ?? 0.0;
-            break;
-        }
-
-        if (enquiry.source == "Channel Partner") {
-          brokeragePercentage =
-              double.tryParse(_brokeragePercentageC.text) ?? 0.0;
-          brokerageAmount = double.tryParse(_brokerageAmountC.text) ?? 0.0;
-        }
-
-        final registrationDate =
-            _selectedExpectedRegistrationDate ?? DateTime.now();
-        final chequeDate = _selectedChequeDate;
-        final parkingId = selectedParkings;
-        final modeOfPayment = _selectedFundingSource['DisplayName'] ?? "";
-        final handoverType = _selectedHandOverType['DisplayName'] ?? "";
-        final inventoryFlatId =
-            widget.inventoryObject?[0]['inventoryFlatId'] ?? 0;
-        final bankId =
-            _selectedBankNotifier.value.isNotEmpty
-                ? _selectedBankNotifier.value.first['zAttributesId']
-                : null;
-
-        if (_isEditMode) {
-          await _bookingCubit.updateBooking(
-            context: context,
-            index: widget.index!,
-            bookingId: widget.bookingModel!.bookingId,
-            uniqueKey: widget.bookingModel!.uniquekey,
-            projectId: _project.projectId,
-            enquiryId:
-                _bookingCubit.state.enquiryList.isNotEmpty
-                    ? _bookingCubit.state.enquiryList.first.enquiryId
-                    : _bookingCubit.state.enquiryListById.first.enquiryId,
-            permanentAddress: _permanentAddressC.text.trim(),
-            communicationAddress: _communicationAddressC.text.trim(),
-            brokeragePercentage: brokeragePercentage,
-            brokerageAmount: brokerageAmount,
-            referelPercentage: referencePercentage,
-            referelAmount: referenceAmount,
-            employeeReferencePercentage: employeeRefPercentage,
-            employeeReferenceAmount: employeeRefAmount,
-            loyaltyPercentage: loyaltyPercentage,
-            loyaltyAmount: loyaltyAmount,
-            inventoryFlatId: inventoryFlatId,
-            agreementValue: _agreementValueNotifier.value,
-            agreementValueTds: _tdsNotifier.value,
-            agreementValueGSTPercentage:
-                double.tryParse(_agreementGstPercentageC.text) ?? 0.0,
-            agreementValueGSTAmount: _agreementGstAmountNotifier.value,
-            stampDutyPercentage:
-                double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
-            stampDutyAmount: _stampDutyAmountNotifier.value,
-            registrationFees: _registrationFeesNotifier.value,
-            parkingId: parkingId,
-            handoverType: handoverType,
-            registrationDate: registrationDate,
-            modeOfPayment: modeOfPayment,
-            flatAlterationRemark: _remarkC.text.trim(),
-            termsAndConditionsDescription:
-                _termsAndConditionDescriptionC.text.trim(),
-            bookingType: 'FLAT',
-            otherChargesDetailJSON: _bookingCubit.state.otherChargesList,
-            paymentScheduleDetailJSON:
-                _bookingCubit.state.bookingPaymentScheduleList,
-            bookingAmount: double.tryParse(_bookingAmountC.text) ?? 0.0,
-            chequeRTGSNumber: _chequeNoC.text.trim(),
-            chequeRTGSDate: chequeDate,
-            bankListMasterId: bankId,
-            transferBookingId: null,
-            tenantId: 0,
-            otp: _otpController.text.trim(),
-            addUpdateBookingApplicant: _applicants.value,
-          );
-        } else {
-          await _bookingCubit.addBooking(
-            context: context,
-            projectId: _project.projectId,
-            enquiryId:
-                _bookingCubit.state.enquiryList.isNotEmpty
-                    ? _bookingCubit.state.enquiryList.first.enquiryId
-                    : _bookingCubit.state.enquiryListById.first.enquiryId,
-            permanentAddress: _permanentAddressC.text.trim(),
-            communicationAddress: _communicationAddressC.text.trim(),
-            brokeragePercentage: brokeragePercentage,
-            brokerageAmount: brokerageAmount,
-            referelPercentage: referencePercentage,
-            referelAmount: referenceAmount,
-            employeeReferencePercentage: employeeRefPercentage,
-            employeeReferenceAmount: employeeRefAmount,
-            loyaltyPercentage: loyaltyPercentage,
-            loyaltyAmount: loyaltyAmount,
-            inventoryFlatId: inventoryFlatId,
-            agreementValue: _agreementValueNotifier.value,
-            agreementValueTds: _tdsNotifier.value,
-            agreementValueGSTPercentage:
-                double.tryParse(_agreementGstPercentageC.text) ?? 0.0,
-            agreementValueGSTAmount: _agreementGstAmountNotifier.value,
-            stampDutyPercentage:
-                double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
-            stampDutyAmount: _stampDutyAmountNotifier.value,
-            registrationFees: _registrationFeesNotifier.value,
-            parkingId: parkingId,
-            handoverType: handoverType,
-            registrationDate: registrationDate,
-            modeOfPayment: modeOfPayment,
-            flatAlterationRemark: _remarkC.text.trim(),
-            termsAndConditionsDescription:
-                _termsAndConditionDescriptionC.text.trim(),
-            bookingType: 'FLAT',
-            otherChargesDetailJSON: _bookingCubit.state.otherChargesList,
-
-            paymentScheduleDetailJSON:
-                _bookingCubit.state.bookingPaymentScheduleList,
-            bookingAmount: double.tryParse(_bookingAmountC.text) ?? 0.0,
-            chequeRTGSNumber: _chequeNoC.text.trim(),
-            chequeRTGSDate: chequeDate,
-            bankListMasterId: bankId,
-            transferBookingId: null,
-            tenantId: 0,
-            otp: _otpController.text.trim(),
-            addUpdateBookingApplicant: _applicants.value,
-            buildingIndex: widget.inventoryObject?[0]["buildingIndex"],
-            wingIndex: widget.inventoryObject?[0]["wingIndex"],
-            floorIndex: widget.inventoryObject?[0]["floorIndex"],
-            flatIndex: widget.inventoryObject?[0]["flatIndex"],
-          );
-        }
-        goRouter.pop();
-      },
-    );
+        paymentScheduleDetailJSON:
+            _bookingCubit.state.bookingPaymentScheduleList,
+        bookingAmount: double.tryParse(_bookingAmountC.text) ?? 0.0,
+        chequeRTGSNumber: _chequeNoC.text.trim(),
+        chequeRTGSDate: chequeDate,
+        bankListMasterId: bankId,
+        transferBookingId: null,
+        tenantId: 0,
+        otp: _otpController.text.trim(),
+        addUpdateBookingApplicant: _applicants.value,
+        buildingIndex: widget.inventoryObject?[0]["buildingIndex"],
+        wingIndex: widget.inventoryObject?[0]["wingIndex"],
+        floorIndex: widget.inventoryObject?[0]["floorIndex"],
+        flatIndex: widget.inventoryObject?[0]["flatIndex"],
+      );
+    }
   }
 
   Future<void> _showPopupToDeletePaymentScheduleMaster(
@@ -1107,6 +1139,21 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
     if (result && context.mounted) {
       _bookingCubit.deletePaymentSchedule(index, context);
+    }
+  }
+
+  Future<void> _showPopupToDeleteOtherCharge(
+    BuildContext context,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete this other charge?',
+      'Deleting this other charge will permanently remove it.',
+    );
+
+    if (result && context.mounted) {
+      _bookingCubit.deleteOtherCharges(index, context);
     }
   }
 
@@ -1245,6 +1292,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                           CustomTextField(
                             title: "Enquiry Unique Code",
                             isRequired: true,
+                            readOnly: _isEditMode,
                             inputFormatterList: [
                               UpperCaseTextFormatter(),
                               LengthLimitingTextInputFormatter(18),
@@ -1277,6 +1325,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                       1,
                                       _project.projectId,
                                       value,
+                                      null,
                                     );
                                     _isFetchingEnquiry.value = false;
                                   }
@@ -1847,6 +1896,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     hint: "Enter Agreement Value (with TDS)",
                     isRequired: true,
                     textController: _agreementValueWithTdsC,
+                    inputFormatterList: InputValidator.decimal(2),
                     keyboardType: TextInputType.number,
                     onChangeFunction: (value) {
                       final parsed = double.tryParse(value) ?? 0.0;
@@ -2054,17 +2104,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       return ValueListenableBuilder<List<Map<String, dynamic>>>(
                         valueListenable: _selectedParkingNotifier,
                         builder: (context, selectedBuilding, child) {
-                          final bool hasParkingSelected =
-                              selectedBuilding.isNotEmpty;
-
                           return CustomMultipleSelectPopup(
                             title: "Parking",
-                            key: ValueKey(
-                              hasParkingSelected
-                                  ? selectedBuilding.first['zAttributesId']
-                                  : 'empty',
-                            ),
-                            isRequired: true,
+                            hintText: "Select Parking",
                             isMultiSelect: true,
                             initialValue: selectedBuilding,
                             dataList: const [],
@@ -2088,62 +2130,82 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               }
                             },
                             dataFetchCallBack: _fetchParking,
-                            // validator: (value) {
-                            //   if (value == null || value.isEmpty) {
-                            //     return "Parking is required";
-                            //   }
-                            //   return null;
-                            // },
                           );
                         },
                       );
                     },
                   ),
-                  CustomDropDownWidget(
-                    title: "Handover Type",
-                    isRequired: true,
-                    initialValue: _selectedHandOverType,
-                    dataList: handOverTypeList,
-                    onSelected: (value) {
-                      _selectedHandOverType = value;
-                    },
-                    validator: (value) {
-                      if (value == null ||
-                          value.isEmpty ||
-                          value["zAttributesId"] == -1) {
-                        return "Handover Type is required";
-                      }
-                      return null;
+                  CustomTextField(
+                    title: "Number Of Parking",
+                    textController: _noOfParkingC,
+                    keyboardType: TextInputType.number,
+                    hint: "Enter Number Of Parking",
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: _selectedHandOverType,
+                    builder: (context, selectedHandOverType, child) {
+                      return CustomDropDownWidget(
+                        title: "Handover Type",
+                        isRequired: true,
+                        initialValue: selectedHandOverType,
+                        dataList: handOverTypeList,
+                        onSelected: (value) {
+                          _selectedHandOverType.value = value;
+                        },
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              value["zAttributesId"] == -1) {
+                            return "Handover Type is required";
+                          }
+                          return null;
+                        },
+                      );
                     },
                   ),
-                  CustomDatePicker(
-                    title: "Expected Registration Date",
-                    isRequired: true,
-                    initialDate: _selectedExpectedRegistrationDate,
-                    setValue: (value) {
-                      _selectedExpectedRegistrationDate = value;
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return "Expected Registration Date is required";
-                      }
-                      return null;
+                  ValueListenableBuilder(
+                    valueListenable: _selectedExpectedRegistrationDate,
+                    builder: (
+                      context,
+                      selectedExpectedRegistrationDate,
+                      child,
+                    ) {
+                      return CustomDatePicker(
+                        title: "Expected Registration Date",
+                        isRequired: true,
+                        initialDate: selectedExpectedRegistrationDate,
+                        setValue: (value) {
+                          _selectedExpectedRegistrationDate.value = value;
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return "Expected Registration Date is required";
+                          }
+                          return null;
+                        },
+                      );
                     },
                   ),
-                  CustomDropDownWidget(
-                    title: "Source Of Funding",
-                    isRequired: true,
-                    dataList: fundingSourceList,
-                    onSelected: (value) {
-                      _selectedFundingSource = value;
-                    },
-                    validator: (value) {
-                      if (value == null ||
-                          value.isEmpty ||
-                          value["zAttributesId"] == -1) {
-                        return "Funding Source is required";
-                      }
-                      return null;
+                  ValueListenableBuilder(
+                    valueListenable: _selectedFundingSource,
+                    builder: (context, selectedFundingSource, child) {
+                      return CustomDropDownWidget(
+                        title: "Source Of Funding",
+                        isRequired: true,
+                        initialValue: selectedFundingSource,
+                        dataList: fundingSourceList,
+                        onSelected: (value) {
+                          _selectedFundingSource.value = value;
+                        },
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              value["zAttributesId"] == -1) {
+                            return "Funding Source is required";
+                          }
+                          return null;
+                        },
+                      );
                     },
                   ),
                 ],
@@ -2186,7 +2248,11 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       children: [
                         Text(oc.chargeName, style: AppTextStyle.ts14M()),
                         Spacer(),
-                        CustomIconButton.delete(onPressed: () {}),
+                        CustomIconButton.delete(
+                          onPressed: () {
+                            _showPopupToDeleteOtherCharge(context, index);
+                          },
+                        ),
                       ],
                     ),
                     Row(
@@ -2558,30 +2624,53 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       key: _remarkFormKey,
       child: Container(
         margin: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Add Remark", style: AppTextStyle.ts14M(color: AppColor.grey)),
-            verticalSpacing(),
-            Container(
-              decoration: commonCardDecoration(),
-              padding: EdgeInsets.all(16),
-              child: CustomTextField(
-                title: "Remark",
-                isRequired: true,
-                hint: "Enter Remark",
-                minLines: 3,
-                maxLines: 3,
-                textController: _remarkC,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Remark is required";
-                  }
-                  return null;
-                },
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Add Remark",
+                style: AppTextStyle.ts14M(color: AppColor.grey),
               ),
-            ),
-          ],
+              verticalSpacing(),
+              Container(
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    CustomTextField(
+                      title: "Unit / Modulation / Customization Remark",
+                      isRequired: true,
+                      hint: "Enter Unit / Modulation / Customization Remark",
+                      minLines: 3,
+                      maxLines: 3,
+                      textController: _unitModCustomizationRemarkC,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Unit / Modulation / Customization Remark is required";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: "Payment Related Remark",
+                      hint: "Enter Payment Related Remark",
+                      minLines: 3,
+                      maxLines: 3,
+                      textController: _paymentRemarkC,
+                    ),
+                    CustomTextField(
+                      title: "Other Remark",
+                      hint: "Enter Other Remark",
+                      minLines: 3,
+                      maxLines: 3,
+                      textController: _otherRemarkC,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -2596,7 +2685,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Terms & Condition", style: AppTextStyle.ts16SB()),
             verticalSpacing(),
             BlocBuilder<BookingCubit, BookingState>(
               bloc: _bookingCubit,
@@ -2676,83 +2764,64 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       key: _paymentDetailsFormKey,
       child: Container(
         padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Add Payment Details",
-              style: AppTextStyle.ts14M(color: AppColor.grey),
-            ),
-            verticalSpacing(),
-            Container(
-              decoration: commonCardDecoration(),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  CustomTextField(
-                    isRequired: true,
-                    title: "Booking Amount (₹)",
-                    hint: "Enter Booking Amount",
-                    keyboardType: TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    textController: _bookingAmountC,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "Booking Amount is required";
-                      }
-                      return null;
-                    },
-                  ),
-                  CustomTextField(
-                    isRequired: true,
-                    title: "Cheque/ RTGS No.",
-                    hint: "Enter Cheque/ RTGS No.",
-                    textController: _chequeNoC,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "Cheque/ RTGS No. is required";
-                      }
-                      return null;
-                    },
-                  ),
-                  CustomDatePicker(
-                    isRequired: true,
-                    title: "Cheque/ RTGS Date",
-                    initialDate: _selectedChequeDate,
-                    setValue: (value) {
-                      _selectedChequeDate = value;
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return "Cheque/ RTGS Date is required";
-                      }
-                      return null;
-                    },
-                  ),
-                  // BANK MULTI SELECT
-                  ValueListenableBuilder<List<Map<String, dynamic>>>(
-                    valueListenable: _selectedBankNotifier,
-                    builder: (context, selectedBanks, child) {
-                      return CustomMultipleSelectPopup(
-                        title: "Bank",
-                        isMultiSelect: false,
-                        initialValue: selectedBanks,
-                        dataList: const [],
-                        onSelected: (value) {
-                          _selectedBankNotifier.value =
-                              value
-                                  .map((e) => Map<String, dynamic>.from(e))
-                                  .toList();
-                        },
-                        dataFetchCallBack: _fetchBanks,
-                      );
-                    },
-                  ),
-                ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Add Payment Details",
+                style: AppTextStyle.ts14M(color: AppColor.grey),
               ),
-            ),
-          ],
+              verticalSpacing(),
+              Container(
+                decoration: commonCardDecoration(),
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    CustomTextField(
+                      title: "Booking Amount (₹)",
+                      hint: "Enter Booking Amount",
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      textController: _bookingAmountC,
+                    ),
+                    CustomTextField(
+                      title: "Cheque/ RTGS No.",
+                      hint: "Enter Cheque/ RTGS No.",
+                      textController: _chequeNoC,
+                    ),
+                    CustomDatePicker(
+                      title: "Cheque/ RTGS Date",
+                      initialDate: _selectedChequeDate,
+                      setValue: (value) {
+                        _selectedChequeDate = value;
+                      },
+                    ),
+                    // BANK MULTI SELECT
+                    ValueListenableBuilder<List<Map<String, dynamic>>>(
+                      valueListenable: _selectedBankNotifier,
+                      builder: (context, selectedBanks, child) {
+                        return CustomMultipleSelectPopup(
+                          title: "Bank",
+                          isMultiSelect: false,
+                          initialValue: selectedBanks,
+                          dataList: const [],
+                          onSelected: (value) {
+                            _selectedBankNotifier.value =
+                                value
+                                    .map((e) => Map<String, dynamic>.from(e))
+                                    .toList();
+                          },
+                          dataFetchCallBack: _fetchBanks,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

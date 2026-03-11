@@ -73,7 +73,6 @@ class _AddBookingPaymentScheduleScreenState
 
   void _prefillData() {
     if (!_isEditMode) return;
-    print("Index: ${widget.index}");
     final data = _bookingCubit.state.bookingPaymentScheduleList[widget.index!];
 
     /// percentage

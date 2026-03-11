@@ -36,6 +36,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // CONTROLLERS
+  late final List<TextEditingController> _controllers;
   late TextEditingController _caseTitleC,
       _caseNumberC,
       _caseBriefC,
@@ -84,16 +85,18 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
   }
 
   void _initControllers() {
-    _caseTitleC = TextEditingController();
-    _caseNumberC = TextEditingController();
-    _caseBriefC = TextEditingController();
-    _courtNameC = TextEditingController();
-    _courtLocationC = TextEditingController();
-    _plantiffC = TextEditingController();
-    _defendantC = TextEditingController();
-    _assignedRepC = TextEditingController();
-    _opposingRepC = TextEditingController();
-    _remarkC = TextEditingController();
+    _controllers = [
+      _caseTitleC = TextEditingController(),
+      _caseNumberC = TextEditingController(),
+      _caseBriefC = TextEditingController(),
+      _courtNameC = TextEditingController(),
+      _courtLocationC = TextEditingController(),
+      _plantiffC = TextEditingController(),
+      _defendantC = TextEditingController(),
+      _assignedRepC = TextEditingController(),
+      _opposingRepC = TextEditingController(),
+      _remarkC = TextEditingController(),
+    ];
   }
 
   void _populateForm(LitigationModel model) {
@@ -156,16 +159,9 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
 
   @override
   void dispose() {
-    _caseTitleC.dispose();
-    _caseNumberC.dispose();
-    _caseBriefC.dispose();
-    _courtNameC.dispose();
-    _courtLocationC.dispose();
-    _plantiffC.dispose();
-    _defendantC.dispose();
-    _assignedRepC.dispose();
-    _opposingRepC.dispose();
-    _remarkC.dispose();
+    for (final controller in _controllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 

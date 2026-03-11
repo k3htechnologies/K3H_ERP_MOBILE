@@ -86,6 +86,7 @@ class BookingModel {
   String parkingModificationRequestApprovalStatus;
   bool bookingApplicantModificationRequestIsApproval;
   String bookingApplicantModificationRequestApprovalStatus;
+  int numberOfParking;
 
   BookingModel({
     required this.bookingId,
@@ -170,6 +171,7 @@ class BookingModel {
     required this.parkingModificationRequestApprovalStatus,
     required this.bookingApplicantModificationRequestIsApproval,
     required this.bookingApplicantModificationRequestApprovalStatus,
+    required this.numberOfParking,
   });
   factory BookingModel.fromJson(
     Map<String, dynamic> json, {
@@ -265,7 +267,6 @@ class BookingModel {
             .map(
               (e) =>
                   OtherChargeModel.fromJson(e as Map<String, dynamic>)
-                    ..isSelected = setOtherCharge
                     ..isMaster = setOtherCharge,
             )
             .toList(),
@@ -334,6 +335,7 @@ class BookingModel {
       json,
       "BookingApplicantModificationRequestApprovalStatus",
     ),
+    numberOfParking: parseValue<int>(json, "NumberOfParking"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -426,6 +428,7 @@ class BookingModel {
         bookingApplicantModificationRequestIsApproval,
     "BookingApplicantModificationRequestApprovalStatus":
         bookingApplicantModificationRequestApprovalStatus,
+    "NumberOfParking": numberOfParking,
   };
 }
 

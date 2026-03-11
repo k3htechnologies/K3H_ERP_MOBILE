@@ -94,7 +94,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
   @override
   void dispose() {
-    selectedCompanyType.dispose();
+    // CONTROLLERS
     _nameC.dispose();
     _emailC.dispose();
     _mobileNumberC.dispose();
@@ -107,9 +107,14 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _officeAddressC.dispose();
     _filterLocalityC.dispose();
     _otpController.dispose();
+
+    // VALUE NOTIFIERS
+    selectedCompanyType.dispose();
     selectedFirmsType.dispose();
-    hasReraNumber.dispose();
+    selectedDesignation.dispose();
     selectedCompany.dispose();
+    hasReraNumber.dispose();
+
     super.dispose();
   }
 

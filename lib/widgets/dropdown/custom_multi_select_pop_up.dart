@@ -190,6 +190,19 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
   }
 
   @override
+  void didUpdateWidget(covariant CustomMultipleSelectPopup oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.initialValue != oldWidget.initialValue) {
+      setState(() {
+        selectedValues = List<Map<String, dynamic>>.from(
+          widget.initialValue ?? [],
+        );
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -15,7 +15,6 @@ class OtherChargeModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-  bool isSelected; // USED IN BOOKING FORM
   bool isMaster;
 
   OtherChargeModel({
@@ -33,7 +32,6 @@ class OtherChargeModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
-    required this.isSelected,
     required this.isMaster,
   });
 
@@ -56,7 +54,6 @@ class OtherChargeModel {
             json["ModifiedDate"] == null
                 ? null
                 : parseValue<DateTime>(json, "ModifiedDate"),
-        isSelected: parseValue<bool>(json, "IsSelected"),
         isMaster: parseValue<bool>(json, "IsMaster"),
       );
 
@@ -75,7 +72,6 @@ class OtherChargeModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
-    "IsSelected": isSelected,
     "IsMaster": isMaster,
   };
 
@@ -113,7 +109,6 @@ class OtherChargeModel {
       modifiedById: modifiedById ?? this.modifiedById,
       modifiedBy: modifiedBy ?? this.modifiedBy,
       modifiedDate: modifiedDate ?? this.modifiedDate,
-      isSelected: isSelected ?? this.isSelected,
       isMaster: isMaster ?? this.isMaster,
     );
   }
