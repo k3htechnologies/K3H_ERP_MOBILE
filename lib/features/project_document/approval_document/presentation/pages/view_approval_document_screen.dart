@@ -59,6 +59,12 @@ class _ViewApprovalDocumentScreenState
     );
   }
 
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
   // <---- PAGINATION ---->
   void _onScroll() {
     scrollController = ScrollController();
@@ -79,12 +85,6 @@ class _ViewApprovalDocumentScreenState
         });
       }
     });
-  }
-
-  @override
-  void dispose() {
-    scrollController.dispose();
-    super.dispose();
   }
 
   @override

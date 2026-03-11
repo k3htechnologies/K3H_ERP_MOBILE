@@ -97,7 +97,7 @@ class ViewRERADocumentCategoryScreen extends StatelessWidget {
                           value:
                               reraDocumentCategoryModel.modifiedBy.isNotEmpty
                                   ? reraDocumentCategoryModel.modifiedBy
-                                  : '',
+                                  : '-',
                         ),
                         buildColumnTitleValue(
                           title: "Modified Date",
@@ -106,7 +106,7 @@ class ViewRERADocumentCategoryScreen extends StatelessWidget {
                                   ? formatDate(
                                     reraDocumentCategoryModel.modifiedDate!,
                                   )
-                                  : '',
+                                  : '-',
                         ),
                       ],
                     ),

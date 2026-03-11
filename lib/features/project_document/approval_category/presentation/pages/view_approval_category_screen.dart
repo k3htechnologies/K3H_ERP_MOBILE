@@ -46,7 +46,7 @@ class ViewApprovalCategoryScreen extends StatelessWidget {
                                   .approvalDocumentCategoryName,
                         ),
                         buildColumnTitleValue(
-                          title: "Order By",
+                          title: "Sequence",
                           value: approvalCategoryModel.orderBy.toString(),
                         ),
                       ],
@@ -63,53 +63,11 @@ class ViewApprovalCategoryScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Action Details", style: AppTextStyle.ts16SB()),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Created By",
-                          value: approvalCategoryModel.createdBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(
-                            approvalCategoryModel.createdDate,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Modified By",
-                          value:
-                              approvalCategoryModel.modifiedBy.isNotEmpty
-                                  ? approvalCategoryModel.modifiedBy
-                                  : "",
-                        ),
-                        buildColumnTitleValue(
-                          title: "Modified Date",
-                          value:
-                              approvalCategoryModel.modifiedDate != null
-                                  ? formatDateTimeAsDDMMMYYYY(
-                                    approvalCategoryModel.modifiedDate!,
-                                  )
-                                  : "",
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              actionCardWidget(
+                createdBy: approvalCategoryModel.createdBy,
+                createdDate: approvalCategoryModel.createdDate,
+                modifiedBy: approvalCategoryModel.modifiedBy,
+                modifiedDate: approvalCategoryModel.modifiedDate,
               ),
             ],
           ),

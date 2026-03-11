@@ -31,18 +31,26 @@ class DocumentScreen extends StatefulWidget {
 
 class _DocumentScreenState extends State<DocumentScreen>
     with TickerProviderStateMixin {
-  // AuthorizationModel
+  // CUBIT
+  late DocumentCubit _documentCubit;
+
+  // AUTHORIZATION MODEL
   late AuthorizationModel _routeAuthorizationModel;
 
-  late DocumentCubit _documentCubit;
   // TAB CONTROLLERS
   TabController? _categoryTabController;
 
+  // PROJECT ID
   late int projectId;
 
   //PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
+
+  // TEXT EDIT CONTROLLER
+  late TextEditingController _searchC, _documentC;
+  // FORM KEY
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -54,6 +62,20 @@ class _DocumentScreenState extends State<DocumentScreen>
     _documentCubit.getCategoryList(context, 1, projectId);
     _initControllers();
     _onScroll();
+  }
+
+  @override
+  void dispose() {
+    _categoryTabController?.removeListener(_onBuildingTabChanged);
+    _categoryTabController?.dispose();
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  // INITIALIZE CONTROLLERS
+  void _initControllers() {
+    _searchC = TextEditingController();
+    _documentC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -98,25 +120,7 @@ class _DocumentScreenState extends State<DocumentScreen>
     _categoryTabController!.addListener(_onBuildingTabChanged);
   }
 
-  // TEXT EDIT CONTROLLER
-  late TextEditingController _searchC, _documentC;
-  // FORM KEY
-  final _formKey = GlobalKey<FormState>();
-
-  // INITIALIZE CONTROLLERS
-  void _initControllers() {
-    _searchC = TextEditingController();
-    _documentC = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _categoryTabController?.removeListener(_onBuildingTabChanged);
-    _categoryTabController?.dispose();
-    scrollController.dispose();
-    super.dispose();
-  }
-
+  // SUBMIT FORM
   void _submitForm({DocumentModel? documentModel, int? index}) {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -162,6 +166,7 @@ class _DocumentScreenState extends State<DocumentScreen>
     }
   }
 
+  // ADD/UPDATE DOCUMENT
   Future<void> _showPopUpToAddUpdateDocument({
     DocumentModel? documentModel,
     int? index,
@@ -218,6 +223,7 @@ class _DocumentScreenState extends State<DocumentScreen>
     _clearDialogueToAddUpdateDocument();
   }
 
+  // CLEAR TEXT CONTROLLER
   void _clearDialogueToAddUpdateDocument() {
     _documentC.clear();
   }
@@ -249,7 +255,7 @@ class _DocumentScreenState extends State<DocumentScreen>
         extraHeight: 20,
         secondaryBuilder:
             (_) =>
-                _routeAuthorizationModel.isAction
+                _documentCubit.state.documentCategoryModelList.isNotEmpty
                     ? CustomButton(
                       text: "Add",
                       onPressed: () {
@@ -275,12 +281,10 @@ class _DocumentScreenState extends State<DocumentScreen>
           },
           child: BlocBuilder<DocumentCubit, DocumentState>(
             builder: (context, state) {
-              // 1. Initial loading
               if (state.isLoading! && state.documentCategoryModelList.isEmpty) {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              // 2. Loaded but no categories
               if (state.documentCategoryModelList.isEmpty) {
                 return Center(
                   child: noDataWidget(
@@ -289,7 +293,6 @@ class _DocumentScreenState extends State<DocumentScreen>
                 );
               }
 
-              // 3. Categories exist but controller not ready yet
               if (_categoryTabController == null) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -343,6 +346,7 @@ class _DocumentScreenState extends State<DocumentScreen>
     );
   }
 
+  // BUILD DOCUMENT LIST FOR CATEGORY
   Widget _buildDocumentListForCategory(DocumentState state) {
     if (state.documentList.isEmpty) {
       return noDataWidget(message: "No Project Document Data Found");

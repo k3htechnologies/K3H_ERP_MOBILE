@@ -29,6 +29,7 @@ class ApprovalCategoryScreen extends StatefulWidget {
 class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
   //CUBIT
   late ApprovalCategoryCubit _documentCategoryCubit;
+
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
 
@@ -59,6 +60,17 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _searchC.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLER
+  void _initializeTextEditingController() {
+    _searchC = TextEditingController();
+  }
+
   // PAGINATION
   void _onScroll() {
     scrollController.addListener(() {
@@ -75,11 +87,6 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
         );
       }
     });
-  }
-
-  // INITIALIZE TEXT EDITING CONTROLLER
-  void _initializeTextEditingController() {
-    _searchC = TextEditingController();
   }
 
   // DELETE APPROVAL DOCUMENT CATEGORY
@@ -259,7 +266,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                     ),
                     verticalSpacing(height: 8),
                     buildRowTitleValue(
-                      title: "Sequencce",
+                      title: "Sequence",
                       value: approvalCategory.orderBy.toString(),
                     ),
                     buildRowTitleValue(

@@ -21,6 +21,7 @@ import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String screenTitle;
@@ -334,7 +335,6 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                 widget.widgets!,
 
               Row(
-                spacing: 10,
                 children: [
                   if (widget.onSearchSubmit != null)
                     Expanded(
@@ -347,13 +347,16 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                       ),
                     ),
                   Row(
-                    spacing: 10,
                     children: [
-                      if (widget.secondaryBuilder != null)
-                        widget.secondaryBuilder!(context),
+                      if (widget.authorization.isAction && widget.secondaryBuilder != null)
+                        ...[
+                          horizontalSpacing(),
+                          widget.secondaryBuilder!(context),
+                        ],
 
                       if (widget.authorization.isExport &&
-                          widget.onExportCallback != null)
+                          widget.onExportCallback != null)...[
+                            horizontalSpacing(),
                         CustomIconButton(
                           onPressed: () {
                             final box = context.findRenderObject() as RenderBox;
@@ -390,24 +393,30 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                           ),
                           backgroundColor: AppColor.lightGreen,
                         ),
+                      ],
+
                       if (widget.authorization.isAction &&
-                          widget.onAddCallback != null)
-                        CustomIconButton(
-                          onPressed: () {
-                            if (widget.textController != null) {
-                              widget.textController!.clear();
-                            }
-                            widget.onAddCallback!();
-                          },
-                          icon: const Icon(
-                            Icons.add,
-                            size: 16,
-                            color: AppColor.primary,
-                          ),
-                          backgroundColor: AppColor.lightBlue,
-                        ),
+                          widget.onAddCallback != null)...
+                        [
+                          horizontalSpacing(),
+                          CustomIconButton(
+                            onPressed: () {
+                              if (widget.textController != null) {
+                                widget.textController!.clear();
+                              }
+                              widget.onAddCallback!();
+                            },
+                            icon: const Icon(
+                              Icons.add,
+                              size: 16,
+                              color: AppColor.primary,
+                            ),
+                            backgroundColor: AppColor.lightBlue,
+                          )
+                        ],
                       if (widget.authorization.isExport &&
-                          widget.importTableName != null)
+                          widget.importTableName != null)...[
+                            horizontalSpacing(),
                         importButton(
                           context,
                           widget.importTableName!,
@@ -415,6 +424,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                           projectId: widget.projectId,
                           buildingId: widget.buildingId,
                         ),
+                      ]
                     ],
                   ),
                 ],

@@ -34,8 +34,10 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
 
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-  //TEXTEDITNIG CONTROLLER
+
+  //TEXT EDITING CONTROLLER
   late TextEditingController _documentNameC, _remarkC;
+
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
   DateTime? expiryDate;
@@ -75,11 +77,20 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
     if (_isEditMode) _prefillForm(widget.documentModel!);
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _documentNameC.dispose();
+    _remarkC.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLER
   void _initializeTextEditingController() {
     _documentNameC = TextEditingController();
     _remarkC = TextEditingController();
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -113,6 +124,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
     }
   }
 
+  // PREFILL FORM
   void _prefillForm(DocumentModel document) {
     _documentNameC.text = document.projectDocumentName;
     // Find the matching status in the list

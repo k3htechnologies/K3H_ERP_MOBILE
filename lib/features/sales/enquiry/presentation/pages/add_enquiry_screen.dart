@@ -593,6 +593,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     }
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -926,7 +927,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: _isEditMode ? "Update Enquiry" : "Add Enquiry",
+        screenTitle: "Enquiry",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
@@ -934,23 +935,18 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         child: Form(
           key: _formKey,
           child: Column(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(_isEditMode ? "Update Enquiry" : "Add Enquiry",style: AppTextStyle.ts14M(),),
               _basicCard(),
-              verticalSpacing(height: 16),
               _sourceCard(),
-              verticalSpacing(height: 16),
               _addressCard(),
-              verticalSpacing(height: 16),
               _propertyPrefCard(),
-              verticalSpacing(height: 16),
               _customerDetailsCard(),
-              verticalSpacing(height: 16),
               _enquiryInfoCard(),
-              verticalSpacing(height: 16),
               _followUpCard(),
-              verticalSpacing(height: 16),
               _salesCard(),
-              verticalSpacing(height: 24),
             ],
           ),
         ),
@@ -965,7 +961,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               color: AppColor.white,
               size: 18,
             ),
-            text: !_isEditMode ? 'Add' : 'Update',
+            text: !_isEditMode ? 'Add Enquiry' : 'Update Enquiry',
             onPressed: _submitForm,
             backgroundColor: AppColor.primary,
           ),

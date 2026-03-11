@@ -37,6 +37,7 @@ class ViewRERADocumentScreen extends StatefulWidget {
 class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   //CUBIT
   late RERADocumentCubit _documentCubit;
+
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
 
@@ -186,7 +187,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
     );
   }
 
-  //DOCUMENT CARD
+  // DOCUMENT CARD
   Widget _buildDocumentCard(RERADocumentModel document, int index) {
     return Container(
       padding: EdgeInsets.all(16),
@@ -313,7 +314,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
     );
   }
 
-  //COLOR GETTER FOR STATUS BACKGROUND COLOR AS PER STATUS
+  // COLOR GETTER FOR STATUS BACKGROUND COLOR AS PER STATUS
   static Color getBgColorByStatus(String status) {
     switch (status.toLowerCase()) {
       case 'applied':
@@ -341,7 +342,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
     }
   }
 
-  //COLOR GETTER FOR STATUS TEXT COLOR AS PER STATUS
+  // COLOR GETTER FOR STATUS TEXT COLOR AS PER STATUS
   static Color getTxtColorByStatus(String status) {
     switch (status.toLowerCase()) {
       case 'applied':

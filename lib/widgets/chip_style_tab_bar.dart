@@ -6,12 +6,14 @@ class ChipStyleTabBar extends StatelessWidget {
   final TabController controller;
   final List<String> tabs;
   final EdgeInsets margin;
+  final Function(int index)? onTabChanged;
 
   const ChipStyleTabBar({
     super.key,
     required this.controller,
     required this.tabs,
     this.margin = const EdgeInsets.only(left: 16),
+    this.onTabChanged,
   });
 
   @override
@@ -37,6 +39,9 @@ class ChipStyleTabBar extends StatelessWidget {
           labelStyle: AppTextStyle.ts14M(),
           unselectedLabelStyle: AppTextStyle.ts14M(),
           labelPadding: const EdgeInsets.symmetric(horizontal: 6),
+          onTap: (index) {
+            onTabChanged?.call(index);
+          },
           tabs: tabs.map((title) {
             return Tab(
               child: Container(

@@ -220,117 +220,106 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ApprovalDocumentCubit, ApprovalDocumentState>(
-      builder: (context, state) {
-        return Scaffold(
-          appBar: CustomAppBar(
-            screenTitle: "Approval Document",
-            authorization: _routeAuthorizationModel,
-            textController: _searchC,
-            searchHintText: "Search By Document Name",
-            onSearchSubmit: (value) {
-              _documentCubit.searchApprovalDocument(value, context);
-            },
-            onProjectChangeCallback: (project) {
-              projectId = project.projectId;
-              if (context.mounted) {
-                _documentCubit.getCategoryList(context, 1, projectId);
+    return Scaffold(
+      appBar: CustomAppBar(
+        screenTitle: "Approval Document",
+        authorization: _routeAuthorizationModel,
+        textController: _searchC,
+        searchHintText: "Search By Document Name",
+        onSearchSubmit: (value) {
+          _documentCubit.searchApprovalDocument(value, context);
+        },
+        onProjectChangeCallback: (project) {
+          projectId = project.projectId;
+          if (context.mounted) {
+            _documentCubit.getCategoryList(context, 1, projectId);
+          }
+        },
+        extraHeight: 20,
+        secondaryBuilder:
+            (_) =>
+                _documentCubit.state.documentCategoryModelList.isNotEmpty
+                    ? CustomButton(
+                      text: "Add",
+                      onPressed: () {
+                        _showPopUpToAddUpdateApprovalDocument();
+                      },
+                      backgroundColor: AppColor.primary,
+                      leading: Icon(Icons.add, size: 16, color: AppColor.white),
+                    )
+                    : SizedBox(),
+      ),
+      body: SafeArea(
+        child: BlocListener<ApprovalDocumentCubit, ApprovalDocumentState>(
+          listener: (context, state) {
+            if (!mounted) return;
+            if (!state.isLoading! &&
+                state.documentCategoryModelList.isNotEmpty) {
+              if (_categoryTabController == null ||
+                  _categoryTabController!.length !=
+                      state.documentCategoryModelList.length) {
+                _initCategoryController(state);
               }
-            },
-            extraHeight: 20,
-            secondaryBuilder:
-                (_) =>
-                    _routeAuthorizationModel.isAction &&
-                            state.documentCategoryModelList.isNotEmpty
-                        ? CustomButton(
-                          text: "Add",
-                          onPressed: () {
-                            _showPopUpToAddUpdateApprovalDocument();
-                          },
-                          backgroundColor: AppColor.primary,
-                          leading: Icon(
-                            Icons.add,
-                            size: 16,
-                            color: AppColor.white,
-                          ),
-                        )
-                        : SizedBox.shrink(),
-          ),
-          body: SafeArea(
-            child: BlocListener<ApprovalDocumentCubit, ApprovalDocumentState>(
-              listener: (context, state) {
-                if (!mounted) return;
-                if (!state.isLoading! &&
-                    state.documentCategoryModelList.isNotEmpty) {
-                  if (_categoryTabController == null ||
-                      _categoryTabController!.length !=
-                          state.documentCategoryModelList.length) {
-                    _initCategoryController(state);
-                  }
-                }
-              },
-              child: BlocBuilder<ApprovalDocumentCubit, ApprovalDocumentState>(
-                builder: (context, state) {
-                  // 1. Initial loading
-                  if (state.isLoading! &&
-                      state.documentCategoryModelList.isEmpty) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+            }
+          },
+          child: BlocBuilder<ApprovalDocumentCubit, ApprovalDocumentState>(
+            builder: (context, state) {
+              // 1. Initial loading
+              if (state.isLoading! && state.documentCategoryModelList.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-                  // 2. Loaded but no categories
-                  if (state.documentCategoryModelList.isEmpty) {
-                    return Center(
-                      child: noDataWidget(
-                        message: "No Approval Document Data Found",
-                      ),
-                    );
-                  }
+              // 2. Loaded but no categories
+              if (state.documentCategoryModelList.isEmpty) {
+                return Center(
+                  child: noDataWidget(
+                    message: "No Approval Document Data Found",
+                  ),
+                );
+              }
 
-                  // 3. Categories exist but controller not ready yet
-                  if (_categoryTabController == null) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+              // 3. Categories exist but controller not ready yet
+              if (_categoryTabController == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-                  return Column(
-                    children: [
-                      // CATEGORY TAB
-                      _buildCategoryTab(state),
-                      verticalSpacing(),
-                      Expanded(
-                        child: TabBarView(
-                          physics: NeverScrollableScrollPhysics(),
-                          controller: _categoryTabController,
-                          children:
-                              state.documentCategoryModelList.map((category) {
-                                final documentsForCategory =
-                                    state.documentList
-                                        .where(
-                                          (d) =>
-                                              d.approvalDocumentCategoryId ==
-                                              category
-                                                  .approvalDocumentCategoryId,
-                                        )
-                                        .toList();
-
-                                return (state.documentList.isEmpty &&
-                                        state.isLoading!)
-                                    ? const Center(
-                                      child: CircularProgressIndicator(),
+              return Column(
+                children: [
+                  // CATEGORY TAB
+                  _buildCategoryTab(state),
+                  verticalSpacing(),
+                  Expanded(
+                    child: TabBarView(
+                      physics: NeverScrollableScrollPhysics(),
+                      controller: _categoryTabController,
+                      children:
+                          state.documentCategoryModelList.map((category) {
+                            final documentsForCategory =
+                                state.documentList
+                                    .where(
+                                      (d) =>
+                                          d.approvalDocumentCategoryId ==
+                                          category.approvalDocumentCategoryId,
                                     )
-                                    : _buildApprovalDocumentListForCategory(
-                                      documentsForCategory,
-                                    );
-                              }).toList(),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
+                                    .toList();
+
+                            return (state.documentList.isEmpty &&
+                                    state.isLoading!)
+                                ? const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                                : _buildApprovalDocumentListForCategory(
+                                  documentsForCategory,
+                                );
+                          }).toList(),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 

@@ -101,7 +101,6 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
 
   @override
   void dispose() {
-    // Dispose text controllers
     _searchC.dispose();
     _systemCodeC.dispose();
     _mobileNumberC.dispose();
@@ -109,15 +108,14 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     _requirementC.dispose();
     _stageC.dispose();
 
-    // Dispose scroll controller
     scrollController.dispose();
 
-    // Cancel debounce timer if active
     _debounce?.cancel();
 
     super.dispose();
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _systemCodeC = TextEditingController();
@@ -149,6 +147,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     });
   }
 
+  // <---- FILTER ENQUIRY ---->
   Future<void> _showBottomSheetToFilterEnquiry(BuildContext context) async {
     final state = _enquiryCubit.state;
 
@@ -344,7 +343,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         },
       ),
 
-      /// CLEAR BUTTON
+      // CLEAR BUTTON
       onClear: () {
         _startDateNotifier.value = null;
         _endDateNotifier.value = null;
@@ -369,7 +368,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         );
       },
 
-      /// APPLY BUTTON
+      // APPLY BUTTON
       onApply: () {
         applied = true;
         _enquiryCubit.applyEnquiryFilterAndSort(
@@ -440,15 +439,14 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         textController: _searchC,
         searchHintText: "Search by Name",
         onSearchSubmit: (value) {
-          _enquiryCubit.search(context, value);
+          _enquiryCubit.searchEnquiry(context, value, _project.projectId);
         },
         onExportCallback: (value) {
           _enquiryCubit.exportExcelPdf(context, value);
         },
         onProjectChangeCallback: (value) {
           _project = value;
-          _enquiryCubit.resetSearch();
-          _enquiryCubit.getEnquiryList(context, 1, value.projectId);
+          _enquiryCubit.searchEnquiry(context, "", value.projectId);
         },
         isFilterOn: true,
         onFilterTap: () {
@@ -461,7 +459,9 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
             return Center(child: loader());
           }
           if (state.enquiryList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Enquiry Data Found"));
+            return Center(
+              child: noDataWidget(message: "No Enquiry Data Found"),
+            );
           }
           return ListView.builder(
             controller: scrollController,
@@ -573,15 +573,18 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
           );
         },
       ),
-      floatingActionButton: _routeAuthorizationModel.isAction==true? FloatingActionButton(
-        elevation: 2.5,
-        shape: CircleBorder(side: BorderSide(color: AppColor.primary)),
-        backgroundColor: AppColor.lightBlue,
-        child: Icon(Icons.add, color: AppColor.primary),
-        onPressed: () {
-          goRouter.pushNamed(AppRoutes.addEnquiry);
-        },
-      ):SizedBox(),
+      floatingActionButton:
+          _routeAuthorizationModel.isAction == true
+              ? FloatingActionButton(
+                elevation: 2.5,
+                shape: CircleBorder(side: BorderSide(color: AppColor.primary)),
+                backgroundColor: AppColor.lightBlue,
+                child: Icon(Icons.add, color: AppColor.primary),
+                onPressed: () {
+                  goRouter.pushNamed(AppRoutes.addEnquiry);
+                },
+              )
+              : SizedBox(),
     );
   }
 

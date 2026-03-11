@@ -29,12 +29,13 @@ class _AddRERADocumentCategoryScreenState
     extends State<AddRERADocumentCategoryScreen> {
   //CUBIT
   late RERADocumentCategoryCubit _reraDocumentCategoryCubit;
+
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
-  //TEXTEDITING CONTROLLER
+  //TEXT EDITING CONTROLLER
   late TextEditingController _reraDocumentCategoryC, _orderByC;
 
   //EDIT MODE
@@ -55,21 +56,25 @@ class _AddRERADocumentCategoryScreenState
     }
   }
 
+  // INITIALIZE CONTROLLERS
+  void initializeTextEditingController() {
+    _reraDocumentCategoryC = TextEditingController();
+    _orderByC = TextEditingController();
+  }
+
+  // POPULATE FORM FIELDS
   void _populateFormFields(RERADocumentCategoryModel reraDocumentCategory) {
     _reraDocumentCategoryC.text =
         reraDocumentCategory.projectRERADocumentCategoryName;
     _orderByC.text = reraDocumentCategory.orderBy.toString();
   }
 
-  void initializeTextEditingController() {
-    _reraDocumentCategoryC = TextEditingController();
-    _orderByC = TextEditingController();
-  }
-
+  // GET PROJECT ID
   void getProjectId() {
     projectId = getProject().projectId;
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;

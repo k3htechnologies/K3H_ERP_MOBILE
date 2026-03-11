@@ -28,6 +28,7 @@ class DocumentCategoryScreen extends StatefulWidget {
 class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
   //CUBIT
   late DocumentCategoryCubit _documentCategoryCubit;
+
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
 
@@ -49,13 +50,23 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
 
     _initializeTextEditingController();
     _onScroll();
-    //SET PROJECT ID
     _project = getProject();
     _documentCategoryCubit.getDocumentCategoryList(
       context,
       1,
       _project.projectId,
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _searchC.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLER
+  void _initializeTextEditingController() {
+    _searchC = TextEditingController();
   }
 
   // PAGINATION
@@ -76,11 +87,6 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
         }
       }
     });
-  }
-
-  // INITIALIZE TEXT EDITING CONTROLLER
-  void _initializeTextEditingController() {
-    _searchC = TextEditingController();
   }
 
   // DELETE DOCUMENT CATEGORY

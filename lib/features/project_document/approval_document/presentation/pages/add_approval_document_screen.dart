@@ -4,6 +4,7 @@ import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/approval_document/data/model/approval_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/approval_document/presentation/cubit/approval_document_cubit.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -34,10 +35,13 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
 
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-  //TEXTEDITNIG CONTROLLER
+
+  //TEXT EDITING CONTROLLER
   late TextEditingController _remarkC;
+
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
+
   DateTime? expiryDate;
   List<Map<String, dynamic>> _selectedStatus = [
     {'zAttributesId': -1, 'DisplayName': 'Select Status'},
@@ -75,10 +79,18 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
     if (_isEditMode) _prefillForm(widget.documentModel!);
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _remarkC.dispose();
+  }
+
+  // INITIALIZE CONTROLLERS
   void _initializeTextEditingController() {
     _remarkC = TextEditingController();
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -113,25 +125,22 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
     }
   }
 
+  // POPULATE FORM FIELDS
   void _prefillForm(ApprovalDocumentModel document) {
-    // Find the matching status in the list
     final matchedStatus = statusList.firstWhere(
       (status) => status['DisplayName'] == document.approvalDocumentStatus,
-      orElse: () => statusList.first, // fallback to "Select Status"
+      orElse: () => statusList.first,
     );
 
     _selectedStatus = [matchedStatus];
 
-    // Prefill expiry date
     expiryDate = document.approvalDocumentExpiryDate;
 
-    // Prefill remark text
     _remarkC.text =
         document.approvalDocumentRemark.isNotEmpty
             ? document.approvalDocumentRemark
             : "";
 
-    // Prefill files if any
     selectedApprovalDocumentFile.fileNameList =
         document.approvalDocumentURL.isEmpty
             ? []
@@ -220,6 +229,11 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              size: 16,
+              color: AppColor.white,
+            ),
             text: _isEditMode ? "Update Document" : "Add Document",
             onPressed: _submitForm,
           ),

@@ -58,20 +58,31 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
     }
   }
 
-  void _populateFormFields(DocumentCategoryModel documentCategory) {
-    _documentCategoryC.text = documentCategory.projectDocumentCategoryName;
-    _orderByC.text = documentCategory.orderBy.toString();
+  @override
+  void dispose() {
+    super.dispose();
+    _documentCategoryC.dispose();
+    _orderByC.dispose();
   }
 
+  // INITIALIZE TEXT EDITING CONTROLLER
   void initializeTextEditingController() {
     _documentCategoryC = TextEditingController();
     _orderByC = TextEditingController();
   }
 
+  // POPULATE FORM FIELDS
+  void _populateFormFields(DocumentCategoryModel documentCategory) {
+    _documentCategoryC.text = documentCategory.projectDocumentCategoryName;
+    _orderByC.text = documentCategory.orderBy.toString();
+  }
+
+  // GET PROJECT ID
   void getProjectId() {
     projectId = getProject().projectId;
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;

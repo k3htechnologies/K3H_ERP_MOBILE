@@ -44,6 +44,11 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
   late ScrollController scrollController;
   Timer? _debounce;
 
+  // TEXT EDIT CONTROLLER
+  late TextEditingController _searchC, _reraDocumentC;
+  // FORM KEY
+  final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -54,6 +59,19 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     _reraDocumentCubit.getCategoryList(context, 1, projectId);
     _initControllers();
     _onScroll();
+  }
+
+  @override
+  void dispose() {
+    _categoryTabController?.removeListener(_onBuildingTabChanged);
+    _categoryTabController?.dispose();
+    super.dispose();
+  }
+
+  // INITIALIZE CONTROLLERS
+  void _initControllers() {
+    _searchC = TextEditingController();
+    _reraDocumentC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -98,31 +116,13 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     _categoryTabController!.addListener(_onBuildingTabChanged);
   }
 
-  // TEXT EDIT CONTROLLER
-  late TextEditingController _searchC, _reraDocumentC;
-  // FORM KEY
-  final _formKey = GlobalKey<FormState>();
-
-  // INITIALIZE CONTROLLERS
-  void _initControllers() {
-    _searchC = TextEditingController();
-    _reraDocumentC = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _categoryTabController?.removeListener(_onBuildingTabChanged);
-    _categoryTabController?.dispose();
-
-    super.dispose();
-  }
-
+  // SUBMIT FORM
   void _submitForm({RERADocumentModel? documentModel, int? index}) {
     if (!_formKey.currentState!.validate()) {
       return;
     }
     if (documentModel != null) {
-      //Edit Name
+      // EDIT NAME
       _reraDocumentCubit.updateRERADocumentNameInCategory(
         context: context,
         index: index!,
@@ -133,7 +133,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
         projectRERADocumentName: _reraDocumentC.text.trim(),
       );
     } else {
-      //Create New Parent Doc
+      // CREATE NEW PARENT DOC
       _reraDocumentCubit.addRERADocumentToCategory(
         context: context,
         projectRERADocumentName: _reraDocumentC.text.trim(),
@@ -141,10 +141,12 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     }
   }
 
+  // PREFILL DOCUMENT DETAILS
   void _prefillDocumentDetails(RERADocumentModel documentModel) {
     _reraDocumentC.text = documentModel.projectRERADocumentName;
   }
 
+  // SHOW POPUP TO ADD/UPDATE DOCUMENT
   Future<void> _showPopUpToAddUpdateRERADocument({
     RERADocumentModel? documentModel,
     int? index,
@@ -195,117 +197,109 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     _clearDialogueToAddUpdateDocument();
   }
 
+  // CLEAR DIALOGUE TO ADD/UPDATE DOCUMENT
   void _clearDialogueToAddUpdateDocument() {
     _reraDocumentC.clear();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RERADocumentCubit, RERADocumentState>(
-      builder: (context, state) {
-        return Scaffold(
-          appBar: CustomAppBar(
-            screenTitle: "RERA Document",
-            authorization: _routeAuthorizationModel,
-            textController: _searchC,
-            searchHintText: "Search By Document Name",
-            onSearchSubmit: (value) {
-              _reraDocumentCubit.searchDocument(value, context);
-            },
-            onProjectChangeCallback: (project) {
-              projectId = project.projectId;
-              _reraDocumentCubit.getCategoryList(context, 1, projectId);
-            },
-            extraHeight: 20,
-            secondaryBuilder:
-                (_) =>
-                    _routeAuthorizationModel.isAction &&
-                            state.reraDocumentList.isNotEmpty
-                        ? CustomButton(
-                          text: "Add",
-                          onPressed: () {
-                            _showPopUpToAddUpdateRERADocument();
-                          },
-                          backgroundColor: AppColor.primary,
-                          leading: Icon(
-                            Icons.add,
-                            size: 16,
-                            color: AppColor.white,
-                          ),
-                        )
-                        : SizedBox.shrink(),
-          ),
-          body: SafeArea(
-            child: BlocListener<RERADocumentCubit, RERADocumentState>(
-              listener: (context, state) {
-                if (!mounted) return;
-                if (!state.isLoading! &&
-                    state.documentCategoryModelList.isNotEmpty) {
-                  if (_categoryTabController == null ||
-                      _categoryTabController!.length !=
-                          state.documentCategoryModelList.length) {
-                    _initCategoryController(state);
-                  }
-                }
-              },
-              child: BlocBuilder<RERADocumentCubit, RERADocumentState>(
-                builder: (context, state) {
-                  // 1. Initial loading
-                  if (state.isLoading! &&
-                      state.documentCategoryModelList.isEmpty) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+    return Scaffold(
+      appBar: CustomAppBar(
+        screenTitle: "RERA Document",
+        authorization: _routeAuthorizationModel,
+        textController: _searchC,
+        searchHintText: "Search By Document Name",
+        onSearchSubmit: (value) {
+          _reraDocumentCubit.searchDocument(value, context);
+        },
+        onProjectChangeCallback: (project) {
+          projectId = project.projectId;
+          _reraDocumentCubit.getCategoryList(context, 1, projectId);
+        },
+        extraHeight: 20,
+        secondaryBuilder:
+            (_) =>
+                _reraDocumentCubit.state.reraDocumentList.isNotEmpty
+                    ? CustomButton(
+                      text: "Add",
+                      onPressed: () {
+                        _showPopUpToAddUpdateRERADocument();
+                      },
+                      backgroundColor: AppColor.primary,
+                      leading: Icon(Icons.add, size: 16, color: AppColor.white),
+                    )
+                    : SizedBox.shrink(),
+      ),
+      body: SafeArea(
+        child: BlocListener<RERADocumentCubit, RERADocumentState>(
+          listener: (context, state) {
+            if (!mounted) return;
+            if (!state.isLoading! &&
+                state.documentCategoryModelList.isNotEmpty) {
+              if (_categoryTabController == null ||
+                  _categoryTabController!.length !=
+                      state.documentCategoryModelList.length) {
+                _initCategoryController(state);
+              }
+            }
+          },
+          child: BlocBuilder<RERADocumentCubit, RERADocumentState>(
+            builder: (context, state) {
+              if (state.isLoading! && state.documentCategoryModelList.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-                  // 2. Loaded but no categories
-                  if (state.documentCategoryModelList.isEmpty) {
-                    return Center(child: noDataWidget());
-                  }
+              if (state.documentCategoryModelList.isEmpty) {
+                return Center(
+                  child: noDataWidget(
+                    message: "No Project RERA Document Category Data Found",
+                  ),
+                );
+              }
 
-                  // 3. Categories exist but controller not ready yet
-                  if (_categoryTabController == null) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+              if (_categoryTabController == null) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-                  return Column(
-                    children: [
-                      // CATEGORY TAB
-                      _buildCategoryTab(state),
-                      verticalSpacing(),
-                      Expanded(
-                        child: TabBarView(
-                          physics: NeverScrollableScrollPhysics(),
-                          controller: _categoryTabController,
-                          children:
-                              state.documentCategoryModelList.map((category) {
-                                final documentsForCategory =
-                                    state.reraDocumentList
-                                        .where(
-                                          (d) =>
-                                              d.projectRERADocumentCategoryId ==
-                                              category
-                                                  .projectRERADocumentCategoryId,
-                                        )
-                                        .toList();
-
-                                return (state.reraDocumentList.isEmpty &&
-                                        state.isLoading!)
-                                    ? const Center(
-                                      child: CircularProgressIndicator(),
+              return Column(
+                children: [
+                  // CATEGORY TAB
+                  _buildCategoryTab(state),
+                  verticalSpacing(),
+                  Expanded(
+                    child: TabBarView(
+                      physics: NeverScrollableScrollPhysics(),
+                      controller: _categoryTabController,
+                      children:
+                          state.documentCategoryModelList.map((category) {
+                            final documentsForCategory =
+                                state.reraDocumentList
+                                    .where(
+                                      (d) =>
+                                          d.projectRERADocumentCategoryId ==
+                                          category
+                                              .projectRERADocumentCategoryId,
                                     )
-                                    : _buildDocumentListForCategory(
-                                      documentsForCategory,
-                                    );
-                              }).toList(),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
+                                    .toList();
+
+                            return (state.reraDocumentList.isEmpty &&
+                                    state.isLoading!)
+                                ? const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                                : _buildDocumentListForCategory(
+                                  documentsForCategory,
+                                );
+                          }).toList(),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -356,9 +350,10 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     );
   }
 
+  // DOCUMENT LIST FOR CATEGORY
   Widget _buildDocumentListForCategory(List<RERADocumentModel> documents) {
     if (documents.isEmpty) {
-      return noDataWidget();
+      return noDataWidget(message: "No RERA Document Data Found");
     }
 
     return BlocBuilder<RERADocumentCubit, RERADocumentState>(

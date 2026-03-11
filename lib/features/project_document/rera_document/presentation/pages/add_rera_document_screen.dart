@@ -33,10 +33,13 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
 
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-  //TEXTEDITNIG CONTROLLER
+
+  //TEXT EDITING CONTROLLER
   late TextEditingController _remarkC;
+
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
+
   DateTime? expiryDate;
   List<Map<String, dynamic>> _selectedStatus = [
     {'zAttributesId': -1, 'DisplayName': 'Select Status'},
@@ -74,10 +77,18 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
     if (_isEditMode) _prefillForm(widget.documentModel!);
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _remarkC.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLER
   void _initializeTextEditingController() {
     _remarkC = TextEditingController();
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -113,25 +124,22 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
     }
   }
 
+  // PREFILL FORM
   void _prefillForm(RERADocumentModel document) {
-    // Find the matching status in the list
     final matchedStatus = statusList.firstWhere(
       (status) => status['DisplayName'] == document.projectRERADocumentStatus,
-      orElse: () => statusList.first, // fallback to "Select Status"
+      orElse: () => statusList.first,
     );
 
     _selectedStatus = [matchedStatus];
 
-    // Prefill expiry date
     expiryDate = document.projectRERADocumentExpiryDate;
 
-    // Prefill remark text
     _remarkC.text =
         document.projectRERADocumentRemark.isNotEmpty
             ? document.projectRERADocumentRemark
             : "";
 
-    // Prefill files if any
     selectedDocumentFile.fileNameList =
         document.projectRERADocumentURL.isEmpty
             ? []

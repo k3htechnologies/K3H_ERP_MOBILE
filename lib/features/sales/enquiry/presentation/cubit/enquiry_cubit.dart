@@ -29,14 +29,10 @@ class EnquiryCubit extends Cubit<EnquiryState> {
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
 
-  void resetSearch() {
-    emit(state.copyWith(searchText: ""));
-  }
-
   // SEARCH
-  void search(BuildContext context, String searchText) {
+  void searchEnquiry(BuildContext context, String searchText,int projectId) {
     emit(state.copyWith(searchText: searchText.trim()));
-    getEnquiryList(context, 1, getProject().projectId);
+    getEnquiryList(context, 1, projectId);
   }
 
   // NATIONALITY SELECTION FOR RADIO BUTTONS

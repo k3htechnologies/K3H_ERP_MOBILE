@@ -56,6 +56,12 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
   // <---- PAGINATION ---->
   void _onScroll() {
     scrollController = ScrollController();
@@ -76,12 +82,6 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
         });
       }
     });
-  }
-
-  @override
-  void dispose() {
-    scrollController.dispose();
-    super.dispose();
   }
 
   @override
@@ -304,7 +304,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
     );
   }
 
-  //COLOR GETTER FOR STATUS BACKGROUND COLOR AS PER STATUS
+  // COLOR GETTER FOR STATUS BACKGROUND COLOR AS PER STATUS
   static Color getBgColorByStatus(String status) {
     switch (status.toLowerCase()) {
       case 'applied':
@@ -332,7 +332,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
     }
   }
 
-  //COLOR GETTER FOR STATUS TEXT COLOR AS PER STATUS
+  // COLOR GETTER FOR STATUS TEXT COLOR AS PER STATUS
   static Color getTxtColorByStatus(String status) {
     switch (status.toLowerCase()) {
       case 'applied':

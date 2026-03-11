@@ -31,6 +31,7 @@ class _RERADocumentCategoryScreenState
     extends State<RERADocumentCategoryScreen> {
   //CUBIT
   late RERADocumentCategoryCubit _reraDocumentCategoryCubit;
+
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
 
@@ -61,6 +62,17 @@ class _RERADocumentCategoryScreenState
     );
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _searchC.dispose();
+  }
+
+  // INITIALIZE TEXT EDITING CONTROLLER
+  void _initializeTextEditingController() {
+    _searchC = TextEditingController();
+  }
+
   // PAGINATION
   void _onScroll() {
     scrollController.addListener(() {
@@ -79,11 +91,6 @@ class _RERADocumentCategoryScreenState
         }
       }
     });
-  }
-
-  // INITIALIZE TEXT EDITING CONTROLLER
-  void _initializeTextEditingController() {
-    _searchC = TextEditingController();
   }
 
   // DELETE DOCUMENT CATEGORY
