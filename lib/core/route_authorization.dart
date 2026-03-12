@@ -48,6 +48,7 @@ class Authorization {
     AppRoutes.enquiry: AuthorizationModel(),
     AppRoutes.booking: AuthorizationModel(),
     AppRoutes.otherCharges: AuthorizationModel(),
+    AppRoutes.classificationParameter: AuthorizationModel(),
     // <---- CHANNEL PARTNER ---->
     AppRoutes.channelPartner: AuthorizationModel(),
 
