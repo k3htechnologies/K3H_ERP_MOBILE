@@ -223,66 +223,57 @@ class _RERADocumentCategoryScreenState
                                 },
                               );
                             },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Text(
-                                reraCategory.projectRERADocumentCategoryName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                            child: Text(
+                              reraCategory.projectRERADocumentCategoryName,
+                              style: AppTextStyle.ts16M(
+                                color: AppColor.primary,
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColor.primary,
                               ),
                             ),
                           ),
                         ),
-                        Row(
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                if (projectId == 0) {
-                                  showErrorMessage(
-                                    context,
-                                    'Error',
-                                    'Please select a project',
-                                  );
-                                  return;
-                                }
-                                await goRouter.pushNamed(
-                                  AppRoutes.addReraDocumentCategory,
-                                  queryParameters: {
-                                    "reraDocumentCategory":
-                                        Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(reraCategory.toJson()),
+                        if (_routeAuthorizationModel.isAction)
+                          Row(
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  if (projectId == 0) {
+                                    showErrorMessage(
+                                      context,
+                                      'Error',
+                                      'Please select a project',
+                                    );
+                                    return;
+                                  }
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addReraDocumentCategory,
+                                    queryParameters: {
+                                      "reraDocumentCategory":
+                                          Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(reraCategory.toJson()),
+                                            ),
                                           ),
-                                        ),
-                                    'index': index.toString(),
-                                  },
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteDocumentCategory(
-                                  context,
-                                  reraCategory,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteDocumentCategory(
+                                    context,
+                                    reraCategory,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                     verticalSpacing(height: 8),

@@ -54,6 +54,10 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     super.initState();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.rera]!;
+    print(_routeAuthorizationModel);
+    print("isView: ${_routeAuthorizationModel.isView}");
+    print("isAction: ${_routeAuthorizationModel.isAction}");
+    print("isExport: ${_routeAuthorizationModel.isExport}");
     _reraDocumentCubit = context.read<RERADocumentCubit>();
     projectId = getProject().projectId;
     _reraDocumentCubit.getCategoryList(context, 1, projectId);
@@ -220,7 +224,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
         extraHeight: 20,
         secondaryBuilder:
             (_) =>
-                _reraDocumentCubit.state.reraDocumentList.isNotEmpty
+                _reraDocumentCubit.state.documentCategoryModelList.isNotEmpty
                     ? CustomButton(
                       text: "Add",
                       onPressed: () {
@@ -399,28 +403,15 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                               },
                             );
                           },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 0,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: AppColor.primary),
-                              ),
-                            ),
-                            child: Text(
-                              document.projectRERADocumentName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                          child: Text(
+                            document.projectRERADocumentName,
+                            style: AppTextStyle.ts16M(
+                              color: AppColor.primary,
+                            ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
                           ),
                         ),
                       ),
-
+                      if(_routeAuthorizationModel.isAction)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [

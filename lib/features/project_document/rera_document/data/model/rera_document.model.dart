@@ -7,10 +7,10 @@ class RERADocumentModel {
   String projectRERADocumentName;
   int projectRERADocumentCategoryId;
   String projectRERADocumentCategory;
-  DateTime? projectRERADocumentExpiryDate;
   String projectRERADocumentRemark;
   String projectRERADocumentStatus;
   String projectRERADocumentURL;
+  String? reraPortalScreenShotURL;
   String projectRERADocumentApprovalStatus;
   int uploadedProjectRERADocumentCount;
   int approvalPendingProjectRERADocumentCount;
@@ -30,9 +30,9 @@ class RERADocumentModel {
     required this.projectRERADocumentName,
     required this.projectRERADocumentCategoryId,
     required this.projectRERADocumentCategory,
-    required this.projectRERADocumentExpiryDate,
     required this.projectRERADocumentRemark,
     required this.projectRERADocumentStatus,
+    required this.reraPortalScreenShotURL,
     required this.projectRERADocumentURL,
     required this.projectRERADocumentApprovalStatus,
     required this.uploadedProjectRERADocumentCount,
@@ -64,10 +64,6 @@ class RERADocumentModel {
           json,
           "ProjectRERADocumentCategory",
         ),
-        projectRERADocumentExpiryDate:
-            json["ProjectRERADocumentExpiryDate"] == null
-                ? null
-                : parseValue<DateTime>(json, "ProjectRERADocumentExpiryDate"),
         projectRERADocumentRemark: parseValue<String>(
           json,
           "ProjectRERADocumentRemark",
@@ -75,6 +71,10 @@ class RERADocumentModel {
         projectRERADocumentStatus: parseValue<String>(
           json,
           "ProjectRERADocumentStatus",
+        ),
+        reraPortalScreenShotURL: parseValue<String>(
+          json,
+          "RERAPortalScreenShotURL",
         ),
         projectRERADocumentURL: parseValue<String>(
           json,
@@ -115,10 +115,9 @@ class RERADocumentModel {
     "ProjectRERADocumentName": projectRERADocumentName,
     "ProjectRERADocumentCategoryId": projectRERADocumentCategoryId,
     "ProjectRERADocumentCategory": projectRERADocumentCategory,
-    "ProjectRERADocumentExpiryDate":
-        projectRERADocumentExpiryDate?.toIso8601String(),
     "ProjectRERADocumentRemark": projectRERADocumentRemark,
     "ProjectRERADocumentStatus": projectRERADocumentStatus,
+    "RERAPortalScreenShotURL": reraPortalScreenShotURL,
     "ProjectRERADocumentURL": projectRERADocumentURL,
     "ProjectRERADocumentApprovalStatus": projectRERADocumentApprovalStatus,
     "UploadedProjectRERADocumentCount": uploadedProjectRERADocumentCount,
@@ -143,9 +142,9 @@ extension DocumentModelCopyWith on RERADocumentModel {
     String? projectRERADocumentName,
     int? projectRERADocumentCategoryId,
     String? projectRERADocumentCategory,
-    DateTime? projectRERADocumentExpiryDate,
     String? projectRERADocumentRemark,
     String? projectRERADocumentStatus,
+    String? reraPortalScreenShotURL,
     String? projectRERADocumentURL,
     String? projectRERADocumentApprovalStatus,
     int? uploadedProjectRERADocumentCount,
@@ -170,14 +169,14 @@ extension DocumentModelCopyWith on RERADocumentModel {
           projectRERADocumentCategoryId ?? this.projectRERADocumentCategoryId,
       projectRERADocumentCategory:
           projectRERADocumentCategory ?? this.projectRERADocumentCategory,
-      projectRERADocumentExpiryDate:
-          projectRERADocumentExpiryDate ?? this.projectRERADocumentExpiryDate,
       projectRERADocumentRemark:
           projectRERADocumentRemark ?? this.projectRERADocumentRemark,
       projectRERADocumentStatus:
           projectRERADocumentStatus ?? this.projectRERADocumentStatus,
       projectRERADocumentURL:
           projectRERADocumentURL ?? this.projectRERADocumentURL,
+      reraPortalScreenShotURL:
+          reraPortalScreenShotURL ?? this.reraPortalScreenShotURL,
       projectRERADocumentApprovalStatus:
           projectRERADocumentApprovalStatus ??
           this.projectRERADocumentApprovalStatus,

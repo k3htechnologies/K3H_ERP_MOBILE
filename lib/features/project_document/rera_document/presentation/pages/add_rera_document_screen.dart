@@ -4,6 +4,7 @@ import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_cubit.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -40,7 +41,9 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
-  DateTime? expiryDate;
+  // FILE REQUIRED CHECK VARIABLE
+  final ValueNotifier<bool> isFileRequired = ValueNotifier(false);
+
   List<Map<String, dynamic>> _selectedStatus = [
     {'zAttributesId': -1, 'DisplayName': 'Select Status'},
   ];
@@ -60,6 +63,11 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
 
   // FILE VARIABLES
   MultiFilePickerModel selectedDocumentFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel selectedScreenShotFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
@@ -103,7 +111,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
             widget.documentModel!.projectRERADocumentCategoryId,
         documents: selectedDocumentFile,
         projectRERADocumentStatus: _selectedStatus[0]['DisplayName'],
-        projectRERADocumentExpiryDate: expiryDate,
+        screenshots: selectedScreenShotFile,
         projectRERADocumentRemark: _remarkC.text.trim(),
         projectRERADocumentName: widget.documentModel!.projectRERADocumentName,
       );
@@ -117,7 +125,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
             widget.documentModel!.projectRERADocumentCategoryId,
         documents: selectedDocumentFile,
         projectRERADocumentStatus: _selectedStatus[0]['DisplayName'],
-        projectRERADocumentExpiryDate: expiryDate,
+        screenshots: selectedScreenShotFile,
         projectRERADocumentRemark: _remarkC.text.trim(),
         projectRERADocumentName: widget.documentModel!.projectRERADocumentName,
       );
@@ -133,7 +141,12 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
 
     _selectedStatus = [matchedStatus];
 
-    expiryDate = document.projectRERADocumentExpiryDate;
+    if (document.reraPortalScreenShotURL != null) {
+      selectedScreenShotFile.fileNameList =
+          document.reraPortalScreenShotURL!.isEmpty
+              ? []
+              : document.reraPortalScreenShotURL!.split(",");
+    }
 
     _remarkC.text =
         document.projectRERADocumentRemark.isNotEmpty
@@ -170,6 +183,8 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
                   isRequired: true,
                   onSelected: (Map<String, dynamic> p1) {
                     _selectedStatus = [p1];
+
+                    isFileRequired.value = p1["zAttributesId"] == 4;
                   },
                   validator: (value) {
                     if (value == null || value["zAttributesId"] == -1) {
@@ -178,28 +193,47 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
                     return null;
                   },
                 ),
+                ValueListenableBuilder(
+                  valueListenable: isFileRequired,
+                  builder: (context, requiredFile, child) {
+                    return CustomMultiFilePicker(
+                      maxFiles: 5,
+                      title: "Files",
+                      isRequired: requiredFile,
+                      initialFileList: selectedDocumentFile.fileNameList,
+                      onFilePickedCallback: (bytesList, fileNameList) {
+                        selectedDocumentFile.fileNameList = fileNameList;
+                        selectedDocumentFile.fileBytesList = bytesList;
+                      },
+                      onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deletedFile,
+                      ) {
+                        selectedDocumentFile.fileNameList = fileNameList;
+                        selectedDocumentFile.fileBytesList = fileBytesList;
+                        selectedDocumentFile.deletedFileList = deletedFile;
+                      },
+                    );
+                  },
+                ),
                 CustomMultiFilePicker(
                   maxFiles: 5,
-                  title: "Files",
-                  initialFileList: selectedDocumentFile.fileNameList,
+                  title: "Screenshot",
+                  initialFileList: selectedScreenShotFile.fileNameList,
                   onFilePickedCallback: (bytesList, fileNameList) {
-                    selectedDocumentFile.fileNameList = fileNameList;
-                    selectedDocumentFile.fileBytesList = bytesList;
+                    selectedScreenShotFile.fileNameList = fileNameList;
+                    selectedScreenShotFile.fileBytesList = bytesList;
                   },
                   onFileDeleteCallback: (
                     fileBytesList,
                     fileNameList,
                     deletedFile,
                   ) {
-                    selectedDocumentFile.fileNameList = fileNameList;
-                    selectedDocumentFile.fileBytesList = fileBytesList;
-                    selectedDocumentFile.deletedFileList = deletedFile;
+                    selectedScreenShotFile.fileNameList = fileNameList;
+                    selectedScreenShotFile.fileBytesList = fileBytesList;
+                    selectedScreenShotFile.deletedFileList = deletedFile;
                   },
-                ),
-                CustomDatePicker(
-                  title: "Expiry Date",
-                  initialDate: expiryDate,
-                  setValue: (value) => expiryDate = value,
                 ),
                 CustomTextField(
                   title: "Remark",
@@ -218,6 +252,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
+            leading: Icon(_isEditMode?Icons.edit:Icons.add,size: 18,color: AppColor.white,),
             text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),

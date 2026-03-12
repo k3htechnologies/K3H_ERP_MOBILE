@@ -136,7 +136,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     required int projectRERADocumentId,
     required String uniqueKey,
     required int projectRERADocumentCategoryId,
-    DateTime? projectRERADocumentExpiryDate,
+    MultiFilePickerModel? screenshots,
     String? projectRERADocumentStatus,
     String? projectRERADocumentRemark,
     MultiFilePickerModel? documents,
@@ -151,10 +151,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       "ProjectRERADocumentCategoryId": projectRERADocumentCategoryId.toString(),
       "IsMaster": 0.toString(),
       "ProjectRERADocumentName": projectRERADocumentName,
-      "ProjectRERADocumentExpiryDate":
-          projectRERADocumentExpiryDate != null
-              ? projectRERADocumentExpiryDate.toIso8601String()
-              : '',
+      "RemoveRERAPortalScreenShotURL": screenshots?.deletedFileList ?? "",
       "ProjectRERADocumentStatus": projectRERADocumentStatus ?? '',
       "ProjectRERADocumentRemark": projectRERADocumentRemark ?? '',
     };
@@ -167,6 +164,18 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           "key": "ProjectRERADocumentURL",
           "value": documents.fileBytesList[i],
           "fileName": documents.fileNameList[i],
+        });
+      }
+    }
+    if (screenshots != null) {
+      for (int i = 0; i < screenshots.fileNameList.length; i++) {
+        if (screenshots.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "RERAPortalScreenShotURL",
+          "value": screenshots.fileBytesList[i],
+          "fileName": screenshots.fileNameList[i],
         });
       }
     }
@@ -216,7 +225,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     required int projectRERADocumentId,
     required String uniqueKey,
     required int projectRERADocumentCategoryId,
-    DateTime? projectRERADocumentExpiryDate,
+    MultiFilePickerModel? screenshots,
     String? projectRERADocumentStatus,
     String? projectRERADocumentRemark,
     MultiFilePickerModel? documents,
@@ -232,10 +241,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       //isMaster is 0 means add subdoc in document group
       "IsMaster": 0.toString(),
       "ProjectRERADocumentName": projectRERADocumentName,
-      "ProjectRERADocumentExpiryDate":
-          projectRERADocumentExpiryDate != null
-              ? projectRERADocumentExpiryDate.toIso8601String()
-              : '',
+
       "ProjectRERADocumentStatus": projectRERADocumentStatus ?? '',
       "ProjectRERADocumentRemark": projectRERADocumentRemark ?? '',
     };
@@ -249,6 +255,19 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           "key": "ProjectRERADocumentURL",
           "value": documents.fileBytesList[i],
           "fileName": documents.fileNameList[i],
+        });
+      }
+    }
+
+    if (screenshots != null) {
+      for (int i = 0; i < screenshots.fileNameList.length; i++) {
+        if (screenshots.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "RERAPortalScreenShotURL",
+          "value": screenshots.fileBytesList[i],
+          "fileName": screenshots.fileNameList[i],
         });
       }
     }
@@ -393,10 +412,12 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       },
       (response) {
         goRouter.pop();
-        final updatedList = response['data'][0] as RERADocumentModel;
-        var list = [updatedList, ...state.reraDocumentList];
+        if (response['data'] != null && response['data'].isNotEmpty) {
+          final updatedList = response['data'][0] as RERADocumentModel;
+          var list = [updatedList, ...state.reraDocumentList];
 
-        emit(state.copyWith(reraDocumentList: list));
+          emit(state.copyWith(reraDocumentList: list));
+        }
 
         showSuccessMessage(
           context,

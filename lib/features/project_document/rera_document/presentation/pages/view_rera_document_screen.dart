@@ -50,7 +50,8 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
     super.initState();
     _onScroll();
     _documentCubit = context.read<RERADocumentCubit>();
-    _routeAuthorizationModel = AuthorizationModel();
+    _routeAuthorizationModel =
+    Authorization.routeAuthorizationMap[AppRoutes.rera]!;
 
     _documentCubit.getRERADocumentList(
       context: context,
@@ -124,6 +125,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                   widget.documentModel.projectRERADocumentName,
                   style: AppTextStyle.ts16SB(),
                 ),
+                if(_routeAuthorizationModel.isAction)
                 CustomButton(
                   leading: Icon(Icons.add, color: AppColor.white, size: 16),
                   text: "Add",
@@ -207,29 +209,32 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                   style: AppTextStyle.ts16SB(),
                 ),
               ),
-              CustomIconButton.edit(
-                onPressed: () {
-                  goRouter.pushNamed(
-                    AppRoutes.addReraDocument,
-                    queryParameters: {
-                      "reraDocument": Uri.encodeQueryComponent(
-                        EncryptionManager.encryptData(
-                          jsonEncode(document.toJson()),
-                        ),
-                      ),
-                      "index": index.toString(),
-                      "isEdit": Uri.encodeQueryComponent(
-                        EncryptionManager.encryptData(true.toString()),
-                      ),
-                    },
-                  );
-                },
-              ),
-              CustomIconButton.delete(
-                onPressed: () {
-                  _showPopupToDeleteRERADocument(context, document, index);
-                },
-              ),
+             if(_routeAuthorizationModel.isAction)...[
+               CustomIconButton.edit(
+                 onPressed: () {
+                   goRouter.pushNamed(
+                     AppRoutes.addReraDocument,
+                     queryParameters: {
+                       "reraDocument": Uri.encodeQueryComponent(
+                         EncryptionManager.encryptData(
+                           jsonEncode(document.toJson()),
+                         ),
+                       ),
+                       "index": index.toString(),
+                       "isEdit": Uri.encodeQueryComponent(
+                         EncryptionManager.encryptData(true.toString()),
+                       ),
+                     },
+                   );
+                 },
+               ),
+               horizontalSpacing(),
+               CustomIconButton.delete(
+                 onPressed: () {
+                   _showPopupToDeleteRERADocument(context, document, index);
+                 },
+               ),
+             ]
             ],
           ),
           Row(
@@ -257,13 +262,21 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                 ),
               ),
               buildColumnTitleValue(
-                title: "Expiry Date",
-                value:
-                    document.projectRERADocumentExpiryDate != null
-                        ? formatDateTimeAsDDMMMYYYY(
-                          document.projectRERADocumentExpiryDate!,
-                        )
-                        : '-',
+                title: "View Screenshot",
+                value: document.reraPortalScreenShotURL!,
+                customValueWidget: Row(
+                  children: [
+                    CustomButton.documentOutline(
+                      isDisable: document.reraPortalScreenShotURL!.isEmpty,
+                      onPressed: () {
+                        showFilePreviewDialog(
+                          context,
+                          document.reraPortalScreenShotURL!.split(","),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
