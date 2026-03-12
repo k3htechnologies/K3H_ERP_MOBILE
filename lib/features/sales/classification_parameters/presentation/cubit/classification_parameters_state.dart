@@ -1,7 +1,7 @@
 part of 'classification_parameters_cubit.dart';
 
 final class ClassificationParametersState extends BaseState {
-  final List<ClassificationParamterModel> classificationParameterList;
+  final List<ClassificationParameterModel> classificationParameterList;
   final int totalNumberOfRecord;
   final int currentPage;
   final String searchText;
@@ -22,7 +22,7 @@ final class ClassificationParametersState extends BaseState {
       );
   ClassificationParametersState copyWith({
     bool? isLoading,
-    List<ClassificationParamterModel>? classificationParameterList,
+    List<ClassificationParameterModel>? classificationParameterList,
     int? totalNumberOfRecord,
     int? currentPage,
     String? searchText,

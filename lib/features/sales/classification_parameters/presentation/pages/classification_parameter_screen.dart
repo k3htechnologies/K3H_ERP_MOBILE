@@ -20,16 +20,16 @@ import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class ClassificationParametersScreen extends StatefulWidget {
-  const ClassificationParametersScreen({super.key});
+class ClassificationParameterScreen extends StatefulWidget {
+  const ClassificationParameterScreen({super.key});
 
   @override
-  State<ClassificationParametersScreen> createState() =>
-      _ClassificationParametersScreenState();
+  State<ClassificationParameterScreen> createState() =>
+      _ClassificationParameterScreenState();
 }
 
-class _ClassificationParametersScreenState
-    extends State<ClassificationParametersScreen> {
+class _ClassificationParameterScreenState
+    extends State<ClassificationParameterScreen> {
   // CUBIT
   late ClassificationParametersCubit _classificationParametersCubit;
 
@@ -41,7 +41,7 @@ class _ClassificationParametersScreenState
   Timer? _debounce;
 
   // PROJECT SELECTION
-  late ProjectModel projectId;
+  late ProjectModel _selectprojectId;
 
   @override
   void initState() {
@@ -54,13 +54,13 @@ class _ClassificationParametersScreenState
         AuthorizationModel();
 
     // SET PROJECT ID
-    projectId = getProject();
+    _selectprojectId = getProject();
     _onScroll();
     // GET API CALL
     _classificationParametersCubit.getClassificationParametersList(
       context,
       1,
-      projectId.projectId,
+      _selectprojectId.projectId,
     );
   }
 
@@ -88,7 +88,7 @@ class _ClassificationParametersScreenState
           _classificationParametersCubit.getClassificationParametersList(
             context,
             _classificationParametersCubit.state.currentPage + 1,
-            projectId.projectId,
+            _selectprojectId.projectId,
           );
         });
       }
@@ -98,14 +98,14 @@ class _ClassificationParametersScreenState
   // <---- DELETE CLASSIFICATION PARAMETER ---->
   Future<void> _showPopupToDeleteClassificationParameter(
     BuildContext context,
-    ClassificationParamterModel obj,
+    ClassificationParameterModel obj,
     int currentPage,
     int index,
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
       'You are about to delete a classification parameter?',
-      'Deleting this lassification parameter will permanently remove its contents.',
+      'Deleting this classification parameter will permanently remove its contents.',
     );
     if (result && context.mounted) {
       _classificationParametersCubit.deleteClassificationParameters(
@@ -114,7 +114,7 @@ class _ClassificationParametersScreenState
         uniqueKey: obj.uniquekey,
         pageNumber: currentPage,
         index: index,
-        projectId: projectId.projectId,
+        projectId: _selectprojectId.projectId,
       );
     }
   }
@@ -128,11 +128,11 @@ class _ClassificationParametersScreenState
         isMenuButton: true,
         authorization: _routhAuthorizationModel,
         onProjectChangeCallback: (value) {
-          projectId = value;
+          _selectprojectId = value;
           _classificationParametersCubit.getClassificationParametersList(
             context,
             1,
-            projectId.projectId,
+            _selectprojectId.projectId,
           );
         },
         onExportCallback: (value) {
@@ -143,7 +143,7 @@ class _ClassificationParametersScreenState
           _classificationParametersCubit.exportExcelPdf(
             context,
             value,
-            projectId.projectId,
+            _selectprojectId.projectId,
           );
         },
         onAddCallback: () async {
@@ -200,7 +200,7 @@ class _ClassificationParametersScreenState
                         Flexible(
                           child: Text(
                             classificationParameter.minBudget,
-                            style: AppTextStyle.ts16M(color: AppColor.primary),
+                            style: AppTextStyle.ts16M(),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -243,7 +243,7 @@ class _ClassificationParametersScreenState
                     ),
                     verticalSpacing(),
                     buildRowTitleValue(
-                      title: "Possesion Type",
+                      title: "Possession Type",
                       value: classificationParameter.possessionType,
                       singleLine: false,
                     ),
@@ -267,7 +267,7 @@ class _ClassificationParametersScreenState
                     ),
                     verticalSpacing(),
                     buildRowTitleValue(
-                      title: "Time Line",
+                      title: "Timeline",
                       value: classificationParameter.timeLine,
                       singleLine: false,
                     ),

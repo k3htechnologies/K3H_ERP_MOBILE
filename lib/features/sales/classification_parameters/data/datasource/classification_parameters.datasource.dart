@@ -59,9 +59,9 @@ class ClassificationParametersDatasourceImpl
         ),
       );
       return {
-        'data': List<ClassificationParamterModel>.from(
+        'data': List<ClassificationParameterModel>.from(
           networkResponse["data"].map(
-            (e) => ClassificationParamterModel.fromJson(e),
+            (e) => ClassificationParameterModel.fromJson(e),
           ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
@@ -92,9 +92,9 @@ class ClassificationParametersDatasourceImpl
         body,
       );
       return {
-        'data': List<ClassificationParamterModel>.from(
+        'data': List<ClassificationParameterModel>.from(
           networkResponse["data"].map(
-            (e) => ClassificationParamterModel.fromJson(e),
+            (e) => ClassificationParameterModel.fromJson(e),
           ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],

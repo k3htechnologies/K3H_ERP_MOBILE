@@ -4,7 +4,7 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/village.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/classification_parameters/data/model/classification_paramerter.model.dart';
-import 'package:k3h_erp_app/features/sales/classification_parameters/data/repository/classifaction_parameters.repositiory.dart';
+import 'package:k3h_erp_app/features/sales/classification_parameters/data/repository/classification_parameters.repositiory.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -46,9 +46,9 @@ class ClassificationParametersCubit
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        final List<ClassificationParamterModel> newData =
-            List<ClassificationParamterModel>.from(response['data'] ?? []);
-        final List<ClassificationParamterModel> updatedList =
+        final List<ClassificationParameterModel> newData =
+            List<ClassificationParameterModel>.from(response['data'] ?? []);
+        final List<ClassificationParameterModel> updatedList =
             pageNumber == 1
                 ? newData
                 : [...state.classificationParameterList, ...newData];
@@ -85,9 +85,9 @@ class ClassificationParametersCubit
         return;
       },
       (response) {
-        final newItem = response['data'][0] as ClassificationParamterModel;
+        final newItem = response['data'][0] as ClassificationParameterModel;
 
-        List<ClassificationParamterModel> updatedList = List.from(
+        List<ClassificationParameterModel> updatedList = List.from(
           state.classificationParameterList,
         );
 
@@ -138,7 +138,7 @@ class ClassificationParametersCubit
           subTitle: 'Classification Parameter Deleted Successfully',
         );
         if (index != null) {
-          final updatedList = List<ClassificationParamterModel>.from(
+          final updatedList = List<ClassificationParameterModel>.from(
             state.classificationParameterList,
           );
           updatedList.removeAt(index);

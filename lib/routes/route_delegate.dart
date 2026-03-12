@@ -277,8 +277,8 @@ import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
 import 'package:k3h_erp_app/features/sales/classification_parameters/data/model/classification_paramerter.model.dart';
 import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/cubit/classification_parameters_cubit.dart';
+import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/pages/Classification_parameter_screen.dart';
 import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/pages/add_classification_parameter_screen.dart';
-import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/pages/classification_parameters_screen.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/pages/add_enquiry_screen.dart';
@@ -4113,7 +4113,7 @@ final GoRouter goRouter = GoRouter(
                   name: AppRoutes.classificationParameter,
                   path: AppRoutes.classificationParameter,
                   builder: (context, state) {
-                    return ClassificationParametersScreen();
+                    return ClassificationParameterScreen();
                   },
                 ),
                 GoRoute(
@@ -4125,7 +4125,7 @@ final GoRouter goRouter = GoRouter(
                     final classificationParameter =
                         queryParameterEnquiry != null &&
                                 queryParameterEnquiry.isNotEmpty
-                            ? ClassificationParamterModel.fromJson(
+                            ? ClassificationParameterModel.fromJson(
                               jsonDecode(
                                 EncryptionManager.decryptData(
                                   Uri.decodeComponent(queryParameterEnquiry),

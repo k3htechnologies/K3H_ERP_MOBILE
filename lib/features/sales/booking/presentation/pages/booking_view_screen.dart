@@ -30,7 +30,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(_handleTabChange);
     _bookingCubit = context.read<BookingCubit>();
     _bookingCubit.getEnquiryListById(
@@ -101,7 +101,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   labelPadding: const EdgeInsets.symmetric(horizontal: 16),
                   padding: EdgeInsets.zero,
                   tabs: const [
-                    Tab(text: 'Details'),
+                    Tab(text: 'Overview'),
+                    Tab(text: 'Applicant Details'),
                     Tab(text: 'Other Charges'),
                     Tab(text: 'Payment Schedule'),
                     Tab(text: 'Remark'),
@@ -117,7 +118,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               physics: NeverScrollableScrollPhysics(),
               controller: _tabController,
               children: [
-                _buildDetailsTab(),
+                _buildOverviewTab(),
+                _builApplicantDetailsTab(),
                 _buildOtherChargesTab(),
                 _buildPaymentSchedule(),
                 _buildRemarkTab(),
@@ -156,7 +158,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   }
 
   // BUILD DETAILS TAB
-  Widget _buildDetailsTab() {
+  Widget _buildOverviewTab() {
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       child: Column(
@@ -871,8 +873,509 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               ],
             ),
           ),
+          // OTHER CHARGES SECTION
+          Container(
+            height: 450,
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Other Charges", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+                Expanded(
+                  child: ListView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
+                    shrinkWrap: true,
+                    itemCount:
+                        widget.bookingModel.bookingOtherChargesData.length,
+                    itemBuilder: (_, index) {
+                      final extraCharge =
+                          widget.bookingModel.bookingOtherChargesData[index];
+                      return Container(
+                        decoration: commonCardDecoration(),
+                        margin: EdgeInsets.only(bottom: 10),
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Name",
+                                  value: extraCharge.chargeName,
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Calculated On",
+                                  value: extraCharge.calculatedOn,
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Value (In ₹)",
+                                  value:
+                                      "${extraCharge.value} ${extraCharge.calculatedOn}",
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Gst (%)",
+                                  value: extraCharge.gstPercentage.toString(),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "GST Value (₹)",
+                                  value: "₹ ${extraCharge.gstValue}",
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // ACTION DETAILS
+          Container(
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Action Details", style: AppTextStyle.ts16SB()),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Created By",
+                      value: widget.bookingModel.createdBy,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Created Date",
+                      value: formatDate(widget.bookingModel.createdDate),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Modified By",
+                      value: widget.bookingModel.modifiedBy,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Modified Date",
+                      value: formatDate(widget.bookingModel.modifiedDate),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Approval Status",
+                      value: widget.bookingModel.approvalStatus,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // FLAT ALTERATION REMARKS SECTION
+          Container(
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Flat Alteration Remarks", style: AppTextStyle.ts16SB()),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Remarks",
+                      value: widget.bookingModel.flatAlterationRemark,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // PAYMENT SCHEDULE SECTION
+          Container(
+            height: 450,
+            margin: EdgeInsets.only(bottom: 10),
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Payment Schedule", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+                Expanded(
+                  child: ListView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
+                    shrinkWrap: true,
+                    itemCount:
+                        widget.bookingModel.bookingPaymentScheduleData.length,
+                    itemBuilder: (context, index) {
+                      final payment =
+                          widget.bookingModel.bookingPaymentScheduleData[index];
+                      return Container(
+                        decoration: commonCardDecoration(),
+                        margin: EdgeInsets.only(bottom: 10),
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Type",
+                                  value: payment.type,
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Name",
+                                  value: payment.name,
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Date",
+                                  value:
+                                      payment.date != null
+                                          ? formatDateTimeAsDDMMMYYYY(
+                                            payment.date!,
+                                          )
+                                          : "-",
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Percentage (%)",
+                                  value:
+                                      payment.paymentSchedulePercentage
+                                          .toString(),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Amount (₹)",
+                                  value: "₹ ${payment.paymentScheduleAmount}",
+                                ),
+                                buildColumnTitleValue(
+                                  title: "GST (₹)",
+                                  value:
+                                      "₹ ${payment.paymentScheduleGSTAmount}",
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "TDS (₹)",
+                                  value:
+                                      "₹ ${payment.paymentScheduleTDSAmount}",
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  // BUILD APPLICANT DETAILS
+  Widget _builApplicantDetailsTab() {
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      shrinkWrap: true,
+      itemCount: widget.bookingModel.bookingApplicantData.length,
+      itemBuilder: (_, index) {
+        final applicant = widget.bookingModel.bookingApplicantData[index];
+        return Container(
+          margin: EdgeInsets.only(bottom: 10),
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColor.primary, width: .3),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            spacing: 10,
+            children: [
+              Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      applicant.applicantName,
+                      style: AppTextStyle.ts14M(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  horizontalSpacing(),
+                  _buildApplicantTypeWidget(applicant.applicantType),
+                ],
+              ),
+
+              Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Contact Number",
+                    value:
+                        applicant.applicantMobileNumber.isEmpty
+                            ? "-"
+                            : applicant.applicantMobileNumber,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Email ID",
+                    value:
+                        applicant.applicantEmailId.isEmpty
+                            ? "-"
+                            : applicant.applicantEmailId,
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Aadhaar Card No.",
+                    value:
+                        applicant.aadharCardNumber.isEmpty
+                            ? "-"
+                            : applicant.aadharCardNumber,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Aadhaar Card",
+                    value:
+                        applicant.aadharCardURL.isEmpty
+                            ? "-"
+                            : applicant.aadharCardURL,
+                    customValueWidget: CustomButton.documentOutline(
+                      onPressed: () {
+                        if (applicant.aadharCardURL.isNotEmpty) {
+                          showFilePreviewDialog(
+                            context,
+                            applicant.aadharCardURL.split(","),
+                          );
+                        }
+                      },
+                      isDisable: applicant.aadharCardURL.isEmpty,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "PAN Card No.",
+                    value:
+                        applicant.panNumber.isEmpty ? "-" : applicant.panNumber,
+                  ),
+                  buildColumnTitleValue(
+                    title: "PAN Card.",
+                    value:
+                        applicant.panCardURL.isEmpty
+                            ? "-"
+                            : applicant.panCardURL,
+                    customValueWidget: CustomButton.documentOutline(
+                      onPressed: () {
+                        if (applicant.panCardURL.isNotEmpty) {
+                          showFilePreviewDialog(
+                            context,
+                            applicant.panCardURL.split(","),
+                          );
+                        }
+                      },
+                      isDisable: applicant.panCardURL.isEmpty,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Driving License",
+                    value:
+                        applicant.drivingLicenseNumber.isEmpty
+                            ? "-"
+                            : applicant.drivingLicenseNumber,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Driving License",
+                    value:
+                        applicant.drivingLicenseURL.isEmpty
+                            ? "-"
+                            : applicant.drivingLicenseURL,
+                    customValueWidget: CustomButton.documentOutline(
+                      onPressed: () {
+                        if (applicant.drivingLicenseURL.isNotEmpty) {
+                          showFilePreviewDialog(
+                            context,
+                            applicant.drivingLicenseURL.split(","),
+                          );
+                        }
+                      },
+                      isDisable: applicant.drivingLicenseURL.isEmpty,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Voting ID No.",
+                    value:
+                        applicant.votingIdNumber.isEmpty
+                            ? "-"
+                            : applicant.votingIdNumber,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Voting ID",
+                    value:
+                        applicant.votingIdURL.isEmpty
+                            ? "-"
+                            : applicant.votingIdURL,
+                    customValueWidget: CustomButton.documentOutline(
+                      onPressed: () {
+                        if (applicant.votingIdURL.isNotEmpty) {
+                          showFilePreviewDialog(
+                            context,
+                            applicant.votingIdURL.split(","),
+                          );
+                        }
+                      },
+                      isDisable: applicant.votingIdURL.isEmpty,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Passport No.",
+                    value:
+                        applicant.passportNumber.isEmpty
+                            ? "-"
+                            : applicant.passportNumber,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Passport",
+                    value:
+                        applicant.passportURL.isEmpty
+                            ? "-"
+                            : applicant.passportURL,
+                    customValueWidget: CustomButton.documentOutline(
+                      onPressed: () {
+                        if (applicant.passportURL.isNotEmpty) {
+                          showFilePreviewDialog(
+                            context,
+                            applicant.passportURL.split(","),
+                          );
+                        }
+                      },
+                      isDisable: applicant.passportURL.isEmpty,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "GST No.",
+                    value:
+                        applicant.gstNumber.isEmpty ? "-" : applicant.gstNumber,
+                  ),
+                  buildColumnTitleValue(
+                    title: "GST",
+                    value:
+                        applicant.gstNumberURL.isEmpty
+                            ? "-"
+                            : applicant.gstNumberURL,
+                    customValueWidget: CustomButton.documentOutline(
+                      onPressed: () {
+                        if (applicant.gstNumberURL.isNotEmpty) {
+                          showFilePreviewDialog(
+                            context,
+                            applicant.gstNumberURL.split(","),
+                          );
+                        }
+                      },
+                      isDisable: applicant.gstNumberURL.isEmpty,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 5,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Profile Photo",
+                    value:
+                        applicant.photoURL.isEmpty ? "-" : applicant.photoURL,
+                    customValueWidget: CustomButton.documentOutline(
+                      onPressed: () {
+                        if (applicant.photoURL.isNotEmpty) {
+                          showFilePreviewDialog(
+                            context,
+                            applicant.photoURL.split(","),
+                          );
+                        }
+                      },
+                      isDisable: applicant.photoURL.isEmpty,
+                    ),
+                  ),
+                  Expanded(child: SizedBox()),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -1003,25 +1506,82 @@ class _BookingViewScreenState extends State<BookingViewScreen>
 
   // BUILD REMARKS TAB
   Widget _buildRemarkTab() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      child:
-          widget.bookingModel.flatAlterationRemark.isNotEmpty
-              ? Column(
-                children: [
-                  Text("Flat Alteration/ Remark", style: AppTextStyle.ts16SB()),
-                  verticalSpacing(),
-                  Container(
-                    decoration: commonCardDecoration(),
-                    padding: EdgeInsets.all(16),
-                    child: Text(
-                      widget.bookingModel.flatAlterationRemark,
-                      style: AppTextStyle.ts14M(),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            decoration: commonCardDecoration(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Unit / Modulation / Customization Remark",
+                  style: AppTextStyle.ts16SB(),
+                ),
+                verticalSpacing(),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Remarks",
+                      value: widget.bookingModel.flatAlterationRemark,
                     ),
-                  ),
-                ],
-              )
-              : Center(child: noDataWidget()),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            decoration: commonCardDecoration(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Payment Related Remark", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Remarks",
+                      value: widget.bookingModel.paymentRemark,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            decoration: commonCardDecoration(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Unit Remark", style: AppTextStyle.ts16SB()),
+                verticalSpacing(),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Other Remark",
+                      value: widget.bookingModel.otherRemark,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
