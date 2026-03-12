@@ -18,7 +18,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 class AddClassificationParameterScreen extends StatefulWidget {
-  final ClassificationParamterModel? classificationParamterModel;
+  final ClassificationParameterModel? classificationParamterModel;
   final int index;
   const AddClassificationParameterScreen({
     super.key,
@@ -135,7 +135,7 @@ class _AddClassificationParameterScreenState
   }
 
   // PREFILL
-  void _populateForm(ClassificationParamterModel model) async {
+  void _populateForm(ClassificationParameterModel model) async {
     // TEXT CONTROLLER
     _budgetC.text = model.minBudget;
 
@@ -234,37 +234,45 @@ class _AddClassificationParameterScreenState
   }
 
   void _classificationParameterData() async {
-    // REQUIREMENT TYPE FROM CASCADING DROPDOWN
-    final req = _selectedRequirementNotifier.value?["DisplayName"] ?? "";
-    final String requirementTypeValue;
-    if (req == "Residential") {
-      requirementTypeValue =
-          _selectedResidentialTypeNotifier.value?["DisplayName"] ?? "";
-    } else if (req == "Commercial") {
-      requirementTypeValue =
-          _selectedCommercialTypeNotifier.value?["DisplayName"] ?? "";
-    } else if (req == "Commercial Leasing") {
-      requirementTypeValue =
-          _selectedCommercialLeasingNotifier.value?["DisplayName"] ?? "";
-    } else {
-      requirementTypeValue = "";
+    if (_classificationParameterAddUpdateKey.currentState!.validate()) {
+      // REQUIREMENT TYPE FROM CASCADING DROPDOWN
+      final req = _selectedRequirementNotifier.value?["DisplayName"] ?? "";
+      final String requirementTypeValue;
+      if (req == "Residential") {
+        requirementTypeValue =
+            _selectedResidentialTypeNotifier.value?["DisplayName"] ?? "";
+      } else if (req == "Commercial") {
+        requirementTypeValue =
+            _selectedCommercialTypeNotifier.value?["DisplayName"] ?? "";
+      } else if (req == "Commercial Leasing") {
+        requirementTypeValue =
+            _selectedCommercialLeasingNotifier.value?["DisplayName"] ?? "";
+      } else {
+        requirementTypeValue = "";
+      }
+      final timeline = getDisplayOrEmpty(_selectedTimeline);
+      final payload = {
+        "ClassificationParameterId":
+            _isEditMode
+                ? widget.classificationParamterModel!.classificationParameterId
+                : 0,
+        if (_isEditMode)
+          "Uniquekey": widget.classificationParamterModel!.uniquekey,
+        "ProjectId": projectId.projectId,
+        "MinBudget": _budgetC.text.trim(),
+        "PossessionType": getDisplayOrEmpty(_selectedPossessionType),
+        "Requirement": getDisplayOrEmpty(_selectedRequirementNotifier.value),
+        "RequirementType": requirementTypeValue,
+        "VillageMasterId": selectedVillages,
+        "TimeLine": timeline,
+      };
+      //  SUBMIT CLASSIFICATION PARAMETER
+      await _classificationParametersCubit.addUpdateClassificationParameters(
+        context: context,
+        body: payload,
+        index: _isEditMode ? widget.index : null,
+      );
     }
-    final timeline = getDisplayOrEmpty(_selectedTimeline);
-    final payload = {
-      "ProjectId": projectId.projectId,
-      "MinBudget": _budgetC.text.trim(),
-      "PossessionType": getDisplayOrEmpty(_selectedPossessionType),
-      "Requirement": getDisplayOrEmpty(_selectedRequirementNotifier.value),
-      "RequirementType": requirementTypeValue,
-      "VillageMasterId": selectedVillages,
-      "TimeLine": timeline,
-    };
-    //  SUBMIT ENQUIRY AFTER OTP VERIFICATION
-    await _classificationParametersCubit.addUpdateClassificationParameters(
-      context: context,
-      body: payload,
-      index: _isEditMode ? widget.index : null,
-    );
   }
 
   @override
@@ -378,6 +386,7 @@ class _AddClassificationParameterScreenState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomDropDownWidget(
+                              isRequired: true,
                               title: "Requirement",
                               initialValue:
                                   selectedRequirement ?? requirementType.first,
@@ -396,10 +405,18 @@ class _AddClassificationParameterScreenState
                                       commercialUnitTypeList.first;
                                 }
                               },
+                              validator: (value) {
+                                if (value == null ||
+                                    value["zAttributesId"] == -1) {
+                                  return 'Requirement is required';
+                                }
+                                return null;
+                              },
                             ),
                             const SizedBox(height: 8),
                             if (dependentList.isNotEmpty)
                               CustomDropDownWidget(
+                                isRequired: true,
                                 title:
                                     "${selectedRequirement?["DisplayName"]} Type",
                                 initialValue: () {
@@ -432,6 +449,13 @@ class _AddClassificationParameterScreenState
                                         v;
                                   }
                                 },
+                                validator: (value) {
+                                  if (value == null ||
+                                      value["zAttributesId"] == -1) {
+                                    return '${selectedRequirement?["DisplayName"]} is required';
+                                  }
+                                  return null;
+                                },
                               ),
                           ],
                         );
@@ -447,7 +471,7 @@ class _AddClassificationParameterScreenState
                           _classificationParametersCubit.fetchVillages,
                       onSelected: (value) => _selectedLocations = value,
                       validator: (value) {
-                        if (value == null) {
+                        if (value == null || value.isEmpty) {
                           return 'Location is required';
                         }
                         return null;
@@ -479,7 +503,12 @@ class _AddClassificationParameterScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text: widget.classificationParamterModel != null ? 'Update' : 'Add',
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
+            text: _isEditMode ? 'Update' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: _classificationParameterData,
           ),

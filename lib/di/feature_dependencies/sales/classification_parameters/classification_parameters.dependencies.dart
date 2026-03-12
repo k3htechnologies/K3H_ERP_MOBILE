@@ -1,6 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:k3h_erp_app/features/sales/classification_parameters/data/datasource/classification_parameters.datasource.dart';
-import 'package:k3h_erp_app/features/sales/classification_parameters/data/repository/classifaction_parameters.repositiory.dart';
+import 'package:k3h_erp_app/features/sales/classification_parameters/data/repository/classification_parameters.repositiory.dart';
 import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/cubit/classification_parameters_cubit.dart';
 
 void registerClassificationParameterDependencies(GetIt serviceLocator) {

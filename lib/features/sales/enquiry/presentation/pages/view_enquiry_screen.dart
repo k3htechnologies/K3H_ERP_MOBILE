@@ -866,7 +866,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                 modifiedBy: enquiry.modifiedBy,
                 modifiedDate: enquiry.modifiedDate,
               ),
-              verticalSpacing()
+              verticalSpacing(),
             ],
           ),
         );

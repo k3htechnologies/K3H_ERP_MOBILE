@@ -1,6 +1,6 @@
 import 'package:k3h_erp_app/utils/common_function.dart';
 
-class ClassificationParamterModel {
+class ClassificationParameterModel {
   final int classificationParameterId;
   final String uniquekey;
   final int projectId;
@@ -18,7 +18,7 @@ class ClassificationParamterModel {
   final String modifiedBy;
   final DateTime? modifiedDate;
 
-  ClassificationParamterModel({
+  ClassificationParameterModel({
     required this.classificationParameterId,
     required this.uniquekey,
     required this.projectId,
@@ -37,8 +37,8 @@ class ClassificationParamterModel {
     required this.modifiedDate,
   });
 
-  factory ClassificationParamterModel.fromJson(Map<String, dynamic> json) =>
-      ClassificationParamterModel(
+  factory ClassificationParameterModel.fromJson(Map<String, dynamic> json) =>
+      ClassificationParameterModel(
         classificationParameterId: parseValue<int>(
           json,
           "ClassificationParameterId",

@@ -938,7 +938,10 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(_isEditMode ? "Update Enquiry" : "Add Enquiry",style: AppTextStyle.ts14M(),),
+              Text(
+                _isEditMode ? "Update Enquiry" : "Add Enquiry",
+                style: AppTextStyle.ts14M(),
+              ),
               _basicCard(),
               _sourceCard(),
               _addressCard(),

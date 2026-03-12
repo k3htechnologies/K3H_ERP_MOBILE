@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/legal/dashboard/data/model/litigation_dashboard.model.dart';
 import 'package:k3h_erp_app/features/legal/dashboard/presentation/cubit/litigation_dashboard_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -191,13 +192,21 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                 : null;
         final civil =
             table2List
-                ?.firstWhere((e) => e.caseType.toLowerCase() == "civil")
-                .totalCases;
+                ?.firstWhere(
+                  (e) => e.caseType.toLowerCase() == "civil",
+                  orElse: () => Table2(caseType: "civil", totalCases: 0),
+                )
+                .totalCases ??
+            0;
 
         final criminal =
             table2List
-                ?.firstWhere((e) => e.caseType.toLowerCase() == "criminal")
-                .totalCases;
+                ?.firstWhere(
+                  (e) => e.caseType.toLowerCase() == "criminal",
+                  orElse: () => Table2(caseType: "criminal", totalCases: 0),
+                )
+                .totalCases ??
+            0;
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
           decoration: commonCardDecoration(),
@@ -223,12 +232,12 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                   items: [
                     RadialChartItem(
                       title: "Civil",
-                      value: civil!,
+                      value: civil,
                       color: AppColor.primary,
                     ),
                     RadialChartItem(
                       title: "Criminal",
-                      value: criminal!,
+                      value: criminal,
                       color: AppColor.error,
                     ),
                   ],
