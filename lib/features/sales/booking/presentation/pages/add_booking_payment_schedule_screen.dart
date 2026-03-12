@@ -81,6 +81,7 @@ class _AddBookingPaymentScheduleScreenState
     /// select tab
     if (data.type == "Date") {
       _tabController.index = 0;
+      setState(() {});
       date = data.date;
     } else {
       _tabController.index = 1;

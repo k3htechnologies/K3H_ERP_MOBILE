@@ -403,42 +403,45 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                             document.projectRERADocumentName,
                             style: AppTextStyle.ts16M(
                               color: AppColor.primary,
-                            ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
+                            ).copyWith(
+                              decoration: TextDecoration.underline,
+                              decorationColor: AppColor.primary,
+                            ),
                           ),
                         ),
                       ),
-                      if(_routeAuthorizationModel.isAction)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          CustomIconButton(
-                            icon: Icon(
-                              Icons.add,
-                              size: 16,
-                              color: AppColor.primary,
-                            ),
-                            onPressed: () async {
-                              goRouter.pushNamed(
-                                AppRoutes.addReraDocument,
-                                queryParameters: {
-                                  "reraDocument": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(document.toJson()),
+                      if (_routeAuthorizationModel.isAction)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            CustomIconButton(
+                              icon: Icon(
+                                Icons.add,
+                                size: 16,
+                                color: AppColor.primary,
+                              ),
+                              onPressed: () async {
+                                goRouter.pushNamed(
+                                  AppRoutes.addReraDocument,
+                                  queryParameters: {
+                                    "reraDocument": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(document.toJson()),
+                                      ),
                                     ),
-                                  ),
-                                  "index": index.toString(),
+                                    "index": index.toString(),
 
-                                  "isEdit": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      false.toString(),
+                                    "isEdit": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        false.toString(),
+                                      ),
                                     ),
-                                  ),
-                                },
-                              );
-                            },
-                          ),
-                        ],
-                      ),
+                                  },
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                   verticalSpacing(height: 10),

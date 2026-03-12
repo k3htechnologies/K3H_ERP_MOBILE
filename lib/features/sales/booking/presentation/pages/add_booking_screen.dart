@@ -24,6 +24,7 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_verification_dialog.dart';
@@ -210,8 +211,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _project = getProject();
 
     _tabController = TabController(length: 6, vsync: this);
-    // _tabController.addListener(_handleTabChange);
-
+    _bookingCubit.onTabChangedAddForm(0, context);
     _selectedHandOverType.value = handOverTypeList.first;
     _selectedFundingSource.value = fundingSourceList.first;
 
@@ -277,7 +277,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     _registrationFeesNotifier.dispose();
     _bookingSubscription?.cancel();
     _isFetchingEnquiry.dispose();
-    _otpController.dispose();
     super.dispose();
   }
 
@@ -425,19 +424,22 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
     if (value > limit) {
       tds = value * 0.01;
-      withoutTds = value - tds;
     }
-
+    withoutTds = value - tds;
     _tdsNotifier.value = tds;
     _withoutTdsNotifier.value = withoutTds;
 
     _tdsC.text = tds == 0 ? "" : tds.toStringAsFixed(2);
-    _agreementValueWithoutTdsC.text =
-        tds == 0 ? "" : withoutTds.toStringAsFixed(2);
+    _agreementValueWithoutTdsC.text = withoutTds.toStringAsFixed(2);
 
     _calculateGst();
     _calculateStampDuty();
     _calculateRegistrationFees();
+    _bookingCubit.onUpdateBookingAmount(
+      agreementValue: _agreementValueNotifier.value,
+      agreementValueGST: _agreementGstAmountNotifier.value,
+      agreementValueTds: _tdsNotifier.value,
+    );
   }
 
   // REMOVE HTML TAGS
@@ -567,10 +569,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         builder:
             (_) => AddBookingPaymentScheduleScreen(
               inventoryBuildingId:
-                  widget.inventoryObject?[0]["inventoryBuildingId"],
+                  widget.inventoryObject?[0]["inventoryBuildingId"] ??
+                  widget.bookingModel!.inventoryBuildingId,
               inventoryFlatFloorBasementPodiumWingId:
                   widget
-                      .inventoryObject?[0]["inventoryFlatFloorBasementPodiumWingId"],
+                      .inventoryObject?[0]["inventoryFlatFloorBasementPodiumWingId"] ??
+                  widget.bookingModel!.inventoryFlatFloorBasementPodiumWingId,
               agreementValue: _agreementValueNotifier.value,
               agreementValueGST: _agreementGstAmountNotifier.value,
               agreementValueTds: _tdsNotifier.value,
@@ -788,48 +792,53 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
   // VALIDATE ALL TABS
   Future<bool> _validateAllTabs() async {
-    bool detailsValid = _detailsFormKey.currentState?.validate() ?? false;
-
-    bool rankingValid =
-        _paymentScheduleFormKey.currentState?.validate() ?? false;
-
-    // Manual validation for Payment Details (NO TAB SWITCH)
-
-    bool remarkValid = true;
-
-    if (_unitModCustomizationRemarkC.text.trim().isEmpty) {
-      remarkValid = false;
-    }
-
-    // Trigger rebuild so CustomTextField shows errors
-    if (!remarkValid) {
-      _remarkFormKey.currentState?.validate();
-    }
-    // Now decide where to go
-    if (!detailsValid) {
+    // Validate Details tab
+    if (!(_detailsFormKey.currentState?.validate() ?? false)) {
       _tabController.animateTo(0);
+      _bookingCubit.onTabChangedAddForm(0, context);
       return false;
     }
+
+    // Check applicants
     if (_applicants.value.isEmpty) {
       _tabController.animateTo(0);
+      _bookingCubit.onTabChangedAddForm(0, context);
       showErrorMessage(context, "", "Add Applicant");
       return false;
     }
 
     if (!_hasPrimaryApplicant(_applicants.value)) {
       _tabController.animateTo(0);
+      _bookingCubit.onTabChangedAddForm(0, context);
       showErrorMessage(context, "", "Add Primary Applicant");
       return false;
     }
-    if (!rankingValid &&
-        _bookingCubit.state.bookingPaymentScheduleList.isEmpty) {
-      _tabController.animateTo(2);
+
+    // Validate Payment Schedule
+    if (_bookingCubit.state.bookingPaymentScheduleList.isEmpty) {
+      _tabController.animateTo(1);
+      _bookingCubit.onTabChangedAddForm(1, context);
       showErrorMessage(context, "", "Add Payment Schedule Details");
       return false;
     }
 
+    if (_bookingCubit.cumulativePercentage.toStringAsFixed(2) != "100.00") {
+      _tabController.animateTo(1);
+      _bookingCubit.onTabChangedAddForm(1, context);
+      showErrorMessage(
+        context,
+        "",
+        "Payment Schedule must total 100%. Remaining: ${_bookingCubit.remainingPercentage.toStringAsFixed(2)}%",
+      );
+      return false;
+    }
+
+    // Validate Remark
+    final remarkValid = _unitModCustomizationRemarkC.text.trim().isNotEmpty;
     if (!remarkValid) {
-      _tabController.animateTo(3);
+      _remarkFormKey.currentState?.validate();
+      _tabController.animateTo(5);
+      _bookingCubit.onTabChangedAddForm(5, context);
       return false;
     }
 
@@ -1145,60 +1154,30 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         builder: (context, state) {
           return Column(
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: IntrinsicWidth(
-                  child: Container(
-                    height: 35,
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: AppColor.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppColor.grey.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    child: TabBar(
-                      controller: _tabController,
-                      isScrollable: true,
-                      tabAlignment: TabAlignment.start,
-                      labelColor: AppColor.primary,
-                      unselectedLabelColor: AppColor.grey,
-                      indicator: BoxDecoration(
-                        color: AppColor.lightBlue,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      dividerColor: Colors.transparent,
-                      labelStyle: AppTextStyle.ts14M(),
-                      unselectedLabelStyle: AppTextStyle.ts14M(),
-                      labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      padding: EdgeInsets.zero,
-                      onTap: (index) {
-                        _bookingCubit.onTabChangedAddForm(index, context);
-                      },
-                      tabs: const [
-                        Tab(text: 'Details'),
-                        Tab(text: 'Other Charges'),
-                        Tab(text: 'Payment Schedule'),
-                        Tab(text: 'Remark'),
-                        Tab(text: 'Terms & Condition'),
-                        Tab(text: 'Payment Details'),
-                      ],
-                    ),
-                  ),
-                ),
+              ChipStyleTabBar(
+                controller: _tabController,
+                tabs: const [
+                  'Details',
+                  'Payment Schedule',
+                  'Other Charges',
+                  'Payment Details',
+                  'Terms & Condition',
+                  'Remark',
+                ],
+                onTabChanged: (index) {
+                  _bookingCubit.onTabChangedAddForm(index, context);
+                },
               ),
               Expanded(
                 child: IndexedStack(
                   index: state.currentTabIndexAddForm,
                   children: [
                     _buildDetails(),
-                    _buildOtherCharges(),
                     _buildPaymentSchedule(),
-                    _buildRemark(),
-                    _buildTermsAndCondition(),
+                    _buildOtherCharges(),
                     _buildPaymentDetails(),
+                    _buildTermsAndCondition(),
+                    _buildRemark(),
                   ],
                 ),
               ),
@@ -1313,97 +1292,34 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             },
                           ),
                           if (enquiry != null) ...[
-                            Container(
-                              padding: EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: AppColor.lightBlue,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: AppColor.primary,
-                                  width: .5,
-                                ),
-                              ),
-                              child: Column(
-                                spacing: 10,
-                                children: [
-                                  Row(
-                                    spacing: 10,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      buildColumnTitleValue(
-                                        title: 'Enquiry Code',
-                                        value: enquiry.systemGeneratedCode,
-                                      ),
-                                      buildColumnTitleValue(
-                                        title: 'Name',
-                                        value: enquiry.name,
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    spacing: 10,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      buildColumnTitleValue(
-                                        title: 'Mobile No',
-                                        value: enquiry.mobileNumber,
-                                      ),
-                                      buildColumnTitleValue(
-                                        title: 'Source',
-                                        value: enquiry.source,
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    spacing: 10,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      buildColumnTitleValue(
-                                        title: 'Sub Source',
-                                        value: enquiry.subSource,
-                                      ),
-                                      buildColumnTitleValue(
-                                        title: 'Sales Advisor',
-                                        value: enquiry.salesAdvisor,
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    spacing: 10,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      buildColumnTitleValue(
-                                        title: 'Sub Source',
-                                        value: enquiry.subSource,
-                                      ),
-                                      buildColumnTitleValue(
-                                        title: 'Sales Advisor',
-                                        value: enquiry.salesAdvisor,
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    spacing: 10,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      buildColumnTitleValue(
-                                        title: 'Sourcing Manager',
-                                        value: enquiry.sourcingManager,
-                                      ),
-                                      buildColumnTitleValue(
-                                        title: 'Current Location',
-                                        value: enquiry.currentLocation,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
+                            infoCard([
+                              {
+                                "title": "Enquiry Code",
+                                "value": enquiry.systemGeneratedCode,
+                              },
+                              {"title": "Name", "value": enquiry.name},
+                              {
+                                "title": "Mobile No",
+                                "value": enquiry.mobileNumber,
+                              },
+                              {"title": "Source", "value": enquiry.source},
+                              {
+                                "title": "Sub Source",
+                                "value": enquiry.subSource,
+                              },
+                              {
+                                "title": "Sales Advisor",
+                                "value": enquiry.salesAdvisor,
+                              },
+                              {
+                                "title": "Sourcing Manager",
+                                "value": enquiry.sourcingManager,
+                              },
+                              {
+                                "title": "Current Location",
+                                "value": enquiry.currentLocation,
+                              },
+                            ]),
                             Column(
                               children: [
                                 if (enquiry.subSource == "Reference")
@@ -1596,23 +1512,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                           ),
                         );
                       }
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children:
-                              applicants
-                                  .asMap()
-                                  .entries
-                                  .map(
-                                    (entry) => SizedBox(
-                                      width: 320,
-                                      child: _buildApplicantCard(
-                                        entry.value,
-                                        entry.key,
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
+
+                      return SizedBox(
+                        height: 450,
+                        child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          itemCount: applicants.length,
+                          itemBuilder: (context, index) {
+                            final applicant = applicants[index];
+
+                            return _buildApplicantCard(applicant, index);
+                          },
                         ),
                       );
                     },
@@ -1663,197 +1573,51 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               ),
             ),
             // PROJECT DETAILS
-            Container(
-              decoration: BoxDecoration(
-                color: AppColor.lightBlue.withValues(alpha: .5),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColor.primary, width: .3),
-              ),
-              margin: EdgeInsets.only(bottom: 10),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Project Details", style: AppTextStyle.ts16SB()),
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Building Number",
-                        value:
-                            widget.inventoryObject?[0]["buildingNumber"] ??
-                            widget.bookingModel!.buildingNumber,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Wing",
-                        value:
-                            widget.inventoryObject?[0]["wing"] ??
-                            widget.bookingModel!.wing,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Floor",
-                        value:
-                            widget.inventoryObject?[0]["floor"] ??
-                            widget.bookingModel!.floor,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Flat",
-                        value:
-                            widget.inventoryObject?[0]["flat"] ??
-                            widget.bookingModel!.flat,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Flat Type",
-                        value:
-                            widget.inventoryObject?[0]["flatType"] ??
-                            widget.bookingModel!.flatType,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Flat Configuration",
-                        value:
-                            widget.inventoryObject?[0]["flatConfiguration"] ??
-                            widget.bookingModel!.flatConfiguration,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "RERA Carpet Area (SqFt)",
-                        value:
-                            widget.inventoryObject?[0]["reraCarpetAreaSqFt"]
-                                .toString() ??
-                            widget.bookingModel!.reraCarpetAreaSqFt.toString(),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            // PARKING SECTION
-            !_isEditMode
-                ? SizedBox()
-                : Container(
-                  height: 350,
-                  margin: EdgeInsets.only(bottom: 10),
-                  decoration: commonCardDecoration(),
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Parking Details", style: AppTextStyle.ts16SB()),
-                      verticalSpacing(),
-                      Expanded(
-                        child:
-                            widget.bookingModel!.parkingData.isNotEmpty
-                                ? ListView.builder(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 2,
-                                    vertical: 10,
-                                  ),
-                                  shrinkWrap: true,
-                                  itemCount:
-                                      widget.bookingModel!.parkingData.length,
-                                  itemBuilder: (_, index) {
-                                    final parking =
-                                        widget.bookingModel!.parkingData[index];
-                                    return Container(
-                                      margin: EdgeInsets.only(bottom: 10),
-                                      padding: EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: AppColor.primary,
-                                          width: .3,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Column(
-                                        spacing: 10,
-                                        children: [
-                                          Row(
-                                            spacing: 5,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title: "Parking Number",
-                                                value: parking.parkingNumber,
-                                              ),
-                                              buildColumnTitleValue(
-                                                title: "Building",
-                                                value: parking.buildingNumber,
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            spacing: 5,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title: "Wing",
-                                                value: parking.wing,
-                                              ),
-                                              buildColumnTitleValue(
-                                                title: "Floor",
-                                                value: parking.floor,
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            spacing: 5,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title: "Category",
-                                                value: parking.parkingCategory,
-                                              ),
-                                              buildColumnTitleValue(
-                                                title: "Type",
-                                                value: parking.parkingType,
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            spacing: 5,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title: "EV Charging",
-                                                value:
-                                                    parking.isEVChargingAvailable
-                                                        ? "Yes"
-                                                        : "No",
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                )
-                                : Center(child: Text("No Parking")),
-                      ),
-                    ],
-                  ),
-                ),
+            infoCard(title: "Project Details", [
+              {
+                "title": "Building Number",
+                "value":
+                    widget.inventoryObject?[0]["buildingNumber"] ??
+                    widget.bookingModel!.buildingNumber,
+              },
+              {
+                "title": "Wing",
+                "value":
+                    widget.inventoryObject?[0]["wing"] ??
+                    widget.bookingModel!.wing,
+              },
+              {
+                "title": "Floor",
+                "value":
+                    widget.inventoryObject?[0]["floor"] ??
+                    widget.bookingModel!.floor,
+              },
+              {
+                "title": "Flat",
+                "value":
+                    widget.inventoryObject?[0]["flat"] ??
+                    widget.bookingModel!.flat,
+              },
+              {
+                "title": "Flat Type",
+                "value":
+                    widget.inventoryObject?[0]["flatType"] ??
+                    widget.bookingModel!.flatType,
+              },
+              {
+                "title": "Flat Configuration",
+                "value":
+                    widget.inventoryObject?[0]["flatConfiguration"] ??
+                    widget.bookingModel!.flatConfiguration,
+              },
+              {
+                "title": "RERA Carpet Area (SqFt)",
+                "value":
+                    widget.inventoryObject?[0]["reraCarpetAreaSqFt"]
+                        .toString() ??
+                    widget.bookingModel!.reraCarpetAreaSqFt.toString(),
+              },
+            ]),
             // AGREEMENT DETAILS
             Container(
               decoration: commonCardDecoration(),
@@ -1869,8 +1633,14 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     hint: "Enter Agreement Value (with TDS)",
                     isRequired: true,
                     textController: _agreementValueWithTdsC,
-                    inputFormatterList: InputValidator.decimal(2),
-                    keyboardType: TextInputType.number,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatterList: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d{0,16}(\.\d{0,2})?'),
+                      ),
+                    ],
                     onChangeFunction: (value) {
                       final parsed = double.tryParse(value) ?? 0.0;
                       _agreementValueNotifier.value = parsed;
@@ -2061,6 +1831,112 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 );
               },
             ),
+
+            // PARKING SECTION
+            (!_isEditMode || widget.bookingModel!.parkingData.isEmpty)
+                ? SizedBox.shrink()
+                : Container(
+                  height: 350,
+                  margin: EdgeInsets.only(bottom: 10),
+                  decoration: commonCardDecoration(),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Parking Details", style: AppTextStyle.ts16SB()),
+                      verticalSpacing(),
+                      Expanded(
+                        child: ListView.builder(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 2,
+                            vertical: 10,
+                          ),
+                          shrinkWrap: true,
+                          itemCount: widget.bookingModel!.parkingData.length,
+                          itemBuilder: (_, index) {
+                            final parking =
+                                widget.bookingModel!.parkingData[index];
+                            return Container(
+                              margin: EdgeInsets.only(bottom: 10),
+                              padding: EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: AppColor.primary,
+                                  width: .3,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                spacing: 10,
+                                children: [
+                                  Row(
+                                    spacing: 5,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Parking Number",
+                                        value: parking.parkingNumber,
+                                      ),
+                                      buildColumnTitleValue(
+                                        title: "Building",
+                                        value: parking.buildingNumber,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    spacing: 5,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Wing",
+                                        value: parking.wing,
+                                      ),
+                                      buildColumnTitleValue(
+                                        title: "Floor",
+                                        value: parking.floor,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    spacing: 5,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Category",
+                                        value: parking.parkingCategory,
+                                      ),
+                                      buildColumnTitleValue(
+                                        title: "Type",
+                                        value: parking.parkingType,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    spacing: 5,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "EV Charging",
+                                        value:
+                                            parking.isEVChargingAvailable
+                                                ? "Yes"
+                                                : "No",
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
             // OTHER DETAILS
             Container(
               decoration: commonCardDecoration(),
@@ -2196,78 +2072,85 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       key: _otherChargesFormKey,
       child: BlocBuilder<BookingCubit, BookingState>(
         builder: (context, state) {
-          // Initialize local copy only once when cubit returns data
-
           if (state.otherChargesList.isEmpty) {
             return Center(child: Text("No Charges Available"));
           }
 
-          return ListView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            shrinkWrap: true,
-            itemCount: state.otherChargesList.length,
-            itemBuilder: (_, index) {
-              final oc = state.otherChargesList[index];
-              // final originalOc = state.originalOtherChargesList[index];
+          return Column(
+            children: [
+              verticalSpacing(),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: _buildAgreementCard(),
+              ),
+              verticalSpacing(),
+              Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  shrinkWrap: true,
+                  itemCount: state.otherChargesList.length,
+                  itemBuilder: (_, index) {
+                    final oc = state.otherChargesList[index];
 
-              return Container(
-                decoration: commonCardDecoration(),
-                margin: EdgeInsets.only(bottom: 10),
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  spacing: 10,
-                  children: [
-                    Row(
-                      children: [
-                        Text(oc.chargeName, style: AppTextStyle.ts14M()),
-                        Spacer(),
-                        CustomIconButton.delete(
-                          onPressed: () {
-                            _showPopupToDeleteOtherCharge(context, index);
-                          },
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Calculated On",
-                          value: oc.calculatedOn,
-                        ),
-                        // buildColumnTitleValue(
-                        //   title: "Value (₹)",
-                        //   value: addCommasToInteger(originalOc.value),
-                        // ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Amount (₹)",
-                          value: addCommasToInteger(oc.value),
-                        ),
-                        buildColumnTitleValue(
-                          title: "GST(%)",
-                          value: "${oc.gstPercentage} %",
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        buildColumnTitleValue(
-                          title: "GST Value (₹)",
-                          value: addCommasToInteger(oc.gstValue),
-                        ),
-                        buildColumnTitleValue(
-                          title: "Total Value (₹)",
-                          value: addCommasToInteger(oc.value + oc.gstValue),
-                        ),
-                      ],
-                    ),
-                  ],
+                    return Container(
+                      decoration: commonCardDecoration(),
+                      margin: EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        spacing: 10,
+                        children: [
+                          Row(
+                            children: [
+                              Text(oc.chargeName, style: AppTextStyle.ts14M()),
+                              Spacer(),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteOtherCharge(context, index);
+                                },
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Calculated On",
+                                value: oc.calculatedOn,
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Amount (₹)",
+                                value: addCommasToInteger(oc.value),
+                              ),
+                              buildColumnTitleValue(
+                                title: "GST(%)",
+                                value: "${oc.gstPercentage} %",
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              buildColumnTitleValue(
+                                title: "GST Value (₹)",
+                                value: addCommasToInteger(oc.gstValue),
+                              ),
+                              buildColumnTitleValue(
+                                title: "Total Value (₹)",
+                                value: addCommasToInteger(
+                                  oc.value + oc.gstValue,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ],
           );
         },
       ),
@@ -2279,7 +2162,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     return BlocBuilder<BookingCubit, BookingState>(
       builder: (context, state) {
         final list = state.bookingPaymentScheduleList;
-
         return Form(
           key: _paymentScheduleFormKey,
           child: Container(
@@ -2288,6 +2170,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 verticalSpacing(height: 20),
+                _buildAgreementCard(),
+                verticalSpacing(),
                 ValueListenableBuilder<List<Map<String, dynamic>>>(
                   valueListenable: schemeListNotifier,
                   builder: (context, schemeList, _) {
@@ -2475,13 +2359,16 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         itemBuilder: (context, index) {
                           final item = list[index];
                           String stageName =
-                              item.type == 'Date'
-                                  ? DateFormat(
-                                    "dd-MM-yyyy",
-                                  ).format(item.date!).toString()
-                                  : item.name;
+                              (item.name.isNotEmpty)
+                                  ? item.name
+                                  : (item.date != null
+                                      ? DateFormat(
+                                        "dd-MM-yyyy",
+                                      ).format(item.date!)
+                                      : '');
+
                           return Row(
-                            key: ValueKey(item.name + index.toString()),
+                            key: ValueKey(stageName + index.toString()),
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               ReorderableDragStartListener(
@@ -2499,7 +2386,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                               horizontalSpacing(),
 
                               /// Card
-                              Flexible(
+                              Expanded(
                                 child: Container(
                                   margin: const EdgeInsets.only(bottom: 10),
                                   padding: const EdgeInsets.all(12),
@@ -2568,6 +2455,23 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                             title: "Amount (₹)",
                                             value: addCommasToInteger(
                                               item.paymentScheduleAmount,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      verticalSpacing(),
+                                      Row(
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "GST Amount (₹)",
+                                            value: addCommasToInteger(
+                                              item.paymentScheduleGSTAmount,
+                                            ),
+                                          ),
+                                          buildColumnTitleValue(
+                                            title: "TDS Amount (₹)",
+                                            value: addCommasToInteger(
+                                              item.paymentScheduleTDSAmount,
                                             ),
                                           ),
                                         ],
@@ -2803,16 +2707,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
   // BUILD APPLICANT CARD
   Widget _buildApplicantCard(BookingApplicantData applicant, int index) {
     return Container(
-      margin: const EdgeInsets.only(right: 10),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       decoration: BoxDecoration(
         color: AppColor.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColor.lightBlue),
+        border: Border.all(color: AppColor.primary, width: .3),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          /// Header
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -2820,15 +2725,20 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(applicant.applicantName, style: AppTextStyle.ts14M()),
-                    verticalSpacing(height: 4),
+                    Text(
+                      applicant.applicantName,
+                      style: AppTextStyle.ts14M(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     Text(
                       applicant.applicantType,
-                      style: AppTextStyle.ts12R(color: AppColor.grey),
+                      style: AppTextStyle.ts12M(color: AppColor.grey),
                     ),
                   ],
                 ),
               ),
+              horizontalSpacing(width: 5),
               Row(
                 children: [
                   CustomIconButton.edit(
@@ -2846,18 +2756,230 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               ),
             ],
           ),
-          verticalSpacing(height: 8),
+
+          verticalSpacing(),
+
+          /// Contact + Email
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: _buildDetailField(
-                  "Contact No.",
-                  applicant.applicantMobileNumber,
+              buildColumnTitleValue(
+                title: "Contact Number",
+                value:
+                    applicant.applicantMobileNumber.isEmpty
+                        ? "-"
+                        : applicant.applicantMobileNumber,
+              ),
+              buildColumnTitleValue(
+                title: "Email ID",
+                value:
+                    applicant.applicantEmailId.isEmpty
+                        ? "-"
+                        : applicant.applicantEmailId,
+              ),
+            ],
+          ),
+
+          /// Aadhaar
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Aadhaar Card No.",
+                value:
+                    applicant.aadharCardNumber.isEmpty
+                        ? "-"
+                        : applicant.aadharCardNumber,
+              ),
+              buildColumnTitleValue(
+                title: "Aadhaar Card",
+                value:
+                    applicant.aadharCardURL.isEmpty
+                        ? "-"
+                        : applicant.aadharCardURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.aadharCardURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.aadharCardURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.aadharCardURL.isEmpty,
                 ),
               ),
-              Expanded(
-                child: _buildDetailField("Email", applicant.applicantEmailId),
+            ],
+          ),
+
+          /// PAN
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "PAN Card No.",
+                value: applicant.panNumber.isEmpty ? "-" : applicant.panNumber,
               ),
+              buildColumnTitleValue(
+                title: "PAN Card",
+                value:
+                    applicant.panCardURL.isEmpty ? "-" : applicant.panCardURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.panCardURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.panCardURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.panCardURL.isEmpty,
+                ),
+              ),
+            ],
+          ),
+
+          /// Driving License
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Driving License",
+                value:
+                    applicant.drivingLicenseNumber.isEmpty
+                        ? "-"
+                        : applicant.drivingLicenseNumber,
+              ),
+              buildColumnTitleValue(
+                title: "Driving License",
+                value:
+                    applicant.drivingLicenseURL.isEmpty
+                        ? "-"
+                        : applicant.drivingLicenseURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.drivingLicenseURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.drivingLicenseURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.drivingLicenseURL.isEmpty,
+                ),
+              ),
+            ],
+          ),
+
+          /// Voting ID
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Voting ID No.",
+                value:
+                    applicant.votingIdNumber.isEmpty
+                        ? "-"
+                        : applicant.votingIdNumber,
+              ),
+              buildColumnTitleValue(
+                title: "Voting ID",
+                value:
+                    applicant.votingIdURL.isEmpty ? "-" : applicant.votingIdURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.votingIdURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.votingIdURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.votingIdURL.isEmpty,
+                ),
+              ),
+            ],
+          ),
+
+          /// Passport
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Passport No.",
+                value:
+                    applicant.passportNumber.isEmpty
+                        ? "-"
+                        : applicant.passportNumber,
+              ),
+              buildColumnTitleValue(
+                title: "Passport",
+                value:
+                    applicant.passportURL.isEmpty ? "-" : applicant.passportURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.passportURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.passportURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.passportURL.isEmpty,
+                ),
+              ),
+            ],
+          ),
+
+          /// GST
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "GST No.",
+                value: applicant.gstNumber.isEmpty ? "-" : applicant.gstNumber,
+              ),
+              buildColumnTitleValue(
+                title: "GST",
+                value:
+                    applicant.gstNumberURL.isEmpty
+                        ? "-"
+                        : applicant.gstNumberURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.gstNumberURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.gstNumberURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.gstNumberURL.isEmpty,
+                ),
+              ),
+            ],
+          ),
+
+          /// Profile Photo
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Profile Photo",
+                value: applicant.photoURL.isEmpty ? "-" : applicant.photoURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.photoURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        context,
+                        applicant.photoURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.photoURL.isEmpty,
+                ),
+              ),
+              const Expanded(child: SizedBox()),
             ],
           ),
         ],
@@ -2865,26 +2987,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     );
   }
 
-  // BUILD DETAIL FIELD
-  Widget _buildDetailField(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: AppTextStyle.ts12R(color: AppColor.grey)),
-          Text(
-            value.isEmpty ? "-" : value,
-            style: AppTextStyle.ts14R(),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget infoCard(List<Map<String, String>> items) {
+  Widget infoCard(List<Map<String, String>> items, {String? title}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -2895,35 +2998,44 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         border: Border.all(color: AppColor.primary, width: .5),
       ),
       child: Column(
-        children: List.generate((items.length / 2).ceil(), (index) {
-          final first = items[index * 2];
-          final second =
-              (index * 2 + 1 < items.length) ? items[index * 2 + 1] : null;
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (title != null) ...[
+            Text(title, style: AppTextStyle.ts16SB()),
+            verticalSpacing(),
+          ],
+          Column(
+            children: List.generate((items.length / 2).ceil(), (index) {
+              final first = items[index * 2];
+              final second =
+                  (index * 2 + 1 < items.length) ? items[index * 2 + 1] : null;
 
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: buildColumnTitleValue(
-                    title: first["title"] ?? "",
-                    value: first["value"] ?? "-",
-                  ),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: buildColumnTitleValue(
+                        title: first["title"] ?? "",
+                        value: first["value"] ?? "-",
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child:
+                          second != null
+                              ? buildColumnTitleValue(
+                                title: second["title"] ?? "",
+                                value: second["value"] ?? "-",
+                              )
+                              : const SizedBox(),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child:
-                      second != null
-                          ? buildColumnTitleValue(
-                            title: second["title"] ?? "",
-                            value: second["value"] ?? "-",
-                          )
-                          : const SizedBox(),
-                ),
-              ],
-            ),
-          );
-        }),
+              );
+            }),
+          ),
+        ],
       ),
     );
   }
@@ -2939,11 +3051,13 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     return ValueListenableBuilder<double>(
       valueListenable: agreementNotifier,
       builder: (context, agreementAmount, child) {
-        calculateAmount(
-          percentController: percentController,
-          amountController: amountController,
-          agreementAmount: agreementAmount,
-        );
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          calculateAmount(
+            percentController: percentController,
+            amountController: amountController,
+            agreementAmount: agreementAmount,
+          );
+        });
 
         return Container(
           decoration: commonCardDecoration(),
@@ -2988,6 +3102,47 @@ class _AddBookingScreenState extends State<AddBookingScreen>
           ),
         );
       },
+    );
+  }
+
+  Widget _buildAgreementCard() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppColor.lightBlue,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColor.primary, width: .5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Agreement Details", style: AppTextStyle.ts16SB()),
+          verticalSpacing(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+
+            children: [
+              buildColumnTitleValue(
+                title: "Agreement Value (With TDS) (₹)",
+                value: _agreementValueWithTdsC.text,
+              ),
+              buildColumnTitleValue(
+                title: "Agreement GST Amount (₹)",
+                value: _agreementGstAmountC.text,
+              ),
+            ],
+          ),
+          verticalSpacing(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              buildColumnTitleValue(title: "TDS Amount(₹)", value: _tdsC.text),
+              Expanded(child: SizedBox()),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
