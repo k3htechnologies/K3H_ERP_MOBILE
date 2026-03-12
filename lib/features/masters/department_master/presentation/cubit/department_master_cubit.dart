@@ -26,10 +26,10 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
 
   // <---- SORT DEPARTMENT ---->
   Future sortDepartment(
-      BuildContext context,
-      String value,
-      String direction,
-      ) async {
+    BuildContext context,
+    String value,
+    String direction,
+  ) async {
     emit(
       state.copyWith(
         currentSortColumn: value,
@@ -100,10 +100,7 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
       },
       (response) {
         goRouter.pop();
-        showSuccessMessage(
-          context,
-          subTitle: 'Department Added Successfully',
-        );
+        showSuccessMessage(context, subTitle: 'Department Added Successfully');
       },
     );
   }
@@ -219,7 +216,10 @@ class DepartmentMasterCubit extends Cubit<DepartmentMasterState> {
               ? "Department Master ${DateTime.now()}.pdf"
               : "Department Master ${DateTime.now()}.xlsx",
         );
-        showSuccessMessage(context, subTitle: 'Exported as $exportType Successfully');
+        showSuccessMessage(
+          context,
+          subTitle: 'Exported as $exportType Successfully',
+        );
       },
     );
   }

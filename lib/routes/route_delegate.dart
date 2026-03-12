@@ -275,7 +275,9 @@ import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_sc
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_tracker_cubit.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/pages/call_tracker_screen.dart';
+import 'package:k3h_erp_app/features/sales/classification_parameters/data/model/classification_paramerter.model.dart';
 import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/cubit/classification_parameters_cubit.dart';
+import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/pages/add_classification_parameter_screen.dart';
 import 'package:k3h_erp_app/features/sales/classification_parameters/presentation/pages/classification_parameters_screen.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
@@ -4112,6 +4114,35 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.classificationParameter,
                   builder: (context, state) {
                     return ClassificationParametersScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addClassificationParameter,
+                  path: AppRoutes.addClassificationParameter,
+                  builder: (context, state) {
+                    final queryParameterEnquiry =
+                        state.uri.queryParameters['classificationParameter'];
+                    final classificationParameter =
+                        queryParameterEnquiry != null &&
+                                queryParameterEnquiry.isNotEmpty
+                            ? ClassificationParamterModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterEnquiry),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddClassificationParameterScreen(
+                      classificationParamterModel: classificationParameter,
+                      index: index,
+                    );
                   },
                 ),
               ],

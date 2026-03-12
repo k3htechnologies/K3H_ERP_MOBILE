@@ -20,6 +20,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_docume
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document_category/rera_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/redevelopment/dashboard/redevelopment_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/booking/booking.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/sales/classification_parameters/classification_parameters.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/enquiry/enquiry.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/other_charges/other_charges.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/payment_schedule/payment_schedule.dependency.dart';
@@ -208,4 +209,6 @@ void initDependencies() {
   registerLitigationDashboardDependencies(serviceLocator);
   // PAYROLL DASHBOARD
   registerPayrollDashboardDependencies(serviceLocator);
+  // CLASSIFICATION PARAMTERES DEPENDENCIES
+  registerClassificationParameterDependencies(serviceLocator);
 }

@@ -143,6 +143,7 @@ class AppRoutes {
 
   // SALES CLASSIFICATION PARAMETERS
   static String classificationParameter = "/classificationParameter";
+  static String addClassificationParameter = "/addClassificationParameter";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PAYROLL MASTER
