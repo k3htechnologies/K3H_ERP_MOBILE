@@ -22,35 +22,41 @@ class InventoryCubit extends Cubit<InventoryState> {
   bool _isApiCallInProgress = false;
 
   // GET ENTIRE INVENTORY
-  Future getInventory(BuildContext context, int projectId) async {
-    // Only prevent if API is already in progress OR if we already have data and are loading
-    if (_isApiCallInProgress) {
-      return;
-    }
-
-    // If we have data and are loading, don't call again
-    if (state.isLoading == true && state.buildingList.isNotEmpty) {
-      return;
-    }
+  Future<void> getInventory(BuildContext context, int projectId) async {
+    if (_isApiCallInProgress) return;
 
     _isApiCallInProgress = true;
-    // Reset currentTabIndex and clear building list when project changes
-    emit(state.copyWith(isLoading: true, buildingList: [], currentTabIndex: 0));
+
+    emit(state.copyWith(isLoading: true));
+
     final result = await _inventoryRepository.getInventory(
       projectId: projectId,
     );
+
     _isApiCallInProgress = false;
 
     result.fold(
-      (failure) {
+          (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-      (result) {
+          (response) {
+        final List<BuildingModel> buildings =
+        response["data"] as List<BuildingModel>;
+
+        final Map<String, Map<String, int>> wingCounts = {};
+
+        for (var building in buildings) {
+          for (var wing in building.wingList) {
+            wingCounts[wing.wing] = calculateWingCounts(wing);
+          }
+        }
+
         emit(
           state.copyWith(
             isLoading: false,
-            buildingList: result["data"] as List<BuildingModel>,
+            buildingList: buildings,
+            wingCounts: wingCounts,
             currentTabIndex: 0,
           ),
         );
@@ -274,5 +280,46 @@ class InventoryCubit extends Cubit<InventoryState> {
         }).toList();
 
     emit(state.copyWith(buildingList: updatedBuildingList));
+  }
+
+  Map<String, int> calculateWingCounts(WingModel wing) {
+    int total = 0;
+    int available = 0;
+    int blocked = 0;
+    int booked = 0;
+    int hold = 0;
+    int alloted = 0;
+
+    for (var floor in wing.floorList) {
+      for (var flat in floor.flatList) {
+        total++;
+        switch (flat.flatStatus) {
+          case "Available":
+            available++;
+            break;
+          case "Booked":
+            booked++;
+            break;
+          case "Blocked":
+            blocked++;
+            break;
+          case "Hold":
+            hold++;
+            break;
+          case "Alloted":
+            alloted++;
+            break;
+        }
+      }
+    }
+
+    return {
+      "total": total,
+      "available": available,
+      "blocked": blocked,
+      "booked": booked,
+      "hold": hold,
+      "alloted": alloted,
+    };
   }
 }
