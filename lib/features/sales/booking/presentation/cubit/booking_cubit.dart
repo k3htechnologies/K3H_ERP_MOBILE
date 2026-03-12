@@ -459,6 +459,7 @@ class BookingCubit extends Cubit<BookingState> {
                 "PaymentScheduleAmount": e.paymentScheduleAmount,
                 "PaymentScheduleGSTAmount": e.paymentScheduleGSTAmount,
                 "PaymentScheduleTDSAmount": e.paymentScheduleTDSAmount,
+                "Ranking": e.ranking,
               },
             )
             .toList(),
@@ -748,6 +749,7 @@ class BookingCubit extends Cubit<BookingState> {
                 "PaymentScheduleAmount": e.paymentScheduleAmount,
                 "PaymentScheduleGSTAmount": e.paymentScheduleGSTAmount,
                 "PaymentScheduleTDSAmount": e.paymentScheduleTDSAmount,
+                "Ranking": e.ranking,
               },
             )
             .toList(),
@@ -960,8 +962,10 @@ class BookingCubit extends Cubit<BookingState> {
 
               final amount =
                   (agreementValue * master.paymentSchedulePercentage) / 100;
-              final gstAmount = (amount * agreementValueGST) / 100;
-              final tdsAmount = (amount * agreementValueTds) / 100;
+              final gstAmount =
+                  (master.paymentSchedulePercentage * agreementValueGST) / 100;
+              final tdsAmount =
+                  (master.paymentSchedulePercentage * agreementValueTds) / 100;
 
               return BookingPaymentScheduleData(
                 bookingPaymentScheduleId: 0,
@@ -1042,15 +1046,15 @@ class BookingCubit extends Cubit<BookingState> {
     required double agreementValueGST,
   }) {
     final List<BookingPaymentScheduleData> newData =
-        state.bookingPaymentScheduleList.asMap().entries.map((entry) {
-          final master = entry.value;
-
+        state.bookingPaymentScheduleList.map((master) {
           final amount =
               (agreementValue * master.paymentSchedulePercentage) / 100;
 
-          final gstAmount = (amount * agreementValueGST) / 100;
+          final gstAmount =
+              master.paymentSchedulePercentage * agreementValueGST / 100;
 
-          final tdsAmount = (amount * agreementValueTds) / 100;
+          final tdsAmount =
+              master.paymentSchedulePercentage * agreementValueTds / 100;
 
           return BookingPaymentScheduleData(
             bookingPaymentScheduleId: 0,
@@ -1065,6 +1069,7 @@ class BookingCubit extends Cubit<BookingState> {
             ranking: master.ranking,
           );
         }).toList();
+
     emit(state.copyWith(bookingPaymentScheduleList: newData));
   }
 
@@ -1078,7 +1083,7 @@ class BookingCubit extends Cubit<BookingState> {
 
   double get remainingPercentage {
     final total = cumulativePercentage;
-    return (100 - total).clamp(0, 100); // Ensure no negative value
+    return (100 - total).clamp(0, 100);
   }
 
   // <---- DELETE PAYMENT SCHEDULE  ---->

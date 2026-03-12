@@ -231,7 +231,6 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
       modifiedDate: DateTime.now(),
     );
 
-    // ✅ NOW set image objects (for UI/display purposes)
     applicant.profilePhotoImage = profilePhotoFile;
     applicant.aadhaarImage = aadhaarFile;
     applicant.panImage = panFile;
@@ -424,28 +423,23 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                   CustomTextField(
                     title: 'PAN Number',
                     hint: "Enter PAN Number",
+                    isRequired: true,
                     textController: _panC,
                     inputFormatterList: InputValidator.panInputFormatters(),
                     validator: (value) {
-                      if (panFile.fileNameList.isNotEmpty) {
-                        if (value == null || value.isEmpty) {
-                          return "PAN Number is required";
-                        }
-                        if (!InputValidator.isValidPAN(value)) {
-                          return "PAN Number is invalid";
-                        }
-                      } else {
-                        if (value != null &&
-                            value.isNotEmpty &&
-                            !InputValidator.isValidPAN(value)) {
-                          return "PAN Number is invalid";
-                        }
+                      if (value == null || value.isEmpty) {
+                        return "PAN Number is required";
                       }
+                      if (!InputValidator.isValidPAN(value)) {
+                        return "PAN Number is invalid";
+                      }
+
                       return null;
                     },
                   ),
                   CustomMultiFilePicker(
                     title: "PAN Card",
+                    isRequired: true,
                     filePickType: FilePickType.kycDocument,
                     initialFileList: panFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -686,7 +680,11 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
           height: 70,
           padding: const EdgeInsets.all(16),
           color: AppColor.white,
-          child: CustomButton(text: "Save", onPressed: _save),
+          child: CustomButton(
+            text:
+                _isEditingApplicantType ? "Update Applicant" : "Add Applicant",
+            onPressed: _save,
+          ),
         ),
       ),
     );

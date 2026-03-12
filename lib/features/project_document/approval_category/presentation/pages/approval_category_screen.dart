@@ -34,7 +34,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
   late AuthorizationModel _routeAuthorizationModel;
 
   //PROJECT
-  late ProjectModel projectId;
+  late ProjectModel _project;
 
   // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
@@ -52,11 +52,11 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
     _initializeTextEditingController();
     _onScroll();
     //SET PROJECT ID
-    projectId = getProject();
+    _project = getProject();
     _documentCategoryCubit.getApprovalapprovalCategoryList(
       context,
       1,
-      projectId.projectId,
+      _project.projectId,
     );
   }
 
@@ -83,7 +83,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
           context,
           _documentCategoryCubit.state.currentPage + 1,
 
-          projectId.projectId,
+          _project.projectId,
         );
       }
     });
@@ -104,7 +104,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
 
     if (shouldDelete && context.mounted) {
       _documentCategoryCubit.deleteApprovalDocumentCategory(
-        projectId.projectId,
+        _project.projectId,
         obj,
         context,
       );
@@ -118,10 +118,10 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
         screenTitle: "Approval Document Category",
         authorization: _routeAuthorizationModel,
         onSearchSubmit: (value) {
-          if (projectId != 0) {
+          if (_project.projectId != 0) {
             _documentCategoryCubit.searchCategory(
               context,
-              projectId.projectId,
+              _project.projectId,
               value,
             );
           }
@@ -130,15 +130,15 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
         textController: _searchC,
 
         onProjectChangeCallback: (value) {
-          projectId = value;
+          _project = value;
           _documentCategoryCubit.getApprovalapprovalCategoryList(
             context,
             1,
-            projectId.projectId,
+            _project.projectId,
           );
         },
         onAddCallback: () {
-          if (projectId == 0) {
+          if (_project.projectId == 0) {
             showErrorMessage(context, 'Error', 'Please select a project');
             return;
           }
@@ -224,7 +224,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                             children: [
                               CustomIconButton.edit(
                                 onPressed: () async {
-                                  if (projectId == 0) {
+                                  if (_project.projectId == 0) {
                                     showErrorMessage(
                                       context,
                                       'Error',

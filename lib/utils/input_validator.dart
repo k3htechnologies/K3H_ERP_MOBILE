@@ -64,7 +64,6 @@ class InputValidator {
   static List<TextInputFormatter> percentage() {
     return [
       FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-
       TextInputFormatter.withFunction((oldValue, newValue) {
         final text = newValue.text;
 
@@ -76,24 +75,10 @@ class InputValidator {
           return oldValue;
         }
 
-        // prevent decimal after 100
-        if (text.startsWith("100") && text.contains(".")) {
-          return oldValue;
-        }
-
-        // allow typing state like 10.
-        if (text.endsWith(".")) {
-          final value = int.tryParse(text.replaceAll(".", ""));
-          if (value != null && value >= 100) {
-            return oldValue;
-          }
-          return newValue;
-        }
-
         final value = double.tryParse(text);
         if (value == null) return oldValue;
 
-        // limit range
+        // limit range 0-100
         if (value < 0 || value > 100) {
           return oldValue;
         }
