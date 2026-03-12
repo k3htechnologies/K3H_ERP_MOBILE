@@ -22,6 +22,7 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
@@ -48,10 +49,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   late LitigationCubit _litigationCubit;
 
   /// ---------------- TAB CONTROLLER ----------------
-  /// 3 tabs:
-  /// 0 → Overview
-  /// 1 → Hearing
-  /// 2 → Document
   late TabController _tabController;
 
   /// ---------------- SCROLL CONTROLLERS ----------------
@@ -101,6 +98,18 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _tabController.addListener(_onTabChanged);
 
     _onScroll();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _hearingScrollController.dispose();
+    _documentScrollController.dispose();
+    _remarkC.dispose();
+    _conclusionC.dispose();
+    _documentDebounce?.cancel();
+    _hearingDebounce?.cancel();
+    super.dispose();
   }
 
   // TAB CHANGE HANDLER
@@ -176,18 +185,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
         });
       }
     });
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    _hearingScrollController.dispose();
-    _documentScrollController.dispose();
-    _remarkC.dispose();
-    _conclusionC.dispose();
-    _documentDebounce?.cancel();
-    _hearingDebounce?.cancel();
-    super.dispose();
   }
 
   @override
@@ -434,19 +431,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     );
   }
 
-  /// ==========================================================
-  /// OVERVIEW TAB
-  /// Shows:
-  /// - Case details
-  /// - Court details
-  /// - Parties
-  /// - Closure history
-  /// - Action details
-  /// - Close/Reopen button
-  /// ==========================================================
-
-  /// Closure list builder
-  /// Uses litigationClosureData directly from litigation model
+  // BUILD CLOSURE LIST
   Widget _buildClosureCardList() {
     return BlocBuilder<LitigationCubit, LitigationState>(
       builder: (context, state) {
@@ -477,14 +462,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     );
   }
 
-  /// Single closure card
-  /// Shows:
-  /// - Date
-  /// - Remark
-  /// - Conclusion
-  /// - Attachment
-  /// - Edit button (only when status = reopen)
-
+  // BUILD CLOSURE CARD
   Widget _buildClosureCard(
     LitigationClosureModel closure,
     int index,
@@ -686,7 +664,9 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                                     dateFormatterDDMMYYYYDAY(
                                       hearing.hearingDate,
                                     ),
-                                    style: AppTextStyle.ts12SB(color: AppColor.grey),
+                                    style: AppTextStyle.ts12SB(
+                                      color: AppColor.grey,
+                                    ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -963,40 +943,9 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
   // ===================== TAB BAR =====================
   Widget _buildLitigationTabBar() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: IntrinsicWidth(
-        child: Container(
-          height: 35,
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: AppColor.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
-          ),
-          child: TabBar(
-            controller: _tabController,
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            labelColor: AppColor.primary,
-            unselectedLabelColor: AppColor.grey,
-            indicator: BoxDecoration(
-              color: AppColor.lightBlue,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            indicatorSize: TabBarIndicatorSize.tab,
-            dividerColor: Colors.transparent,
-            labelStyle: AppTextStyle.ts14M(),
-            unselectedLabelStyle: AppTextStyle.ts14M(),
-            labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-            tabs: const [
-              Tab(text: "Overview"),
-              Tab(text: "Hearing"),
-              Tab(text: "Document"),
-            ],
-          ),
-        ),
-      ),
+    return ChipStyleTabBar(
+      controller: _tabController,
+      tabs: ["Overview", "Hearing", "Document"],
     );
   }
 
@@ -1023,6 +972,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
   }
 
+  // DELETE DOCUMENT
   Future<void> _showPopupToDeleteDocument(
     BuildContext context,
     LitigationDocumentModel obj,
@@ -1040,7 +990,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
   }
 
-  // Prefill document data for edit
+  // PREFILL DOCUMENT DETAILS
   void _prefillDocumentDetails(LitigationDocumentModel documentModel) {
     _documentNameC.text = documentModel.documentName;
     litigationDocument.fileBytesList = [];
@@ -1053,6 +1003,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
             .toList();
   }
 
+  // ADD/UPDATE DOCUMENT
   Future<void> _showPopUpToAddUpdateDocument({
     LitigationDocumentModel? documentModel,
     int? index,
@@ -1124,7 +1075,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _clearDialogueToAddUpdateDocument();
   }
 
-  // Submit add/update document
+  // SUBMIT DOCUMENT
   void _submitForm({LitigationDocumentModel? documentModel, int? index}) {
     if (!_formKeyDocument.currentState!.validate()) {
       return;
@@ -1156,7 +1107,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
   }
 
-  // Reset document dialog state
+  // CLEAR DOCUMENT FORM
   void _clearDialogueToAddUpdateDocument() {
     _documentNameC.clear();
     litigationDocument.fileBytesList.clear();
@@ -1164,7 +1115,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     litigationDocument.deletedFileList = "";
   }
 
-  // Prefill closure data for editing
+  // PREFILL CLOSURE DATE
   Future<void> _prefillClosureDate({LitigationClosureModel? closure}) async {
     if (closure != null) {
       closureDate = closure.closureDate;
@@ -1182,6 +1133,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
   }
 
+  // ADD/UPDATE CLOSURE
   Future<void> _showClosurePopup({
     LitigationClosureModel? closure,
     int? index,
@@ -1295,7 +1247,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
                     verticalSpacing(height: 20),
 
-                    // Fixed Buttons
                     Row(
                       children: [
                         Expanded(
@@ -1324,7 +1275,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _clearClosureForm();
   }
 
-  // Submit closure add/update
+  // SUBMIT CLOSURE
   void _submitClosure({int? index}) {
     final state = context.read<LitigationCubit>().state;
 
@@ -1372,7 +1323,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
   }
 
-  /// Reset closure form
+  /// CLEAR CLOSURE FORM
   void _clearClosureForm() {
     _remarkC.clear();
     _conclusionC.clear();

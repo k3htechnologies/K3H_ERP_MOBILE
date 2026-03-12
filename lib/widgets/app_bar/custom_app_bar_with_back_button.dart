@@ -299,6 +299,7 @@ class _CustomAppBarWithBackButtonState
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (widget.onProjectChangeCallback != null) ...[
+                  horizontalSpacing(),
                   ValueListenableBuilder<List<ProjectModel>>(
                     valueListenable: _projectListNotifier,
                     builder: (context, projects, _) {
@@ -314,7 +315,6 @@ class _CustomAppBarWithBackButtonState
                       );
                     },
                   ),
-                  horizontalSpacing(),
                 ],
 
                 if (widget.onFilterTap != null) ...[
