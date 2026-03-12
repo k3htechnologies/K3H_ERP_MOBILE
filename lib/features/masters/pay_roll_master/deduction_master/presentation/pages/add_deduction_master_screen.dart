@@ -460,7 +460,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
           height: 70,
           padding: const EdgeInsets.all(16),
           child: CustomButton(
-            text: _isEditMode ? "Update Deduction" : "Add Deduction",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: () => _submitForm(),
           ),
         ),

@@ -9,6 +9,7 @@ class LitigationState extends BaseState {
   final int litigationCurrentPage;
   final int litigationTotalRecords;
 
+
   // ---- Hearing ----
   final List<LitigationHearingModel> litigationHearingList;
   final int hearingCurrentPage;
@@ -23,6 +24,12 @@ class LitigationState extends BaseState {
   final int currentTabIndex;
   final String searchText;
 
+  // ----- FILTER ---------
+  final String currentSortColumn;
+  final String currentSortDirection;
+  final String filterCaseNumber;
+  final String filterByCourtName;
+
   const LitigationState({
     super.isLoading,
     required this.litigationList,
@@ -36,6 +43,10 @@ class LitigationState extends BaseState {
     required this.documentTotalRecords,
     required this.currentTabIndex,
     this.searchText = "",
+    this.currentSortColumn = "Created Date",
+    this.currentSortDirection = "DESC",
+    this.filterCaseNumber = "",
+    this.filterByCourtName = "",
   });
 
   // ---------------- INITIAL ----------------
@@ -57,6 +68,11 @@ class LitigationState extends BaseState {
 
       currentTabIndex: 0,
       searchText: "",
+
+      currentSortColumn: "Created Date",
+      currentSortDirection: "DESC",
+      filterCaseNumber: "",
+      filterByCourtName: "",
     );
   }
 
@@ -78,6 +94,11 @@ class LitigationState extends BaseState {
 
     int? currentTabIndex,
     String? searchText,
+
+    String? currentSortColumn,
+    String? currentSortDirection,
+    String? filterCaseNumber,
+    String? filterByCourtName,
   }) {
     return LitigationState(
       isLoading: isLoading ?? this.isLoading,
@@ -99,7 +120,12 @@ class LitigationState extends BaseState {
       documentTotalRecords: documentTotalRecords ?? this.documentTotalRecords,
 
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
-      searchText: searchText ?? this.searchText
+      searchText: searchText ?? this.searchText,
+
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      filterCaseNumber: filterCaseNumber ?? this.filterCaseNumber,
+      filterByCourtName: filterByCourtName ?? this.filterByCourtName,
     );
   }
 
@@ -121,5 +147,10 @@ class LitigationState extends BaseState {
 
     currentTabIndex,
     searchText,
+
+    currentSortColumn,
+    currentSortDirection,
+    filterCaseNumber,
+    filterByCourtName,
   ];
 }

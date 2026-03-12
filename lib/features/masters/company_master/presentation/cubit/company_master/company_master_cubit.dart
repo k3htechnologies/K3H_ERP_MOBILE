@@ -23,22 +23,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     await getCompanyMaster(context, 1);
   }
 
-  // <---- SORT COMPANY ---->
-  Future sortCompany(
-    BuildContext context,
-    String value,
-    String direction,
-  ) async {
-    emit(
-      state.copyWith(
-        currentSortColumn: value,
-        currentSortDirection: direction,
-        companyList: [],
-      ),
-    );
-    await getCompanyMaster(context, 1);
-  }
-
   // <---- FILTER COMPANY ---->
   Future applyCompanyFilterAndSort({
     required BuildContext context,

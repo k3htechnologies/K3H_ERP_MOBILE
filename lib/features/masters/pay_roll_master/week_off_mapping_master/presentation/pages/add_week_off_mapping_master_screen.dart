@@ -279,10 +279,7 @@ class _AddWeekOffMappingMasterScreenState
               color: AppColor.white,
               size: 18,
             ),
-            text:
-                _isEditMode
-                    ? "Update Week Off Mapping"
-                    : "Add Week Off Mapping",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

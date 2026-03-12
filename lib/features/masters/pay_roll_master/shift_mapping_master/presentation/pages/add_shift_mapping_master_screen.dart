@@ -210,7 +210,7 @@ class _AddShiftMappingMasterScreenState
           padding: EdgeInsets.all(16),
           child: CustomButton(
             leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
-            text: _isEditMode ? "Update Shift Mapping" : "Add Shift Mapping",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

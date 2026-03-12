@@ -47,6 +47,9 @@ class _AddSubMaterialMasterScreenState
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  //EDIT MODE
+  bool get _isEditMode => widget.subMaterial != null;
+
   // SELECTED VALUES
   List<Map<String, dynamic>>? _selectedMaterial;
   List<Map<String, dynamic>>? _selectedUOM;
@@ -167,8 +170,7 @@ class _AddSubMaterialMasterScreenState
         return;
       }
 
-      if (widget.subMaterial != null) {
-        // UPDATE
+      if (_isEditMode) {
         await _subMaterialMasterCubit.updateSubMaterialMaster(
           context: context,
           subMaterialMasterId: widget.subMaterial!.subMaterialMasterId,
@@ -179,7 +181,6 @@ class _AddSubMaterialMasterScreenState
           index: widget.index,
         );
       } else {
-        // ADD
         await _subMaterialMasterCubit.addSubMaterialMaster(
           context: context,
           subMaterialName: _subMaterialNameC.text.trim(),
@@ -205,9 +206,7 @@ class _AddSubMaterialMasterScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.subMaterial != null
-                    ? "Update Sub Material"
-                    : "Add Sub Material",
+                _isEditMode ? "Update Sub Material" : "Add Sub Material",
                 style: AppTextStyle.ts16SB(),
               ),
               verticalSpacing(),
@@ -281,13 +280,10 @@ class _AddSubMaterialMasterScreenState
           padding: const EdgeInsets.all(16),
           child: CustomButton(
             leading:
-                widget.subMaterial != null
+                _isEditMode
                     ? const Icon(Icons.edit, size: 18, color: AppColor.white)
                     : const Icon(Icons.add, size: 18, color: AppColor.white),
-            text:
-                widget.subMaterial != null
-                    ? 'Update Sub Material'
-                    : 'Add Sub Material',
+            text: _isEditMode ? 'Update' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: _addUpdateSubMaterial,
           ),

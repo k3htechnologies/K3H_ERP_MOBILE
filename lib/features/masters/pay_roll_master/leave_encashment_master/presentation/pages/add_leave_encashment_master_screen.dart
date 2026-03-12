@@ -37,6 +37,7 @@ class _AddLeaveEncashmentMasterScreenState
 
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
+
   //EDIT MODE
   bool get _isEditMode => widget.leaveEncashmentMasterModel != null;
 
@@ -212,8 +213,8 @@ class _AddLeaveEncashmentMasterScreenState
             leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
             text:
                 _isEditMode
-                    ? "Update Leave Encashment"
-                    : "Add Leave Encashment",
+                    ? "Update"
+                    : "Add",
             onPressed: _submitForm,
           ),
         ),

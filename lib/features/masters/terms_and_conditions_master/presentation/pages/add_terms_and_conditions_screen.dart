@@ -202,7 +202,7 @@ class _AddTermsAndConditionsScreenState
       bottomNavigationBar: SafeArea(
         child: Container(
           color: AppColor.white,
-          height: 80,
+          height: 70,
           padding: const EdgeInsets.all(16),
           child: CustomButton(
             leading: Icon(

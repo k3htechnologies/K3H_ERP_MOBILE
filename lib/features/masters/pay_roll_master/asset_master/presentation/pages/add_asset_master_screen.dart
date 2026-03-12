@@ -379,7 +379,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
               size: 18,
               color: AppColor.white,
             ),
-            text: _isEditMode ? "Update Asset" : "Add Asset",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

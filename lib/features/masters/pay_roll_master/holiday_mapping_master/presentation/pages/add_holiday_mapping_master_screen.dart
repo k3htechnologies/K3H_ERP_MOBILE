@@ -280,7 +280,7 @@ class _AddHolidayMappingMasterScreenState
           child: CustomButton(
             leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
             text:
-                _isEditMode ? "Update Holiday Mapping" : "Add Holiday Mapping",
+                _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

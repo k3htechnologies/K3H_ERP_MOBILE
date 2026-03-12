@@ -913,7 +913,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               color: AppColor.white,
               size: 18,
             ),
-            text: !_isEditMode ? 'Add Employee' : 'Update Employee',
+            text: !_isEditMode ? 'Add' : 'Update',
             onPressed: _handleSubmit,
             backgroundColor: AppColor.primary,
           ),

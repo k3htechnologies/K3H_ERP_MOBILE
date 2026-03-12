@@ -292,7 +292,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
           decoration: commonCardDecoration(),
           padding: const EdgeInsets.all(16),
           child: CustomButton(
-            text: _isEditMode ? "Update Earning" : "Add Earning",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

@@ -313,12 +313,6 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
           }
         },
         textController: _searchC,
-        onSortOptionCallback: (value) async {
-          _companyMasterCubit.sortCompany(context, value, "DESC");
-        },
-        isFilterOn: true,
-        sortOptionList: ["Created Date", "Company Name", "Company Type"],
-        initialSortType: "Created Date",
         onFilterTap: () {
           _showBottomSheetToFilterCompanyMaster(context);
         },

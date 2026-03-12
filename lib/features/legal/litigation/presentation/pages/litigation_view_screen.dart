@@ -250,7 +250,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                             value: litigation.title,
                           ),
                           buildColumnTitleValue(
-                            title: "Case / Petition / Dispute Number",
+                            title: "Case / Petiton / Dispute Number",
                             value: litigation.caseNumber,
                           ),
                         ],
@@ -291,19 +291,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-
-                Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text("Court Brief", style: AppTextStyle.ts16SB()),
-                      Text(litigation.caseBrief, style: AppTextStyle.ts14M()),
                     ],
                   ),
                 ),
@@ -356,7 +343,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           buildColumnTitleValue(
-                            title: "Plainiff / Petitioner",
+                            title: "Plaintiff",
                             value: litigation.plantiff,
                           ),
                           buildColumnTitleValue(
@@ -369,7 +356,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           buildColumnTitleValue(
-                            title: "Defendant / Opposite Party / Respondents",
+                            title: "Defendant / Opposite Party / Respondent",
                             value: litigation.defendant,
                           ),
                           buildColumnTitleValue(
@@ -394,7 +381,23 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        "Case Remark / Comment",
+                        "Case Brief / Petition / Suit",
+                        style: AppTextStyle.ts16SB(),
+                      ),
+                      Text(litigation.caseBrief, style: AppTextStyle.ts14M()),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        "Case Remarks / Comments",
                         style: AppTextStyle.ts16SB(),
                       ),
                       Text(litigation.remark, style: AppTextStyle.ts14M()),
@@ -403,49 +406,11 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 ),
 
                 /// ================= ACTION DETAILS =================
-                Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Action Details", style: AppTextStyle.ts16SB()),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Created By",
-                            value: litigation.createdBy,
-                          ),
-                          buildColumnTitleValue(
-                            title: "Created Date",
-                            value: formatDateTimeAsDDMMMYYYY(
-                              litigation.createdDate,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          buildColumnTitleValue(
-                            title: "Modified By",
-                            value: litigation.modifiedBy,
-                          ),
-                          buildColumnTitleValue(
-                            title: "Modified Date",
-                            value:
-                                litigation.modifiedDate != null
-                                    ? formatDateTimeAsDDMMMYYYY(
-                                      litigation.modifiedDate!,
-                                    )
-                                    : '-',
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                actionCardWidget(
+                  createdBy: litigation.createdBy,
+                  createdDate: litigation.createdDate,
+                  modifiedBy: litigation.modifiedBy,
+                  modifiedDate: litigation.modifiedDate,
                 ),
 
                 /// ================= CLOSE / REOPEN BUTTON =================
@@ -637,7 +602,11 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                     ),
                   ],
                 ),
-                Expanded(child: Center(child: noDataWidget())),
+                Expanded(
+                  child: Center(
+                    child: noDataWidget(message: "No hearing history found"),
+                  ),
+                ),
               ],
             ),
           );
@@ -706,13 +675,23 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                dateFormatterDDMMYYYYDAY(hearing.hearingDate),
-                                style: AppTextStyle.ts14M(),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    hearing.createdBy,
+                                    style: AppTextStyle.ts14M(),
+                                  ),
+                                  Text(
+                                    dateFormatterDDMMYYYYDAY(
+                                      hearing.hearingDate,
+                                    ),
+                                    style: AppTextStyle.ts12SB(color: AppColor.grey),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
-
                               //Only Lastest Hearing can be Update and Delete but make sure Api return data by date and Time
                               if (index == 0 &&
                                   status.toLowerCase() != 'closed')
@@ -756,8 +735,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                                 ),
                             ],
                           ),
-                          verticalSpacing(),
-
+                          verticalSpacing(height: 5),
                           Text(
                             hearing.remark,
                             style: AppTextStyle.ts14R(color: AppColor.grey),
@@ -1062,13 +1040,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
   }
 
-  /// ==========================================================
-  /// DOCUMENT ADD/UPDATE POPUP
-  /// Shared dialog for both add & edit
-  /// ==========================================================
-
-  /// Prefill document data for edit
-
+  // Prefill document data for edit
   void _prefillDocumentDetails(LitigationDocumentModel documentModel) {
     _documentNameC.text = documentModel.documentName;
     litigationDocument.fileBytesList = [];
@@ -1152,7 +1124,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _clearDialogueToAddUpdateDocument();
   }
 
-  /// Submit add/update document
+  // Submit add/update document
   void _submitForm({LitigationDocumentModel? documentModel, int? index}) {
     if (!_formKeyDocument.currentState!.validate()) {
       return;
@@ -1184,7 +1156,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
   }
 
-  /// Reset document dialog state
+  // Reset document dialog state
   void _clearDialogueToAddUpdateDocument() {
     _documentNameC.clear();
     litigationDocument.fileBytesList.clear();
@@ -1192,14 +1164,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     litigationDocument.deletedFileList = "";
   }
 
-  /// ==========================================================
-  /// CLOSURE FORM
-  /// Used for:
-  /// - Add closure
-  /// - Update closure
-  /// ==========================================================
-
-  /// Prefill closure data for editing
+  // Prefill closure data for editing
   Future<void> _prefillClosureDate({LitigationClosureModel? closure}) async {
     if (closure != null) {
       closureDate = closure.closureDate;
@@ -1270,6 +1235,46 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                             ),
                             verticalSpacing(),
 
+                            /// FILES
+                            CustomMultiFilePicker(
+                              title: "Files",
+                              isRequired: true,
+                              initialFileList: closureFiles.fileNameList,
+                              onFilePickedCallback: (bytes, names) {
+                                closureFiles.fileBytesList = bytes;
+                                closureFiles.fileNameList = names;
+                              },
+                              onFileDeleteCallback: (bytes, names, deleted) {
+                                closureFiles.fileBytesList = bytes;
+                                closureFiles.fileNameList = names;
+                                closureFiles.deletedFileList = deleted;
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "File is required";
+                                }
+                                return null;
+                              },
+                            ),
+
+                            verticalSpacing(),
+
+                            /// Remark
+                            CustomTextField(
+                              title: "Remark",
+                              isRequired: true,
+                              hint: "Enter remark",
+                              textController: _remarkC,
+                              maxLines: 2,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "Remark is required";
+                                }
+                                return null;
+                              },
+                            ),
+                            verticalSpacing(),
+
                             /// Conclusion
                             CustomTextField(
                               title: "Conclusion",
@@ -1283,31 +1288,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                                           ? "Conclusion required"
                                           : null,
                             ),
-                            verticalSpacing(),
-
-                            /// Remark
-                            CustomTextField(
-                              title: "Remark",
-                              hint: "Enter remark",
-                              textController: _remarkC,
-                              maxLines: 2,
-                            ),
-                            verticalSpacing(),
-
-                            /// Attachments
-                            CustomMultiFilePicker(
-                              title: "Attachments",
-                              initialFileList: closureFiles.fileNameList,
-                              onFilePickedCallback: (bytes, names) {
-                                closureFiles.fileBytesList = bytes;
-                                closureFiles.fileNameList = names;
-                              },
-                              onFileDeleteCallback: (bytes, names, deleted) {
-                                closureFiles.fileBytesList = bytes;
-                                closureFiles.fileNameList = names;
-                                closureFiles.deletedFileList = deleted;
-                              },
-                            ),
                           ],
                         ),
                       ),
@@ -1319,9 +1299,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                     Row(
                       children: [
                         Expanded(
-                          child: CustomButton(
-                            text: "Cancel",
-                            backgroundColor: AppColor.grey,
+                          child: CustomButton.cancelOutline(
                             onPressed: () => Navigator.pop(context),
                           ),
                         ),
@@ -1346,7 +1324,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _clearClosureForm();
   }
 
-  /// Submit closure add/update
+  // Submit closure add/update
   void _submitClosure({int? index}) {
     final state = context.read<LitigationCubit>().state;
 
@@ -1404,9 +1382,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     closureFiles.deletedFileList = "";
   }
 
-  /// ==========================================================
-  /// REOPEN CONFIRMATION
-  /// ==========================================================
+  // REOPEN CONFIRMATION
   Future<void> _showPopupToReopenLitigation(BuildContext context) async {
     final shouldDelete = await DialogHelper.showConfirmationDialog(
       context: context,

@@ -64,6 +64,7 @@ class _AddAssetMappingMasterScreenState
   late AuthorizationModel _routeAuthorizationModel;
 
   bool get _isEditMode => widget.assetMapping != null;
+
   @override
   void initState() {
     super.initState();
@@ -109,7 +110,6 @@ class _AddAssetMappingMasterScreenState
 
   // POPULATE FORM FIELDS
   void _populateFormFields(AssetMappingModel assetMapping) {
-    // Set employee with available data; full details fetched below in edit mode
     _selectedEmployeeNotifier.value = [
       {
         'zAttributesId': assetMapping.employeeId,
@@ -144,7 +144,6 @@ class _AddAssetMappingMasterScreenState
       queryParams: {'EmployeeId': employeeId},
     );
     result.fold((_) {}, (response) {
-      // Repository already returns List<UserModel> in response['data']
       final employees = response['data'] as List<UserModel>? ?? [];
       if (employees.isEmpty) return;
       final employee = employees.first;

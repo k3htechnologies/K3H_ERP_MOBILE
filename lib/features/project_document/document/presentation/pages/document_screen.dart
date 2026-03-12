@@ -396,23 +396,13 @@ class _DocumentScreenState extends State<DocumentScreen>
                               },
                             );
                           },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 0,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: AppColor.primary),
-                              ),
-                            ),
-                            child: Text(
-                              document.projectDocumentName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                          child: Text(
+                            document.projectDocumentName,
+                            style: AppTextStyle.ts16M(
+                              color: AppColor.primary,
+                            ).copyWith(
+                              decoration: TextDecoration.underline,
+                              decorationColor: AppColor.primary,
                             ),
                           ),
                         ),

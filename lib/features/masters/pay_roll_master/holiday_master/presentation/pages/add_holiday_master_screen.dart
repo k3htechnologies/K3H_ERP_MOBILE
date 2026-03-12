@@ -168,7 +168,7 @@ class _AddHolidayMasterScreenState extends State<AddHolidayMasterScreen> {
               color: AppColor.white,
               size: 18,
             ),
-            text: _isEditMode ? "Update Holiday" : "Add Holiday",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

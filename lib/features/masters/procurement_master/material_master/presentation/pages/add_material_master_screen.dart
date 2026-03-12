@@ -35,10 +35,12 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  //EDIT MODE
+  bool get _isEditMode => widget.material != null;
+
   @override
   void initState() {
     super.initState();
-    // Use service locator to get the singleton cubit instance
     _materialMasterCubit = context.read<MaterialMasterCubit>();
     _initializeTextEditingControllers();
     if (widget.material != null) {
@@ -68,10 +70,9 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
   // <---- ADD/UPDATE MATERIAL ---->
   Future<void> _addUpdateMaterial() async {
     if (_formKey.currentState!.validate()) {
-
-      if (widget.material != null) {
+      if (_isEditMode) {
         // UPDATE
-         _materialMasterCubit.updateMaterialMaster(
+        _materialMasterCubit.updateMaterialMaster(
           context: context,
           materialName: _materialNameC.text.trim(),
           materialCode: _materialCodeC.text.trim(),
@@ -81,7 +82,7 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
         );
       } else {
         // ADD
-         _materialMasterCubit.addMaterialMaster(
+        _materialMasterCubit.addMaterialMaster(
           context: context,
           materialName: _materialNameC.text.trim(),
           materialCode: _materialCodeC.text.trim(),
@@ -105,9 +106,7 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.material != null
-                    ? "Update Material Master"
-                    : "Add Material Master",
+                _isEditMode ? "Update Material Master" : "Add Material Master",
                 style: AppTextStyle.ts16SB(),
               ),
               verticalSpacing(),
@@ -166,10 +165,10 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
           padding: const EdgeInsets.all(16),
           child: CustomButton(
             leading:
-                widget.material != null
+                _isEditMode
                     ? const Icon(Icons.edit, size: 18, color: AppColor.white)
                     : const Icon(Icons.add, size: 18, color: AppColor.white),
-            text: widget.material != null ? 'Update Material' : 'Add Material',
+            text: _isEditMode ? 'Update' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: () => _addUpdateMaterial(),
           ),

@@ -137,6 +137,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     {"zAttributesId": 5, "DisplayName": "Planning"},
   ];
 
+  // EDIT MODE
+  bool get _isEditMode => widget.project != null;
+
   @override
   void initState() {
     super.initState();
@@ -146,7 +149,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     selectedProjectSubScheme =
         _currentSubSchemeList.isNotEmpty ? _currentSubSchemeList.first : null;
     _initializeTextEditingController();
-    if (widget.project != null) {
+    if (_isEditMode) {
       _prefillDialogueToAddUpdateProjectMaster(widget.project!);
     }
   }
@@ -384,7 +387,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.project == null ? "Add Project" : "Update Project",
+                  _isEditMode ? "Add Project" : "Update Project",
                   style: AppTextStyle.ts16SB(),
                 ),
                 verticalSpacing(),
@@ -819,10 +822,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
           padding: EdgeInsets.all(16),
           child: CustomButton(
             leading:
-                widget.project != null
+                _isEditMode
                     ? Icon(Icons.edit, size: 18, color: AppColor.white)
                     : Icon(Icons.add, size: 18, color: AppColor.white),
-            text: widget.project != null ? 'Update Project' : 'Add Project',
+            text: _isEditMode ? 'Update' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: () {
               _addUpdateProject(widget.project);

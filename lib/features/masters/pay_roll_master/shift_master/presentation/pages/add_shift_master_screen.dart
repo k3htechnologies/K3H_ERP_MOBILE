@@ -348,7 +348,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text: _isEditMode ? "Update Shift" : "Add Shift",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

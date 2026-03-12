@@ -209,7 +209,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
               size: 18,
               color: AppColor.white,
             ),
-            text: _isEditMode ? "Update Branch Master" : "Add Branch Master",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

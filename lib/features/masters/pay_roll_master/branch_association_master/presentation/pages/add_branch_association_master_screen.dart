@@ -409,10 +409,7 @@ class _AddBranchAssociationMasterScreenState
               color: AppColor.white,
               size: 18,
             ),
-            text:
-                _isEditMode
-                    ? "Update Branch Association"
-                    : "Add Branch Association",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

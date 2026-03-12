@@ -103,6 +103,9 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
 
   Map<int, List<SubMaterialModel>> materialMap = {};
 
+  // EDIT MODE
+  bool get _isEditMode => widget.vendor != null;
+
   @override
   void initState() {
     super.initState();
@@ -110,7 +113,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     initializeTextEditingControllers();
     initializeDropdown();
     getMaterialList();
-    if (widget.vendor != null) {
+    if (_isEditMode) {
       prefillVendorDetails(widget.vendor!);
     }
   }
@@ -402,7 +405,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
               color: AppColor.white,
               size: 18,
             ),
-            text: widget.vendor == null ? 'Add Vendor' : 'Update Vendor',
+            text: _isEditMode ? 'Add' : 'Update',
             onPressed: _handleSubmit,
             backgroundColor: AppColor.primary,
           ),

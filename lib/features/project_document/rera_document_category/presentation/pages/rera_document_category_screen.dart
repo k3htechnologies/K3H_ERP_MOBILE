@@ -36,7 +36,7 @@ class _RERADocumentCategoryScreenState
   late AuthorizationModel _routeAuthorizationModel;
 
   //PROJECT
-  late ProjectModel projectId;
+  late ProjectModel project;
 
   // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
@@ -54,11 +54,11 @@ class _RERADocumentCategoryScreenState
     _initializeTextEditingController();
     _onScroll();
     //SET PROJECT ID
-    projectId = getProject();
+    project = getProject();
     _reraDocumentCategoryCubit.getRERADocumentCategoryList(
       context,
       1,
-      projectId.projectId,
+      project.projectId,
     );
   }
 
@@ -81,12 +81,12 @@ class _RERADocumentCategoryScreenState
           !_reraDocumentCategoryCubit.state.isLoading! &&
           _reraDocumentCategoryCubit.state.reraDocumentCategoryList.length <
               _reraDocumentCategoryCubit.state.totalNumberOfRecord) {
-        if (projectId != 0) {
+        if (project.projectId != 0) {
           _reraDocumentCategoryCubit.getRERADocumentCategoryList(
             context,
             _reraDocumentCategoryCubit.state.currentPage + 1,
 
-            projectId.projectId,
+            project.projectId,
           );
         }
       }
@@ -108,7 +108,7 @@ class _RERADocumentCategoryScreenState
 
     if (shouldDelete && context.mounted) {
       _reraDocumentCategoryCubit.deleteRERADocumentCategory(
-        projectId.projectId,
+        project.projectId,
         obj,
         context,
       );
@@ -123,17 +123,17 @@ class _RERADocumentCategoryScreenState
         authorization: _routeAuthorizationModel,
         searchHintText: "Search By Project RERA Document Category",
         onSearchSubmit: (value) {
-          if (projectId.projectId != 0) {
+          if (project.projectId != 0) {
             _reraDocumentCategoryCubit.searchCategory(
               context,
-              projectId.projectId,
+              project.projectId,
               value,
             );
           }
         },
         textController: _searchC,
         onAddCallback: () async {
-          if (projectId.projectId == 0) {
+          if (project.projectId == 0) {
             showErrorMessage(context, 'Error', 'Please select a project');
             return;
           }
@@ -144,7 +144,7 @@ class _RERADocumentCategoryScreenState
               _reraDocumentCategoryCubit.getRERADocumentCategoryList(
                 context,
                 1,
-                projectId.projectId,
+                project.projectId,
               );
             }
           });
@@ -157,15 +157,15 @@ class _RERADocumentCategoryScreenState
           _reraDocumentCategoryCubit.exportExcelPdf(
             context,
             value,
-            projectId.projectId,
+            project.projectId,
           );
         },
         onProjectChangeCallback: (value) {
-          projectId = value;
+          project = value;
           _reraDocumentCategoryCubit.getRERADocumentCategoryList(
             context,
             1,
-            projectId.projectId,
+            project.projectId,
           );
         },
       ),
@@ -239,7 +239,7 @@ class _RERADocumentCategoryScreenState
                             children: [
                               CustomIconButton.edit(
                                 onPressed: () async {
-                                  if (projectId == 0) {
+                                  if (project.projectId == 0) {
                                     showErrorMessage(
                                       context,
                                       'Error',

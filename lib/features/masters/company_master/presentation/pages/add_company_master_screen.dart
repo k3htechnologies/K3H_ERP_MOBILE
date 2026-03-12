@@ -140,6 +140,9 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     deletedFileList: "",
   );
 
+  // EDIT MODE
+  bool get _isEditMode => widget.company != null;
+
   @override
   void initState() {
     super.initState();
@@ -326,7 +329,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    widget.company == null ? "Add Company" : "Update Company",
+                    _isEditMode ? "Add Company" : "Update Company",
                     style: AppTextStyle.ts16SB(),
                   ),
                 ),
@@ -369,7 +372,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             children: [
               Flexible(
                 child: CustomButton(
-                  text: widget.company == null ? 'Save' : 'Update',
+                  text: _isEditMode ? 'Save' : 'Update',
                   onPressed: _handleSubmit,
                   backgroundColor: AppColor.primary,
                 ),

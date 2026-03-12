@@ -244,7 +244,7 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
           padding: EdgeInsets.all(16),
           child: CustomButton(
             leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
-            text: _isEditMode ? "Update Leave Type" : "Add Leave Type",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

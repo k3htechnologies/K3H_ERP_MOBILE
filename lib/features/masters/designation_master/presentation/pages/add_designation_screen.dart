@@ -31,11 +31,16 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
   late DesignationMasterCubit _designationMasterCubit;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _designationNameC, _noticePeriodC,_probationPeriodC;
+  late TextEditingController _designationNameC,
+      _noticePeriodC,
+      _probationPeriodC;
 
   // FORM KEY
   final GlobalKey<FormState> _designationMasterAddUpdateKey =
       GlobalKey<FormState>();
+
+  // EDIT MODE
+  bool get _isEditMode => widget.designationMasterModel != null;
 
   @override
   void initState() {
@@ -115,9 +120,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.designationMasterModel != null
-                    ? "Update Designation"
-                    : "Add Designation",
+                _isEditMode ? "Update Designation" : "Add Designation",
                 style: AppTextStyle.ts16SB(),
               ),
               verticalSpacing(),
@@ -138,7 +141,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                         if ((value == null || value.isEmpty)) {
                           return 'Designation Name is required';
                         }
-                        if(value.trim().length<3){
+                        if (value.trim().length < 3) {
                           return "Must be at least 3 characters";
                         }
                         return null;
@@ -156,9 +159,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                           return 'Notice Period is required';
                         }
                         final numValue = int.tryParse(value);
-                        if (numValue == null ||
-                            numValue < 1 ||
-                            numValue > 99) {
+                        if (numValue == null || numValue < 1 || numValue > 99) {
                           return 'Enter a valid number (1 to 99)';
                         }
                         return null;
@@ -176,9 +177,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                           return 'Probation Period is required';
                         }
                         final numValue = int.tryParse(value);
-                        if (numValue == null ||
-                            numValue < 1 ||
-                            numValue > 99) {
+                        if (numValue == null || numValue < 1 || numValue > 99) {
                           return 'Enter a valid number (1 to 99)';
                         }
                         return null;
@@ -198,10 +197,10 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
           padding: EdgeInsets.all(16),
           child: CustomButton(
             leading:
-                widget.designationMasterModel != null
+                _isEditMode
                     ? Icon(Icons.edit, size: 18, color: AppColor.white)
                     : Icon(Icons.add, size: 18, color: AppColor.white),
-            text: widget.designationMasterModel != null ? 'Update' : 'Add',
+            text: _isEditMode ? 'Update' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: () {
               _addUpdateDesignation(

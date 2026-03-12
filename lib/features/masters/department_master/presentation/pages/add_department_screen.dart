@@ -33,12 +33,15 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
   final GlobalKey<FormState> _departmentMasterAddUpdateKey =
       GlobalKey<FormState>();
 
+  // EDIT MODE
+  bool get _isEditMode => widget.department != null;
+
   @override
   void initState() {
     super.initState();
     _departmentMasterCubit = BlocProvider.of<DepartmentMasterCubit>(context);
     _initializeTextEditingController();
-    if (widget.department != null) {
+    if (_isEditMode) {
       _prefillDialogueToAddUpdateDepartmentMaster(widget.department!);
     }
   }
@@ -104,9 +107,7 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.department != null
-                    ? "Update Department"
-                    : "Add Department",
+                _isEditMode ? "Update Department" : "Add Department",
                 style: AppTextStyle.ts16SB(),
               ),
               verticalSpacing(),
@@ -163,10 +164,10 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
           padding: EdgeInsets.all(16),
           child: CustomButton(
             leading:
-                widget.department != null
+                _isEditMode
                     ? Icon(Icons.edit, size: 18, color: AppColor.white)
                     : Icon(Icons.add, size: 18, color: AppColor.white),
-            text: widget.department != null ? 'Update' : 'Add',
+            text: _isEditMode ? 'Update' : 'Add',
             backgroundColor: AppColor.primary,
             onPressed: () {
               _addUpdateDepartment(

@@ -84,6 +84,15 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    for (final controller in _controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  // INITIALIZE CONTROLLERS
   void _initControllers() {
     _controllers = [
       _caseTitleC = TextEditingController(),
@@ -99,6 +108,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
     ];
   }
 
+  // POPULATE FORM
   void _populateForm(LitigationModel model) {
     _caseTitleC.text = model.title;
     _caseNumberC.text = model.caseNumber;
@@ -124,6 +134,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
     );
   }
 
+  // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -158,14 +169,6 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
   }
 
   @override
-  void dispose() {
-    for (final controller in _controllers) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
@@ -177,18 +180,23 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
         child: Form(
           key: _formKey,
           child: Column(
-            children: [
-              _caseDetailsCard(),
-              verticalSpacing(height: 16),
-              _partyDetailsCard(),
-              verticalSpacing(height: 16),
-              _caseBriefCard(),
-              verticalSpacing(height: 24),
-              CustomButton(
-                text: _isEditMode ? "Update" : "Submit",
-                onPressed: _submitForm,
-              ),
-            ],
+            spacing: 10,
+            children: [_caseDetailsCard(), _courtDetailsCard()],
+          ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 70,
+          padding: EdgeInsets.all(16),
+          child: CustomButton(
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              size: 18,
+              color: AppColor.white,
+            ),
+            text: _isEditMode ? "Update" : "Add",
+            onPressed: _submitForm,
           ),
         ),
       ),
@@ -206,12 +214,39 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
           verticalSpacing(),
 
           CustomTextField(
-            title: "Case Title",
-            hint: "Enter Case Title",
+            title: "Title",
+            hint: "Enter Title",
             textController: _caseTitleC,
             inputFormatterList: [LengthLimitingTextInputFormatter(250)],
             isRequired: true,
-            validator: (v) => v!.isEmpty ? "Case Title is required" : null,
+            validator: (v) => v!.isEmpty ? "Title is required" : null,
+          ),
+
+          CustomDatePicker(
+            title: "Date Of Filing",
+            initialDate: dateOfFilling,
+            isRequired: true,
+            setValue: (v) => dateOfFilling = v,
+            validator: (value) {
+              if (value == null) {
+                return 'Date Of Filing is required';
+              }
+              return null;
+            },
+          ),
+
+          CustomDropDownWidget(
+            title: "Case Type",
+            initialValue: selectedCaseType,
+            isRequired: true,
+            dataList: caseTypeList,
+            onSelected: (v) => selectedCaseType = v,
+            validator: (value) {
+              if (value == null || value["zAttributesId"] == -1) {
+                return "Case Type is required";
+              }
+              return null;
+            },
           ),
 
           CustomTextField(
@@ -226,34 +261,23 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
                         ? "Case / Petition / Dispute Number is required"
                         : null,
           ),
+        ],
+      ),
+    );
+  }
 
-          CustomDropDownWidget(
-            title: "Case Type",
-            initialValue: selectedCaseType,
-            isRequired: true,
-            dataList: caseTypeList,
-            onSelected: (v) => selectedCaseType = v,
-            validator: (value) {
-              if (value == null || value["zAttributesId"] == -1) {
-                return "Please select Case Type";
-              }
-              return null;
-            },
+  Widget _courtDetailsCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Court Details",
+            style: AppTextStyle.ts14M(color: AppColor.grey),
           ),
-
-          CustomDropDownWidget(
-            title: "Court Type",
-            initialValue: selectedCourtType,
-            dataList: courtTypeList,
-            isRequired: true,
-            onSelected: (v) => selectedCourtType = v,
-            validator: (value) {
-              if (value == null || value["zAttributesId"] == -1) {
-                return "Please select Court Type";
-              }
-              return null;
-            },
-          ),
+          verticalSpacing(),
 
           CustomTextField(
             title: "Court Name",
@@ -271,43 +295,27 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             validator: (v) => v!.isEmpty ? "Court Location is required" : null,
           ),
 
-          CustomDatePicker(
-            title: "Date Of Filing",
-            initialDate: dateOfFilling,
+          CustomDropDownWidget(
+            title: "Court Type",
+            initialValue: selectedCourtType,
+            dataList: courtTypeList,
             isRequired: true,
-            setValue: (v) => dateOfFilling = v,
+            onSelected: (v) => selectedCourtType = v,
             validator: (value) {
-              if (value == null) {
-                return 'Date Of Filing is required';
+              if (value == null || value["zAttributesId"] == -1) {
+                return "Court Type is required";
               }
               return null;
             },
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _partyDetailsCard() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Party Details",
-            style: AppTextStyle.ts14M(color: AppColor.grey),
-          ),
-          verticalSpacing(),
 
           CustomTextField(
-            title: "Plainiff / Petitioner",
+            title: "Plaintiff / Complaint / Petitioner",
             isRequired: true,
-            hint: "Enter Plainiff / Petitioner Name",
+            hint: "Enter Plaintiff / Complaint / Petitioner",
             textController: _plantiffC,
             validator:
-                (v) => v!.isEmpty ? "Plainiff / Petitioner is required" : null,
+                (v) => v!.isEmpty ? "Plaintiff / Complaint / Petitioner is required" : null,
           ),
 
           CustomTextField(
@@ -343,39 +351,23 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
           ),
 
           CustomTextField(
-            title: "Case Remark",
-            isRequired: true,
-            hint: "Enter Case Remark",
-            textController: _remarkC,
-            maxLines: 3,
-            validator: (v) => v!.isEmpty ? "Case Remark is required" : null,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _caseBriefCard() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Case Description",
-            style: AppTextStyle.ts14M(color: AppColor.grey),
-          ),
-          verticalSpacing(),
-
-          CustomTextField(
             title: "Case Brief / Petition / Suit",
             hint: "Enter Case Brief / Petition / Suit",
             isRequired: true,
             textController: _caseBriefC,
-            maxLines: 5,
-            minLines: 5,
-            validator: (v) => v!.isEmpty ? "Case Brief is required" : null,
+            maxLines: 3,
+            minLines: 3,
+            validator: (v) => v!.isEmpty ? "Case Brief / Petition / Suit is required" : null,
+          ),
+
+          CustomTextField(
+            title: "Case Remarks / Comments",
+            isRequired: true,
+            hint: "Enter Case Remark",
+            textController: _remarkC,
+            minLines: 3,
+            maxLines: 3,
+            validator: (v) => v!.isEmpty ? "Case Remarks / Comments is required" : null,
           ),
         ],
       ),

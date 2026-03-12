@@ -93,10 +93,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
       },
       (response) {
         goRouter.pop();
-        showSuccessMessage(
-          context,
-          subTitle: 'Designation Added Successfully',
-        );
+        showSuccessMessage(context, subTitle: 'Designation Added Successfully');
       },
     );
   }
@@ -261,7 +258,10 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
               ? "Designation Master ${DateTime.now()}.pdf"
               : "Designation Master ${DateTime.now()}.xlsx",
         );
-        showSuccessMessage(context, subTitle: 'Exported as $exportType Successfully');
+        showSuccessMessage(
+          context,
+          subTitle: 'Exported as $exportType Successfully',
+        );
       },
     );
   }
@@ -482,7 +482,6 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
   Future<bool> isAllModulesSelected(
     List<ModuleModel> modulesPermissionsList,
   ) async {
-    // Process directly (no need for compute as this is simple boolean logic)
     return modulesPermissionsList.every(
       (module) => module.subModuleData.every(
         (subModule) => subModule.subSubModuleData.every(
@@ -577,7 +576,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     bool value,
     String? type,
   ) async {
-    // Create a deep copy of the list to ensure new references
+    // CREATE DEEP COPY OF LIST FOR REFRESHING UI
     List<ModuleModel> newList =
         state.modulesPermissionsList.map((module) {
           return ModuleModel(
@@ -623,19 +622,19 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
       value: value,
       type: type,
     );
-    // Force a new list instance to ensure state change is detected
+    // FOR REFRESHING UI
     final updatedList = List<ModuleModel>.from(result[0]);
     emit(
       state.copyWith(
         isAllSelected: result[1],
         modulesPermissionsList: updatedList,
         stateType: StateType.employeeMasterModuleAccessState,
-        updateCounter:
-            state.updateCounter + 1, // Increment counter to force state change
+        updateCounter: state.updateCounter + 1,
       ),
     );
   }
 
+  // UPDATE LIST
   Future<List> updateList(
     List<ModuleModel> list, {
     int? moduleIndex,
@@ -644,184 +643,166 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
     required bool value,
     String? type,
   }) async {
-    // CASE 1: Updating SubSubModule permissions
+    /// CASE 1 : SUB SUB MODULE
     if (subSubModuleIndex != null && subModuleIndex != null) {
-      ModuleModel moduleModel = list[moduleIndex!];
-      SubModuleModel subModuleModel = moduleModel.subModuleData[subModuleIndex];
-      SubSubModuleModel subSubModule =
-          subModuleModel.subSubModuleData[subSubModuleIndex];
+      final module = list[moduleIndex!];
+      final subModule = module.subModuleData[subModuleIndex];
+      final subSub = subModule.subSubModuleData[subSubModuleIndex];
 
       switch (type) {
         case "action":
-          subSubModule.isAction = value;
-          // If action is checked, automatically check view as well
-          if (value) {
-            subSubModule.isView = true;
-          }
+          subSub.isAction = value;
+          if (value) subSub.isView = true;
           break;
+
         case "export":
-          subSubModule.isExport = value;
-          // If export is checked, automatically check view as well
-          if (value) {
-            subSubModule.isView = true;
+          subSub.isExport = value;
+          if (value) subSub.isView = true;
+          break;
+
+        case "view":
+          subSub.isView = value;
+          if (!value) {
+            subSub.isAction = false;
+            subSub.isExport = false;
           }
           break;
-        case "view":
-          subSubModule.isView = value;
-          break;
       }
 
-      if (subModuleModel.subSubModuleData.isNotEmpty) {
-        subModuleModel.isAction = subModuleModel.subSubModuleData.every(
-          (subSubModule) => subSubModule.isAction,
-        );
-        subModuleModel.isView = subModuleModel.subSubModuleData.every(
-          (subSubModule) => subSubModule.isView,
-        );
-        subModuleModel.isExport = subModuleModel.subSubModuleData.every(
-          (subSubModule) => subSubModule.isExport,
-        );
-        if (subModuleModel.isAction || subModuleModel.isExport) {
-          subModuleModel.isView = true;
-        }
-      }
+      /// RECALC SUBMODULE
+      subModule.isAction = subModule.subSubModuleData.every((e) => e.isAction);
 
-      subModuleModel.isSelected = subModuleModel.subSubModuleData.every(
-        (e) => e.isView && e.isAction && e.isExport,
+      subModule.isExport = subModule.subSubModuleData.every((e) => e.isExport);
+
+      subModule.isView = subModule.subSubModuleData.every((e) => e.isView);
+
+      subModule.isSelected = subModule.subSubModuleData.every(
+        (e) => e.isAction && e.isView && e.isExport,
       );
 
-      moduleModel.isSelected = moduleModel.subModuleData.every(
-        (e) => e.isSelected,
-      );
+      /// RECALC MODULE
+      module.isSelected = module.subModuleData.every((e) => e.isSelected);
     }
+    /// CASE 2 : SUB MODULE
     else if (subModuleIndex != null) {
-      ModuleModel moduleModel = list[moduleIndex!];
-      SubModuleModel subModuleModel = moduleModel.subModuleData[subModuleIndex];
+      final module = list[moduleIndex!];
+      final subModule = module.subModuleData[subModuleIndex];
 
       if (type != null) {
         switch (type) {
           case "action":
-            subModuleModel.isAction = value;
-            if (value) {
-              subModuleModel.isView = true;
-            }
-            for (var subSubModule in subModuleModel.subSubModuleData) {
-              subSubModule.isAction = value;
-              // If action is checked, automatically check view as well
-              if (value) {
-                subSubModule.isView = true;
-              }
+            subModule.isAction = value;
+            if (value) subModule.isView = true;
+
+            for (var s in subModule.subSubModuleData) {
+              s.isAction = value;
+              if (value) s.isView = true;
             }
             break;
+
           case "export":
-            subModuleModel.isExport = value;
-            if (value) {
-              subModuleModel.isView = true;
+            subModule.isExport = value;
+            if (value) subModule.isView = true;
+
+            for (var s in subModule.subSubModuleData) {
+              s.isExport = value;
+              if (value) s.isView = true;
             }
-            for (var subSubModule in subModuleModel.subSubModuleData) {
-              subSubModule.isExport = value;
-              if (value) {
-                subSubModule.isView = true;
+            break;
+
+          case "view":
+            subModule.isView = value;
+
+            for (var s in subModule.subSubModuleData) {
+              s.isView = value;
+
+              if (!value) {
+                s.isAction = false;
+                s.isExport = false;
               }
             }
-            break;
-          case "view":
-            subModuleModel.isView = value;
-            for (var subSubModule in subModuleModel.subSubModuleData) {
-              subSubModule.isView = value;
+
+            if (!value) {
+              subModule.isAction = false;
+              subModule.isExport = false;
             }
             break;
-        }
-        if (subModuleModel.subSubModuleData.isEmpty) {
-          subModuleModel.isSelected =
-              subModuleModel.isView &&
-              subModuleModel.isAction &&
-              subModuleModel.isExport;
-        } else {
-          subModuleModel.isAction = subModuleModel.subSubModuleData.every(
-            (e) => e.isAction,
-          );
-          subModuleModel.isView = subModuleModel.subSubModuleData.every(
-            (e) => e.isView,
-          );
-          subModuleModel.isExport = subModuleModel.subSubModuleData.every(
-            (e) => e.isExport,
-          );
-          if (subModuleModel.isAction || subModuleModel.isExport) {
-            subModuleModel.isView = true;
-          }
-          subModuleModel.isSelected = subModuleModel.subSubModuleData.every(
-            (e) => e.isView && e.isAction && e.isExport,
-          );
-        }
-      } else {
-        if (subModuleModel.subSubModuleData.isEmpty) {
-          subModuleModel.isAction = value;
-          subModuleModel.isExport = value;
-          subModuleModel.isView = value;
-          subModuleModel.isSelected = value;
-        } else {
-          for (var subSubModule in subModuleModel.subSubModuleData) {
-            subSubModule.isAction = value;
-            subSubModule.isExport = value;
-            subSubModule.isView = value;
-          }
-          if (value) {
-            subModuleModel.isSelected = subModuleModel.subSubModuleData.every(
-              (e) => e.isView && e.isAction && e.isExport,
-            );
-          } else {
-            subModuleModel.isSelected = value;
-          }
         }
       }
 
-      moduleModel.isSelected = moduleModel.subModuleData.every(
-        (e) => e.isSelected,
-      );
-    } else
-    if (moduleIndex != null) {
-      ModuleModel moduleModel = list[moduleIndex];
-      for (var subModule in moduleModel.subModuleData) {
-        if (subModule.subSubModuleData.isEmpty) {
-          subModule.isAction = value;
-          subModule.isExport = value;
-          subModule.isView = value;
-          subModule.isSelected = value;
+      /// RECALC SELECTED
+      if (subModule.subSubModuleData.isEmpty) {
+        subModule.isSelected =
+            subModule.isAction && subModule.isView && subModule.isExport;
+      } else {
+        subModule.isAction = subModule.subSubModuleData.every(
+          (e) => e.isAction,
+        );
+
+        subModule.isExport = subModule.subSubModuleData.every(
+          (e) => e.isExport,
+        );
+
+        subModule.isView = subModule.subSubModuleData.every((e) => e.isView);
+
+        subModule.isSelected = subModule.subSubModuleData.every(
+          (e) => e.isAction && e.isView && e.isExport,
+        );
+      }
+
+      module.isSelected = module.subModuleData.every((e) => e.isSelected);
+    }
+    /// CASE 3 : MODULE
+    else if (moduleIndex != null) {
+      final module = list[moduleIndex];
+
+      for (var sub in module.subModuleData) {
+        if (sub.subSubModuleData.isEmpty) {
+          sub.isAction = value;
+          sub.isExport = value;
+          sub.isView = value;
+          sub.isSelected = value;
         } else {
-          for (var subSubModule in subModule.subSubModuleData) {
-            subSubModule.isAction = value;
-            subSubModule.isExport = value;
-            subSubModule.isView = value;
+          for (var s in sub.subSubModuleData) {
+            s.isAction = value;
+            s.isExport = value;
+            s.isView = value;
           }
-          subModule.isSelected = value;
+
+          sub.isSelected = value;
         }
       }
-      moduleModel.isSelected = value;
+
+      module.isSelected = value;
     }
+    /// CASE 4 : SELECT ALL
     else {
       for (var module in list) {
         module.isSelected = value;
-        for (var subModule in module.subModuleData) {
-          if (subModule.subSubModuleData.isEmpty) {
-            subModule.isAction = value;
-            subModule.isExport = value;
-            subModule.isView = value;
-            subModule.isSelected = value;
+
+        for (var sub in module.subModuleData) {
+          if (sub.subSubModuleData.isEmpty) {
+            sub.isAction = value;
+            sub.isExport = value;
+            sub.isView = value;
+            sub.isSelected = value;
           } else {
-            subModule.isAction = value;
-            subModule.isExport = value;
-            subModule.isView = value;
-            for (var subSubModule in subModule.subSubModuleData) {
-              subSubModule.isAction = value;
-              subSubModule.isExport = value;
-              subSubModule.isView = value;
+            sub.isAction = value;
+            sub.isExport = value;
+            sub.isView = value;
+
+            for (var s in sub.subSubModuleData) {
+              s.isAction = value;
+              s.isExport = value;
+              s.isView = value;
             }
-            subModule.isSelected = value;
+
+            sub.isSelected = value;
           }
         }
       }
     }
+
     return [list, list.every((e) => e.isSelected)];
   }
 
@@ -880,7 +861,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
                       return apiSubSubModule;
                     }).toList();
 
-                // Update sub-submodules list
+                // UPDATE - SUB MODULE
                 apiSubModule.subSubModuleData = mergedSubSubModules;
 
                 if (apiSubModule.subSubModuleData.isNotEmpty) {
@@ -893,7 +874,7 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
                   apiSubModule.isExport = apiSubModule.subSubModuleData.every(
                     (subSubModule) => subSubModule.isExport,
                   );
-                  // If action or export is checked, automatically check view as well
+                  // IF ACTION OR EXPORT CHECKED, AUTOMATICALLY CHECK VIEW AS WELL
                   if (apiSubModule.isAction || apiSubModule.isExport) {
                     apiSubModule.isView = true;
                   }
@@ -902,13 +883,13 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
                 return apiSubModule;
               }).toList();
 
-          // Create merged module
+          // CREATE MERGE MODULE
           return ModuleModel(
             modulesMasterId: apiModule.modulesMasterId,
             moduleName: apiModule.moduleName,
             icon: apiModule.icon,
             subModuleData: mergedSubModules,
-            isSelected: apiModule.isSelected, // Will be recalculated later
+            isSelected: apiModule.isSelected,
           );
         }).toList();
 

@@ -106,39 +106,6 @@ class _ModuleAccessScreenState extends State<ModuleAccessScreen> {
                     ],
                   ),
                   verticalSpacing(),
-                  // Search Bar
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: AppColor.grey10,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: AppColor.grey30, width: 0.5),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.search, size: 20, color: AppColor.grey),
-                        horizontalSpacing(),
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Search',
-                              border: InputBorder.none,
-                              hintStyle: AppTextStyle.ts14R(
-                                color: AppColor.grey,
-                              ),
-                              isDense: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                            style: AppTextStyle.ts14R(),
-                            onChanged: (value) {
-                              // TODO: Implement search functionality if needed
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  verticalSpacing(),
                   // Modules List
                   Expanded(
                     child: SingleChildScrollView(

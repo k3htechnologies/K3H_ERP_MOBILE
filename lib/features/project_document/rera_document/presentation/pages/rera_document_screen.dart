@@ -54,10 +54,6 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     super.initState();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.rera]!;
-    print(_routeAuthorizationModel);
-    print("isView: ${_routeAuthorizationModel.isView}");
-    print("isAction: ${_routeAuthorizationModel.isAction}");
-    print("isExport: ${_routeAuthorizationModel.isExport}");
     _reraDocumentCubit = context.read<RERADocumentCubit>();
     projectId = getProject().projectId;
     _reraDocumentCubit.getCategoryList(context, 1, projectId);

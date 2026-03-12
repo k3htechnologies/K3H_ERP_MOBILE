@@ -120,8 +120,8 @@ class _AddLitigationHearingScreenState
       appBar: CustomAppBarWithBackButton(
         screenTitle:
             _isEditMode
-                ? "Update Litigation Hearing"
-                : "Add Litigation Hearing",
+                ? "Update Hearing"
+                : "Add Hearing",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
@@ -161,21 +161,21 @@ class _AddLitigationHearingScreenState
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Litigation Hearing Document is required";
+                      return "File is required";
                     }
                     return null;
                   },
                 ),
                 CustomTextField(
-                  title: "Case Remark / Comment",
-                  hint: 'Enter Case Remark / Comment',
+                  title: "Remark",
+                  hint: 'Enter Remarks',
                   isRequired: true,
                   textController: _remarkC,
                   minLines: 3,
                   maxLines: 5,
                   validator: (string) {
                     if (string == null || string.trim().isEmpty) {
-                      return 'Case Remark / Comment is required';
+                      return 'Remark is required';
                     }
                     return null;
                   },

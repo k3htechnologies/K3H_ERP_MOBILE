@@ -18,13 +18,50 @@ class LitigationCubit extends Cubit<LitigationState> {
   final LitigationRepository _litigationRepository =
       serviceLocator<LitigationRepository>();
 
+  // <---- FILTER COMPANY ---->
+  Future applyLitigationFilterAndSort({
+    required BuildContext context,
+    String? caseNumber,
+    String? courtName,
+    String? sortColumn,
+    String? sortDirection,
+    bool? isClear,
+  }) async {
+    if (isClear ?? false) {
+      emit(
+        state.copyWith(
+          filterCaseNumber: "",
+          filterByCourtName: "",
+          currentSortColumn: "Created Date",
+          currentSortDirection: "DESC",
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          filterCaseNumber: caseNumber ?? state.filterCaseNumber,
+          filterByCourtName: courtName ?? state.filterByCourtName,
+          currentSortColumn: sortColumn ?? state.currentSortColumn,
+          currentSortDirection: sortDirection ?? state.currentSortDirection,
+        ),
+      );
+    }
+
+    await getLitigationList(context: context, pageNumber: 1);
+  }
+
   /// PULL LITIGATION LIST
   Future<void> getLitigationList({
     required BuildContext context,
     required int pageNumber,
   }) async {
     emit(state.copyWith(isLoading: true));
-    var queryParams = {"Title": state.searchText};
+    var queryParams = {
+      "Title": state.searchText,
+      "CaseNumber": state.filterCaseNumber,
+      "CourtName": state.filterByCourtName,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+    };
     final result = await _litigationRepository.pullLitigation(
       pageNumber: pageNumber,
       pageSize: 4,

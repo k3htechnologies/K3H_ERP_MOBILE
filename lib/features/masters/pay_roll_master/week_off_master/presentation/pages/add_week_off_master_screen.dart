@@ -389,7 +389,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
           padding: EdgeInsets.all(16),
           child: CustomButton(
             leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
-            text: _isEditMode ? "Update Week Off" : "Add Week Off",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),
