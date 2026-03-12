@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -71,47 +72,17 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               style: AppTextStyle.ts16SB(color: AppColor.primary),
             ),
           ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IntrinsicWidth(
-              child: Container(
-                height: 35,
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: AppColor.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppColor.grey.withValues(alpha: 0.2),
-                  ),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.start,
-                  labelColor: AppColor.primary,
-                  unselectedLabelColor: AppColor.grey,
-                  indicator: BoxDecoration(
-                    color: AppColor.lightBlue,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  labelStyle: AppTextStyle.ts14M(),
-                  unselectedLabelStyle: AppTextStyle.ts14M(),
-                  labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  padding: EdgeInsets.zero,
-                  tabs: const [
-                    Tab(text: 'Overview'),
-                    Tab(text: 'Applicant Details'),
-                    Tab(text: 'Other Charges'),
-                    Tab(text: 'Payment Schedule'),
-                    Tab(text: 'Remark'),
-                    Tab(text: 'Terms & Condition'),
-                    Tab(text: 'Payment Details'),
-                  ],
-                ),
-              ),
-            ),
+          ChipStyleTabBar(
+            controller: _tabController,
+            tabs: [
+              'Overview',
+              'Applicant Details',
+              'Other Charges',
+              'Payment Schedule',
+              'Remark',
+              'Terms & Condition',
+              'Payment Details',
+            ],
           ),
           Expanded(
             child: TabBarView(
@@ -119,7 +90,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               controller: _tabController,
               children: [
                 _buildOverviewTab(),
-                _builApplicantDetailsTab(),
+                _buildApplicantDetailsTab(),
                 _buildOtherChargesTab(),
                 _buildPaymentSchedule(),
                 _buildRemarkTab(),
@@ -1113,7 +1084,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   }
 
   // BUILD APPLICANT DETAILS
-  Widget _builApplicantDetailsTab() {
+  Widget _buildApplicantDetailsTab() {
     return ListView.builder(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       shrinkWrap: true,
