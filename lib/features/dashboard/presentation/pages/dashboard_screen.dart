@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_null_comparison
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,7 +10,9 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
@@ -19,6 +22,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -56,6 +60,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int? currentAttendanceId;
   String? currentUniquekey;
 
+  final LocalStorageManager storage = LocalStorageManager();
+
+  UserModel? currentUser;
+
   @override
   void initState() {
     super.initState();
@@ -80,6 +88,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     });
     _dashboardCubit.getDashboardList(context);
+    final userJson = storage.getString(StorageKey.currentUser);
+    if (userJson != null) {
+      currentUser = UserModel.fromJson(jsonDecode(userJson));
+    }
   }
 
   @override
@@ -425,7 +437,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Welcome ${state.data?.fullName ?? "s,df"} !",
+                          "Welcome ${currentUser?.fullName ?? ""}!",
                           style: AppTextStyle.ts16SB(
                             color: AppColor.black.withValues(alpha: 0.50),
                           ),
