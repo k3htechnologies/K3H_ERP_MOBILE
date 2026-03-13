@@ -11,7 +11,6 @@ class BookingState extends BaseState {
   final List<OtherChargeModel> otherChargesList;
   final List<OtherChargeModel> originalOtherChargesList;
   final List<EnquiryModel> enquiryList;
-  final List<EnquiryModel> enquiryListById;
   final List<BookingModel> bookingListById;
   final List<BookingModel> bookingList;
   final int totalNumberOfRecord;
@@ -32,7 +31,6 @@ class BookingState extends BaseState {
     required this.otherChargesList,
     required this.originalOtherChargesList,
     required this.enquiryList,
-    required this.enquiryListById,
     required this.bookingListById,
     required this.bookingList,
     required this.totalNumberOfRecord,
@@ -54,7 +52,6 @@ class BookingState extends BaseState {
     otherChargesList: [],
     originalOtherChargesList: [],
     enquiryList: [],
-    enquiryListById: [],
     bookingListById: [],
     bookingList: [],
     totalNumberOfRecord: 0,
@@ -76,7 +73,6 @@ class BookingState extends BaseState {
     List<OtherChargeModel>? originalOtherChargesList,
     List<OtherChargeModel>? otherChargesList,
     List<EnquiryModel>? enquiryList,
-    List<EnquiryModel>? enquiryListById,
     List<BookingModel>? bookingListById,
     List<BookingModel>? bookingList,
     int? totalNumberOfRecord,
@@ -101,7 +97,6 @@ class BookingState extends BaseState {
       originalOtherChargesList:
           originalOtherChargesList ?? this.originalOtherChargesList,
       enquiryList: enquiryList ?? this.enquiryList,
-      enquiryListById: enquiryListById ?? this.enquiryListById,
       bookingListById: bookingListById ?? this.bookingListById,
       bookingList: bookingList ?? this.bookingList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
@@ -126,7 +121,6 @@ class BookingState extends BaseState {
     otherChargesList,
     originalOtherChargesList,
     enquiryList,
-    enquiryListById,
     bookingListById,
     bookingList,
     totalNumberOfRecord,

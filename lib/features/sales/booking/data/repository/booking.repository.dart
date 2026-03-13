@@ -11,13 +11,6 @@ abstract interface class BookingRepository {
     Map<String, dynamic>? queryParams,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> getPaymentScheduleMasterList({
-    required int pageNumber,
-    required int pageSize,
-    required int projectId,
-    Map<String, dynamic>? queryParams,
-  });
-
   Future<Either<Failure, Map<String, dynamic>>> addUpdateBooking({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
@@ -50,6 +43,7 @@ class BookingRepositoryImpl extends BookingRepository {
 
   BookingRepositoryImpl({required this.bookingDatasource});
 
+  // PULL BOOKING
   @override
   Future<Either<Failure, Map<String, dynamic>>> getBookingList({
     required int pageNumber,
@@ -70,26 +64,7 @@ class BookingRepositoryImpl extends BookingRepository {
     }
   }
 
-  @override
-  Future<Either<Failure, Map<String, dynamic>>> getPaymentScheduleMasterList({
-    required int pageNumber,
-    required int pageSize,
-    required int projectId,
-    Map<String, dynamic>? queryParams,
-  }) async {
-    try {
-      var result = await bookingDatasource.apiCallPullPaymentScheduleMaster(
-        pageNumber: pageNumber,
-        pageSize: pageSize,
-        projectId: projectId,
-        queryParams: queryParams,
-      );
-      return right(result);
-    } catch (error) {
-      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-    }
-  }
-
+  // ADD / UPADATE BOOKING
   @override
   Future<Either<Failure, Map<String, dynamic>>> addUpdateBooking({
     required Map<String, String> body,
@@ -106,10 +81,7 @@ class BookingRepositoryImpl extends BookingRepository {
     }
   }
 
-  // ----------------------------------------------------------
-  // Pull Payment Schedule Stages
-  // ----------------------------------------------------------
-
+  // PULL PAYMENT SCHEDULE
   @override
   Future<Either<Failure, Map<String, dynamic>>> getPaymentScheduleStagesList({
     required int pageNumber,
@@ -136,6 +108,7 @@ class BookingRepositoryImpl extends BookingRepository {
     }
   }
 
+  //  CANCEL BOOKING
   @override
   Future<Either<Failure, Map<String, dynamic>>> cancelBooking({
     required int bookingId,
@@ -158,6 +131,7 @@ class BookingRepositoryImpl extends BookingRepository {
     }
   }
 
+  // EXPORT BOOKING
   @override
   Future<Either<Failure, Map<String, dynamic>>> exportBooking({
     required int pageNumber,

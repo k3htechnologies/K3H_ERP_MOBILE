@@ -34,10 +34,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
     _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(_handleTabChange);
     _bookingCubit = context.read<BookingCubit>();
-    _bookingCubit.getEnquiryListById(
+    _bookingCubit.getEnquiryList(
       context,
       1,
       widget.bookingModel.projectId,
+      null,
       widget.bookingModel.enquiryId,
     );
   }
@@ -137,11 +138,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
           // ENQUIRY SECTION
           BlocBuilder<BookingCubit, BookingState>(
             builder: (context, state) {
-              if (state.enquiryListById.isEmpty) {
+              if (state.enquiryList.isEmpty) {
                 return SizedBox();
               }
 
-              final enquiry = state.enquiryListById.first;
+              final enquiry = state.enquiryList.first;
 
               return Container(
                 decoration: BoxDecoration(
@@ -638,85 +639,96 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 Text("Parking Details", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Expanded(
-                  child: ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
-                    shrinkWrap: true,
-                    itemCount: widget.bookingModel.parkingData.length,
-                    itemBuilder: (_, index) {
-                      final parking = widget.bookingModel.parkingData[index];
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppColor.primary,
-                            width: .3,
+                  child:
+                      widget.bookingModel.parkingData.isEmpty
+                          ? Center(child: noDataWidget(message: 'No Parking'))
+                          : ListView.builder(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 2,
+                              vertical: 10,
+                            ),
+                            shrinkWrap: true,
+                            itemCount: widget.bookingModel.parkingData.length,
+                            itemBuilder: (_, index) {
+                              final parking =
+                                  widget.bookingModel.parkingData[index];
+                              return Container(
+                                margin: EdgeInsets.only(bottom: 10),
+                                padding: EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: AppColor.primary,
+                                    width: .3,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  spacing: 10,
+                                  children: [
+                                    Row(
+                                      spacing: 5,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Parking Number",
+                                          value: parking.parkingNumber,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Building",
+                                          value: parking.buildingNumber,
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      spacing: 5,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Wing",
+                                          value: parking.wing,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Floor",
+                                          value: parking.floor,
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      spacing: 5,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "Category",
+                                          value: parking.parkingCategory,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Type",
+                                          value: parking.parkingType,
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      spacing: 5,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildColumnTitleValue(
+                                          title: "EV Charging",
+                                          value:
+                                              parking.isEVChargingAvailable
+                                                  ? "Yes"
+                                                  : "No",
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          spacing: 10,
-                          children: [
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Parking Number",
-                                  value: parking.parkingNumber,
-                                ),
-                                buildColumnTitleValue(
-                                  title: "Building",
-                                  value: parking.buildingNumber,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Wing",
-                                  value: parking.wing,
-                                ),
-                                buildColumnTitleValue(
-                                  title: "Floor",
-                                  value: parking.floor,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Category",
-                                  value: parking.parkingCategory,
-                                ),
-                                buildColumnTitleValue(
-                                  title: "Type",
-                                  value: parking.parkingType,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "EV Charging",
-                                  value:
-                                      parking.isEVChargingAvailable
-                                          ? "Yes"
-                                          : "No",
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
                 ),
               ],
             ),
@@ -865,7 +877,13 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       final extraCharge =
                           widget.bookingModel.bookingOtherChargesData[index];
                       return Container(
-                        decoration: commonCardDecoration(),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppColor.primary,
+                            width: .3,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         margin: EdgeInsets.only(bottom: 10),
                         padding: EdgeInsets.all(16),
                         child: Column(
@@ -1009,7 +1027,13 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       final payment =
                           widget.bookingModel.bookingPaymentScheduleData[index];
                       return Container(
-                        decoration: commonCardDecoration(),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppColor.primary,
+                            width: .3,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         margin: EdgeInsets.only(bottom: 10),
                         padding: EdgeInsets.all(16),
                         child: Column(
@@ -1615,9 +1639,12 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Cheque/ RTGS Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        widget.bookingModel.chequeRTGSDate,
-                      ),
+                      value:
+                          widget.bookingModel.chequeRTGSDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                widget.bookingModel.chequeRTGSDate!,
+                              )
+                              : '-',
                     ),
                   ],
                 ),

@@ -37,7 +37,7 @@ class BookingPaymentScheduleData {
     ),
     paymentCummulativePercentage: parseValue<double>(
       json,
-      "PaymentCummulativePercentage",
+      "PaymentScheduleCumulative",
     ),
     paymentScheduleAmount: parseValue<double>(json, "PaymentScheduleAmount"),
     paymentScheduleGSTAmount: parseValue<double>(
@@ -48,7 +48,7 @@ class BookingPaymentScheduleData {
       json,
       "PaymentScheduleTDSAmount",
     ),
-    ranking: parseValue<int>(json, "Ranking"),
+    ranking: parseValue<int>(json, "Rank"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -57,11 +57,11 @@ class BookingPaymentScheduleData {
     "Name": name,
     "Date": date?.toIso8601String(),
     "PaymentSchedulePercentage": paymentSchedulePercentage,
-    "PaymentCummulativePercentage": paymentCummulativePercentage,
+    "PaymentScheduleCumulative": paymentCummulativePercentage,
     "PaymentScheduleAmount": paymentScheduleAmount,
     "PaymentScheduleGSTAmount": paymentScheduleGSTAmount,
     "PaymentScheduleTDSAmount": paymentScheduleTDSAmount,
-    "Ranking": ranking,
+    "Rank": ranking,
   };
   BookingPaymentScheduleData copyWith({
     int? bookingPaymentScheduleId,

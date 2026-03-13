@@ -81,7 +81,7 @@ Future<void> showCompleteVerificationDialog(
     bottomSection: SizedBox(
       height: 40,
       child: CustomButton(
-        text: "Send OTP",
+        text: "Verify OTP & Add",
         onPressed: () {
           if (otpController.text.length == 4) {
             onVerifyOTP();

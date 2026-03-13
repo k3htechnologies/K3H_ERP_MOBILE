@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -644,12 +645,12 @@ class _InventoryScreenState extends State<InventoryScreen>
 
   // FLAT LIST
   Widget _buildFlatList(
-      List<FlatModel> flatList,
-      FloorModel floor,
-      int buildingIndex,
-      int wingIndex,
-      int floorIndex,
-      ) {
+    List<FlatModel> flatList,
+    FloorModel floor,
+    int buildingIndex,
+    int wingIndex,
+    int floorIndex,
+  ) {
     if (flatList.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(12),
@@ -680,13 +681,13 @@ class _InventoryScreenState extends State<InventoryScreen>
   }
 
   Widget _buildFlatCard(
-      FlatModel flat,
-      FloorModel floor,
-      int buildingIndex,
-      int wingIndex,
-      int floorIndex,
-      int flatIndex,
-      ) {
+    FlatModel flat,
+    FloorModel floor,
+    int buildingIndex,
+    int wingIndex,
+    int floorIndex,
+    int flatIndex,
+  ) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -710,15 +711,17 @@ class _InventoryScreenState extends State<InventoryScreen>
               ),
               buildColumnTitleValue(
                 title: "Area(Sq.ft)",
-                value: flat.reraCarpetAreaSqFt == 0
-                    ? "-"
-                    : flat.reraCarpetAreaSqFt.toString(),
+                value:
+                    flat.reraCarpetAreaSqFt == 0
+                        ? "-"
+                        : flat.reraCarpetAreaSqFt.toString(),
               ),
               buildColumnTitleValue(
                 title: "Configuration",
-                value: flat.flatConfiguration.isEmpty
-                    ? "-"
-                    : flat.flatConfiguration,
+                value:
+                    flat.flatConfiguration.isEmpty
+                        ? "-"
+                        : flat.flatConfiguration,
               ),
             ],
           ),
@@ -738,18 +741,18 @@ class _InventoryScreenState extends State<InventoryScreen>
                     child: Text(
                       flat.flatStatus,
                       style: AppTextStyle.ts14M(
-                        color: flat.flatStatus.toLowerCase() == "booked"
-                            ? AppColor.error
-                            : flat.flatStatus.toLowerCase() == "member"
-                            ? AppColor.purple
-                            : flat.flatStatus.toLowerCase() == "hold"
-                            ? AppColor.yellow
-                            : flat.flatStatus.toLowerCase() == "available"
-                            ? AppColor.darkGreen
-                            : flat.flatStatus.toLowerCase() ==
-                            "blocked"
-                            ? AppColor.primary
-                            : AppColor.black,
+                        color:
+                            flat.flatStatus.toLowerCase() == "booked"
+                                ? AppColor.error
+                                : flat.flatStatus.toLowerCase() == "member"
+                                ? AppColor.purple
+                                : flat.flatStatus.toLowerCase() == "hold"
+                                ? AppColor.yellow
+                                : flat.flatStatus.toLowerCase() == "available"
+                                ? AppColor.darkGreen
+                                : flat.flatStatus.toLowerCase() == "blocked"
+                                ? AppColor.primary
+                                : AppColor.black,
                       ),
                     ),
                   ),
@@ -760,70 +763,65 @@ class _InventoryScreenState extends State<InventoryScreen>
 
               flat.flatStatus.toLowerCase() == "booked"
                   ? GestureDetector(
-                onTap: () {
-                  goRouter.pushNamed(
-                    AppRoutes.viewUnitSpecification,
-                    queryParameters: {
-                      "flatModel": Uri.encodeQueryComponent(
-                        EncryptionManager.encryptData(jsonEncode(flat)),
-                      ),
-                    },
-                  );
-                },
-                child: const Icon(
-                  Icons.remove_red_eye_outlined,
-                  size: 18,
-                ),
-              )
-                  : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      await goRouter.pushNamed(
-                        AppRoutes.addInventorySpecification,
+                    onTap: () {
+                      goRouter.pushNamed(
+                        AppRoutes.viewUnitSpecification,
                         queryParameters: {
                           "flatModel": Uri.encodeQueryComponent(
-                            EncryptionManager.encryptData(
-                              jsonEncode(flat),
-                            ),
-                          ),
-                          "floorModel": Uri.encodeQueryComponent(
-                            EncryptionManager.encryptData(
-                              jsonEncode(floor),
-                            ),
+                            EncryptionManager.encryptData(jsonEncode(flat)),
                           ),
                         },
                       );
+                    },
+                    child: const Icon(Icons.remove_red_eye_outlined, size: 18),
+                  )
+                  : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        onTap: () async {
+                          await goRouter.pushNamed(
+                            AppRoutes.addInventorySpecification,
+                            queryParameters: {
+                              "flatModel": Uri.encodeQueryComponent(
+                                EncryptionManager.encryptData(jsonEncode(flat)),
+                              ),
+                              "floorModel": Uri.encodeQueryComponent(
+                                EncryptionManager.encryptData(
+                                  jsonEncode(floor),
+                                ),
+                              ),
+                            },
+                          );
 
-                      if (mounted) {
-                        _inventoryCubit.getInventory(
-                          context,
-                          _project.projectId,
-                        );
-                      }
-                    },
-                    child: const Icon(Icons.edit, size: 18),
+                          if (mounted) {
+                            _inventoryCubit.getInventory(
+                              context,
+                              _project.projectId,
+                            );
+                          }
+                        },
+                        child: const Icon(Icons.edit, size: 18),
+                      ),
+                      const SizedBox(width: 15),
+                      GestureDetector(
+                        onTap: () {
+                          _showPopupToDeleteInventoryFlat(
+                            context,
+                            flat,
+                            floorIndex,
+                            wingIndex,
+                            buildingIndex,
+                            flatIndex,
+                          );
+                        },
+                        child: SvgPicture.asset(
+                          AppAssets.deleteIcon2,
+                          height: 18,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 15),
-                  GestureDetector(
-                    onTap: () {
-                      _showPopupToDeleteInventoryFlat(
-                        context,
-                        flat,
-                        floorIndex,
-                        wingIndex,
-                        buildingIndex,
-                        flatIndex,
-                      );
-                    },
-                    child: SvgPicture.asset(
-                      AppAssets.deleteIcon2,
-                      height: 18,
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
 
@@ -833,6 +831,58 @@ class _InventoryScreenState extends State<InventoryScreen>
             Text(
               "Owner : ${flat.ownerName}",
               style: AppTextStyle.ts12R(color: AppColor.primary),
+            ),
+          ],
+          if (flat.flatStatus.toLowerCase() == "available" &&
+              flat.reraCarpetAreaSqFt != 0 &&
+              flat.flatType != "") ...[
+            verticalSpacing(),
+            CustomButton(
+              leading: Icon(
+                Icons.card_giftcard,
+                size: 18,
+                color: AppColor.white,
+              ),
+              text: "Book",
+              onPressed: () async {
+                List<Map<String, dynamic>> list = [
+                  {
+                    "inventoryBuildingId": flat.inventoryBuildingId,
+                    "inventoryFlatFloorBasementPodiumWingId":
+                        flat.inventoryFlatFloorBasementPodiumWingId,
+                    "inventoryFlatId": flat.inventoryFlatId,
+                    "buildingNumber": flat.buildingNumber,
+                    "wing": flat.wing,
+                    "floor": flat.floor,
+                    "flat": flat.flat,
+                    "flatType": flat.flatType,
+                    "flatConfiguration": flat.flatConfiguration,
+                    "reraCarpetAreaSqFt": flat.reraCarpetAreaSqFt,
+                    "buildingIndex": buildingIndex,
+                    "wingIndex": wingIndex,
+                    "floorIndex": floorIndex,
+                    "flatIndex": flatIndex,
+                  },
+                ];
+
+                final result = await goRouter.pushNamed(
+                  AppRoutes.addBooking,
+                  queryParameters: {
+                    "inventoryObject": Uri.encodeComponent(
+                      EncryptionManager.encryptData(jsonEncode(list)),
+                    ),
+                  },
+                );
+
+                if (result != null &&
+                    result is Map<String, dynamic> &&
+                    context.mounted) {
+                  _inventoryCubit.updateFlatStatus(
+                    inventoryFlatId: flat.inventoryFlatId,
+                    flatStatus: result["status"],
+                  );
+                }
+              },
             ),
           ],
         ],
@@ -852,14 +902,14 @@ class _InventoryScreenState extends State<InventoryScreen>
     final selectedWing = wingList[currentWingIndex];
     final counts =
         context.read<InventoryCubit>().state.wingCounts[selectedWing.wing] ??
-            {
-              "total": 0,
-              "available": 0,
-              "blocked": 0,
-              "booked": 0,
-              "hold": 0,
-              "alloted": 0,
-            };
+        {
+          "total": 0,
+          "available": 0,
+          "blocked": 0,
+          "booked": 0,
+          "hold": 0,
+          "alloted": 0,
+        };
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -873,7 +923,11 @@ class _InventoryScreenState extends State<InventoryScreen>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildCountItem("Total", counts['total'] ?? 0, AppColor.primary),
-          _buildCountItem("Available", counts['available'] ?? 0, AppColor.darkGreen),
+          _buildCountItem(
+            "Available",
+            counts['available'] ?? 0,
+            AppColor.darkGreen,
+          ),
           _buildCountItem("Booked", counts['booked'] ?? 0, AppColor.error),
           _buildCountItem("Alloted", counts['alloted'] ?? 0, AppColor.purple),
           _buildCountItem("Hold", counts['hold'] ?? 0, AppColor.yellow),
