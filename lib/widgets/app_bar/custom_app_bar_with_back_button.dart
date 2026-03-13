@@ -218,13 +218,10 @@ class _CustomAppBarWithBackButtonState
     required Color backgroundColor,
     required Color iconColor,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 10),
-      child: CustomIconButton(
-        icon: Icon(icon, size: 16, color: iconColor),
-        onPressed: onTap,
-        backgroundColor: backgroundColor,
-      ),
+    return CustomIconButton(
+      icon: Icon(icon, size: 16, color: iconColor),
+      onPressed: onTap,
+      backgroundColor: backgroundColor,
     );
   }
 
@@ -235,7 +232,7 @@ class _CustomAppBarWithBackButtonState
       child: Container(
         height: widget.preferredSize.height,
         color: AppColor.lightGreyBackground,
-        padding: const EdgeInsets.symmetric(horizontal: 0),
+        // padding: const EdgeInsets.symmetric(horizontal: 0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -365,6 +362,7 @@ class _CustomAppBarWithBackButtonState
                 ],
                 if (widget.onAddCallback != null &&
                     widget.authorization.isAction) ...[
+                  horizontalSpacing(),
                   _buildAction(
                     icon: Icons.add,
                     onTap: () {
@@ -376,6 +374,8 @@ class _CustomAppBarWithBackButtonState
                 ],
 
                 if (widget.showNotification) ...[
+                  horizontalSpacing(),
+
                   CustomIconButton(
                     onPressed: () {
                       goRouter.pushNamed(AppRoutes.notificationScreenMobile);
