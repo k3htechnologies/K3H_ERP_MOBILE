@@ -13,15 +13,11 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
   PaymentScheduleCubit() : super(PaymentScheduleMasterState.initial());
 
-  // ----------------------------------------------------------
   // REPOSITORIES
-  // ----------------------------------------------------------
   final PaymentScheduleRepository _repository =
       serviceLocator<PaymentScheduleRepository>();
 
-  // ----------------------------------------------------------
   // SEARCH
-  // ----------------------------------------------------------
   Future searchPaymentScheduleMaster(
     BuildContext context,
     String value, {
@@ -35,9 +31,7 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
     );
   }
 
-  // ----------------------------------------------------------
   // GET LIST
-  // ----------------------------------------------------------
   Future getPaymentScheduleMasterList(
     BuildContext context,
     int pageNumber, {
@@ -47,7 +41,6 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
 
     Map<String, dynamic> queryParams = {
       "Stage": state.searchText,
-      // "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       "PaymentScheduleSchemeMasterId": paymentScheduleSchemeMasterId,
       "InventoryBuildingId": state.selectedScheme!.inventoryBuildingId,
       "InventoryFlatFloorBasementPodiumWingId":
@@ -92,9 +85,7 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
     return list.fold(0.0, (sum, item) => sum + item.paymentSchedulePercentage);
   }
 
-  // ----------------------------------------------------------
   // ADD / UPDATE
-  // ----------------------------------------------------------
   Future addPaymentScheduleMaster({
     required BuildContext context,
     required int buildingId,
@@ -299,9 +290,7 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
     );
   }
 
-  // ----------------------------------------------------------
   // EXPORT
-  // ----------------------------------------------------------
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
 
