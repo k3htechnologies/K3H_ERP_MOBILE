@@ -19,6 +19,7 @@ class CustomMultipleSelectPopup extends StatefulWidget {
   final String? Function(List<Map<String, dynamic>>?)? validator;
   final bool isMultiSelect;
   final VoidCallback? onClear;
+  final bool isReadOnly;
 
   const CustomMultipleSelectPopup({
     super.key,
@@ -32,6 +33,7 @@ class CustomMultipleSelectPopup extends StatefulWidget {
     this.dataList,
     this.isMultiSelect = true,
     this.onClear,
+    this.isReadOnly = false,
   });
 
   @override
@@ -232,7 +234,9 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   InkWell(
-                    onTap: () async {
+                    onTap:widget.isReadOnly
+                        ? null
+                        :  () async {
                       var value = await showBottomSheetForDropdown(
                         context,
                         title: widget.title ?? 'Search',
@@ -251,7 +255,7 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                     child: Container(
                       margin: EdgeInsets.zero,
                       decoration: BoxDecoration(
-                        color: AppColor.white,
+                        color: widget.isReadOnly ? AppColor.grey10 : AppColor.white,
                         borderRadius: BorderRadius.circular(6.0),
                         border: Border.all(color: borderColor, width: 1.0),
                       ),
@@ -301,7 +305,9 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                                                         Icons.close,
                                                         size: 18,
                                                       ),
-                                                      onDeleted: () {
+                                                      onDeleted:widget.isReadOnly
+                                                          ? null
+                                                          :  () {
                                                         setState(() {
                                                           selectedValues.removeWhere(
                                                             (s) =>
@@ -334,7 +340,9 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                                                   ),
                                                 ),
                                                 GestureDetector(
-                                                  onTap: () {
+                                                  onTap:widget.isReadOnly
+                                                      ? null
+                                                      :  () {
                                                     setState(() {
                                                       selectedValues = [];
                                                     });

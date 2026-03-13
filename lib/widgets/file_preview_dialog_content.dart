@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:open_filex/open_filex.dart';
@@ -70,15 +71,7 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
     final clean = url.split('?').first.toLowerCase();
     final ext = clean.contains('.') ? clean.split('.').last : '';
 
-    return [
-      'jpg',
-      'jpeg',
-      'png',
-      'gif',
-      'webp',
-      'heic',
-      'heif'
-    ].contains(ext);
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif'].contains(ext);
   }
 
   bool isPdf(String url) {
@@ -89,7 +82,6 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
 
   // GET FILE NAME
   String getFileName(String url) => Uri.parse(url).pathSegments.last;
-
 
   Future<void> downloadFile(String url, {Uint8List? bytes}) async {
     final fileName = getFileName(url);
@@ -114,9 +106,28 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
 
       // Open file after saving
       await OpenFilex.open(filePath);
-
     } catch (e) {
       debugPrint("Download error: $e");
+    }
+  }
+
+  // PREVIOUS
+  void _previous() {
+    if (_currentPageNotifier.value > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  // NEXT
+  void _next() {
+    if (_currentPageNotifier.value < widget.urls.length - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
     }
   }
 
@@ -176,93 +187,100 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
 
             // PAGEVIEW
             Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: widget.urls.length,
-                onPageChanged: (index) => _currentPageNotifier.value = index,
-                itemBuilder: (context, index) {
-                  final url = widget.urls[index];
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  PageView.builder(
+                    controller: _pageController,
+                    itemCount: widget.urls.length,
+                    onPageChanged:
+                        (index) => _currentPageNotifier.value = index,
+                    itemBuilder: (context, index) {
+                      final url = widget.urls[index];
 
-                  if (isImage(url)) {
-                    return Container(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: _buildImage(index, url),
-                            ),
+                      if (isImage(url)) {
+                        return Container(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: _buildImage(index, url),
+                                ),
+                              ),
+                              verticalSpacing(height: 8),
+                              Text(getFileName(url)),
+                            ],
                           ),
-                          verticalSpacing(height: 8),
-                          Text(getFileName(url)),
-                        ],
-                      ),
-                    );
-                  }
+                        );
+                      }
 
-                  if (isPdf(url)) {
-                    // Auto open PDF and close dialog
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      downloadFile(
-                        url,
-                        bytes: widget.fileBytes != null &&
-                            widget.fileBytes!.length > index
-                            ? widget.fileBytes![index]
-                            : null,
+                      if (isPdf(url)) {
+                        // Auto open PDF and close dialog
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          downloadFile(
+                            url,
+                            bytes:
+                                widget.fileBytes != null &&
+                                        widget.fileBytes!.length > index
+                                    ? widget.fileBytes![index]
+                                    : null,
+                          );
+                          goRouter.pop();
+                        });
+
+                        return const SizedBox();
+                      }
+
+                      // Other files
+                      return Container(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Center(
+                          child: Text(
+                            getFileName(url),
+                            style: AppTextStyle.ts16R(),
+                          ),
+                        ),
                       );
-                      goRouter.pop();
-                    });
-
-                    return const SizedBox(); // empty placeholder
-                  }
-
-                  // Other files
-                  return Container(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Center(
-                      child: Text(
-                        getFileName(url),
-                        style: AppTextStyle.ts16R(),
-                      ),
+                    },
+                  ),
+                  Positioned(
+                    left: 0,
+                    child: ValueListenableBuilder<int>(
+                      valueListenable: _currentPageNotifier,
+                      builder: (_, index, __) {
+                        return _arrowButton(
+                          icon: Icons.chevron_left,
+                          onTap: _previous,
+                          enabled: index > 0,
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            ),
+                  ),
 
-            // INDICATOR
-            ValueListenableBuilder<int>(
-              valueListenable: _currentPageNotifier,
-              builder: (_, currentIndex, __) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(widget.urls.length, (index) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 10,
-                      ),
-                      width: currentIndex == index ? 12 : 8,
-                      height: currentIndex == index ? 12 : 8,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color:
-                            currentIndex == index
-                                ? AppColor.primary
-                                : AppColor.grey30,
-                      ),
-                    );
-                  }),
-                );
-              },
+                  Positioned(
+                    right: 0,
+                    child: ValueListenableBuilder<int>(
+                      valueListenable: _currentPageNotifier,
+                      builder: (_, index, __) {
+                        return _arrowButton(
+                          icon: Icons.chevron_right,
+                          onTap: _next,
+                          enabled: index < widget.urls.length - 1,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             // DOWNLOAD BUTTON
             Align(
               alignment: Alignment.centerRight,
-              child: GestureDetector(
-                onTap: () {
+              child: CustomIconButton(
+                onPressed: () {
                   final url = widget.urls[_currentPageNotifier.value];
                   final bytes =
                       widget.fileBytes != null &&
@@ -272,20 +290,41 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
                           : null;
                   downloadFile(url, bytes: bytes);
                 },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: AppColor.primary,
-                  ),
-                  child: Icon(Icons.download, color: AppColor.white),
+                icon: Icon(
+                  Icons.file_download_outlined,
+                  size: 16,
+                  color: AppColor.darkGreen,
                 ),
+                backgroundColor: AppColor.lightGreen,
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  // ARROW BUTTONS
+  Widget _arrowButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    required bool enabled,
+  }) {
+    return Opacity(
+      opacity: enabled ? 1 : 0.4,
+      child: GestureDetector(
+        onTap: enabled ? onTap : null,
+        child: Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: enabled ? AppColor.lightBlue : AppColor.lightGrey,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            size: 28,
+            color: enabled ? AppColor.primary : AppColor.grey,
+          ),
         ),
       ),
     );

@@ -302,19 +302,10 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
                     ),
                     CustomDatePicker(
                       title: 'Warranty Expiry Date',
-                      isRequired: true,
                       initialDate: _warrantyExpiryDate,
                       startDate: _purchaseDate,
                       setValue: (date) {
-                        setState(() {
-                          _warrantyExpiryDate = date;
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return "Warranty Date is required";
-                        }
-                        return null;
+                        _warrantyExpiryDate = date;
                       },
                     ),
                     CustomTextField(

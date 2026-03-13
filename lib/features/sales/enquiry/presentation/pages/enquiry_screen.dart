@@ -63,28 +63,44 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     required String phoneNumber,
     String message = 'Hi',
   }) async {
+
+    String normalized = _normalizePhone(phoneNumber);
+
     final encodedMsg = Uri.encodeComponent(message);
 
-    // WhatsApp app URL (mobile)
     final Uri appUri = Uri.parse(
-      "whatsapp://send?phone=$phoneNumber&text=$encodedMsg",
+      "whatsapp://send?phone=$normalized&text=$encodedMsg",
     );
 
-    // Web fallback
-    final Uri webUri = Uri.parse("https://wa.me/$phoneNumber?text=$encodedMsg");
+    final Uri webUri = Uri.parse(
+      "https://wa.me/$normalized?text=$encodedMsg",
+    );
 
     try {
-      // Try opening WhatsApp app
       if (await canLaunchUrl(appUri)) {
         await launchUrl(appUri, mode: LaunchMode.externalApplication);
       } else {
-        // Fallback to WhatsApp Web
         await launchUrl(webUri, mode: LaunchMode.externalApplication);
       }
     } catch (_) {
-      // Final fallback
       await launchUrl(webUri, mode: LaunchMode.externalApplication);
     }
+  }
+
+  String _normalizePhone(String phone) {
+    phone = phone.replaceAll(RegExp(r'\D'), '');
+
+    // If 10 digit Indian number → add 91
+    if (phone.length == 10) {
+      phone = "91$phone";
+    }
+
+    // Remove leading +
+    if (phone.startsWith("+")) {
+      phone = phone.substring(1);
+    }
+
+    return phone;
   }
 
   @override

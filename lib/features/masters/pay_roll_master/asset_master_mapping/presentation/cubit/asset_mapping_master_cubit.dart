@@ -41,6 +41,7 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
     var queryParams = {
       "AssetName": state.searchText,
       "EmployeeName": state.filterEmployeeName,
+      // "Status": "Available",
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 

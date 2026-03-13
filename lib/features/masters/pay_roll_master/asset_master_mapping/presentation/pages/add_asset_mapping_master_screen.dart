@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/data/model/asset_master.model.dart';
@@ -243,7 +244,7 @@ class _AddAssetMappingMasterScreenState
     );
   }
 
-  // SUBMIT FORM
+// SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -252,8 +253,11 @@ class _AddAssetMappingMasterScreenState
     final selectedEmployee = _selectedEmployeeNotifier.value;
     final selectedAsset = _selectedAssetNotifier.value;
     final assignedDate = _assignedDateNotifier.value;
-    final returnDate = _returnDateNotifier.value;
     final isInactive = _isInactiveNotifier.value;
+
+    final returnDate = isInactive ? _returnDateNotifier.value : null;
+    final conditionOnReturn =
+    isInactive ? _conditionOnReturnC.text.trim() : '';
 
     if (selectedEmployee.isEmpty) {
       showErrorMessage(context, 'Error', 'Please select an employee');
@@ -286,7 +290,7 @@ class _AddAssetMappingMasterScreenState
         assignedDate: assignedDate,
         returnDate: returnDate,
         conditionOnIssue: _conditionOnIssueC.text.trim(),
-        conditionOnReturn: _conditionOnReturnC.text.trim(),
+        conditionOnReturn: conditionOnReturn,
         remarks: _remarksC.text.trim(),
       );
     } else {
@@ -336,6 +340,13 @@ class _AddAssetMappingMasterScreenState
                           children: [
                             CustomMultipleSelectPopup(
                               title: 'Asset',
+                              isReadOnly:
+                                  _isEditMode
+                                      ? widget
+                                              .assetMapping
+                                              ?.isEditAllowedForAssetAndEmployee ??
+                                          false
+                                      : false,
                               isRequired: true,
                               isMultiSelect: false,
                               initialValue: selectedAsset,
@@ -442,6 +453,13 @@ class _AddAssetMappingMasterScreenState
                           children: [
                             CustomMultipleSelectPopup(
                               title: 'Employee',
+                              isReadOnly:
+                                  _isEditMode
+                                      ? widget
+                                              .assetMapping
+                                              ?.isEditAllowedForAssetAndEmployee ??
+                                          false
+                                      : false,
                               isRequired: true,
                               isMultiSelect: false,
                               initialValue: selectedEmployee,
@@ -584,6 +602,8 @@ class _AddAssetMappingMasterScreenState
                       maxLines: 3,
                     ),
 
+                    verticalSpacing(),
+
                     // RETURN SECTION (EDIT MODE ONLY)
                     if (_isEditMode)
                       ValueListenableBuilder<bool>(
@@ -592,51 +612,79 @@ class _AddAssetMappingMasterScreenState
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ValueListenableBuilder<DateTime?>(
-                                valueListenable: _returnDateNotifier,
-                                builder: (context, returnDate, __) {
-                                  return ValueListenableBuilder<DateTime?>(
-                                    valueListenable: _assignedDateNotifier,
-                                    builder: (context, assignedDate, ___) {
-                                      return CustomDatePicker(
-                                        title: 'Return Date',
-                                        initialDate: returnDate,
-                                        startDate: assignedDate,
-                                        setValue: (date) {
-                                          _returnDateNotifier.value = date;
-                                        },
-                                        validator: (value) {
-                                          if (value == null && isInactive) {
-                                            return "Return Date is required";
-                                          }
-                                          if (assignedDate != null &&
-                                              isInactive &&
-                                              value != null &&
-                                              value.isBefore(assignedDate)) {
-                                            return "Return Date must be after Assigned Date";
-                                          }
-                                          return null;
-                                        },
-                                      );
+                              Row(
+                                spacing: 10,
+                                children: [
+                                  CustomCheckBox(
+                                    isSelected: isInactive,
+                                    onChanged: (value) {
+                                      _isInactiveNotifier.value =
+                                          value;
+
+                                      if (!(value)) {
+                                        _returnDateNotifier.value = null;
+                                        _conditionOnReturnC.clear();
+                                      }
                                     },
-                                  );
-                                },
+                                  ),
+                                  Text(
+                                    "Do you want to return the asset?",
+                                    style: AppTextStyle.ts14M(),
+                                  ),
+                                ],
                               ),
-                              CustomTextField(
-                                title: 'Condition on Return',
-                                textController: _conditionOnReturnC,
-                                hint: "Enter Condition on Return",
-                                inputFormatterList: InputValidator.textOnly(
-                                  200,
+
+                              if (isInactive) ...[
+                                verticalSpacing(),
+                                CustomTextField(
+                                  title: 'Condition on Return',
+                                  isRequired: true,
+                                  textController: _conditionOnReturnC,
+                                  hint: "Enter Condition on Return",
+                                  inputFormatterList: InputValidator.textOnly(
+                                    200,
+                                  ),
+                                  validator: (value) {
+                                    if ((value == null ||
+                                        value.trim().isEmpty) &&
+                                        isInactive) {
+                                      return "Condition on Return is required";
+                                    }
+                                    return null;
+                                  },
                                 ),
-                                validator: (value) {
-                                  if ((value == null || value.trim().isEmpty) &&
-                                      isInactive) {
-                                    return "Condition on Return is required";
-                                  }
-                                  return null;
-                                },
-                              ),
+                                ValueListenableBuilder<DateTime?>(
+                                  valueListenable: _returnDateNotifier,
+                                  builder: (context, returnDate, __) {
+                                    return ValueListenableBuilder<DateTime?>(
+                                      valueListenable: _assignedDateNotifier,
+                                      builder: (context, assignedDate, ___) {
+                                        return CustomDatePicker(
+                                          title: 'Return Date',
+                                          isRequired: true,
+                                          initialDate: returnDate,
+                                          startDate: assignedDate,
+                                          setValue: (date) {
+                                            _returnDateNotifier.value = date;
+                                          },
+                                          validator: (value) {
+                                            if (value == null && isInactive) {
+                                              return "Return Date is required";
+                                            }
+                                            if (assignedDate != null &&
+                                                isInactive &&
+                                                value != null &&
+                                                value.isBefore(assignedDate)) {
+                                              return "Return Date must be after Assigned Date";
+                                            }
+                                            return null;
+                                          },
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              ],
                             ],
                           );
                         },
@@ -667,17 +715,6 @@ class _AddAssetMappingMasterScreenState
                   onPressed: _submitForm,
                 ),
               ),
-              if (_isEditMode)
-                Expanded(
-                  child: CustomButton(
-                    backgroundColor: AppColor.red,
-                    text: "Inactive",
-                    onPressed: () {
-                      _isInactiveNotifier.value = true;
-                      _submitForm();
-                    },
-                  ),
-                ),
             ],
           ),
         ),

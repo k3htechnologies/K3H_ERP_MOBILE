@@ -1,5 +1,6 @@
-import 'dart:typed_data';
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -10,6 +11,8 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 
 class EmployeeDocumentDialog extends StatefulWidget {
   final List<String> urls;
@@ -40,8 +43,8 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
   late final PageController _pageController;
   final ValueNotifier<int> _currentIndex = ValueNotifier(0);
 
+  // INITIALIZE COUNTS
   int _pickedDocumentCount = 0;
-
   int maxDocuments = 5;
 
   @override
@@ -57,6 +60,7 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
     super.dispose();
   }
 
+  // CHECK IF IT HAS BYTES
   bool _hasBytes(int index) {
     return widget.fileBytes != null &&
         widget.fileBytes!.length > index &&
@@ -86,12 +90,12 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
 
     if (result.files.length > remaining) {
       goRouter.pop();
-      if(mounted) {
+      if (mounted) {
         showErrorMessage(
-        context,
-        "Image Error",
-        "You can add only 5 document(s)",
-      );
+          context,
+          "Image Error",
+          "You can add only 5 document(s)",
+        );
       }
       return;
     }
@@ -104,6 +108,7 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
     if (mounted) Navigator.pop(context);
   }
 
+  // PREVIOUS BUTTON
   void _previous() {
     if (_currentIndex.value > 0) {
       _pageController.previousPage(
@@ -113,12 +118,63 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
     }
   }
 
+  // NEXT BUTTON
   void _next() {
     if (_currentIndex.value < widget.urls.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+    }
+  }
+
+  // GET FILE  NAME
+  String getFileName(String url) {
+    try {
+      return Uri.parse(url).pathSegments.last;
+    } catch (_) {
+      return "document_${DateTime.now().millisecondsSinceEpoch}";
+    }
+  }
+
+  // DOWNLOAD DOCUMENT
+  Future<void> downloadCurrentDocument() async {
+    if (widget.urls.isEmpty) return;
+
+    final index = _currentIndex.value;
+    final url = widget.urls[index];
+
+    Uint8List? fileData;
+
+    try {
+      if (_hasBytes(index)) {
+        fileData = widget.fileBytes![index];
+      }
+
+      // IF NETWORK FILE (DOWNLOAD BYTES)
+      if (url.startsWith("http")) {
+        final response = await HttpClient().getUrl(Uri.parse(url));
+        final httpResponse = await response.close();
+        fileData = await consolidateHttpClientResponseBytes(httpResponse);
+      }
+
+      if (fileData == null) return;
+
+      final directory = await getApplicationDocumentsDirectory();
+      final fileName = getFileName(url);
+      final filePath = "${directory.path}/$fileName";
+
+      final file = File(filePath);
+      await file.writeAsBytes(fileData);
+
+      // OPEN FILE
+      await OpenFilex.open(filePath);
+    } catch (e) {
+      debugPrint("Download error: $e");
+
+      if (mounted) {
+        showErrorMessage(context, "Download Error", "Unable to download file");
+      }
     }
   }
 
@@ -138,16 +194,36 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             // ───── HEADER ─────
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(widget.title, style: AppTextStyle.ts16SB()),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(widget.title, style: AppTextStyle.ts16SB()),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(Icons.close),
+                    ),
+                  ],
                 ),
-                horizontalSpacing(),
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.close),
-                ),
+
+                verticalSpacing(height: 4),
+
+                if (!widget.isFreshAdd)
+                  ValueListenableBuilder<int>(
+                    valueListenable: _currentIndex,
+                    builder: (_, index, __) {
+                      final totalDocs = widget.urls.length;
+
+                      return Text(
+                        "$totalDocs/$maxDocuments uploaded",
+                        style: AppTextStyle.ts12R(color: AppColor.grey),
+                      );
+                    },
+                  ),
               ],
             ),
 
@@ -179,7 +255,7 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
                       }
 
                       return Text(
-                        "Document ${index + 1} of $totalDocs  •  $totalDocs/$maxDocuments uploaded",
+                        "Document ${index + 1} of $totalDocs",
                         style: AppTextStyle.ts14R(color: AppColor.grey),
                       );
                     },
@@ -187,18 +263,27 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
 
                 const Spacer(),
 
-                // ➕ ADD
-                if (!widget.isFreshAdd && widget.urls.isNotEmpty)
+                if (!widget.isFreshAdd && widget.urls.isNotEmpty) ...[
+                  // DOWNLOAD
+                  CustomIconButton(
+                    onPressed: () {
+                      downloadCurrentDocument();
+                    },
+                    icon: Icon(
+                      Icons.file_download_outlined,
+                      size: 16,
+                      color: AppColor.darkGreen,
+                    ),
+                    backgroundColor: AppColor.lightGreen,
+                  ),
+                  horizontalSpacing(),
+                  // ADD
                   CustomIconButton(
                     onPressed: _pickDocuments,
-                    icon: Icon(Icons.add, size: 16, color: AppColor.grey),
-                    backgroundColor: AppColor.lightGrey,
+                    icon: Icon(Icons.add, size: 16, color: AppColor.primary),
                   ),
-
-                const SizedBox(width: 8),
-
-                // 🗑 DELETE
-                if (!widget.isFreshAdd && widget.urls.isNotEmpty)
+                  horizontalSpacing(),
+                  // DELETE
                   CustomIconButton(
                     onPressed: () async {
                       await widget.deleteDocument(
@@ -216,6 +301,7 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
                     ),
                     backgroundColor: AppColor.lightRed,
                   ),
+                ],
               ],
             ),
           ],
@@ -265,11 +351,30 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
 
         Positioned(
           left: 0,
-          child: _arrowButton(icon: Icons.chevron_left, onTap: _previous),
+          child: ValueListenableBuilder<int>(
+            valueListenable: _currentIndex,
+            builder: (_, index, __) {
+              return _arrowButton(
+                icon: Icons.chevron_left,
+                onTap: _previous,
+                enabled: index > 0,
+              );
+            },
+          ),
         ),
+
         Positioned(
           right: 0,
-          child: _arrowButton(icon: Icons.chevron_right, onTap: _next),
+          child: ValueListenableBuilder<int>(
+            valueListenable: _currentIndex,
+            builder: (_, index, __) {
+              return _arrowButton(
+                icon: Icons.chevron_right,
+                onTap: _next,
+                enabled: index < widget.urls.length - 1,
+              );
+            },
+          ),
         ),
       ],
     );
@@ -305,16 +410,24 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
   }
 
   // ───────────────── ARROW BUTTON ─────────────────
-  Widget _arrowButton({required IconData icon, required VoidCallback onTap}) {
+  Widget _arrowButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    required bool enabled,
+  }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: enabled ? onTap : null,
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: AppColor.lightGrey,
+          color: enabled ? AppColor.lightBlue : AppColor.lightGrey,
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, size: 28),
+        child: Icon(
+          icon,
+          size: 28,
+          color: enabled ? AppColor.primary : AppColor.grey,
+        ),
       ),
     );
   }

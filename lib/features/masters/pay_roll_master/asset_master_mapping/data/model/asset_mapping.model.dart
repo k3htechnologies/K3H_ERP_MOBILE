@@ -25,6 +25,7 @@ class AssetMappingModel {
   String department;
   String designation;
   String branch;
+  bool isEditAllowedForAssetAndEmployee;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -57,6 +58,7 @@ class AssetMappingModel {
     required this.department,
     required this.designation,
     required this.branch,
+    required this.isEditAllowedForAssetAndEmployee,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -94,6 +96,10 @@ class AssetMappingModel {
         department: parseValue<String>(json, "Department"),
         designation: parseValue<String>(json, "Designation"),
         branch: parseValue<String>(json, "Branch"),
+        isEditAllowedForAssetAndEmployee: parseValue<bool>(
+          json,
+          "IsEditAllowedForAssetAndEmployee",
+        ),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -130,6 +136,7 @@ class AssetMappingModel {
     "Department": department,
     "Designation": designation,
     "Branch": branch,
+    "IsEditAllowedForAssetAndEmployee": isEditAllowedForAssetAndEmployee,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
