@@ -91,6 +91,9 @@ abstract interface class EmployeeMasterRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> updateUserBasicDetails({
+    required Map<String, dynamic> requestBody,
+  });
 }
 
 class EmployeeMasterRepositoryImp implements EmployeeMasterRepository {
@@ -370,6 +373,20 @@ class EmployeeMasterRepositoryImp implements EmployeeMasterRepository {
             pageSize: pageSize,
             queryParams: queryParams,
           );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> updateUserBasicDetails({
+    required Map<String, dynamic> requestBody,
+  }) async {
+    try {
+      var result = await employeeMasterDataSource.apicallUpdateUserBasicDetails(
+        body: requestBody,
+      );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

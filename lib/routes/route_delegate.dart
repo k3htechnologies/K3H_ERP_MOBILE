@@ -205,6 +205,7 @@ import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/add_employee_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_view_details_screen.dart';
+import 'package:k3h_erp_app/features/profile/presentation/pages/update_user_details_screen.dart';
 import 'package:k3h_erp_app/features/project_document/approval_category/data/model/approval_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/approval_category/presentation/cubit/approval_category_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/approval_category/presentation/pages/add_approval_category_screen.dart';
@@ -2502,15 +2503,42 @@ final GoRouter goRouter = GoRouter(
           },
         ),
         // PROFILE
-        GoRoute(
-          path: AppRoutes.profile,
-          name: AppRoutes.profile,
-          builder: (context, state) {
-            return BlocProvider(
-              create: (_) => ProfileCubit(),
-              child: ProfileScreen(),
-            );
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(create: (_) => ProfileCubit(), child: child);
           },
+          routes: [
+            GoRoute(
+              name: AppRoutes.profile,
+              path: AppRoutes.profile,
+              builder: (context, state) {
+                return ProfileScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.updateUserBasicDetails,
+              path: AppRoutes.updateUserBasicDetails,
+              builder: (context, state) {
+                final queryParameterEnquiry =
+                    state.uri.queryParameters['updateUserBasicDetails'];
+                final updateUserBasicDetails =
+                    queryParameterEnquiry != null &&
+                            queryParameterEnquiry.isNotEmpty
+                        ? UserModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterEnquiry),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                return UpdateUserDetailsScreen(
+                  userData: updateUserBasicDetails,
+                );
+              },
+            ),
+          ],
         ),
         // NOTIFICATION
         GoRoute(

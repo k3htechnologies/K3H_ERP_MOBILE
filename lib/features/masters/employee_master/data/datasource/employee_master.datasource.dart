@@ -97,6 +97,9 @@ abstract interface class EmployeeMasterDataSource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apicallUpdateUserBasicDetails({
+    required Map<String, dynamic> body,
+  });
 }
 
 class EmployeeMasterDataSourceImpl extends EmployeeMasterDataSource {
@@ -710,6 +713,31 @@ class EmployeeMasterDataSourceImpl extends EmployeeMasterDataSource {
           pageSize: pageSize,
           queryParams: queryParams,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallUpdateUserBasicDetails({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      String updateUserBasicDetailsUrl = "Employee/UpdateEmployee";
+
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        updateUserBasicDetailsUrl,
+        body,
+      );
+      return {
+        'data': List<UserModel>.from(
+          networkResponse["data"].map((e) => UserModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallUpdateUserBasicDetails(body: body);
       }
       rethrow;
     }
