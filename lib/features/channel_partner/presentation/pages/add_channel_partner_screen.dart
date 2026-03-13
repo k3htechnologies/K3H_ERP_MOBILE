@@ -8,8 +8,6 @@ import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
-import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
-import 'package:k3h_erp_app/features/masters/designation_master/data/repository/designation_master.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -50,8 +48,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   bool get _isEditMode => widget.channelPartnerModel != null;
 
   // REPOSITORY
-  final DesignationMasterRepository _designationMasterRepository =
-      serviceLocator<DesignationMasterRepository>();
+
   final ChannelPartnerRepository _channelPartnerRepository =
       serviceLocator<ChannelPartnerRepository>();
 
@@ -72,6 +69,18 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  // SELECT EARNING
+  List<Map<String, dynamic>> _selectedDesignation = [];
+
+  // STATIC LIST
+  List<Map<String, dynamic>> designationList = [
+    {"zAttributesId": 1, "DisplayName": "Business Head"},
+    {"zAttributesId": 2, "DisplayName": "Cluster Head"},
+    {"zAttributesId": 3, "DisplayName": "Owner"},
+    {"zAttributesId": 4, "DisplayName": "Partner"},
+    {"zAttributesId": 5, "DisplayName": "Team Member"},
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -81,7 +90,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     selectedCompanyType = ValueNotifier<Map<String, dynamic>>(
       companyTypeList[0],
     );
-    selectedDesignation = ValueNotifier([]);
     selectedSpeciality = specialityList[0];
     selectedFirmsType = ValueNotifier(firmsType[0]);
     hasReraNumber = ValueNotifier(false);
@@ -111,7 +119,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     // VALUE NOTIFIERS
     selectedCompanyType.dispose();
     selectedFirmsType.dispose();
-    selectedDesignation.dispose();
     selectedCompany.dispose();
     hasReraNumber.dispose();
 
@@ -151,6 +158,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         fileNameList: [],
         deletedFileList: "",
       );
+
   // DROPDOWN VARIABLES
   final List<Map<String, dynamic>> specialityList = [
     {"zAttributesId": -1, "DisplayName": "Select"},
@@ -193,49 +201,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   late Map<String, dynamic> selectedType;
   // MULTI SELECT FOR PROJECTS, SINGLE SELECT FOR COMPANY
   late ValueNotifier<List<Map<String, dynamic>>> selectedCompany;
-  late ValueNotifier<List<Map<String, dynamic>>> selectedDesignation;
   late ValueNotifier<bool> hasReraNumber;
-
-  // FETCH DESIGNATION LIST
-  Future<Map<String, dynamic>> _fetchDesignationList(
-    int pageNumber, {
-    String? value,
-  }) async {
-    try {
-      final result = await _designationMasterRepository.getDesignationList(
-        pageNumber: pageNumber,
-        pageSize: 15,
-        queryParams:
-            value != null && value.isNotEmpty
-                ? {"DesignationName": value}
-                : null,
-      );
-
-      return result.fold(
-        (failure) => {'itemList': [], 'totalNumberOfRecord': 0},
-        (response) {
-          final designations = response['data'] as List<DesignationMasterModel>;
-          final itemList =
-              designations
-                  .map(
-                    (c) => {
-                      'zAttributesId': c.designationMasterId,
-                      'DisplayName': c.designationName,
-                    },
-                  )
-                  .toList();
-
-          return {
-            'itemList': itemList,
-            'totalNumberOfRecord':
-                response['totalNumberOfRecord'] ?? itemList.length,
-          };
-        },
-      );
-    } catch (error) {
-      return {'itemList': [], 'totalNumberOfRecord': 0};
-    }
-  }
 
   // FETCH COMPANY LIST FOR EXISTING COMPANY FLOW
   Future<Map<String, dynamic>> _fetchChannelPartnerList(
@@ -352,12 +318,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     }
 
     if (channelPartnerMasterModel.designation.isNotEmpty) {
-      selectedDesignation.value = [
-        {
-          "DisplayName": channelPartnerMasterModel.designation,
-          "zAttributesId": 0,
-        },
-      ];
+      _selectedDesignation =
+          channelPartnerMasterModel.designation.split(",").map((name) {
+            return {"zAttributesId": 0, "DisplayName": name.trim()};
+          }).toList();
     }
 
     selectedSpeciality = specialityList.firstWhere(
@@ -483,10 +447,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         companyName: _companyNameC.text.trim(),
         firmsType: selectedFirmsType.value["DisplayName"],
         type: selectedType["DisplayName"],
-        designation:
-            selectedDesignation.value.isNotEmpty
-                ? selectedDesignation.value.first["DisplayName"]
-                : "",
+        designation: _selectedDesignation.first["DisplayName"],
         otp: _otpController.text.trim(),
       );
     } else {
@@ -513,10 +474,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         companyName: _companyNameC.text.trim(),
         firmsType: selectedFirmsType.value["DisplayName"],
         type: selectedType["DisplayName"],
-        designation:
-            selectedDesignation.value.isNotEmpty
-                ? selectedDesignation.value.first["DisplayName"]
-                : "",
+        designation: _selectedDesignation.first["DisplayName"],
         otp: _otpController.text.trim(),
         gstCertificateURL: selectedGSTCertificateForPopUpFile,
       );
@@ -778,18 +736,23 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       },
                     ),
                     CustomMultipleSelectPopup(
-                      title: "Designation",
+                      title: 'Designation',
                       isRequired: true,
                       isMultiSelect: false,
-
-                      initialValue: selectedDesignation.value,
-                      dataFetchCallBack: _fetchDesignationList,
-                      onSelected: (selectedValue) {
-                        selectedDesignation.value = selectedValue;
+                      initialValue: _selectedDesignation,
+                      dataList: designationList,
+                      onSelected: (value) {
+                        _selectedDesignation = value;
+                      },
+                      dataFetchCallBack: (pageNumber, {value}) async {
+                        return {
+                          "itemList": designationList,
+                          "totalNumberOfRecord": designationList.length,
+                        };
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Designation is required";
+                          return "Designation Name is required";
                         }
                         return null;
                       },
@@ -1152,7 +1115,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
               size: 18,
               color: AppColor.white,
             ),
-            text: _isEditMode ? "Update Channel Partner" : "Add Channel Partner",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _verifyAndSubmitForm,
           ),
         ),

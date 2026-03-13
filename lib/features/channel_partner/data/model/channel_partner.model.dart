@@ -127,7 +127,10 @@ class ChannelPartnerModel {
         createdDate: parseValue<DateTime>(json, "CreatedDate"),
         modifiedById: parseValue<int>(json, "ModifiedById"),
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
-        modifiedDate: parseValue<DateTime>(json, "ModifiedDate"),
+        modifiedDate:
+        json["ModifiedDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "ModifiedDate"),
         noOfEnquiry: parseValue<int>(json, "NoOfEnquiry"),
         noOfBooking: parseValue<int>(json, "NoOfBooking"),
         brokeragePercentage: parseValue<int>(json, "BrokeragePercentage"),
