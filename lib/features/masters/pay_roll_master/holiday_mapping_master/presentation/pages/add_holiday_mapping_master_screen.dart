@@ -76,16 +76,14 @@ class _AddHolidayMappingMasterScreenState
 
   // POPULATE FORM FIELDS
   void _populateFormFields(HolidayMappingModel holidayMapping) {
-    if ((holidayMapping.branchMasterId ?? '').toString().isNotEmpty &&
-        (holidayMapping.branchName ?? '').toString().isNotEmpty) {
-
+    if ((holidayMapping.branchMasterId).toString().isNotEmpty &&
+        (holidayMapping.branchName).toString().isNotEmpty) {
       _selectedBranch = [
         {
           'zAttributesId': holidayMapping.branchMasterId,
           'DisplayName': holidayMapping.branchName,
         },
       ];
-
     } else {
       _selectedBranch = [];
     }
@@ -98,7 +96,6 @@ class _AddHolidayMappingMasterScreenState
 
     if (holidayMapping.departmentMasterId.isNotEmpty &&
         holidayMapping.departmentName.isNotEmpty) {
-
       final ids = holidayMapping.departmentMasterId.split(',');
       final names = holidayMapping.departmentName.split(',');
 
@@ -108,7 +105,6 @@ class _AddHolidayMappingMasterScreenState
           'DisplayName': names[index],
         };
       });
-
     } else {
       _selectedDepartment = [];
     }
@@ -228,13 +224,15 @@ class _AddHolidayMappingMasterScreenState
         .map((e) => e['zAttributesId'].toString())
         .join(',');
 
-    int holidayId = _selectedHoliday.isNotEmpty
-        ? _selectedHoliday.first['zAttributesId'] as int
-        : 0;
+    int holidayId =
+        _selectedHoliday.isNotEmpty
+            ? _selectedHoliday.first['zAttributesId'] as int
+            : 0;
 
-    String branchId = _selectedBranch.isNotEmpty
-        ? _selectedBranch.first['zAttributesId'].toString()
-        : "";
+    String branchId =
+        _selectedBranch.isNotEmpty
+            ? _selectedBranch.first['zAttributesId'].toString()
+            : "";
 
     if (_isEditMode && widget.holidayMapping != null) {
       _holidayMappingMasterCubit.updateHolidayMapping(
