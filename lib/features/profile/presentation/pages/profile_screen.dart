@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
@@ -8,6 +11,8 @@ import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee
 import 'package:k3h_erp_app/features/masters/employee_master/data/model/employee_experience_details.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/presentation/widgets/employee_document_dialog.dart';
 import 'package:k3h_erp_app/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -595,6 +600,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget _buildInfoCard({
     required String title,
     required List<Map<String, String>> items,
+    VoidCallback? onUpdateCallback,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -603,7 +609,15 @@ class _ProfileScreenState extends State<ProfileScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTextStyle.ts16SB()),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(child: Text(title, style: AppTextStyle.ts16SB())),
+              // SHOW EDIT BUTTON ONLY IF CALLBACK IS PROVIDED
+              if (onUpdateCallback != null)
+                CustomIconButton.edit(onPressed: onUpdateCallback),
+            ],
+          ),
           verticalSpacing(height: 12),
           ..._buildInfoRows(items),
         ],
@@ -866,7 +880,6 @@ class _ProfileScreenState extends State<ProfileScreen>
               _buildInfoCard(
                 title: 'Basic Details',
                 items: [
-                  {'label': 'Employee Code', 'value': overview.employeeCode},
                   {'label': 'Full Name', 'value': overview.fullName},
                   {'label': 'Gender', 'value': overview.gender},
                   {'label': 'Marital Status', 'value': overview.maritalStatus},
@@ -890,6 +903,18 @@ class _ProfileScreenState extends State<ProfileScreen>
                     'fullWidth': 'true',
                   },
                 ],
+                onUpdateCallback: () async {
+                  goRouter.pushNamed(
+                    AppRoutes.updateUserBasicDetails,
+                    queryParameters: {
+                      "updateUserBasicDetails": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(
+                          jsonEncode(overview.toJson()),
+                        ),
+                      ),
+                    },
+                  );
+                },
               ),
               verticalSpacing(),
               _buildInfoCard(

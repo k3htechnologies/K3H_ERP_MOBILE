@@ -264,7 +264,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     final result = await _employeeMasterRepository.getEmployeeAssetList(
       pageNumber: pageNumber,
       pageSize: pageSize,
-      queryParams: {"EmployeeId": employeeId,"IsCheckPermission":"false"},
+      queryParams: {"EmployeeId": employeeId, "IsCheckPermission": "false"},
     );
 
     result.fold(
@@ -300,7 +300,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         .getEmployeeShiftManagementList(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          queryParams: {"EmployeeId": employeeId,"IsCheckPermission":"false"},
+          queryParams: {"EmployeeId": employeeId, "IsCheckPermission": "false"},
         );
 
     result.fold(
@@ -336,7 +336,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         .getEmployeeWeekOffMappingList(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          queryParams: {"EmployeeId": employeeId,"IsCheckPermission":"false"},
+          queryParams: {"EmployeeId": employeeId, "IsCheckPermission": "false"},
         );
 
     result.fold(
@@ -730,7 +730,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         .getBranchAssociationList(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          queryParams: {"EmployeeId": employeeId,"IsCheckPermission":"false"},
+          queryParams: {"EmployeeId": employeeId, "IsCheckPermission": "false"},
         );
 
     result.fold(
@@ -837,6 +837,37 @@ class ProfileCubit extends Cubit<ProfileState> {
       (response) async {
         showSuccessMessage(context, subTitle: response["successMessage"]);
         await getEmployeeDocumentList(context, 1, 100, int.parse(employeeId));
+      },
+    );
+  }
+
+  // <---- UPDATE USER BASIC DETAILS ---->
+  Future updateUserBasicDetails({
+    required BuildContext context,
+    required Map<String, dynamic> body,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var addResult = await _employeeMasterRepository.updateUserBasicDetails(
+      requestBody: body,
+    );
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'User Basic Details Updates Successfully',
+        );
+        getEmployeeMasterList(
+          context,
+          1,
+          10,
+          state.employeeMasterList.first.employeeId,
+        );
+        goRouter.pop();
       },
     );
   }
