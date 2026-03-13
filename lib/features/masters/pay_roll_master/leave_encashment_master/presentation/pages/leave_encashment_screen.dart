@@ -14,7 +14,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -36,6 +36,9 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
   late ScrollController scrollController;
   Timer? _debounce;
 
+  // TEXT EDITING CONTROLLERS
+  late TextEditingController _searchC;
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +46,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.leaveEncashmentMaster] ??
         AuthorizationModel();
+    _searchC = TextEditingController();
     _onScroll();
     _leaveEncashmentMasterCubit.getLeaveEncashmentList(
       context: context,
@@ -54,6 +58,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
   void dispose() {
     super.dispose();
     scrollController.dispose();
+    _searchC.dispose();
   }
 
   // <---- PAGINATION ---->
@@ -97,21 +102,22 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBarWithBackButton(
+      appBar: CustomAppBar(
         screenTitle: "Leave Encashment Master",
         authorization: _routeAuthorizationModel,
-        isMenuButton: true,
-        onAddCallback: (){
+        onAddCallback: () {
           goRouter.pushNamed(AppRoutes.addLeaveEncashmentMaster);
         },
-        onExportCallback: (value){
-          if(_leaveEncashmentMasterCubit.state.totalNumberOfRecord==0){
+        onExportCallback: (value) {
+          if (_leaveEncashmentMasterCubit.state.totalNumberOfRecord == 0) {
             return showErrorMessage(context, "", "No Data Found");
           }
-          _leaveEncashmentMasterCubit.exportExcelPdf(
-            context,
-            value,
-          );
+          _leaveEncashmentMasterCubit.exportExcelPdf(context, value);
+        },
+        textController: _searchC,
+        searchHintText: "Search by Earning Name",
+        onSearchSubmit: (value){
+          _leaveEncashmentMasterCubit.searchLeaveEnhancement(context, value);
         },
       ),
       body: Column(
@@ -123,7 +129,11 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
                 return Expanded(child: Center(child: loader()));
               }
               if (state.leaveEncashmentList.isEmpty) {
-                return Expanded(child: Center(child: noDataWidget(message: "No Leave Encashment Found")));
+                return Expanded(
+                  child: Center(
+                    child: noDataWidget(message: "No Leave Encashment Found"),
+                  ),
+                );
               }
               return Expanded(
                 child: ListView.builder(
@@ -154,6 +164,15 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
+                              Expanded(
+                                child: Text(
+                                  leaveEncashment.earningMasterName,
+                                  style: AppTextStyle.ts14M(
+                                    color: AppColor.primary,
+                                  )
+                                ),
+                              ),
+                              horizontalSpacing(),
                               CustomIconButton.edit(
                                 onPressed: () async {
                                   await goRouter.pushNamed(
@@ -204,9 +223,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
                           ),
                           buildRowTitleValue(
                             title: "Created Date",
-                            value: formatDate(
-                              leaveEncashment.createdDate,
-                            ),
+                            value: formatDate(leaveEncashment.createdDate),
                           ),
                           buildRowTitleValue(
                             title: "Modified By",
@@ -216,9 +233,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
                             title: "Modified Date",
                             value:
                                 leaveEncashment.modifiedDate != null
-                                    ? formatDate(
-                                      leaveEncashment.modifiedDate!,
-                                    )
+                                    ? formatDate(leaveEncashment.modifiedDate!)
                                     : "",
                           ),
                         ],

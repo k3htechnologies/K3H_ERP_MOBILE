@@ -44,6 +44,7 @@ class LeaveEncashmentMasterRepositoryImp
           .apiCallPullLeaveEncashment(
             pageNumber: pageNumber,
             pageSize: pageSize,
+            queryParams: queryParams,
           );
       return right(result);
     } catch (error) {

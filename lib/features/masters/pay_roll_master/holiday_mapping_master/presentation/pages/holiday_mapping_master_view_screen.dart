@@ -60,6 +60,10 @@ class HolidayMappingMasterViewScreen extends StatelessWidget {
                           title: "Branch Name",
                           value: holidayMapping.branchName,
                         ),
+                        buildColumnTitleValue(
+                          title: "Department Name",
+                          value: holidayMapping.departmentName,
+                        ),
                       ],
                     ),
                   ],

@@ -14,9 +14,10 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
   final LeaveEncashmentMasterRepository leaveEncashmentMasterRepository =
       serviceLocator<LeaveEncashmentMasterRepository>();
 
-  // <---- RESET STATE ---->
-  void resetState() {
-    emit(LeaveEncashmentMasterState.initial());
+  // <---- SEARCH LEAVE ENCASHMENT ---->
+  Future searchLeaveEnhancement(BuildContext context, String value) async {
+    emit(state.copyWith(searchText: value, leaveEncashmentList: []));
+    await getLeaveEncashmentList(context: context, pageNumber: 1);
   }
 
   // GET LEAVE ENCASHMENT
@@ -26,9 +27,14 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
   }) async {
     emit(state.copyWith(isLoading: true));
 
+    Map<String, dynamic> queryParams = {
+      "EarningName": state.searchText,
+    };
+
     var result = await leaveEncashmentMasterRepository.getLeaveEncashmentList(
       pageNumber: pageNumber,
       pageSize: 10,
+      queryParams: queryParams
     );
     result.fold(
       (failure) {
@@ -99,6 +105,7 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
   // ADD LEAVE ENCASHMENT
   Future addLeaveEncashment({
     required BuildContext context,
+    required String earningMasterName,
     required double minSalary,
     required double maxSalary,
     required double encashmentRate,
@@ -106,6 +113,7 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
     DialogHelper.showProcessingOverlay(context);
     var body = {
       "LeaveEncashmentMasterSlabsId": 0,
+      "EarningMasterName": earningMasterName,
       "MinSalary": minSalary,
       "MaxSalary": maxSalary,
       "EncashmentRate": encashmentRate,
@@ -147,6 +155,7 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
     required BuildContext context,
     required int leaveEncashmentSlabsId,
     required String uniqueKey,
+    required String earningMasterName,
     required double minSalary,
     required double maxSalary,
     required double encashmentRate,
@@ -155,6 +164,7 @@ class LeaveEncashmentMasterCubit extends Cubit<LeaveEncashmentMasterState> {
     var body = {
       "LeaveEncashmentMasterSlabsId": leaveEncashmentSlabsId,
       "Uniquekey": uniqueKey,
+      "EarningMasterName": earningMasterName,
       "MinSalary": minSalary,
       "MaxSalary": maxSalary,
       "EncashmentRate": encashmentRate,

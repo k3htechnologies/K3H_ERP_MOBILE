@@ -278,6 +278,14 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
             );
           }
         },
+        onProjectChangeCallback: (value){
+          _project = value;
+          if (_tabController.index == 0) {
+            _callTrackerCubit.searchCallingData(context, "", value.projectId);
+          } else if (_tabController.index == 1) {
+            _callTrackerCubit.searchCallingLog(context, "", value.projectId);
+          }
+        },
       ),
       body: Column(
         children: [
@@ -372,7 +380,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                       buildColumnTitleValue(
                         title: "Location",
                         value: callingData.address,
-                        customValueWidget: Container(
+                        customValueWidget:callingData.address.isNotEmpty? Container(
                           padding: EdgeInsets.symmetric(
                             horizontal: 12,
                             vertical: 4,
@@ -382,7 +390,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(callingData.address),
-                        ),
+                        ):Text("-"),
                       ),
                     ],
                   ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
+import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/data/model/branch_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/data/repository/branch_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/holiday_mapping_master/data/model/holiday_mapping_master.model.dart';
@@ -40,6 +42,9 @@ class _AddHolidayMappingMasterScreenState
   final BranchMasterRepository _branchMasterRepository =
       serviceLocator<BranchMasterRepository>();
 
+  final DepartmentMasterRepository _departmentMasterRepository =
+      serviceLocator<DepartmentMasterRepository>();
+
   final HolidayMasterRepository _holidayMasterRepository =
       serviceLocator<HolidayMasterRepository>();
 
@@ -51,6 +56,7 @@ class _AddHolidayMappingMasterScreenState
 
   // DROPDOWN SELECTIONS
   List<Map<String, dynamic>> _selectedBranch = [];
+  List<Map<String, dynamic>> _selectedDepartment = [];
   List<Map<String, dynamic>> _selectedHoliday = [];
 
   // DATE PICKERS
@@ -70,18 +76,43 @@ class _AddHolidayMappingMasterScreenState
 
   // POPULATE FORM FIELDS
   void _populateFormFields(HolidayMappingModel holidayMapping) {
-    _selectedBranch = [
-      {
-        'zAttributesId': holidayMapping.branchMasterId,
-        'DisplayName': holidayMapping.branchName,
-      },
-    ];
+    if ((holidayMapping.branchMasterId ?? '').toString().isNotEmpty &&
+        (holidayMapping.branchName ?? '').toString().isNotEmpty) {
+
+      _selectedBranch = [
+        {
+          'zAttributesId': holidayMapping.branchMasterId,
+          'DisplayName': holidayMapping.branchName,
+        },
+      ];
+
+    } else {
+      _selectedBranch = [];
+    }
     _selectedHoliday = [
       {
         'zAttributesId': holidayMapping.holidayMasterId,
         'DisplayName': holidayMapping.holidayName,
       },
     ];
+
+    if (holidayMapping.departmentMasterId.isNotEmpty &&
+        holidayMapping.departmentName.isNotEmpty) {
+
+      final ids = holidayMapping.departmentMasterId.split(',');
+      final names = holidayMapping.departmentName.split(',');
+
+      _selectedDepartment = List.generate(ids.length, (index) {
+        return {
+          'zAttributesId': int.parse(ids[index]),
+          'DisplayName': names[index],
+        };
+      });
+
+    } else {
+      _selectedDepartment = [];
+    }
+
     _holidayDate = holidayMapping.holidayDate;
   }
 
@@ -153,11 +184,57 @@ class _AddHolidayMappingMasterScreenState
     );
   }
 
+  // FETCH DEPARTMENTS
+  Future<Map<String, dynamic>> _fetchDepartment(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final result = await _departmentMasterRepository.getDepartmentList(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      queryParams:
+          value != null && value.isNotEmpty ? {"DepartmentName": value} : {},
+    );
+
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final departments = response['data'] as List<DepartmentModel>;
+
+        return {
+          "itemList":
+              departments.map((department) {
+                return {
+                  "zAttributesId": department.departmentMasterId,
+                  "DisplayName": department.departmentName,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
+      },
+    );
+  }
+
   // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+
+    String departmentIds = _selectedDepartment
+        .map((e) => e['zAttributesId'].toString())
+        .join(',');
+
+    int holidayId = _selectedHoliday.isNotEmpty
+        ? _selectedHoliday.first['zAttributesId'] as int
+        : 0;
+
+    String branchId = _selectedBranch.isNotEmpty
+        ? _selectedBranch.first['zAttributesId'].toString()
+        : "";
 
     if (_isEditMode && widget.holidayMapping != null) {
       _holidayMappingMasterCubit.updateHolidayMapping(
@@ -165,16 +242,18 @@ class _AddHolidayMappingMasterScreenState
         context: context,
         holidayMappingMasterId: widget.holidayMapping!.holidayMappingMasterId,
         uniqueKey: widget.holidayMapping!.uniquekey,
-        holidayMasterId: _selectedHoliday.first['zAttributesId'] as int,
-        branchMasterId: _selectedBranch.first['zAttributesId'].toString(),
+        holidayMasterId: holidayId,
+        branchMasterId: branchId,
         holidayDate: _holidayDate!,
+        departmentIds: departmentIds,
       );
     } else {
       _holidayMappingMasterCubit.addHolidayMapping(
         context: context,
-        holidayMasterId: _selectedHoliday.first['zAttributesId'] as int,
-        branchMasterId: _selectedBranch.first['zAttributesId'].toString(),
+        holidayMasterId: holidayId,
+        branchMasterId: branchId,
         holidayDate: _holidayDate!,
+        departmentIds: departmentIds,
       );
     }
   }
@@ -211,7 +290,7 @@ class _AddHolidayMappingMasterScreenState
                     child: Column(
                       children: [
                         CustomMultipleSelectPopup(
-                          title: 'Holiday',
+                          title: 'Holiday Name',
                           isRequired: true,
                           isMultiSelect: false,
                           initialValue: _selectedHoliday,
@@ -229,27 +308,8 @@ class _AddHolidayMappingMasterScreenState
                             return null;
                           },
                         ),
-                        CustomMultipleSelectPopup(
-                          title: 'Branch',
-                          isRequired: true,
-                          isMultiSelect: false,
-                          initialValue: _selectedBranch,
-                          dataList: [],
-                          onSelected: (value) {
-                            innerState(() {
-                              _selectedBranch = value;
-                            });
-                          },
-                          dataFetchCallBack: _fetchBranch,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Branch is required";
-                            }
-                            return null;
-                          },
-                        ),
                         CustomDatePicker(
-                          title: 'Assigned Date',
+                          title: 'Holiday Date',
                           initialDate: _holidayDate,
                           isRequired: true,
                           setValue: (date) {
@@ -263,6 +323,30 @@ class _AddHolidayMappingMasterScreenState
                             }
                             return null;
                           },
+                        ),
+                        CustomMultipleSelectPopup(
+                          title: 'Branch',
+                          isMultiSelect: false,
+                          initialValue: _selectedBranch,
+                          dataList: [],
+                          onSelected: (value) {
+                            innerState(() {
+                              _selectedBranch = value;
+                            });
+                          },
+                          dataFetchCallBack: _fetchBranch,
+                        ),
+                        CustomMultipleSelectPopup(
+                          title: 'Department',
+                          isMultiSelect: true,
+                          initialValue: _selectedDepartment,
+                          dataList: [],
+                          onSelected: (value) {
+                            innerState(() {
+                              _selectedDepartment = value;
+                            });
+                          },
+                          dataFetchCallBack: _fetchDepartment,
                         ),
                       ],
                     ),
@@ -278,9 +362,12 @@ class _AddHolidayMappingMasterScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
-            text:
-                _isEditMode ? "Update" : "Add",
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

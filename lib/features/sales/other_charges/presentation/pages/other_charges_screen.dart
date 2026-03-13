@@ -140,6 +140,10 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
             _project.projectId,
           );
         },
+        onProjectChangeCallback: (value) {
+          _project = value;
+          _otherChargesCubit.searchOtherCharges(context, "", value.projectId);
+        },
       ),
       body: BlocBuilder<OtherChargesCubit, OtherChargesState>(
         builder: (context, state) {
@@ -147,7 +151,9 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
             return Center(child: loader());
           }
           if (state.otherChargesList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Other Charges Data found"));
+            return Center(
+              child: noDataWidget(message: "No Other Charges Data found"),
+            );
           }
           return ListView.builder(
             controller: scrollController,

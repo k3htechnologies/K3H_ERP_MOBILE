@@ -190,46 +190,6 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
     );
   }
 
-  Future deleteAssetMapping(
-    int index,
-    AssetMappingModel assetMapping,
-    BuildContext context,
-  ) async {
-    DialogHelper.showProcessingOverlay(context);
-    var result = await assetMasterMappingRepository.deleteAssetMapping(
-      branchMasterId: assetMapping.assetMasterMappingId,
-      uniqueKey: assetMapping.uniquekey,
-    );
-    goRouter.pop();
-    result.fold(
-      (failure) {
-        showErrorMessage(context, "Error", failure.message);
-        return;
-      },
-      (success) {
-        final updatedList = List<AssetMappingModel>.from(
-          state.assetMappingList,
-        );
-        updatedList.removeAt(index);
-        emit(
-          state.copyWith(
-            assetMappingList: updatedList,
-            isLoading: false,
-            totalNumberOfRecord:
-                state.totalNumberOfRecord > 0
-                    ? state.totalNumberOfRecord - 1
-                    : 0,
-          ),
-        );
-
-        showSuccessMessage(
-          context,
-          subTitle: "Asset Mapping Deleted Successfully",
-        );
-      },
-    );
-  }
-
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await assetMasterMappingRepository

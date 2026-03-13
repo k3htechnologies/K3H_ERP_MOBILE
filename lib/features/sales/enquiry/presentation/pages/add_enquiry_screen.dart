@@ -1021,10 +1021,9 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             builder: (context, dateOfBirth, child) {
               return CustomDatePicker(
                 title: "DOB",
-                isRequired: true,
                 initialDate: dateOfBirth,
                 validator: (value) {
-                  if (value == null) return "DOB is required";
+                  if (value == null) return null;
                   final today = DateTime.now();
                   int age = today.year - value.year;
                   if (today.month < value.month ||
@@ -1042,7 +1041,6 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             },
           ),
           CustomTextField(
-            isRequired: true,
             readOnly: true,
             title: "Age",
             textController: _ageC,
@@ -1201,6 +1199,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                     _selectedProjectNotifier.value.clear();
                     _selectedProjectNotifier.value.clear();
                     _selectedFlatNotifier.value.clear();
+                    _selectedEmployeeNotifier.value.clear();
                     if (isChannelPartner) {
                       _channelPartnerMobileC.clear();
                       _channelPartnerMobileNotifier.value = '';

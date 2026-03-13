@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -37,7 +38,6 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
   late AuthorizationModel _routeAuthorizationModel;
 
   //TEXT EDITING CONTROLLERS
-  late TextEditingController _leaveTypeC;
   late TextEditingController _leaveTypeCodeC;
   late TextEditingController _maxCarryForwardC;
   ValueNotifier<bool> isCarryForward = ValueNotifier(false);
@@ -48,6 +48,29 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
 
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
+
+  // SELECT EARNING
+  List<Map<String, dynamic>> _selectedLeaveType = [];
+
+  // STATIC LIST
+  List<Map<String, dynamic>> leaveTypeList = [
+    {"zAttributesId": 1, "DisplayName": "Adoption - Adoption Leave"},
+    {"zAttributesId": 2, "DisplayName": "Birthday - Birthday Leave"},
+    {"zAttributesId": 3, "DisplayName": "Cl - Casual Leave"},
+    {"zAttributesId": 4, "DisplayName": "C0 - Compensator Off"},
+    {"zAttributesId": 5, "DisplayName": "ChildCare - Child Care Leave"},
+    {
+      "zAttributesId": 6,
+      "DisplayName": "Conference - Conference/Seminar Leave",
+    },
+    {"zAttributesId": 7, "DisplayName": "Emergency - Emergency Leave"},
+    {"zAttributesId": 8, "DisplayName": "LOP - Loss of Pay"},
+    {"zAttributesId": 9, "DisplayName": "Marriage - Marriage Leave"},
+    {"zAttributesId": 10, "DisplayName": "Maternity - Maternity Leave"},
+    {"zAttributesId": 11, "DisplayName": "Paternity - Paternity Leave"},
+    {"zAttributesId": 12, "DisplayName": "PL - Privilege/Paid Leave"},
+    {"zAttributesId": 13, "DisplayName": "SL - Sick Leave"},
+  ];
 
   @override
   void initState() {
@@ -66,25 +89,29 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
   @override
   void dispose() {
     super.dispose();
-    _leaveTypeC.dispose();
     _leaveTypeCodeC.dispose();
     _maxCarryForwardC.dispose();
   }
 
   // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingControllers() {
-    _leaveTypeC = TextEditingController();
     _leaveTypeCodeC = TextEditingController();
     _maxCarryForwardC = TextEditingController();
   }
 
   // POPULATE FORM FIELDS
   void _populateFormFields(LeaveTypeModel leaveTypeModel) {
-    _leaveTypeC.text = leaveTypeModel.leaveType;
+    final leaves = leaveTypeModel.leaveType.split(',');
+
     _leaveTypeCodeC.text = leaveTypeModel.leaveTypeCode;
     _maxCarryForwardC.text = leaveTypeModel.maxCarryForward.toString();
     isCarryForward.value = leaveTypeModel.isCarryForward;
     isEncashable.value = leaveTypeModel.isEncashable;
+
+    _selectedLeaveType =
+        leaves.map((leave) {
+          return {"zAttributesId": 0, "DisplayName": leave.trim()};
+        }).toList();
   }
 
   // SUBMIT FORM
@@ -98,7 +125,7 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
         context: context,
         leaveTypeId: widget.leaveTypeModel!.leaveTypeMasterId,
         uniqueKey: widget.leaveTypeModel!.uniquekey,
-        leaveType: _leaveTypeC.text.trim(),
+        leaveType: _selectedLeaveType.first["DisplayName"],
         leaveTypeCode: _leaveTypeCodeC.text.trim(),
         isCarryForward: isCarryForward.value,
         maxCarryForward: int.parse(_maxCarryForwardC.text.trim()),
@@ -107,7 +134,7 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
     } else {
       _leaveTypeMasterCubit.addLeaveType(
         context: context,
-        leaveType: _leaveTypeC.text.trim(),
+        leaveType: _selectedLeaveType.first["DisplayName"],
         leaveTypeCode: _leaveTypeCodeC.text.trim(),
         isCarryForward: isCarryForward.value,
         maxCarryForward:
@@ -133,7 +160,10 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(!_isEditMode ? "Add Leave Type" : "Update Leave Type",style: AppTextStyle.ts16SB(),),
+              Text(
+                !_isEditMode ? "Add Leave Type" : "Update Leave Type",
+                style: AppTextStyle.ts16SB(),
+              ),
               verticalSpacing(),
               Container(
                 decoration: commonCardDecoration(),
@@ -141,18 +171,24 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomTextField(
-                      title: "Leave Type",
-                      textController: _leaveTypeC,
-                      hint: "Enter leave type",
-                      inputFormatterList: [InputValidator.digitAndCharacterOnly()],
-                      keyboardType: TextInputType.text,
-                      isRequired: true,
+                    CustomMultipleSelectPopup(
+                      title: 'Leave Type',
+                      isMultiSelect: false,
+                      initialValue: _selectedLeaveType,
+                      dataList: leaveTypeList,
+                      onSelected: (value) {
+                        _selectedLeaveType = value;
+                      },
+                      dataFetchCallBack: (pageNumber, {value}) async {
+                        return {
+                          "itemList": leaveTypeList,
+                          "totalNumberOfRecord": leaveTypeList.length,
+                        };
+                      },
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Leave Type is reqiured";
+                        if (value == null || value.isEmpty) {
+                          return "Leave Type is required.";
                         }
-
                         return null;
                       },
                     ),
@@ -243,7 +279,11 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
             text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),

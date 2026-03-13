@@ -266,7 +266,8 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(leaveType.leaveType, style: AppTextStyle.ts16M()),
+                        Expanded(child: Text(leaveType.leaveType, style: AppTextStyle.ts16M())),
+                        horizontalSpacing(),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [

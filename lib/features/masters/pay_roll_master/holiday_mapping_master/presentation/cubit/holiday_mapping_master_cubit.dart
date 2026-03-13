@@ -93,6 +93,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
     required int holidayMasterId,
     required String branchMasterId,
     required DateTime holidayDate,
+    required String departmentIds,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var body = {
@@ -100,6 +101,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
       "HolidayMasterId": holidayMasterId,
       "BranchMasterId": branchMasterId,
       "HolidayDate": holidayDate.toIso8601String(),
+      "DepartmentMasterId":departmentIds
     };
 
     var result = await holidayMappingMasterRepository.addUpdateMappedHoliday(
@@ -130,6 +132,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
     required int holidayMasterId,
     required String branchMasterId,
     required DateTime holidayDate,
+    required String departmentIds,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var body = {
@@ -138,6 +141,7 @@ class HolidayMappingMasterCubit extends Cubit<HolidayMappingMasterState> {
       "HolidayMasterId": holidayMasterId,
       "BranchMasterId": branchMasterId,
       "HolidayDate": holidayDate.toIso8601String(),
+      "DepartmentMasterId":departmentIds
     };
     var result = await holidayMappingMasterRepository.addUpdateMappedHoliday(
       body: body,

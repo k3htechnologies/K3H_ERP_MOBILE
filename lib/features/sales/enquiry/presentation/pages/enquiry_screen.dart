@@ -468,6 +468,9 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         onFilterTap: () {
           _showBottomSheetToFilterEnquiry(context);
         },
+        onAddCallback: (){
+          goRouter.pushNamed(AppRoutes.addEnquiry);
+        },
       ),
       body: BlocBuilder<EnquiryCubit, EnquiryState>(
         builder: (context, state) {
@@ -589,18 +592,6 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
           );
         },
       ),
-      floatingActionButton:
-          _routeAuthorizationModel.isAction == true
-              ? FloatingActionButton(
-                elevation: 2.5,
-                shape: CircleBorder(side: BorderSide(color: AppColor.primary)),
-                backgroundColor: AppColor.lightBlue,
-                child: Icon(Icons.add, color: AppColor.primary),
-                onPressed: () {
-                  goRouter.pushNamed(AppRoutes.addEnquiry);
-                },
-              )
-              : SizedBox(),
     );
   }
 

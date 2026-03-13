@@ -474,11 +474,6 @@ class _HolidayMappingMasterScreenState
                     ),
                     verticalSpacing(height: 8),
                     buildRowTitleValue(
-                      title: "Branch",
-                      value: holidayMapping.branchName,
-                    ),
-                    verticalSpacing(height: 8),
-                    buildRowTitleValue(
                       title: "Holiday Date",
                       value: formatDateTimeAsDDMMMYYYY(
                         holidayMapping.holidayDate,

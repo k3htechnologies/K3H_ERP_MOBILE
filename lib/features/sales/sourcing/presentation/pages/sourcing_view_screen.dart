@@ -745,17 +745,34 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                                 style: AppTextStyle.ts14M(),
                                               ),
                                             ),
-                                            horizontalSpacing(width: 5),
-                                            Text(
-                                              formatTime(item.createdDate),
-                                              style: AppTextStyle.ts12M(
-                                                color: AppColor.grey,
-                                              ),
-                                            ),
                                           ],
                                         ),
 
                                         const SizedBox(height: 4),
+
+                                          Row(
+                                            children: [
+                                              Text(
+                                                '${item.createdBy}',
+                                                style: AppTextStyle.ts12M(),
+                                              ),
+                                              horizontalSpacing(),
+                                              Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 12,
+                                                  vertical: 3,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color:item.isIBM ? AppColor.purple20:AppColor.yellow.withValues(alpha: .2),
+                                                  borderRadius: BorderRadius.circular(8)
+                                                ),
+                                                child: Text(
+                                                  item.isIBM ? "IBM" : "OBM",
+                                                  style: AppTextStyle.ts12M(color: item.isIBM ?AppColor.purple:AppColor.orange),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
 
                                         // SUPPORT
                                         if ((item.support ?? "").isNotEmpty)

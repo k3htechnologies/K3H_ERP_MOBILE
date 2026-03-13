@@ -160,7 +160,10 @@ class EnquiryModel {
       name: parseValue<String>(json, "Name"),
       mobileNumber: parseValue<String>(json, "MobileNumber"),
       emailId: parseValue<String>(json, "EmailId"),
-      dateOfBirth: parseValue<DateTime>(json, "DateOfBirth"),
+      dateOfBirth:
+          json["DateOfBirth"] == null
+              ? null
+              : parseValue<DateTime>(json, "DateOfBirth"),
       accommodation: parseValue<String>(json, "Accommodation"),
       occupationType: parseValue<String>(json, "OccupationType"),
       nationality: parseValue<String>(json, "Nationality"),

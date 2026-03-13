@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -14,6 +15,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -97,6 +99,10 @@ class _SourcingScreenState extends State<SourcingScreen> {
         onSearchSubmit: (value) {
           _sourcingCubit.searchChannelPartner(context, value);
         },
+        onProjectChangeCallback: (value){
+          _project = value;
+          _sourcingCubit.searchChannelPartner(context, "");
+        },
       ),
       body: BlocBuilder<SourcingCubit, SourcingState>(
         builder: (context, state) {
@@ -158,6 +164,19 @@ class _SourcingScreenState extends State<SourcingScreen> {
                             ),
                           ),
                         ),
+                        if (channelPartner.isIncomplete) ...[
+                          CustomIconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.warning_amber_outlined,
+                              color: AppColor.yellow,
+                              size: 16,
+                            ),
+                            backgroundColor: AppColor.yellow.withValues(
+                              alpha: .2,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                     buildRowTitleValue(

@@ -3,6 +3,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 class LeaveEncashmentMasterModel {
   final int leaveEncashmentSlabId;
   final String uniqueKey;
+  final String earningMasterName;
   final double minSalary;
   final double maxSalary;
   final double encashmentRate;
@@ -16,6 +17,7 @@ class LeaveEncashmentMasterModel {
 
   LeaveEncashmentMasterModel({
     required this.uniqueKey,
+    required this.earningMasterName,
     required this.minSalary,
     required this.maxSalary,
     required this.encashmentRate,
@@ -35,6 +37,7 @@ class LeaveEncashmentMasterModel {
         "LeaveEncashmentMasterSlabsId",
       ),
       uniqueKey: parseValue<String>(json, "Uniquekey"),
+      earningMasterName: parseValue<String>(json, "EarningMasterName"),
       minSalary: parseValue<double>(json, "MinSalary"),
       maxSalary: parseValue<double>(json, "MaxSalary"),
       encashmentRate: parseValue<double>(json, "EncashmentRate"),
@@ -53,6 +56,7 @@ class LeaveEncashmentMasterModel {
   Map<String, dynamic> toJson() => {
     "LeaveEncashmentMasterSlabsId": leaveEncashmentSlabId,
     "Uniquekey": uniqueKey,
+    "EarningMasterName": earningMasterName,
     "MinSalary": minSalary,
     "MaxSalary": maxSalary,
     "EncashmentRate": encashmentRate,

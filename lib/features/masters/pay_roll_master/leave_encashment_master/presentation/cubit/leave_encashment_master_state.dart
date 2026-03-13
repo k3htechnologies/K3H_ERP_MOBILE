@@ -5,15 +5,20 @@ class LeaveEncashmentMasterState extends BaseState {
   final List<LeaveEncashmentMasterModel> leaveEncashmentList;
   final int currentPage;
   final int totalNumberOfRecord;
+  final String searchText;
   const LeaveEncashmentMasterState({
     super.isLoading,
     required this.leaveEncashmentList,
     this.currentPage = 1,
     this.totalNumberOfRecord = 0,
+    required this.searchText,
   });
 
-  factory LeaveEncashmentMasterState.initial() =>
-      LeaveEncashmentMasterState(leaveEncashmentList: [], currentPage: 1);
+  factory LeaveEncashmentMasterState.initial() => LeaveEncashmentMasterState(
+    leaveEncashmentList: [],
+    currentPage: 1,
+    searchText: "",
+  );
 
   LeaveEncashmentMasterState copyWith({
     List<LeaveEncashmentMasterModel>? leaveEncashmentList,
@@ -22,12 +27,14 @@ class LeaveEncashmentMasterState extends BaseState {
     String? errorMessage,
     int? currentPage,
     int? totalNumberOfRecord,
+    String? searchText,
   }) {
     return LeaveEncashmentMasterState(
       leaveEncashmentList: leaveEncashmentList ?? this.leaveEncashmentList,
       currentPage: currentPage ?? this.currentPage,
       isLoading: isLoading ?? isLoading,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
+      searchText: searchText ?? this.searchText,
     );
   }
 
@@ -37,5 +44,6 @@ class LeaveEncashmentMasterState extends BaseState {
     leaveEncashmentList,
     currentPage,
     totalNumberOfRecord,
+    searchText,
   ];
 }

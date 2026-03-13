@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -37,6 +38,45 @@ class _AddLeaveEncashmentMasterScreenState
 
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
+
+  // SELECT EARNING
+  List<Map<String, dynamic>> _selectedEarning = [];
+
+  // STATIC LIST
+  List<Map<String, dynamic>> earningList = [
+    {"zAttributesId": 1, "DisplayName": "Basic Salary"},
+    {"zAttributesId": 2, "DisplayName": "HRA"},
+    {"zAttributesId": 3, "DisplayName": "DA"},
+    {"zAttributesId": 4, "DisplayName": "Conveyance Allowance"},
+    {"zAttributesId": 5, "DisplayName": "Medical Allowance"},
+    {"zAttributesId": 6, "DisplayName": "Special Allowance"},
+    {"zAttributesId": 7, "DisplayName": "Other Allowance"},
+    {"zAttributesId": 8, "DisplayName": "LTA"},
+    {"zAttributesId": 9, "DisplayName": "Performance Bonus"},
+    {"zAttributesId": 10, "DisplayName": "Incentive"},
+    {"zAttributesId": 11, "DisplayName": "Variable Pay"},
+    {"zAttributesId": 12, "DisplayName": "Annual Bonus"},
+    {"zAttributesId": 13, "DisplayName": "Joining Bonus"},
+    {"zAttributesId": 14, "DisplayName": "Retention Bonus"},
+    {"zAttributesId": 15, "DisplayName": "Mobile Reimbursement"},
+    {"zAttributesId": 16, "DisplayName": "Internet Reimbursement"},
+    {"zAttributesId": 17, "DisplayName": "Fuel Reimbursement"},
+    {"zAttributesId": 18, "DisplayName": "Food Allowance"},
+    {"zAttributesId": 19, "DisplayName": "Shift Allowance"},
+    {"zAttributesId": 20, "DisplayName": "Night Shift Allowance"},
+    {"zAttributesId": 21, "DisplayName": "City Compensatory Allowance"},
+    {"zAttributesId": 22, "DisplayName": "Employer PF"},
+    {"zAttributesId": 23, "DisplayName": "Employer ESI"},
+    {"zAttributesId": 24, "DisplayName": "Gratuity"},
+    {"zAttributesId": 25, "DisplayName": "Superannuation"},
+    {"zAttributesId": 26, "DisplayName": "NPS Employer"},
+    {"zAttributesId": 27, "DisplayName": "Health Insurance"},
+    {"zAttributesId": 28, "DisplayName": "Overtime Pay"},
+    {"zAttributesId": 29, "DisplayName": "Leave Encashment"},
+    {"zAttributesId": 30, "DisplayName": "Arrears"},
+    {"zAttributesId": 31, "DisplayName": "Ex-Gratia"},
+    {"zAttributesId": 32, "DisplayName": "Relocation Allowance"},
+  ];
 
   //EDIT MODE
   bool get _isEditMode => widget.leaveEncashmentMasterModel != null;
@@ -77,6 +117,12 @@ class _AddLeaveEncashmentMasterScreenState
 
   // POPULATE FORM FIELDS
   void _populateFormFields(LeaveEncashmentMasterModel leaveEncashmentModel) {
+    final names = leaveEncashmentModel.earningMasterName.split(',');
+
+    _selectedEarning =
+        names.map((name) {
+          return {"zAttributesId": 0, "DisplayName": name.trim()};
+        }).toList();
     _minSalaryC.text = leaveEncashmentModel.minSalary.toString();
     _maxSalaryC.text = leaveEncashmentModel.maxSalary.toString();
     _encashmentRateC.text = leaveEncashmentModel.encashmentRate.toString();
@@ -94,6 +140,7 @@ class _AddLeaveEncashmentMasterScreenState
         leaveEncashmentSlabsId:
             widget.leaveEncashmentMasterModel!.leaveEncashmentSlabId,
         uniqueKey: widget.leaveEncashmentMasterModel!.uniqueKey,
+        earningMasterName: _selectedEarning.first["DisplayName"],
         minSalary: double.parse(_minSalaryC.text.trim()),
         maxSalary: double.parse(_maxSalaryC.text.trim()),
         encashmentRate: double.parse(_encashmentRateC.text.trim()),
@@ -101,6 +148,7 @@ class _AddLeaveEncashmentMasterScreenState
     } else {
       _leaveEncashmentMasterCubit.addLeaveEncashment(
         context: context,
+        earningMasterName: _selectedEarning.first["DisplayName"],
         minSalary: double.parse(_minSalaryC.text),
         maxSalary: double.parse(_maxSalaryC.text),
         encashmentRate: double.parse(_encashmentRateC.text),
@@ -114,7 +162,7 @@ class _AddLeaveEncashmentMasterScreenState
       backgroundColor: AppColor.lightGreyBackground,
 
       appBar: CustomAppBarWithBackButton(
-        screenTitle:"Leave Enhancement Master",
+        screenTitle: "Leave Enhancement Master",
         authorization: _routeAuthorizationModel,
       ),
       body: Form(
@@ -124,7 +172,12 @@ class _AddLeaveEncashmentMasterScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(_isEditMode ? "Update Leave Encashment" : "Add Leave Encashment",style: AppTextStyle.ts16SB(),),
+              Text(
+                _isEditMode
+                    ? "Update Leave Encashment"
+                    : "Add Leave Encashment",
+                style: AppTextStyle.ts16SB(),
+              ),
               verticalSpacing(),
               Container(
                 decoration: commonCardDecoration(),
@@ -132,52 +185,37 @@ class _AddLeaveEncashmentMasterScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomTextField(
-                      title: "Minimum Salary",
-                      textController: _minSalaryC,
-                      hint: "Enter minimum salary",
-                      inputFormatterList: InputValidator.digit(10),
-                      keyboardType: TextInputType.number,
-                      isRequired: true,
+                    CustomMultipleSelectPopup(
+                      title: 'Earning Name',
+                      isMultiSelect: true,
+                      initialValue: _selectedEarning,
+                      dataList: earningList,
+                      onSelected: (value) {
+                        _selectedEarning = value;
+                      },
+                      dataFetchCallBack: (pageNumber, {value}) async {
+                        return {
+                          "itemList": earningList,
+                          "totalNumberOfRecord": earningList.length,
+                        };
+                      },
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Minimum salary is reqiured";
+                        if (value == null || value.isEmpty) {
+                          return "Earning Name is required";
                         }
-
                         return null;
                       },
                     ),
                     CustomTextField(
-                      title: "Maximum Salary",
-                      textController: _maxSalaryC,
-                      hint: "Enter Maximum Salary",
-                      inputFormatterList: InputValidator.digit(10),
-                      keyboardType: TextInputType.number,
-                      isRequired: true,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Maximum salary is reqiured";
-                        }
-
-                        final maxSalary = double.tryParse(value.trim());
-                        final minSalary = double.tryParse(_minSalaryC.text.trim());
-
-                        if (maxSalary == null || minSalary == null) {
-                          return "Please enter a valid number";
-                        }
-
-                        if (maxSalary <= minSalary) {
-                          return "Max salary must be greater than min salary";
-                        }
-
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: "Encashment Rate",
+                      title: "Encashment Rate (%)",
                       textController: _encashmentRateC,
                       hint: "Enter Encashment Rate",
-                      inputFormatterList: InputValidator.decimal(2),
+                      prefixWidget: Icon(
+                        Icons.percent,
+                        size: 16,
+                        color: AppColor.grey,
+                      ),
+                      inputFormatterList: InputValidator.percentage(),
                       keyboardType: TextInputType.number,
                       isRequired: true,
                       validator: (value) {
@@ -191,8 +229,61 @@ class _AddLeaveEncashmentMasterScreenState
                           return "Please enter a valid number";
                         }
 
-                        if (rate <= 0 || rate >= 1) {
-                          return "Encashment rate must be between 0 and 1";
+                        if (rate < 1 || rate > 100) {
+                          return "Encashment rate must be between 1 and 100";
+                        }
+
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: "Minimum Salary (₹)",
+                      textController: _minSalaryC,
+                      hint: "Enter minimum salary",
+                      inputFormatterList: InputValidator.digit(10),
+                      prefixWidget: Icon(
+                        Icons.currency_rupee,
+                        size: 16,
+                        color: AppColor.grey,
+                      ),
+                      keyboardType: TextInputType.number,
+                      isRequired: true,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Minimum salary is reqiured";
+                        }
+
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: "Maximum Salary (₹)",
+                      textController: _maxSalaryC,
+                      hint: "Enter Maximum Salary",
+                      prefixWidget: Icon(
+                        Icons.currency_rupee,
+                        size: 16,
+                        color: AppColor.grey,
+                      ),
+                      inputFormatterList: InputValidator.digit(10),
+                      keyboardType: TextInputType.number,
+                      isRequired: true,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Maximum salary is reqiured";
+                        }
+
+                        final maxSalary = double.tryParse(value.trim());
+                        final minSalary = double.tryParse(
+                          _minSalaryC.text.trim(),
+                        );
+
+                        if (maxSalary == null || minSalary == null) {
+                          return "Please enter a valid number";
+                        }
+
+                        if (maxSalary <= minSalary) {
+                          return "Max salary must be greater than min salary";
                         }
 
                         return null;
@@ -210,11 +301,12 @@ class _AddLeaveEncashmentMasterScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
-            text:
-                _isEditMode
-                    ? "Update"
-                    : "Add",
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

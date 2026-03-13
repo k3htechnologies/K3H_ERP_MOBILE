@@ -13,6 +13,18 @@ class LeaveTypeMasterCubit extends Cubit<LeaveTypeMasterState> {
   final LeaveTypeMasterRepository leaveTypeMasterRepository =
       serviceLocator<LeaveTypeMasterRepository>();
 
+
+  // SEARCH BASED ON LEAVE TYPE
+  Future<void> searchLeaveType(String value, BuildContext context) async {
+    emit(
+      state.copyWith(
+        leaveTypeList: [],
+        searchText: value,
+      ),
+    );
+    await getLeaveTypeList(context: context, pageNumber: 1);
+  }
+
   // GET LEAVE TYPE
   Future getLeaveTypeList({
     required BuildContext context,
@@ -117,18 +129,6 @@ class LeaveTypeMasterCubit extends Cubit<LeaveTypeMasterState> {
       },
       (response) {
         goRouter.pop();
-        final newResponse = LeaveTypeModel.fromJson(
-          response['data'][0] as Map<String, dynamic>,
-        );
-
-        var list = [newResponse, ...state.leaveTypeList];
-        emit(
-          state.copyWith(
-            isLoading: false,
-            leaveTypeList: list,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
-          ),
-        );
         showSuccessMessage(context, subTitle: 'Leave Type Added Successfully');
       },
     );
@@ -218,17 +218,6 @@ class LeaveTypeMasterCubit extends Cubit<LeaveTypeMasterState> {
         );
       },
     );
-  }
-
-  // SEARCH BASED ON LEAVE TYPE
-  Future<void> searchLeaveType(String value, BuildContext context) async {
-    emit(
-      state.copyWith(
-        leaveTypeList: [],
-        searchText: value,
-      ),
-    );
-    await getLeaveTypeList(context: context, pageNumber: 1);
   }
 
   Future<void> applyFilterAndSort({

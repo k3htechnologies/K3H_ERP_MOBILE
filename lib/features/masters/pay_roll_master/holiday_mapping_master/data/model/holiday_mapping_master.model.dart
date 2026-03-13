@@ -8,6 +8,8 @@ class HolidayMappingModel {
   DateTime holidayDate;
   String branchName;
   String branchMasterId;
+  String departmentName;
+  String departmentMasterId;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -23,6 +25,8 @@ class HolidayMappingModel {
     required this.holidayDate,
     required this.branchName,
     required this.branchMasterId,
+    required this.departmentName,
+    required this.departmentMasterId,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -40,6 +44,8 @@ class HolidayMappingModel {
         holidayDate: parseValue<DateTime>(json, "HolidayDate"),
         branchName: parseValue<String>(json, "BranchName"),
         branchMasterId: parseValue<String>(json, "BranchMasterId"),
+        departmentName: parseValue<String>(json, "DepartmentName"),
+        departmentMasterId: parseValue<String>(json, "DepartmentMasterId"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -59,6 +65,8 @@ class HolidayMappingModel {
     "HolidayDate": holidayDate.toIso8601String(),
     "BranchName": branchName,
     "BranchMasterId": branchMasterId,
+    "DepartmentName": departmentName,
+    "DepartmentMasterId": departmentMasterId,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

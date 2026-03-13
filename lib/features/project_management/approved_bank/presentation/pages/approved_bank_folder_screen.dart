@@ -96,6 +96,10 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
             );
           }
         },
+        onProjectChangeCallback: (value){
+          _project = value;
+          _approvedBankCubit.searchFolder(context, "", value.projectId);
+        },
       ),
       body: SafeArea(
         child: BlocBuilder<ApprovedBankFolderCubit, ApprovedBankFolderState>(
