@@ -10,13 +10,14 @@ import 'package:k3h_erp_app/features/parking/data/repository/parking.repository.
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/repository/terms_and_conditions.repository.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
-import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_master.model.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_data.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/data/repository/other_charges.repository.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule/data/model/payment_schedule.model.dart';
+import 'package:k3h_erp_app/features/sales/payment_schedule/data/respository/payment_schedule.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -39,6 +40,8 @@ class BookingCubit extends Cubit<BookingState> {
 
   final ParkingRepository _parkingRepository =
       serviceLocator<ParkingRepository>();
+  final PaymentScheduleRepository _paymentScheduleRepository =
+      serviceLocator<PaymentScheduleRepository>();
 
   final TermsAndConditionsMasterRepository _termsAndConditionsRepository =
       serviceLocator<TermsAndConditionsMasterRepository>();
@@ -63,7 +66,7 @@ class BookingCubit extends Cubit<BookingState> {
     emit(state.copyWith(currentTabIndexAddForm: index));
   }
 
-  // <---- GET BOOKING LIST ---->
+  //  GET BOOKING LIST
   Future getBookingList(
     BuildContext context,
     int pageNumber,
@@ -102,7 +105,7 @@ class BookingCubit extends Cubit<BookingState> {
     );
   }
 
-  // <---- GET BOOKING BY ID LIST ---->
+  //  GET BOOKING BY ID LIST
   Future getBookingListById(
     BuildContext context,
     int pageNumber,
@@ -134,7 +137,7 @@ class BookingCubit extends Cubit<BookingState> {
     );
   }
 
-  // <---- GET ENQUIRY LIST ---->
+  //  GET ENQUIRY LIST
   Future getEnquiryList(
     BuildContext context,
     int pageNumber,
@@ -172,44 +175,12 @@ class BookingCubit extends Cubit<BookingState> {
     );
   }
 
-  // <---- GET ENQUIRY LIST BY ID ---->
-  Future getEnquiryListById(
-    BuildContext context,
-    int pageNumber,
-    int projectId,
-    int enquiryId,
-  ) async {
-    emit(state.copyWith(isLoading: true, enquiryListById: []));
-    Map<String, dynamic> queryParams = {"EnquiryId": enquiryId};
-    var result = await _enquiryRepository.getEnquiryList(
-      pageNumber: pageNumber,
-      pageSize: 10,
-      projectId: projectId,
-      queryParams: queryParams,
-    );
-
-    result.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, 'Error', failure.message);
-      },
-      (response) {
-        emit(
-          state.copyWith(
-            enquiryListById: List<EnquiryModel>.from(response['data'] ?? []),
-            isLoading: false,
-          ),
-        );
-      },
-    );
-  }
-
-  // <---- GET OTHER CHARGES LIST ---->
+  //  GET OTHER CHARGES LIST
   Future getOtherChargesList(
     BuildContext context,
     int pageNumber,
     int projectId,
-    double reraArea, // pass this from widget/inventory
+    double reraArea,
   ) async {
     emit(state.copyWith(isLoading: true));
 
@@ -227,7 +198,6 @@ class BookingCubit extends Cubit<BookingState> {
       (response) {
         final rawList = List<OtherChargeModel>.from(response['data'] ?? []);
 
-        // Perform calculations here
         final calculatedList =
             rawList.map((oc) {
               final baseAmount =
@@ -237,7 +207,7 @@ class BookingCubit extends Cubit<BookingState> {
 
               final gstValue = (oc.gstPercentage / 100) * baseAmount;
 
-              // reuse existing fields: value = base amount, gstValue = GST
+              // REUSE EXISTING FIELDS: VALUE=BASE AMOUNT,GST AMOUNT
               return oc.copyWith(value: baseAmount, gstValue: gstValue);
             }).toList();
 
@@ -252,12 +222,13 @@ class BookingCubit extends Cubit<BookingState> {
     );
   }
 
-  // <---- GET BOOKING LIST ---->
+  //  GET BOOKING LIST
   Future getParkingList(
     BuildContext context,
     int pageNumber,
     int projectId, {
     String? searchQuery,
+    String? displayParkingId,
   }) async {
     emit(state.copyWith(isLoading: true));
     var result = await _parkingRepository.getParkingWithPagination(
@@ -267,6 +238,8 @@ class BookingCubit extends Cubit<BookingState> {
       queryParams:
           searchQuery != null && searchQuery.isNotEmpty
               ? {"ParkingNumber": searchQuery}
+              : displayParkingId != null
+              ? {"DisplayParkingId": displayParkingId}
               : null,
     );
 
@@ -294,7 +267,7 @@ class BookingCubit extends Cubit<BookingState> {
     );
   }
 
-  // <---- GET TERMS AND CONDITIONS LIST ---->
+  //  GET TERMS AND CONDITIONS LIST
   Future getTermsAndConditionsList(
     BuildContext context,
     int pageNumber, {
@@ -339,7 +312,7 @@ class BookingCubit extends Cubit<BookingState> {
     );
   }
 
-  // <---- ADD BOOKING ---->
+  //  ADD BOOKING
   Future addBooking({
     required int buildingIndex,
     required int wingIndex,
@@ -434,7 +407,6 @@ class BookingCubit extends Cubit<BookingState> {
       "BookingType": bookingType,
       "OtherChargesDetailJSON": jsonEncode(
         otherChargesDetailJSON
-            // .where((e) => e.isSelected)
             .map(
               (e) => {
                 'BookingOtherChargesId': e.bookingOtherChargesId,
@@ -456,10 +428,11 @@ class BookingCubit extends Cubit<BookingState> {
                 "Name": e.name,
                 if (e.date != null) "Date": e.date!.toIso8601String(),
                 "PaymentSchedulePercentage": e.paymentSchedulePercentage,
+                "PaymentScheduleCumulative": e.paymentCummulativePercentage,
                 "PaymentScheduleAmount": e.paymentScheduleAmount,
                 "PaymentScheduleGSTAmount": e.paymentScheduleGSTAmount,
                 "PaymentScheduleTDSAmount": e.paymentScheduleTDSAmount,
-                "Ranking": e.ranking,
+                "Rank": e.ranking,
               },
             )
             .toList(),
@@ -623,8 +596,6 @@ class BookingCubit extends Cubit<BookingState> {
       },
       (response) async {
         goRouter.pop();
-        // goRouter.pop({"status": "Booked"});
-
         showSuccessMessage(context, subTitle: 'Booking Added Successfully');
 
         goRouter.pop({"status": "Booked"});
@@ -632,7 +603,7 @@ class BookingCubit extends Cubit<BookingState> {
     );
   }
 
-  // <---- UPDATE BOOKING ---->
+  //  UPDATE BOOKING
   Future updateBooking({
     required BuildContext context,
     required int index,
@@ -723,7 +694,6 @@ class BookingCubit extends Cubit<BookingState> {
       "BookingType": bookingType,
       "OtherChargesDetailJSON": jsonEncode(
         otherChargesDetailJSON
-            // .where((e) => e.isSelected)
             .map(
               (e) => {
                 'BookingOtherChargesId': e.bookingOtherChargesId,
@@ -746,10 +716,11 @@ class BookingCubit extends Cubit<BookingState> {
                 "Name": e.name,
                 if (e.date != null) "Date": e.date!.toIso8601String(),
                 "PaymentSchedulePercentage": e.paymentSchedulePercentage,
+                "PaymentScheduleCumulative": e.paymentCummulativePercentage,
                 "PaymentScheduleAmount": e.paymentScheduleAmount,
                 "PaymentScheduleGSTAmount": e.paymentScheduleGSTAmount,
                 "PaymentScheduleTDSAmount": e.paymentScheduleTDSAmount,
-                "Ranking": e.ranking,
+                "Rank": e.ranking,
               },
             )
             .toList(),
@@ -766,7 +737,6 @@ class BookingCubit extends Cubit<BookingState> {
       "OTP": otp,
     };
 
-    // Add applicant fields as string map
     for (int i = 0; i < addUpdateBookingApplicant.length; i++) {
       var e = addUpdateBookingApplicant[i];
       requestBody.addAll({
@@ -801,7 +771,6 @@ class BookingCubit extends Cubit<BookingState> {
       });
     }
 
-    // Prepare file list (no changes)
     List<Map<String, dynamic>> fileList = [];
     for (var applicantData in addUpdateBookingApplicant) {
       for (
@@ -888,7 +857,6 @@ class BookingCubit extends Cubit<BookingState> {
       }
     }
 
-    // Call repository
     var updateResult = await _bookingRepository.addUpdateBooking(
       body: requestBody,
       fileList: fileList,
@@ -917,7 +885,7 @@ class BookingCubit extends Cubit<BookingState> {
     );
   }
 
-  // <---- GET PAYMENT SCHEDULE MASTER LIST ---->
+  //  GET PAYMENT SCHEDULE MASTER LIST
   Future<bool> getPaymentScheduleMasterList(
     BuildContext context,
     int pageNumber, {
@@ -938,7 +906,7 @@ class BookingCubit extends Cubit<BookingState> {
           inventoryFlatFloorBasementPodiumWingId,
     };
 
-    var result = await _bookingRepository.getPaymentScheduleMasterList(
+    var result = await _paymentScheduleRepository.getPaymentScheduleMasterList(
       pageNumber: pageNumber,
       pageSize: 10,
       projectId: getProject().projectId,
@@ -1026,20 +994,24 @@ class BookingCubit extends Cubit<BookingState> {
     emit(state.copyWith(bookingPaymentScheduleList: updatedList));
   }
 
+  //UPDATE PAYMENT SCHEDULE
   void updatePaymentScheduleList(
     List<BookingPaymentScheduleData> paymentScheduleList,
   ) {
     emit(state.copyWith(bookingPaymentScheduleList: paymentScheduleList));
   }
 
+  // UPDATE OTHER CHARGES
   void updateOtherChargesList(List<OtherChargeModel> otherChargeList) {
     emit(state.copyWith(otherChargesList: otherChargeList));
   }
 
+  // CLEAR PAYMENT SCHEDULE
   void clearPaymentScheduleList() {
     emit(state.copyWith(bookingPaymentScheduleList: []));
   }
 
+  // UPDATE BOOKING
   void onUpdateBookingAmount({
     required double agreementValue,
     required double agreementValueTds,
@@ -1073,32 +1045,50 @@ class BookingCubit extends Cubit<BookingState> {
     emit(state.copyWith(bookingPaymentScheduleList: newData));
   }
 
-  // Inside BookingCubit
-  double get cumulativePercentage {
+  // TOTAL CUMULATIVE PERCENTAGE GETTER
+  double get totalCumulativePercentage {
     return state.bookingPaymentScheduleList.fold(
       0.0,
       (sum, item) => sum + item.paymentSchedulePercentage,
     );
   }
 
+  // REMAINING PERCENTAGE
   double get remainingPercentage {
-    final total = cumulativePercentage;
+    final total = totalCumulativePercentage;
     return (100 - total).clamp(0, 100);
   }
 
-  // <---- DELETE PAYMENT SCHEDULE  ---->
+  //  DELETE PAYMENT SCHEDULE
   Future deletePaymentSchedule(int index, BuildContext context) async {
     DialogHelper.showProcessingOverlay(context);
 
     goRouter.pop();
+
     final updatedList = List<BookingPaymentScheduleData>.from(
       state.bookingPaymentScheduleList,
     );
+
+    /// REMOVE ITEM
     updatedList.removeAt(index);
+
+    /// UPDATE RANKING
+    for (int i = 0; i < updatedList.length; i++) {
+      updatedList[i].ranking = i + 1;
+    }
+
+    /// RECALCULATE CUMULATIVE PERCENTAGE
+    double runningTotal = 0;
+
+    for (int i = 0; i < updatedList.length; i++) {
+      runningTotal += updatedList[i].paymentSchedulePercentage;
+      updatedList[i].paymentCummulativePercentage = runningTotal;
+    }
 
     emit(state.copyWith(bookingPaymentScheduleList: updatedList));
   }
 
+  // DELETE OTHER CHARGE
   Future deleteOtherCharges(int index, BuildContext context) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -1109,6 +1099,7 @@ class BookingCubit extends Cubit<BookingState> {
     emit(state.copyWith(otherChargesList: updatedList));
   }
 
+  // EXPORT BOOKING
   Future exportExcelPdf(
     BuildContext context,
     String exportType,

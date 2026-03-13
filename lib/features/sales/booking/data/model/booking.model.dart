@@ -1,6 +1,6 @@
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
-import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_master.model.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_data.model.dart';
 import 'package:k3h_erp_app/features/sales/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 
@@ -57,7 +57,7 @@ class BookingModel {
   String modeOfPayment;
   double bookingAmount;
   String chequeRTGSNumber;
-  DateTime chequeRTGSDate;
+  DateTime? chequeRTGSDate;
   int bankListMasterId;
   String bankName;
   String approvalStatus;
@@ -255,7 +255,10 @@ class BookingModel {
     modeOfPayment: parseValue<String>(json, "ModeOfPayment"),
     bookingAmount: parseValue<double>(json, "BookingAmount"),
     chequeRTGSNumber: parseValue<String>(json, "ChequeRTGSNumber"),
-    chequeRTGSDate: parseValue<DateTime>(json, "ChequeRTGSDate"),
+    chequeRTGSDate:
+        json["ChequeRTGSDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "ChequeRTGSDate"),
     bankListMasterId: parseValue<int>(json, "BankListMasterId"),
     bankName: parseValue<String>(json, "BankName"),
     approvalStatus: parseValue<String>(json, "ApprovalStatus"),
@@ -392,7 +395,7 @@ class BookingModel {
     "ModeOfPayment": modeOfPayment,
     "BookingAmount": bookingAmount,
     "ChequeRTGSNumber": chequeRTGSNumber,
-    "ChequeRTGSDate": chequeRTGSDate.toIso8601String(),
+    "ChequeRTGSDate": chequeRTGSDate?.toIso8601String(),
     "BankListMasterId": bankListMasterId,
     "BankName": bankName,
     "ApprovalStatus": approvalStatus,

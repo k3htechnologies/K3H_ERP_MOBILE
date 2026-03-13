@@ -1,17 +1,9 @@
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule/data/model/payment_schedule.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
 abstract interface class BookingDatasource {
   Future<Map<String, dynamic>> apiCallPullBooking({
-    required int pageNumber,
-    required int pageSize,
-    required int projectId,
-    Map<String, dynamic>? queryParams,
-  });
-
-  Future<Map<String, dynamic>> apiCallPullPaymentScheduleMaster({
     required int pageNumber,
     required int pageSize,
     required int projectId,
@@ -48,6 +40,7 @@ abstract interface class BookingDatasource {
 class BookingDatasourceImpl extends BookingDatasource {
   final BaseClient baseClient = BaseClient();
 
+  // PULL BOOKING
   @override
   Future<Map<String, dynamic>> apiCallPullBooking({
     required int pageNumber,
@@ -97,55 +90,7 @@ class BookingDatasourceImpl extends BookingDatasource {
     }
   }
 
-  @override
-  Future<Map<String, dynamic>> apiCallPullPaymentScheduleMaster({
-    required int pageNumber,
-    required int pageSize,
-    required int projectId,
-    Map<String, dynamic>? queryParams,
-  }) async {
-    String pullPaymentScheduleMasterUrl({
-      required int pageSize,
-      required int pageNumber,
-      required int projectId,
-      Map<String, dynamic>? queryParams,
-    }) {
-      String url =
-          "PaymentScheduleMaster/PullPaymentScheduleMaster?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
-      return url;
-    }
-
-    try {
-      var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullPaymentScheduleMasterUrl(
-          pageSize: pageSize,
-          pageNumber: pageNumber,
-          projectId: projectId,
-          queryParams: queryParams,
-        ),
-      );
-      return {
-        'data': List<PaymentScheduleMasterModel>.from(
-          networkResponse["data"].map(
-            (e) => PaymentScheduleMasterModel.fromJson(e),
-          ),
-        ),
-        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
-      };
-    } catch (error) {
-      if (error is TokenExpiredException) {
-        apiCallPullPaymentScheduleMaster(
-          pageNumber: pageNumber,
-          pageSize: pageSize,
-          projectId: projectId,
-          queryParams: queryParams,
-        );
-      }
-      rethrow;
-    }
-  }
-
+  // ADD / UPADATE BOOKING
   @override
   Future<Map<String, dynamic>> apiCallAddUpdateBooking({
     required Map<String, String> body,
@@ -174,10 +119,7 @@ class BookingDatasourceImpl extends BookingDatasource {
     }
   }
 
-  // ----------------------------------------------------------
-  // Pull Payment Schedule Stages
-  // ----------------------------------------------------------
-
+  // PULL PAYMENT SCHEDULE
   @override
   Future<Map<String, dynamic>> apiCallPullPaymentScheduleStages({
     required int pageNumber,
@@ -236,6 +178,7 @@ class BookingDatasourceImpl extends BookingDatasource {
     }
   }
 
+  //  CANCEL BOOKING
   @override
   Future<Map<String, dynamic>> apiCallCancelBooking({
     required int bookingId,
@@ -287,6 +230,7 @@ class BookingDatasourceImpl extends BookingDatasource {
     }
   }
 
+  // EXPORT BOOKING
   @override
   Future<Map<String, dynamic>> apiCallPullBookingForExport({
     required int pageNumber,

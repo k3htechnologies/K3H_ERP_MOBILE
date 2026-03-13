@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_master.model.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_data.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -61,7 +61,7 @@ class _AddBookingPaymentScheduleScreenState
   late TabController _tabController;
 
   bool get _isEditMode => widget.index != null;
-
+  List<String> tabs = ['Date', 'Stage'];
   @override
   void initState() {
     super.initState();
@@ -75,13 +75,11 @@ class _AddBookingPaymentScheduleScreenState
     if (!_isEditMode) return;
     final data = _bookingCubit.state.bookingPaymentScheduleList[widget.index!];
 
-    /// percentage
     _percentageC.text = data.paymentSchedulePercentage.toString();
 
-    /// select tab
+    /// SELECT TAB
     if (data.type == "Date") {
       _tabController.index = 0;
-      setState(() {});
       date = data.date;
     } else {
       _tabController.index = 1;
@@ -90,7 +88,6 @@ class _AddBookingPaymentScheduleScreenState
         {"zAttributesId": 1, "DisplayName": data.name},
       ];
 
-      /// if stage not from list treat as other
       if (data.name == "Other") {
         _otherStageC.text = data.name;
       }
@@ -123,6 +120,32 @@ class _AddBookingPaymentScheduleScreenState
       _bookingCubit.state.bookingPaymentScheduleList,
     );
 
+    /// CHECK TOTAL PERCENTAGE
+    final currentTotal = _bookingCubit.totalCumulativePercentage;
+
+    double newTotal;
+
+    if (_isEditMode) {
+      final oldPercentage =
+          _bookingCubit
+              .state
+              .bookingPaymentScheduleList[widget.index!]
+              .paymentSchedulePercentage;
+
+      newTotal = currentTotal - oldPercentage + percentage;
+    } else {
+      newTotal = currentTotal + percentage;
+    }
+
+    if (newTotal > 100) {
+      showErrorMessage(
+        context,
+        "Invalid Percentage",
+        "Payment schedule total must be exactly 100%. Remaining allowed is ${_bookingCubit.remainingPercentage.toStringAsFixed(2)}%",
+      );
+      return;
+    }
+
     /// DUPLICATE DATE CHECK
     if (isDateTab) {
       final selectedDate = DateFormat("dd-MM-yyyy").format(date!);
@@ -135,11 +158,7 @@ class _AddBookingPaymentScheduleScreenState
       );
 
       if (alreadyExists) {
-        showErrorMessage(
-          context,
-          "Duplicate Date",
-          "This date is already added.",
-        );
+        showErrorMessage(context, "", "This date is already added.");
         return;
       }
     }
@@ -157,11 +176,7 @@ class _AddBookingPaymentScheduleScreenState
       );
 
       if (alreadyExists) {
-        showErrorMessage(
-          context,
-          "Duplicate Stage",
-          "This stage is already added.",
-        );
+        showErrorMessage(context, "", "This stage is already added.");
         return;
       }
     }
@@ -365,41 +380,58 @@ class _AddBookingPaymentScheduleScreenState
             child: Column(
               children: [
                 /// TAB BAR
-                Container(
-                  height: 35,
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: AppColor.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppColor.grey.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: TabBar(
-                    controller: _tabController,
-                    isScrollable: false, // important
-                    labelColor: AppColor.primary,
-                    unselectedLabelColor: AppColor.grey,
-                    indicator: BoxDecoration(
-                      color: AppColor.lightBlue,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    dividerColor: Colors.transparent,
-                    labelStyle: AppTextStyle.ts14M(),
-                    unselectedLabelStyle: AppTextStyle.ts14M(),
-                    onTap: (index) {
-                      if (_isEditMode) return;
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: SizedBox(
+                    height: 40,
+                    child: TabBar(
+                      controller: _tabController,
+                      isScrollable: false,
+                      labelColor: AppColor.primary,
+                      unselectedLabelColor: AppColor.grey,
+                      indicator: BoxDecoration(
+                        color: AppColor.lightBlue,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      indicatorPadding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                      ),
+                      dividerColor: Colors.transparent,
+                      labelStyle: AppTextStyle.ts14M(),
+                      unselectedLabelStyle: AppTextStyle.ts14M(),
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 6),
+                      onTap: (index) {
+                        if (_isEditMode) return;
 
-                      if (index == 0) {
-                        _selectedStage.value = null;
-                      } else {
-                        date = null;
-                      }
-                    },
-                    tabs: const [Tab(text: "Date"), Tab(text: "Stage")],
+                        if (index == 0) {
+                          _selectedStage.value = null;
+                        } else {
+                          date = null;
+                        }
+                      },
+                      tabs:
+                          tabs.map((title) {
+                            return Tab(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: AppColor.grey.withValues(alpha: 0.4),
+                                  ),
+                                ),
+                                child: Text(title),
+                              ),
+                            );
+                          }).toList(),
+                    ),
                   ),
                 ),
+
                 const SizedBox(height: 20),
 
                 /// TAB VIEW

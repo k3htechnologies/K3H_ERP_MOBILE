@@ -189,6 +189,8 @@ void initDependencies() {
   registerEnquiryDependencies(serviceLocator);
   // OTHER CHARGES DEPENDENCIES
   registerOtherChargesDependencies(serviceLocator);
+  // PAYMENT SCHEDULE DEPENDENCIES (must be before Booking as BookingCubit depends on it)
+  registerPaymentScheduleDependencies(serviceLocator);
   // BOOKING DEPENDENCIES
   registerBookingDependencies(serviceLocator);
   // SOURCING DEPENDENCIES
@@ -201,8 +203,6 @@ void initDependencies() {
   registerRedevelopmentDashboardDependencies(serviceLocator);
   // PAYMENT SCHEDULE SCHEME DEPENDENCIES
   registerPaymentScheduleSchemeDependencies(serviceLocator);
-  // PAYMENT SCHEDULE DEPENDENCIES
-  registerPaymentScheduleDependencies(serviceLocator);
   // SETTING DASHBOARD
   registerSettingDashboardDependencies(serviceLocator);
   // LITIGATION DASHBOARD
