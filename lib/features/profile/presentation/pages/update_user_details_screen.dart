@@ -84,7 +84,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
       final user = _profileCubit.state.user;
 
       if (user != null) {
-        _profileCubit.getEmployeeMasterList(context, 1, 100, user.employeeId);
+        _profileCubit.getEmployeeMasterList(1, 100, user.employeeId);
       }
     });
   }

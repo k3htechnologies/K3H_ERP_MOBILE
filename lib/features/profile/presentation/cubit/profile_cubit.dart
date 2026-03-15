@@ -19,7 +19,6 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_ma
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
-import 'package:k3h_erp_app/main.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -63,13 +62,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         ),
       );
 
-      /// AUTO LOAD OVERVIEW
-      getEmployeeMasterList(
-        navigatorKey.currentContext!,
-        1,
-        100,
-        user.employeeId,
-      );
+      getEmployeeMasterList(1, 100, user.employeeId);
     }
   }
 
@@ -160,7 +153,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
     final employeeId = state.user!.employeeId;
     if (index == 0) {
-      getEmployeeMasterList(context, 1, 100, employeeId);
+      getEmployeeMasterList(1, 100, employeeId);
     } else if (index == 1) {
       // Education tab
       getEmployeeEducationDetailsList(context, 1, 100, employeeId);
@@ -192,7 +185,6 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   // <---- GET EMPLOYEE MASTER LIST ---->
   Future getEmployeeMasterList(
-    BuildContext context,
     int pageNumber,
     int pageSize,
     int employeeId,
@@ -208,7 +200,6 @@ class ProfileCubit extends Cubit<ProfileState> {
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
         final dataList = response['data'] as List;
@@ -861,12 +852,7 @@ class ProfileCubit extends Cubit<ProfileState> {
           context,
           subTitle: 'User Basic Details Updates Successfully',
         );
-        getEmployeeMasterList(
-          context,
-          1,
-          10,
-          state.employeeMasterList.first.employeeId,
-        );
+        getEmployeeMasterList(1, 10, state.employeeMasterList.first.employeeId);
         goRouter.pop();
       },
     );
