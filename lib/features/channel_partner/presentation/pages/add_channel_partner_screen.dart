@@ -87,6 +87,13 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _channelPartnerCubit = context.read<ChannelPartnerCubit>();
     _loginCubit = context.read<LoginCubit>();
     _initializeTextEditingController();
+    selectedGSTCertificateForPopUpFile = ValueNotifier(
+      MultiFilePickerModel(
+        fileBytesList: [],
+        fileNameList: [],
+        deletedFileList: "",
+      ),
+    );
     selectedCompanyType = ValueNotifier<Map<String, dynamic>>(
       companyTypeList[0],
     );
@@ -98,13 +105,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     if (_isEditMode) {
       _prefillChannelPartner(widget.channelPartnerModel!);
     }
-    selectedGSTCertificateForPopUpFile = ValueNotifier(
-      MultiFilePickerModel(
-        fileBytesList: [],
-        fileNameList: [],
-        deletedFileList: "",
-      ),
-    );
   }
 
   @override
@@ -128,7 +128,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     selectedFirmsType.dispose();
     selectedCompany.dispose();
     hasReraNumber.dispose();
-
+    selectedGSTCertificateForPopUpFile.dispose();
     super.dispose();
   }
 
@@ -282,7 +282,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     : data.gstCertificateUrl.split(","),
             deletedFileList: "",
           );
-          // setState(() {});
         }
       });
     } catch (error) {
