@@ -908,9 +908,9 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                     ListView.builder(
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
-                      itemCount: items.length + 1, // +1 for "Next Follow-up"
+                      itemCount: items.length + 1,
                       itemBuilder: (context, index) {
-                        final isExtraDot = index == items.length; // Last dot
+                        final isExtraDot = index == items.length;
                         final isLastItem = index == items.length - 1;
 
                         // Normal follow-up item
@@ -920,7 +920,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              // Timeline Dot + Connector
                               Column(
                                 children: [
                                   // Dot
@@ -995,7 +994,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              // DATE + TIME
                                               Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment
@@ -1033,7 +1031,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                                       ),
                                                     ),
                                                   ),
-                                                  // Edit/Delete buttons for first item if allowed
                                                   if (index == 0 &&
                                                       ![
                                                         'booking done',
@@ -1121,7 +1118,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   Widget statusWidget(String status) {
     final trimmed = status.trim();
 
-    // If empty → show dash
     if (trimmed.isEmpty) {
       return statusChip("-", AppColor.lightGreyBackground, AppColor.black);
     }
@@ -1252,7 +1248,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                   )
                   : const SizedBox.shrink();
 
-          // ===================== FORM =====================
           return Form(
             key: _statusFormKey,
             child: SingleChildScrollView(
@@ -1260,7 +1255,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // --- Status dropdown ---
                   CustomDropDownWidget(
                     title: "Status",
                     isRequired: true,
@@ -1276,11 +1270,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                         (val) => val == null ? "Status is required" : null,
                   ),
 
-                  // --- Conditional fields ---
                   followUpDateWidget(),
                   lostReasonWidget(),
-
-                  // --- Remark ---
                   CustomTextField(
                     title: 'Remark',
                     hint: "Enter remark",
@@ -1294,7 +1285,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                 ? "Remark is required"
                                 : null,
                   ),
-                  // --- Save / Update button ---
                   CustomButton(
                     padding: EdgeInsets.symmetric(vertical: 10),
                     text: index != null ? "Update" : "Save",
@@ -1357,14 +1347,12 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
     required BuildContext context,
   }) async {
-    // Show confirmation dialog
     var result = await DialogHelper.deleteDialog(
       context,
       'You are about to delete this Follow-Up?',
       'Deleting this Follow-Up will permanently remove its contents.',
     );
 
-    // If user confirms and context is still valid
     if (result && context.mounted) {
       _enquiryCubit.deleteFollowUp(
         index: index,

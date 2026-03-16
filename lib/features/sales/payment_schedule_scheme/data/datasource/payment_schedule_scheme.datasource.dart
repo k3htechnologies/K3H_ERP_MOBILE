@@ -30,10 +30,7 @@ class PaymentScheduleSchemeDatasourceImpl
     extends PaymentScheduleSchemeDatasource {
   final BaseClient baseClient = BaseClient();
 
-  // ----------------------------------------------------------
-  // Pull Payment Schedule Scheme
-  // ----------------------------------------------------------
-
+  // PULL PAYMENT SCHEDULE SCHEME
   @override
   Future<Map<String, dynamic>> apicallPullPaymentScheduleScheme({
     required int pageNumber,
@@ -88,6 +85,7 @@ class PaymentScheduleSchemeDatasourceImpl
     }
   }
 
+  // ADD UPDATE PAYMENT SCHEDULE SCHEME
   @override
   Future<Map<String, dynamic>> apicallAddUpdatePaymentScheduleScheme({
     required Map<String, dynamic> body,
@@ -117,6 +115,7 @@ class PaymentScheduleSchemeDatasourceImpl
     }
   }
 
+  // DELETE PAYMENT SCHEDULE
   @override
   Future<Map<String, dynamic>> apicallDeletePaymentScheduleScheme({
     required int paymentScheduleSchemeId,
@@ -155,10 +154,7 @@ class PaymentScheduleSchemeDatasourceImpl
     }
   }
 
-  // ----------------------------------------------------------
-  // Pull Payment Schedule Scheme For Export
-  // ----------------------------------------------------------
-
+  // PULL PAYMENT SCHEDULE SCHEME FOR EXPORT
   @override
   Future<Map<String, dynamic>> apicallPullScheduleSchemeForExport({
     required int pageNumber,

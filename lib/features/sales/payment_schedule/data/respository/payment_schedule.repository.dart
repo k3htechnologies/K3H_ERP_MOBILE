@@ -34,9 +34,8 @@ class PaymentScheduleRepositoryImpl extends PaymentScheduleRepository {
 
   PaymentScheduleRepositoryImpl({required this.paymentScheduleDatasource});
 
-  // ----------------------------------------------------------
-  // Pull Payment Schedule Master
-  // ----------------------------------------------------------
+  // PULL PAYMENT SCHEDULE
+
   @override
   Future<Either<Failure, Map<String, dynamic>>> getPaymentScheduleMasterList({
     required int pageNumber,
@@ -58,9 +57,8 @@ class PaymentScheduleRepositoryImpl extends PaymentScheduleRepository {
     }
   }
 
-  // ----------------------------------------------------------
-  // Add Update Payment Schedule Master
-  // ----------------------------------------------------------
+  // ADD UPDATE PAYMENT SCHEDULE
+
   @override
   Future<Either<Failure, Map<String, dynamic>>> addUpdatePaymentScheduleMaster({
     required Map<String, dynamic> body,
@@ -74,9 +72,8 @@ class PaymentScheduleRepositoryImpl extends PaymentScheduleRepository {
     }
   }
 
-  // ----------------------------------------------------------
-  // Delete Payment Schedule
-  // ----------------------------------------------------------
+  // DELETE PAYMENT SCHEDULE
+
   @override
   Future<Either<Failure, Map<String, dynamic>>> deletePaymentSchedule({
     required int paymentScheduleId,
@@ -95,9 +92,8 @@ class PaymentScheduleRepositoryImpl extends PaymentScheduleRepository {
     }
   }
 
-  // ----------------------------------------------------------
-  // Export Payment Schedule Master
-  // ----------------------------------------------------------
+  // EXPORT PAYMENT SCHDULE
+
   @override
   Future<Either<Failure, Map<String, dynamic>>> exportPaymentScheduleMaster({
     required int pageNumber,

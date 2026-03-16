@@ -36,10 +36,7 @@ class PaymentScheduleSchemeRepositoryImpl
     required this.paymentScheduleSchemeDatasource,
   });
 
-  // ----------------------------------------------------------
-  // Get Payment Schedule Scheme List
-  // ----------------------------------------------------------
-
+  // PULL PAYMENT SCHEDULE SCHEME
   @override
   Future<Either<Failure, Map<String, dynamic>>> getPaymentScheduleSchemeList({
     required int pageNumber,
@@ -62,6 +59,7 @@ class PaymentScheduleSchemeRepositoryImpl
     }
   }
 
+  // ADD UPDATE PAYMENT SCHEDULE SCHEME
   @override
   Future<Either<Failure, Map<String, dynamic>>> addUpdatePaymentScheduleScheme({
     required Map<String, dynamic> body,
@@ -76,6 +74,7 @@ class PaymentScheduleSchemeRepositoryImpl
     }
   }
 
+  // DELETE PAYMENT SCHEDULE SCHEME
   @override
   Future<Either<Failure, Map<String, dynamic>>> deletePaymentScheduleScheme({
     required int paymentScheduleSchemeId,
@@ -95,9 +94,7 @@ class PaymentScheduleSchemeRepositoryImpl
     }
   }
 
-  // ----------------------------------------------------------
-  // Export Payment Schedule Scheme
-  // ----------------------------------------------------------
+  // EXPORT PAYMENT SCHEDULE SCHEME
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> exportPaymentScheduleScheme({

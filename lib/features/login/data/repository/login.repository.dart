@@ -7,7 +7,6 @@ import 'package:k3h_erp_app/features/login/data/datasource/login.datasource.dart
 abstract interface class LoginRepository {
   Future<Either<Failure, String>> loginUser({required String mobileNumber});
 
-  // ✅ NEW: Send OTP method
   Future<Either<Failure, Map<String, dynamic>>> sendOTP({
     String? mobileNumber,
     String? module,
@@ -72,7 +71,7 @@ class LoginRepositoryImpl implements LoginRepository {
       var result = await loginDatasource.apicallIsValidOTP(
         mobileNumber: mobileNumber,
         otp: otp,
-        type:type
+        type: type,
       );
       return right(result);
     } catch (error) {

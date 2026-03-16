@@ -5,8 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/sales/payment_schedule/data/model/payment_schedule.model.dart'
-    show PaymentScheduleMasterModel;
+import 'package:k3h_erp_app/features/sales/payment_schedule/data/model/payment_schedule.model.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule/presentation/cubit/payment_schedule_cubit.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule/presentation/cubit/payment_schedule_state.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
@@ -110,10 +109,8 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
       _paymentScheduleCubit.deletePaymentSchedule(index, obj, context);
     }
   }
-  // ----------------------------------------------------------
-  // PAGINATION
-  // ----------------------------------------------------------
 
+  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
