@@ -168,11 +168,13 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       },
       (response) {
         getChannelPartnerList(context, 1);
+        //close verfication popup
         goRouter.pop();
         showSuccessMessage(
           context,
           subTitle: 'Channel Partner Added Successfully',
         );
+        goRouter.pop();
       },
     );
   }
