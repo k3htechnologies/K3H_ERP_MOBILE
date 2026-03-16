@@ -57,8 +57,8 @@ class LoginRepositoryImpl implements LoginRepository {
   }) async {
     try {
       var result = await utilsDatasource.apiCallSendOTPModuleBased(
-        mobileNumber: mobileNumber,
-        module: module,
+        mobileNumber: mobileNumber!,
+        module: module!,
       );
       return right(result);
     } catch (error) {
