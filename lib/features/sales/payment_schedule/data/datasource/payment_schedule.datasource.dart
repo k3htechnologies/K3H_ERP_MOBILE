@@ -31,9 +31,7 @@ abstract interface class PaymentScheduleDatasource {
 class PaymentScheduleDatasourceImpl extends PaymentScheduleDatasource {
   final BaseClient baseClient = BaseClient();
 
-  // ----------------------------------------------------------
-  // Pull Payment Schedule Master
-  // ----------------------------------------------------------
+  // PULL PAYMENT SCHEDULE MASTER
 
   @override
   Future<Map<String, dynamic>> apicallPullPaymentScheduleMaster({
@@ -78,7 +76,6 @@ class PaymentScheduleDatasourceImpl extends PaymentScheduleDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        // Retry on token expiry
         return await apicallPullPaymentScheduleMaster(
           pageNumber: pageNumber,
           pageSize: pageSize,
@@ -90,9 +87,7 @@ class PaymentScheduleDatasourceImpl extends PaymentScheduleDatasource {
     }
   }
 
-  // ----------------------------------------------------------
-  // Add / Update Payment Schedule Master
-  // ----------------------------------------------------------
+  // ADD UPDATE PAYMENT SCHEDULE MASTER
 
   @override
   Future<Map<String, dynamic>> apicallAddUpdatePaymentScheduleMaster({
@@ -122,10 +117,7 @@ class PaymentScheduleDatasourceImpl extends PaymentScheduleDatasource {
     }
   }
 
-  // ----------------------------------------------------------
-  // Pull Payment Schedule Master For Export
-  // ----------------------------------------------------------
-
+  // EXPORT PAYMENT SCHEDULE MASTER FOR EXPORT
   @override
   Future<Map<String, dynamic>> apicallPullPaymentScheduleMasterForExport({
     required int pageNumber,
@@ -176,6 +168,7 @@ class PaymentScheduleDatasourceImpl extends PaymentScheduleDatasource {
     }
   }
 
+  // DELETE PAYMENT SCHEDULE
   @override
   Future<Map<String, dynamic>> apicallDeletePaymentSchedule({
     required int paymentScheduleId,

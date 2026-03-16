@@ -58,10 +58,7 @@ class _PaymentScheduleSchemeScreenState
     super.dispose();
   }
 
-  // ----------------------------------------------------------
   // PAGINATION
-  // ----------------------------------------------------------
-
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -82,10 +79,7 @@ class _PaymentScheduleSchemeScreenState
     });
   }
 
-  // ----------------------------------------------------------
   // DELETE
-  // ----------------------------------------------------------
-
   Future<void> _showPaymentScheduleSchemeDeletePopup(
     BuildContext context,
     PaymentScheduleSchemeModel obj,

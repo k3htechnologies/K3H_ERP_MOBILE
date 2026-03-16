@@ -20,9 +20,7 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
   final InventoryRepository _inventoryRepository =
       serviceLocator<InventoryRepository>();
 
-  // ----------------------------------------------------------
   // SEARCH
-  // ----------------------------------------------------------
 
   void resetSearch() {
     emit(state.copyWith(searchText: ""));
@@ -33,9 +31,7 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
     await getPaymentScheduleSchemeList(context, 1);
   }
 
-  // ----------------------------------------------------------
   // GET LIST
-  // ----------------------------------------------------------
 
   Future getPaymentScheduleSchemeList(
     BuildContext context,
@@ -81,6 +77,7 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
     );
   }
 
+  // ADD PAYMENT SCHEDULE SCHEME
   Future addPaymentScheduleScheme({
     required BuildContext context,
     required int projectId,
@@ -121,6 +118,7 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
     );
   }
 
+  // UPDATE PAYMENT SCHEDULE SCHEME
   Future updatePaymentScheduleScheme({
     required BuildContext context,
     required int paymentScheduleSchemeId,
@@ -176,7 +174,7 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
     );
   }
 
-  // <---- DELETE PAYMENT SCHEDULE SCHEME ---->
+  // DELETE PAYMENT SCHEDULE SCHEME
   Future deletePaymentScheduleScheme(
     int index,
     PaymentScheduleSchemeModel paymentScheduleSchemeModel,
@@ -218,9 +216,7 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
     );
   }
 
-  // ----------------------------------------------------------
-  // EXPORT
-  // ----------------------------------------------------------
+  // EXPORT PAYMENT SCHEDULE SCHEME
 
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
@@ -255,7 +251,7 @@ class PaymentScheduleSchemeCubit extends Cubit<PaymentScheduleSchemeState> {
     );
   }
 
-  // ------------------ LOAD PROJECT INVENTORY ------------------
+  // LOAD PROJECT INVENTORY
   Future<void> getProjectInventoryStructure(
     BuildContext context,
     int pageNumber,

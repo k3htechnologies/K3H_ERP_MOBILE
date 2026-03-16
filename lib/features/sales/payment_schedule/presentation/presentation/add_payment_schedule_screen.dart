@@ -65,9 +65,7 @@ class _AddPaymentScheduleScreenState extends State<AddPaymentScheduleScreen> {
     _percentageController.text = model.paymentSchedulePercentage.toString();
   }
 
-  // ----------------------------------------------------------
   // FETCH STAGES FOR DROPDOWN
-  // ----------------------------------------------------------
 
   Future<Map<String, dynamic>> fetchStages(
     int pageNumber, {

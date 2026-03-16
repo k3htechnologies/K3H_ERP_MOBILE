@@ -171,7 +171,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
   void _save() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    // Prevent duplicate primary applicant
+    // PREVENT DUPLICATE PRIMARY APPLICANT
     if (selectedApplicantType['DisplayName'] == "Applicant" &&
         widget.hasPrimaryApplicant &&
         !_isEditingApplicantType) {
@@ -215,7 +215,6 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
               ? gstFile.fileNameList.join(",")
               : widget.applicant?.gstNumberURL ?? '',
 
-      // Text fields
       aadharCardNumber: _aadharC.text.trim(),
       panNumber: _panC.text.trim(),
       passportNumber: _passportC.text.trim(),

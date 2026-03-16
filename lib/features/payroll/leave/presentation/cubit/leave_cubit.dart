@@ -30,7 +30,7 @@ class LeaveCubit extends Cubit<LeaveState> {
     "Rejected",
   ];
 
-  // <---- SEARCH LEAVR ---->
+  // <---- SEARCH LEAVE ---->
   Future searchOutdoor(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, leaveList: []));
     await getLeaveList(context, 1);
@@ -47,7 +47,7 @@ class LeaveCubit extends Cubit<LeaveState> {
                 : "");
     final Map<String, dynamic> queryParams = {
       "LeaveType": state.searchText,
-      "Status": status
+      "Status": status,
     };
     if (state.filterLeaveType != null && state.filterLeaveType!.isNotEmpty) {
       queryParams["LeaveType"] = state.filterLeaveType!;
