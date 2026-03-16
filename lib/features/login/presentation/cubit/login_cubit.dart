@@ -37,24 +37,16 @@ class LoginCubit extends Cubit<LoginState> {
 
   // START TIMER
   void startResendTimer() {
-    emit(state.copyWith(
-      resendSeconds: 60,
-      canResend: false,
-    ));
+    emit(state.copyWith(resendSeconds: 60, canResend: false));
 
     _resendTimer?.cancel();
 
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (state.resendSeconds > 1) {
-        emit(state.copyWith(
-          resendSeconds: state.resendSeconds - 1,
-        ));
+        emit(state.copyWith(resendSeconds: state.resendSeconds - 1));
       } else {
         timer.cancel();
-        emit(state.copyWith(
-          resendSeconds: 0,
-          canResend: true,
-        ));
+        emit(state.copyWith(resendSeconds: 0, canResend: true));
       }
     });
   }
@@ -138,7 +130,10 @@ class LoginCubit extends Cubit<LoginState> {
           );
         } else {
           // SAVE MENU
-          await localStorage.setString(StorageKey.menu, jsonEncode(user.moduleData));
+          await localStorage.setString(
+            StorageKey.menu,
+            jsonEncode(user.moduleData),
+          );
 
           // UPDATE ROUTE AUTH
           await updateRouteAuthorization(user.moduleData);
@@ -201,7 +196,10 @@ class LoginCubit extends Cubit<LoginState> {
       result.fold(
         (failure) async {
           // Fallback to login user data if fetch fails
-          await localStorage.setString(StorageKey.currentUser, jsonEncode(loginUser));
+          await localStorage.setString(
+            StorageKey.currentUser,
+            jsonEncode(loginUser),
+          );
         },
         (response) async {
           final employeeList = response['data'] as List<UserModel>;
@@ -234,7 +232,10 @@ class LoginCubit extends Cubit<LoginState> {
         },
       );
     } catch (e) {
-      await localStorage.setString(StorageKey.currentUser, jsonEncode(loginUser));
+      await localStorage.setString(
+        StorageKey.currentUser,
+        jsonEncode(loginUser),
+      );
     }
   }
 
@@ -252,7 +253,7 @@ class LoginCubit extends Cubit<LoginState> {
     String? mobileNumber,
     required String module,
   }) async {
-    final result = await loginRepository.sendOTP(
+    final result = await loginRepository.sendOTPModuleBased(
       mobileNumber: mobileNumber,
       module: module,
     );
@@ -265,6 +266,40 @@ class LoginCubit extends Cubit<LoginState> {
         showSuccessMessage(
           context,
           subTitle: response['message'] ?? 'OTP sent successfully',
+        );
+      },
+    );
+  }
+  // <----MODULES WORKFLOW APPROVAL  ---->
+
+  Future<void> updateModulesWorkflowApproval({
+    required BuildContext context,
+    required String moduleName,
+    required int id,
+    required int projectId,
+    required bool isApproved,
+    required String remark,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final result = await utilsRepository.updateModulesWorkflowApproval(
+      moduleName: moduleName,
+      id: id,
+      projectId: projectId,
+      isApproved: isApproved,
+      remark: remark,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Approval Failed", failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: response['message'] ?? "Updated Successfully",
         );
       },
     );

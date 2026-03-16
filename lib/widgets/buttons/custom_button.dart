@@ -60,7 +60,7 @@ class CustomButton extends StatelessWidget {
 
           // FOR NORMAL BUTTONS (NOT GRADIENT)
           color:
-              (gradient == null && borderColor == null)
+              (gradient == null)
                   ? !isDisable
                       ? backgroundColor
                       : AppColor.grey30

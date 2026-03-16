@@ -2,12 +2,13 @@ import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/core/utils.datasource.dart';
 import 'package:k3h_erp_app/features/login/data/datasource/login.datasource.dart';
 
 abstract interface class LoginRepository {
   Future<Either<Failure, String>> loginUser({required String mobileNumber});
 
-  Future<Either<Failure, Map<String, dynamic>>> sendOTP({
+  Future<Either<Failure, Map<String, dynamic>>> sendOTPModuleBased({
     String? mobileNumber,
     String? module,
   });
@@ -28,8 +29,12 @@ abstract interface class LoginRepository {
 
 class LoginRepositoryImpl implements LoginRepository {
   final LoginDatasource loginDatasource;
+  final UtilsDatasource utilsDatasource;
 
-  LoginRepositoryImpl({required this.loginDatasource});
+  LoginRepositoryImpl({
+    required this.loginDatasource,
+    required this.utilsDatasource,
+  });
 
   @override
   Future<Either<Failure, String>> loginUser({
@@ -46,12 +51,12 @@ class LoginRepositoryImpl implements LoginRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> sendOTP({
+  Future<Either<Failure, Map<String, dynamic>>> sendOTPModuleBased({
     String? mobileNumber,
     String? module,
   }) async {
     try {
-      var result = await loginDatasource.apiCallSendOTP(
+      var result = await utilsDatasource.apiCallSendOTPModuleBased(
         mobileNumber: mobileNumber,
         module: module,
       );

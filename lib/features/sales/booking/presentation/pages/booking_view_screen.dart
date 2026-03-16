@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -68,9 +69,34 @@ class _BookingViewScreenState extends State<BookingViewScreen>
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-            child: Text(
-              widget.bookingModel.applicantName,
-              style: AppTextStyle.ts16SB(color: AppColor.primary),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  widget.bookingModel.applicantName,
+                  style: AppTextStyle.ts16SB(color: AppColor.primary),
+                ),
+                if (widget.bookingModel.approvalStatus.toLowerCase().contains(
+                  'approved',
+                ))
+                  CustomButton(
+                    leading: Image.asset(
+                      AppAssets.pdfLogo,
+                      height: 20,
+                      width: 20,
+                    ),
+                    backgroundColor: AppColor.white,
+                    borderColor: AppColor.primary,
+                    textColor: AppColor.primary,
+                    text: "Generate PDF",
+                    onPressed: () {
+                      _bookingCubit.generateBookingPDF(
+                        context,
+                        widget.bookingModel,
+                      );
+                    },
+                  ),
+              ],
             ),
           ),
           ChipStyleTabBar(

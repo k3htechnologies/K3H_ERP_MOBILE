@@ -1130,4 +1130,32 @@ class BookingCubit extends Cubit<BookingState> {
       },
     );
   }
+
+  Future generateBookingPDF(
+    BuildContext context,
+    BookingModel bookingModel,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _bookingRepository.exportBooking(
+      pageNumber: 1,
+      pageSize: 1,
+      projectId: bookingModel.projectId,
+      queryParams: {
+        "BookingId": bookingModel.bookingId,
+        "ExportType": "BOOKING+FORM+PDF",
+      },
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        exportExcelOrPdfMobile(
+          response["data"],
+          "Booking Form - ${bookingModel.projectName} - ${bookingModel.applicantName} - ${bookingModel.flat} ${DateTime.now()}.pdf",
+        );
+      },
+    );
+  }
 }
