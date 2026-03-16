@@ -27,6 +27,19 @@ abstract interface class UtilsRepository {
   Future<Either<Failure, Map<String, dynamic>>> getProjectSummery({
     required int projectId,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> sendOTPModuleBased({
+    required String mobileNumber,
+    required String module,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> updateModulesWorkflowApproval({
+    required String moduleName,
+    required int id,
+    required int projectId,
+    required bool isApproved,
+    required String remark,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class UtilsRepositoryImpl implements UtilsRepository {
@@ -72,8 +85,8 @@ class UtilsRepositoryImpl implements UtilsRepository {
     try {
       var result = await _utilsDatasource
           .apicallPullMaterialMasterSubMaterialMasterUOMMaster(
-        projectId: projectId,
-      );
+            projectId: projectId,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -112,6 +125,47 @@ class UtilsRepositoryImpl implements UtilsRepository {
       var result = await _utilsDatasource.apiCallToPullProjectSummery(
         projectId: projectId,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> sendOTPModuleBased({
+    required String mobileNumber,
+    required String module,
+  }) async {
+    try {
+      var result = await _utilsDatasource.apiCallSendOTPModuleBased(
+        mobileNumber: mobileNumber,
+        module: module,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> updateModulesWorkflowApproval({
+    required String moduleName,
+    required int id,
+    required int projectId,
+    required bool isApproved,
+    required String remark,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await _utilsDatasource.apiCallUpdateModulesWorkflowApproval(
+        moduleName: moduleName,
+        id: id,
+        projectId: projectId,
+        isApproved: isApproved,
+        remark: remark,
+        queryParams: queryParams,
+      );
+
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

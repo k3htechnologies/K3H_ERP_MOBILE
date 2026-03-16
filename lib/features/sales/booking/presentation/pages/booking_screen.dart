@@ -6,16 +6,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BookingScreen extends StatefulWidget {
@@ -40,7 +44,7 @@ class _BookingScreenState extends State<BookingScreen> {
   late ProjectModel _project;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC;
+  late TextEditingController _searchC, _remarkC;
 
   @override
   void initState() {
@@ -63,6 +67,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _remarkC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -85,6 +90,51 @@ class _BookingScreenState extends State<BookingScreen> {
         });
       }
     });
+  }
+
+  Future<void> _showBottomSheetToApproveRejectBooking(
+    BuildContext context,
+    BookingModel bookingModel, {
+    required bool isApproved,
+  }) async {
+    DialogHelper.showCustomBottomSheet(
+      context,
+      isApproved ? "Approve Booking" : "Reject Booking",
+
+      Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColor.lightBlue,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Applicant : ${bookingModel.applicantName} Wing : ${bookingModel.wing} Unit : ${bookingModel.flat}",
+                  style: AppTextStyle.ts14SB(),
+                ),
+                verticalSpacing(),
+                CustomTextField(
+                  title: "Remark",
+                  hint: "Enter Remark",
+                  textController: _remarkC,
+                  maxLines: 3,
+                  minLines: 3,
+                ),
+              ],
+            ),
+          ),
+          Spacer(),
+          CustomButton(
+            text: isApproved ? "Approve" : "Reject",
+            onPressed: () {},
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -167,11 +217,7 @@ class _BookingScreenState extends State<BookingScreen> {
                             ),
                           ),
                         ),
-                        Text(
-                          booking.approvalStatus,
-                          style: AppTextStyle.ts14M(),
-                        ),
-                        horizontalSpacing(),
+
                         _routhAuthorizationModel.isAction &&
                                 booking.approvalStatus.toLowerCase() !=
                                     'approved'
@@ -193,11 +239,14 @@ class _BookingScreenState extends State<BookingScreen> {
                                     );
                                   },
                                 ),
+                                horizontalSpacing(),
                               ],
                             )
                             : SizedBox.shrink(),
+                        statusWidget(booking.approvalStatus),
                       ],
                     ),
+                    verticalSpacing(height: 5),
                     buildRowTitleValue(
                       title: "Flat No.",
                       value: booking.flat,
@@ -225,6 +274,43 @@ class _BookingScreenState extends State<BookingScreen> {
                       ),
                       fixesWidth: 190,
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      spacing: 10,
+                      children: [
+                        Expanded(
+                          child: CustomButton(
+                            borderColor: AppColor.error,
+                            textColor: AppColor.error,
+                            backgroundColor: AppColor.lightRed,
+                            text: "Reject",
+                            onPressed: () {
+                              _showBottomSheetToApproveRejectBooking(
+                                context,
+                                booking,
+                                isApproved: false,
+                              );
+                            },
+                          ),
+                        ),
+
+                        Expanded(
+                          child: CustomButton(
+                            text: "Approve",
+                            borderColor: AppColor.green,
+                            textColor: AppColor.green,
+                            backgroundColor: AppColor.lightGreen,
+                            onPressed: () {
+                              _showBottomSheetToApproveRejectBooking(
+                                context,
+                                booking,
+                                isApproved: true,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               );
@@ -233,5 +319,29 @@ class _BookingScreenState extends State<BookingScreen> {
         },
       ),
     );
+  }
+
+  Widget statusWidget(String status) {
+    final trimmed = status.trim();
+
+    if (trimmed.isEmpty) {
+      return statusChip("-", AppColor.lightGreyBackground, AppColor.black);
+    }
+
+    final s = trimmed.toLowerCase();
+
+    switch (s) {
+      case 'approved':
+        return statusChip(status, AppColor.green20, AppColor.green);
+
+      case 'rejected':
+        return statusChip(status, AppColor.lightRed, AppColor.red);
+
+      case 'pending':
+        return statusChip(status, AppColor.lightYellow, AppColor.brown);
+
+      default:
+        return statusChip(status, AppColor.lightGreyBackground, AppColor.black);
+    }
   }
 }

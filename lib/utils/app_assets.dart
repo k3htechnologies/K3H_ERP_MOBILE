@@ -11,6 +11,7 @@ class AppAssets {
   static const String moreImage = "$pngPath/more.png";
   static const String salesImage = "$pngPath/sales.png";
   static const String successLogo = "$pngPath/success.png";
+  static const String pdfLogo = "$pngPath/pdf.png";
 
   // GIF
   static const String noDataImage = "$gifPath/noData.gif";

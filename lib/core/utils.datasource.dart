@@ -26,6 +26,19 @@ abstract interface class UtilsDatasource {
   Future<Map<String, dynamic>> apiCallToPullProjectSummery({
     required int projectId,
   });
+
+  Future<Map<String, dynamic>> apiCallSendOTPModuleBased({
+    required String mobileNumber,
+    required String module,
+  });
+  Future<Map<String, dynamic>> apiCallUpdateModulesWorkflowApproval({
+    required String moduleName,
+    required int id,
+    required int projectId,
+    required bool isApproved,
+    required String remark,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class UtilsDatasourceImpl implements UtilsDatasource {
@@ -158,6 +171,79 @@ class UtilsDatasourceImpl implements UtilsDatasource {
           networkResponse["data"].map((e) => ProjectModel.fromJson(e)),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallSendOTPModuleBased({
+    required String mobileNumber,
+    required String module,
+  }) async {
+    try {
+      String sendOTPUrl({
+        required String mobileNumber,
+        required String module,
+      }) {
+        String url =
+            "/Authentication/SendOTPMobileNumberAndModule?MobileNumber=$mobileNumber&Module=$module";
+
+        return url;
+      }
+
+      var networkResponse = await client.getRequestWithoutAuthentication(
+        sendOTPUrl(mobileNumber: mobileNumber, module: module),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse['message'] ?? 'OTP sent successfully',
+      };
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallUpdateModulesWorkflowApproval({
+    required String moduleName,
+    required int id,
+    required int projectId,
+    required bool isApproved,
+    required String remark,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      String updateModulesWorkflowApprovalUrl({
+        required String moduleName,
+        required int id,
+        required int projectId,
+        required bool isApproved,
+        required String remark,
+        Map<String, dynamic>? queryParams,
+      }) {
+        String url =
+            "ModulesWorkflowApproval/UpdateModulesWorkflowApproval?ModuleName=$moduleName&Id=$id&ProjectId=$projectId&IsApproved=$isApproved&Remarks=$remark";
+        queryParams?.forEach((key, value) => url += "&$key=$value");
+        return url;
+      }
+
+      var networkResponse = await client.getRequestWithoutAuthentication(
+        updateModulesWorkflowApprovalUrl(
+          moduleName: moduleName,
+          id: id,
+          projectId: projectId,
+          isApproved: isApproved,
+          remark: remark,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse['message'],
       };
     } catch (error) {
       rethrow;
