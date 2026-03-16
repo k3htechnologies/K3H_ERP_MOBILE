@@ -8,7 +8,6 @@ import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.
 import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
-import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -97,7 +96,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     selectedCompanyType = ValueNotifier<Map<String, dynamic>>(
       companyTypeList[0],
     );
-    selectedSpeciality = specialityList[0];
     selectedFirmsType = ValueNotifier(firmsType[0]);
     hasReraNumber = ValueNotifier(false);
     selectedCompany = ValueNotifier([]);
@@ -163,7 +161,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
   // DROPDOWN VARIABLES
   final List<Map<String, dynamic>> specialityList = [
-    {"zAttributesId": -1, "DisplayName": "Select"},
     {"zAttributesId": 1, "DisplayName": "Commercial Sale"},
     {"zAttributesId": 2, "DisplayName": "Commercial Leasing"},
     {"zAttributesId": 3, "DisplayName": "Residential Sale"},
@@ -196,7 +193,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   Map<String, dynamic>? selectedDistrict;
   Map<String, dynamic>? selectedCity;
   Map<String, dynamic>? selectedVillage;
-  late Map<String, dynamic> selectedSpeciality;
+  Map<String, dynamic>? selectedSpeciality;
   late Map<String, dynamic> selectedSpecialityFilter;
   late ValueNotifier<Map<String, dynamic>> selectedCompanyType;
   late ValueNotifier<Map<String, dynamic>> selectedFirmsType;
@@ -400,20 +397,47 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    // IF IT IS NOT EDIT MODE THEN ONLY SEND OTP AND SHOW VERIFICATION DIALOG
+
+    final companyTypeId = selectedCompanyType.value['zAttributesId'];
+
+    if (companyTypeId == -1) {
+      showErrorMessage(context, "", "Please select Company Type");
+      return;
+    }
+
+    if (companyTypeId == 1 && _companyNameC.text.trim().isEmpty) {
+      showErrorMessage(context, "", "Company Name is required");
+      return;
+    }
+
+    if (companyTypeId == 2 && selectedCompany.value.isEmpty) {
+      showErrorMessage(context, "", "Company is required");
+      return;
+    }
+
     if (!_isEditMode) {
-      //  FIRST SEND OTP
       _loginCubit.sendOTPModuleBased(
         context: context,
         mobileNumber: _mobileNumberC.text.trim(),
         module: "CHANNEL PARTNER",
       );
-      //  THEN SHOW VERIFICATION DIALOG
+
+      final isReraValid = _reraNumberC.text.trim().isNotEmpty;
+      final isDocumentValid =
+          _aadhaarNumberC.text.isNotEmpty &&
+          _panNumberC.text.isNotEmpty &&
+          _gstNumberC.text.isNotEmpty;
 
       showCompleteVerificationDialog(
         context,
         otpController: _otpController,
-        verificationSteps: {},
+        verificationSteps: {
+          "Basic Details": true,
+          "RERA Details": isReraValid,
+          "Speciality": true,
+          "Document Details": isDocumentValid,
+          "Address Details": true,
+        },
         onResendOTP: () {
           _loginCubit.sendOTPModuleBased(
             context: context,
@@ -432,6 +456,20 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
   // ON SAVE BUTTON
   void _submitForm() {
+    final companyTypeId = selectedCompanyType.value['zAttributesId'];
+
+    final String companyName =
+        companyTypeId == 1
+            ? _companyNameC.text.trim()
+            : selectedCompany.value.isNotEmpty
+            ? selectedCompany.value.first["DisplayName"] ?? ""
+            : "";
+
+    final String firmsTypeValue =
+        selectedFirmsType.value["zAttributesId"] == -1
+            ? ""
+            : selectedFirmsType.value["DisplayName"];
+
     if (_isEditMode && widget.channelPartnerModel != null) {
       _channelPartnerCubit.updateChannelPartner(
         context: context,
@@ -445,7 +483,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         panCardNumber: _panNumberC.text.trim(),
         aadhaarCardNumber: _aadhaarNumberC.text.trim(),
         gstNumber: _gstNumberC.text.trim(),
-        speciality: selectedSpeciality["DisplayName"],
+        speciality: selectedSpeciality?["DisplayName"] ?? "",
         officeAddress: _officeAddressC.text.trim(),
         panCardURL: selectedPANForPopUpFile,
         aadhaarCardURL: selectedAadhaarForPopUpFile,
@@ -456,8 +494,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         selectedCityId: selectedCity!["zAttributesId"],
         selectedVillageId: selectedVillage!["zAttributesId"],
         reraNumber: _reraNumberC.text.trim(),
-        companyName: _companyNameC.text.trim(),
-        firmsType: selectedFirmsType.value["DisplayName"],
+        companyName: companyName,
+        firmsType: firmsTypeValue,
         type: selectedType["DisplayName"],
         designation: _selectedDesignation.first["DisplayName"],
         otp: _otpController.text.trim(),
@@ -473,7 +511,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         panCardNumber: _panNumberC.text.trim(),
         aadhaarCardNumber: _aadhaarNumberC.text.trim(),
         gstNumber: _gstNumberC.text.trim(),
-        speciality: selectedSpeciality["DisplayName"],
+        speciality: selectedSpeciality?["DisplayName"] ?? "",
         officeAddress: _officeAddressC.text.trim(),
         panCardURL: selectedPANForPopUpFile,
         aadhaarCardURL: selectedAadhaarForPopUpFile,
@@ -483,8 +521,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         selectedCityId: selectedCity!["zAttributesId"],
         selectedVillageId: selectedVillage!["zAttributesId"],
         reraNumber: _reraNumberC.text.trim(),
-        companyName: _companyNameC.text.trim(),
-        firmsType: selectedFirmsType.value["DisplayName"],
+        companyName: companyName,
+        firmsType: firmsTypeValue,
         type: selectedType["DisplayName"],
         designation: _selectedDesignation.first["DisplayName"],
         otp: _otpController.text.trim(),
@@ -622,6 +660,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     ),
                     CustomDropDownWidget(
                       title: 'Company Type',
+                      hintText: "Select Company Type",
+                      isRequired: true,
                       initialValue: selectedCompanyType.value,
                       dataList: companyTypeList,
                       onSelected: (value) {
@@ -630,6 +670,12 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                           selectedCompanyType.value = value;
                           _resetCompanyFields();
                         }
+                      },
+                      validator: (value) {
+                        if (value == null || value['zAttributesId'] == -1) {
+                          return "Company Type is required";
+                        }
+                        return null;
                       },
                     ),
                     ValueListenableBuilder(
@@ -641,7 +687,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (typeId == 2) ...[
-                              // COMPANY DROPDOWN
                               CustomMultipleSelectPopup(
                                 title: "Company",
                                 isRequired: true,
@@ -667,13 +712,11 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
                                   if (selectedValue.isNotEmpty) {
                                     final company = selectedValue.first;
-
                                     _companyNameC.text =
                                         company['DisplayName'] ?? '';
 
                                     final int channelPartnerId =
                                         company['zAttributesId'] ?? 0;
-
                                     if (channelPartnerId != 0) {
                                       _pullChannelPartnerMaster(
                                         channelPartnerId,
@@ -682,16 +725,15 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                   }
                                 },
                                 validator: (selectedValue) {
-                                  if (selectedValue == null ||
-                                      selectedValue.isEmpty) {
+                                  if (typeId == 2 &&
+                                      (selectedValue == null ||
+                                          selectedValue.isEmpty)) {
                                     return "Company is required";
                                   }
                                   return null;
                                 },
                               ),
                               const SizedBox(height: 12),
-
-                              // COMPANY NAME (READ ONLY)
                               CustomTextField(
                                 title: 'Company Name',
                                 isRequired: true,
@@ -700,6 +742,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 readOnly: true,
                               ),
                             ],
+
                             if (typeId == 1) ...[
                               CustomTextField(
                                 title: 'Company Name',
@@ -710,13 +753,15 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                   LengthLimitingTextInputFormatter(50),
                                 ],
                                 validator: (value) {
-                                  if (value!.trim().isEmpty) {
+                                  if (typeId == 1 &&
+                                      (value == null || value.trim().isEmpty)) {
                                     return "Company Name is required";
                                   }
                                   return null;
                                 },
                               ),
                             ],
+
                             if (typeId == 1) ...[
                               ValueListenableBuilder(
                                 valueListenable: selectedFirmsType,
@@ -730,8 +775,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                       selectedFirmsType.value = value;
                                     },
                                     validator: (value) {
-                                      if (value == null ||
-                                          value['zAttributesId'] == -1) {
+                                      if (typeId == 1 &&
+                                          (value == null ||
+                                              value['zAttributesId'] == -1)) {
                                         return "Firms Type is required";
                                       }
                                       return null;
@@ -750,7 +796,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                     isRequired: true,
                                     readOnly: true,
                                     textController: TextEditingController(
-                                      text: firmsValue['DisplayName'],
+                                      text: firmsValue['DisplayName'] ?? '',
                                     ),
                                   );
                                 },
@@ -762,6 +808,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     ),
                     CustomMultipleSelectPopup(
                       title: 'Designation',
+                      hintText: "Select Designation",
                       isRequired: true,
                       isMultiSelect: false,
                       initialValue: _selectedDesignation,
@@ -799,6 +846,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     ),
                     CustomDropDownWidget(
                       title: "Speciality",
+                      hintText: "Select Speciality",
                       isRequired: true,
                       dataList: specialityList,
                       initialValue: selectedSpeciality,
@@ -925,8 +973,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       },
                     ),
                     CustomMultiFilePicker(
-                      title: "Upload Aadhaar Card",
-                      filePickType: FilePickType.kycDocument,
+                      title: "Aadhaar Card",
+                      filePickType: FilePickType.both,
                       initialFileList: selectedAadhaarForPopUpFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
                         selectedAadhaarForPopUpFile.fileNameList = fileNameList;
@@ -976,8 +1024,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       },
                     ),
                     CustomMultiFilePicker(
-                      title: "Upload Pan Card",
-                      filePickType: FilePickType.kycDocument,
+                      title: "Pan Card",
+                      filePickType: FilePickType.both,
                       initialFileList: selectedPANForPopUpFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
                         selectedPANForPopUpFile.fileNameList = fileNameList;
@@ -1040,7 +1088,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 .join(),
                           ),
                           title: "GST Certificate",
-                          filePickType: FilePickType.kycDocument,
+                          filePickType: FilePickType.both,
                           initialFileList:
                               selectedGSTCertificateForPopUpFile
                                   .value

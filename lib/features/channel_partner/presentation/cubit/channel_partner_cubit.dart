@@ -133,7 +133,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       });
     }
 
-    // AADHAR
+    // AADHAAR
     for (int i = 0; i < aadhaarCardURL.fileNameList.length; i++) {
       if (aadhaarCardURL.fileNameList[i].contains("http")) continue;
 
@@ -168,7 +168,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       },
       (response) {
         getChannelPartnerList(context, 1);
-        //close verfication popup
+        //close verification popup
         goRouter.pop();
         showSuccessMessage(
           context,

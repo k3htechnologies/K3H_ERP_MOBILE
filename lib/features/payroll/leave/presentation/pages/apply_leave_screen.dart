@@ -1,3 +1,4 @@
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -241,6 +242,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                       builder: (context, leaveTy, child) {
                         return CustomMultipleSelectPopup(
                           title: "Leave Type",
+                          hintText: "Select Leave Type",
                           isRequired: true,
                           isMultiSelect: false,
                           initialValue: leaveTy,

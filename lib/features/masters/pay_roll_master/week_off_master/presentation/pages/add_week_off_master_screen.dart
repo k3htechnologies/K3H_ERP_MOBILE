@@ -281,13 +281,13 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                       textController: _weekOffNameC,
                       hint: "Enter Week Off Name",
                       inputFormatterList: [
-                        InputValidator.digitAndCharacterOnly(),
+                        LengthLimitingTextInputFormatter(200)
                       ],
                       keyboardType: TextInputType.text,
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Week Off Name is reqiured";
+                          return "Week Off Name is required";
                         }
 
                         return null;
