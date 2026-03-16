@@ -98,6 +98,13 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     if (_isEditMode) {
       _prefillChannelPartner(widget.channelPartnerModel!);
     }
+    selectedGSTCertificateForPopUpFile = ValueNotifier(
+      MultiFilePickerModel(
+        fileBytesList: [],
+        fileNameList: [],
+        deletedFileList: "",
+      ),
+    );
   }
 
   @override
@@ -152,12 +159,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
-  MultiFilePickerModel selectedGSTCertificateForPopUpFile =
-      MultiFilePickerModel(
-        fileBytesList: [],
-        fileNameList: [],
-        deletedFileList: "",
-      );
+  late ValueNotifier<MultiFilePickerModel> selectedGSTCertificateForPopUpFile;
 
   // DROPDOWN VARIABLES
   final List<Map<String, dynamic>> specialityList = [
@@ -272,6 +274,15 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
             (e) => e['DisplayName'] == data.firmsType,
             orElse: () => firmsType[0],
           );
+          selectedGSTCertificateForPopUpFile.value = MultiFilePickerModel(
+            fileBytesList: [],
+            fileNameList:
+                data.gstCertificateUrl.isEmpty
+                    ? []
+                    : data.gstCertificateUrl.split(","),
+            deletedFileList: "",
+          );
+          // setState(() {});
         }
       });
     } catch (error) {
@@ -350,11 +361,14 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         channelPartnerMasterModel.aadhaarCardUrl.isEmpty
             ? []
             : channelPartnerMasterModel.aadhaarCardUrl.split(",");
-    selectedGSTCertificateForPopUpFile.fileNameList =
-        channelPartnerMasterModel.gstCertificateUrl.isEmpty
-            ? []
-            : channelPartnerMasterModel.gstCertificateUrl.split(",");
-
+    selectedGSTCertificateForPopUpFile.value = MultiFilePickerModel(
+      fileBytesList: [],
+      fileNameList:
+          channelPartnerMasterModel.gstCertificateUrl.isEmpty
+              ? []
+              : channelPartnerMasterModel.gstCertificateUrl.split(","),
+      deletedFileList: "",
+    );
     if (widget.channelPartnerModel!.districtName.isNotEmpty) {
       selectedDistrict = {
         "DisplayName": widget.channelPartnerModel!.districtName,
@@ -410,7 +424,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         },
         onVerifyOTP: () {
           _submitForm();
-          goRouter.pop();
         },
       );
     } else {
@@ -437,7 +450,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         officeAddress: _officeAddressC.text.trim(),
         panCardURL: selectedPANForPopUpFile,
         aadhaarCardURL: selectedAadhaarForPopUpFile,
-        gstCertificateURL: selectedGSTCertificateForPopUpFile,
+        gstCertificateURL: selectedGSTCertificateForPopUpFile.value,
         selectedCountryNameId: 1,
         selectedStateId: selectedState!["zAttributesId"],
         selectedDistrictId: selectedDistrict!["zAttributesId"],
@@ -476,7 +489,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         type: selectedType["DisplayName"],
         designation: _selectedDesignation.first["DisplayName"],
         otp: _otpController.text.trim(),
-        gstCertificateURL: selectedGSTCertificateForPopUpFile,
+        gstCertificateURL: selectedGSTCertificateForPopUpFile.value,
       );
     }
   }
@@ -487,6 +500,12 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _companyNameC.clear();
     selectedFirmsType.value = firmsType[0];
     hasReraNumber.value = false;
+    _gstNumberC.clear();
+    selectedGSTCertificateForPopUpFile.value = MultiFilePickerModel(
+      fileBytesList: [],
+      fileNameList: [],
+      deletedFileList: "",
+    );
     _reraNumberC.clear();
   }
 
@@ -636,6 +655,13 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                   selectedFirmsType.value = firmsType[0];
                                   hasReraNumber.value = false;
                                   _reraNumberC.clear();
+                                  _gstNumberC.clear();
+                                  selectedGSTCertificateForPopUpFile
+                                      .value = MultiFilePickerModel(
+                                    fileBytesList: [],
+                                    fileNameList: [],
+                                    deletedFileList: "",
+                                  );
                                 },
                                 onSelected: (selectedValue) {
                                   selectedCompany.value = selectedValue;
@@ -791,18 +817,12 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       valueListenable: selectedCompanyType,
                       builder: (context, value, child) {
                         final int typeId = value['zAttributesId'];
-                        final bool isDisabled = typeId == 2;
 
                         return ValueListenableBuilder(
                           valueListenable: hasReraNumber,
                           builder: (context, hasRera, _) {
-                            // AUTO CHECK IF RERA VALUE EXISTS
-                            if (_reraNumberC.text.trim().isNotEmpty &&
-                                !hasReraNumber.value) {
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                hasReraNumber.value = true;
-                              });
-                            }
+                            // Existing company + RERA exists
+                            final bool disableRera = typeId == 2;
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -813,14 +833,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                       height: 24,
                                       width: 24,
                                       child: Checkbox(
-                                        value:
-                                            isDisabled
-                                                ? _reraNumberC.text
-                                                    .trim()
-                                                    .isNotEmpty
-                                                : hasRera,
+                                        value: hasRera,
                                         onChanged:
-                                            isDisabled
+                                            disableRera
                                                 ? null
                                                 : (value) {
                                                   hasReraNumber.value =
@@ -837,7 +852,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                       "Do you have RERA Number",
                                       style: AppTextStyle.ts14M().copyWith(
                                         color:
-                                            isDisabled
+                                            disableRera
                                                 ? Colors.grey
                                                 : Colors.black,
                                       ),
@@ -847,18 +862,17 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 verticalSpacing(),
                                 CustomTextField(
                                   title: 'RERA Number',
-                                  isRequired: !isDisabled && hasRera,
-                                  readOnly: isDisabled || !hasRera,
+                                  isRequired: hasRera,
+                                  readOnly: disableRera || !hasRera,
                                   hint: "Enter RERA Number",
                                   textController: _reraNumberC,
                                   inputFormatterList:
                                       InputValidator.reraInputFormatters(),
                                   validator: (value) {
-                                    if (!isDisabled && hasRera) {
-                                      if (value == null ||
-                                          value.trim().isEmpty) {
-                                        return "RERA Number is required";
-                                      }
+                                    if (hasRera &&
+                                        (value == null ||
+                                            value.trim().isEmpty)) {
+                                      return "RERA Number is required";
                                     }
                                     return null;
                                   },
@@ -997,6 +1011,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       inputFormatterList: InputValidator.gstInputFormatters(),
                       validator: (value) {
                         if (selectedGSTCertificateForPopUpFile
+                            .value
                             .fileNameList
                             .isNotEmpty) {
                           if (value == null || value.isEmpty) {
@@ -1015,38 +1030,56 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         return null;
                       },
                     ),
-                    CustomMultiFilePicker(
-                      title: "GST Certificate",
-                      filePickType: FilePickType.kycDocument,
-                      initialFileList:
-                          selectedGSTCertificateForPopUpFile.fileNameList,
-                      onFilePickedCallback: (bytesList, fileNameList) {
-                        selectedGSTCertificateForPopUpFile.fileNameList =
-                            fileNameList;
-                        selectedGSTCertificateForPopUpFile.fileBytesList =
-                            bytesList;
-                      },
-                      onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deletedFile,
-                      ) {
-                        selectedGSTCertificateForPopUpFile.fileNameList =
-                            fileNameList;
-                        selectedGSTCertificateForPopUpFile.fileBytesList =
-                            fileBytesList;
-                        selectedGSTCertificateForPopUpFile.deletedFileList =
-                            deletedFile;
-                      },
-                      validator: (value) {
-                        if (_gstNumberC.text.isNotEmpty &&
-                            InputValidator.isValidGST(
-                              _gstNumberC.text.trim(),
-                            ) &&
-                            (value == null || value.isEmpty)) {
-                          return "GST Certificate document is required";
-                        }
-                        return null;
+                    ValueListenableBuilder(
+                      valueListenable: selectedGSTCertificateForPopUpFile,
+                      builder: (context, value, child) {
+                        return CustomMultiFilePicker(
+                          key: ValueKey(
+                            selectedGSTCertificateForPopUpFile
+                                .value
+                                .fileNameList
+                                .join(),
+                          ),
+                          title: "GST Certificate",
+                          filePickType: FilePickType.kycDocument,
+                          initialFileList:
+                              selectedGSTCertificateForPopUpFile
+                                  .value
+                                  .fileNameList,
+                          onFilePickedCallback: (bytesList, fileNameList) {
+                            selectedGSTCertificateForPopUpFile
+                                .value
+                                .fileNameList = fileNameList;
+                            selectedGSTCertificateForPopUpFile
+                                .value
+                                .fileBytesList = bytesList;
+                          },
+                          onFileDeleteCallback: (
+                            fileBytesList,
+                            fileNameList,
+                            deletedFile,
+                          ) {
+                            selectedGSTCertificateForPopUpFile
+                                .value
+                                .fileNameList = fileNameList;
+                            selectedGSTCertificateForPopUpFile
+                                .value
+                                .fileBytesList = fileBytesList;
+                            selectedGSTCertificateForPopUpFile
+                                .value
+                                .deletedFileList = deletedFile;
+                          },
+                          validator: (value) {
+                            if (_gstNumberC.text.isNotEmpty &&
+                                InputValidator.isValidGST(
+                                  _gstNumberC.text.trim(),
+                                ) &&
+                                (value == null || value.isEmpty)) {
+                              return "GST Certificate document is required";
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
                   ],
