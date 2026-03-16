@@ -134,12 +134,12 @@ Widget actionCardWidget({required String createdBy, required DateTime createdDat
             ),
             buildColumnTitleValue(
               title: "Modified Date",
-              value:
-              modifiedDate != null
-                  ? formatDate(
-                modifiedDate,
-              )
-                  : "-",
+              value: (modifiedDate == null ||
+                  modifiedDate.toString().trim().isEmpty ||
+                  modifiedDate.toString().contains('1970-01-01') ||
+                  modifiedDate.toString().contains('01 Jan 1970'))
+                  ? "-"
+                  : formatDate(modifiedDate),
             ),
           ],
         ),

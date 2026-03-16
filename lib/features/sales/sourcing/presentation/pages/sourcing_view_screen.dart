@@ -52,7 +52,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
   // STATIC SUPPORT LIST
   List<Map<String, dynamic>> supportList = [
     {"zAttributesId": -1, "DisplayName": "Select Support"},
-    {"zAttributesId": 1, "DisplayName": "Bellow The Line (BTL)"},
+    {"zAttributesId": 1, "DisplayName": "Below The Line (BTL)"},
     {"zAttributesId": 2, "DisplayName": "Paper Insert"},
     {"zAttributesId": 3, "DisplayName": "Standee Require"},
     {"zAttributesId": 4, "DisplayName": "Video Recording"},
@@ -191,6 +191,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                     // SUPPORT
                     CustomDropDownWidget(
                       title: "Support",
+                      hintText: "Select Support",
                       dataList: supportList,
                       initialValue: selectedSupport,
                       onSelected: (value) {
@@ -296,6 +297,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                     // SUPPORT
                     CustomDropDownWidget(
                       title: "Support",
+                      hintText: "Select Support",
                       dataList: supportList,
                       onSelected: (value) {
                         selectedSupport = value;

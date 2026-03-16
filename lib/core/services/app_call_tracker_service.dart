@@ -355,7 +355,6 @@ class AppCallTrackerService {
     final wrapper = {
       "ProjectId": getProject().projectId,
       "CallLogJSON": jsonEncode(payload),
-      "IsCheckPermission": "false"
     };
 
     try {

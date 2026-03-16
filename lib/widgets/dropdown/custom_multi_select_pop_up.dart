@@ -405,9 +405,11 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                             size: 14,
                           ),
                           horizontalSpacing(width: 5),
-                          Text(
-                            formFieldState.errorText ?? '',
-                            style: AppTextStyle.ts14R(color: AppColor.error),
+                          Flexible(
+                            child: Text(
+                              formFieldState.errorText ?? '',
+                              style: AppTextStyle.ts14R(color: AppColor.error),
+                            ),
                           ),
                         ],
                       ),

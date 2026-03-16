@@ -9,6 +9,7 @@ class CustomDropDownWidget extends StatelessWidget {
   final Function(Map<String, dynamic>) onSelected;
   final bool? isRequired;
   final String? title;
+  final String? hintText;
   final String? Function(Map<String, dynamic>?)? validator;
   final Map<String, dynamic>? initialValue;
   final bool isDisabled;
@@ -18,6 +19,7 @@ class CustomDropDownWidget extends StatelessWidget {
     this.isRequired=false,
     required this.onSelected,
     this.title,
+    this.hintText,
     this.validator,
     this.initialValue,
     this.isDisabled = false,
@@ -43,7 +45,9 @@ class CustomDropDownWidget extends StatelessWidget {
           ),
         FormField<Map<String, dynamic>>(
           validator: validator,
-          initialValue: initialValue,
+          initialValue: (initialValue == null || initialValue!.isEmpty)
+              ? null
+              : initialValue,
           builder: (FormFieldState<Map<String, dynamic>> formFieldState) {
             final hasError = formFieldState.hasError;
             return Column(
@@ -57,7 +61,7 @@ class CustomDropDownWidget extends StatelessWidget {
                       horizontal: 10.0,
                       vertical: 10.0,
                     ),
-                    hintText: 'Select',
+                    hintText:hintText?? 'Select',
                     decoration: CustomDropdownDecoration(
                       hintStyle: AppTextStyle.ts14R().copyWith(
                         color: AppColor.grey,
@@ -97,9 +101,13 @@ class CustomDropDownWidget extends StatelessWidget {
                       );
                     },
                     headerBuilder: (context, selectedItem, isSelected) {
+                      final displayName = selectedItem['DisplayName']?.toString() ?? '';
+
                       return Text(
-                        selectedItem['DisplayName'] ?? '',
-                        style: AppTextStyle.ts14R(),
+                        displayName.isEmpty ? (hintText ?? 'Select') : displayName,
+                        style: AppTextStyle.ts14R().copyWith(
+                          color: displayName.isEmpty ? AppColor.grey : null,
+                        ),
                       );
                     },
                     onChanged: (value) {

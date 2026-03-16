@@ -180,7 +180,7 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                       isRequired: true,
                       hint: "Enter GST %",
                       keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.decimal(3),
+                      inputFormatterList: InputValidator.percentage(),
                       textController: _gstPercentageC,
                       validator: (value) {
                         if (value!.isEmpty) {

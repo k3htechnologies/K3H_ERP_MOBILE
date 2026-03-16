@@ -111,6 +111,7 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
     return Scaffold(
       appBar: CustomAppBar(
         screenTitle: "Other Charges",
+        searchHintText: "Search by Charges",
         authorization: _routeAuthorizationModel,
         onAddCallback: () async {
           await goRouter.pushNamed(
@@ -192,6 +193,7 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
                           ),
                         ),
                         horizontalSpacing(),
+                        if(_routeAuthorizationModel.isAction)
                         Row(
                           children: [
                             CustomIconButton.edit(
@@ -229,18 +231,27 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
                     buildRowTitleValue(
                       title: "Value",
                       value: "₹ ${otherCharges.value}",
+                      fixesWidth: 180
                     ),
                     buildRowTitleValue(
                       title: "Calculated On",
                       value: otherCharges.calculatedOn,
+                        fixesWidth: 180
                     ),
                     buildRowTitleValue(
                       title: "GST Percentage",
                       value: "${otherCharges.gstPercentage} %",
+                        fixesWidth: 180
                     ),
                     buildRowTitleValue(
                       title: "GST Value",
                       value: "₹ ${otherCharges.gstValue}",
+                        fixesWidth: 180
+                    ),
+                    buildRowTitleValue(
+                      title: "Value + GST Value (₹)",
+                      value: "₹ ${otherCharges.value + otherCharges.gstValue}",
+                        fixesWidth: 180
                     ),
                   ],
                 ),
