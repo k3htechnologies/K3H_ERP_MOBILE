@@ -40,8 +40,7 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
   void initState() {
     super.initState();
     time = widget.initialTime;
-    selectedDateTime =
-    time != null ? _timeOfDayToDateTime(time!) : null;
+    selectedDateTime = time != null ? _timeOfDayToDateTime(time!) : null;
   }
 
   @override
@@ -49,20 +48,13 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialTime != widget.initialTime) {
       time = widget.initialTime;
-      selectedDateTime =
-      time != null ? _timeOfDayToDateTime(time!) : null;
+      selectedDateTime = time != null ? _timeOfDayToDateTime(time!) : null;
     }
   }
 
   DateTime _timeOfDayToDateTime(TimeOfDay time) {
     final now = DateTime.now();
-    return DateTime(
-      now.year,
-      now.month,
-      now.day,
-      time.hour,
-      time.minute,
-    );
+    return DateTime(now.year, now.month, now.day, time.hour, time.minute);
   }
 
   _showTimePicker(BuildContext context, FormFieldState<TimeOfDay> state) {
@@ -83,10 +75,7 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                 verticalSpacing(),
                 Text("Select Time", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
-                Divider(
-                  color: AppColor.grey,
-                  thickness: .5,
-                ),
+                Divider(color: AppColor.grey, thickness: .5),
                 Expanded(
                   child: CupertinoDatePicker(
                     mode: CupertinoDatePickerMode.time,
@@ -106,7 +95,7 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                     },
                   ),
                 ),
-          
+
                 // Done button
                 Container(
                   width: 200,
@@ -114,7 +103,11 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                   child: CustomButton(
                     text: "Done",
                     gradient: LinearGradient(
-                      colors: [AppColor.primary, AppColor.primary, AppColor.darkBlue],
+                      colors: [
+                        AppColor.primary,
+                        AppColor.primary,
+                        AppColor.darkBlue,
+                      ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -132,7 +125,7 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                       });
                     },
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -148,13 +141,19 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
       spacing: 4,
       children: [
         if (widget.title != null)
-          Row(
-            children: [
-              Text(widget.title!, style: AppTextStyle.ts14R()),
-              widget.isRequired == true
-                  ? Text("*", style: AppTextStyle.ts14R(color: AppColor.error))
-                  : const SizedBox(),
-            ],
+          RichText(
+            textAlign: TextAlign.start,
+            text: TextSpan(
+              children: [
+                TextSpan(text: widget.title, style: AppTextStyle.ts14R()),
+                widget.isRequired == true
+                    ? TextSpan(
+                      text: " *",
+                      style: AppTextStyle.ts14R(color: AppColor.error),
+                    )
+                    : TextSpan(),
+              ],
+            ),
           ),
 
         FormField<TimeOfDay>(
@@ -172,9 +171,10 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                     color: AppColor.white,
                   ),
                   child: InkWell(
-                    onTap: widget.readOnly
-                        ? null
-                        : () => _showTimePicker(context, formFieldState),
+                    onTap:
+                        widget.readOnly
+                            ? null
+                            : () => _showTimePicker(context, formFieldState),
                     child: InputDecorator(
                       decoration: InputDecoration(
                         isDense: true,
@@ -187,18 +187,14 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6.0),
                           borderSide: BorderSide(
-                            color: hasError
-                                ? AppColor.error
-                                : AppColor.grey30,
+                            color: hasError ? AppColor.error : AppColor.grey30,
                             width: 1.0,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6.0),
                           borderSide: BorderSide(
-                            color: hasError
-                                ? AppColor.error
-                                : AppColor.grey30,
+                            color: hasError ? AppColor.error : AppColor.grey30,
                             width: 1.0,
                           ),
                         ),
@@ -212,16 +208,17 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
                                 ? DateFormat('HH:mm').format(selectedDateTime!)
                                 : "HH:mm",
                             style: AppTextStyle.ts14R().copyWith(
-                              color: selectedDateTime != null
-                                  ? AppColor.black
-                                  : AppColor.grey,
+                              color:
+                                  selectedDateTime != null
+                                      ? AppColor.black
+                                      : AppColor.grey,
                             ),
                           ),
                           Icon(
                             Icons.access_time,
                             color: AppColor.grey,
                             size: 18,
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -230,20 +227,23 @@ class _CustomTimePickerState extends State<CustomTimePicker> {
 
                 hasError
                     ? Padding(
-                  padding: const EdgeInsets.only(left: 12, top: 4),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.info_outline,color: AppColor.error,size: 14,),
-                      horizontalSpacing(width: 5),
-                      Text(
-                        formFieldState.errorText ?? "",
-                        style:
-                        AppTextStyle.ts12R(color: AppColor.error),
+                      padding: const EdgeInsets.only(left: 12, top: 4),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: AppColor.error,
+                            size: 14,
+                          ),
+                          horizontalSpacing(width: 5),
+                          Text(
+                            formFieldState.errorText ?? "",
+                            style: AppTextStyle.ts12R(color: AppColor.error),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                )
+                    )
                     : const SizedBox(height: 18),
               ],
             );

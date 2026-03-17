@@ -61,7 +61,7 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
     DialogHelper.showProcessingOverlay(context);
     var result = await shiftMasterRepository.deleteShift(
       shiftId: shiftMasterModel.shiftManagementMasterId,
-      uniqueKey: shiftMasterModel.uniqueKey,
+      uniqueKey: shiftMasterModel.uniquekey,
     );
     goRouter.pop();
     result.fold(
@@ -98,14 +98,16 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
     required String shiftDurationTime,
     required String shiftWorkDurationTime,
     required String firstHalfUpTo,
-    required String absentWorkingHours,
-    required String halfDayWorkingHours,
-    required String halfDayInTimeAfter,
-    required String halfDayOutTimeBefore,
+    String? absentWorkingHours,
+    String? halfDayWorkingHours,
+    String? halfDayInTimeAfter,
+    String? halfDayOutTimeBefore,
     required String breakBeginTime,
     required String breakEndTime,
     required String breakDurationTime,
     required String graceTime,
+    String? lateArrivalAction,
+    required double lateCount,
     required String remarks,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -126,8 +128,11 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
       "BreakEndTime": breakEndTime,
       "BreakDurationTime": breakDurationTime,
       "GraceTime": graceTime,
+      "LateArrivalAction": lateArrivalAction,
+      "LateCount": lateCount,
       "Remarks": remarks,
     };
+    print("the payload is : $body");
     var result = await shiftMasterRepository.addUpdateShift(body: body);
     goRouter.pop();
     result.fold(
@@ -167,14 +172,16 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
     required String shiftDurationTime,
     required String shiftWorkDurationTime,
     required String firstHalfUpTo,
-    required String absentWorkingHours,
-    required String halfDayWorkingHours,
-    required String halfDayInTimeAfter,
-    required String halfDayOutTimeBefore,
+    String? absentWorkingHours,
+    String? halfDayWorkingHours,
+    String? halfDayInTimeAfter,
+    String? halfDayOutTimeBefore,
     required String breakBeginTime,
     required String breakEndTime,
     required String breakDurationTime,
     required String graceTime,
+    String? lateArrivalAction,
+    required double lateCount,
     required String remarks,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -196,8 +203,11 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
       "BreakEndTime": breakEndTime,
       "BreakDurationTime": breakDurationTime,
       "GraceTime": graceTime,
+      "LateArrivalAction": lateArrivalAction,
+      "LateCount": lateCount,
       "Remarks": remarks,
     };
+    print("the payload for update is :$body");
     var result = await shiftMasterRepository.addUpdateShift(body: body);
     goRouter.pop();
     result.fold(

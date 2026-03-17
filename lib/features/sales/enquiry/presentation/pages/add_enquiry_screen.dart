@@ -353,7 +353,8 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
     _mobileC.text = model.mobileNumber;
     _emailC.text = model.emailId;
     _locationC.text = model.currentLocation;
-    _areaPrefC.text = model.areaPreferred.toString();
+    _areaPrefC.text =
+        model.areaPreferred == 0 ? "" : model.areaPreferred.toStringAsFixed(0);
     _budgetC.text = model.budget;
     _remarkC.text = model.remark;
 
@@ -368,8 +369,15 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
 
     // DATES
     _dateOfBirthNotifier.value = model.dateOfBirth;
-    _enquiryDate = model.enquiryDate;
-    _nextFollowUpDate = model.nextFollowUpDate;
+    _enquiryDate =
+        (model.enquiryDate != null && model.enquiryDate!.year != 1970)
+            ? model.enquiryDate
+            : null;
+
+    _nextFollowUpDate =
+        (model.nextFollowUpDate != null && model.nextFollowUpDate!.year != 1970)
+            ? model.nextFollowUpDate
+            : null;
 
     // NRI FIELDS
     _countryOfResidenceC.text = model.countryOfResidence;
@@ -726,7 +734,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       "CurrentLocation": _locationC.text.trim(),
       "VillageMasterId": selectedVillages,
       "PossessionType": getDisplayOrEmpty(_selectedPossessionType),
-      "AreaPreferred": int.tryParse(_areaPrefC.text.trim()) ?? 0,
+      "AreaPreferred": double.tryParse(_areaPrefC.text.trim()) ?? 0,
       "DesiredFloorBand": getDisplayOrEmpty(_selectedFloorBand),
       "Budget": _budgetC.text.trim(),
       "Requirement": getDisplayOrEmpty(_selectedRequirementNotifier.value),
@@ -1892,6 +1900,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         title: "Area Preferred (SqFt)",
         hint: "Enter Area Preferred (SqFt)",
         textController: _areaPrefC,
+        inputFormatterList: InputValidator.digit(6),
       ),
       CustomDropDownWidget(
         title: "Desired Floor Band",
