@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -270,8 +271,8 @@ class LoginCubit extends Cubit<LoginState> {
       },
     );
   }
-  // <----MODULES WORKFLOW APPROVAL  ---->
 
+  // <----MODULES WORKFLOW APPROVAL  ---->
   Future<void> updateModulesWorkflowApproval({
     required BuildContext context,
     required String moduleName,
@@ -301,6 +302,42 @@ class LoginCubit extends Cubit<LoginState> {
           context,
           subTitle: response['message'] ?? "Updated Successfully",
         );
+      },
+    );
+  }
+
+  //  GET APPROVAL LOG HISTORY LIST
+  Future<List<ApprovalLogHistory>> getApprovalLogHistory(
+    BuildContext context,
+    int projectId,
+    int id,
+    String moduleName,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    emit(state.copyWith(isLoading: true));
+
+    var result = await utilsRepository.pullModuleApprovalStatus(
+      projectId: projectId,
+      moduleName: moduleName,
+      id: id,
+    );
+
+    goRouter.pop();
+
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: true));
+        showErrorMessage(context, 'Error', failure.message);
+        return [];
+      },
+      (response) {
+        final List<ApprovalLogHistory> newData = List<ApprovalLogHistory>.from(
+          response['data'] ?? [],
+        );
+
+        emit(state.copyWith(isLoading: false));
+
+        return newData;
       },
     );
   }

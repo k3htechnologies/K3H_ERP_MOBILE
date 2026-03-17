@@ -1,3 +1,4 @@
+import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
@@ -37,7 +38,17 @@ abstract interface class UtilsDatasource {
     required int projectId,
     required bool isApproved,
     required String remark,
-    Map<String, dynamic>? queryParams,
+    int? subId,
+    int? subSubId,
+    int? subSubSubId,
+  });
+  Future<Map<String, dynamic>> apiCallPullModuleApprovalStatus({
+    required String moduleName,
+    required int id,
+    required int projectId,
+    int? subId,
+    int? subSubId,
+    int? subSubSubId,
   });
 }
 
@@ -213,20 +224,61 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     required int projectId,
     required bool isApproved,
     required String remark,
-    Map<String, dynamic>? queryParams,
+    int? subId,
+    int? subSubId,
+    int? subSubSubId,
+  }) async {
+    try {
+      final String url =
+          "ModulesWorkflowApproval/UpdateModulesWorkflowApproval";
+
+      final payload = {
+        "ModuleName": moduleName,
+        "Id": id,
+        "ProjectId": projectId,
+        "IsApproved": isApproved,
+        "Remarks": remark,
+        if (subId != null) "SubId": subId,
+        if (subSubId != null) "SubSubId": subSubId,
+        if (subSubSubId != null) "SubSubSubId": subSubSubId,
+      };
+
+      var networkResponse = await client.postRequestWithAuthentication(
+        url,
+        payload,
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse['message'],
+      };
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullModuleApprovalStatus({
+    required String moduleName,
+    required int id,
+    required int projectId,
+    int? subId,
+    int? subSubId,
+    int? subSubSubId,
   }) async {
     try {
       String updateModulesWorkflowApprovalUrl({
         required String moduleName,
         required int id,
         required int projectId,
-        required bool isApproved,
-        required String remark,
-        Map<String, dynamic>? queryParams,
       }) {
         String url =
-            "ModulesWorkflowApproval/UpdateModulesWorkflowApproval?ModuleName=$moduleName&Id=$id&ProjectId=$projectId&IsApproved=$isApproved&Remarks=$remark";
-        queryParams?.forEach((key, value) => url += "&$key=$value");
+            "ModulesWorkflowApproval/PullModuleApprovalStatus?ModuleName=$moduleName&Id=$id&ProjectId=$projectId";
+
+        if (subId != null) url += "&SubId=$subId";
+        if (subSubId != null) url += "&SubSubId=$subSubId";
+        if (subSubSubId != null) url += "&SubSubSubId=$subSubSubId";
+
         return url;
       }
 
@@ -235,15 +287,14 @@ class UtilsDatasourceImpl implements UtilsDatasource {
           moduleName: moduleName,
           id: id,
           projectId: projectId,
-          isApproved: isApproved,
-          remark: remark,
-          queryParams: queryParams,
         ),
       );
 
       return {
-        'data': networkResponse["data"],
-        'message': networkResponse['message'],
+        'data': List<ApprovalLogHistory>.from(
+          networkResponse["data"].map((e) => ApprovalLogHistory.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       rethrow;

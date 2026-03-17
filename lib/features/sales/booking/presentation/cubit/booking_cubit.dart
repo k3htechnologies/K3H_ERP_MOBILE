@@ -212,11 +212,7 @@ class BookingCubit extends Cubit<BookingState> {
             }).toList();
 
         emit(
-          state.copyWith(
-            originalOtherChargesList: rawList,
-            otherChargesList: calculatedList,
-            isLoading: false,
-          ),
+          state.copyWith(otherChargesList: calculatedList, isLoading: false),
         );
       },
     );

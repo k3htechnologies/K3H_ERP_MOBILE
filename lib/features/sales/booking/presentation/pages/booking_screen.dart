@@ -6,20 +6,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
+import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BookingScreen extends StatefulWidget {
@@ -31,6 +29,7 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   // CUBIT
+  late LoginCubit _loginCubit;
   late BookingCubit _bookingCubit;
 
   // AUTHORIZATION
@@ -44,11 +43,12 @@ class _BookingScreenState extends State<BookingScreen> {
   late ProjectModel _project;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC, _remarkC;
+  late TextEditingController _searchC;
 
   @override
   void initState() {
     super.initState();
+    _loginCubit = context.read<LoginCubit>();
     _bookingCubit = context.read<BookingCubit>();
     _project = getProject();
     _routhAuthorizationModel =
@@ -67,7 +67,6 @@ class _BookingScreenState extends State<BookingScreen> {
 
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
-    _remarkC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -90,51 +89,6 @@ class _BookingScreenState extends State<BookingScreen> {
         });
       }
     });
-  }
-
-  Future<void> _showBottomSheetToApproveRejectBooking(
-    BuildContext context,
-    BookingModel bookingModel, {
-    required bool isApproved,
-  }) async {
-    DialogHelper.showCustomBottomSheet(
-      context,
-      isApproved ? "Approve Booking" : "Reject Booking",
-
-      Column(
-        children: [
-          Container(
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColor.lightBlue,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Applicant : ${bookingModel.applicantName} Wing : ${bookingModel.wing} Unit : ${bookingModel.flat}",
-                  style: AppTextStyle.ts14SB(),
-                ),
-                verticalSpacing(),
-                CustomTextField(
-                  title: "Remark",
-                  hint: "Enter Remark",
-                  textController: _remarkC,
-                  maxLines: 3,
-                  minLines: 3,
-                ),
-              ],
-            ),
-          ),
-          Spacer(),
-          CustomButton(
-            text: isApproved ? "Approve" : "Reject",
-            onPressed: () {},
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -183,6 +137,10 @@ class _BookingScreenState extends State<BookingScreen> {
                     : const SizedBox.shrink();
               }
               var booking = state.bookingList[index];
+              // IF BOOKING IS NOT APPROVED OR USER HAS NO ACTION PERMISSION,
+              // THEN ACTIONS ARE CONSIDERED ALREADY PERFORMED -> SHOW HISTORY AND DISABLE ACTIONS
+              final bool isActionAllowed =
+                  booking.isApproval && _routhAuthorizationModel.isAction;
               return Container(
                 margin: EdgeInsets.only(bottom: 10),
                 padding: EdgeInsets.all(12),
@@ -248,7 +206,12 @@ class _BookingScreenState extends State<BookingScreen> {
                     ),
                     verticalSpacing(height: 5),
                     buildRowTitleValue(
-                      title: "Flat No.",
+                      title: "Enquiry Code",
+                      value: booking.systemGeneratedCode,
+                      fixesWidth: 190,
+                    ),
+                    buildRowTitleValue(
+                      title: "Flat",
                       value: booking.flat,
                       fixesWidth: 190,
                     ),
@@ -258,12 +221,12 @@ class _BookingScreenState extends State<BookingScreen> {
                       fixesWidth: 190,
                     ),
                     buildRowTitleValue(
-                      title: "Configuration-RERA Area:",
-                      value: booking.reraCarpetAreaSqFt.toString(),
+                      title: "Flat Configuration:",
+                      value: booking.flatConfiguration,
                       fixesWidth: 190,
                     ),
                     buildRowTitleValue(
-                      title: "Agreement Value (in ₹)",
+                      title: "Agreement Value (₹)",
                       value: booking.agreementValue.toString(),
                       fixesWidth: 190,
                     ),
@@ -274,42 +237,75 @@ class _BookingScreenState extends State<BookingScreen> {
                       ),
                       fixesWidth: 190,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      spacing: 10,
-                      children: [
-                        Expanded(
-                          child: CustomButton(
-                            borderColor: AppColor.error,
-                            textColor: AppColor.error,
-                            backgroundColor: AppColor.lightRed,
-                            text: "Reject",
-                            onPressed: () {
-                              _showBottomSheetToApproveRejectBooking(
-                                context,
-                                booking,
-                                isApproved: false,
-                              );
-                            },
-                          ),
-                        ),
+                    verticalSpacing(),
+                    ApproveRejectWidget(
+                      title: isActionAllowed ? "Actions" : "History",
+                      isActionAlreadyPerformed: !isActionAllowed,
+                      onApprove: (val) async {
+                        await _loginCubit.updateModulesWorkflowApproval(
+                          context: context,
+                          moduleName: 'BOOKING APPROVAL',
+                          id: booking.bookingId,
+                          projectId: _project.projectId,
+                          isApproved: true,
+                          remark: val.trim(),
+                        );
+                        if (context.mounted) {
+                          _bookingCubit.getBookingList(
+                            context,
+                            1,
+                            _project.projectId,
+                          );
+                        }
+                      },
+                      onReject: (val) async {
+                        await _loginCubit.updateModulesWorkflowApproval(
+                          context: context,
+                          moduleName: 'BOOKING APPROVAL',
+                          id: booking.bookingId,
+                          projectId: _project.projectId,
+                          isApproved: false,
+                          remark: val.trim(),
+                        );
+                        if (context.mounted) {
+                          _bookingCubit.getBookingList(
+                            context,
+                            1,
+                            _project.projectId,
+                          );
+                        }
+                      },
+                      onThirdTap: () async {
+                        final approvalLogHistoryList = await _loginCubit
+                            .getApprovalLogHistory(
+                              context,
+                              _project.projectId,
+                              booking.bookingId,
+                              "BOOKING APPROVAL",
+                            );
 
-                        Expanded(
-                          child: CustomButton(
-                            text: "Approve",
-                            borderColor: AppColor.green,
-                            textColor: AppColor.green,
-                            backgroundColor: AppColor.lightGreen,
-                            onPressed: () {
-                              _showBottomSheetToApproveRejectBooking(
-                                context,
-                                booking,
-                                isApproved: true,
-                              );
+                        if (context.mounted) {
+                          goRouter.pushNamed(
+                            AppRoutes.approvalLogHistory,
+                            queryParameters: {
+                              "subTitle": Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  "${booking.buildingNumber} > ${booking.wing}",
+                                ),
+                              ),
+                              "approvalList": Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  jsonEncode(
+                                    approvalLogHistoryList
+                                        .map((e) => e.toJson())
+                                        .toList(),
+                                  ),
+                                ),
+                              ),
                             },
-                          ),
-                        ),
-                      ],
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -324,10 +320,6 @@ class _BookingScreenState extends State<BookingScreen> {
   Widget statusWidget(String status) {
     final trimmed = status.trim();
 
-    if (trimmed.isEmpty) {
-      return statusChip("-", AppColor.lightGreyBackground, AppColor.black);
-    }
-
     final s = trimmed.toLowerCase();
 
     switch (s) {
@@ -339,6 +331,9 @@ class _BookingScreenState extends State<BookingScreen> {
 
       case 'pending':
         return statusChip(status, AppColor.lightYellow, AppColor.brown);
+
+      case 'partially approved':
+        return statusChip(status, AppColor.lightPurple, AppColor.purple);
 
       default:
         return statusChip(status, AppColor.lightGreyBackground, AppColor.black);

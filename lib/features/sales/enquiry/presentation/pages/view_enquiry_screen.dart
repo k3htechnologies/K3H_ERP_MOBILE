@@ -912,8 +912,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                       itemBuilder: (context, index) {
                         final isExtraDot = index == items.length;
                         final isLastItem = index == items.length - 1;
-
-                        // Normal follow-up item
                         final item = !isExtraDot ? items[index] : items[0];
 
                         return IntrinsicHeight(
