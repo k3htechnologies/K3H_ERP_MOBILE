@@ -176,7 +176,7 @@ class _EmployeeMasterViewDetailsScreenState
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Basic Information', style: AppTextStyle.ts16SB()),
+                Text('Basic Details', style: AppTextStyle.ts16SB()),
                 Row(
                   spacing: 10,
                   children: [
@@ -470,77 +470,124 @@ class _EmployeeMasterViewDetailsScreenState
                 children: [
                   Text('Reporting Structure', style: AppTextStyle.ts16SB()),
                   verticalSpacing(height: 12),
-                  ...user.employeeReportingCycleData.map((employee) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              spacing: 10,
-                              children: [
-                                Container(
-                                  height: 50,
-                                  width: 50,
-                                  decoration: BoxDecoration(
-                                    color: AppColor.lightGrey,
-                                    border: Border.all(
-                                      color: AppColor.grey.withValues(
-                                        alpha: .5,
-                                      ),
-                                      width: 1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                  child: Center(
+
+                  Column(
+                    children: List.generate(
+                      user.employeeReportingCycleData.length,
+                          (index) {
+                        final employee = user.employeeReportingCycleData[index];
+                        final bool isLast =
+                            index == user.employeeReportingCycleData.length - 1;
+
+                        return IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ///  TIMELINE INDICATOR
+                              Column(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 22,
+                                    backgroundColor: AppColor.primary,
                                     child: Text(
-                                      employee["FullName"][0],
-                                      style: AppTextStyle.ts16SB(),
+                                      (employee["FullName"] ?? "")
+                                          .toString()
+                                          .substring(0, 1)
+                                          .toUpperCase(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Flexible(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        employee["FullName"],
-                                        style: AppTextStyle.ts14SB(),
+
+                                  if (!isLast)
+                                    Expanded(
+                                      child: Container(
+                                        width: 1.5,
+                                        margin: const EdgeInsets.symmetric(vertical: 4),
+                                        color: Colors.grey.shade400,
                                       ),
+                                    ),
+                                ],
+                              ),
+
+                              const SizedBox(width: 12),
+
+                              ///  DETAILS
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(bottom: 24),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      /// NAME + CODE
+                                      Row(
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              employee["FullName"] ?? "-",
+                                              style: AppTextStyle.ts14SB(),
+                                            ),
+                                          ),
+                                          horizontalSpacing(),
+                                          if (employee["EmployeeCode"] != null &&
+                                              employee["EmployeeCode"].isNotEmpty)
+                                            Text(
+                                              "(${employee["EmployeeCode"]})",
+                                              style: AppTextStyle.ts12R(
+                                                color: AppColor.grey,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+
+                                      const SizedBox(height: 4),
+
+                                      /// DESIGNATION
                                       Text(
-                                        employee["Designation"],
+                                        employee["Designation"] ?? "-",
                                         style: AppTextStyle.ts12R(
                                           color: AppColor.grey,
                                         ),
                                       ),
+
+                                      /// EMAIL
+                                      if (employee["EmailId"] != null &&
+                                          employee["EmailId"].isNotEmpty) ...[
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          employee["EmailId"],
+                                          style: AppTextStyle.ts12R(
+                                            color: AppColor.grey,
+                                          ),
+                                        ),
+                                      ],
+
+                                      /// PHONE
+                                      if (employee["PersonalMobileNumber"] != null &&
+                                          employee["PersonalMobileNumber"].isNotEmpty) ...[
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          employee["PersonalMobileNumber"],
+                                          style: AppTextStyle.ts12R(
+                                            color: AppColor.grey,
+                                          ),
+                                        ),
+                                      ],
                                     ],
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: AppColor.purple.withValues(alpha: .3),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
-                            ),
-                            child: Text(
-                              employee["EmployeeCode"],
-                              style: AppTextStyle.ts12R(color: AppColor.purple),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
-            ),
+            )
           ],
           // EMERGENCY CONTACT DETAILS
           Container(

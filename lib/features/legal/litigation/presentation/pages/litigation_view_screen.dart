@@ -494,7 +494,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 ),
               ),
               // only latest litigation can be edit
-              if (status.toLowerCase() == 'reopen' && index == 0)
+              if (status.toLowerCase() != 'reopen' && index == 0)
                 CustomIconButton.edit(
                   onPressed: () {
                     _prefillClosureDate(closure: closure);
@@ -541,9 +541,15 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   Widget _buildHearingTab() {
     return BlocBuilder<LitigationCubit, LitigationState>(
       builder: (context, state) {
+
+
         if (state.isLoading! && state.litigationHearingList.isEmpty) {
           return Center(child: loader());
         }
+
+        final litigation = state.litigationList[widget.index];
+
+        final status = litigation.status.toLowerCase();
 
         if (state.litigationHearingList.isEmpty) {
           return Padding(
@@ -554,6 +560,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Hearing History', style: AppTextStyle.ts16SB()),
+                    if(status!="closed")
                     CustomButton(
                       backgroundColor: AppColor.lightBlue,
                       leading: Icon(Icons.add),
@@ -757,6 +764,9 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
         // Find the current litigation from state using its ID
         final litigation = state.litigationList[widget.index];
 
+
+        final status = litigation.status.toLowerCase();
+
         if (state.isLoading! && state.litigationDocumentList.isEmpty) {
           return Center(child: loader());
         }
@@ -766,6 +776,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
             child: Column(
               children: [
+                if(status!="closed")
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -786,7 +797,13 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                     ),
                   ],
                 ),
-                Expanded(child: Center(child: noDataWidget(message: "No Litigation Documents Data Found"))),
+                Expanded(
+                  child: Center(
+                    child: noDataWidget(
+                      message: "No Litigation Documents Data Found",
+                    ),
+                  ),
+                ),
               ],
             ),
           );
@@ -796,6 +813,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
           child: Column(
             children: [
+              if(status!="closed")
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -942,11 +960,13 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                     Expanded(
                       child: buildRowTitleValue(
                         title: "Document Count",
-                        value: (litigationDocModel.documentUrl)
-                            .split(",")
-                            .map((e) => e.trim())
-                            .where((e) => e.isNotEmpty)
-                            .length.toString(),
+                        value:
+                            (litigationDocModel.documentUrl)
+                                .split(",")
+                                .map((e) => e.trim())
+                                .where((e) => e.isNotEmpty)
+                                .length
+                                .toString(),
                       ),
                     ),
                   ],
@@ -955,10 +975,16 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValue(title: "Uploaded By", value: litigationDocModel.createdBy),
-                    buildColumnTitleValue(title: "Uploaded Date", value: formatDate(litigationDocModel.createdDate))
+                    buildColumnTitleValue(
+                      title: "Uploaded By",
+                      value: litigationDocModel.createdBy,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Uploaded Date",
+                      value: formatDate(litigationDocModel.createdDate),
+                    ),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -1039,7 +1065,9 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
     await DialogHelper.showCustomBottomSheet(
       context,
-      documentModel != null ? 'Update Litigation Document' : 'Add Litigation Document',
+      documentModel != null
+          ? 'Update Litigation Document'
+          : 'Add Litigation Document',
       Form(
         key: _formKeyDocument,
         child: Padding(
@@ -1055,6 +1083,9 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return "Document Name is required";
+                  }
+                  if (value.length < 3) {
+                    return "Document Name must be at least 3 characters long";
                   }
                   return null;
                 },
@@ -1186,9 +1217,9 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Title
-                    Text(
-                      closure != null ? "Update Closure" : "Close Case",
-                      style: AppTextStyle.ts16SB(),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text("Close Case", style: AppTextStyle.ts16SB()),
                     ),
                     verticalSpacing(height: 16),
 
@@ -1218,6 +1249,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                             CustomMultiFilePicker(
                               title: "Files",
                               isRequired: true,
+                              maxFiles: 5,
                               initialFileList: closureFiles.fileNameList,
                               onFilePickedCallback: (bytes, names) {
                                 closureFiles.fileBytesList = bytes;
@@ -1284,7 +1316,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                         horizontalSpacing(),
                         Expanded(
                           child: CustomButton(
-                            text: closure != null ? "Update" : "Add",
+                            text: closure != null ? "Update" : "Close",
                             onPressed: () => _submitClosure(index: index),
                           ),
                         ),
@@ -1364,9 +1396,9 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   Future<void> _showPopupToReopenLitigation(BuildContext context) async {
     final shouldDelete = await DialogHelper.showConfirmationDialog(
       context: context,
-      title: 'Are you sure you want to reopen this litigation?',
+      title: 'Reopen Litigation',
       message:
-          'Reopening will move this case back to open status and allow further updates.',
+          'Are you sure you want to Reopen?',
       confirmText: "Reopen",
     );
 

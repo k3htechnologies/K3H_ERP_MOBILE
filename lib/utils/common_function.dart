@@ -269,7 +269,7 @@ String formatDateTimeAsDDMMMYYYY(DateTime d, {String? separator}) {
 String formatDate(DateTime? date) {
   if (date == null) return "";
   if (date.year == 1970) return "-";
-  return DateFormat("dd MMM yyyy - hh:mm a").format(date);
+  return DateFormat("dd MMM yyyy , hh:mm a").format(date);
 }
 
 // TIME FORMATTERS

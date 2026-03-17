@@ -360,6 +360,15 @@ class AppCallTrackerService {
     try {
       final client = BaseClient();
       await client.postRequestWithAuthentication("CallLog/AddCallLog", wrapper);
+
+      ///  CLEAR ALL LOGS AFTER SUCCESS
+      LocalStorageManager().setString(
+        StorageKey.appInitiatedCallLogs,
+        jsonEncode([]),
+      );
+
+      logsUpdated.value++;
+
       return true;
     } catch (e, st) {
       debugPrint("Call log sync failed: $e");

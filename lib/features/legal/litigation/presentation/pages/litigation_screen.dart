@@ -252,7 +252,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addLitigation);
           if (context.mounted) {
-            _litigationCubit.getLitigationList(context: context, pageNumber: 1);
+            _litigationCubit.searchLitigation("", context);
           }
         },
         onExportCallback: (value) {
@@ -323,9 +323,6 @@ class _LitigationScreenState extends State<LitigationScreen> {
                                 },
                               );
                               _litigationCubit.resetLitigationData();
-                              if(context.mounted) {
-                                _litigationCubit.getLitigationList(context: context, pageNumber: state.litigationCurrentPage);
-                              }
                             },
                             child: Text(
                               litigation.title,
@@ -343,6 +340,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            if(litigation.status.toLowerCase()!="closed")
                             CustomButton(
                               backgroundColor: AppColor.lightBlue,
                               leading: const Icon(Icons.add, size: 18),
@@ -363,9 +361,8 @@ class _LitigationScreenState extends State<LitigationScreen> {
                               },
                             ),
 
-
-                              const SizedBox(width: 8),
-                              if(litigation.status.toLowerCase()!="closed")
+                            const SizedBox(width: 8),
+                            if (litigation.status.toLowerCase() != "closed")
                               CustomIconButton.edit(
                                 onPressed: () async {
                                   await goRouter.pushNamed(

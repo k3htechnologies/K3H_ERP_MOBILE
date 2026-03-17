@@ -37,13 +37,16 @@ class LoginCubit extends Cubit<LoginState> {
 
   // START TIMER
   void startResendTimer() {
-    emit(state.copyWith(resendSeconds: 60, canResend: false));
-
     _resendTimer?.cancel();
 
+    int seconds = 60;
+
+    emit(state.copyWith(resendSeconds: seconds, canResend: false));
+
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (state.resendSeconds > 1) {
-        emit(state.copyWith(resendSeconds: state.resendSeconds - 1));
+      if (seconds > 1) {
+        seconds--;
+        emit(state.copyWith(resendSeconds: seconds));
       } else {
         timer.cancel();
         emit(state.copyWith(resendSeconds: 0, canResend: true));
@@ -70,11 +73,15 @@ class LoginCubit extends Cubit<LoginState> {
           emit(state.copyWith(isLoading: false, isSendOtp: false));
         },
         (message) async {
+
+          final isOtp = message.trim().toLowerCase().contains('otp');
+
           emit(
             state.copyWith(
               isLoading: false,
               isSendOtp: true,
               message: message,
+              isOtpFlow: isOtp,
               stateType: StateType.sendOTP,
             ),
           );

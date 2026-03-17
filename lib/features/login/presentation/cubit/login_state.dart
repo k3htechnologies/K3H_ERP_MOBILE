@@ -6,6 +6,7 @@ class LoginState extends BaseState {
   final String message;
   final int resendSeconds;
   final bool canResend;
+  final bool isOtpFlow;
 
   const LoginState({
     super.isLoading,
@@ -15,21 +16,26 @@ class LoginState extends BaseState {
     required this.message,
     required this.resendSeconds,
     required this.canResend,
+    required this.isOtpFlow,
   });
 
-  factory LoginState.initial() =>
-      LoginState(isSendOtp: false,message: "", resendSeconds: 0,
-        canResend: false,);
+  factory LoginState.initial() => LoginState(
+    isSendOtp: false,
+    message: "",
+    resendSeconds: 0,
+    canResend: false,
+    isOtpFlow: false,
+  );
 
   LoginState copyWith({
     bool? isLoading,
     StateType? stateType,
     UserModel? user,
     bool? isSendOtp,
-    bool? isRemembered,
     String? message,
     int? resendSeconds,
     bool? canResend,
+    bool? isOtpFlow,
   }) {
     return LoginState(
       isLoading: isLoading ?? this.isLoading,
@@ -39,9 +45,18 @@ class LoginState extends BaseState {
       message: message ?? this.message,
       resendSeconds: resendSeconds ?? this.resendSeconds,
       canResend: canResend ?? this.canResend,
+      isOtpFlow: isOtpFlow ?? this.isOtpFlow,
     );
   }
 
   @override
-  List<Object?> get props => [isLoading, user, isSendOtp, message, resendSeconds, canResend];
+  List<Object?> get props => [
+    isLoading,
+    user,
+    isSendOtp,
+    message,
+    resendSeconds,
+    canResend,
+    isOtpFlow,
+  ];
 }

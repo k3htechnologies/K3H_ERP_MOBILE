@@ -52,7 +52,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
   void initState() {
     super.initState();
     _routhAuthorizationModel =
-    Authorization.routeAuthorizationMap[AppRoutes.callTracker]!;
+        Authorization.routeAuthorizationMap[AppRoutes.callTracker]!;
     _callTrackerCubit = context.read<CallTrackerCubit>();
     _appCallTrackerService = serviceLocator<AppCallTrackerService>();
     _project = getProject();
@@ -97,6 +97,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
     } else {
       await _callTrackerCubit.getCallLogList(context, 1, _project.projectId);
     }
+    await Future.delayed(const Duration(milliseconds: 300));
   }
 
   void _onScrollCallingData() {
@@ -105,7 +106,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
       if (_tabController.index != 0) return;
 
       if (scrollController.position.pixels >=
-          scrollController.position.maxScrollExtent - 100 &&
+              scrollController.position.maxScrollExtent - 100 &&
           !_callTrackerCubit.state.isLoading! &&
           _callTrackerCubit.state.callingDataList.length <
               _callTrackerCubit.state.totalNumberOfRecordCallingData) {
@@ -127,7 +128,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
       if (_tabController.index != 1) return;
 
       if (_scrollControllerCallLog.position.pixels >=
-          _scrollControllerCallLog.position.maxScrollExtent - 100 &&
+              _scrollControllerCallLog.position.maxScrollExtent - 100 &&
           !_callTrackerCubit.state.isLoading! &&
           _callTrackerCubit.state.callLogList.length <
               _callTrackerCubit.state.totalNumberOfRecordCallLog) {
@@ -144,11 +145,11 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
   }
 
   Future<void> _showBottomSheetToUpdateCallLog(
-      BuildContext context,
-      CallLogModel obj,
-      int projectId,
-      int index,
-      ) async {
+    BuildContext context,
+    CallLogModel obj,
+    int projectId,
+    int index,
+  ) async {
     _remarkC.text = obj.remark;
     selectedRescheduleDate = obj.rescheduleDate;
 
@@ -209,11 +210,11 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
   }
 
   Future<void> _showPopupToDeleteCallLog(
-      BuildContext context,
-      CallLogModel obj,
-      int projectId,
-      int index,
-      ) async {
+    BuildContext context,
+    CallLogModel obj,
+    int projectId,
+    int index,
+  ) async {
     var result = await DialogHelper.deleteDialog(
       context,
       'You are about to delete a call log?',
@@ -238,11 +239,7 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
 
     if (!mounted) return;
 
-    await _callTrackerCubit.getCallingDataList(
-      context,
-      1,
-      _project.projectId,
-    );
+    await _callTrackerCubit.getCallingDataList(context, 1, _project.projectId);
   }
 
   @override
@@ -364,95 +361,99 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
 
         return RefreshIndicator(
           onRefresh: _onRefresh,
-          child: state.callingDataList.isEmpty
-              ? ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.6,
-                child: Center(
-                  child: noDataWidget(message: "No Calling Data Found"),
-                ),
-              ),
-            ],
-          )
-              : ListView.builder(
-            controller: scrollController,
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.callingDataList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.callingDataList.length) {
-                return state.callingDataList.length <
-                    state.totalNumberOfRecordCallingData
-                    ? const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                )
-                    : const SizedBox.shrink();
-              }
+          child:
+              state.callingDataList.isEmpty
+                  ? ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        child: Center(
+                          child: noDataWidget(message: "No Calling Data Found"),
+                        ),
+                      ),
+                    ],
+                  )
+                  : ListView.builder(
+                    controller: scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    itemCount: state.callingDataList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == state.callingDataList.length) {
+                        return state.callingDataList.length <
+                                state.totalNumberOfRecordCallingData
+                            ? const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
 
-              var callingData = state.callingDataList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Receiver’s Name",
-                          value: callingData.name,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Location",
-                          value: callingData.address,
-                          customValueWidget: callingData.address.isNotEmpty
-                              ? Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
+                      var callingData = state.callingDataList[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Receiver’s Name",
+                                  value: callingData.name,
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Location",
+                                  value: callingData.address,
+                                  customValueWidget:
+                                      callingData.address.isNotEmpty
+                                          ? Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: AppColor.lightBlue,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: Text(callingData.address),
+                                          )
+                                          : const Text("-"),
+                                ),
+                              ],
                             ),
-                            decoration: BoxDecoration(
-                              color: AppColor.lightBlue,
-                              borderRadius:
-                              BorderRadius.circular(4),
+                            verticalSpacing(),
+                            Row(
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Phone No.",
+                                  value: callingData.mobileNumber,
+                                  customValueWidget: CustomClickToContactText(
+                                    value: callingData.mobileNumber,
+                                  ),
+                                ),
+                                buildColumnTitleValue(
+                                  title: "E-Mail ID",
+                                  value: callingData.emailId,
+                                  customValueWidget: CustomClickToContactText(
+                                    value: callingData.emailId,
+                                    type: ContactType.email,
+                                  ),
+                                ),
+                              ],
                             ),
-                            child: Text(callingData.address),
-                          )
-                              : const Text("-"),
+                          ],
                         ),
-                      ],
-                    ),
-                    verticalSpacing(),
-                    Row(
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Phone No.",
-                          value: callingData.mobileNumber,
-                          customValueWidget: CustomClickToContactText(
-                            value: callingData.mobileNumber,
-                          ),
-                        ),
-                        buildColumnTitleValue(
-                          title: "E-Mail ID",
-                          value: callingData.emailId,
-                          customValueWidget: CustomClickToContactText(
-                            value: callingData.emailId,
-                            type: ContactType.email,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+                      );
+                    },
+                  ),
         );
       },
     );
@@ -465,25 +466,37 @@ class _CallTrackerScreenState extends State<CallTrackerScreen>
           return Center(child: loader());
         }
 
-        return RefreshIndicator(
-          onRefresh: _onRefresh,
-          child: state.callLogList.isEmpty
-              ? ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.6,
-                child: Center(
-                  child: noDataWidget(message: "No Call Log Found"),
-                ),
+        return  state.callLogList.isEmpty
+            ? ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: Center(
+                child: noDataWidget(message: "No Call Log Found"),
               ),
-            ],
-          )
-              : ListView.builder(
-            controller: _scrollControllerCallLog,
+            ),
+          ],
+        )
+            : NotificationListener<ScrollNotification>(
+          onNotification: (scrollInfo) {
+            if (scrollInfo.metrics.pixels >=
+                scrollInfo.metrics.maxScrollExtent - 100 &&
+                !_callTrackerCubit.state.isLoading! &&
+                _callTrackerCubit.state.callLogList.length <
+                    _callTrackerCubit.state.totalNumberOfRecordCallLog) {
+
+              _callTrackerCubit.getCallLogList(
+                context,
+                _callTrackerCubit.state.currentPageCallLog + 1,
+                _project.projectId,
+              );
+            }
+            return false;
+          },
+          child: ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             itemCount: state.callLogList.length + 1,
             itemBuilder: (context, index) {
               if (index == state.callLogList.length) {
@@ -562,13 +575,14 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
           AnimatedSize(
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeInOut,
-            child: isExpanded
-                ? AnimatedOpacity(
-              duration: const Duration(milliseconds: 200),
-              opacity: 1,
-              child: _expandedContent(callLog, widget.index),
-            )
-                : const SizedBox(),
+            child:
+                isExpanded
+                    ? AnimatedOpacity(
+                      duration: const Duration(milliseconds: 200),
+                      opacity: 1,
+                      child: _expandedContent(callLog, widget.index),
+                    )
+                    : const SizedBox(),
           ),
         ],
       ),
@@ -629,9 +643,10 @@ class _CallLogExpandableCardState extends State<CallLogExpandableCard> {
             children: [
               buildColumnTitleValue(
                 title: "Call Rescheduled Date",
-                value: callLog.rescheduleDate != null
-                    ? formatDateTimeAsDDMMMYYYY(callLog.rescheduleDate!)
-                    : "-",
+                value:
+                    callLog.rescheduleDate != null
+                        ? formatDateTimeAsDDMMMYYYY(callLog.rescheduleDate!)
+                        : "-",
               ),
             ],
           ),

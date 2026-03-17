@@ -35,11 +35,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _otpC = TextEditingController();
     _mobileFocus = FocusNode();
     _otpFocus = FocusNode();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
     _loginCubit.resetState();
   }
 
@@ -231,9 +226,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     Align(
                       alignment: Alignment.center,
                       child: BlocBuilder<LoginCubit, LoginState>(
-                        buildWhen:
-                            (previous, current) =>
-                                current.stateType == StateType.sendOTP,
+                        // buildWhen:
+                        //     (previous, current) =>
+                        //         current.stateType == StateType.sendOTP,
                         builder: (context, state) {
                           return Column(
                             children: [
@@ -279,7 +274,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               verticalSpacing(),
                               Visibility(
-                                visible: state.message.trim().toLowerCase().contains('otp'),
+                                visible: state.isSendOtp && state.isOtpFlow,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [

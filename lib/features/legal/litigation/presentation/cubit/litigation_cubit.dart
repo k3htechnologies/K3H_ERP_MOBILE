@@ -50,6 +50,24 @@ class LitigationCubit extends Cubit<LitigationState> {
     await getLitigationList(context: context, pageNumber: 1);
   }
 
+  // SEARCH BASED ON LITIGATION TITLE
+  void searchLitigation(String value, BuildContext context) {
+    emit(
+      state.copyWith(
+        litigationList: [],
+        isLoading: true,
+        searchText: value,
+        litigationCurrentPage: 1,
+      ),
+    );
+    getLitigationList(context: context, pageNumber: 1);
+  }
+
+  /// CHANGE TAB INDEX
+  void changeTab(int index) {
+    emit(state.copyWith(currentTabIndex: index, isLoading: true));
+  }
+
   /// PULL LITIGATION LIST
   Future<void> getLitigationList({
     required BuildContext context,
@@ -194,11 +212,6 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
-  /// CHANGE TAB INDEX
-  void changeTab(int index) {
-    emit(state.copyWith(currentTabIndex: index, isLoading: true));
-  }
-
   // PULL LITIGATION HEARING
   Future<void> getLitigationHearingList({
     required BuildContext context,
@@ -233,7 +246,6 @@ class LitigationCubit extends Cubit<LitigationState> {
         emit(
           state.copyWith(
             isLoading: false,
-            litigationCurrentPage: pageNumber,
             litigationHearingList: updatedList,
             hearingTotalRecords: response['totalNumberOfRecord'],
           ),
@@ -572,19 +584,6 @@ class LitigationCubit extends Cubit<LitigationState> {
     );
   }
 
-  // SEARCH BASED ON LITIGATION TITLE
-  void searchLitigation(String value, BuildContext context) {
-    emit(
-      state.copyWith(
-        litigationList: [],
-        isLoading: true,
-        searchText: value,
-        litigationCurrentPage: 1,
-      ),
-    );
-    getLitigationList(context: context, pageNumber: 1);
-  }
-
   // RESET LITIGATION DATA
   void resetLitigationData() {
     clearHearingData();
@@ -697,7 +696,7 @@ class LitigationCubit extends Cubit<LitigationState> {
 
         emit(state.copyWith(litigationList: updatedLitigationList));
 
-        showSuccessMessage(context, subTitle: 'Closure added successfully');
+        showSuccessMessage(context, subTitle: 'Litigation Closure added successfully');
       },
     );
   }
@@ -761,7 +760,7 @@ class LitigationCubit extends Cubit<LitigationState> {
 
         emit(state.copyWith(litigationList: updatedLitigationList));
 
-        showSuccessMessage(context, subTitle: 'Closure updated successfully');
+        showSuccessMessage(context, subTitle: 'Litigation Closure updated successfully');
       },
     );
   }
