@@ -61,10 +61,15 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                 _overview(state),
                 verticalSpacing(),
                 _quickAction(),
+                verticalSpacing(),
                 _attendanceOverview(state),
+                verticalSpacing(),
                 _buildLeaveManagementWidget(state),
+                verticalSpacing(),
                 _buildOutdoorManagementWidget(state),
+                verticalSpacing(),
                 _buildCompOffManagementWidget(state),
+                verticalSpacing(),
                 _buildResignationWidget(state),
               ],
             );
@@ -325,7 +330,9 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                 child: Center(
                   child: Text(
                     "No Leave Data Found",
-                    style: AppTextStyle.ts14M(),
+                    style: AppTextStyle.ts14M(
+                      color: AppColor.black.withValues(alpha: 0.5),
+                    ),
                   ),
                 ),
               )
@@ -417,11 +424,26 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Leave Management",
-            style: AppTextStyle.ts14M(color: AppColor.grey),
+          Row(
+            children: [
+              Text(
+                "Leave Management",
+                style: AppTextStyle.ts14M(color: AppColor.grey),
+              ),
+            ],
           ),
           verticalSpacing(),
+          Center(
+            child: Text(
+              "No Leave Management Found",
+              style: AppTextStyle.ts14M(
+                color: AppColor.black.withValues(alpha: 0.5),
+              ),
+            ),
+          ),
+
+          /// FOR LATER USE WHEN DATA WILL BE THERE IN API
+          /*
           SizedBox(
             height: 300,
             child: ListView.builder(
@@ -429,7 +451,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
               itemCount: 5,
               itemBuilder: (_, index) {
                 return Container(
-                  padding: EdgeInsets.all(10),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16.0),
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(color: AppColor.grey2, width: .5),
@@ -447,6 +469,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                                 color: AppColor.primary,
                               ),
                             ),
+                            verticalSpacing(),
                             Text(
                               "Asian Paints",
                               style: AppTextStyle.ts14M(color: AppColor.grey),
@@ -459,7 +482,13 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text("02 February 2026", style: AppTextStyle.ts14M()),
-                          Text("11:00 AM", style: AppTextStyle.ts14M()),
+                          verticalSpacing(),
+                          Text(
+                            "11:00 AM",
+                            style: AppTextStyle.ts14M(
+                              color: AppColor.black.withValues(alpha: 0.5),
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -468,6 +497,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
               },
             ),
           ),
+       */
         ],
       ),
     );
@@ -482,11 +512,26 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Comp-Off Management",
-            style: AppTextStyle.ts14M(color: AppColor.grey),
+          Row(
+            children: [
+              Text(
+                "Comp-Off Management",
+                style: AppTextStyle.ts14M(color: AppColor.grey),
+              ),
+            ],
           ),
           verticalSpacing(),
+          Center(
+            child: Text(
+              "No Comp-Off Management Found",
+              style: AppTextStyle.ts14M(
+                color: AppColor.black.withValues(alpha: 0.5),
+              ),
+            ),
+          ),
+
+          /// FOR LATER USE WHEN DATA WILL BE THERE IN API
+          /*
           SizedBox(
             height: 300,
             child: ListView.builder(
@@ -554,6 +599,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
               },
             ),
           ),
+       */
         ],
       ),
     );
@@ -568,8 +614,24 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Resignation", style: AppTextStyle.ts14M(color: AppColor.grey)),
+          Row(
+            children: [
+              Text(
+                "Resignation",
+                style: AppTextStyle.ts14M(color: AppColor.grey),
+              ),
+            ],
+          ),
           verticalSpacing(),
+          Center(
+            child: Text(
+              "No Resignation Found",
+              style: AppTextStyle.ts14M(
+                color: AppColor.black.withValues(alpha: 0.5),
+              ),
+            ),
+          ),
+          /*
           SizedBox(
             height: 300,
             child: ListView.builder(
@@ -633,6 +695,7 @@ class _PayrollDashboardScreenState extends State<PayrollDashboardScreen> {
               },
             ),
           ),
+          */
         ],
       ),
     );
