@@ -332,6 +332,7 @@ class _CompanyMasterViewMobileScreenState
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children:
           validDocuments.map((doc) {
+            final hasNumber = (doc["number"] ?? "").isNotEmpty;
             return Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -349,19 +350,28 @@ class _CompanyMasterViewMobileScreenState
                 ],
               ),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    hasNumber
+                        ? CrossAxisAlignment.start
+                        : CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           doc["title"] ?? "",
                           style: AppTextStyle.ts14M(color: AppColor.grey),
                         ),
-                        const SizedBox(height: 8),
-                        Text(doc["number"] ?? "", style: AppTextStyle.ts14M()),
+                        if (hasNumber) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            doc["number"] ?? "",
+                            style: AppTextStyle.ts14M(),
+                          ),
+                        ],
                       ],
                     ),
                   ),

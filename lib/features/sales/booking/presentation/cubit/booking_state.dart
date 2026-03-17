@@ -9,7 +9,6 @@ class BookingState extends BaseState {
   final int currentPageParking;
   final int currentPageTerms;
   final List<OtherChargeModel> otherChargesList;
-  final List<OtherChargeModel> originalOtherChargesList;
   final List<EnquiryModel> enquiryList;
   final List<BookingModel> bookingListById;
   final List<BookingModel> bookingList;
@@ -29,7 +28,6 @@ class BookingState extends BaseState {
     required this.currentPageParking,
     required this.currentPageTerms,
     required this.otherChargesList,
-    required this.originalOtherChargesList,
     required this.enquiryList,
     required this.bookingListById,
     required this.bookingList,
@@ -50,7 +48,6 @@ class BookingState extends BaseState {
     currentPageParking: 1,
     currentPageTerms: 1,
     otherChargesList: [],
-    originalOtherChargesList: [],
     enquiryList: [],
     bookingListById: [],
     bookingList: [],
@@ -70,7 +67,6 @@ class BookingState extends BaseState {
     int? totalNumberOfRecordTerms,
     int? currentPageParking,
     int? currentPageTerms,
-    List<OtherChargeModel>? originalOtherChargesList,
     List<OtherChargeModel>? otherChargesList,
     List<EnquiryModel>? enquiryList,
     List<BookingModel>? bookingListById,
@@ -94,9 +90,7 @@ class BookingState extends BaseState {
       currentPageParking: currentPageParking ?? this.currentPageParking,
       currentPageTerms: currentPageTerms ?? this.currentPageTerms,
       otherChargesList: otherChargesList ?? this.otherChargesList,
-      originalOtherChargesList:
-          originalOtherChargesList ?? this.originalOtherChargesList,
-      enquiryList: enquiryList ?? this.enquiryList,
+     enquiryList: enquiryList ?? this.enquiryList,
       bookingListById: bookingListById ?? this.bookingListById,
       bookingList: bookingList ?? this.bookingList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
@@ -119,7 +113,6 @@ class BookingState extends BaseState {
     currentPageParking,
     currentPageTerms,
     otherChargesList,
-    originalOtherChargesList,
     enquiryList,
     bookingListById,
     bookingList,

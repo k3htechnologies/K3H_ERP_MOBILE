@@ -19,7 +19,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
 
   // <---- SEARCH COMPANY ---->
   Future searchCompany(BuildContext context, String value) async {
-    emit(state.copyWith(searchText: value, companyList: []));
+    emit(state.copyWith(searchText: value, companyList: [], isLoading: true));
     await getCompanyMaster(context, 1);
   }
 

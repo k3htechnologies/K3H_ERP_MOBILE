@@ -38,7 +38,17 @@ abstract interface class UtilsRepository {
     required int projectId,
     required bool isApproved,
     required String remark,
-    Map<String, dynamic>? queryParams,
+    int? subId,
+    int? subSubId,
+    int? subSubSubId,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> pullModuleApprovalStatus({
+    required String moduleName,
+    required int id,
+    required int projectId,
+    int? subId,
+    int? subSubId,
+    int? subSubSubId,
   });
 }
 
@@ -154,7 +164,9 @@ class UtilsRepositoryImpl implements UtilsRepository {
     required int projectId,
     required bool isApproved,
     required String remark,
-    Map<String, dynamic>? queryParams,
+    int? subId,
+    int? subSubId,
+    int? subSubSubId,
   }) async {
     try {
       var result = await _utilsDatasource.apiCallUpdateModulesWorkflowApproval(
@@ -163,7 +175,34 @@ class UtilsRepositoryImpl implements UtilsRepository {
         projectId: projectId,
         isApproved: isApproved,
         remark: remark,
-        queryParams: queryParams,
+        subId: subId,
+        subSubId: subSubId,
+        subSubSubId: subSubSubId,
+      );
+
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> pullModuleApprovalStatus({
+    required String moduleName,
+    required int id,
+    required int projectId,
+    int? subId,
+    int? subSubId,
+    int? subSubSubId,
+  }) async {
+    try {
+      var result = await _utilsDatasource.apiCallPullModuleApprovalStatus(
+        moduleName: moduleName,
+        id: id,
+        projectId: projectId,
+        subId: subId,
+        subSubId: subSubId,
+        subSubSubId: subSubSubId,
       );
 
       return right(result);

@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
 import 'package:k3h_erp_app/core/models/bank_details.model.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -272,6 +273,7 @@ import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_screen.dart';
+import 'package:k3h_erp_app/features/sales/booking/presentation/pages/approval_log_history_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/booking_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/call_tracker/presentation/cubit/call_tracker_cubit.dart';
@@ -3956,6 +3958,42 @@ final GoRouter goRouter = GoRouter(
                             )
                             : null;
                     return BookingViewScreen(bookingModel: booking!);
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.approvalLogHistory,
+                  path: AppRoutes.approvalLogHistory,
+                  builder: (context, state) {
+                    /// SUBTITLE
+                    final subTitleParam = state.uri.queryParameters['subTitle'];
+                    final subTitle =
+                        subTitleParam != null && subTitleParam.isNotEmpty
+                            ? EncryptionManager.decryptData(
+                              Uri.decodeComponent(subTitleParam),
+                            )
+                            : "";
+
+                    /// APPROVAL LIST
+                    final approvalListParam =
+                        state.uri.queryParameters['approvalList'];
+
+                    final List<ApprovalLogHistory> approvalList =
+                        approvalListParam != null &&
+                                approvalListParam.isNotEmpty
+                            ? (jsonDecode(
+                                      EncryptionManager.decryptData(
+                                        Uri.decodeComponent(approvalListParam),
+                                      ),
+                                    )
+                                    as List)
+                                .map((e) => ApprovalLogHistory.fromJson(e))
+                                .toList()
+                            : [];
+
+                    return ApprovalLogHistoryScreen(
+                      subTitle: subTitle,
+                      items: approvalList,
+                    );
                   },
                 ),
               ],

@@ -329,7 +329,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    _isEditMode ? "Add Company" : "Update Company",
+                    _isEditMode ? "Update Company" : "Add Company",
                     style: AppTextStyle.ts16SB(),
                   ),
                 ),

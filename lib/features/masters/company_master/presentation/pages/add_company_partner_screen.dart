@@ -368,6 +368,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "PAN Card",
+                    isRequired: true,
                     filePickType: FilePickType.kycDocument,
                     initialFileList: panFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -383,7 +384,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                       panFile.fileNameList = fileNameList;
                       panFile.deletedFileList = deleted;
                     },
-                    validator: (value){
+                    validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "PAN Document is required";
                       }
@@ -409,6 +410,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Aadhaar Card",
+                    isRequired: true,
                     filePickType: FilePickType.kycDocument,
                     initialFileList: aadhaarFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -424,7 +426,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                       aadhaarFile.fileNameList = fileNameList;
                       aadhaarFile.deletedFileList = deleted;
                     },
-                    validator: (value){
+                    validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Aadhaar Document is required";
                       }
@@ -433,6 +435,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                   ),
                   CustomMultiFilePicker(
                     title: "Photo",
+                    isRequired: true,
                     filePickType: FilePickType.image,
                     initialFileList: photoFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -448,7 +451,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                       photoFile.fileNameList = fileNameList;
                       photoFile.deletedFileList = deleted;
                     },
-                    validator: (value){
+                    validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Applicant Photo is required";
                       }
