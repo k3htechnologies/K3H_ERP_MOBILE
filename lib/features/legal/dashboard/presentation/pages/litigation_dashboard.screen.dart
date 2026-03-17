@@ -26,6 +26,14 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
   // PROJECT MODEL
   late ProjectModel _selectedProject;
 
+  // FOR INTERNAL SCROLL
+  final ScrollController _scrollController = ScrollController();
+
+  List<String> months = ["JAN", "FEB", "MAR", "APR"];
+
+  List<int> closedData = [22, 60, 80, 92];
+  List<int> openedData = [28, 40, 58, 102];
+
   @override
   void initState() {
     super.initState();
@@ -37,6 +45,61 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
     );
   }
 
+  /// FOR LATER USE WHEN DATA WILL BE THERE IN API
+  /*
+  List<FlSpot> _mapToSpots(List<int> values) {
+    return List.generate(
+      values.length,
+      (i) => FlSpot(i.toDouble(), values[i].toDouble()),
+    );
+  }
+
+  void _openFilter(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text("Jan - Apr"),
+              onTap: () {
+                setState(() {
+                  months = ["JAN", "FEB", "MAR", "APR"];
+                  closedData = [22, 60, 80, 92];
+                  openedData = [28, 40, 58, 102];
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text("May - Aug"),
+              onTap: () {
+                setState(() {
+                  months = ["MAY", "JUN", "JUL", "AUG"];
+                  closedData = [40, 55, 70, 88];
+                  openedData = [35, 60, 65, 95];
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text("Sep - Dec"),
+              onTap: () {
+                setState(() {
+                  months = ["SEP", "OCT", "NOV", "DEC"];
+                  closedData = [50, 65, 78, 90];
+                  openedData = [45, 70, 85, 100];
+                });
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+*/
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LitigationDashboardCubit, LitigationDashboardState>(
@@ -142,6 +205,9 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                   verticalSpacing(),
                   // HEARING WIDGET
                   _buildHearingsWidget(context),
+                  verticalSpacing(),
+                  // CASE ANALYSIS WIDGET
+                  _buildCaseAnalysisWidget(context),
                   verticalSpacing(),
                   _buildRecentlyUploadedDocumentsWidget(context),
                 ],
@@ -410,6 +476,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                 SizedBox(
                   height: 200.0,
                   child: ListView.builder(
+                    controller: _scrollController,
                     itemCount: table4.length,
                     shrinkWrap: true,
                     physics: AlwaysScrollableScrollPhysics(),
@@ -653,6 +720,160 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
     );
   }
 
+  Widget _buildCaseAnalysisWidget(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  "Case Analysis",
+                  style: AppTextStyle.ts14M(
+                    color: AppColor.black.withValues(alpha: 0.50),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          verticalSpacing(),
+          Center(
+            child: Text(
+              "No Case Analysis Available",
+              style: AppTextStyle.ts12M(
+                color: AppColor.black.withValues(alpha: .5),
+              ),
+            ),
+          ),
+
+          /// FOR LATER USE WHEN DATA WILL BE THERE IN API
+          /*Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Row(
+                children: [
+                  _legendItem("Closed", Colors.blue),
+                  const SizedBox(width: 16),
+                  _legendItem("Opened", Colors.pink),
+                ],
+              ),
+              horizontalSpacing(),
+              GestureDetector(
+                onTap: () => _openFilter(context),
+
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppColor.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(Icons.tune, size: 18),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          verticalSpacing(height: 20.0),
+          SizedBox(height: 200, child: LineChart(_buildChartData())), */
+        ],
+      ),
+    );
+  }
+
+  /// FOR LATER USE WHEN DATA WILL BE THERE IN API
+  /*
+  Widget _legendItem(String title, Color color) {
+    return Row(
+      children: [
+        Container(width: 12, height: 1, color: color),
+        const SizedBox(width: 6),
+        Text(title, style: AppTextStyle.ts12R()),
+      ],
+    );
+  }
+*/
+
+  /*  LineChartData _buildChartData() {
+    return LineChartData(
+      minY: 10,
+      maxY: 100,
+
+      gridData: FlGridData(show: true),
+      borderData: FlBorderData(
+        show: true,
+        border: Border(
+          left: BorderSide(color: Colors.grey.shade400),
+          bottom: BorderSide(color: Colors.grey.shade400),
+        ),
+      ),
+
+      titlesData: FlTitlesData(
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            interval: 10,
+            getTitlesWidget: (value, meta) {
+              return Text(
+                value.toInt().toString(),
+                style: AppTextStyle.ts10R(),
+              );
+            },
+          ),
+        ),
+
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            interval: 1,
+            getTitlesWidget: (value, meta) {
+              if (value % 1 != 0) return const SizedBox();
+
+              int index = value.toInt();
+
+              if (index < 0 || index >= months.length) {
+                return const SizedBox();
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(months[index], style: AppTextStyle.ts12R()),
+              );
+            },
+          ),
+        ),
+
+        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      ),
+
+      lineBarsData: [
+        // CLOSED
+        LineChartBarData(
+          isCurved: true,
+          color: Colors.blue,
+          barWidth: 2,
+          dotData: FlDotData(show: false),
+          spots: _mapToSpots(closedData),
+        ),
+
+        // OPENED
+        LineChartBarData(
+          isCurved: true,
+          color: Colors.pink,
+          barWidth: 2,
+          dotData: FlDotData(show: false),
+          spots: _mapToSpots(openedData),
+        ),
+      ],
+    );
+  }
+*/
   Widget _buildRecentlyUploadedDocumentsWidget(BuildContext context) {
     return BlocBuilder<LitigationDashboardCubit, LitigationDashboardState>(
       builder: (context, state) {
@@ -702,14 +923,14 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                           ),
                           verticalSpacing(height: 9.0),
                           Text(
-                            "Case No: ",
+                            "Case No: -",
                             style: AppTextStyle.ts14M(
                               color: AppColor.black.withValues(alpha: 0.5),
                             ),
                           ),
                           verticalSpacing(height: 9.0),
                           Text(
-                            item.documentName,
+                            item.documentName.isEmpty ? "-" : item.documentName,
                             style: AppTextStyle.ts14M(
                               color: AppColor.black.withValues(alpha: 0.5),
                             ),

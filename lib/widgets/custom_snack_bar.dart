@@ -4,18 +4,19 @@ import 'package:k3h_erp_app/style/text_style.dart';
 
 class CustomSnackBar {
   static void showTopSnackBar(
-      BuildContext context, {
-        required String title,
-        String? subtitle,
-        bool isError = false,
-      }) {
+    BuildContext context, {
+    required String title,
+    String? subtitle,
+    bool isError = false,
+  }) {
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
-      builder: (context) => _SnackBarSlideDown(
-        title: title,
-        subtitle: subtitle,
-        isError: isError,
-      ),
+      builder:
+          (context) => _SnackBarSlideDown(
+            title: title,
+            subtitle: subtitle,
+            isError: isError,
+          ),
     );
 
     overlay.insert(overlayEntry);
@@ -58,10 +59,7 @@ class _SnackBarSlideDownState extends State<_SnackBarSlideDown>
     _offsetAnimation = Tween<Offset>(
       begin: const Offset(0, -1),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     _controller.forward();
   }
@@ -95,10 +93,7 @@ class _SnackBarContent extends StatelessWidget {
   final String? subtitle;
   final bool isError;
 
-  const _SnackBarContent({
-    required this.subtitle,
-    required this.isError,
-  });
+  const _SnackBarContent({required this.subtitle, required this.isError});
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +105,7 @@ class _SnackBarContent extends StatelessWidget {
         decoration: BoxDecoration(
           color: isError ? AppColor.lightRed : AppColor.lightGreen,
           border: Border.all(
-            color: isError ? AppColor.error : AppColor.success,
+            color: isError ? AppColor.error : AppColor.green,
             width: .5,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -118,14 +113,16 @@ class _SnackBarContent extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
         child: Row(
           crossAxisAlignment:
-          subtitle != null ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+              subtitle != null
+                  ? CrossAxisAlignment.start
+                  : CrossAxisAlignment.center,
           children: [
             // ICON LEFT CIRCLE
             Container(
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: isError ? AppColor.error : AppColor.success,
+                color: isError ? AppColor.error : AppColor.darkGreen10,
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -148,7 +145,7 @@ class _SnackBarContent extends StatelessWidget {
                     Text(
                       subtitle!,
                       style: AppTextStyle.ts14R(
-                        color: isError ? AppColor.error : AppColor.success,
+                        color: isError ? AppColor.error : AppColor.darkGreen10,
                       ),
                     ),
                   ],
@@ -159,8 +156,11 @@ class _SnackBarContent extends StatelessWidget {
             const SizedBox(width: 6),
 
             // CLOSE ICON
-            Icon(Icons.close,
-                color: isError ? AppColor.error : AppColor.success, size: 20),
+            Icon(
+              Icons.close,
+              color: isError ? AppColor.error : AppColor.darkGreen10,
+              size: 20,
+            ),
           ],
         ),
       ),

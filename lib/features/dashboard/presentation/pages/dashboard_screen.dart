@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/route_map_screen.dart';
@@ -1158,47 +1159,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
           return Center(child: loader());
         }
 
-        final userData = state.userData;
+        final table4List = state.userData?.table4;
 
-        final table4List = userData?.table4;
-        var totalLeaves = table4List?.first.totalLeaves;
-        var usedLeaves = table4List?.first.usedLeaves;
-        var pendingLeaves = table4List?.first.pendingLeaves;
-        var leaveName = table4List?.first.leaveTypeName;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "Leave Balance",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
-                  ),
-                ],
+              Text(
+                "Leave Balance",
+                style: AppTextStyle.ts14M(
+                  color: AppColor.black.withValues(alpha: 0.50),
+                ),
               ),
               const SizedBox(height: 20),
-              if (table4List != null) ...[
-                _leaveRow(title: "Total Leaves", value: "$totalLeaves"),
-                _leaveRow(title: "Used Leaves", value: "$usedLeaves"),
-                _leaveRow(title: "Pending Leaves", value: "$pendingLeaves"),
+
+              if (table4List != null && table4List.isNotEmpty) ...[
+                _leaveRow(
+                  title: "Total Leaves",
+                  value: "${table4List.first.totalLeaves}",
+                ),
+                _leaveRow(
+                  title: "Used Leaves",
+                  value: "${table4List.first.usedLeaves}",
+                ),
+                _leaveRow(
+                  title: "Pending Leaves",
+                  value: "${table4List.first.pendingLeaves}",
+                ),
+
                 const SizedBox(height: 20),
+
                 Text(
                   "Upcoming Approved",
                   style: AppTextStyle.ts14M(
                     color: AppColor.black.withValues(alpha: 0.5),
                   ),
                 ),
+
                 const SizedBox(height: 10),
+
                 _buildUpcomingAttendanceWidget(
-                  title: leaveName,
+                  title: table4List.first.leaveTypeName,
                   value: "",
                   subtitle: "Feb 14-16, 2024 (3 days)",
                   bgColor: Color(0xFFEFFAF3),
@@ -1566,7 +1569,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              if (table10List != null) ...[
+              if (_hasValidManager(table10List)) ...[
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: Container(
@@ -1592,7 +1595,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   title: Text(
-                    table10List.first.managerName,
+                    table10List!.first.managerName,
                     style: AppTextStyle.ts14B(),
                   ),
                   subtitle: Text(
@@ -1669,6 +1672,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         );
       },
     );
+  }
+
+  bool _hasValidManager(List<Table10>? list) {
+    if (list == null || list.isEmpty) return false;
+
+    final m = list.first;
+
+    return (m.managerName.trim().isNotEmpty) ||
+        (m.managerEmail.trim().isNotEmpty) ||
+        (m.managerPhone.trim().isNotEmpty);
   }
 
   Widget summaryOverallWidget({String? title, String? subTitle, Color? color}) {

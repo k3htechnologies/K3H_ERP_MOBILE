@@ -107,6 +107,8 @@ dependencies:
   syncfusion_flutter_charts: ^32.2.7
   # PDF VIEWER
   syncfusion_flutter_pdfviewer: ^32.2.7
+  # CURVY GRAPH
+  fl_chart: ^1.2.0
   
 # DEV DEPENDENCIES
 dev_dependencies:
