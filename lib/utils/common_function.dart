@@ -197,22 +197,18 @@ Future<void> logOutUser(BuildContext context) async {
   );
 
   if (isConfirmed == true) {
-
     if (context.mounted) {
-      await showSuccessMessage(
-        context,
-        subTitle: "Logged out successfully",
-      );
+      await showSuccessMessage(context, subTitle: "Logged out successfully");
     }
 
-
-    Future.delayed(Duration(seconds: 1),() async {
+    Future.delayed(Duration(seconds: 1), () async {
       await LocalStorageManager().removeAll();
 
       if (context.mounted) {
         goRouter.go(AppRoutes.splashScreen);
       }
-    });}
+    });
+  }
 }
 
 // SHOW SUCCESS MESSAGE
@@ -272,6 +268,7 @@ String formatDateTimeAsDDMMMYYYY(DateTime d, {String? separator}) {
 // DATE FORMATTERS
 String formatDate(DateTime? date) {
   if (date == null) return "";
+  if (date.year == 1970) return "-";
   return DateFormat("dd MMM yyyy - hh:mm a").format(date);
 }
 
@@ -483,7 +480,8 @@ TimeOfDay? parseTimeOfDayFromHHmm(String? value) {
 
   try {
     final parts = value.split(':');
-    if (parts.length != 3) return null;
+
+    if (parts.length < 2) return null;
 
     final hour = int.parse(parts[0]);
     final minute = int.parse(parts[1]);
@@ -492,6 +490,47 @@ TimeOfDay? parseTimeOfDayFromHHmm(String? value) {
   } catch (_) {
     return null;
   }
+}
+
+int convertHHmmToMinutes(String? value) {
+  if (value == null || value.isEmpty) return 0;
+
+  final parts = value.split(':');
+  if (parts.length < 2) return 0;
+
+  final hours = int.tryParse(parts[0]) ?? 0;
+  final minutes = int.tryParse(parts[1]) ?? 0;
+
+  return (hours * 60) + minutes;
+}
+
+String normalizeTime(String? time) {
+  if (time == null || time.isEmpty) return "";
+  return time.split(':').take(2).join(':');
+}
+
+int toMinutes(String? time) {
+  final t = parseTimeOfDayFromHHmm(time);
+  if (t == null) return 0;
+  return t.hour * 60 + t.minute;
+}
+
+String toHHmm(int minutes) {
+  final h = minutes ~/ 60;
+  final m = minutes % 60;
+  return "${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}";
+}
+
+int getDiffInMinutes(String? start, String? end) {
+  if (start == null || end == null) return 0;
+
+  int startMin = toMinutes(start);
+  int endMin = toMinutes(end);
+
+  int diff = endMin - startMin;
+  if (diff < 0) diff += 24 * 60;
+
+  return diff;
 }
 
 String dateFormatterDDMMYYYYDAY(
@@ -690,23 +729,25 @@ Future<bool> salesTargetSampleExcelImport(BuildContext context) async {
   }
 }
 
-  String addCommasToInteger(double value) {
-    String integerPart = value.toStringAsFixed(2);
-    // This function formats the integer part in Indian style, e.g., 14,34,000
-    if (integerPart.length <= 6) {
-      return integerPart; // No commas needed for values with 3 digits or fewer
-    }
-
-    // First part (last 3 digits, no commas needed)
-    String lastThreeDigits = integerPart.substring(integerPart.length - 6);
-
-    // Remaining part (grouping in pairs of 2 digits)
-    String remainingDigits = integerPart.substring(0, integerPart.length - 6);
-
-    // Group the remaining part in pairs and add commas
-    String groupedDigits = remainingDigits.replaceAllMapped(
-        RegExp(r'(\d)(?=(\d{2})+(?!\d))'), (match) => '${match[1]},');
-
-    // Combine the grouped part and the last three digits
-    return '$groupedDigits,$lastThreeDigits';
+String addCommasToInteger(double value) {
+  String integerPart = value.toStringAsFixed(2);
+  // This function formats the integer part in Indian style, e.g., 14,34,000
+  if (integerPart.length <= 6) {
+    return integerPart; // No commas needed for values with 3 digits or fewer
   }
+
+  // First part (last 3 digits, no commas needed)
+  String lastThreeDigits = integerPart.substring(integerPart.length - 6);
+
+  // Remaining part (grouping in pairs of 2 digits)
+  String remainingDigits = integerPart.substring(0, integerPart.length - 6);
+
+  // Group the remaining part in pairs and add commas
+  String groupedDigits = remainingDigits.replaceAllMapped(
+    RegExp(r'(\d)(?=(\d{2})+(?!\d))'),
+    (match) => '${match[1]},',
+  );
+
+  // Combine the grouped part and the last three digits
+  return '$groupedDigits,$lastThreeDigits';
+}

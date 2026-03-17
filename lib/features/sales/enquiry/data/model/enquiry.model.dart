@@ -88,7 +88,7 @@ class EnquiryModel {
   String cityOfResidence;
   String currentLocation;
   String possessionType;
-  int areaPreferred;
+  double areaPreferred;
   String desiredFloorBand;
   String budget;
   String requirement;
@@ -146,7 +146,7 @@ class EnquiryModel {
   String createdBy;
   DateTime createdDate;
   int modifiedById;
-  String modifiedBy;
+  String? modifiedBy;
   DateTime? modifiedDate;
 
   factory EnquiryModel.fromJson(Map<String, dynamic> json) {
@@ -171,7 +171,7 @@ class EnquiryModel {
       cityOfResidence: parseValue<String>(json, "CityOfResidence"),
       currentLocation: parseValue<String>(json, "CurrentLocation"),
       possessionType: parseValue<String>(json, "PossessionType"),
-      areaPreferred: parseValue<int>(json, "AreaPreferred"),
+      areaPreferred: parseValue<double>(json, "AreaPreferred").toDouble(),
       desiredFloorBand: parseValue<String>(json, "DesiredFloorBand"),
       budget: parseValue<String>(json, "Budget"),
       requirement: parseValue<String>(json, "Requirement"),

@@ -103,7 +103,7 @@ class _AddShiftMappingMasterScreenState
       _shiftMappingMasterCubit.updateShiftMapping(
         index: widget.index,
         context: context,
-        uniqueKey: widget.shiftMappingModel!.uniqueKey,
+        uniqueKey: widget.shiftMappingModel!.uniquekey,
         shiftMappingMasterId:
             widget.shiftMappingModel!.shiftManagementMasterMappingId,
         shiftMasterId: _selectedShift.first['zAttributesId'] as int,
@@ -137,7 +137,10 @@ class _AddShiftMappingMasterScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(_isEditMode ? "Update Shift Mapping" : "Add Shift Mapping",style: AppTextStyle.ts16SB(),),
+              Text(
+                _isEditMode ? "Update Shift Mapping" : "Add Shift Mapping",
+                style: AppTextStyle.ts16SB(),
+              ),
               verticalSpacing(),
               Container(
                 decoration: commonCardDecoration(),
@@ -172,7 +175,8 @@ class _AddShiftMappingMasterScreenState
                       onSelected: (value) {
                         _selectedEmployee = value;
                       },
-                      dataFetchCallBack: _shiftMappingMasterCubit.fetchEmployees,
+                      dataFetchCallBack:
+                          _shiftMappingMasterCubit.fetchEmployees,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Employee is required";
@@ -189,7 +193,8 @@ class _AddShiftMappingMasterScreenState
                       onSelected: (value) {
                         _selectedDepartment = value;
                       },
-                      dataFetchCallBack: _shiftMappingMasterCubit.fetchDepartment,
+                      dataFetchCallBack:
+                          _shiftMappingMasterCubit.fetchDepartment,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Department is required";
@@ -209,7 +214,11 @@ class _AddShiftMappingMasterScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: Icon(_isEditMode?Icons.edit:Icons.add,color: AppColor.white,size: 18,),
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
             text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),

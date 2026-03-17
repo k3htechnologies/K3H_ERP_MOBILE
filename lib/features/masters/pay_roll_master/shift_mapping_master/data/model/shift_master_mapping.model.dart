@@ -15,7 +15,7 @@ class ShiftMappingModel extends ShiftMasterModel {
     required this.employeeId,
     required this.employeeName,
     required super.shiftManagementMasterId,
-    required super.uniqueKey,
+    required super.uniquekey,
     required super.shiftCode,
     required super.shiftName,
     required super.shiftBeginTime,
@@ -34,8 +34,12 @@ class ShiftMappingModel extends ShiftMasterModel {
     required super.remarks,
     required super.createdBy,
     required super.createdDate,
-    required super.modifiedBy,
-    required super.modifiedDate,
+    super.modifiedBy,
+    super.modifiedDate,
+    required super.lateArrivalAction,
+    required super.lateCount,
+    required super.createdById,
+    required super.modifiedById,
   });
   factory ShiftMappingModel.fromJson(Map<String, dynamic> json) {
     return ShiftMappingModel(
@@ -48,7 +52,7 @@ class ShiftMappingModel extends ShiftMasterModel {
       employeeId: parseValue<String>(json, "EmployeeId"),
       employeeName: parseValue<String>(json, "EmployeeName"),
       shiftManagementMasterId: parseValue<int>(json, "ShiftManagementMasterId"),
-      uniqueKey: parseValue<String>(json, "Uniquekey"),
+      uniquekey: parseValue<String>(json, "Uniquekey"),
       shiftCode: parseValue<String>(json, "ShiftCode"),
       shiftName: parseValue<String>(json, "ShiftName"),
       shiftBeginTime: parseValue<String>(json, "ShiftBeginTime"),
@@ -69,6 +73,10 @@ class ShiftMappingModel extends ShiftMasterModel {
       createdDate: parseValue<DateTime>(json, "CreatedDate"),
       modifiedBy: parseValue<String>(json, "ModifiedBy"),
       modifiedDate: parseValue<DateTime>(json, "ModifiedDate"),
+      lateArrivalAction: parseValue<String>(json, "LateArrivalAction"),
+      lateCount: parseValue<double>(json, "LateCount").toDouble(),
+      createdById: parseValue<int>(json, "CreatedById"),
+      modifiedById: parseValue<int>(json, "ModifiedById"),
     );
   }
   @override
@@ -79,7 +87,7 @@ class ShiftMappingModel extends ShiftMasterModel {
     "EmployeeId": employeeId,
     "EmployeeName": employeeName,
     "ShiftManagementMasterId": shiftManagementMasterId,
-    "Uniquekey": uniqueKey,
+    "Uniquekey": uniquekey,
     "ShiftCode": shiftCode,
     "ShiftName": shiftName,
     "ShiftBeginTime": shiftBeginTime,
@@ -99,6 +107,6 @@ class ShiftMappingModel extends ShiftMasterModel {
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
     "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate.toIso8601String(),
+    "ModifiedDate": modifiedDate?.toIso8601String(),
   };
 }

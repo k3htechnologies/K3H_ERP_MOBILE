@@ -717,8 +717,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                         buildColumnTitleValue(
                           title: "Area Preferred (SqFt)",
                           value:
-                              enquiry.areaPreferred != 0
-                                  ? enquiry.areaPreferred.toString()
+                              enquiry.areaPreferred > 0
+                                  ? enquiry.areaPreferred.toStringAsFixed(0)
                                   : "-",
                         ),
                         buildColumnTitleValue(

@@ -63,7 +63,6 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     required String phoneNumber,
     String message = 'Hi',
   }) async {
-
     String normalized = _normalizePhone(phoneNumber);
 
     final encodedMsg = Uri.encodeComponent(message);
@@ -72,9 +71,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
       "whatsapp://send?phone=$normalized&text=$encodedMsg",
     );
 
-    final Uri webUri = Uri.parse(
-      "https://wa.me/$normalized?text=$encodedMsg",
-    );
+    final Uri webUri = Uri.parse("https://wa.me/$normalized?text=$encodedMsg");
 
     try {
       if (await canLaunchUrl(appUri)) {
@@ -427,6 +424,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
     if (nextFollowUpDate == null) return "-";
 
     final DateTime today = DateTime.now();
+    if (nextFollowUpDate.year == 1970) return "-";
 
     final DateTime currentDate = DateTime(today.year, today.month, today.day);
     final DateTime followUpDate = DateTime(
@@ -468,7 +466,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         onFilterTap: () {
           _showBottomSheetToFilterEnquiry(context);
         },
-        onAddCallback: (){
+        onAddCallback: () {
           goRouter.pushNamed(AppRoutes.addEnquiry);
         },
       ),
@@ -576,6 +574,14 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                       singleLine: false,
                     ),
                     buildRowTitleValue(
+                      title: "Next Follow-Up Date",
+                      value:
+                          enquiry.nextFollowUpDate != null
+                              ? formatDate(enquiry.nextFollowUpDate)
+                              : "-",
+                      singleLine: false,
+                    ),
+                    buildRowTitleValue(
                       title: "Requirement",
                       value: enquiry.requirement,
                       singleLine: false,
@@ -608,7 +614,11 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
 
     switch (s) {
       case 'booking done':
-        return statusChip(status, AppColor.green20, AppColor.green);
+        return statusChip(
+          status,
+          AppColor.green20.withValues(alpha: 0.1),
+          AppColor.green,
+        );
 
       case 'blocked':
         return statusChip(status, AppColor.purple20, AppColor.purple);
