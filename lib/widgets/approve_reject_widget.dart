@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 class ApproveRejectWidget extends StatelessWidget {
   final String title;
@@ -50,10 +54,7 @@ class ApproveRejectWidget extends StatelessWidget {
                   bottomLeft: Radius.circular(6),
                 ),
               ),
-              child: Text(
-                '$title :',
-                style: AppTextStyle.ts14R(),
-              ),
+              child: Text('$title :', style: AppTextStyle.ts14R()),
             ),
           ),
 
@@ -61,11 +62,12 @@ class ApproveRejectWidget extends StatelessWidget {
             Expanded(
               flex: 1,
               child: InkWell(
-                onTap: () => _showRemarkDialog(
-                  context,
-                  actionType: "Approve",
-                  onSubmit: onApprove,
-                ),
+                onTap:
+                    () => _showRemarkDialog(
+                      context,
+                      actionType: "Approve",
+                      onSubmit: onApprove,
+                    ),
                 child: Container(
                   height: double.infinity,
                   alignment: Alignment.center,
@@ -76,22 +78,19 @@ class ApproveRejectWidget extends StatelessWidget {
                       right: BorderSide(color: AppColor.grey, width: .5),
                     ),
                   ),
-                  child: Icon(
-                    approveIcon,
-                    size: 24,
-                    color: Colors.green,
-                  ),
+                  child: Icon(approveIcon, size: 24, color: Colors.green),
                 ),
               ),
             ),
             Expanded(
               flex: 1,
               child: InkWell(
-                onTap: () => _showRemarkDialog(
-                  context,
-                  actionType: "Reject",
-                  onSubmit: onReject,
-                ),
+                onTap:
+                    () => _showRemarkDialog(
+                      context,
+                      actionType: "Reject",
+                      onSubmit: onReject,
+                    ),
                 child: Container(
                   height: double.infinity,
                   alignment: Alignment.center,
@@ -101,11 +100,7 @@ class ApproveRejectWidget extends StatelessWidget {
                       right: BorderSide(color: AppColor.grey, width: .5),
                     ),
                   ),
-                  child: Icon(
-                    rejectIcon,
-                    size: 24,
-                    color: Colors.red,
-                  ),
+                  child: Icon(rejectIcon, size: 24, color: Colors.red),
                 ),
               ),
             ),
@@ -125,11 +120,7 @@ class ApproveRejectWidget extends StatelessWidget {
                     bottomRight: Radius.circular(6),
                   ),
                 ),
-                child: Icon(
-                  thirdIcon,
-                  size: 24,
-                  color: AppColor.primary,
-                ),
+                child: Icon(thirdIcon, size: 24, color: AppColor.primary),
               ),
             ),
           ),
@@ -139,32 +130,26 @@ class ApproveRejectWidget extends StatelessWidget {
   }
 
   void _showRemarkDialog(
-      BuildContext context, {
-        required String actionType,
-        required ValueChanged<String> onSubmit,
-      }) {
+    BuildContext context, {
+    required String actionType,
+    required ValueChanged<String> onSubmit,
+  }) {
     final formKey = GlobalKey<FormState>();
     final remarkController = TextEditingController();
 
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(actionType),
-          content: Form(
-            key: formKey,
-            child: TextFormField(
-              controller: remarkController,
-              maxLines: 4,
-              decoration: InputDecoration(
-                hintText: 'Enter remark',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
+    DialogHelper.showCustomDialogue(
+      context,
+      title: actionType,
+      childContent: Form(
+        key: formKey,
+        child: Column(
+          children: [
+            CustomTextField(
+              title: "Remark",
+              hint: "Enter remark",
+              minLines: 3,
+              maxLines: 3,
+              textController: remarkController,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Remark is required';
@@ -172,25 +157,31 @@ class ApproveRejectWidget extends StatelessWidget {
                 return null;
               },
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (formKey.currentState?.validate() ?? false) {
-                  final remark = remarkController.text.trim();
-                  Navigator.pop(dialogContext);
-                  onSubmit(remark);
-                }
-              },
-              child: const Text('Submit'),
-            ),
           ],
-        );
-      },
+        ),
+      ),
+
+      bottomSection: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          CustomButton.cancelOutline(
+            onPressed: () {
+              goRouter.pop();
+            },
+          ),
+          const SizedBox(width: 8),
+          CustomButton(
+            text: "Submit",
+            onPressed: () {
+              if (formKey.currentState?.validate() ?? false) {
+                final remark = remarkController.text.trim();
+                goRouter.pop();
+                onSubmit(remark);
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 }
