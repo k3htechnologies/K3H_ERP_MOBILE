@@ -153,14 +153,14 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                       hint: "Enter Notice Period",
                       textController: _noticePeriodC,
                       keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(2),
+                      inputFormatterList: InputValidator.digit(3),
                       validator: (value) {
                         if ((value == null || value.trim().isEmpty)) {
                           return 'Notice Period is required';
                         }
                         final numValue = int.tryParse(value);
-                        if (numValue == null || numValue < 1 || numValue > 99) {
-                          return 'Enter a valid number (1 to 99)';
+                        if (numValue == null || numValue < 1 || numValue > 999) {
+                          return 'Enter a valid number (1 to 999)';
                         }
                         return null;
                       },
@@ -171,14 +171,14 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                       hint: "Enter Probation Period",
                       textController: _probationPeriodC,
                       keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(2),
+                      inputFormatterList: InputValidator.digit(3),
                       validator: (value) {
                         if ((value == null || value.trim().isEmpty)) {
                           return 'Probation Period is required';
                         }
                         final numValue = int.tryParse(value);
-                        if (numValue == null || numValue < 1 || numValue > 99) {
-                          return 'Enter a valid number (1 to 99)';
+                        if (numValue == null || numValue < 1 || numValue > 999) {
+                          return 'Enter a valid number (1 to 999)';
                         }
                         return null;
                       },

@@ -412,7 +412,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
                 /// ================= CLOSE / REOPEN BUTTON =================
                 CustomButton(
-                  text: status == 'closed' ? "Reopen" : "Close",
+                  text: status == 'closed' ? "Reopen" : "Close Case",
                   onPressed: () async {
                     if (status == 'open') {
                       _showClosurePopup();
@@ -786,7 +786,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                     ),
                   ],
                 ),
-                Expanded(child: Center(child: noDataWidget())),
+                Expanded(child: Center(child: noDataWidget(message: "No Litigation Documents Data Found"))),
               ],
             ),
           );
@@ -898,41 +898,67 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
               ],
               border: Border(bottom: BorderSide(color: AppColor.lightBlue)),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            child: Column(
               children: [
-                Expanded(
-                  child: Text(
-                    litigationDocModel.documentName,
-                    style: AppTextStyle.ts16M(color: AppColor.black),
-                  ),
-                ),
-                CustomIconButton(
-                  backgroundColor: AppColor.lightBlue,
-                  icon: Icon(
-                    Icons.remove_red_eye_outlined,
-                    size: 16,
-                    color: AppColor.primary,
-                  ),
-                  onPressed: onViewTab,
-                ),
-                // Edit/Delete buttons only if litigation is not closed
-                if (status.toLowerCase() != 'closed')
-                  Row(
-                    children: [
-                      horizontalSpacing(),
-                      CustomIconButton.edit(
-                        onPressed: () async {
-                          _showPopUpToAddUpdateDocument(
-                            documentModel: litigationDocModel,
-                            index: index,
-                          );
-                        },
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        litigationDocModel.documentName,
+                        style: AppTextStyle.ts16M(color: AppColor.black),
                       ),
-                      horizontalSpacing(),
-                      CustomIconButton.delete(onPressed: onDeleteTab),
-                    ],
-                  ),
+                    ),
+                    CustomIconButton(
+                      backgroundColor: AppColor.lightBlue,
+                      icon: Icon(
+                        Icons.remove_red_eye_outlined,
+                        size: 16,
+                        color: AppColor.primary,
+                      ),
+                      onPressed: onViewTab,
+                    ),
+                    // Edit/Delete buttons only if litigation is not closed
+                    if (status.toLowerCase() != 'closed')
+                      Row(
+                        children: [
+                          horizontalSpacing(),
+                          CustomIconButton.edit(
+                            onPressed: () async {
+                              _showPopUpToAddUpdateDocument(
+                                documentModel: litigationDocModel,
+                                index: index,
+                              );
+                            },
+                          ),
+                          horizontalSpacing(),
+                          CustomIconButton.delete(onPressed: onDeleteTab),
+                        ],
+                      ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: buildRowTitleValue(
+                        title: "Document Count",
+                        value: (litigationDocModel.documentUrl)
+                            .split(",")
+                            .map((e) => e.trim())
+                            .where((e) => e.isNotEmpty)
+                            .length.toString(),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(title: "Uploaded By", value: litigationDocModel.createdBy),
+                    buildColumnTitleValue(title: "Uploaded Date", value: formatDate(litigationDocModel.createdDate))
+                  ],
+                )
               ],
             ),
           ),
@@ -1013,7 +1039,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     }
     await DialogHelper.showCustomBottomSheet(
       context,
-      documentModel != null ? 'Update Document' : 'Add Document',
+      documentModel != null ? 'Update Litigation Document' : 'Add Litigation Document',
       Form(
         key: _formKeyDocument,
         child: Padding(
@@ -1036,6 +1062,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
               CustomMultiFilePicker(
                 title: "Files",
                 initialFileList: litigationDocument.fileNameList,
+                maxFiles: 5,
                 onFilePickedCallback: (bytesList, fileNameList) {
                   litigationDocument.fileNameList = fileNameList;
                   litigationDocument.fileBytesList = bytesList;
@@ -1048,7 +1075,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "Litigation Hearing Document is required";
+                    return "File is required.";
                   }
                   return null;
                 },
@@ -1160,7 +1187,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                   children: [
                     // Title
                     Text(
-                      closure != null ? "Update Closure" : "Add Closure",
+                      closure != null ? "Update Closure" : "Close Case",
                       style: AppTextStyle.ts16SB(),
                     ),
                     verticalSpacing(height: 16),

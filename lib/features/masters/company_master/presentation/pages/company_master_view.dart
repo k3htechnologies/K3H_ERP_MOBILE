@@ -296,6 +296,16 @@ class _CompanyMasterViewMobileScreenState
         "number": company.tanNumber,
         "url": company.tanURL,
       },
+      {
+        "title": "Company Letter Head",
+        "number": "View",
+        "url": company.companyLetterheadHeaderURL,
+      },
+      {
+        "title": "Company Letter Footer",
+        "number": "View",
+        "url": company.companyLetterheadFooterURL,
+      },
     ];
 
     final validDocuments =

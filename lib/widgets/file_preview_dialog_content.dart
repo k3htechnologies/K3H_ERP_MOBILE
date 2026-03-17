@@ -29,22 +29,22 @@ class CommonFileViewerMobile extends StatefulWidget {
   State<CommonFileViewerMobile> createState() => _CommonFileViewerMobileState();
 
   static Future<void> show(
-    BuildContext context, {
-    required List<String> urls,
-    List<Uint8List>? fileBytes,
-    String title = "View File",
-  }) async {
+      BuildContext context, {
+        required List<String> urls,
+        List<Uint8List>? fileBytes,
+        String title = "View File",
+      }) async {
     await showDialog(
       context: context,
       builder:
           (_) => Dialog(
-            insetPadding: const EdgeInsets.all(16),
-            child: CommonFileViewerMobile(
-              urls: urls,
-              fileBytes: fileBytes,
-              title: title,
-            ),
-          ),
+        insetPadding: const EdgeInsets.all(16),
+        child: CommonFileViewerMobile(
+          urls: urls,
+          fileBytes: fileBytes,
+          title: title,
+        ),
+      ),
     );
   }
 }
@@ -68,23 +68,33 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
 
   // CHECK IF ITS IMAGE OR NOT
   bool isImage(String url) {
-    final clean = url.split('?').first.toLowerCase();
-    final ext = clean.contains('.') ? clean.split('.').last : '';
+    final fileName = url.split('/').last.toLowerCase();
+    final ext = fileName.contains('.') ? fileName.split('.').last : '';
 
-    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif'].contains(ext);
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif']
+        .contains(ext);
   }
 
   bool isPdf(String url) {
-    final clean = url.split('?').first.toLowerCase();
-    final ext = clean.contains('.') ? clean.split('.').last : '';
+    final fileName = url.split('/').last.toLowerCase();
+    final ext = fileName.contains('.') ? fileName.split('.').last : '';
+
     return ext == 'pdf';
   }
 
   // GET FILE NAME
-  String getFileName(String url) => Uri.parse(url).pathSegments.last;
+  String getFileName(String url) {
+    if (url.startsWith("http")) {
+      return Uri.parse(url).pathSegments.last;
+    } else {
+      return url;
+    }
+  }
 
   Future<void> downloadFile(String url, {Uint8List? bytes}) async {
-    final fileName = getFileName(url);
+    final fileName = url.startsWith("http")
+        ? Uri.parse(url).pathSegments.last
+        : url;
 
     try {
       Uint8List? fileData = bytes;
@@ -174,7 +184,15 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
             Row(
               children: [
                 Expanded(
-                  child: Text(widget.title, style: AppTextStyle.ts20B()),
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: _currentPageNotifier,
+                    builder: (_, index, __) {
+                      return Text(
+                        "${widget.title}  (${index + 1}/${widget.urls.length})",
+                        style: AppTextStyle.ts20B(),
+                      );
+                    },
+                  ),
                 ),
                 GestureDetector(
                   onTap: () => goRouter.pop(),
@@ -210,7 +228,6 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
                                 ),
                               ),
                               verticalSpacing(height: 8),
-                              Text(getFileName(url)),
                             ],
                           ),
                         );
@@ -222,10 +239,10 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
                           downloadFile(
                             url,
                             bytes:
-                                widget.fileBytes != null &&
-                                        widget.fileBytes!.length > index
-                                    ? widget.fileBytes![index]
-                                    : null,
+                            widget.fileBytes != null &&
+                                widget.fileBytes!.length > index
+                                ? widget.fileBytes![index]
+                                : null,
                           );
                           goRouter.pop();
                         });
@@ -283,11 +300,11 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
                 onPressed: () {
                   final url = widget.urls[_currentPageNotifier.value];
                   final bytes =
-                      widget.fileBytes != null &&
-                              widget.fileBytes!.length >
-                                  _currentPageNotifier.value
-                          ? widget.fileBytes![_currentPageNotifier.value]
-                          : null;
+                  widget.fileBytes != null &&
+                      widget.fileBytes!.length >
+                          _currentPageNotifier.value
+                      ? widget.fileBytes![_currentPageNotifier.value]
+                      : null;
                   downloadFile(url, bytes: bytes);
                 },
                 icon: Icon(

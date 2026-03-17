@@ -159,6 +159,7 @@ class _AddLitigationHearingScreenState
                     hearingDocument.fileNameList = fileNameList;
                     hearingDocument.deletedFileList = deleted;
                   },
+                  maxFiles: 5,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "File is required";

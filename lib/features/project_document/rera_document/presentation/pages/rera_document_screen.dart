@@ -218,18 +218,25 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
           _reraDocumentCubit.getCategoryList(context, 1, projectId);
         },
         extraHeight: 20,
-        secondaryBuilder:
-            (_) =>
-                _reraDocumentCubit.state.documentCategoryModelList.isNotEmpty
-                    ? CustomButton(
-                      text: "Add",
-                      onPressed: () {
-                        _showPopUpToAddUpdateRERADocument();
-                      },
-                      backgroundColor: AppColor.primary,
-                      leading: Icon(Icons.add, size: 16, color: AppColor.white),
-                    )
-                    : SizedBox.shrink(),
+
+        secondaryBuilder: (_) => BlocBuilder<RERADocumentCubit, RERADocumentState>(
+          builder: (context, state) {
+            final list = state.documentCategoryModelList;
+
+            if (list.isNotEmpty) {
+              return CustomButton(
+                text: "Add",
+                onPressed: () {
+                  _showPopUpToAddUpdateRERADocument();
+                },
+                backgroundColor: AppColor.primary,
+                leading: Icon(Icons.add, size: 16, color: AppColor.white),
+              );
+            }
+
+            return const SizedBox.shrink();
+          },
+        ),
       ),
       body: SafeArea(
         child: BlocListener<RERADocumentCubit, RERADocumentState>(

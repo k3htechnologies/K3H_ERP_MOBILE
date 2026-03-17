@@ -237,7 +237,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
               size: 16,
               color: AppColor.white,
             ),
-            text: _isEditMode ? "Update Document" : "Add Document",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),
         ),

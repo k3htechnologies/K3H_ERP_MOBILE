@@ -237,17 +237,24 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
         },
         extraHeight: 20,
         secondaryBuilder:
-            (_) =>
-                _documentCubit.state.documentCategoryModelList.isNotEmpty
-                    ? CustomButton(
-                      text: "Add",
-                      onPressed: () {
-                        _showPopUpToAddUpdateApprovalDocument();
-                      },
-                      backgroundColor: AppColor.primary,
-                      leading: Icon(Icons.add, size: 16, color: AppColor.white),
-                    )
-                    : SizedBox(),
+            (_) => BlocBuilder<ApprovalDocumentCubit, ApprovalDocumentState>(
+              builder: (context, state) {
+                final list = state.documentCategoryModelList;
+
+                if (list.isNotEmpty) {
+                  return CustomButton(
+                    text: "Add",
+                    onPressed: () {
+                      _showPopUpToAddUpdateApprovalDocument();
+                    },
+                    backgroundColor: AppColor.primary,
+                    leading: Icon(Icons.add, size: 16, color: AppColor.white),
+                  );
+                }
+
+                return const SizedBox.shrink();
+              },
+            ),
       ),
       body: SafeArea(
         child: BlocListener<ApprovalDocumentCubit, ApprovalDocumentState>(

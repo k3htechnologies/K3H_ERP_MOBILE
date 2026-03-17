@@ -253,18 +253,24 @@ class _DocumentScreenState extends State<DocumentScreen>
           _documentCubit.exportExcelPdf(context, value, projectId);
         },
         extraHeight: 20,
-        secondaryBuilder:
-            (_) =>
-                _documentCubit.state.documentCategoryModelList.isNotEmpty
-                    ? CustomButton(
-                      text: "Add",
-                      onPressed: () {
-                        _showPopUpToAddUpdateDocument();
-                      },
-                      backgroundColor: AppColor.primary,
-                      leading: Icon(Icons.add, size: 16, color: AppColor.white),
-                    )
-                    : SizedBox(),
+        secondaryBuilder: (_) => BlocBuilder<DocumentCubit, DocumentState>(
+          builder: (context, state) {
+            final list = state.documentCategoryModelList;
+
+            if (list.isNotEmpty) {
+              return CustomButton(
+                text: "Add",
+                onPressed: () {
+                  _showPopUpToAddUpdateDocument();
+                },
+                backgroundColor: AppColor.primary,
+                leading: Icon(Icons.add, size: 16, color: AppColor.white),
+              );
+            }
+
+            return const SizedBox.shrink();
+          },
+        ),
       ),
       body: SafeArea(
         child: BlocListener<DocumentCubit, DocumentState>(

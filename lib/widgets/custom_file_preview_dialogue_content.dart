@@ -127,6 +127,24 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
     }
   }
 
+  void _previous() {
+    if (_currentPageNotifier.value > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _next() {
+    if (_currentPageNotifier.value < widget.urls.length - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
@@ -144,7 +162,27 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
             Row(
               children: [
                 Expanded(
-                  child: Text(widget.title, style: AppTextStyle.ts20B()),
+                  child: ValueListenableBuilder<int>(
+                    valueListenable: _currentPageNotifier,
+                    builder: (_, index, __) {
+                      return RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: widget.title,
+                              style: AppTextStyle.ts20B(), // title style
+                            ),
+                            TextSpan(
+                              text: " (${index + 1}/${widget.urls.length})",
+                              style: AppTextStyle.ts14R(
+                                color: AppColor.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
                 GestureDetector(
                   onTap: () => goRouter.pop(),
@@ -157,98 +195,99 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
 
             // PAGEVIEW
             Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: widget.urls.length,
-                onPageChanged: (index) => _currentPageNotifier.value = index,
-                itemBuilder: (context, index) {
-                  final url = widget.urls[index];
-                  final hasBytes = _hasBytesForIndex(index);
-                  final bytes = hasBytes ? widget.fileBytes![index] : null;
-                  final isImageFile = isImage(url);
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  PageView.builder(
+                    controller: _pageController,
+                    itemCount: widget.urls.length,
+                    onPageChanged: (index) => _currentPageNotifier.value = index,
+                    itemBuilder: (context, index) {
+                      final url = widget.urls[index];
+                      final hasBytes = _hasBytesForIndex(index);
+                      final bytes = hasBytes ? widget.fileBytes![index] : null;
+                      final isImageFile = isImage(url);
 
-                  return Container(
-                    padding: const EdgeInsets.all(16.0),
-                    child:
-                        isImageFile
+                      return Container(
+                        padding: const EdgeInsets.all(16.0),
+                        child: isImageFile
                             ? Column(
-                              children: [
-                                Expanded(
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child:
-                                        hasBytes
-                                            ? Image.memory(
-                                              bytes!,
-                                              fit: BoxFit.contain,
-                                              width: double.infinity,
-                                              height: double.infinity,
-                                            )
-                                            : NetworkImageWidget(
-                                              imageUrl: url,
-                                              fit: BoxFit.contain,
-                                              width: double.infinity,
-                                              height: double.infinity,
-                                            ),
-                                  ),
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: hasBytes
+                                    ? Image.memory(
+                                  bytes!,
+                                  fit: BoxFit.contain,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                )
+                                    : NetworkImageWidget(
+                                  imageUrl: url,
+                                  fit: BoxFit.contain,
+                                  width: double.infinity,
+                                  height: double.infinity,
                                 ),
-                                verticalSpacing(height: 8),
-                                Text(getFileName(url)),
-                              ],
-                            )
-                            : isPdf(url)
-                            ? Column(
-                              children: [
-                                Expanded(
-                                  child:
-                                      hasBytes
-                                          ? SfPdfViewer.memory(bytes!)
-                                          : SfPdfViewer.network(url),
-                                ),
-                                verticalSpacing(height: 8),
-                                Text(getFileName(url)),
-                              ],
-                            )
-                            : Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.insert_drive_file, size: 50),
-                                  verticalSpacing(height: 8),
-                                  Text(getFileName(url)),
-                                ],
                               ),
                             ),
-                  );
-                },
-              ),
-            ),
+                          ],
+                        )
+                            : isPdf(url)
+                            ? Column(
+                          children: [
+                            Expanded(
+                              child: hasBytes
+                                  ? SfPdfViewer.memory(bytes!)
+                                  : SfPdfViewer.network(url),
+                            ),
+                          ],
+                        )
+                            : Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.insert_drive_file, size: 50),
+                              verticalSpacing(height: 8),
+                              Text(getFileName(url)),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
 
-            // INDICATOR
-            ValueListenableBuilder<int>(
-              valueListenable: _currentPageNotifier,
-              builder: (_, currentIndex, __) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(widget.urls.length, (index) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 10,
-                      ),
-                      width: currentIndex == index ? 12 : 8,
-                      height: currentIndex == index ? 12 : 8,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color:
-                            currentIndex == index
-                                ? AppColor.primary
-                                : AppColor.grey30,
-                      ),
-                    );
-                  }),
-                );
-              },
+                  /// ⬅ LEFT ARROW
+                  Positioned(
+                    left: 0,
+                    child: ValueListenableBuilder<int>(
+                      valueListenable: _currentPageNotifier,
+                      builder: (_, index, __) {
+                        return _arrowButton(
+                          icon: Icons.chevron_left,
+                          onTap: _previous,
+                          enabled: index > 0,
+                        );
+                      },
+                    ),
+                  ),
+
+                  /// ➡ RIGHT ARROW
+                  Positioned(
+                    right: 0,
+                    child: ValueListenableBuilder<int>(
+                      valueListenable: _currentPageNotifier,
+                      builder: (_, index, __) {
+                        return _arrowButton(
+                          icon: Icons.chevron_right,
+                          onTap: _next,
+                          enabled: index < widget.urls.length - 1,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             // DOWNLOAD BUTTON
@@ -279,6 +318,32 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _arrowButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    required bool enabled,
+  }) {
+    return Opacity(
+      opacity: enabled ? 1 : 0.3,
+      child: GestureDetector(
+        onTap: enabled ? onTap : null,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: enabled ? AppColor.lightBlue : AppColor.lightGrey,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            size: 28,
+            color: enabled ? AppColor.primary : AppColor.grey,
+          ),
         ),
       ),
     );

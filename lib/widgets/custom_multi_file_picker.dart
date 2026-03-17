@@ -219,12 +219,32 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
     final Uint8List bytes = await image.readAsBytes();
 
     fileBytesList.add(bytes);
-    fileNamesList.add(image.name);
+    fileNamesList.add(_sanitizeFileName(image.name));
 
     widget.onFilePickedCallback(fileBytesList, fileNamesList);
     formFieldState.didChange(fileBytesList);
 
     setState(() {});
+  }
+
+  String _sanitizeFileName(String fileName) {
+    // split name and extension safely
+    final lastDotIndex = fileName.lastIndexOf('.');
+
+    String name = lastDotIndex != -1
+        ? fileName.substring(0, lastDotIndex)
+        : fileName;
+
+    String extension = lastDotIndex != -1
+        ? fileName.substring(lastDotIndex)
+        : '';
+
+    // remove invalid characters
+    name = name
+        .replaceAll(RegExp(r'[<>:"/\\|?*]'), '_') // Windows invalid chars
+        .replaceAll(' ', '_'); // optional
+
+    return "$name$extension";
   }
 
   // METHOD TO SHOW FILE NAME OVERLAY
@@ -441,7 +461,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
 
       if (fileData != null) {
         fileBytesList.add(fileData);
-        fileNamesList.add(file.name);
+        fileNamesList.add(_sanitizeFileName(file.name));
       }
     }
 

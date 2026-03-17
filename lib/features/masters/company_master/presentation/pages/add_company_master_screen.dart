@@ -443,7 +443,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           StatefulBuilder(
             builder: (_, innerState) {
               return CustomDropDownWidget(
-                title: "Firm Type",
+                title: "Firms Type",
                 initialValue: selectedFirmType,
                 dataList: firmTypeList,
                 isRequired: true,

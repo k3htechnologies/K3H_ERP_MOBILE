@@ -380,7 +380,7 @@ class LitigationCubit extends Cubit<LitigationState> {
         );
         showSuccessMessage(
           context,
-          subTitle: "Litigation Deleted Successfully",
+          subTitle: "Litigation hearing deleted successfully",
         );
       },
     );
