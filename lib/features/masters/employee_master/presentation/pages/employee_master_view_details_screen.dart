@@ -471,6 +471,11 @@ class _EmployeeMasterViewDetailsScreenState
                   Text('Reporting Structure', style: AppTextStyle.ts16SB()),
                   verticalSpacing(height: 12),
                   ...user.employeeReportingCycleData.map((employee) {
+                    List<String> parts = employee["FullName"].split(" ");
+
+                    String initials =
+                        parts.first[0].toUpperCase() +
+                        parts.last[0].toUpperCase();
                     return Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Row(
@@ -494,7 +499,7 @@ class _EmployeeMasterViewDetailsScreenState
                                   ),
                                   child: Center(
                                     child: Text(
-                                      employee["FullName"][0],
+                                      initials,
                                       style: AppTextStyle.ts16SB(),
                                     ),
                                   ),
