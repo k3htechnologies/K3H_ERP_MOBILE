@@ -17,6 +17,18 @@ class BookingState extends BaseState {
   final String searchText;
   final int currentTabIndex;
   final int currentTabIndexAddForm;
+  final String currentSortColumn;
+  final String currentSortDirection;
+  final DateTime? filterStartDate;
+  final DateTime? filterEndDate;
+  final String filterWing;
+  final String filterMobileNumber;
+  final String filterFlat;
+  final String filterFloor;
+  final String filterSource;
+  final String filterSubSource;
+  final int filterAgreementValue;
+  final String filterBookingType;
 
   const BookingState({
     super.isLoading,
@@ -36,6 +48,18 @@ class BookingState extends BaseState {
     required this.searchText,
     required this.currentTabIndex,
     required this.currentTabIndexAddForm,
+    this.currentSortColumn = "Created Date",
+    this.currentSortDirection = "DESC",
+    this.filterStartDate,
+    this.filterEndDate,
+    this.filterWing = "",
+    this.filterMobileNumber = "",
+    this.filterFlat = "",
+    this.filterFloor = "",
+    this.filterSource = "",
+    this.filterSubSource = "",
+    this.filterAgreementValue = 0,
+    this.filterBookingType = "",
   });
 
   factory BookingState.initial() => BookingState(
@@ -56,7 +80,20 @@ class BookingState extends BaseState {
     searchText: "",
     currentTabIndex: 0,
     currentTabIndexAddForm: 0,
+    filterStartDate: null,
+    filterEndDate: null,
+    filterWing: "",
+    filterMobileNumber: "",
+    filterFlat: "",
+    filterFloor: "",
+    filterSource: "",
+    filterSubSource: "",
+    filterAgreementValue: 0,
+    filterBookingType: "",
+    currentSortColumn: "Created Date",
+    currentSortDirection: "DESC",
   );
+  static const _noChange = Object();
 
   BookingState copyWith({
     bool? isLoading,
@@ -76,6 +113,18 @@ class BookingState extends BaseState {
     String? searchText,
     int? currentTabIndex,
     int? currentTabIndexAddForm,
+    String? currentSortColumn,
+    String? currentSortDirection,
+    Object? filterStartDate = _noChange,
+    Object? filterEndDate = _noChange,
+    String? filterWing,
+    String? filterMobileNumber,
+    String? filterFlat,
+    String? filterFloor,
+    String? filterSource,
+    String? filterSubSource,
+    int? filterAgreementValue,
+    String? filterBookingType,
   }) {
     return BookingState(
       isLoading: isLoading ?? this.isLoading,
@@ -90,7 +139,7 @@ class BookingState extends BaseState {
       currentPageParking: currentPageParking ?? this.currentPageParking,
       currentPageTerms: currentPageTerms ?? this.currentPageTerms,
       otherChargesList: otherChargesList ?? this.otherChargesList,
-     enquiryList: enquiryList ?? this.enquiryList,
+      enquiryList: enquiryList ?? this.enquiryList,
       bookingListById: bookingListById ?? this.bookingListById,
       bookingList: bookingList ?? this.bookingList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
@@ -99,6 +148,27 @@ class BookingState extends BaseState {
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       currentTabIndexAddForm:
           currentTabIndexAddForm ?? this.currentTabIndexAddForm,
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+
+      filterStartDate:
+          filterStartDate == _noChange
+              ? this.filterStartDate
+              : filterStartDate as DateTime?,
+
+      filterEndDate:
+          filterEndDate == _noChange
+              ? this.filterEndDate
+              : filterEndDate as DateTime?,
+
+      filterWing: filterWing ?? this.filterWing,
+      filterMobileNumber: filterMobileNumber ?? this.filterMobileNumber,
+      filterFlat: filterFlat ?? this.filterFlat,
+      filterFloor: filterFloor ?? this.filterFloor,
+      filterSource: filterSource ?? this.filterSource,
+      filterSubSource: filterSubSource ?? this.filterSubSource,
+      filterAgreementValue: filterAgreementValue ?? this.filterAgreementValue,
+      filterBookingType: filterBookingType ?? this.filterBookingType,
     );
   }
 
@@ -121,5 +191,17 @@ class BookingState extends BaseState {
     searchText,
     currentTabIndex,
     currentTabIndexAddForm,
+    currentSortColumn,
+    currentSortDirection,
+    filterStartDate,
+    filterEndDate,
+    filterWing,
+    filterMobileNumber,
+    filterFlat,
+    filterFloor,
+    filterSource,
+    filterSubSource,
+    filterAgreementValue,
+    filterBookingType,
   ];
 }

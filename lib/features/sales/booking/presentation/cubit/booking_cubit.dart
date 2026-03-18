@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
@@ -73,7 +74,34 @@ class BookingCubit extends Cubit<BookingState> {
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {"ApplicantName": state.searchText};
+    Map<String, dynamic> queryParams = {
+      if (state.searchText.isNotEmpty) "ApplicantName": state.searchText.trim(),
+      if (state.filterMobileNumber.isNotEmpty)
+        "ApplicantMobileNumber": state.filterMobileNumber,
+      if (state.filterWing.isNotEmpty) "Wing": state.filterWing,
+      if (state.filterFlat.isNotEmpty) "Flat": state.filterFlat,
+      if (state.filterFloor.isNotEmpty) "Floor": state.filterFloor,
+      if (state.filterSource.isNotEmpty) "Source": state.filterSource,
+      if (state.filterAgreementValue != 0)
+        "AgreementValue": state.filterAgreementValue,
+      if (state.filterBookingType.isNotEmpty)
+        "BookingType": state.filterBookingType,
+
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+    };
+
+    // Date filters
+    if (state.filterStartDate != null) {
+      queryParams["FromDate"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.filterStartDate!);
+    }
+    if (state.filterEndDate != null) {
+      queryParams["ToDate"] = DateFormat(
+        'yyyy-MM-dd',
+      ).format(state.filterEndDate!);
+    }
+
     var result = await _bookingRepository.getBookingList(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -1153,5 +1181,44 @@ class BookingCubit extends Cubit<BookingState> {
         );
       },
     );
+  }
+
+  Future<void> applyEnquiryFilterAndSort({
+    required BuildContext context,
+    required DateTime? filterStartDate,
+    required DateTime? filterEndDate,
+    required String filterWing,
+    required String filterMobileNumber,
+    required String filterFlat,
+    required String filterFloor,
+    required String filterSource,
+    required String filterSubSource,
+
+    required int filterAgreementValue,
+    required String filterBookingType,
+    String? sortColumn,
+    String? sortDirection,
+  }) async {
+    emit(
+      state.copyWith(
+        filterStartDate: filterStartDate,
+        filterEndDate: filterEndDate,
+        filterWing: filterWing,
+        filterMobileNumber: filterMobileNumber,
+        filterFlat: filterFlat,
+        filterFloor: filterFloor,
+        filterSource: filterSource,
+        filterSubSource: filterSubSource,
+        currentSortColumn: sortColumn ?? state.currentSortColumn,
+        currentSortDirection: sortDirection ?? state.currentSortDirection,
+        filterAgreementValue: filterAgreementValue,
+        filterBookingType: filterBookingType,
+        bookingList: [],
+        currentPage: 1,
+      ),
+    );
+
+    // Fetch new filtered list
+    await getBookingList(context, 1, getProject().projectId);
   }
 }
