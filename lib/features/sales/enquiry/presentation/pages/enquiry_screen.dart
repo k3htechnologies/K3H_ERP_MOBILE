@@ -164,16 +164,28 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
   Future<void> _showBottomSheetToFilterEnquiry(BuildContext context) async {
     final state = _enquiryCubit.state;
 
-    // Initialize notifiers with current state values
-    _startDateNotifier.value = state.filterStartDate;
-    _endDateNotifier.value = state.filterEndDate;
-
-    String? selectedDirection =
-        state.currentSortColumn == "Name" ? state.currentSortDirection : null;
-
-    final String? initialDirection = selectedDirection;
+    // SET INITIAL DATA
     final DateTime? initialStartDate = state.filterStartDate;
     final DateTime? initialEndDate = state.filterEndDate;
+
+    final String? initialDirection =
+        state.currentSortColumn == "Name" ? state.currentSortDirection : null;
+
+    final initialSystemCode = state.filterSystemCode;
+    final initialMobile = state.filterMobileNumber;
+    final initialFollowUpDays = state.filterFollowUpDays;
+    final initialRequirement = state.filterRequirement;
+    final initialStage = state.filterStage;
+
+    _systemCodeC.text = initialSystemCode;
+    _mobileNumberC.text = initialMobile;
+    _followUpDaysC.text = initialFollowUpDays;
+    _requirementC.text = initialRequirement;
+    _stageC.text = initialStage;
+    _startDateNotifier.value = initialStartDate;
+    _endDateNotifier.value = initialEndDate;
+
+    String? selectedDirection = initialDirection;
 
     bool applied = false;
 
@@ -183,11 +195,11 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
       final bool manualChange =
           (_startDateNotifier.value != initialStartDate) ||
           (_endDateNotifier.value != initialEndDate) ||
-          (_systemCodeC.text.trim() != (state.filterSystemCode)) ||
-          (_mobileNumberC.text.trim() != (state.filterMobileNumber)) ||
-          (_followUpDaysC.text.trim() != (state.filterFollowUpDays)) ||
-          (_requirementC.text.trim() != (state.filterRequirement)) ||
-          (_stageC.text.trim() != (state.filterStage)) ||
+          (_systemCodeC.text.trim() != initialSystemCode) ||
+          (_mobileNumberC.text.trim() != initialMobile) ||
+          (_followUpDaysC.text.trim() != initialFollowUpDays) ||
+          (_requirementC.text.trim() != initialRequirement) ||
+          (_stageC.text.trim() != initialStage) ||
           (selectedDirection != initialDirection);
 
       // Disable Apply if only one date is set
@@ -222,9 +234,10 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // SORT OPTIONS
+                // SORT
                 Text("Sort By Name", style: AppTextStyle.ts14M()),
                 verticalSpacing(),
+
                 Row(
                   children: [
                     GestureDetector(
@@ -266,6 +279,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                     ),
                   ],
                 ),
+
                 verticalSpacing(height: 20),
 
                 // DATE PICKERS
@@ -356,7 +370,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         },
       ),
 
-      // CLEAR BUTTON
+      // CLEAR
       onClear: () {
         _startDateNotifier.value = null;
         _endDateNotifier.value = null;
@@ -381,28 +395,19 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         );
       },
 
-      // APPLY BUTTON
+      // APPLY
       onApply: () {
         applied = true;
+
         _enquiryCubit.applyEnquiryFilterAndSort(
           context: context,
           filterStartDate: _startDateNotifier.value,
           filterEndDate: _endDateNotifier.value,
-          filterSystemCode:
-              _systemCodeC.text.trim().isEmpty ? '' : _systemCodeC.text.trim(),
-          filterMobileNumber:
-              _mobileNumberC.text.trim().isEmpty
-                  ? ''
-                  : _mobileNumberC.text.trim(),
-          filterFollowUpDays:
-              _followUpDaysC.text.trim().isEmpty
-                  ? ''
-                  : _followUpDaysC.text.trim(),
-          filterRequirement:
-              _requirementC.text.trim().isEmpty
-                  ? ''
-                  : _requirementC.text.trim(),
-          filterStage: _stageC.text.trim().isEmpty ? '' : _stageC.text.trim(),
+          filterSystemCode: _systemCodeC.text.trim(),
+          filterMobileNumber: _mobileNumberC.text.trim(),
+          filterFollowUpDays: _followUpDaysC.text.trim(),
+          filterRequirement: _requirementC.text.trim(),
+          filterStage: _stageC.text.trim(),
           sortColumn: selectedDirection != null ? "Name" : "Created Date",
           sortDirection: selectedDirection ?? "DESC",
         );

@@ -132,7 +132,6 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
       "LateCount": lateCount,
       "Remarks": remarks,
     };
-    print("the payload is : $body");
     var result = await shiftMasterRepository.addUpdateShift(body: body);
     goRouter.pop();
     result.fold(
@@ -207,7 +206,6 @@ class ShiftMasterCubit extends Cubit<ShiftMasterState> {
       "LateCount": lateCount,
       "Remarks": remarks,
     };
-    print("the payload for update is :$body");
     var result = await shiftMasterRepository.addUpdateShift(body: body);
     goRouter.pop();
     result.fold(
