@@ -7,7 +7,6 @@ import 'package:k3h_erp_app/core/utils.datasource.dart';
 abstract interface class UtilsRepository {
   Future<Either<Failure, Map<String, dynamic>>> getMenu({
     required int employeeId,
-    required int projectId,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> excelImport({
@@ -60,12 +59,10 @@ class UtilsRepositoryImpl implements UtilsRepository {
   @override
   Future<Either<Failure, Map<String, dynamic>>> getMenu({
     required int employeeId,
-    required int projectId,
   }) async {
     try {
       var result = await _utilsDatasource.apicallPullMenu(
         employeeId: employeeId,
-        projectId: projectId,
       );
       return right(result);
     } catch (error) {

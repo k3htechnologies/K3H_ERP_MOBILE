@@ -33,7 +33,7 @@ class _ProjectListMobileScreenState extends State<ProjectListScreen> {
   late UserModel userModel;
 
   // <---- MENU PROJECT WISE ---->
-  Future getMenuForCurrentUser(int projectId) async {
+  Future getMenuForCurrentUser() async {
     var result = await _utilsRepository.getMenu(
       employeeId:
       UserModel.fromJson(
@@ -41,7 +41,6 @@ class _ProjectListMobileScreenState extends State<ProjectListScreen> {
           LocalStorageManager().getString(StorageKey.currentUser) ?? '',
         ),
       ).employeeId,
-      projectId: projectId,
     );
     return result.fold(
           (failure) {
@@ -73,7 +72,6 @@ class _ProjectListMobileScreenState extends State<ProjectListScreen> {
       jsonEncode(widget.projectList[index]),
     );
     var result = await getMenuForCurrentUser(
-      widget.projectList[index].projectId,
     );
     goRouter.pop();
     if (result) {

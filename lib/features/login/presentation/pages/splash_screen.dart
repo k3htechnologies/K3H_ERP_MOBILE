@@ -49,7 +49,6 @@ class _SplashMobileScreenState extends State<SplashScreen> {
                         '',
                   ),
                 ).employeeId,
-            projectId: project.projectId,
           );
           return result.fold(
             (failure) {

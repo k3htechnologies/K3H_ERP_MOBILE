@@ -89,43 +89,59 @@ class _BankListScreenState extends State<BankListScreen> {
         textController: _searchC,
         searchHintText: "Search By Bank Name",
       ),
-      body: BlocBuilder<BankListMasterCubit, BankListMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.bankList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.bankList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Banks List Found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.bankList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.bankList.length) {
-                return state.bankList.length < state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var bank = state.bankList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Container(
-                  decoration: commonCardDecoration(),
-                  child: Text(
-                    bank.bankNameWithCode,
-                    style: AppTextStyle.ts14SB(),
-                  ),
-                ),
-              );
-            },
-          );
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _bankListMasterCubit.searchBank(context, "");
         },
+        child: BlocBuilder<BankListMasterCubit, BankListMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.bankList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.bankList.isEmpty) {
+              return ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: getActualHeight(context) * .7,
+                    child: Center(
+                      child: noDataWidget(message: "No Banks List Found"),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.bankList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.bankList.length) {
+                  return state.bankList.length < state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var bank = state.bankList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Container(
+                    decoration: commonCardDecoration(),
+                    child: Text(
+                      bank.bankNameWithCode,
+                      style: AppTextStyle.ts14SB(),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

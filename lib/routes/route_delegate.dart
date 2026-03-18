@@ -324,8 +324,9 @@ import '../features/sales/payment_schedule/data/model/payment_schedule.model.dar
 String? authenticateAndAuthorizeRoute(GoRouterState state) {
   // SPLASH || LOGIN
   if (state.uri.path == AppRoutes.splashScreen ||
-      state.uri.path == AppRoutes.login ||
-      state.uri.path == AppRoutes.projectList) {
+      state.uri.path == AppRoutes.login
+      // state.uri.path == AppRoutes.projectList
+  ) {
     return null;
   }
   // AUTHENTICATION
@@ -420,7 +421,7 @@ final GoRouter goRouter = GoRouter(
       },
     ),
     // PROJECT LIST SCREEN
-    GoRoute(
+/*    GoRoute(
       path: AppRoutes.projectList,
       name: AppRoutes.projectList,
       pageBuilder: (context, state) {
@@ -442,7 +443,7 @@ final GoRouter goRouter = GoRouter(
           ),
         );
       },
-    ),
+    ),*/
     // SCREENS
     ShellRoute(
       navigatorKey: shellNavigatorKey,

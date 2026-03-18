@@ -986,6 +986,16 @@ class _ProfileScreenState extends State<ProfileScreen>
                 _buildEmployeeReportingCycleCard(
                   overview.employeeReportingCycleData,
                 ),
+              verticalSpacing(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: actionCardWidget(
+                  createdBy: overview.createdBy,
+                  createdDate: overview.createdDate,
+                  modifiedBy: overview.modifiedBy,
+                  modifiedDate: overview.modifiedDate,
+                ),
+              ),
               if (overview.employeeReportingCycleData.isNotEmpty)
                 verticalSpacing(),
               _buildLogoutButton(context),

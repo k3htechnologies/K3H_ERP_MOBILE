@@ -7,7 +7,6 @@ import 'package:k3h_erp_app/service/base_client.dart';
 abstract interface class UtilsDatasource {
   Future<Map<String, dynamic>> apicallPullMenu({
     required int employeeId,
-    required int projectId,
   });
 
   Future<Map<String, dynamic>> apicallExcelImport({
@@ -58,15 +57,14 @@ class UtilsDatasourceImpl implements UtilsDatasource {
   @override
   Future<Map<String, dynamic>> apicallPullMenu({
     required int employeeId,
-    required int projectId,
   }) async {
     try {
-      String pullMenuUrl({required int employeeId, required int projectId}) {
-        return "Menu/PullMenu?EmployeeId=$employeeId&ProjectId=$projectId";
+      String pullMenuUrl({required int employeeId}) {
+        return "Menu/PullMenu?EmployeeId=$employeeId";
       }
 
       var networkResponse = await client.getRequestWithAuthentication(
-        pullMenuUrl(employeeId: employeeId, projectId: projectId),
+        pullMenuUrl(employeeId: employeeId),
       );
       return {
         'menuData': List<ModuleModel>.from(

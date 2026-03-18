@@ -602,177 +602,143 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
         },
       ),
       body: SafeArea(
-        child: BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) && state.employeeMasterList.isEmpty) {
-              return Center(child: loader());
-            }
-            if (state.employeeMasterList.isEmpty) {
-              return Center(child: noDataWidget(message: "No employees found"));
-            }
+        child: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
+            await _employeeMasterCubit.searchEmployee(context, "");
+          },
+          child: BlocBuilder<EmployeeMasterCubit, EmployeeMasterState>(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) &&
+                  state.employeeMasterList.isEmpty) {
+                return Center(child: loader());
+              }
+              if (state.employeeMasterList.isEmpty) {
+                return ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: getActualHeight(context) * .7,
+                      child: Center(
+                        child: noDataWidget(message: "No employees found"),
+                      ),
+                    ),
+                  ],
+                );
+              }
 
-            final listView = ListView.builder(
-              padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-              controller: _scrollController,
-              itemCount:
-                  _employeeMasterCubit.state.employeeMasterList.length + 1,
-              itemBuilder: (context, index) {
-                if (index ==
-                    _employeeMasterCubit.state.employeeMasterList.length) {
-                  return state.employeeMasterList.length <
-                          state.totalNumberOfRecord
-                      ? Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
-                }
-                var employee = state.employeeMasterList[index];
-                return Container(
-                  padding: EdgeInsets.all(16),
-                  margin: EdgeInsets.only(bottom: 10),
-                  clipBehavior: Clip.hardEdge,
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        spacing: 10,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.employeeViewDetails,
-                                  queryParameters: {
-                                    "employee": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(employee),
+              final listView = ListView.builder(
+                padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                controller: _scrollController,
+                itemCount:
+                    _employeeMasterCubit.state.employeeMasterList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index ==
+                      _employeeMasterCubit.state.employeeMasterList.length) {
+                    return state.employeeMasterList.length <
+                            state.totalNumberOfRecord
+                        ? Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+                  var employee = state.employeeMasterList[index];
+                  return Container(
+                    padding: EdgeInsets.all(16),
+                    margin: EdgeInsets.only(bottom: 10),
+                    clipBehavior: Clip.hardEdge,
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          spacing: 10,
+                          children: [
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.employeeViewDetails,
+                                    queryParameters: {
+                                      "employee": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(employee),
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        employee.fullName,
+                                        style: AppTextStyle.ts16M(
+                                          color: AppColor.primary,
+                                        ).copyWith(
+                                          decoration: TextDecoration.underline,
+                                          decorationColor: AppColor.primary,
+                                        ),
                                       ),
                                     ),
-                                  },
-                                );
-                              },
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      employee.fullName,
-                                      style: AppTextStyle.ts16M(
-                                        color: AppColor.primary,
-                                      ).copyWith(
-                                        decoration: TextDecoration.underline,
-                                        decorationColor: AppColor.primary,
-                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Row(
+                              spacing: 10,
+                              children: [
+                                if (checkValidEmployeeDetails(employee) ==
+                                    false) ...[
+                                  CustomIconButton(
+                                    onPressed: () {},
+                                    icon: Icon(
+                                      Icons.warning_amber_outlined,
+                                      color: AppColor.yellow,
+                                      size: 16,
+                                    ),
+                                    backgroundColor: AppColor.yellow.withValues(
+                                      alpha: .2,
                                     ),
                                   ),
                                 ],
-                              ),
-                            ),
-                          ),
-                          Row(
-                            spacing: 10,
-                            children: [
-                              if (checkValidEmployeeDetails(employee) ==
-                                  false) ...[
-                                CustomIconButton(
-                                  onPressed: () {},
-                                  icon: Icon(
-                                    Icons.warning_amber_outlined,
-                                    color: AppColor.yellow,
-                                    size: 16,
-                                  ),
-                                  backgroundColor: AppColor.yellow.withValues(
-                                    alpha: .2,
-                                  ),
-                                ),
-                              ],
-                              if(_routeAuthorizationModel.isAction)...[
-                                CustomIconButton.edit(
-                                  onPressed: () async {
-                                    await goRouter.pushNamed(
-                                      AppRoutes.addUpdateEmployee,
-                                      queryParameters: {
-                                        "employee": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(employee),
+                                if (_routeAuthorizationModel.isAction) ...[
+                                  CustomIconButton.edit(
+                                    onPressed: () async {
+                                      await goRouter.pushNamed(
+                                        AppRoutes.addUpdateEmployee,
+                                        queryParameters: {
+                                          "employee": Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(employee),
+                                            ),
                                           ),
-                                        ),
-                                        'index': index.toString(),
-                                      },
-                                    );
-                                  },
-                                ),
-                              ]
-                            ],
-                          ),
-                        ],
-                      ),
-                      verticalSpacing(),
-                      Row(
-                        children: [
-                          // TITLE
-                          SizedBox(
-                            width: 130,
-                            child: Text(
-                              "Employee Code",
-                              style: AppTextStyle.ts14R(color: AppColor.grey),
+                                          'index': index.toString(),
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ],
                             ),
-                          ),
-
-                          // COLON
-                          SizedBox(
-                            width: 20,
-                            child: Text(
-                              ":",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: AppColor.grey),
-                            ),
-                          ),
-
-                          // VALUE
-                          Flexible(
-                            child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 5),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: AppColor.purple.withValues(alpha: .15),
-                              ),
-                              child: Text(
-                                employee.employeeCode,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTextStyle.ts14R(
-                                  color: AppColor.purple,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      verticalSpacing(),
-                      buildRowTitleValue(
-                        title: "Designation",
-                        value: employee.designation,
-                      ),
-                      buildRowTitleValue(
-                        title: "Department",
-                        value: employee.department,
-                        singleLine: false,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Row(
+                          ],
+                        ),
+                        verticalSpacing(),
+                        Row(
                           children: [
+                            // TITLE
                             SizedBox(
                               width: 130,
                               child: Text(
-                                "Contact Number",
+                                "Employee Code",
                                 style: AppTextStyle.ts14R(color: AppColor.grey),
                               ),
                             ),
+
+                            // COLON
                             SizedBox(
                               width: 20,
                               child: Text(
@@ -781,38 +747,91 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                                 style: TextStyle(color: AppColor.grey),
                               ),
                             ),
-                            CustomClickToContactText(
-                              value: employee.personalMobileNumber,
+
+                            // VALUE
+                            Flexible(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 5),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: AppColor.purple.withValues(alpha: .15),
+                                ),
+                                child: Text(
+                                  employee.employeeCode,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.purple,
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
-                      ),
+                        verticalSpacing(),
+                        buildRowTitleValue(
+                          title: "Designation",
+                          value: employee.designation,
+                        ),
+                        buildRowTitleValue(
+                          title: "Department",
+                          value: employee.department,
+                          singleLine: false,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 130,
+                                child: Text(
+                                  "Contact Number",
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.grey,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 20,
+                                child: Text(
+                                  ":",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: AppColor.grey),
+                                ),
+                              ),
+                              CustomClickToContactText(
+                                value: employee.personalMobileNumber,
+                              ),
+                            ],
+                          ),
+                        ),
 
-                      buildRowTitleValue(
-                        title: "Reporting Person",
-                        value: employee.reportPersonName,
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
+                        buildRowTitleValue(
+                          title: "Reporting Person",
+                          value: employee.reportPersonName,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
 
-            return Stack(
-              children: [
-                listView,
-                if (state.isLoading ?? false)
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: Container(
-                        color: Colors.transparent,
-                        child: Center(child: loader()),
+              return Stack(
+                children: [
+                  listView,
+                  if (state.isLoading ?? false)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: Container(
+                          color: Colors.transparent,
+                          child: Center(child: loader()),
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
+import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -74,7 +75,6 @@ class LoginCubit extends Cubit<LoginState> {
           emit(state.copyWith(isLoading: false, isSendOtp: false));
         },
         (message) async {
-
           final isOtp = message.trim().toLowerCase().contains('otp');
 
           emit(
@@ -124,34 +124,46 @@ class LoginCubit extends Cubit<LoginState> {
         goRouter.pop();
         emit(state.copyWith(user: user));
 
-        // SAVE USER + TOKEN
+// SAVE USER
         await localStorage.setString(StorageKey.authorizationToken, user.token);
         await localStorage.setString(StorageKey.userUniqueKey, user.uniqueKey);
 
-        // Fetch complete employee data with all fields (bank details, reporting cycle, etc.)
-        await _fetchAndStoreCompleteEmployeeData(user);
+// 🚀 RUN BOTH IN PARALLEL
+        await Future.wait([
+          _fetchAndStoreCompleteEmployeeData(user),
+          fetchAndStoreMenu(context, user),
+        ]);
 
-        // ROUTING DECISION
-        if (user.projectData.isNotEmpty) {
-          goRouter.go(
-            "${AppRoutes.projectList}?projects=${Uri.encodeComponent(EncryptionManager.encryptData(jsonEncode(user.projectData)))}",
-          );
-        } else {
-          // SAVE MENU
-          await localStorage.setString(
-            StorageKey.menu,
-            jsonEncode(user.moduleData),
-          );
-
-          // UPDATE ROUTE AUTH
-          await updateRouteAuthorization(user.moduleData);
-
-          goRouter.go(AppRoutes.dashboardScreen);
-        }
-
+// NAVIGATE
         if (context.mounted) {
+          goRouter.go(AppRoutes.dashboardScreen);
           showSuccessMessage(context, subTitle: "Login Successfully");
         }
+      },
+    );
+  }
+
+  Future<void> fetchAndStoreMenu(BuildContext context, UserModel user) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final result = await utilsRepository.getMenu(
+      employeeId: user.employeeId,
+    );
+    await result.fold(
+          (failure) async {
+            goRouter.pop();
+        showErrorMessage(context, "Menu Error", failure.message);
+      },
+          (data) async {
+        final menuList = data["menuData"] as List<ModuleModel>;
+
+        localStorage.setString(
+          StorageKey.menu,
+          jsonEncode(menuList.map((e) => e.toJson()).toList()),
+        );
+
+        await updateRouteAuthorization(menuList);
+        goRouter.pop();
       },
     );
   }

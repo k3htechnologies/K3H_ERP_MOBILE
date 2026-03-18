@@ -233,173 +233,194 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
           _showBottomSheetToFilterDepartmentMaster(context);
         },
       ),
-      body: BlocBuilder<DepartmentMasterCubit, DepartmentMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.departmentList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.departmentList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Departments Data Found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: _departmentMasterCubit.state.departmentList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.departmentList.length) {
-                return state.departmentList.length < state.totalNumberOfRecord
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var department = state.departmentList[index];
-              return Container(
-                margin: EdgeInsets.only(bottom: 10),
-                padding: EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            department.departmentName,
-                            style: AppTextStyle.ts14R(),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _departmentMasterCubit.searchDepartment(context, "");
+        },
+        child: BlocBuilder<DepartmentMasterCubit, DepartmentMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.departmentList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.departmentList.isEmpty) {
+              return ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: getActualHeight(context) * .7,
+                    child: Center(
+                      child: noDataWidget(message: "No Departments Data Found"),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: _departmentMasterCubit.state.departmentList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.departmentList.length) {
+                  return state.departmentList.length < state.totalNumberOfRecord
+                      ? Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var department = state.departmentList[index];
+                return Container(
+                  margin: EdgeInsets.only(bottom: 10),
+                  padding: EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              department.departmentName,
+                              style: AppTextStyle.ts14R(),
+                            ),
                           ),
-                        ),
-                        horizontalSpacing(),
-                        if(_routeAuthorizationModel.isAction)...[
-                          Row(
-                            children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addDepartment,
-                                    queryParameters: {
-                                      'department': Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(department.toJson()),
+                          horizontalSpacing(),
+                          if (_routeAuthorizationModel.isAction) ...[
+                            Row(
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addDepartment,
+                                      queryParameters: {
+                                        'department': Uri.encodeComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(department.toJson()),
+                                          ),
                                         ),
-                                      ),
-                                      'index': index.toString(),
-                                    },
-                                  );
-                                },
-                              ),
-                              if (department.numberOfEmployee == 0) ...[
-                                horizontalSpacing(),
-                                CustomIconButton.delete(
-                                  onPressed: () {
-                                    _showPopupToDeleteDepartmentMaster(
-                                      context,
-                                      department,
-                                      state.currentPage,
-                                      index,
+                                        'index': index.toString(),
+                                      },
                                     );
                                   },
                                 ),
+                                if (department.numberOfEmployee == 0) ...[
+                                  horizontalSpacing(),
+                                  CustomIconButton.delete(
+                                    onPressed: () {
+                                      _showPopupToDeleteDepartmentMaster(
+                                        context,
+                                        department,
+                                        state.currentPage,
+                                        index,
+                                      );
+                                    },
+                                  ),
+                                ],
                               ],
-                            ],
-                          ),
-                        ]
-                      ],
-                    ),
-                    verticalSpacing(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 6,
-                            horizontal: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColor.grey10,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                "Code: ",
-                                style: AppTextStyle.ts12R(color: AppColor.grey),
-                              ),
-                              Text(
-                                department.departmentCode,
-                                style: AppTextStyle.ts14R(),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Row(
+                            ),
+                          ],
+                        ],
+                      ),
+                      verticalSpacing(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              vertical: 6,
+                              horizontal: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColor.grey10,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  "No of Employee: ",
+                                  "Code: ",
                                   style: AppTextStyle.ts12R(
                                     color: AppColor.grey,
                                   ),
                                 ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 6),
-                                  decoration: BoxDecoration(
-                                    color: AppColor.purple.withValues(
-                                      alpha: 0.12,
-                                    ),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    department.numberOfEmployee.toString(),
-                                    style: AppTextStyle.ts14R(
-                                      color: AppColor.purple,
-                                    ),
-                                  ),
+                                Text(
+                                  department.departmentCode,
+                                  style: AppTextStyle.ts14R(),
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(height: 5),
-                    buildRowTitleValue(
-                      title: "Created By",
-                      value: department.createdBy,
-                      singleLine: false,
-                    ),
-                    buildRowTitleValue(
-                      title: "Created Date",
-                      value: formatDate(department.createdDate),
-                      singleLine: false
-                    ),
-                    buildRowTitleValue(
-                      title: "Modified By",
-                      singleLine: false,
-                      value:department.modifiedBy.isEmpty? '-' : department.modifiedBy,
-                    ),
-                    buildRowTitleValue(
-                      title: "Modified Date",
-                      value:
-                          department.modifiedDate == null
-                              ? '-'
-                              : formatDate(
-                                department.modifiedDate!,
+                          ),
+                          Row(
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    "No of Employee: ",
+                                    style: AppTextStyle.ts12R(
+                                      color: AppColor.grey,
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColor.purple.withValues(
+                                        alpha: 0.12,
+                                      ),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      department.numberOfEmployee.toString(),
+                                      style: AppTextStyle.ts14R(
+                                        color: AppColor.purple,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                        singleLine: false
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                            ],
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(height: 5),
+                      buildRowTitleValue(
+                        title: "Created By",
+                        value: department.createdBy,
+                        singleLine: false,
+                      ),
+                      buildRowTitleValue(
+                        title: "Created Date",
+                        value: formatDate(department.createdDate),
+                        singleLine: false,
+                      ),
+                      buildRowTitleValue(
+                        title: "Modified By",
+                        singleLine: false,
+                        value:
+                            department.modifiedBy.isEmpty
+                                ? '-'
+                                : department.modifiedBy,
+                      ),
+                      buildRowTitleValue(
+                        title: "Modified Date",
+                        value:
+                            department.modifiedDate == null
+                                ? '-'
+                                : formatDate(department.modifiedDate!),
+                        singleLine: false,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

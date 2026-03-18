@@ -250,7 +250,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     final result = await employeeMasterRepository.getEmployeeAssetList(
       pageNumber: pageNumber,
       pageSize: pageSize,
-      queryParams: {"EmployeeId": employeeId},
+      queryParams: {"EmployeeId": employeeId, "IsCheckPermission": false},
     );
 
     result.fold(
@@ -282,7 +282,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
         .getEmployeeShiftManagementList(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          queryParams: {"EmployeeId": employeeId},
+          queryParams: {"EmployeeId": employeeId, "IsCheckPermission": false},
         );
 
     result.fold(
@@ -313,7 +313,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     final result = await employeeMasterRepository.getEmployeeWeekOffMappingList(
       pageNumber: pageNumber,
       pageSize: pageSize,
-      queryParams: {"EmployeeId": employeeId},
+      queryParams: {"EmployeeId": employeeId, "IsCheckPermission": false},
     );
 
     result.fold(
@@ -569,45 +569,16 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     );
   }
 
-  // <---- BANK DROPDOWN ---->
-  Future<Map<String, dynamic>> getBankListi(
-    int pageNumber, {
-    String? value,
-  }) async {
-    var result = await employeeMasterRepository.getBankList(
-      pageNumber: pageNumber,
-      pageSize: 10,
-      query: {'BankName': value ?? ''},
-    );
-    return result.fold(
-      (failure) {
-        return {"itemList": <Map<String, dynamic>>[], "totalNumberOfRecord": 0};
-      },
-      (response) {
-        return {
-          "itemList": List<Map<String, dynamic>>.from(
-            (response['data'] as List<dynamic>)
-                .map(
-                  (e) => {
-                    "zAttributesId": e["BankListMasterId"],
-                    "DisplayName": e["BankNameWithCode"],
-                  },
-                )
-                .toList(),
-          ),
-          "totalNumberOfRecord": response["totalNumberOfRecord"],
-        };
-      },
-    );
-  }
-
   Future<void> getBankList(
     BuildContext context,
     int pageNumber,
     int pageSize, {
     String? searchQuery,
   }) async {
-    var queryParams = {"BankName": searchQuery ?? ""};
+    var queryParams = {
+      "BankName": searchQuery ?? "",
+      "IsCheckPermission": false,
+    };
 
     emit(state.copyWith(isLoading: true));
 
@@ -650,7 +621,10 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   }) async {
     emit(state.copyWith(isLoading: true));
 
-    var queryParams = {"CompanyName": searchQuery ?? ""};
+    var queryParams = {
+      "CompanyName": searchQuery ?? "",
+      "IsCheckPermission": false,
+    };
 
     final result = await companyMasterRepository.getCompanyList(
       pageNumber: pageNumber,
@@ -689,7 +663,10 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     int pageSize, {
     String? searchQuery,
   }) async {
-    var queryParams = {"DepartmentName": searchQuery ?? ""};
+    var queryParams = {
+      "DepartmentName": searchQuery ?? "",
+      "IsCheckPermission": false,
+    };
 
     emit(state.copyWith(isLoading: true));
 
@@ -732,7 +709,10 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
   }) async {
     emit(state.copyWith(isLoading: true));
 
-    var queryParams = {"DesignationName": searchQuery ?? ""};
+    var queryParams = {
+      "DesignationName": searchQuery ?? "",
+      "IsCheckPermission": false,
+    };
 
     final result = await designationRepository.getDesignationList(
       pageNumber: pageNumber,
@@ -771,7 +751,10 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     int pageSize, {
     String? searchQuery,
   }) async {
-    var queryParams = {"EmployeeName": searchQuery ?? ""};
+    var queryParams = {
+      "EmployeeName": searchQuery ?? "",
+      "IsCheckPermission": false,
+    };
 
     emit(state.copyWith(isLoading: true));
 
@@ -814,7 +797,10 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
     int pageSize, {
     String? searchQuery,
   }) async {
-    var queryParams = {"BranchName": searchQuery ?? ""};
+    var queryParams = {
+      "BranchName": searchQuery ?? "",
+      "IsCheckPermission": false,
+    };
 
     emit(state.copyWith(isLoading: true));
 
