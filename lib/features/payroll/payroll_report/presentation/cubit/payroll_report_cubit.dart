@@ -98,6 +98,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
     int pageNumber, {
     required DateTime startDate,
     required DateTime endDate,
+    required int isReport,
   }) async {
     emit(state.copyWith(isLoading: true));
     final queryParams = {

@@ -264,15 +264,17 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                   ),
                   verticalSpacing(),
                   // COUNTS WIDGET (INCLUDING TOTAL ENQUIRIES, NEW ENQURIES, ACTIVE FOLLOW - UPS, LOST ENQURIES, TOTAL BOOKINGS, TOTAL BOOKING VALUE, TARGET VS ACHIEVED, CP CONTRIBUTION)
+                  /*
                   _buildOverviewWidget(context),
                   // ENQUIRY OVERVIEW WIDGET
                   _buildEnquiryOverviewWidget(context),
+                  */
                   verticalSpacing(),
                   // ENQURIES LIST WIDGET
                   _buildEnquiriesWidget(context),
                   verticalSpacing(),
                   // TARGET PERFORMANCE WIDGET
-                  _buildTargetPerformanceWidget(context),
+                  /* _buildTargetPerformanceWidget(context),*/
                   verticalSpacing(),
                   // ACTIVE FOLLOW-UPS WIDGET (ACCORDING TO STATUS)
                   _buildActiveFollowUpsWidget(context),
@@ -2025,94 +2027,95 @@ class EnquiryProgressBar extends StatelessWidget {
         if (state.isLoading == true) {
           return Center(child: loader());
         }
-
         final salesData = state.salesData;
 
-        if (salesData == null || salesData.table2.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Daily Attendance Data")),
-          );
-        }
-        final table2List = salesData.table2;
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 22),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: AppTextStyle.ts16SB(color: AppColor.primary)),
-              const SizedBox(height: 10),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final barWidth = constraints.maxWidth * progress;
-                  return Stack(
-                    children: [
-                      Container(
-                        height: 24,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: AppColor.lightBlue.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
+        final table2 = salesData?.table2;
+        return (table2 != null && table2.isNotEmpty)
+            ? Padding(
+              padding: const EdgeInsets.only(bottom: 22),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: AppTextStyle.ts16SB(color: AppColor.primary),
+                  ),
+                  const SizedBox(height: 10),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final barWidth = constraints.maxWidth * progress;
+                      return Stack(
+                        children: [
+                          Container(
+                            height: 24,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: AppColor.lightBlue.withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          Container(
+                            height: 24,
+                            width: barWidth,
+                            decoration: BoxDecoration(
+                              color: AppColor.primary,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  if (breakdownText != null)
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Hot: ",
+                            style: AppTextStyle.ts12R(color: AppColor.red),
+                          ),
+                          TextSpan(
+                            text: "${table2.first.hotLeads}",
+                            style: AppTextStyle.ts12R(color: AppColor.red),
+                          ),
+                          TextSpan(
+                            text: " | Warm: ",
+                            style: AppTextStyle.ts12R(color: AppColor.warning),
+                          ),
+                          TextSpan(
+                            text: "${table2.first.warmLeads}",
+                            style: AppTextStyle.ts12R(color: AppColor.warning),
+                          ),
+                          TextSpan(
+                            text: " | Cold: ",
+                            style: AppTextStyle.ts12R(color: AppColor.primary),
+                          ),
+                          TextSpan(
+                            text: "${table2.first.coldLeads}",
+                            style: AppTextStyle.ts12R(color: AppColor.primary),
+                          ),
+                        ],
                       ),
-                      Container(
-                        height: 24,
-                        width: barWidth,
-                        decoration: BoxDecoration(
-                          color: AppColor.primary,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
+                    )
+                  else if (conversionText != null)
+                    Text(
+                      conversionText!,
+                      style: AppTextStyle.ts12R(
+                        color: AppColor.black.withValues(alpha: 0.5),
                       ),
-                    ],
-                  );
-                },
+                    ),
+                ],
               ),
-              const SizedBox(height: 8),
-              if (breakdownText != null)
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "Hot: ",
-                        style: AppTextStyle.ts12R(color: AppColor.red),
-                      ),
-                      TextSpan(
-                        text: "${table2List.first.hotLeads}",
-                        style: AppTextStyle.ts12R(color: AppColor.red),
-                      ),
-                      TextSpan(
-                        text: " | Warm: ",
-                        style: AppTextStyle.ts12R(color: AppColor.warning),
-                      ),
-                      TextSpan(
-                        text: "${table2List.first.warmLeads}",
-                        style: AppTextStyle.ts12R(color: AppColor.warning),
-                      ),
-                      TextSpan(
-                        text: " | Cold: ",
-                        style: AppTextStyle.ts12R(color: AppColor.primary),
-                      ),
-                      TextSpan(
-                        text: "${table2List.first.coldLeads}",
-                        style: AppTextStyle.ts12R(color: AppColor.primary),
-                      ),
-                    ],
-                  ),
-                )
-              else if (conversionText != null)
-                Text(
-                  conversionText!,
-                  style: AppTextStyle.ts12R(
-                    color: AppColor.black.withValues(alpha: 0.5),
-                  ),
+            )
+            : Center(
+              child: Text(
+                "No Enquiry Available",
+                style: AppTextStyle.ts12M(
+                  color: AppColor.black.withValues(alpha: 0.50),
                 ),
-            ],
-          ),
-        );
+              ),
+            );
       },
     );
   }

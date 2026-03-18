@@ -146,6 +146,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           1,
           startDate: date,
           endDate: date,
+          isReport: 1,
         );
         break;
       case 1:
@@ -203,6 +204,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             1,
             startDate: date,
             endDate: date,
+            isReport: 1,
           );
         }
         break;
@@ -279,6 +281,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             state.currentPageAttendance + 1,
             startDate: date,
             endDate: date,
+            isReport: 1,
           );
         });
       }
@@ -545,7 +548,17 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ChipStyleTabBar(controller: _tabController, tabs: ["Attendance","Regularize","Comp-Off","Leave","Outdoor","Resignation"]),
+          ChipStyleTabBar(
+            controller: _tabController,
+            tabs: [
+              "Attendance",
+              "Regularize",
+              "Comp-Off",
+              "Leave",
+              "Outdoor",
+              "Resignation",
+            ],
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20.0),
             child: BlocBuilder<PayrollReportCubit, PayrollReportState>(

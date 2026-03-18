@@ -19,10 +19,12 @@ import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubi
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/route_map_screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -64,6 +66,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final LocalStorageManager storage = LocalStorageManager();
 
   UserModel? currentUser;
+  bool isProcessing = false;
 
   @override
   void initState() {
@@ -73,26 +76,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _dashboardCubit = context.read<DashboardCubit>();
 
     _selectedProject = getProject();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final now = DateTime.now();
-      final start = DateTime(now.year, now.month, now.day);
-      final end = start;
-
-      _dashboardCubit.getAttendanceList(
-        context,
-        1,
-        start,
-        end,
-        0,
-        _selectedProject.projectId,
-      );
-    });
-    _dashboardCubit.getDashboardList(context);
+    initialise();
     final userJson = storage.getString(StorageKey.currentUser);
     if (userJson != null) {
       currentUser = UserModel.fromJson(jsonDecode(userJson));
     }
+  }
+
+  Future<void> initialise() async {
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, now.day);
+    final end = start;
+
+    await _dashboardCubit.getAttendanceList(
+      context,
+      1,
+      start,
+      end,
+      0,
+      _selectedProject.projectId,
+    );
+    // });
+    await _dashboardCubit.getDashboardList(context);
   }
 
   @override
@@ -221,8 +227,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     await _dashboardCubit.updateAttendance(
       context,
-      attendanceId: currentAttendanceId!,
-      uniquekey: currentUniquekey!,
+      attendanceId: _dashboardCubit.state.data!.attendanceId,
+      uniquekey: _dashboardCubit.state.data!.uniquekey,
       punchAddress: address,
       startLatitude: startLatLng?.latitude ?? routePoints.first.latitude,
       startLongitude: startLatLng?.longitude ?? routePoints.first.longitude,
@@ -234,35 +240,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     _timer?.cancel();
 
-    final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day);
-
-    await _dashboardCubit.getAttendanceList(
-      context,
-      1,
-      start,
-      start,
-      0,
-      _selectedProject.projectId,
-    );
-
     isPunchedInNotifier.value = false;
     dragPositionNotifier.value = 0;
-  }
-
-  void _handleDragEnd() async {
-    if (!isPunchedInNotifier.value &&
-        dragPositionNotifier.value > maxWidth * 0.75) {
-      // PUNCH IN
-      await punchIn(context);
-      isPunchedInNotifier.value = true;
-      dragPositionNotifier.value = maxWidth;
-    } else if (isPunchedInNotifier.value &&
-        dragPositionNotifier.value < maxWidth * 0.5) {
-      await punchOut(context);
-    } else {
-      dragPositionNotifier.value = isPunchedInNotifier.value ? maxWidth : 0;
-    }
   }
 
   double _calculateDistance(List<LatLng> points) {
@@ -602,23 +581,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     double newPos =
                                         dragPositionNotifier.value +
                                         details.delta.dx;
-                                    newPos = newPos.clamp(0, maxWidth);
-                                    dragPositionNotifier.value = newPos;
+                                    dragPositionNotifier.value = newPos.clamp(
+                                      0,
+                                      maxWidth,
+                                    );
+                                  },
 
-                                    /// AUTO PUNCH OUT
-                                    if (isPunchedInNotifier.value &&
-                                        newPos < maxWidth * 0.4) {
-                                      _handleDragEnd();
+                                  onHorizontalDragEnd: (_) async {
+                                    if (isProcessing) {
+                                      return;
                                     }
 
-                                    /// AUTO PUNCH IN
+                                    final currentPos =
+                                        dragPositionNotifier.value;
+
+                                    /// PUNCH IN
                                     if (!isPunchedInNotifier.value &&
-                                        newPos > maxWidth * 0.7) {
-                                      _handleDragEnd();
+                                        currentPos > maxWidth * 0.7) {
+                                      isProcessing = true;
+
+                                      dragPositionNotifier.value = maxWidth;
+                                      isPunchedInNotifier.value = true;
+
+                                      await punchIn(context); //  ONLY ONCE
+
+                                      _startLocationTracking();
+                                      _startTimerFrom(DateTime.now());
+
+                                      isProcessing = false;
+                                    }
+                                    /// PUNCH OUT
+                                    else if (isPunchedInNotifier.value &&
+                                        currentPos < maxWidth * 0.3) {
+                                      isProcessing = true;
+
+                                      dragPositionNotifier.value = 0;
+                                      isPunchedInNotifier.value = false;
+
+                                      await punchOut(context);
+
+                                      isProcessing = false;
+                                    }
+                                    /// RESET
+                                    else {
+                                      dragPositionNotifier.value =
+                                          isPunchedInNotifier.value
+                                              ? maxWidth
+                                              : 0;
                                     }
                                   },
-                                  onHorizontalDragEnd: (_) => _handleDragEnd(),
-
                                   child: Container(
                                     width: 42,
                                     decoration: BoxDecoration(
@@ -641,11 +652,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     );
                   },
                 ),
-                if (state.dashboardModelList.isNotEmpty)
-                  _buildDashboardPunchInPunchOutWidget(
-                    state.dashboardModelList.first,
-                    context,
-                  ),
+                _buildDashboardPunchInPunchOutWidget(context),
               ],
             ),
           ),
@@ -654,87 +661,98 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildDashboardPunchInPunchOutWidget(
-    AttendanceModel data,
-    BuildContext context,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text.rich(
-          TextSpan(
-            children: [
+  Widget _buildDashboardPunchInPunchOutWidget(BuildContext context) {
+    return BlocBuilder<DashboardCubit, DashboardState>(
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text.rich(
               TextSpan(
-                text: 'Punch In : ',
-                style: AppTextStyle.ts14M(
-                  color: AppColor.black.withValues(alpha: 0.50),
-                ),
+                children: [
+                  TextSpan(
+                    text: 'Punch In : ',
+                    style: AppTextStyle.ts14M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                  TextSpan(
+                    text:
+                        (state.data != null && state.data?.punchIn != null)
+                            ? DateFormat('hh:mm a').format(state.data!.punchIn!)
+                            : "--",
+                    style: AppTextStyle.ts14M(color: AppColor.black),
+                  ),
+                ],
               ),
+            ),
+            const SizedBox(height: 8),
+            Text.rich(
               TextSpan(
-                text:
-                    data.punchIn != null
-                        ? DateFormat('hh:mm a').format(data.punchIn!)
-                        : "--",
-                style: AppTextStyle.ts14M(color: AppColor.black),
+                children: [
+                  TextSpan(
+                    text: '',
+                    style: AppTextStyle.ts14M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                  TextSpan(
+                    text:
+                        (state.data != null &&
+                                state.data!.punchInAddress.isNotEmpty)
+                            ? state.data!.punchInAddress
+                            : "--",
+                    style: AppTextStyle.ts14M(color: AppColor.black),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text.rich(
-          TextSpan(
-            children: [
+            ),
+            const SizedBox(height: 8),
+            Text.rich(
               TextSpan(
-                text: '',
-                style: AppTextStyle.ts14M(
-                  color: AppColor.black.withValues(alpha: 0.50),
-                ),
+                children: [
+                  TextSpan(
+                    text: 'Punch Out : ',
+                    style: AppTextStyle.ts14M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                  TextSpan(
+                    text:
+                        (state.data != null && state.data?.punchOut != null)
+                            ? DateFormat(
+                              'hh:mm a',
+                            ).format(state.data!.punchOut!)
+                            : "--",
+                    style: AppTextStyle.ts14M(color: AppColor.black),
+                  ),
+                ],
               ),
+            ),
+            const SizedBox(height: 8),
+            Text.rich(
               TextSpan(
-                text: data.punchInAddress,
-                style: AppTextStyle.ts14M(color: AppColor.black),
+                children: [
+                  TextSpan(
+                    text: '',
+                    style: AppTextStyle.ts14M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                  TextSpan(
+                    text:
+                        (state.data != null &&
+                                state.data!.punchOutAddress.isNotEmpty)
+                            ? state.data!.punchOutAddress
+                            : "--",
+                    style: AppTextStyle.ts14M(color: AppColor.black),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: 'Punch Out : ',
-                style: AppTextStyle.ts14M(
-                  color: AppColor.black.withValues(alpha: 0.50),
-                ),
-              ),
-              TextSpan(
-                text:
-                    data.punchOut != null
-                        ? DateFormat('hh:mm a').format(data.punchOut!)
-                        : "--",
-                style: AppTextStyle.ts14M(color: AppColor.black),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: '',
-                style: AppTextStyle.ts14M(
-                  color: AppColor.black.withValues(alpha: 0.50),
-                ),
-              ),
-              TextSpan(
-                text: data.punchOutAddress,
-                style: AppTextStyle.ts14M(color: AppColor.black),
-              ),
-            ],
-          ),
-        ),
-      ],
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -850,31 +868,173 @@ class _DashboardScreenState extends State<DashboardScreen> {
         icon: SvgPicture.asset(AppAssets.applyLeaveIcon),
         text: "Apply Leave",
         backgroundColor: AppColor.lightBlue,
+        onTap: () {
+          goRouter.pushNamed(AppRoutes.applyLeave);
+        },
       ),
       _QuickActionItem(
         icon: SvgPicture.asset(AppAssets.raiseTaskIcon),
         text: "Raise Task",
         backgroundColor: AppColor.purple20.withValues(alpha: .08),
+        onTap: () {
+          DialogHelper.showCustomDialogue(
+            context,
+            icon: CustomIconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.warning_amber_outlined,
+                color: AppColor.yellow,
+                size: 16,
+              ),
+              backgroundColor: AppColor.yellow.withValues(alpha: .2),
+            ),
+            title: "ALERT",
+            childContent: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Divider(
+                  color: AppColor.black.withValues(alpha: 0.50),
+                  thickness: 0.5,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
+                  child: Text(
+                    "This feature is currently under development and will be available soon.",
+                    style: AppTextStyle.ts14SB(),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
       _QuickActionItem(
         icon: SvgPicture.asset(AppAssets.applyAdvanceIcon),
         text: "Apply Advance",
         backgroundColor: AppColor.lightYellow.withValues(alpha: .5),
+        onTap: () {
+          DialogHelper.showCustomDialogue(
+            context,
+            icon: CustomIconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.warning_amber_outlined,
+                color: AppColor.yellow,
+                size: 16,
+              ),
+              backgroundColor: AppColor.yellow.withValues(alpha: .2),
+            ),
+            title: "ALERT",
+            childContent: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Divider(
+                  color: AppColor.black.withValues(alpha: 0.50),
+                  thickness: 0.5,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
+                  child: Text(
+                    "This feature is currently under development and will be available soon.",
+                    style: AppTextStyle.ts14SB(),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
       _QuickActionItem(
         icon: SvgPicture.asset(AppAssets.regularizeIcon),
         text: "Regularize",
         backgroundColor: AppColor.lightGreen.withValues(alpha: .5),
+        onTap: () {
+          goRouter.pushNamed(AppRoutes.attendance);
+        },
       ),
       _QuickActionItem(
         icon: SvgPicture.asset(AppAssets.requestAssetIcon),
         text: "Request Asset",
         backgroundColor: AppColor.lightOrangenBg.withValues(alpha: .5),
+        onTap: () {
+          DialogHelper.showCustomDialogue(
+            context,
+            icon: CustomIconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.warning_amber_outlined,
+                color: AppColor.yellow,
+                size: 16,
+              ),
+              backgroundColor: AppColor.yellow.withValues(alpha: .2),
+            ),
+            title: "ALERT",
+            childContent: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Divider(
+                  color: AppColor.black.withValues(alpha: 0.50),
+                  thickness: 0.5,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
+                  child: Text(
+                    "This feature is currently under development and will be available soon.",
+                    style: AppTextStyle.ts14SB(),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
       _QuickActionItem(
         icon: SvgPicture.asset(AppAssets.payslipIcon),
         text: "Payslip",
         backgroundColor: AppColor.red.withValues(alpha: .08),
+        onTap: () {
+          DialogHelper.showCustomDialogue(
+            context,
+            icon: CustomIconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.warning_amber_outlined,
+                color: AppColor.yellow,
+                size: 16,
+              ),
+              backgroundColor: AppColor.yellow.withValues(alpha: .2),
+            ),
+            title: "ALERT",
+            childContent: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Divider(
+                  color: AppColor.black.withValues(alpha: 0.50),
+                  thickness: 0.5,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
+                  child: Text(
+                    "This feature is currently under development and will be available soon.",
+                    style: AppTextStyle.ts14SB(),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     ];
 
@@ -909,7 +1069,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 icon: item.icon,
                 text: item.text,
                 backgroundColor: item.backgroundColor,
-                onTap: () {},
+                onTap: item.onTap,
               );
             },
           ),
@@ -1498,6 +1658,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
+                Center(
+                  child: Text(
+                    "No Upcoming Events Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.50),
+                    ),
+                  ),
+                ),
+                /*
                 ListView.builder(
                   itemCount: 5,
                   shrinkWrap: true,
@@ -1522,6 +1691,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     );
                   },
                 ),
+             */
               ] else ...[
                 Center(
                   child: Text(
@@ -1627,9 +1797,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               width: 16.0,
                             ),
                             const SizedBox(width: 6.0),
-                            Text(
-                              table10List.first.managerEmail,
-                              style: AppTextStyle.ts14M(),
+                            Expanded(
+                              child: Text(
+                                table10List.first.managerEmail,
+                                style: AppTextStyle.ts14M(),
+                              ),
                             ),
                           ],
                         ),
@@ -2011,10 +2183,11 @@ class _QuickActionItem {
   final Widget icon;
   final String text;
   final Color backgroundColor;
-
+  final VoidCallback onTap;
   _QuickActionItem({
     required this.icon,
     required this.text,
     required this.backgroundColor,
+    required this.onTap,
   });
 }

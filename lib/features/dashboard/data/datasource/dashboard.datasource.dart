@@ -77,6 +77,7 @@ class DashboardDatasourceImpl implements DashboardDatasource {
           networkResponse["data"].map((e) => AttendanceModel.fromJson(e)),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'message': networkResponse['message'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {

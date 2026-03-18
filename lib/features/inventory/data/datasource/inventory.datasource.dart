@@ -1,4 +1,5 @@
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/inventory/data/model/inventory_dashboard.model.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/project_inventory_structure.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
@@ -78,6 +79,11 @@ abstract interface class InventoryDatasource {
   Future<Map<String, dynamic>> apicallPullProjectInventoryStructure({
     required int pageNumber,
     required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> apicallPullInventoryDashboard({
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
@@ -580,6 +586,46 @@ class InventoryDatasourceImpl implements InventoryDatasource {
           pageSize: pageSize,
           projectId: projectId,
           queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullInventoryDashboard({
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullInventoryDashboardUrl({Map<String, dynamic>? queryParams}) {
+      String url =
+          "InventoryDashboard/PullInventoryDashboard?ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullInventoryDashboardUrl(queryParams: queryParams),
+      );
+      final rawData = networkResponse["data"] ?? networkResponse["Data"];
+
+      if (rawData == null) {
+        return {'data': null, 'totalNumberOfRecord': 0};
+      }
+      final InventoryDashboardModel model = InventoryDashboardModel.fromJson(
+        rawData,
+      );
+
+      return {
+        'data': model,
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullInventoryDashboard(
+          queryParams: queryParams,
+          projectId: projectId,
         );
       }
       rethrow;

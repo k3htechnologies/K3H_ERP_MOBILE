@@ -80,6 +80,11 @@ abstract interface class InventoryRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> getInventoryDashboard({
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class InventoryRepositoryImpl implements InventoryRepository {
@@ -331,6 +336,22 @@ class InventoryRepositoryImpl implements InventoryRepository {
             queryParams: queryParams,
           );
 
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getInventoryDashboard({
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await inventoryDatasource.apicallPullInventoryDashboard(
+        projectId: projectId,
+        queryParams: queryParams,
+      );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
