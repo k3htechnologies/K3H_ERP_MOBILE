@@ -581,6 +581,7 @@ class DialogHelper {
     BuildContext context, {
     required Widget childContent,
     String? title,
+    Widget? icon,
     Widget? bottomSection, // optional
     bool barrierDismissible = true,
   }) {
@@ -601,6 +602,8 @@ class DialogHelper {
               children: [
                 Row(
                   children: [
+                    icon!,
+                    horizontalSpacing(),
                     if (title != null) Text(title, style: AppTextStyle.ts14M()),
                     Spacer(),
                     IconButton(

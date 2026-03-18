@@ -114,6 +114,9 @@ class DashboardCubit extends Cubit<DashboardState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        final newItem = response['data'][0] as AttendanceModel;
+
+        emit(state.copyWith(data: newItem));
         showSuccessMessage(context, subTitle: response['message']);
       },
     );
@@ -156,6 +159,9 @@ class DashboardCubit extends Cubit<DashboardState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        final newItem = response['data'][0] as AttendanceModel;
+
+        emit(state.copyWith(data: newItem));
         showSuccessMessage(context, subTitle: response['message']);
       },
     );

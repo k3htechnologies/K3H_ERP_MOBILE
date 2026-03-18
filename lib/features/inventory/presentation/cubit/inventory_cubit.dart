@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/inventory/data/model/inventory_dashboard.model.dart';
 import 'package:k3h_erp_app/features/inventory/data/repository/inventory.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -36,13 +37,13 @@ class InventoryCubit extends Cubit<InventoryState> {
     _isApiCallInProgress = false;
 
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error Message", failure.message);
       },
-          (response) {
+      (response) {
         final List<BuildingModel> buildings =
-        response["data"] as List<BuildingModel>;
+            response["data"] as List<BuildingModel>;
 
         final Map<String, Map<String, int>> wingCounts = {};
 
@@ -321,5 +322,32 @@ class InventoryCubit extends Cubit<InventoryState> {
       "hold": hold,
       "alloted": alloted,
     };
+  }
+
+  // <---- GET Dashboard LIST ---->
+  Future getInventoryDashboardList(BuildContext context, int projectId) async {
+    emit(state.copyWith(isLoading: true));
+
+    var result = await _inventoryRepository.getInventoryDashboard(
+      projectId: projectId,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final InventoryDashboardModel? model = response['data'];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            inventoryDashboardModel: model,
+            inventoryDashboardModelList: model != null ? [model] : [],
+          ),
+        );
+      },
+    );
   }
 }

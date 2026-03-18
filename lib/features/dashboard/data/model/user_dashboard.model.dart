@@ -12,6 +12,7 @@ class UserDashboardModel {
   final List<Table8> table8;
   final List<dynamic> table9;
   final List<Table10> table10;
+  final List<Table11> table11;
   UserDashboardModel({
     required this.table0,
     required this.table1,
@@ -24,6 +25,7 @@ class UserDashboardModel {
     required this.table8,
     required this.table9,
     required this.table10,
+    required this.table11,
   });
 
   factory UserDashboardModel.fromJson(
@@ -42,6 +44,9 @@ class UserDashboardModel {
     table10: List<Table10>.from(
       json["Table10"].map((x) => Table10.fromJson(x)),
     ),
+    table11: List<Table11>.from(
+      json["Table11"].map((x) => Table11.fromJson(x)),
+    ),
   );
 
   Map<String, dynamic> toJson() => {
@@ -56,6 +61,7 @@ class UserDashboardModel {
     "Table8": List<dynamic>.from(table8.map((x) => x.toJson())),
     "Table9": List<dynamic>.from(table9.map((x) => x)),
     "Table10": List<dynamic>.from(table10.map((x) => x.toJson())),
+    "Table11": List<dynamic>.from(table11.map((x) => x.toJson())),
   };
 }
 
@@ -424,5 +430,57 @@ class Table10 {
     "ManagerPhone": managerPhone,
     "DepartmentName": departmentName,
     "DesignationName": designationName,
+  };
+}
+
+class Table11 {
+  final DateTime? punchOut;
+  final DateTime? punchIn;
+  final String punchInAddress;
+  final String punchOutAddress;
+  final double startLatitude;
+  final double startLongitude;
+  final double endLatitude;
+  final double endLongitude;
+  final double distance;
+  final String polyline;
+
+  Table11({
+    this.punchOut,
+    this.punchIn,
+    required this.punchInAddress,
+    required this.punchOutAddress,
+    required this.startLatitude,
+    required this.startLongitude,
+    required this.endLatitude,
+    required this.endLongitude,
+    required this.distance,
+    required this.polyline,
+  });
+
+  factory Table11.fromJson(Map<String, dynamic> json) => Table11(
+    punchOut: parseApiDate(json["PunchOut"]),
+    punchIn: parseApiDate(json["PunchIn"]),
+    punchInAddress: parseValue<String>(json, "PunchInAddress"),
+    punchOutAddress: parseValue<String>(json, "PunchOutAddress"),
+    startLatitude: parseValue<double>(json, "StartLatitude").toDouble(),
+    startLongitude: parseValue<double>(json, "StartLongitude").toDouble(),
+    endLatitude: parseValue<double>(json, "EndLatitude").toDouble(),
+    endLongitude: parseValue<double>(json, "EndLongitude").toDouble(),
+    distance: parseValue<double>(json, "Distance").toDouble(),
+    polyline: parseValue<String>(json, "Polyline"),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "PunchOut": punchOut?.toIso8601String(),
+    "PunchIn": punchIn?.toIso8601String(),
+    "PunchInAddress": punchInAddress,
+    "PunchOutAddress": punchOutAddress,
+    "StartLatitude": startLatitude,
+    "StartLongitude": startLongitude,
+    "EndLatitude": endLatitude,
+    "EndLongitude": endLongitude,
+    "Distance": distance,
+    "Polyline": polyline,
   };
 }
