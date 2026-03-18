@@ -219,22 +219,20 @@ Future showSuccessMessage(BuildContext context, {String? subTitle}) async {
   });
   CustomSnackBar.showTopSnackBar(
     context,
-    title: "Success",
-    subtitle: subTitle,
+    title:subTitle?? "Success",
     isError: false,
   );
   isPop = true;
 }
 
-// SHOW ERROR MESSAGE
 Future showErrorMessage(
-  BuildContext context,
-  String title,
-  String message, {
-  bool isMenuChanged = false,
-}) async {
-  // Check for menu/authorization changes
+    BuildContext context,
+    String title,
+    String message, {
+      bool isMenuChanged = false,
+    }) async {
   final lowerMessage = message.toLowerCase();
+
   if (isMenuChanged ||
       lowerMessage.contains("menu") ||
       lowerMessage.contains("authorization") ||
@@ -244,8 +242,7 @@ Future showErrorMessage(
   } else {
     CustomSnackBar.showTopSnackBar(
       context,
-      title: title,
-      subtitle: message,
+      title: message,
       isError: true,
     );
 
@@ -269,7 +266,7 @@ String formatDateTimeAsDDMMMYYYY(DateTime d, {String? separator}) {
 String formatDate(DateTime? date) {
   if (date == null) return "";
   if (date.year == 1970) return "-";
-  return DateFormat("dd MMM yyyy , hh:mm a").format(date);
+  return DateFormat("dd MMM yyyy, hh:mm a").format(date);
 }
 
 // TIME FORMATTERS

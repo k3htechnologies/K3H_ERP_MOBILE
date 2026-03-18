@@ -94,9 +94,11 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   ];
 
   List<Map<String, dynamic>> employmentTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select Employment Type"},
     {"zAttributesId": 1, "DisplayName": "Permanent"},
     {"zAttributesId": 2, "DisplayName": "Contract"},
+    {"zAttributesId": 3, "DisplayName": "Intern"},
+    {"zAttributesId": 4, "DisplayName": "Part Time"},
+    {"zAttributesId": 5, "DisplayName": "Temporary"},
   ];
 
   List<Map<String, dynamic>> relationToEmployeeList = [
@@ -202,10 +204,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     _accountNumberC.text = employee.accountNo;
     _ifscC.text = employee.ifscCode;
 
-    _selectedReportingPersonNotifier.value = [
-      {'zAttributesId': employee.employeeId, 'DisplayName': employee.fullName},
-    ];
-
     // DROPDOWNS
     selectedGender = genderList.firstWhere(
       (item) => item['DisplayName'] == employee.gender,
@@ -222,7 +220,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
 
     selectedEmploymentType = employmentTypeList.firstWhere(
       (item) => item['DisplayName'] == employee.employeeType,
-      orElse: () => employmentTypeList.first,
     );
     selectedRelationToEmployee = relationToEmployeeList.firstWhere(
       (item) =>
@@ -281,8 +278,8 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     }
     _selectedReportingPersonNotifier.value = [
       {
-        'zAttributesId': widget.employee!.employeeId,
-        'DisplayName': widget.employee!.fullName,
+        'zAttributesId': widget.employee!.reportPersonId,
+        'DisplayName': widget.employee!.reportPersonName,
       },
     ];
     if (employee.bankListMasterId > 0) {
@@ -293,7 +290,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         },
       ];
     }
-    _fetchEmployeeDetailsForEdit(widget.employee!.employeeId);
+    _fetchEmployeeDetailsForEdit(widget.employee!.reportPersonId);
   }
 
   // INITIALIZE TEXT EDITING CONTROLLERS
@@ -322,7 +319,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     selectedGender = genderList.first;
     selectedMaritalStatus = maritalStatusList.first;
     selectedBloodGroup = bloodGroupList.first;
-    selectedEmploymentType = employmentTypeList.first;
   }
 
   // FETCH DEPARTMENTS
@@ -1111,6 +1107,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           ),
           CustomDropDownWidget(
             title: 'Employee Type',
+            hintText: "Select Employment Type",
             isRequired: true,
             initialValue: selectedEmploymentType,
             dataList: employmentTypeList,

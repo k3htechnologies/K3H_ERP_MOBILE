@@ -52,26 +52,27 @@ class DialogHelper {
     );
   }
 
-  // SUCCESS
-  static void showSuccessMessage(BuildContext context, {String? title}) {
+// SUCCESS
+  static void showSuccessMessage(
+      BuildContext context, {
+        String? title,
+      }) {
     CustomSnackBar.showTopSnackBar(
       context,
-      title: "Success",
-      subtitle: "Success!",
+      title: title ?? "Success!",
       isError: false,
     );
   }
 
-  // ERROR
+// ERROR
   static void showErrorMessage({
     required BuildContext context,
-    required String title,
+    String? title,
     required String message,
   }) {
     CustomSnackBar.showTopSnackBar(
       context,
-      title: "Error",
-      subtitle: message,
+      title: message,
       isError: true,
     );
   }

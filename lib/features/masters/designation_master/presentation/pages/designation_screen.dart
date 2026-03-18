@@ -243,234 +243,261 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
           _showBottomSheetToFilterDesignationMaster(context);
         },
       ),
-      body: BlocBuilder<DesignationMasterCubit, DesignationMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.designationList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.designationList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Designation Data Found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: _designationMasterCubit.state.designationList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.designationList.length) {
-                return state.designationList.length < state.totalNumberOfRecord
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var designation = state.designationList[index];
-              return Container(
-                padding: EdgeInsets.all(12),
-                margin: EdgeInsets.only(bottom: 10),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _designationMasterCubit.searchDesignation(context, "");
+        },
+        child: BlocBuilder<DesignationMasterCubit, DesignationMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.designationList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.designationList.isEmpty) {
+              return ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: getActualHeight(context) * .7,
+                    child: Center(
+                      child: noDataWidget(message: "No Designation Data Found"),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount:
+                  _designationMasterCubit.state.designationList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.designationList.length) {
+                  return state.designationList.length <
+                          state.totalNumberOfRecord
+                      ? Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var designation = state.designationList[index];
+                return Container(
+                  padding: EdgeInsets.all(12),
+                  margin: EdgeInsets.only(bottom: 10),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
 
-                      children: [
-                        Flexible(
-                          child: Text(
-                            designation.designationName,
-                            style: AppTextStyle.ts14R(),
-                          ),
-                        ),
-                        horizontalSpacing(),
-                        Row(
-                          spacing: 5,
-                          children: [
-                            designation.numberOfEmployee<=0?SizedBox():
-                            CustomIconButton(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.employeeModuleAccess,
-                                  queryParameters: {
-                                    "designation": Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(designation.toJson()),
-                                      ),
-                                    ),
-                                  },
-                                );
-                                if (context.mounted) {
-                                  _designationMasterCubit.getDesignationList(
-                                    context,
-                                    1,
-                                  );
-                                }
-                              },
-                              icon: Icon(
-                                Icons.key,
-                                size: 16,
-                                color:designation.isSetAccessModule==true?  AppColor.primary:AppColor.grey,
-                              ),
-                              backgroundColor: designation.isSetAccessModule==true?AppColor.lightBlue:AppColor.grey10,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              designation.designationName,
+                              style: AppTextStyle.ts14R(),
                             ),
-                            if(_routeAuthorizationModel.isAction)...[
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  CustomIconButton(
+                          ),
+                          horizontalSpacing(),
+                          Row(
+                            spacing: 5,
+                            children: [
+                              designation.numberOfEmployee <= 0
+                                  ? SizedBox()
+                                  : CustomIconButton(
                                     onPressed: () async {
                                       await goRouter.pushNamed(
-                                        AppRoutes.addDesignation,
+                                        AppRoutes.employeeModuleAccess,
                                         queryParameters: {
-                                          'designation': Uri.encodeComponent(
+                                          "designation": Uri.encodeComponent(
                                             EncryptionManager.encryptData(
                                               jsonEncode(designation.toJson()),
                                             ),
                                           ),
-                                          'index': index.toString(),
                                         },
                                       );
+                                      if (context.mounted) {
+                                        _designationMasterCubit
+                                            .getDesignationList(context, 1);
+                                      }
                                     },
                                     icon: Icon(
-                                      Icons.edit,
+                                      Icons.key,
                                       size: 16,
-                                      color: AppColor.grey,
+                                      color:
+                                          designation.isSetAccessModule == true
+                                              ? AppColor.primary
+                                              : AppColor.grey,
                                     ),
-                                    backgroundColor: AppColor.grey10,
+                                    backgroundColor:
+                                        designation.isSetAccessModule == true
+                                            ? AppColor.lightBlue
+                                            : AppColor.grey10,
                                   ),
-                                  if(designation.numberOfEmployee==0)...[
-                                    horizontalSpacing(width: 5),
+                              if (_routeAuthorizationModel.isAction) ...[
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
                                     CustomIconButton(
-                                      onPressed: () {
-                                        _showPopupToDeleteDesignationMaster(
-                                          designation.designationMasterId,
-                                          designation.uniquekey,
-                                          index,
+                                      onPressed: () async {
+                                        await goRouter.pushNamed(
+                                          AppRoutes.addDesignation,
+                                          queryParameters: {
+                                            'designation': Uri.encodeComponent(
+                                              EncryptionManager.encryptData(
+                                                jsonEncode(
+                                                  designation.toJson(),
+                                                ),
+                                              ),
+                                            ),
+                                            'index': index.toString(),
+                                          },
                                         );
                                       },
-                                      icon: SvgPicture.asset(
-                                        AppAssets.deleteIcon2,
-                                        height: 16,
-                                        colorFilter: ColorFilter.mode(
-                                          AppColor.error,
-                                          BlendMode.srcIn,
-                                        ),
+                                      icon: Icon(
+                                        Icons.edit,
+                                        size: 16,
+                                        color: AppColor.grey,
                                       ),
-                                      backgroundColor: AppColor.lightRed,
+                                      backgroundColor: AppColor.grey10,
                                     ),
-                                  ]
-                                ],
-                              ),
-                            ]
-                          ],
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 6,
-                        horizontal: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColor.grey10,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "Notice Period: ",
-                            style: AppTextStyle.ts12R(color: AppColor.grey),
-                          ),
-                          Text(
-                            designation.noticePeriod.toString(),
-                            style: AppTextStyle.ts14R(),
+                                    if (designation.numberOfEmployee == 0) ...[
+                                      horizontalSpacing(width: 5),
+                                      CustomIconButton(
+                                        onPressed: () {
+                                          _showPopupToDeleteDesignationMaster(
+                                            designation.designationMasterId,
+                                            designation.uniquekey,
+                                            index,
+                                          );
+                                        },
+                                        icon: SvgPicture.asset(
+                                          AppAssets.deleteIcon2,
+                                          height: 16,
+                                          colorFilter: ColorFilter.mode(
+                                            AppColor.error,
+                                            BlendMode.srcIn,
+                                          ),
+                                        ),
+                                        backgroundColor: AppColor.lightRed,
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ],
+                            ],
                           ),
                         ],
                       ),
-                    ),
-                    verticalSpacing(),
-
-                    Row(
-                      children: [
-                        Row(
+                      verticalSpacing(),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColor.grey10,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              "No. of Employee: ",
+                              "Notice Period: ",
                               style: AppTextStyle.ts12R(color: AppColor.grey),
                             ),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 6),
-                              decoration: BoxDecoration(
-                                color: AppColor.purple.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                designation.numberOfEmployee.toString(),
-                                style: AppTextStyle.ts14R(
-                                  color: AppColor.purple,
-                                ),
-                              ),
+                            Text(
+                              designation.noticePeriod.toString(),
+                              style: AppTextStyle.ts14R(),
                             ),
                           ],
                         ),
-                        Spacer(),
-                        Row(
-                          children: [
-                            Text(
-                              "Probation  Period: ",
-                              style: AppTextStyle.ts12R(color: AppColor.grey),
-                            ),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 6),
-                              decoration: BoxDecoration(
-                                color: AppColor.purple.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(20),
+                      ),
+                      verticalSpacing(),
+
+                      Row(
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                "No. of Employee: ",
+                                style: AppTextStyle.ts12R(color: AppColor.grey),
                               ),
-                              child: Text(
-                                designation.probationPeriod.toString(),
-                                style: AppTextStyle.ts14R(
-                                  color: AppColor.purple,
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 6),
+                                decoration: BoxDecoration(
+                                  color: AppColor.purple.withValues(
+                                    alpha: 0.12,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  designation.numberOfEmployee.toString(),
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.purple,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(height: 5),
-                    buildRowTitleValue(
-                      title: "Created By",
-                      singleLine: false,
-
-                      value: designation.createdBy,
-                    ),
-                    buildRowTitleValue(
-                      title: "Created Date",
-                      value: formatDate(designation.createdDate),
-                    ),
-                    buildRowTitleValue(
-                      title: "Modified By",
-                      singleLine: false,
-                      value: designation.modifiedBy,
-                    ),
-                    buildRowTitleValue(
-                      title: "Modified Date",
-                      value:
-                          designation.modifiedDate == null
-                              ? '-'
-                              : formatDate(
-                                designation.modifiedDate!,
+                            ],
+                          ),
+                          Spacer(),
+                          Row(
+                            children: [
+                              Text(
+                                "Probation  Period: ",
+                                style: AppTextStyle.ts12R(color: AppColor.grey),
                               ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 6),
+                                decoration: BoxDecoration(
+                                  color: AppColor.purple.withValues(
+                                    alpha: 0.12,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  designation.probationPeriod.toString(),
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.purple,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(height: 5),
+                      buildRowTitleValue(
+                        title: "Created By",
+                        singleLine: false,
+
+                        value: designation.createdBy,
+                      ),
+                      buildRowTitleValue(
+                        title: "Created Date",
+                        value: formatDate(designation.createdDate),
+                      ),
+                      buildRowTitleValue(
+                        title: "Modified By",
+                        singleLine: false,
+                        value: designation.modifiedBy,
+                      ),
+                      buildRowTitleValue(
+                        title: "Modified Date",
+                        value:
+                            designation.modifiedDate == null
+                                ? '-'
+                                : formatDate(designation.modifiedDate!),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
