@@ -214,7 +214,7 @@ Future<void> logOutUser(BuildContext context) async {
 // SHOW SUCCESS MESSAGE
 Future showSuccessMessage(BuildContext context, {String? subTitle}) async {
   bool isPop = false;
-  Future.delayed(Duration(seconds: 3), () {
+  Future.delayed(Duration(minutes: 3), () {
     if (!isPop) goRouter.pop();
   });
   CustomSnackBar.showTopSnackBar(
