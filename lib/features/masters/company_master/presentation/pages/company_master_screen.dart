@@ -389,7 +389,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                               ),
                             ),
                           ),
-                          if(_routeAuthorizationModel.isAction)...[
+                          if (_routeAuthorizationModel.isAction) ...[
                             Row(
                               spacing: 10,
                               children: [
@@ -405,7 +405,8 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                                         ),
                                       },
                                     );
-                                    if (result != null && result is CompanyModel) {
+                                    if (result != null &&
+                                        result is CompanyModel) {
                                       _companyMasterCubit.updateCompany(
                                         result,
                                         index,
@@ -424,7 +425,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                                 ),
                               ],
                             ),
-                          ]
+                          ],
                         ],
                       ),
                       verticalSpacing(height: 5),

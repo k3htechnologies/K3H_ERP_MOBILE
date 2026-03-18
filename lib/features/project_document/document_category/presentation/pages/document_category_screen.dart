@@ -146,6 +146,10 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
           }
         },
         onExportCallback: (value) {
+          if (_documentCategoryCubit.state.totalNumberOfRecord == 0) {
+            showErrorMessage(context, "Error", "No data found");
+            return;
+          }
           _documentCategoryCubit.exportExcelPdf(
             context,
             value,
@@ -166,113 +170,128 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
               ),
             );
           }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.documentCategoryList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.documentCategoryList.length) {
-                return state.documentCategoryList.length <
-                        state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var category = state.documentCategoryList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      spacing: 10,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.viewDocumentCategory,
-                                queryParameters: {
-                                  "documentCategory": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(category.toJson()),
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
-                            child: Text(
-                              category.projectDocumentCategoryName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColor.primary,
+          return RefreshIndicator(
+            onRefresh: () async {
+              _searchC.clear();
+              _documentCategoryCubit.searchCategory(
+                context,
+                _project.projectId,
+                "",
+              );
+            },
+            child: ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.documentCategoryList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.documentCategoryList.length) {
+                  return state.documentCategoryList.length <
+                          state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var category = state.documentCategoryList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        spacing: 10,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.viewDocumentCategory,
+                                  queryParameters: {
+                                    "documentCategory":
+                                        Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(category.toJson()),
+                                          ),
+                                        ),
+                                  },
+                                );
+                              },
+                              child: Text(
+                                category.projectDocumentCategoryName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        _routeAuthorizationModel.isAction
-                            ? Row(
-                              children: [
-                                CustomIconButton.edit(
-                                  onPressed: () async {
-                                    if (_project.projectId == 0) {
-                                      showErrorMessage(
-                                        context,
-                                        'Error',
-                                        'Please select a project',
-                                      );
-                                      return;
-                                    }
-                                    await goRouter.pushNamed(
-                                      AppRoutes.addDocumentCategory,
-                                      queryParameters: {
-                                        "documentCategory":
-                                            Uri.encodeQueryComponent(
-                                              EncryptionManager.encryptData(
-                                                jsonEncode(category.toJson()),
+                          _routeAuthorizationModel.isAction
+                              ? Row(
+                                children: [
+                                  CustomIconButton.edit(
+                                    onPressed: () async {
+                                      if (_project.projectId == 0) {
+                                        showErrorMessage(
+                                          context,
+                                          'Error',
+                                          'Please select a project',
+                                        );
+                                        return;
+                                      }
+                                      await goRouter.pushNamed(
+                                        AppRoutes.addDocumentCategory,
+                                        queryParameters: {
+                                          "documentCategory":
+                                              Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(category.toJson()),
+                                                ),
                                               ),
-                                            ),
-                                        'index': index.toString(),
-                                      },
-                                    );
-                                  },
-                                ),
-                                horizontalSpacing(),
-                                CustomIconButton.delete(
-                                  onPressed: () {
-                                    _showPopupToDeleteDocumentCategory(
-                                      context,
-                                      category,
-                                      state.currentPage,
-                                      index,
-                                    );
-                                  },
-                                ),
-                              ],
-                            )
-                            : SizedBox.shrink(),
-                      ],
-                    ),
-                    verticalSpacing(height: 8),
-                    buildRowTitleValue(
-                      title: "Sequence",
-                      value: category.orderBy.toString(),
-                    ),
-                    buildRowTitleValue(
-                      title: "Document Count",
-                      value: category.documentCount.toString(),
-                    ),
-                  ],
-                ),
-              );
-            },
+                                          'index': index.toString(),
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  horizontalSpacing(),
+                                  CustomIconButton.delete(
+                                    isDisabled:
+                                        category.documentCount == 0
+                                            ? false
+                                            : true,
+                                    onPressed: () {
+                                      _showPopupToDeleteDocumentCategory(
+                                        context,
+                                        category,
+                                        state.currentPage,
+                                        index,
+                                      );
+                                    },
+                                  ),
+                                ],
+                              )
+                              : SizedBox.shrink(),
+                        ],
+                      ),
+                      verticalSpacing(height: 8),
+                      buildRowTitleValue(
+                        title: "Sequence",
+                        value: category.orderBy.toString(),
+                      ),
+                      buildRowTitleValue(
+                        title: "Document Count",
+                        value: category.documentCount.toString(),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           );
         },
       ),

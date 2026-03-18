@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_state.dart';
@@ -15,6 +16,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -37,6 +39,7 @@ class ViewRERADocumentScreen extends StatefulWidget {
 class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   //CUBIT
   late RERADocumentCubit _documentCubit;
+  late LoginCubit _loginCubit;
 
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
@@ -50,8 +53,9 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
     super.initState();
     _onScroll();
     _documentCubit = context.read<RERADocumentCubit>();
+    _loginCubit = context.read<LoginCubit>();
     _routeAuthorizationModel =
-    Authorization.routeAuthorizationMap[AppRoutes.rera]!;
+        Authorization.routeAuthorizationMap[AppRoutes.rera]!;
 
     _documentCubit.getRERADocumentList(
       context: context,
@@ -125,27 +129,27 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                   widget.documentModel.projectRERADocumentName,
                   style: AppTextStyle.ts16SB(),
                 ),
-                if(_routeAuthorizationModel.isAction)
-                CustomButton(
-                  leading: Icon(Icons.add, color: AppColor.white, size: 16),
-                  text: "Add",
-                  onPressed: () {
-                    goRouter.pushNamed(
-                      AppRoutes.addReraDocument,
-                      queryParameters: {
-                        "reraDocument": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(widget.documentModel.toJson()),
+                if (_routeAuthorizationModel.isAction)
+                  CustomButton(
+                    leading: Icon(Icons.add, color: AppColor.white, size: 16),
+                    text: "Add",
+                    onPressed: () {
+                      goRouter.pushNamed(
+                        AppRoutes.addReraDocument,
+                        queryParameters: {
+                          "reraDocument": Uri.encodeQueryComponent(
+                            EncryptionManager.encryptData(
+                              jsonEncode(widget.documentModel.toJson()),
+                            ),
                           ),
-                        ),
-                        "index": widget.index.toString(),
-                        "isEdit": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(false.toString()),
-                        ),
-                      },
-                    );
-                  },
-                ),
+                          "index": widget.index.toString(),
+                          "isEdit": Uri.encodeQueryComponent(
+                            EncryptionManager.encryptData(false.toString()),
+                          ),
+                        },
+                      );
+                    },
+                  ),
               ],
             ),
 
@@ -177,6 +181,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                       return _buildDocumentCard(
                         state.reraSubDocumentList[index],
                         index,
+                        context,
                       );
                     },
                   ),
@@ -190,7 +195,16 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   }
 
   // DOCUMENT CARD
-  Widget _buildDocumentCard(RERADocumentModel document, int index) {
+  Widget _buildDocumentCard(
+    RERADocumentModel document,
+    int index,
+    BuildContext context,
+  ) {
+    // IF DOCUMENT IS NOT APPROVED OR USER HAS NO ACTION PERMISSION,
+    // THEN ACTIONS ARE CONSIDERED ALREADY PERFORMED -> SHOW HISTORY AND DISABLE ACTIONS
+    final bool isActionAllowed =
+        document.isApproval && _routeAuthorizationModel.isAction;
+
     return Container(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 10),
@@ -209,32 +223,36 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                   style: AppTextStyle.ts16SB(),
                 ),
               ),
-             if(_routeAuthorizationModel.isAction)...[
-               CustomIconButton.edit(
-                 onPressed: () {
-                   goRouter.pushNamed(
-                     AppRoutes.addReraDocument,
-                     queryParameters: {
-                       "reraDocument": Uri.encodeQueryComponent(
-                         EncryptionManager.encryptData(
-                           jsonEncode(document.toJson()),
-                         ),
-                       ),
-                       "index": index.toString(),
-                       "isEdit": Uri.encodeQueryComponent(
-                         EncryptionManager.encryptData(true.toString()),
-                       ),
-                     },
-                   );
-                 },
-               ),
-               horizontalSpacing(),
-               CustomIconButton.delete(
-                 onPressed: () {
-                   _showPopupToDeleteRERADocument(context, document, index);
-                 },
-               ),
-             ]
+              if (_routeAuthorizationModel.isAction) ...[
+                CustomIconButton.edit(
+                  onPressed: () {
+                    goRouter.pushNamed(
+                      AppRoutes.addReraDocument,
+                      queryParameters: {
+                        "reraDocument": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            jsonEncode(document.toJson()),
+                          ),
+                        ),
+                        "index": index.toString(),
+                        "isEdit": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(true.toString()),
+                        ),
+                      },
+                    );
+                  },
+                ),
+                horizontalSpacing(),
+                CustomIconButton.delete(
+                  isDisabled:
+                      document.uploadedProjectRERADocumentCount == 0
+                          ? false
+                          : true,
+                  onPressed: () {
+                    _showPopupToDeleteRERADocument(context, document, index);
+                  },
+                ),
+              ],
             ],
           ),
           Row(
@@ -321,6 +339,77 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                 ),
               ),
             ],
+          ),
+          ApproveRejectWidget(
+            title: isActionAllowed ? "Actions" : "History",
+            isActionAlreadyPerformed: !isActionAllowed,
+            onApprove: (val) async {
+              await _loginCubit.updateModulesWorkflowApproval(
+                context: context,
+                moduleName: 'RERA DOCUMENT APPROVAL',
+                id: document.projectRERADocumentId,
+                projectId: document.projectId,
+                isApproved: true,
+                remark: val.trim(),
+              );
+              if (context.mounted) {
+                _documentCubit.getRERADocumentList(
+                  context: context,
+                  pageNumber: 1,
+                  projectRERADocumentId:
+                      widget.documentModel.projectRERADocumentId,
+                );
+              }
+            },
+            onReject: (val) async {
+              await _loginCubit.updateModulesWorkflowApproval(
+                context: context,
+                moduleName: 'RERA DOCUMENT APPROVAL',
+                id: document.projectRERADocumentId,
+                projectId: document.projectId,
+                isApproved: false,
+                remark: val.trim(),
+              );
+              if (context.mounted) {
+                _documentCubit.getRERADocumentList(
+                  context: context,
+                  pageNumber: 1,
+                  projectRERADocumentId:
+                      widget.documentModel.projectRERADocumentId,
+                );
+              }
+            },
+            onThirdTap: () async {
+              final approvalLogHistoryList = await _loginCubit
+                  .getApprovalLogHistory(
+                    context,
+                    document.projectId,
+                    document.projectRERADocumentId,
+                    "RERA DOCUMENT APPROVAL",
+                  );
+
+              if (context.mounted) {
+                goRouter.pushNamed(
+                  AppRoutes.approvalLogHistory,
+                  queryParameters: {
+                    "subTitle": Uri.encodeComponent(
+                      EncryptionManager.encryptData(
+                        "${widget.documentModel.projectRERADocumentName} > ${document.projectRERADocumentName}",
+                      ),
+                    ),
+                    "approvalList": Uri.encodeComponent(
+                      EncryptionManager.encryptData(
+                        jsonEncode(
+                          approvalLogHistoryList
+                              .map((e) => e.toJson())
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  },
+                );
+              }
+            },
           ),
         ],
       ),

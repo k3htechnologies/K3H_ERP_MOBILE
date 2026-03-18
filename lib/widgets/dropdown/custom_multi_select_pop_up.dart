@@ -234,28 +234,32 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   InkWell(
-                    onTap:widget.isReadOnly
-                        ? null
-                        :  () async {
-                      var value = await showBottomSheetForDropdown(
-                        context,
-                        title: widget.title ?? 'Search',
-                        dataList: widget.dataList ?? [],
-                        initialValue: selectedValues,
-                      );
+                    onTap:
+                        widget.isReadOnly
+                            ? null
+                            : () async {
+                              var value = await showBottomSheetForDropdown(
+                                context,
+                                title: widget.title ?? 'Search',
+                                dataList: widget.dataList ?? [],
+                                initialValue: selectedValues,
+                              );
 
-                      if (value != null) {
-                        setState(() {
-                          selectedValues = value;
-                        });
-                        formFieldState.didChange(selectedValues);
-                        widget.onSelected(selectedValues);
-                      }
-                    },
+                              if (value != null) {
+                                setState(() {
+                                  selectedValues = value;
+                                });
+                                formFieldState.didChange(selectedValues);
+                                widget.onSelected(selectedValues);
+                              }
+                            },
                     child: Container(
                       margin: EdgeInsets.zero,
                       decoration: BoxDecoration(
-                        color: widget.isReadOnly ? AppColor.grey10 : AppColor.white,
+                        color:
+                            widget.isReadOnly
+                                ? AppColor.grey10
+                                : AppColor.white,
                         borderRadius: BorderRadius.circular(6.0),
                         border: Border.all(color: borderColor, width: 1.0),
                       ),
@@ -305,24 +309,26 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                                                         Icons.close,
                                                         size: 18,
                                                       ),
-                                                      onDeleted:widget.isReadOnly
-                                                          ? null
-                                                          :  () {
-                                                        setState(() {
-                                                          selectedValues.removeWhere(
-                                                            (s) =>
-                                                                s['zAttributesId'] ==
-                                                                e['zAttributesId'],
-                                                          );
-                                                        });
-                                                        formFieldState
-                                                            .didChange(
-                                                              selectedValues,
-                                                            );
-                                                        widget.onSelected(
-                                                          selectedValues,
-                                                        );
-                                                      },
+                                                      onDeleted:
+                                                          widget.isReadOnly
+                                                              ? null
+                                                              : () {
+                                                                setState(() {
+                                                                  selectedValues
+                                                                      .removeWhere(
+                                                                        (s) =>
+                                                                            s['zAttributesId'] ==
+                                                                            e['zAttributesId'],
+                                                                      );
+                                                                });
+                                                                formFieldState
+                                                                    .didChange(
+                                                                      selectedValues,
+                                                                    );
+                                                                widget.onSelected(
+                                                                  selectedValues,
+                                                                );
+                                                              },
                                                     );
                                                   }).toList(),
                                             )
@@ -340,24 +346,28 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                                                   ),
                                                 ),
                                                 GestureDetector(
-                                                  onTap:widget.isReadOnly
-                                                      ? null
-                                                      :  () {
-                                                    setState(() {
-                                                      selectedValues = [];
-                                                    });
-                                                    formFieldState.didChange(
-                                                      selectedValues,
-                                                    );
-                                                    widget.onSelected(
-                                                      selectedValues,
-                                                    );
+                                                  onTap:
+                                                      widget.isReadOnly
+                                                          ? null
+                                                          : () {
+                                                            setState(() {
+                                                              selectedValues =
+                                                                  [];
+                                                            });
+                                                            formFieldState
+                                                                .didChange(
+                                                                  selectedValues,
+                                                                );
+                                                            widget.onSelected(
+                                                              selectedValues,
+                                                            );
 
-                                                    if (widget.onClear !=
-                                                        null) {
-                                                      widget.onClear!();
-                                                    }
-                                                  },
+                                                            if (widget
+                                                                    .onClear !=
+                                                                null) {
+                                                              widget.onClear!();
+                                                            }
+                                                          },
                                                   child: const Icon(
                                                     Icons.close,
                                                     size: 18,

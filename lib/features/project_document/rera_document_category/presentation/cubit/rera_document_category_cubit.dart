@@ -157,7 +157,7 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
           context,
           subTitle: 'Project RERA document category added successfully',
         );
-        getRERADocumentCategoryList(context, 1, projectId);
+        searchCategory(context, projectId, "");
       },
     );
   }

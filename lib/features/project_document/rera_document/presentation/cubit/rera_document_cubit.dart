@@ -380,7 +380,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     );
   }
 
-  //ADD RERA DOCUMENT TO CATEGORY
+  //ADD RERA DOCUMENT TO CATEGORY (PARENT DOCUMENT)
   Future addRERADocumentToCategory({
     required BuildContext context,
     required String projectRERADocumentName,
@@ -412,17 +412,12 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       },
       (response) {
         goRouter.pop();
-        if (response['data'] != null && response['data'].isNotEmpty) {
-          final updatedList = response['data'][0] as RERADocumentModel;
-          var list = [updatedList, ...state.reraDocumentList];
-
-          emit(state.copyWith(reraDocumentList: list));
-        }
 
         showSuccessMessage(
           context,
           subTitle: "RERA Document Added Successfully",
         );
+        searchDocument("", context);
       },
     );
   }

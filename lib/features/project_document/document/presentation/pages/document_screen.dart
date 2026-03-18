@@ -226,6 +226,7 @@ class _DocumentScreenState extends State<DocumentScreen>
   // CLEAR TEXT CONTROLLER
   void _clearDialogueToAddUpdateDocument() {
     _documentC.clear();
+    _searchC.clear();
   }
 
   @override
@@ -242,7 +243,7 @@ class _DocumentScreenState extends State<DocumentScreen>
         onProjectChangeCallback: (project) {
           projectId = project.projectId;
           if (context.mounted) {
-            _documentCubit.getCategoryList(context, 1, projectId);
+            _documentCubit.searchDocument("", context);
           }
         },
         onExportCallback: (value) {
@@ -253,24 +254,25 @@ class _DocumentScreenState extends State<DocumentScreen>
           _documentCubit.exportExcelPdf(context, value, projectId);
         },
         extraHeight: 20,
-        secondaryBuilder: (_) => BlocBuilder<DocumentCubit, DocumentState>(
-          builder: (context, state) {
-            final list = state.documentCategoryModelList;
+        secondaryBuilder:
+            (_) => BlocBuilder<DocumentCubit, DocumentState>(
+              builder: (context, state) {
+                final list = state.documentCategoryModelList;
 
-            if (list.isNotEmpty) {
-              return CustomButton(
-                text: "Add",
-                onPressed: () {
-                  _showPopUpToAddUpdateDocument();
-                },
-                backgroundColor: AppColor.primary,
-                leading: Icon(Icons.add, size: 16, color: AppColor.white),
-              );
-            }
+                if (list.isNotEmpty) {
+                  return CustomButton(
+                    text: "Add",
+                    onPressed: () {
+                      _showPopUpToAddUpdateDocument();
+                    },
+                    backgroundColor: AppColor.primary,
+                    leading: Icon(Icons.add, size: 16, color: AppColor.white),
+                  );
+                }
 
-            return const SizedBox.shrink();
-          },
-        ),
+                return const SizedBox.shrink();
+              },
+            ),
       ),
       body: SafeArea(
         child: BlocListener<DocumentCubit, DocumentState>(
@@ -319,7 +321,13 @@ class _DocumentScreenState extends State<DocumentScreen>
                                 ? const Center(
                                   child: CircularProgressIndicator(),
                                 )
-                                : _buildDocumentListForCategory(state);
+                                : RefreshIndicator(
+                                  onRefresh: () async {
+                                    _searchC.clear();
+                                    _documentCubit.searchDocument("", context);
+                                  },
+                                  child: _buildDocumentListForCategory(state),
+                                );
                           }).toList(),
                     ),
                   ),
@@ -355,7 +363,9 @@ class _DocumentScreenState extends State<DocumentScreen>
   // BUILD DOCUMENT LIST FOR CATEGORY
   Widget _buildDocumentListForCategory(DocumentState state) {
     if (state.documentList.isEmpty) {
-      return noDataWidget(message: "No Project Document Data Found");
+      return Center(
+        child: noDataWidget(message: "No Project Document Data Found"),
+      );
     }
 
     return BlocBuilder<DocumentCubit, DocumentState>(
@@ -401,6 +411,13 @@ class _DocumentScreenState extends State<DocumentScreen>
                                 "index": index.toString(),
                               },
                             );
+                            if (context.mounted) {
+                              _documentCubit.getProjectDocumentList(
+                                context: context,
+                                pageNumber:
+                                    _documentCubit.state.currentPage + 1,
+                              );
+                            }
                           },
                           child: Text(
                             document.projectDocumentName,
@@ -424,7 +441,7 @@ class _DocumentScreenState extends State<DocumentScreen>
                                 color: AppColor.primary,
                               ),
                               onPressed: () async {
-                                goRouter.pushNamed(
+                                await goRouter.pushNamed(
                                   AppRoutes.addDocument,
                                   queryParameters: {
                                     "document": Uri.encodeQueryComponent(
@@ -452,18 +469,20 @@ class _DocumentScreenState extends State<DocumentScreen>
                                 );
                               },
                             ),
-                            if (document.uploadedProjectDocumentCount == 0) ...[
-                              horizontalSpacing(),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteDocument(
-                                    context,
-                                    document,
-                                    index,
-                                  );
-                                },
-                              ),
-                            ],
+                            horizontalSpacing(),
+                            CustomIconButton.delete(
+                              isDisabled:
+                                  document.uploadedProjectDocumentCount == 0
+                                      ? false
+                                      : true,
+                              onPressed: () {
+                                _showPopupToDeleteDocument(
+                                  context,
+                                  document,
+                                  index,
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ],
@@ -471,9 +490,9 @@ class _DocumentScreenState extends State<DocumentScreen>
                   ),
                   verticalSpacing(height: 10),
                   buildRowTitleValue(
-                    title: "Approvals",
+                    title: "Pending Approval",
                     value:
-                        "${document.approvalPendingProjectDocumentCount} Pending",
+                        document.approvalPendingProjectDocumentCount.toString(),
                   ),
                   buildRowTitleValue(
                     title: "Document Count",

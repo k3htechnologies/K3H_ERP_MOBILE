@@ -2,30 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 
-import 'package:flutter/material.dart';
-import 'package:k3h_erp_app/style/app_color.dart';
-import 'package:k3h_erp_app/style/text_style.dart';
-
 class CustomSnackBar {
   static void showTopSnackBar(
-      BuildContext context, {
-        required String title,
-        bool isError = false,
-      }) {
+    BuildContext context, {
+    required String title,
+    bool isError = false,
+  }) {
     final overlay = Overlay.of(context);
 
     late OverlayEntry overlayEntry;
 
     overlayEntry = OverlayEntry(
-      builder: (context) => _SnackBarSlideDown(
-        title: title,
-        isError: isError,
-        onClose: () {
-          if (overlayEntry.mounted) {
-            overlayEntry.remove();
-          }
-        },
-      ),
+      builder:
+          (context) => _SnackBarSlideDown(
+            title: title,
+            isError: isError,
+            onClose: () {
+              if (overlayEntry.mounted) {
+                overlayEntry.remove();
+              }
+            },
+          ),
     );
 
     overlay.insert(overlayEntry);
@@ -70,9 +67,7 @@ class _SnackBarSlideDownState extends State<_SnackBarSlideDown>
     _offsetAnimation = Tween<Offset>(
       begin: const Offset(0, -1),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     _controller.forward();
   }
@@ -142,9 +137,7 @@ class _SnackBarContent extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                isError
-                    ? Icons.not_interested_outlined
-                    : Icons.check,
+                isError ? Icons.not_interested_outlined : Icons.check,
                 color: Colors.white,
                 size: 18,
               ),
@@ -157,9 +150,7 @@ class _SnackBarContent extends StatelessWidget {
               child: Text(
                 title,
                 style: AppTextStyle.ts14SB(
-                  color: isError
-                      ? AppColor.error
-                      : const Color(0xff16A34A),
+                  color: isError ? AppColor.error : const Color(0xff16A34A),
                 ),
               ),
             ),
@@ -171,8 +162,7 @@ class _SnackBarContent extends StatelessWidget {
               onTap: onClose,
               child: Icon(
                 Icons.close,
-                color:
-                isError ? AppColor.error : AppColor.darkGreen10,
+                color: isError ? AppColor.error : AppColor.darkGreen10,
                 size: 20,
               ),
             ),

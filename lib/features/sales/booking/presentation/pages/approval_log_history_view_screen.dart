@@ -124,7 +124,10 @@ class ApprovalLogHistoryScreen extends StatelessWidget {
                                                     item.fullName,
                                                     style: AppTextStyle.ts14M(),
                                                   ),
-                                                  Text(formatDate(item.date)),
+                                                  Text(
+                                                    formatDate(item.date),
+                                                    style: AppTextStyle.ts12M(),
+                                                  ),
                                                 ],
                                               ),
                                             ),
