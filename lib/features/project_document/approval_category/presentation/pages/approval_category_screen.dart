@@ -131,18 +131,37 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
 
         onProjectChangeCallback: (value) {
           _project = value;
-          _documentCategoryCubit.getApprovalapprovalCategoryList(
+          _documentCategoryCubit.searchCategory(
             context,
-            1,
             _project.projectId,
+            "",
           );
         },
-        onAddCallback: () {
+        onAddCallback: () async {
           if (_project.projectId == 0) {
             showErrorMessage(context, 'Error', 'Please select a project');
             return;
           }
-          goRouter.pushNamed(AppRoutes.addApprovalCategory);
+
+          await goRouter.pushNamed(AppRoutes.addApprovalCategory);
+          if (context.mounted) {
+            _documentCategoryCubit.searchCategory(
+              context,
+              _project.projectId,
+              "",
+            );
+          }
+        },
+        onExportCallback: (value) {
+          if (_documentCategoryCubit.state.totalNumberOfRecord == 0) {
+            showErrorMessage(context, "Error", "No data found");
+            return;
+          }
+          _documentCategoryCubit.exportExcelPdf(
+            context,
+            value,
+            _project.projectId,
+          );
         },
       ),
       body: BlocBuilder<ApprovalCategoryCubit, ApprovalCategoryState>(
@@ -158,125 +177,142 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
               ),
             );
           }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.approvalCategoryList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.approvalCategoryList.length) {
-                return state.approvalCategoryList.length <
-                        state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var approvalCategory = state.approvalCategoryList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      spacing: 10,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.viewApprovalCategory,
-                                queryParameters: {
-                                  "approvalCategory": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(approvalCategory.toJson()),
-                                    ),
+          return RefreshIndicator(
+            onRefresh: () async {
+              _searchC.clear();
+              _documentCategoryCubit.searchCategory(
+                context,
+                _project.projectId,
+                "",
+              );
+            },
+            child: ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.approvalCategoryList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.approvalCategoryList.length) {
+                  return state.approvalCategoryList.length <
+                          state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var approvalCategory = state.approvalCategoryList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        spacing: 10,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.viewApprovalCategory,
+                                  queryParameters: {
+                                    "approvalCategory":
+                                        Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(
+                                              approvalCategory.toJson(),
+                                            ),
+                                          ),
+                                        ),
+                                  },
+                                );
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 0,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(color: AppColor.primary),
                                   ),
-                                },
-                              );
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
                                 ),
-                              ),
-                              child: Text(
-                                approvalCategory.approvalDocumentCategoryName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
+                                child: Text(
+                                  approvalCategory.approvalDocumentCategoryName,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
-                        ),
-                        if (_routeAuthorizationModel.isAction) ...[
-                          Row(
-                            children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  if (_project.projectId == 0) {
-                                    showErrorMessage(
-                                      context,
-                                      'Error',
-                                      'Please select a project',
-                                    );
-                                    return;
-                                  }
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addApprovalCategory,
-                                    queryParameters: {
-                                      "approvalCategory":
-                                          Uri.encodeQueryComponent(
-                                            EncryptionManager.encryptData(
-                                              jsonEncode(
-                                                approvalCategory.toJson(),
+                          if (_routeAuthorizationModel.isAction) ...[
+                            Row(
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    if (_project.projectId == 0) {
+                                      showErrorMessage(
+                                        context,
+                                        'Error',
+                                        'Please select a project',
+                                      );
+                                      return;
+                                    }
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addApprovalCategory,
+                                      queryParameters: {
+                                        "approvalCategory":
+                                            Uri.encodeQueryComponent(
+                                              EncryptionManager.encryptData(
+                                                jsonEncode(
+                                                  approvalCategory.toJson(),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                      'index': index.toString(),
-                                    },
-                                  );
-                                },
-                              ),
-                              const SizedBox(width: 8),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteApprovalDocumentCategory(
-                                    context,
-                                    approvalCategory,
-                                    state.currentPage,
-                                    index,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
+                                        'index': index.toString(),
+                                      },
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 8),
+                                CustomIconButton.delete(
+                                  isDisabled:
+                                      approvalCategory.documentCount == 0
+                                          ? false
+                                          : true,
+                                  onPressed: () {
+                                    _showPopupToDeleteApprovalDocumentCategory(
+                                      context,
+                                      approvalCategory,
+                                      state.currentPage,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
-                      ],
-                    ),
-                    verticalSpacing(height: 8),
-                    buildRowTitleValue(
-                      title: "Sequence",
-                      value: approvalCategory.orderBy.toString(),
-                    ),
-                    buildRowTitleValue(
-                      title: "Document Count",
-                      value: approvalCategory.documentCount.toString(),
-                    ),
-                  ],
-                ),
-              );
-            },
+                      ),
+                      verticalSpacing(height: 8),
+                      buildRowTitleValue(
+                        title: "Sequence",
+                        value: approvalCategory.orderBy.toString(),
+                      ),
+                      buildRowTitleValue(
+                        title: "Document Count",
+                        value: approvalCategory.documentCount.toString(),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           );
         },
       ),

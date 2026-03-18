@@ -148,20 +148,12 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
       },
       (response) {
         goRouter.pop();
-        final newResponse =
-            response['data'][0] as ApprovalDocumentCategoryModel;
 
-        var list = [newResponse, ...state.approvalCategoryList];
-        emit(
-          state.copyWith(
-            approvalCategoryList: list,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
-          ),
-        );
         showSuccessMessage(
           context,
           subTitle: 'Approval Category Added Successfully',
         );
+        searchCategory(context, projectId, "");
       },
     );
   }
@@ -209,6 +201,45 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
         showSuccessMessage(
           context,
           subTitle: "Approval Category Updated Successfully",
+        );
+      },
+    );
+  }
+
+  // <---- EXPORT EXCEL PDF ---->
+  Future exportExcelPdf(
+    BuildContext context,
+    String exportType,
+    int projectId,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _documentCategoryRepository.exportApprovalCategory(
+      pageNumber: 1,
+      pageSize: state.totalNumberOfRecord,
+      projectId: projectId,
+      queryParams:
+          state.searchText != ""
+              ? {
+                "ApprovalDocumentCategory": state.searchText,
+                "ExportType": exportType,
+              }
+              : {"ExportType": exportType},
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Approval Category Master ${DateTime.now()}.pdf"
+              : "Approval Category Master ${DateTime.now()}.xlsx",
+        );
+        showSuccessMessage(
+          context,
+          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );

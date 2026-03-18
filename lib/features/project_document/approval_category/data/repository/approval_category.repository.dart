@@ -19,6 +19,12 @@ abstract interface class ApprovalCategoryRepository {
     required int projectId,
     required String uniqueKey,
   });
+  Future<Either<Failure, Map<String, dynamic>>> exportApprovalCategory({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class ApprovalCategoryRepositoryImpl implements ApprovalCategoryRepository {
@@ -74,6 +80,27 @@ class ApprovalCategoryRepositoryImpl implements ApprovalCategoryRepository {
                 projectApprovalDocumentCategoryId,
             projectId: projectId,
             uniqueKey: uniqueKey,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> exportApprovalCategory({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await documentCategoryDatasource
+          .apicallPullProjectApprovalCategoryForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            projectId: projectId,
+            queryParams: queryParams,
           );
       return right(result);
     } catch (error) {

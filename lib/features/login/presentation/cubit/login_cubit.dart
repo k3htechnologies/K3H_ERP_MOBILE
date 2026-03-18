@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
-import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
@@ -124,17 +123,17 @@ class LoginCubit extends Cubit<LoginState> {
         goRouter.pop();
         emit(state.copyWith(user: user));
 
-// SAVE USER
+        // SAVE USER
         await localStorage.setString(StorageKey.authorizationToken, user.token);
         await localStorage.setString(StorageKey.userUniqueKey, user.uniqueKey);
 
-// 🚀 RUN BOTH IN PARALLEL
+        // 🚀 RUN BOTH IN PARALLEL
         await Future.wait([
           _fetchAndStoreCompleteEmployeeData(user),
-          fetchAndStoreMenu(context, user),
+          if (context.mounted) fetchAndStoreMenu(context, user),
         ]);
 
-// NAVIGATE
+        // NAVIGATE
         if (context.mounted) {
           goRouter.go(AppRoutes.dashboardScreen);
           showSuccessMessage(context, subTitle: "Login Successfully");
@@ -146,15 +145,13 @@ class LoginCubit extends Cubit<LoginState> {
   Future<void> fetchAndStoreMenu(BuildContext context, UserModel user) async {
     DialogHelper.showProcessingOverlay(context);
 
-    final result = await utilsRepository.getMenu(
-      employeeId: user.employeeId,
-    );
+    final result = await utilsRepository.getMenu(employeeId: user.employeeId);
     await result.fold(
-          (failure) async {
-            goRouter.pop();
+      (failure) async {
+        goRouter.pop();
         showErrorMessage(context, "Menu Error", failure.message);
       },
-          (data) async {
+      (data) async {
         final menuList = data["menuData"] as List<ModuleModel>;
 
         localStorage.setString(
@@ -345,7 +342,7 @@ class LoginCubit extends Cubit<LoginState> {
 
     return result.fold(
       (failure) {
-        emit(state.copyWith(isLoading: true));
+        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
         return [];
       },

@@ -173,7 +173,6 @@ import 'package:k3h_erp_app/features/profile/presentation/pages/profile_screen.d
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_screen.dart';
 import 'package:k3h_erp_app/features/login/presentation/pages/login_screen.dart';
-import 'package:k3h_erp_app/features/login/presentation/pages/project_list_screen.dart';
 import 'package:k3h_erp_app/features/login/presentation/pages/splash_screen.dart';
 import 'package:k3h_erp_app/features/marketing/content/presentation/cubit/content_document/content_document_cubit.dart';
 import 'package:k3h_erp_app/features/marketing/content/presentation/cubit/content_folder/content_folder_cubit.dart';
@@ -325,7 +324,7 @@ String? authenticateAndAuthorizeRoute(GoRouterState state) {
   // SPLASH || LOGIN
   if (state.uri.path == AppRoutes.splashScreen ||
       state.uri.path == AppRoutes.login
-      // state.uri.path == AppRoutes.projectList
+  // state.uri.path == AppRoutes.projectList
   ) {
     return null;
   }
@@ -421,7 +420,7 @@ final GoRouter goRouter = GoRouter(
       },
     ),
     // PROJECT LIST SCREEN
-/*    GoRoute(
+    /*    GoRoute(
       path: AppRoutes.projectList,
       name: AppRoutes.projectList,
       pageBuilder: (context, state) {

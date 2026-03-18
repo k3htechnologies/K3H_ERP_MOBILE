@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/approval_document/data/model/approval_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/approval_document/presentation/cubit/approval_document_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/approval_document/presentation/cubit/approval_document_state.dart';
@@ -14,6 +15,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -38,6 +40,7 @@ class _ViewApprovalDocumentScreenState
     extends State<ViewApprovalDocumentScreen> {
   //CUBIT
   late ApprovalDocumentCubit _documentCubit;
+  late LoginCubit _loginCubit;
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
 
@@ -50,8 +53,9 @@ class _ViewApprovalDocumentScreenState
     super.initState();
     _onScroll();
     _documentCubit = context.read<ApprovalDocumentCubit>();
-    _routeAuthorizationModel = AuthorizationModel();
-
+    _loginCubit = context.read<LoginCubit>();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.approvalDocument]!;
     _documentCubit.getProjectApprovalDocumentList(
       context: context,
       pageNumber: 1,
@@ -107,32 +111,34 @@ class _ViewApprovalDocumentScreenState
                   widget.documentModel.approvalDocumentName,
                   style: AppTextStyle.ts16SB(),
                 ),
-                CustomButton(
-                  leading: Icon(Icons.add, color: AppColor.white, size: 16),
-                  text: "Add",
-                  onPressed: () {
-                    goRouter.pushNamed(
-                      AppRoutes.addApprovalDocument,
-                      queryParameters: {
-                        "approvalDocument": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(widget.documentModel.toJson()),
-                          ),
-                        ),
-                        "index": widget.index.toString(),
-                        "isEdit": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(false.toString()),
-                        ),
+                _routeAuthorizationModel.isAction
+                    ? CustomButton(
+                      leading: Icon(Icons.add, color: AppColor.white, size: 16),
+                      text: "Add",
+                      onPressed: () {
+                        goRouter.pushNamed(
+                          AppRoutes.addApprovalDocument,
+                          queryParameters: {
+                            "approvalDocument": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(widget.documentModel.toJson()),
+                              ),
+                            ),
+                            "index": widget.index.toString(),
+                            "isEdit": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(false.toString()),
+                            ),
+                          },
+                        );
                       },
-                    );
-                  },
-                ),
+                    )
+                    : SizedBox.shrink(),
               ],
             ),
 
             BlocBuilder<ApprovalDocumentCubit, ApprovalDocumentState>(
               builder: (context, state) {
-                if ((state.isLoading ?? true) &&
+                if ((state.isLoading ?? true) ||
                     state.subApprovalDocumentList.isEmpty) {
                   return Expanded(child: Center(child: loader()));
                 }
@@ -158,6 +164,7 @@ class _ViewApprovalDocumentScreenState
                       return _buildDocumentCard(
                         state.subApprovalDocumentList[index],
                         index,
+                        context,
                       );
                     },
                   ),
@@ -171,7 +178,16 @@ class _ViewApprovalDocumentScreenState
   }
 
   //DOCUMENT CARD
-  Widget _buildDocumentCard(ApprovalDocumentModel document, int index) {
+  Widget _buildDocumentCard(
+    ApprovalDocumentModel document,
+    int index,
+    BuildContext context,
+  ) {
+    // IF DOCUMENT IS NOT APPROVED OR USER HAS NO ACTION PERMISSION,
+    // THEN ACTIONS ARE CONSIDERED ALREADY PERFORMED -> SHOW HISTORY AND DISABLE ACTIONS
+    final bool isActionAllowed =
+        document.isApproval && _routeAuthorizationModel.isAction;
+
     return Container(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 10),
@@ -272,6 +288,75 @@ class _ViewApprovalDocumentScreenState
                 ),
               ),
             ],
+          ),
+          ApproveRejectWidget(
+            title: isActionAllowed ? "Actions" : "History",
+            isActionAlreadyPerformed: !isActionAllowed,
+            onApprove: (val) async {
+              await _loginCubit.updateModulesWorkflowApproval(
+                context: context,
+                moduleName: 'APPROVAL DOCUMENT APPROVAL',
+                id: document.approvalDocumentId,
+                projectId: document.projectId,
+                isApproved: true,
+                remark: val.trim(),
+              );
+              if (context.mounted) {
+                _documentCubit.getProjectApprovalDocumentList(
+                  context: context,
+                  pageNumber: 1,
+                  approvalDocumentId: widget.documentModel.approvalDocumentId,
+                );
+              }
+            },
+            onReject: (val) async {
+              await _loginCubit.updateModulesWorkflowApproval(
+                context: context,
+                moduleName: 'APPROVAL DOCUMENT APPROVAL',
+                id: document.approvalDocumentId,
+                projectId: document.projectId,
+                isApproved: false,
+                remark: val.trim(),
+              );
+              if (context.mounted) {
+                _documentCubit.getProjectApprovalDocumentList(
+                  context: context,
+                  pageNumber: 1,
+                  approvalDocumentId: widget.documentModel.approvalDocumentId,
+                );
+              }
+            },
+            onThirdTap: () async {
+              final approvalLogHistoryList = await _loginCubit
+                  .getApprovalLogHistory(
+                    context,
+                    document.projectId,
+                    document.approvalDocumentId,
+                    "APPROVAL DOCUMENT APPROVAL",
+                  );
+
+              if (context.mounted) {
+                goRouter.pushNamed(
+                  AppRoutes.approvalLogHistory,
+                  queryParameters: {
+                    "subTitle": Uri.encodeComponent(
+                      EncryptionManager.encryptData(
+                        "${widget.documentModel.approvalDocumentName} > ${document.approvalDocumentName}",
+                      ),
+                    ),
+                    "approvalList": Uri.encodeComponent(
+                      EncryptionManager.encryptData(
+                        jsonEncode(
+                          approvalLogHistoryList
+                              .map((e) => e.toJson())
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  },
+                );
+              }
+            },
           ),
         ],
       ),

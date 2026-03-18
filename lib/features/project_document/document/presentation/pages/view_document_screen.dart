@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
 import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -12,7 +13,10 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+// ignore: unused_import
+import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -34,6 +38,7 @@ class ViewDocumentScreen extends StatefulWidget {
 
 class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
   //CUBIT
+  late LoginCubit _loginCubit;
   late DocumentCubit _documentCubit;
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
@@ -47,7 +52,9 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
     super.initState();
     _onScroll();
     _documentCubit = context.read<DocumentCubit>();
-    _routeAuthorizationModel = AuthorizationModel();
+    _loginCubit = context.read<LoginCubit>();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.document]!;
 
     _documentCubit.getProjectDocumentList(
       context: context,
@@ -161,9 +168,11 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                             )
                             : const SizedBox.shrink();
                       }
+
                       return _buildDocumentCard(
                         state.subDocumentList[index],
                         index,
+                        context,
                       );
                     },
                   ),
@@ -177,7 +186,16 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
   }
 
   //DOCUMENT CARD
-  Widget _buildDocumentCard(DocumentModel document, int index) {
+  Widget _buildDocumentCard(
+    DocumentModel document,
+    int index,
+    BuildContext context,
+  ) {
+    // IF DOCUMENT IS NOT APPROVED OR USER HAS NO ACTION PERMISSION,
+    // THEN ACTIONS ARE CONSIDERED ALREADY PERFORMED -> SHOW HISTORY AND DISABLE ACTIONS
+    final bool isActionAllowed =
+        document.isApproval && _routeAuthorizationModel.isAction;
+
     return Container(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 10),
@@ -298,6 +316,75 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                 value: document.projectDocumentRemark,
               ),
             ],
+          ),
+          ApproveRejectWidget(
+            title: isActionAllowed ? "Actions" : "History",
+            isActionAlreadyPerformed: !isActionAllowed,
+            onApprove: (val) async {
+              await _loginCubit.updateModulesWorkflowApproval(
+                context: context,
+                moduleName: 'DOCUMENT APPROVAL',
+                id: document.projectDocumentId,
+                projectId: document.projectId,
+                isApproved: true,
+                remark: val.trim(),
+              );
+              if (context.mounted) {
+                _documentCubit.getProjectDocumentList(
+                  context: context,
+                  pageNumber: 1,
+                  projectDocumentId: widget.documentModel.projectDocumentId,
+                );
+              }
+            },
+            onReject: (val) async {
+              await _loginCubit.updateModulesWorkflowApproval(
+                context: context,
+                moduleName: 'DOCUMENT APPROVAL',
+                id: document.projectDocumentId,
+                projectId: document.projectId,
+                isApproved: false,
+                remark: val.trim(),
+              );
+              if (context.mounted) {
+                _documentCubit.getProjectDocumentList(
+                  context: context,
+                  pageNumber: 1,
+                  projectDocumentId: widget.documentModel.projectDocumentId,
+                );
+              }
+            },
+            onThirdTap: () async {
+              final approvalLogHistoryList = await _loginCubit
+                  .getApprovalLogHistory(
+                    context,
+                    document.projectId,
+                    document.projectDocumentId,
+                    "DOCUMENT APPROVAL",
+                  );
+
+              if (context.mounted) {
+                goRouter.pushNamed(
+                  AppRoutes.approvalLogHistory,
+                  queryParameters: {
+                    "subTitle": Uri.encodeComponent(
+                      EncryptionManager.encryptData(
+                        "${widget.documentModel.projectDocumentName} > ${document.projectDocumentName}",
+                      ),
+                    ),
+                    "approvalList": Uri.encodeComponent(
+                      EncryptionManager.encryptData(
+                        jsonEncode(
+                          approvalLogHistoryList
+                              .map((e) => e.toJson())
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  },
+                );
+              }
+            },
           ),
         ],
       ),

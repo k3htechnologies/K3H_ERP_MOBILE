@@ -82,7 +82,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       "ApprovalDocumentName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       "ApprovalDocumentCategoryId": state.approvalDocumentCategoryId,
-      "ApprovalDocumentId": approvalDocumentId,
+      if (approvalDocumentId != null) "ApprovalDocumentId": approvalDocumentId,
     };
 
     var result = await _documentRepository.pullProjectApprovalDocument(
@@ -107,6 +107,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
             state.copyWith(
               isLoading: false,
               documentList: updatedList,
+              subApprovalDocumentList: [],
               totalNumberOfRecord: response["totalNumberOfRecord"],
               currentPage: pageNumber,
             ),
@@ -384,15 +385,12 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       },
       (response) {
         goRouter.pop();
-        final updatedList = response['data'][0] as ApprovalDocumentModel;
-        var list = [updatedList, ...state.documentList];
-
-        emit(state.copyWith(documentList: list));
 
         showSuccessMessage(
           context,
           subTitle: "Approval Document Added Successfully",
         );
+        searchApprovalDocument("", context);
       },
     );
   }

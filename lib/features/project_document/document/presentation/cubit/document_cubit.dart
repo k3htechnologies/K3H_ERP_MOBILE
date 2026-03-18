@@ -81,7 +81,7 @@ class DocumentCubit extends Cubit<DocumentState> {
       "ProjectDocumentName": state.searchText,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       "ProjectDocumentCategoryId": state.projectDocumentCategoryId,
-      "ProjectDocumentId": projectDocumentId,
+      if (projectDocumentId != null) "ProjectDocumentId": projectDocumentId,
     };
 
     var result = await _documentRepository.pullProjectDocument(
@@ -374,23 +374,12 @@ class DocumentCubit extends Cubit<DocumentState> {
       },
       (response) {
         goRouter.pop();
-        final updatedList = response['data'][0] as DocumentModel;
-        var list = [updatedList, ...state.documentList];
-
-        emit(
-          state.copyWith(
-            documentList: list,
-            totalNumberOfRecord:
-                state.totalNumberOfRecord == -1
-                    ? 1
-                    : state.totalNumberOfRecord + 1,
-          ),
-        );
 
         showSuccessMessage(
           context,
           subTitle: "Project Document Added Successfully",
         );
+        searchDocument("", context);
       },
     );
   }

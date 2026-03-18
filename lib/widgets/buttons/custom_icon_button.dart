@@ -12,45 +12,41 @@ class CustomIconButton extends StatelessWidget {
   const CustomIconButton({
     super.key,
     required this.onPressed,
-    required this.icon,     // <--- widget now
+    required this.icon, // <--- widget now
     this.backgroundColor = AppColor.lightBlue,
     this.size = 16,
   });
 
   // === Named Constructor for Edit Icon Button ===
-  const CustomIconButton.edit({
-    Key? key,
-    required VoidCallback onPressed,
-  }) : this(
-          key: key,
-          onPressed: onPressed,
-          icon: const Icon(
-            Icons.edit,
-            size: 16,
-            color: AppColor.grey,
-          ),
-          backgroundColor: AppColor.lightGrey,
-          size: 16,
-        );
+  const CustomIconButton.edit({Key? key, required VoidCallback onPressed})
+    : this(
+        key: key,
+        onPressed: onPressed,
+        icon: const Icon(Icons.edit, size: 16, color: AppColor.grey),
+        backgroundColor: AppColor.lightGrey,
+        size: 16,
+      );
 
   // === Named Constructor for Delete Icon Button ===
   CustomIconButton.delete({
     Key? key,
     required VoidCallback onPressed,
+    bool isDisabled = false,
   }) : this(
-          key: key,
-          onPressed: onPressed,
-          icon: SvgPicture.asset(
-            AppAssets.deleteIcon2,
-            height: 16,
-            colorFilter: const ColorFilter.mode(
-              AppColor.error,
-              BlendMode.srcIn,
-            ),
-          ),
-          backgroundColor: AppColor.lightRed,
-          size: 16,
-        );
+         key: key,
+         onPressed: isDisabled ? () {} : onPressed,
+         icon: SvgPicture.asset(
+           AppAssets.deleteIcon2,
+           height: 16,
+           colorFilter: ColorFilter.mode(
+             isDisabled ? AppColor.grey2 : AppColor.error,
+             BlendMode.srcIn,
+           ),
+         ),
+         backgroundColor:
+             isDisabled ? AppColor.lightGreyBackground : AppColor.lightRed,
+         size: 16,
+       );
 
   @override
   Widget build(BuildContext context) {

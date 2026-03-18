@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
-import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -35,10 +34,6 @@ class _SplashMobileScreenState extends State<SplashScreen> {
         if (menu != null) {
           goRouter.goNamed(AppRoutes.dashboardScreen);
         } else {
-          dynamic projectJson = jsonDecode(
-            localStorage.getString(StorageKey.selectedProject) ?? "",
-          );
-          ProjectModel project = ProjectModel.fromJson(projectJson);
           final UtilsRepository utilsRepository =
               serviceLocator<UtilsRepository>();
           var result = await utilsRepository.getMenu(

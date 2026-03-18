@@ -19,6 +19,12 @@ abstract interface class ApprovalCategoryDatasource {
     required int projectId,
     required String uniqueKey,
   });
+  Future<Map<String, dynamic>> apicallPullProjectApprovalCategoryForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class ApprovalCategoryDatasourceImpl implements ApprovalCategoryDatasource {
@@ -133,6 +139,51 @@ class ApprovalCategoryDatasourceImpl implements ApprovalCategoryDatasource {
           projectApprovalDocumentCategoryId: projectApprovalDocumentCategoryId,
           projectId: projectId,
           uniqueKey: uniqueKey,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullProjectApprovalCategoryForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullProjectDocumentCategoryExportUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "ApprovalDocumentCategory/PullApprovalDocumentCategory?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullProjectDocumentCategoryExportUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullProjectApprovalCategoryForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          projectId: projectId,
+          queryParams: queryParams,
         );
       }
       rethrow;

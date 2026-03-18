@@ -722,7 +722,7 @@ class _BookingScreenState extends State<BookingScreen> {
                             queryParameters: {
                               "subTitle": Uri.encodeComponent(
                                 EncryptionManager.encryptData(
-                                  "${booking.buildingNumber} > ${booking.wing}",
+                                  "${booking.buildingNumber} > ${booking.flat}",
                                 ),
                               ),
                               "approvalList": Uri.encodeComponent(

@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -219,24 +220,25 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
         },
         extraHeight: 20,
 
-        secondaryBuilder: (_) => BlocBuilder<RERADocumentCubit, RERADocumentState>(
-          builder: (context, state) {
-            final list = state.documentCategoryModelList;
+        secondaryBuilder:
+            (_) => BlocBuilder<RERADocumentCubit, RERADocumentState>(
+              builder: (context, state) {
+                final list = state.documentCategoryModelList;
 
-            if (list.isNotEmpty) {
-              return CustomButton(
-                text: "Add",
-                onPressed: () {
-                  _showPopUpToAddUpdateRERADocument();
-                },
-                backgroundColor: AppColor.primary,
-                leading: Icon(Icons.add, size: 16, color: AppColor.white),
-              );
-            }
+                if (list.isNotEmpty) {
+                  return CustomButton(
+                    text: "Add",
+                    onPressed: () {
+                      _showPopUpToAddUpdateRERADocument();
+                    },
+                    backgroundColor: AppColor.primary,
+                    leading: Icon(Icons.add, size: 16, color: AppColor.white),
+                  );
+                }
 
-            return const SizedBox.shrink();
-          },
-        ),
+                return const SizedBox.shrink();
+              },
+            ),
       ),
       body: SafeArea(
         child: BlocListener<RERADocumentCubit, RERADocumentState>(
@@ -295,8 +297,17 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                                 ? const Center(
                                   child: CircularProgressIndicator(),
                                 )
-                                : _buildDocumentListForCategory(
-                                  documentsForCategory,
+                                : RefreshIndicator(
+                                  onRefresh: () async {
+                                    await _reraDocumentCubit.getCategoryList(
+                                      context,
+                                      1,
+                                      projectId,
+                                    );
+                                  },
+                                  child: _buildDocumentListForCategory(
+                                    documentsForCategory,
+                                  ),
                                 );
                           }).toList(),
                     ),
@@ -321,46 +332,21 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
       return const SizedBox.shrink();
     }
 
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: IntrinsicWidth(
-        child: Container(
-          height: 35,
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: AppColor.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
-          ),
-          child: TabBar(
-            controller: _categoryTabController,
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            labelColor: AppColor.primary,
-            unselectedLabelColor: AppColor.grey,
-            indicator: BoxDecoration(
-              color: AppColor.lightBlue,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            indicatorSize: TabBarIndicatorSize.tab,
-            dividerColor: Colors.transparent,
-            labelStyle: AppTextStyle.ts14M(),
-            unselectedLabelStyle: AppTextStyle.ts14M(),
-            labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-            tabs:
-                state.documentCategoryModelList
-                    .map((b) => Tab(text: b.projectRERADocumentCategoryName))
-                    .toList(),
-          ),
-        ),
-      ),
+    return ChipStyleTabBar(
+      controller: _categoryTabController!,
+      tabs:
+          state.documentCategoryModelList
+              .map((b) => b.projectRERADocumentCategoryName)
+              .toList(),
     );
   }
 
   // DOCUMENT LIST FOR CATEGORY
   Widget _buildDocumentListForCategory(List<RERADocumentModel> documents) {
     if (documents.isEmpty) {
-      return noDataWidget(message: "No RERA Document Data Found");
+      return Center(
+        child: noDataWidget(message: "No RERA Document Data Found"),
+      );
     }
 
     return BlocBuilder<RERADocumentCubit, RERADocumentState>(
@@ -405,6 +391,13 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                                 "index": index.toString(),
                               },
                             );
+
+                            if (context.mounted) {
+                              _reraDocumentCubit.getRERADocumentList(
+                                context: context,
+                                pageNumber: 1,
+                              );
+                            }
                           },
                           child: Text(
                             document.projectRERADocumentName,
@@ -453,7 +446,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                   ),
                   verticalSpacing(height: 10),
                   buildRowTitleValue(
-                    title: "Approval",
+                    title: "Pending Approval",
                     value:
                         document.approvalPendingProjectRERADocumentCount
                             .toString(),

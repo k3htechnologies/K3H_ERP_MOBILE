@@ -18,10 +18,10 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
 
   // <---- SEARCH CATEGORY ---->
   Future searchCategory(
-      BuildContext context,
-      int projectId,
-      String value,
-      ) async {
+    BuildContext context,
+    int projectId,
+    String value,
+  ) async {
     emit(
       state.copyWith(
         searchText: value,
@@ -150,19 +150,12 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
       },
       (response) {
         goRouter.pop();
-        final newResponse = response['data'][0] as DocumentCategoryModel;
 
-        var list = [newResponse, ...state.documentCategoryList];
-        emit(
-          state.copyWith(
-            documentCategoryList: list,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
-          ),
-        );
         showSuccessMessage(
           context,
           subTitle: 'Project Document Category Added Successfully',
         );
+        searchCategory(context, projectId, "");
       },
     );
   }
@@ -216,32 +209,41 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
   }
 
   // <---- EXPORT EXCEL PDF ---->
-  Future exportExcelPdf(BuildContext context, String exportType,int projectId) async {
+  Future exportExcelPdf(
+    BuildContext context,
+    String exportType,
+    int projectId,
+  ) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _documentCategoryRepository.exportDocumentCategory(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
       projectId: projectId,
       queryParams:
-      state.searchText != ""
-          ? {"ProjectDocumentCategory": state.searchText, "ExportType": exportType}
-          : {"ExportType": exportType},
+          state.searchText != ""
+              ? {
+                "ProjectDocumentCategory": state.searchText,
+                "ExportType": exportType,
+              }
+              : {"ExportType": exportType},
     );
     goRouter.pop();
     result.fold(
-          (failure) {
+      (failure) {
         showErrorMessage(context, 'Error', failure.message);
       },
-          (response) {
+      (response) {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
               ? "Project Document Category Master ${DateTime.now()}.pdf"
               : "Project Document Category Master ${DateTime.now()}.xlsx",
         );
-        showSuccessMessage(context, subTitle: 'Exported as $exportType Successfully');
+        showSuccessMessage(
+          context,
+          subTitle: 'Exported as $exportType Successfully',
+        );
       },
     );
   }
-
 }
