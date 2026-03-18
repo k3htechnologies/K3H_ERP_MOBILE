@@ -98,12 +98,12 @@ class _SnackBarContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      elevation: 10,
+      elevation: 3,
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         decoration: BoxDecoration(
-          color: isError ? AppColor.lightRed : AppColor.lightGreen,
+          color: isError ? AppColor.lightRed : Color(0xffE7F6E9),
           border: Border.all(
             color: isError ? AppColor.error : AppColor.green,
             width: .5,
@@ -116,13 +116,14 @@ class _SnackBarContent extends StatelessWidget {
               subtitle != null
                   ? CrossAxisAlignment.start
                   : CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             // ICON LEFT CIRCLE
             Container(
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: isError ? AppColor.error : AppColor.darkGreen10,
+                color: isError ? AppColor.error : Color(0xff16A34A),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -141,11 +142,10 @@ class _SnackBarContent extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (subtitle != null) ...[
-                    const SizedBox(height: 4),
                     Text(
                       subtitle!,
-                      style: AppTextStyle.ts14R(
-                        color: isError ? AppColor.error : AppColor.darkGreen10,
+                      style: AppTextStyle.ts14SB(
+                        color: isError ? AppColor.error : Color(0xff16A34A),
                       ),
                     ),
                   ],
