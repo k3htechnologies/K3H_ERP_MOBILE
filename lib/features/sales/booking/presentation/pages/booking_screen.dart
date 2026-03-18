@@ -159,14 +159,14 @@ class _BookingScreenState extends State<BookingScreen> {
             ? state.currentSortDirection
             : null;
 
-    final initialWing = state.filterWing ?? '';
-    final initialMobile = state.filterMobileNumber ?? '';
-    final initialFlat = state.filterFlat ?? '';
-    final initialFloor = state.filterFloor ?? '';
-    final initialAgreement = state.filterAgreementValue ?? 0;
-    final initialBookingType = state.filterBookingType ?? '';
-    final initialSource = state.filterSource ?? '';
-    final initialSubSource = state.filterSubSource ?? '';
+    final initialWing = state.filterWing;
+    final initialMobile = state.filterMobileNumber;
+    final initialFlat = state.filterFlat;
+    final initialFloor = state.filterFloor;
+    final initialAgreement = state.filterAgreementValue;
+    final initialBookingType = state.filterBookingType;
+    final initialSource = state.filterSource;
+    final initialSubSource = state.filterSubSource;
 
     _wingC.text = initialWing;
     _mobileNumberC.text = initialMobile;
