@@ -132,7 +132,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
       return;
     }
 
-    if (_selectedBankNotifier.value.isNotEmpty|| _selectedBankNotifier.value.first['zAttributesId'] == -1) {
+    if (_selectedBankNotifier.value.isEmpty) {
       showErrorMessage(context, "Error", "Please select a bank");
       return;
     }
@@ -237,6 +237,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                     builder: (context, selectedEmployee, _) {
                       return CustomMultipleSelectPopup(
                         title: 'Bank',
+                        hintText: "Select Bank",
                         isRequired: true,
                         isMultiSelect: false,
                         initialValue: selectedEmployee,

@@ -380,111 +380,133 @@ class _HolidayMappingMasterScreenState
           _showBottomSheetToFilterHolidayMapping(context);
         },
       ),
-      body: BlocBuilder<HolidayMappingMasterCubit, HolidayMappingMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.holidayMappingList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.holidayMappingList.isEmpty) {
-            return Center(
-              child: noDataWidget(message: "No Holiday Mapping Data Found"),
-            );
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.holidayMappingList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.holidayMappingList.length) {
-                return state.holidayMappingList.length <
-                        state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var holidayMapping = state.holidayMappingList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () async {
-                              await goRouter.pushNamed(
-                                AppRoutes.viewHolidayMappingMaster,
-                                queryParameters: {
-                                  "holidayMapping": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(holidayMapping.toJson()),
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
-                            child: Text(
-                              holidayMapping.holidayName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColor.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _holidayMappingMasterCubit.searchHolidayMapping("", context);
+        },
+        child: BlocBuilder<
+          HolidayMappingMasterCubit,
+          HolidayMappingMasterState
+        >(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.holidayMappingList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.holidayMappingList.isEmpty) {
+              return ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: getActualHeight(context) * .7,
+                    child: Center(
+                      child: noDataWidget(
+                        message: "No Holiday Mapping Data Found",
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.holidayMappingList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.holidayMappingList.length) {
+                  return state.holidayMappingList.length <
+                          state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var holidayMapping = state.holidayMappingList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () async {
                                 await goRouter.pushNamed(
-                                  AppRoutes.addHolidayMappingMaster,
+                                  AppRoutes.viewHolidayMappingMaster,
                                   queryParameters: {
                                     "holidayMapping": Uri.encodeQueryComponent(
                                       EncryptionManager.encryptData(
                                         jsonEncode(holidayMapping.toJson()),
                                       ),
                                     ),
-                                    'index': index.toString(),
                                   },
                                 );
                               },
+                              child: Text(
+                                holidayMapping.holidayName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
+                              ),
                             ),
-                            horizontalSpacing(),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteHolidayMappingMaster(
-                                  context,
-                                  holidayMapping,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(height: 8),
-                    buildRowTitleValue(
-                      title: "Holiday Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        holidayMapping.holidayDate,
+                          ),
+                          Row(
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addHolidayMappingMaster,
+                                    queryParameters: {
+                                      "holidayMapping":
+                                          Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(
+                                                holidayMapping.toJson(),
+                                              ),
+                                            ),
+                                          ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              horizontalSpacing(),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteHolidayMappingMaster(
+                                    context,
+                                    holidayMapping,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                      verticalSpacing(height: 8),
+                      buildRowTitleValue(
+                        title: "Holiday Date",
+                        value: formatDateTimeAsDDMMMYYYY(
+                          holidayMapping.holidayDate,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

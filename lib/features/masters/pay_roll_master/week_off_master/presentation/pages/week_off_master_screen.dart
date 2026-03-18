@@ -224,139 +224,152 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
           _showSortBottomSheetForEarning(context);
         },
       ),
-      body: BlocBuilder<WeekOffMasterCubit, WeekOffMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.weekOffMasterList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.weekOffMasterList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Week Off Found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.weekOffMasterList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.weekOffMasterList.length) {
-                return state.weekOffMasterList.length <
-                        state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var weekOffMaster = state.weekOffMasterList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.viewWeekOffMaster,
-                                queryParameters: {
-                                  "weekOff": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(weekOffMaster.toJson()),
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
-                            child: Text(
-                              weekOffMaster.weekOffPolicyName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColor.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addWeekOffMaster,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _weekOffMasterCubit.searchWeekOff("", context);
+        },
+        child: BlocBuilder<WeekOffMasterCubit, WeekOffMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.weekOffMasterList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.weekOffMasterList.isEmpty) {
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                      height: getActualHeight(context) * .7,
+                      child: Center(child: noDataWidget(message: "No Week Off Found"))),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.weekOffMasterList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.weekOffMasterList.length) {
+                  return state.weekOffMasterList.length <
+                          state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var weekOffMaster = state.weekOffMasterList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.viewWeekOffMaster,
                                   queryParameters: {
                                     "weekOff": Uri.encodeQueryComponent(
                                       EncryptionManager.encryptData(
                                         jsonEncode(weekOffMaster.toJson()),
                                       ),
                                     ),
-                                    'index': index.toString(),
                                   },
                                 );
                               },
+                              child: Text(
+                                weekOffMaster.weekOffPolicyName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
+                              ),
                             ),
-                            const SizedBox(width: 8),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteWeekOffMaster(
-                                  context,
-                                  weekOffMaster,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(height: 10),
-                    buildRowTitleValue(
-                      title: "Week Off Code",
-                      value: weekOffMaster.weekOffPolicyCode,
-                    ),
-                    buildRowTitleValue(
-                      title: "Week Days",
-                      value: weekOffMaster.weekDays.toString(),
-                    ),
-                    buildRowTitleValue(
-                      title: "Week Days Starts On",
-                      value: weekOffMaster.weekDaysStartsOn,
-                    ),
-                    buildRowTitleValue(
-                      title: "Weekly Off",
-                      value: weekOffMaster.weeklyOff,
-                    ),
-                    buildRowTitleValue(
-                      title: "Weekly Off2",
-                      value:
-                          weekOffMaster.weeklyOff2.isEmpty
-                              ? "N/A"
-                              : weekOffMaster.weeklyOff2,
-                    ),
-                    buildRowTitleValue(
-                      title: "Weekly Off2 Type",
-                      value:
-                          weekOffMaster.weeklyOff2Type.isEmpty
-                              ? "N/A"
-                              : weekOffMaster.weeklyOff2Type,
-                    ),
-                    buildRowTitleValue(
-                      title: "Not Applicable For Months",
-                      value: weekOffMaster.notApplicableForMonths,
-                      singleLine: false,
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                          ),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addWeekOffMaster,
+                                    queryParameters: {
+                                      "weekOff": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(weekOffMaster.toJson()),
+                                        ),
+                                      ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteWeekOffMaster(
+                                    context,
+                                    weekOffMaster,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(height: 10),
+                      buildRowTitleValue(
+                        title: "Week Off Code",
+                        value: weekOffMaster.weekOffPolicyCode,
+                      ),
+                      buildRowTitleValue(
+                        title: "Week Days",
+                        value: weekOffMaster.weekDays.toString(),
+                      ),
+                      buildRowTitleValue(
+                        title: "Week Days Starts On",
+                        value: weekOffMaster.weekDaysStartsOn,
+                      ),
+                      buildRowTitleValue(
+                        title: "Weekly Off",
+                        value: weekOffMaster.weeklyOff,
+                      ),
+                      buildRowTitleValue(
+                        title: "Weekly Off2",
+                        value:
+                            weekOffMaster.weeklyOff2.isEmpty
+                                ? "N/A"
+                                : weekOffMaster.weeklyOff2,
+                      ),
+                      buildRowTitleValue(
+                        title: "Weekly Off2 Type",
+                        value:
+                            weekOffMaster.weeklyOff2Type.isEmpty
+                                ? "N/A"
+                                : weekOffMaster.weeklyOff2Type,
+                      ),
+                      buildRowTitleValue(
+                        title: "Not Applicable For Months",
+                        value: weekOffMaster.notApplicableForMonths,
+                        singleLine: false,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

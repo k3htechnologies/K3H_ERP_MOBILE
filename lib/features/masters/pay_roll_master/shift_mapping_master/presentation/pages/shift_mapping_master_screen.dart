@@ -282,122 +282,146 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
           _showBottomSheetToFilterShiftMapping(context);
         },
       ),
-      body: BlocBuilder<ShiftMappingMasterCubit, ShiftMappingMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.shiftMappingList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.shiftMappingList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Shift Mappings Data Found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.shiftMappingList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.shiftMappingList.length) {
-                return state.shiftMappingList.length < state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var shiftMappingMaster = state.shiftMappingList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.viewShiftMappingMaster,
-                                queryParameters: {
-                                  "shiftMapping": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(shiftMappingMaster.toJson()),
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
-                            child: Text(
-                              shiftMappingMaster.shiftName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
-                            ),
-                          ),
-                        ),
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addShiftMappingMaster,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _shiftMappingMasterCubit.searchShiftMapping("", context);
+        },
+        child: BlocBuilder<ShiftMappingMasterCubit, ShiftMappingMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.shiftMappingList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.shiftMappingList.isEmpty) {
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: getActualHeight(context) * .7,
+                    child: Center(
+                      child: noDataWidget(
+                        message: "No Shift Mappings Data Found",
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.shiftMappingList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.shiftMappingList.length) {
+                  return state.shiftMappingList.length <
+                          state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var shiftMappingMaster = state.shiftMappingList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.viewShiftMappingMaster,
                                   queryParameters: {
                                     "shiftMapping": Uri.encodeQueryComponent(
                                       EncryptionManager.encryptData(
                                         jsonEncode(shiftMappingMaster.toJson()),
                                       ),
                                     ),
-                                    'index': index.toString(),
                                   },
                                 );
                               },
+                              child: Text(
+                                shiftMappingMaster.shiftName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
+                              ),
                             ),
-                            const SizedBox(width: 8),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteShiftMappingMaster(
-                                  context,
-                                  shiftMappingMaster,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(height: 10),
+                          ),
 
-                    buildRowTitleValue(
-                      title: "Deparment Name",
-                      value: shiftMappingMaster.departmentName,
-                    ),
-                    buildRowTitleValue(
-                      title: "Employee Name",
-                      value: shiftMappingMaster.employeeName,
-                    ),
-                    buildRowTitleValue(
-                      title: "Shift Code",
-                      value: shiftMappingMaster.shiftCode,
-                    ),
-                    buildRowTitleValue(
-                      title: "Start Time",
-                      value: shiftMappingMaster.shiftBeginTime,
-                    ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addShiftMappingMaster,
+                                    queryParameters: {
+                                      "shiftMapping": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(
+                                            shiftMappingMaster.toJson(),
+                                          ),
+                                        ),
+                                      ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteShiftMappingMaster(
+                                    context,
+                                    shiftMappingMaster,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(height: 10),
 
-                    buildRowTitleValue(
-                      title: "End Time",
-                      value: shiftMappingMaster.shiftEndTime,
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                      buildRowTitleValue(
+                        title: "Deparment Name",
+                        value: shiftMappingMaster.departmentName,
+                      ),
+                      buildRowTitleValue(
+                        title: "Employee Name",
+                        value: shiftMappingMaster.employeeName,
+                      ),
+                      buildRowTitleValue(
+                        title: "Shift Code",
+                        value: shiftMappingMaster.shiftCode,
+                      ),
+                      buildRowTitleValue(
+                        title: "Start Time",
+                        value: shiftMappingMaster.shiftBeginTime,
+                      ),
+
+                      buildRowTitleValue(
+                        title: "End Time",
+                        value: shiftMappingMaster.shiftEndTime,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

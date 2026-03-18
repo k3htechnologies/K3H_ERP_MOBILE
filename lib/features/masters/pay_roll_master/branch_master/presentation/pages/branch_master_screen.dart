@@ -282,116 +282,132 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
           _showBottomSheetToFilterBranch(context);
         },
       ),
-      body: BlocBuilder<BranchMasterCubit, BranchMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.branchList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.branchList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Branch Data Found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.branchList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.branchList.length) {
-                return state.branchList.length < state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var branch = state.branchList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.viewBranchMaster,
-                                queryParameters: {
-                                  "branchMaster": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(branch.toJson()),
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
-                            child: Text(
-                              branch.branchName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColor.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addBranchMaster,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _branchMasterCubit.searchBranch("", context);
+        },
+        child: BlocBuilder<BranchMasterCubit, BranchMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.branchList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.branchList.isEmpty) {
+              return ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    child: Center(
+                      child: noDataWidget(message: "No Branch Data Found"),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.branchList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.branchList.length) {
+                  return state.branchList.length < state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var branch = state.branchList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.viewBranchMaster,
                                   queryParameters: {
                                     "branchMaster": Uri.encodeQueryComponent(
                                       EncryptionManager.encryptData(
                                         jsonEncode(branch.toJson()),
                                       ),
                                     ),
-                                    'index': index.toString(),
                                   },
                                 );
                               },
+                              child: Text(
+                                branch.branchName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
+                              ),
                             ),
-                            if (branch.numberOfEmployee == 0) ...[
-                              const SizedBox(width: 8),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteAssetMappingMaster(
-                                    context,
-                                    branch,
-                                    state.currentPage,
-                                    index,
+                          ),
+                          Row(
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addBranchMaster,
+                                    queryParameters: {
+                                      "branchMaster": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(branch.toJson()),
+                                        ),
+                                      ),
+                                      'index': index.toString(),
+                                    },
                                   );
                                 },
                               ),
+                              if (branch.numberOfEmployee == 0) ...[
+                                const SizedBox(width: 8),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showPopupToDeleteAssetMappingMaster(
+                                      context,
+                                      branch,
+                                      state.currentPage,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
                             ],
-                          ],
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(height: 8),
-                    buildRowTitleValue(
-                      title: "Branch Code",
-                      value: branch.branchCode,
-                    ),
-                    buildRowTitleValue(
-                      title: "Location",
-                      value: branch.location,
-                    ),
-                    buildRowTitleValue(
-                      title: "Employee Count",
-                      value: branch.numberOfEmployee.toString(),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(height: 8),
+                      buildRowTitleValue(
+                        title: "Branch Code",
+                        value: branch.branchCode,
+                      ),
+                      buildRowTitleValue(
+                        title: "Location",
+                        value: branch.location,
+                      ),
+                      buildRowTitleValue(
+                        title: "Employee Count",
+                        value: branch.numberOfEmployee.toString(),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

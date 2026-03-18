@@ -248,108 +248,124 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
           _showBottomSheetToFilterAssetMapping(context);
         },
       ),
-      body: BlocBuilder<AssetMappingMasterCubit, AssetMappingMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.assetMappingList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.assetMappingList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Asset Data Found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.assetMappingList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.assetMappingList.length) {
-                return state.assetMappingList.length < state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var assetMapping = state.assetMappingList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.viewAssetMappingMaster,
-                                queryParameters: {
-                                  "assetMapping": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(assetMapping.toJson()),
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
-                            child:  Text(
-                              assetMapping.assetName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
-                            ),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
+      body: SizedBox(
+        child: BlocBuilder<AssetMappingMasterCubit, AssetMappingMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.assetMappingList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.assetMappingList.isEmpty) {
+              return ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    child: Center(
+                      child: noDataWidget(message: "No Asset Data Found"),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.assetMappingList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.assetMappingList.length) {
+                  return state.assetMappingList.length <
+                          state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var assetMapping = state.assetMappingList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () {
                                 goRouter.pushNamed(
-                                  AppRoutes.addAssetMappingMaster,
+                                  AppRoutes.viewAssetMappingMaster,
                                   queryParameters: {
                                     "assetMapping": Uri.encodeQueryComponent(
                                       EncryptionManager.encryptData(
                                         jsonEncode(assetMapping.toJson()),
                                       ),
                                     ),
-                                    'index': index.toString(),
                                   },
                                 );
                               },
+                              child: Text(
+                                assetMapping.assetName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
+                              ),
                             ),
-                          ],
+                          ),
+                          Row(
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  goRouter.pushNamed(
+                                    AppRoutes.addAssetMappingMaster,
+                                    queryParameters: {
+                                      "assetMapping": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(assetMapping.toJson()),
+                                        ),
+                                      ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(height: 8),
+                      buildRowTitleValue(
+                        title: "Employee",
+                        value: assetMapping.employeeName,
+                      ),
+                      buildRowTitleValue(
+                        title: "Assigned Date",
+                        value: formatDateTimeAsDDMMMYYYY(
+                          assetMapping.assignedDate,
                         ),
-                      ],
-                    ),
-                    verticalSpacing(height: 8),
-                    buildRowTitleValue(
-                      title: "Employee",
-                      value: assetMapping.employeeName,
-                    ),
-                    buildRowTitleValue(
-                      title: "Assigned Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        assetMapping.assignedDate,
                       ),
-                    ),
-                    if (assetMapping.conditionOnIssue.isNotEmpty)
-                      buildRowTitleValue(
-                        title: "Condition on Issue",
-                        value: assetMapping.conditionOnIssue,
-                      ),
-                    if (assetMapping.conditionOnReturn.isNotEmpty)
-                      buildRowTitleValue(
-                        title: "Condition on Return",
-                        value: assetMapping.conditionOnReturn,
-                      ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                      if (assetMapping.conditionOnIssue.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "Condition on Issue",
+                          value: assetMapping.conditionOnIssue,
+                        ),
+                      if (assetMapping.conditionOnReturn.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "Condition on Return",
+                          value: assetMapping.conditionOnReturn,
+                        ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

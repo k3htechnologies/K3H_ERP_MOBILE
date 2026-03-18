@@ -412,100 +412,77 @@ class _LeaveCreditConfigurationMasterScreenState
           _showBottomSheetToFilterLeaveCreditConfiguration(context);
         },
       ),
-      body: BlocBuilder<
-        LeaveCreditConfigurationMasterCubit,
-        LeaveCreditConfigurationMasterState
-      >(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) &&
-              state.leaveCreditConfigurationMasterList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.leaveCreditConfigurationMasterList.isEmpty) {
-            return Center(
-              child: noDataWidget(
-                message: "No Leave Credit Configuration Data Found",
-              ),
-            );
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount:
-                _leaveCreditConfigurationMasterCubit
-                    .state
-                    .leaveCreditConfigurationMasterList
-                    .length +
-                1,
-            itemBuilder: (context, index) {
-              if (index == state.leaveCreditConfigurationMasterList.length) {
-                return state.leaveCreditConfigurationMasterList.length <
-                        state.totalNumberOfRecord
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var leaveCreditConfigurationMaster =
-                  state.leaveCreditConfigurationMasterList[index];
-              return Container(
-                margin: EdgeInsets.only(bottom: 10),
-                padding: EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.viewLeaveCreditConfigurationMaster,
-                                queryParameters: {
-                                  "leaveCreditConfiguration":
-                                      Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(
-                                            leaveCreditConfigurationMaster
-                                                .toJson(),
-                                          ),
-                                        ),
-                                      ),
-                                },
-                              );
-                            },
-                            child: Container(
-                              padding: EdgeInsets.only(
-                                bottom: 4,
-                                left: 4,
-                                right: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Text(
-                                leaveCreditConfigurationMaster.departmentName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addLeaveCreditConfigurationMaster,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _leaveCreditConfigurationMasterCubit.searchLeaveCreditConfiguration(
+            context,
+            "",
+          );
+        },
+        child: BlocBuilder<
+          LeaveCreditConfigurationMasterCubit,
+          LeaveCreditConfigurationMasterState
+        >(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) &&
+                state.leaveCreditConfigurationMasterList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.leaveCreditConfigurationMasterList.isEmpty) {
+              return ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: getActualHeight(context) * .7,
+                    child: Center(
+                      child: noDataWidget(
+                        message: "No Leave Credit Configuration Data Found",
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount:
+                  _leaveCreditConfigurationMasterCubit
+                      .state
+                      .leaveCreditConfigurationMasterList
+                      .length +
+                  1,
+              itemBuilder: (context, index) {
+                if (index == state.leaveCreditConfigurationMasterList.length) {
+                  return state.leaveCreditConfigurationMasterList.length <
+                          state.totalNumberOfRecord
+                      ? Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var leaveCreditConfigurationMaster =
+                    state.leaveCreditConfigurationMasterList[index];
+                return Container(
+                  margin: EdgeInsets.only(bottom: 10),
+                  padding: EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.viewLeaveCreditConfigurationMaster,
                                   queryParameters: {
-                                    'leaveCreditConfiguration':
+                                    "leaveCreditConfiguration":
                                         Uri.encodeComponent(
                                           EncryptionManager.encryptData(
                                             jsonEncode(
@@ -514,58 +491,98 @@ class _LeaveCreditConfigurationMasterScreenState
                                             ),
                                           ),
                                         ),
-                                    'index': index.toString(),
                                   },
                                 );
                               },
+                              child: Container(
+                                padding: EdgeInsets.only(
+                                  bottom: 4,
+                                  left: 4,
+                                  right: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(color: AppColor.primary),
+                                  ),
+                                ),
+                                child: Text(
+                                  leaveCreditConfigurationMaster.departmentName,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ),
+                                ),
+                              ),
                             ),
-                            horizontalSpacing(),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showDeleteDialog(
-                                  context,
-                                  leaveCreditConfigurationMaster,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
+                          ),
+                          Row(
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addLeaveCreditConfigurationMaster,
+                                    queryParameters: {
+                                      'leaveCreditConfiguration':
+                                          Uri.encodeComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(
+                                                leaveCreditConfigurationMaster
+                                                    .toJson(),
+                                              ),
+                                            ),
+                                          ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              horizontalSpacing(),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showDeleteDialog(
+                                    context,
+                                    leaveCreditConfigurationMaster,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(),
+                      _buildInfoRow(
+                        "Period Mode",
+                        leaveCreditConfigurationMaster.leavePeriodMode,
+                      ),
+                      verticalSpacing(height: 5),
+                      _buildInfoRow(
+                        "Financial Year Start Date",
+                        formatDateTimeAsDDMMMYYYY(
+                          leaveCreditConfigurationMaster.financialYearStartDate,
                         ),
-                      ],
-                    ),
-                    verticalSpacing(),
-                    _buildInfoRow(
-                      "Period Mode",
-                      leaveCreditConfigurationMaster.leavePeriodMode,
-                    ),
-                    verticalSpacing(height: 5),
-                    _buildInfoRow(
-                      "Financial Year Start Date",
-                      formatDateTimeAsDDMMMYYYY(
-                        leaveCreditConfigurationMaster.financialYearStartDate,
                       ),
-                    ),
-                    verticalSpacing(height: 5),
-                    _buildInfoRow(
-                      "Financial Year End Date",
-                      formatDateTimeAsDDMMMYYYY(
-                        leaveCreditConfigurationMaster.financialYearEndDate,
+                      verticalSpacing(height: 5),
+                      _buildInfoRow(
+                        "Financial Year End Date",
+                        formatDateTimeAsDDMMMYYYY(
+                          leaveCreditConfigurationMaster.financialYearEndDate,
+                        ),
                       ),
-                    ),
-                    verticalSpacing(height: 5),
-                    _buildInfoRow(
-                      "Designation",
-                      leaveCreditConfigurationMaster.designationName.isEmpty
-                          ? "-"
-                          : leaveCreditConfigurationMaster.designationName,
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                      verticalSpacing(height: 5),
+                      _buildInfoRow(
+                        "Designation",
+                        leaveCreditConfigurationMaster.designationName.isEmpty
+                            ? "-"
+                            : leaveCreditConfigurationMaster.designationName,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

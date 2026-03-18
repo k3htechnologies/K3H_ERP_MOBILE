@@ -27,6 +27,7 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProjectDetailsScreen extends StatefulWidget {
   final ProjectModel project;
@@ -381,12 +382,34 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
+                      title: "CTS Number",
+                      value: widget.project.ctsNumber,
+                    ),
+                    buildColumnTitleValue(
                       title: "Business Category",
                       value: widget.project.bussinessCategory,
                     ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     buildColumnTitleValue(
-                      title: "CTS Number",
-                      value: widget.project.ctsNumber,
+                      title: "Architect Name",
+                      value: widget.project.architectName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Architect Mobile Number",
+                      value: widget.project.architectMobileNumber,
+                    ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "File Number",
+                      value: widget.project.fileNumber,
                     ),
                   ],
                 ),
@@ -417,8 +440,32 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                     buildColumnTitleValue(
                       title: "Google Location",
                       value: widget.project.googleLocation,
-                      valueTextStyle: AppTextStyle.ts14M(
-                        color: AppColor.primary,
+                      customValueWidget: GestureDetector(
+                        onTap: () async {
+                          final url = widget.project.googleLocation;
+
+                          if (url.isNotEmpty) {
+                            final Uri uri = Uri.parse(url);
+
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(
+                                uri,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            }
+                          }
+                        },
+                        child: Text(
+                          widget.project.googleLocation.isEmpty
+                              ? "-"
+                              : widget.project.googleLocation,
+                          style: AppTextStyle.ts14M(
+                            color: AppColor.primary,
+                          ).copyWith(
+                            decoration: TextDecoration.underline,
+                            decorationColor: AppColor.primary,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -454,6 +501,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 verticalSpacing(),
                 Row(
                   children: [
+                    buildColumnTitleValue(
+                      title: "Village",
+                      value: widget.project.villageName,
+                    ),
                     buildColumnTitleValue(
                       title: "PIN Code",
                       value: widget.project.zipCode,

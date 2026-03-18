@@ -15,6 +15,9 @@ class ProjectModel {
   int numberOfEmployee;
   bool isRedevelopment;
   String bussinessCategory;
+  String fileNumber;
+  String architectName;
+  String architectMobileNumber;
   String projectShortName;
   int countryMasterId;
   String countryName;
@@ -24,6 +27,8 @@ class ProjectModel {
   String stateName;
   int cityMasterId;
   String cityName;
+  int villageMasterId;
+  String villageName;
   String zipCode;
   String projectScope;
   double projectEstimateCost;
@@ -65,6 +70,9 @@ class ProjectModel {
     required this.numberOfEmployee,
     required this.isRedevelopment,
     required this.bussinessCategory,
+    required this.fileNumber,
+    required this.architectName,
+    required this.architectMobileNumber,
     required this.projectShortName,
     required this.countryMasterId,
     required this.countryName,
@@ -74,6 +82,8 @@ class ProjectModel {
     required this.stateName,
     required this.cityMasterId,
     required this.cityName,
+    required this.villageMasterId,
+    required this.villageName,
     required this.zipCode,
     required this.projectScope,
     required this.projectEstimateCost,
@@ -116,6 +126,9 @@ class ProjectModel {
     numberOfEmployee: parseValue<int>(json, "NumberOfEmployee"),
     isRedevelopment: parseValue<bool>(json, "IsRedevelopment"),
     bussinessCategory: parseValue<String>(json, "BussinessCategory"),
+    fileNumber: parseValue<String>(json, "FileNumber"),
+    architectName: parseValue<String>(json, "ArchitectName"),
+    architectMobileNumber: parseValue<String>(json, "ArchitectMobileNumber"),
     projectShortName: parseValue<String>(json, "ProjectShortName"),
     countryMasterId: parseValue<int>(json, "CountryMasterId"),
     countryName: parseValue<String>(json, "CountryName"),
@@ -125,6 +138,8 @@ class ProjectModel {
     stateName: parseValue<String>(json, "StateName"),
     cityMasterId: parseValue<int>(json, "CityMasterId"),
     cityName: parseValue<String>(json, "CityName"),
+    villageMasterId: parseValue<int>(json, "VillageMasterId"),
+    villageName: parseValue<String>(json, "VillageName"),
     zipCode: parseValue<String>(json, "ZipCode"),
     projectScope: parseValue<String>(json, "ProjectScope"),
     projectEstimateCost: parseValue<double>(json, "ProjectEstimateCost"),
@@ -203,6 +218,9 @@ class ProjectModel {
     "NumberOfEmployee": numberOfEmployee,
     "IsRedevelopment": isRedevelopment,
     "BussinessCategory": bussinessCategory,
+    "FileNumber": fileNumber,
+    "ArchitectName": architectName,
+    "ArchitectMobileNumber": architectMobileNumber,
     "ProjectShortName": projectShortName,
     "CountryMasterId": countryMasterId,
     "CountryName": countryName,
@@ -212,6 +230,8 @@ class ProjectModel {
     "StateName": stateName,
     "CityMasterId": cityMasterId,
     "CityName": cityName,
+    "VillageMasterId": villageMasterId,
+    "VillageName": villageName,
     "ZipCode": zipCode,
     "ProjectScope": projectScope,
     "ProjectEstimateCost": projectEstimateCost,

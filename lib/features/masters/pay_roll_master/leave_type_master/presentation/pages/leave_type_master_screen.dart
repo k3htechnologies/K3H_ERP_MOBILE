@@ -233,96 +233,115 @@ class _LeaveTypeMasterScreenState extends State<LeaveTypeMasterScreen> {
           _showSortBottomSheetForLeaveType(context);
         },
       ),
-      body: BlocBuilder<LeaveTypeMasterCubit, LeaveTypeMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.leaveTypeList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.leaveTypeList.isEmpty) {
-            return Center(
-              child: noDataWidget(message: "No Leave Types Data Found"),
-            );
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.leaveTypeList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.leaveTypeList.length) {
-                return state.leaveTypeList.length < state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var leaveType = state.leaveTypeList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(child: Text(leaveType.leaveType, style: AppTextStyle.ts16M())),
-                        horizontalSpacing(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addLeaveTypeMaster,
-                                  queryParameters: {
-                                    "leaveType": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(leaveType.toJson()),
-                                      ),
-                                    ),
-                                    'index': index.toString(),
-                                  },
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteLeaveTypeMaster(
-                                  context,
-                                  leaveType,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    buildRowTitleValue(
-                      title: "Leave Type Code",
-                      value: leaveType.leaveTypeCode,
-                    ),
-                    buildRowTitleValue(
-                      title: "Carry Forward",
-                      value: leaveType.isCarryForward == true ? "Yes" : "No",
-                    ),
-                    buildRowTitleValue(
-                      title: "Max Carry Forward",
-                      value: leaveType.maxCarryForward.toString(),
-                    ),
-                    buildRowTitleValue(
-                      title: "Encashable",
-                      value: leaveType.isEncashable == true ? "Yes" : "No",
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _leaveTypeMasterCubit.searchLeaveType("", context);
         },
+        child: BlocBuilder<LeaveTypeMasterCubit, LeaveTypeMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.leaveTypeList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.leaveTypeList.isEmpty) {
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: getActualHeight(context) * .7,
+                    child: Center(
+                      child: noDataWidget(message: "No Leave Types Data Found"),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.leaveTypeList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.leaveTypeList.length) {
+                  return state.leaveTypeList.length < state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var leaveType = state.leaveTypeList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              leaveType.leaveType,
+                              style: AppTextStyle.ts16M(),
+                            ),
+                          ),
+                          horizontalSpacing(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addLeaveTypeMaster,
+                                    queryParameters: {
+                                      "leaveType": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(leaveType.toJson()),
+                                        ),
+                                      ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteLeaveTypeMaster(
+                                    context,
+                                    leaveType,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      buildRowTitleValue(
+                        title: "Leave Type Code",
+                        value: leaveType.leaveTypeCode,
+                      ),
+                      buildRowTitleValue(
+                        title: "Carry Forward",
+                        value: leaveType.isCarryForward == true ? "Yes" : "No",
+                      ),
+                      buildRowTitleValue(
+                        title: "Max Carry Forward",
+                        value: leaveType.maxCarryForward.toString(),
+                      ),
+                      buildRowTitleValue(
+                        title: "Encashable",
+                        value: leaveType.isEncashable == true ? "Yes" : "No",
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

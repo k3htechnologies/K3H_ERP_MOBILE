@@ -316,119 +316,141 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
           _showBottomSheetToFilterAsset(context);
         },
       ),
-      body: BlocBuilder<AssetMasterCubit, AssetMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.assetList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.assetList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Assets Found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.assetList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.assetList.length) {
-                return state.assetList.length < state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var asset = state.assetList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.viewAssetMaster,
-                                queryParameters: {
-                                  "asset": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(asset.toJson()),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _assetMasterCubit.searchAsset("", context);
+        },
+        child: BlocBuilder<AssetMasterCubit, AssetMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.assetList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.assetList.isEmpty) {
+              return ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    child: Center(
+                      child: noDataWidget(message: "No Assets Found"),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.assetList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.assetList.length) {
+                  return state.assetList.length < state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var asset = state.assetList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.viewAssetMaster,
+                                  queryParameters: {
+                                    "asset": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(asset.toJson()),
+                                      ),
                                     ),
+                                  },
+                                );
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 0,
+                                  vertical: 4,
+                                ),
+                                child: Text(
+                                  asset.assetName,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ).copyWith(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColor.primary,
                                   ),
-                                },
-                              );
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              child: Text(
-                                asset.assetName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        Row(
-                          spacing: 10,
-                          children: [
-                            if (asset.status.toLowerCase() != "booked") ...[
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addAssetMaster,
-                                    queryParameters: {
-                                      "asset": Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(asset.toJson()),
+                          Row(
+                            spacing: 10,
+                            children: [
+                              if (asset.status.toLowerCase() != "booked") ...[
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addAssetMaster,
+                                      queryParameters: {
+                                        "asset": Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(asset.toJson()),
+                                          ),
                                         ),
-                                      ),
-                                      'index': index.toString(),
-                                    },
-                                  );
-                                },
-                              ),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteAssetMaster(
-                                    context,
-                                    asset,
-                                    state.currentPage,
-                                    index,
-                                  );
-                                },
-                              ),
+                                        'index': index.toString(),
+                                      },
+                                    );
+                                  },
+                                ),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showPopupToDeleteAssetMaster(
+                                      context,
+                                      asset,
+                                      state.currentPage,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
+                              _buildStatusWidget(asset.status),
                             ],
-                            _buildStatusWidget(asset.status),
-                          ],
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(height: 8),
-                    buildRowTitleValue(title: "Code", value: asset.assetCode),
-                    buildRowTitleValue(title: "Type", value: asset.assetType),
-                    buildRowTitleValue(title: "Brand", value: asset.assetBrand),
-                    buildRowTitleValue(title: "Model", value: asset.assetModel),
-                    buildRowTitleValue(
-                      title: "Serial Number",
-                      value: asset.serialNumber,
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(height: 8),
+                      buildRowTitleValue(title: "Code", value: asset.assetCode),
+                      buildRowTitleValue(title: "Type", value: asset.assetType),
+                      buildRowTitleValue(
+                        title: "Brand",
+                        value: asset.assetBrand,
+                      ),
+                      buildRowTitleValue(
+                        title: "Model",
+                        value: asset.assetModel,
+                      ),
+                      buildRowTitleValue(
+                        title: "Serial Number",
+                        value: asset.serialNumber,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

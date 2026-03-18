@@ -111,7 +111,7 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
     final String? initialDirection = selectedDirection;
 
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-  
+
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         applyEnabled.value = selectedDirection != initialDirection;
@@ -189,7 +189,7 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
         );
       },
       onApply: () {
-         _earningMasterCubit.applyFilterAndSort(
+        _earningMasterCubit.applyFilterAndSort(
           context: context,
           sortColumn: "Name",
           sortDirection: selectedDirection,
@@ -228,121 +228,137 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
           _showSortBottomSheetForEarning(context);
         },
       ),
-      body: BlocBuilder<EarningMasterCubit, EarningMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.earningList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.earningList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Earnings Data Found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.earningList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.earningList.length) {
-                return state.earningList.length < state.totalNumberOfRecord
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var earning = state.earningList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () async {
-                              await goRouter.pushNamed(
-                                AppRoutes.viewEarningMaster,
-                                queryParameters: {
-                                  "earning": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(earning.toJson()),
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: AppColor.primary),
-                                ),
-                              ),
-                              child: Text(
-                                earning.name,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _earningMasterCubit.searchEarning("", context);
+        },
+        child: BlocBuilder<EarningMasterCubit, EarningMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.earningList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.earningList.isEmpty) {
+              return ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: getActualHeight(context) * .7,
+                    child: Center(
+                      child: noDataWidget(message: "No Earnings Data Found"),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.earningList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.earningList.length) {
+                  return state.earningList.length < state.totalNumberOfRecord
+                      ? Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var earning = state.earningList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () async {
                                 await goRouter.pushNamed(
-                                  AppRoutes.addEarningMaster,
+                                  AppRoutes.viewEarningMaster,
                                   queryParameters: {
                                     "earning": Uri.encodeQueryComponent(
                                       EncryptionManager.encryptData(
                                         jsonEncode(earning.toJson()),
                                       ),
                                     ),
-                                    'index': index.toString(),
                                   },
                                 );
                               },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 0,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(color: AppColor.primary),
+                                  ),
+                                ),
+                                child: Text(
+                                  earning.name,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
                             ),
-                            const SizedBox(width: 8),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteEarningMaster(
-                                  context,
-                                  earning,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(height: 8),
-                    buildRowTitleValue(title: "Type", value: earning.type),
-                    buildRowTitleValue(
-                      title: "Value",
-                      value: "₹ ${earning.value}",
-                    ),
-                    buildRowTitleValue(
-                      title: "Branch Name",
-                      value: earning.branchName,
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                          ),
+                          Row(
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addEarningMaster,
+                                    queryParameters: {
+                                      "earning": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(earning.toJson()),
+                                        ),
+                                      ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteEarningMaster(
+                                    context,
+                                    earning,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(height: 8),
+                      buildRowTitleValue(title: "Type", value: earning.type),
+                      buildRowTitleValue(
+                        title: "Value",
+                        value: "₹ ${earning.value}",
+                      ),
+                      buildRowTitleValue(
+                        title: "Branch Name",
+                        value: earning.branchName,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

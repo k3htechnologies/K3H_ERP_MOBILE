@@ -231,121 +231,141 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
           _showSortBottomSheetForShift(context);
         },
       ),
-      body: BlocBuilder<ShiftMasterCubit, ShiftMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.shiftMasterList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.shiftMasterList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Shift Data Found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.shiftMasterList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.shiftMasterList.length) {
-                return state.shiftMasterList.length < state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var shiftMaster = state.shiftMasterList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.viewShiftMaster,
-                                queryParameters: {
-                                  "shift": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(shiftMaster.toJson()),
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
-                            child: Text(
-                              shiftMaster.shiftName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
-                            ),
-                          ),
-                        ),
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addShiftMaster,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _shiftMasterCubit.searchShift("", context);
+        },
+        child: BlocBuilder<ShiftMasterCubit, ShiftMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.shiftMasterList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.shiftMasterList.isEmpty) {
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: getActualHeight(context) * .7,
+                    child: Center(
+                      child: noDataWidget(message: "No Shift Data Found"),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.shiftMasterList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.shiftMasterList.length) {
+                  return state.shiftMasterList.length <
+                          state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var shiftMaster = state.shiftMasterList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.viewShiftMaster,
                                   queryParameters: {
                                     "shift": Uri.encodeQueryComponent(
                                       EncryptionManager.encryptData(
                                         jsonEncode(shiftMaster.toJson()),
                                       ),
                                     ),
-                                    'index': index.toString(),
                                   },
                                 );
                               },
+                              child: Text(
+                                shiftMaster.shiftName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
+                              ),
                             ),
-                            const SizedBox(width: 8),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteShiftMaster(
-                                  context,
-                                  shiftMaster,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(height: 10),
-                    buildRowTitleValue(
-                      title: "Shift Code",
-                      value: shiftMaster.shiftCode,
-                    ),
-                    buildRowTitleValue(
-                      title: "Shift Begin Time",
-                      value: shiftMaster.shiftBeginTime,
-                    ),
-                    buildRowTitleValue(
-                      title: "Shift End Time",
-                      value: shiftMaster.shiftEndTime,
-                    ),
-                    buildRowTitleValue(
-                      title: "Shift Duration Time",
-                      value: shiftMaster.shiftDurationTime,
-                    ),
+                          ),
 
-                    buildRowTitleValue(
-                      title: "Shift Work Duration Time",
-                      value: shiftMaster.shiftWorkDurationTime,
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addShiftMaster,
+                                    queryParameters: {
+                                      "shift": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(shiftMaster.toJson()),
+                                        ),
+                                      ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteShiftMaster(
+                                    context,
+                                    shiftMaster,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      verticalSpacing(height: 10),
+                      buildRowTitleValue(
+                        title: "Shift Code",
+                        value: shiftMaster.shiftCode,
+                      ),
+                      buildRowTitleValue(
+                        title: "Shift Begin Time",
+                        value: shiftMaster.shiftBeginTime,
+                      ),
+                      buildRowTitleValue(
+                        title: "Shift End Time",
+                        value: shiftMaster.shiftEndTime,
+                      ),
+                      buildRowTitleValue(
+                        title: "Shift Duration Time",
+                        value: shiftMaster.shiftDurationTime,
+                      ),
+
+                      buildRowTitleValue(
+                        title: "Shift Work Duration Time",
+                        value: shiftMaster.shiftWorkDurationTime,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

@@ -120,131 +120,145 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
           _leaveEncashmentMasterCubit.searchLeaveEnhancement(context, value);
         },
       ),
-      body: Column(
-        children: [
-          BlocBuilder<LeaveEncashmentMasterCubit, LeaveEncashmentMasterState>(
-            builder: (context, state) {
-              if ((state.isLoading ?? true) &&
-                  state.leaveEncashmentList.isEmpty) {
-                return Expanded(child: Center(child: loader()));
-              }
-              if (state.leaveEncashmentList.isEmpty) {
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _leaveEncashmentMasterCubit.searchLeaveEnhancement(context, "");
+        },
+        child: Column(
+          children: [
+            BlocBuilder<LeaveEncashmentMasterCubit, LeaveEncashmentMasterState>(
+              builder: (context, state) {
+                if ((state.isLoading ?? true) &&
+                    state.leaveEncashmentList.isEmpty) {
+                  return Expanded(child: Center(child: loader()));
+                }
+                if (state.leaveEncashmentList.isEmpty) {
+                  return Expanded(
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        SizedBox(
+                          height: getActualHeight(context) * .7,
+                          child: Center(
+                            child: noDataWidget(message: "No Leave Encashment Found"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
                 return Expanded(
-                  child: Center(
-                    child: noDataWidget(message: "No Leave Encashment Found"),
-                  ),
-                );
-              }
-              return Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  controller: scrollController,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  itemCount: state.leaveEncashmentList.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == state.leaveEncashmentList.length) {
-                      return state.leaveEncashmentList.length <
-                              state.totalNumberOfRecord
-                          ? const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                          : const SizedBox.shrink();
-                    }
-                    var leaveEncashment = state.leaveEncashmentList[index];
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.all(12),
-                      decoration: commonCardDecoration(),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  leaveEncashment.earningMasterName,
-                                  style: AppTextStyle.ts14M(
-                                    color: AppColor.primary,
-                                  )
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    controller: scrollController,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    itemCount: state.leaveEncashmentList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == state.leaveEncashmentList.length) {
+                        return state.leaveEncashmentList.length <
+                                state.totalNumberOfRecord
+                            ? const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
+                      var leaveEncashment = state.leaveEncashmentList[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    leaveEncashment.earningMasterName,
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.primary,
+                                    )
+                                  ),
                                 ),
-                              ),
-                              horizontalSpacing(),
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addLeaveEncashmentMaster,
-                                    queryParameters: {
-                                      "leaveEncashment":
-                                          Uri.encodeQueryComponent(
-                                            EncryptionManager.encryptData(
-                                              jsonEncode(
-                                                leaveEncashment.toJson(),
+                                horizontalSpacing(),
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addLeaveEncashmentMaster,
+                                      queryParameters: {
+                                        "leaveEncashment":
+                                            Uri.encodeQueryComponent(
+                                              EncryptionManager.encryptData(
+                                                jsonEncode(
+                                                  leaveEncashment.toJson(),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                      'index': index.toString(),
-                                    },
-                                  );
-                                },
-                              ),
-                              const SizedBox(width: 8),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteLeaveEncashmentMaster(
-                                    context,
-                                    leaveEncashment,
-                                    state.currentPage,
-                                    index,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                          verticalSpacing(height: 10),
-                          buildRowTitleValue(
-                            title: "Minimum Salary",
-                            value: leaveEncashment.minSalary.toString(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Maximum Salary",
-                            value: leaveEncashment.maxSalary.toString(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Encashment Rate",
-                            value: leaveEncashment.encashmentRate.toString(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Created By",
-                            value: leaveEncashment.createdBy,
-                          ),
-                          buildRowTitleValue(
-                            title: "Created Date",
-                            value: formatDate(leaveEncashment.createdDate),
-                          ),
-                          buildRowTitleValue(
-                            title: "Modified By",
-                            value: leaveEncashment.modifiedBy,
-                          ),
-                          buildRowTitleValue(
-                            title: "Modified Date",
-                            value:
-                                leaveEncashment.modifiedDate != null
-                                    ? formatDate(leaveEncashment.modifiedDate!)
-                                    : "",
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-          ),
-        ],
+                                        'index': index.toString(),
+                                      },
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 8),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showPopupToDeleteLeaveEncashmentMaster(
+                                      context,
+                                      leaveEncashment,
+                                      state.currentPage,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(height: 10),
+                            buildRowTitleValue(
+                              title: "Minimum Salary",
+                              value: leaveEncashment.minSalary.toString(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Maximum Salary",
+                              value: leaveEncashment.maxSalary.toString(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Encashment Rate",
+                              value: leaveEncashment.encashmentRate.toString(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Created By",
+                              value: leaveEncashment.createdBy,
+                            ),
+                            buildRowTitleValue(
+                              title: "Created Date",
+                              value: formatDate(leaveEncashment.createdDate),
+                            ),
+                            buildRowTitleValue(
+                              title: "Modified By",
+                              value: leaveEncashment.modifiedBy,
+                            ),
+                            buildRowTitleValue(
+                              title: "Modified Date",
+                              value:
+                                  leaveEncashment.modifiedDate != null
+                                      ? formatDate(leaveEncashment.modifiedDate!)
+                                      : "",
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

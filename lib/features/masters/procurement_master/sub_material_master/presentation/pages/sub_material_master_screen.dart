@@ -135,120 +135,138 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
         textController: _searchC,
         searchHintText: "Search by Sub Material Name",
       ),
-      body: BlocBuilder<SubMaterialMasterCubit, SubMaterialMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.subMaterialList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.subMaterialList.isEmpty) {
-            return Center(
-              child: noDataWidget(message: "No Sub Materials Data Found"),
-            );
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: _subMaterialMasterCubit.state.subMaterialList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.subMaterialList.length) {
-                return state.subMaterialList.length < state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var subMaterial = state.subMaterialList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.viewSubMaterialMaster,
-                                queryParameters: {
-                                  "subMaterial": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(subMaterial.toJson()),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _subMaterialMasterCubit.searchSubMaterial(context, '');
+        },
+        child: BlocBuilder<SubMaterialMasterCubit, SubMaterialMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.subMaterialList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.subMaterialList.isEmpty) {
+              return ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    child: Center(
+                      child: noDataWidget(
+                        message: "No Sub Materials Data Found",
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount:
+                  _subMaterialMasterCubit.state.subMaterialList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.subMaterialList.length) {
+                  return state.subMaterialList.length <
+                          state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var subMaterial = state.subMaterialList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.viewSubMaterialMaster,
+                                  queryParameters: {
+                                    "subMaterial": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(subMaterial.toJson()),
+                                      ),
                                     ),
-                                  ),
-                                },
-                              );
-                            },
+                                  },
+                                );
+                              },
 
-                            child: Text(
-                              subMaterial.subMaterialName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColor.primary,
+                              child: Text(
+                                subMaterial.subMaterialName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        if (_routeAuthorizationModel.isAction) ...[
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addSubMaterialMaster,
-                                    queryParameters: {
-                                      "subMaterial": Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(subMaterial.toJson()),
+                          if (_routeAuthorizationModel.isAction) ...[
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addSubMaterialMaster,
+                                      queryParameters: {
+                                        "subMaterial": Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(subMaterial.toJson()),
+                                          ),
                                         ),
-                                      ),
-                                      'index': index.toString(),
-                                    },
-                                  );
-                                },
-                              ),
-                              horizontalSpacing(),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteSubMaterialMaster(
-                                    context,
-                                    subMaterial,
-                                    state.currentPage,
-                                    index,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
+                                        'index': index.toString(),
+                                      },
+                                    );
+                                  },
+                                ),
+                                horizontalSpacing(),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showPopupToDeleteSubMaterialMaster(
+                                      context,
+                                      subMaterial,
+                                      state.currentPage,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
-                      ],
-                    ),
-                    verticalSpacing(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _buildInfoChip(
-                          label: "Material",
-                          value: subMaterial.materialName,
-                        ),
-                        _buildInfoChip(label: "UOM", value: subMaterial.uom),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                      ),
+                      verticalSpacing(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _buildInfoChip(
+                            label: "Material",
+                            value: subMaterial.materialName,
+                          ),
+                          _buildInfoChip(label: "UOM", value: subMaterial.uom),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

@@ -134,7 +134,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                     Expanded(
                       child: Text(
                         widget.title ?? "Upload Document",
-                        style: AppTextStyle.ts16SB(),
+                        style: AppTextStyle.ts14R(),
                       ),
                     ),
                     GestureDetector(

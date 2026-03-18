@@ -193,128 +193,143 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
           _showBottomSheetToFilterProjectMaster(context);
         },
       ),
-      body: BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.projectList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.projectList.isEmpty) {
-            return Center(child: noDataWidget(message: "No projects found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: _projectMasterCubit.state.projectList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.projectList.length) {
-                return state.projectList.length < state.totalNumberOfRecord
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var project = state.projectList[index];
-              return Container(
-                margin: EdgeInsets.only(bottom: 10),
-                padding: EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      spacing: 10,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.projectDetails,
-                                queryParameters: {
-                                  "project": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(project),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _projectMasterCubit.searchProject(context, "");
+        },
+        child: BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.projectList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.projectList.isEmpty) {
+              return ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: getActualHeight(context)*.7,
+                      child: Center(child: noDataWidget(message: "No projects found"))),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: _projectMasterCubit.state.projectList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.projectList.length) {
+                  return state.projectList.length < state.totalNumberOfRecord
+                      ? Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var project = state.projectList[index];
+                return Container(
+                  margin: EdgeInsets.only(bottom: 10),
+                  padding: EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        spacing: 10,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.projectDetails,
+                                  queryParameters: {
+                                    "project": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(project),
+                                      ),
                                     ),
-                                  ),
-                                },
-                              );
-                            },
-                            child: Text(
-                              project.projectName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColor.primary,
+                                  },
+                                );
+                              },
+                              child: Text(
+                                project.projectName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        if (_routeAuthorizationModel.isAction) ...[
-                          CustomIconButton.edit(
-                            onPressed: () async {
-                              await goRouter.pushNamed(
-                                AppRoutes.addProjectMaster,
-                                queryParameters: {
-                                  "project": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(project),
+                          if (_routeAuthorizationModel.isAction) ...[
+                            CustomIconButton.edit(
+                              onPressed: () async {
+                                await goRouter.pushNamed(
+                                  AppRoutes.addProjectMaster,
+                                  queryParameters: {
+                                    "project": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(project),
+                                      ),
                                     ),
-                                  ),
-                                  'index': index.toString(),
-                                },
-                              );
-                            },
-                          ),
+                                    'index': index.toString(),
+                                  },
+                                );
+                              },
+                            ),
+                          ],
                         ],
-                      ],
-                    ),
-                    verticalSpacing(),
-                    Row(
-                      children: [
-                        // TITLE
-                        SizedBox(
-                          width: 140,
-                          child: Text(
-                            "Project Status",
-                            style: AppTextStyle.ts14R(color: AppColor.grey),
+                      ),
+                      verticalSpacing(),
+                      Row(
+                        children: [
+                          // TITLE
+                          SizedBox(
+                            width: 140,
+                            child: Text(
+                              "Project Status",
+                              style: AppTextStyle.ts14R(color: AppColor.grey),
+                            ),
                           ),
-                        ),
 
-                        // COLON
-                        SizedBox(
-                          width: 20,
-                          child: Text(
-                            ":",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: AppColor.grey),
+                          // COLON
+                          SizedBox(
+                            width: 20,
+                            child: Text(
+                              ":",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: AppColor.grey),
+                            ),
                           ),
-                        ),
-
-                        // VALUE
-                        _buildProjectStatusWidget(project.projectStatus),
-                      ],
-                    ),
-                    buildRowTitleValue(
-                      title: "Project Location",
-                      value: project.projectLocation,
-                    ),
-                    buildRowTitleValue(
-                      title: "CTS Number",
-                      value: project.ctsNumber,
-                    ),
-                    buildRowTitleValue(
-                      title: "Business Category",
-                      value: project.bussinessCategory,
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                          project.projectStatus.isNotEmpty
+                              ?
+                              // VALUE
+                              _buildProjectStatusWidget(project.projectStatus)
+                              : Text("-"),
+                        ],
+                      ),
+                      buildRowTitleValue(
+                        title: "Project Location",
+                        value: project.projectLocation,
+                      ),
+                      buildRowTitleValue(
+                        title: "CTS Number",
+                        value: project.ctsNumber,
+                      ),
+                      buildRowTitleValue(
+                        title: "Business Category",
+                        value: project.bussinessCategory,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

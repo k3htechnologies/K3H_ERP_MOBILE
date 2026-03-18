@@ -37,11 +37,14 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       GlobalKey<FormState>();
 
   // DROPDOWN VALUES
-  Map<String, dynamic>? selectedState;
-  Map<String, dynamic>? selectedDistrict;
-  Map<String, dynamic>? selectedCity;
   Map<String, dynamic>? selectedProjectStatus;
   Map<String, dynamic>? selectedProjectSubScheme;
+
+  // ADDRESS VARIABLES
+  int? _stateMasterId;
+  int? _districtMasterId;
+  int? _cityMasterId;
+  int? _villageMasterId;
 
   final ValueNotifier<Map<String, dynamic>?> projectSchemeNotifier =
       ValueNotifier(null);
@@ -59,6 +62,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       _projectScopeC,
       _ctsNumberC,
       _businessCategoryC,
+      _fileNumberC,
+      _architectNameC,
+      _architectMobileNumberC,
       _projectSubSchemeC,
       _pinCodeC,
       _projectEstimateCostC,
@@ -162,6 +168,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectScopeC.dispose();
     _ctsNumberC.dispose();
     _businessCategoryC.dispose();
+    _fileNumberC.dispose();
+    _architectNameC.dispose();
+    _architectMobileNumberC.dispose();
     _projectSubSchemeC.dispose();
     _pinCodeC.dispose();
     _projectEstimateCostC.dispose();
@@ -180,6 +189,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectScopeC = TextEditingController();
     _ctsNumberC = TextEditingController();
     _businessCategoryC = TextEditingController();
+    _fileNumberC = TextEditingController();
+    _architectNameC = TextEditingController();
+    _architectMobileNumberC = TextEditingController();
     _projectSubSchemeC = TextEditingController();
     _pinCodeC = TextEditingController();
     _projectEstimateCostC = TextEditingController();
@@ -197,6 +209,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectLocationC.text = widget.project!.projectLocation;
     _ctsNumberC.text = widget.project!.ctsNumber;
     _businessCategoryC.text = widget.project!.bussinessCategory;
+    _fileNumberC.text = widget.project!.fileNumber;
+    _architectNameC.text = widget.project!.architectName;
+    _architectMobileNumberC.text = widget.project!.architectMobileNumber;
     _projectScopeC.text = widget.project!.projectScope;
 
     _pinCodeC.text = widget.project!.zipCode;
@@ -247,18 +262,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             .toList();
 
     isRedevelopmentNotifier.value = widget.project!.isRedevelopment;
-    selectedDistrict = {
-      "DisplayName": widget.project!.districtName,
-      "zAttributesId": widget.project!.districtMasterId,
-    };
-    selectedCity = {
-      "DisplayName": widget.project!.cityName,
-      "zAttributesId": widget.project!.cityMasterId,
-    };
-    selectedState = {
-      "DisplayName": widget.project!.stateName,
-      "zAttributesId": widget.project!.stateMasterId,
-    };
+    _stateMasterId = projectModel.stateMasterId;
+    _districtMasterId = projectModel.districtMasterId;
+    _cityMasterId = projectModel.cityMasterId;
+    _villageMasterId = projectModel.villageMasterId;
   }
 
   // API CALL TO ADD/UPDATE PROJECT MASTER
@@ -276,10 +283,14 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                 isRedevelopmentNotifier.value == false ? _ctsNumberC.text : "",
             projectPhotoMap: projectPhotoImage,
             businessCategory: _businessCategoryC.text,
+            fileNumber: _fileNumberC.text,
+            architectName: _architectNameC.text,
+            architectMobileNumber: _architectMobileNumberC.text,
             isRedevelopment: isRedevelopmentNotifier.value,
-            districtMasterId: selectedDistrict!["zAttributesId"].toString(),
-            stateMasterId: selectedState!["zAttributesId"].toString(),
-            cityMasterId: selectedCity!["zAttributesId"].toString(),
+            districtMasterId: _districtMasterId.toString(),
+            stateMasterId: _stateMasterId.toString(),
+            cityMasterId: _cityMasterId.toString(),
+            villageMasterId: _villageMasterId.toString(),
             executionStartDate: executionStartDate?.toIso8601String() ?? "",
             expectedStartDate: expectedStartDate?.toIso8601String() ?? "",
             googleLocation: _googleLocationC.text,
@@ -326,10 +337,14 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                 isRedevelopmentNotifier.value == false ? _ctsNumberC.text : "",
             projectPhotoMap: projectPhotoImage,
             businessCategory: _businessCategoryC.text,
+            fileNumber: _fileNumberC.text,
+            architectName: _architectNameC.text,
+            architectMobileNumber: _architectMobileNumberC.text,
             isRedevelopment: isRedevelopmentNotifier.value,
-            districtMasterId: selectedDistrict!["zAttributesId"].toString(),
-            stateMasterId: selectedState!["zAttributesId"].toString(),
-            cityMasterId: selectedCity!["zAttributesId"].toString(),
+            districtMasterId: _districtMasterId.toString(),
+            stateMasterId: _stateMasterId.toString(),
+            cityMasterId: _cityMasterId.toString(),
+            villageMasterId: _villageMasterId.toString(),
             executionStartDate: executionStartDate?.toIso8601String() ?? "",
             expectedStartDate: expectedStartDate?.toIso8601String() ?? "",
             googleLocation: _googleLocationC.text,
@@ -391,38 +406,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                   style: AppTextStyle.ts16SB(),
                 ),
                 verticalSpacing(),
-                ValueListenableBuilder<bool>(
-                  valueListenable: isRedevelopmentNotifier,
-                  builder: (context, isRedevelopment, _) {
-                    return Container(
-                      padding: EdgeInsets.all(12),
-                      margin: EdgeInsets.only(bottom: 10),
-                      decoration: commonCardDecoration(),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomCheckbox(
-                            value: isRedevelopment,
-                            onChanged: (check) {
-                              isRedevelopmentNotifier.value = check!;
 
-                              if (check) {
-                                _ctsNumberC.clear();
-                              }
-                            },
-                          ),
-                          horizontalSpacing(),
-                          Flexible(
-                            child: Text(
-                              'Is this project a Redevelopment Project?',
-                              style: AppTextStyle.ts14R(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
                 Container(
                   padding: EdgeInsets.all(12),
                   margin: EdgeInsets.only(bottom: 10),
@@ -435,6 +419,36 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         style: AppTextStyle.ts16SB(color: AppColor.grey),
                       ),
                       verticalSpacing(),
+                      ValueListenableBuilder<bool>(
+                        valueListenable: isRedevelopmentNotifier,
+                        builder: (context, isRedevelopment, _) {
+                          return Container(
+                            margin: EdgeInsets.only(bottom: 20),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomCheckbox(
+                                  value: isRedevelopment,
+                                  onChanged: (check) {
+                                    isRedevelopmentNotifier.value = check!;
+
+                                    if (check) {
+                                      _ctsNumberC.clear();
+                                    }
+                                  },
+                                ),
+                                horizontalSpacing(),
+                                Flexible(
+                                  child: Text(
+                                    'Is this project a Redevelopment Project?',
+                                    style: AppTextStyle.ts14R(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                       CustomTextField(
                         title: 'Project Name',
                         hint: "Enter Project Name",
@@ -448,27 +462,26 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                           return null;
                         },
                       ),
+                      verticalSpacing(),
                       ValueListenableBuilder<bool>(
                         valueListenable: isRedevelopmentNotifier,
                         builder: (context, isRedevelopment, child) {
-                          return Visibility(
-                            visible: !isRedevelopment,
-                            child: CustomTextField(
-                              title: 'CTS Number',
-                              hint: "Enter CTS Number",
-                              isRequired: !isRedevelopment,
-                              textController: _ctsNumberC,
-                              inputFormatterList: [
-                                LengthLimitingTextInputFormatter(50),
-                              ],
-                              validator: (value) {
-                                if (!isRedevelopment &&
-                                    (value == null || value.isEmpty)) {
-                                  return 'CTS number is required';
-                                }
-                                return null;
-                              },
-                            ),
+                          return CustomTextField(
+                            title: 'CTS Number',
+                            hint: "Enter CTS Number",
+                            isRequired: !isRedevelopment,
+                            readOnly: isRedevelopment,
+                            textController: _ctsNumberC,
+                            inputFormatterList: [
+                              LengthLimitingTextInputFormatter(50),
+                            ],
+                            validator: (value) {
+                              if (!isRedevelopment &&
+                                  (value == null || value.isEmpty)) {
+                                return 'CTS number is required';
+                              }
+                              return null;
+                            },
                           );
                         },
                       ),
@@ -495,24 +508,28 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       ),
                       AddressWidget(
                         formKey: _projectMasterAddUpdateKey,
-                        incomingStateId: widget.project?.stateMasterId,
-                        incomingDistrictId: widget.project?.districtMasterId,
+                        incomingStateId: _stateMasterId,
+                        incomingDistrictId: _stateMasterId,
                         incomingCityId: widget.project?.cityMasterId,
+                        incomingVillageId: _villageMasterId,
                         stateChange: (selectedState) {
-                          this.selectedState = selectedState;
+                          _stateMasterId = selectedState['zAttributesId'];
                         },
                         districtChange: (selectedDistrict) {
-                          this.selectedDistrict = selectedDistrict;
+                          _districtMasterId = selectedDistrict['zAttributesId'];
                         },
                         cityChange: (selectedCity) {
-                          this.selectedCity = selectedCity;
+                          _cityMasterId = selectedCity['zAttributesId'];
+                        },
+                        villageChange: (selectedVillage) {
+                          _villageMasterId = selectedVillage['zAttributesId'];
                         },
                       ),
                       CustomTextField(
                         title: 'PIN Code',
                         textController: _pinCodeC,
                         hint: "Enter PIN Code",
-                        inputFormatterList: InputValidator.digit(10),
+                        inputFormatterList: InputValidator.digit(6),
                       ),
                       CustomTextField(
                         title: 'Business Category',
@@ -521,6 +538,46 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         inputFormatterList: [
                           LengthLimitingTextInputFormatter(100),
                         ],
+                      ),
+                      CustomTextField(
+                        title: 'File Number',
+                        textController: _fileNumberC,
+                        hint: "Enter File Number",
+                        inputFormatterList: [
+                          LengthLimitingTextInputFormatter(100),
+                        ],
+                      ),
+                      CustomTextField(
+                        title: 'Architect Name',
+                        textController: _architectNameC,
+                        hint: "Enter Architect Name",
+                        inputFormatterList: [
+                          LengthLimitingTextInputFormatter(100),
+                        ],
+                      ),
+                      CustomTextField(
+                        title: 'Architect Mobile Number',
+                        textController: _architectMobileNumberC,
+                        hint: "Enter Architect Mobile Number",
+                        prefixWidget: IntrinsicHeight(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(width: 10),
+                              Text("+91"),
+                              VerticalDivider(
+                                color: AppColor.black,
+                                thickness: 0.5,
+                                width: 15,
+                                indent: 5,
+                                endIndent: 5,
+                              ),
+                            ],
+                          ),
+                        ),
+                        inputFormatterList: InputValidator.digit(
+                          10,
+                        ),
                       ),
                       CustomTextField(
                         title: 'Project Location',
@@ -539,6 +596,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       ),
                       CustomTextField(
                         title: 'Google Location',
+                        isRequired: true,
                         prefixWidget: Container(
                           decoration: BoxDecoration(
                             border: Border(

@@ -623,7 +623,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                     AddressWidget(
                       formKey: _formKey,
                       incomingStateId: _stateMasterId,
-                      incomingDistrictId: _districtMasterId,
+                      incomingDistrictId: _stateMasterId,
                       incomingCityId: _cityMasterId,
                       incomingVillageId: _villageMasterId,
                       stateChange: (selectedState) {

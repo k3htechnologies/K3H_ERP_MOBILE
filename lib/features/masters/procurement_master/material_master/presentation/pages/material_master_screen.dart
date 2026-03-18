@@ -133,118 +133,131 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
         textController: _searchC,
         searchHintText: "Search by Material Name",
       ),
-      body: BlocBuilder<MaterialMasterCubit, MaterialMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.materialList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.materialList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Materials Data Found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: _materialMasterCubit.state.materialList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.materialList.length) {
-                return state.materialList.length < state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var material = state.materialList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.viewMaterialMaster,
-                                queryParameters: {
-                                  'material': Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(material.toJson()),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _materialMasterCubit.searchMaterial(context, "");
+        },
+        child: BlocBuilder<MaterialMasterCubit, MaterialMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.materialList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.materialList.isEmpty) {
+              return ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      child: Center(child: noDataWidget(message: "No Materials Data Found"))),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: _materialMasterCubit.state.materialList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.materialList.length) {
+                  return state.materialList.length < state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var material = state.materialList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.viewMaterialMaster,
+                                  queryParameters: {
+                                    'material': Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(material.toJson()),
+                                      ),
                                     ),
-                                  ),
-                                },
-                              );
-                            },
+                                  },
+                                );
+                              },
 
-                            child: Text(
-                              material.materialName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(
-                                decoration: TextDecoration.underline,
-                                decorationColor: AppColor.primary,
+                              child: Text(
+                                material.materialName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        horizontalSpacing(),
-                        if(_routeAuthorizationModel.isAction)...[
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addMaterialMaster,
-                                    queryParameters: {
-                                      'material': Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(material.toJson()),
+                          horizontalSpacing(),
+                          if(_routeAuthorizationModel.isAction)...[
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addMaterialMaster,
+                                      queryParameters: {
+                                        'material': Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(material.toJson()),
+                                          ),
                                         ),
-                                      ),
-                                      'index': index.toString(),
-                                    },
-                                  );
-                                },
-                              ),
-                              horizontalSpacing(),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteMaterialMaster(
-                                    context,
-                                    material,
-                                    state.currentPage,
-                                    index,
-                                  );
-                                },
-                              ),
-                            ],
+                                        'index': index.toString(),
+                                      },
+                                    );
+                                  },
+                                ),
+                                horizontalSpacing(),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showPopupToDeleteMaterialMaster(
+                                      context,
+                                      material,
+                                      state.currentPage,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ]
+                        ],
+                      ),
+                      verticalSpacing(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _buildInfoChip(
+                            label: "Code",
+                            value: material.materialCode,
                           ),
-                        ]
-                      ],
-                    ),
-                    verticalSpacing(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _buildInfoChip(
-                          label: "Code",
-                          value: material.materialCode,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

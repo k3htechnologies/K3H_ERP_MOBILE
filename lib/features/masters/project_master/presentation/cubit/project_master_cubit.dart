@@ -158,10 +158,14 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String location,
     required String ctsNumber,
     required String businessCategory,
+    required String fileNumber,
+    required String architectName,
+    required String architectMobileNumber,
     required bool isRedevelopment,
     required String districtMasterId,
     required String stateMasterId,
     required String cityMasterId,
+    required String villageMasterId,
     required String pinCode,
     required String projectScope,
     required String projectEstimateCost,
@@ -187,11 +191,15 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       "ProjectLocation": location,
       "CTSNumber": ctsNumber,
       "BussinessCategory": businessCategory,
+      "FileNumber": fileNumber,
+      "ArchitectName": architectName,
+      "ArchitectMobileNumber": architectMobileNumber,
       "IsRedevelopment": isRedevelopment ? '1' : '0',
       "CountryMasterId": "1",
       "DistrictMasterId": districtMasterId,
       "StateMasterId": stateMasterId,
       "CityMasterId": cityMasterId,
+      "VillageMasterId": villageMasterId,
       "ZipCode": pinCode,
       "ProjectScope": projectScope,
       "ProjectEstimateCost": projectEstimateCost,
@@ -250,10 +258,14 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String location,
     required String ctsNumber,
     required String businessCategory,
+    required String fileNumber,
+    required String architectName,
+    required String architectMobileNumber,
     required bool isRedevelopment,
     required String districtMasterId,
     required String stateMasterId,
     required String cityMasterId,
+    required String villageMasterId,
     required String pinCode,
     required String projectScope,
     required String projectEstimateCost,
@@ -282,11 +294,15 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       "ProjectLocation": location,
       "CTSNumber": ctsNumber,
       "BussinessCategory": businessCategory,
+      "FileNumber": fileNumber,
+      "ArchitectName": architectName,
+      "ArchitectMobileNumber": architectMobileNumber,
       "CountryMasterId": "1",
       "IsRedevelopment": isRedevelopment ? '1' : '0',
       "DistrictMasterId": districtMasterId,
       "StateMasterId": stateMasterId,
       "CityMasterId": cityMasterId,
+      "VillageMasterId": villageMasterId,
       "ZipCode": pinCode,
       "ProjectScope": projectScope,
       "ProjectEstimateCost": projectEstimateCost,
@@ -805,7 +821,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       (response) async {
         await showSuccessMessage(
           context,
-          subTitle: 'Employee Updated Successfully!!!',
+          subTitle: 'Employee has been added to the project',
         );
         if (context.mounted) {
           getProjectWithEmployee(projectId: projectId, context: context);
@@ -815,28 +831,6 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <---- GET APPROVAL MODULES LIST ---->
-  /*Future<List<ModulesWorkflowApprovalModel>> getModulesApproval({
-    required BuildContext context,
-    required int employeeId,
-    required int projectId,
-  }) async {
-    DialogHelper.showProcessingDialog(context);
-    var result = await approvalRepository.getModulesWorkflowApproval(
-      employeeId: employeeId,
-      projectId: projectId,
-    );
-    goRouter.pop();
-    return result.fold(
-          (failure) {
-        showErrorMessage(context, "Error Message", failure.message);
-        return [];
-      },
-          (response) {
-        return (response['data'] as List<ModulesWorkflowApprovalModel>);
-      },
-    );
-  }*/
 
   // <---- DELETE BANK RESPECT TO PROJECT ---->
   Future<void> deleteProjectWithEmployee({
@@ -865,7 +859,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         );
         showSuccessMessage(
           context,
-          subTitle: 'Employee Deleted Successfully!!!',
+          subTitle: 'Employee has been deleted to the project',
         );
       },
     );

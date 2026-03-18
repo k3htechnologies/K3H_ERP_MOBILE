@@ -229,104 +229,123 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
           _showSortBottomSheetForHoliday(context);
         },
       ),
-      body: BlocBuilder<HolidayMasterCubit, HolidayMasterState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.holidays.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.holidays.isEmpty) {
-            return Center(child: noDataWidget(message: "No Holiday Data Found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.holidays.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.holidays.length) {
-                return state.holidays.length < state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var holiday = state.holidays[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () async {
-                              await goRouter.pushNamed(
-                                AppRoutes.viewHolidayMaster,
-                                queryParameters: {
-                                  "holiday": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(holiday.toJson()),
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4,
-                              ),
-                              child: Text(
-                                holiday.holidayName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          holidayMasterCubit.searchHolidays("", context);
+        },
+        child: BlocBuilder<HolidayMasterCubit, HolidayMasterState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.holidays.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.holidays.isEmpty) {
+              return ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: getActualHeight(context) * .7,
+                    child: Center(
+                      child: noDataWidget(message: "No Holiday Data Found"),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.holidays.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.holidays.length) {
+                  return state.holidays.length < state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var holiday = state.holidays[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () async {
                                 await goRouter.pushNamed(
-                                  AppRoutes.addHolidayMaster,
+                                  AppRoutes.viewHolidayMaster,
                                   queryParameters: {
                                     "holiday": Uri.encodeQueryComponent(
                                       EncryptionManager.encryptData(
                                         jsonEncode(holiday.toJson()),
                                       ),
                                     ),
-                                    'index': index.toString(),
                                   },
                                 );
                               },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 0,
+                                  vertical: 4,
+                                ),
+                                child: Text(
+                                  holiday.holidayName,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ).copyWith(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColor.primary,
+                                  ),
+                                ),
+                              ),
                             ),
-                            const SizedBox(width: 8),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeleteHolidayMaster(
-                                  context,
-                                  holiday,
-                                  state.currentPage,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                          ),
+                          Row(
+                            children: [
+                              CustomIconButton.edit(
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addHolidayMaster,
+                                    queryParameters: {
+                                      "holiday": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(holiday.toJson()),
+                                        ),
+                                      ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 8),
+                              CustomIconButton.delete(
+                                onPressed: () {
+                                  _showPopupToDeleteHolidayMaster(
+                                    context,
+                                    holiday,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

@@ -44,7 +44,20 @@ class DialogHelper {
           child: Stack(
             children: [
               child,
-              const Center(child: CircularProgressIndicator(strokeWidth: 3)),
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      "assets/images/appLogo.png",
+                      width: 100,
+                      height: 100,
+                    ),
+                    verticalSpacing(),
+                    CircularProgressIndicator(strokeWidth: 3),
+                  ],
+                ),
+              ),
             ],
           ),
         );
@@ -52,11 +65,8 @@ class DialogHelper {
     );
   }
 
-// SUCCESS
-  static void showSuccessMessage(
-      BuildContext context, {
-        String? title,
-      }) {
+  // SUCCESS
+  static void showSuccessMessage(BuildContext context, {String? title}) {
     CustomSnackBar.showTopSnackBar(
       context,
       title: title ?? "Success!",
@@ -64,17 +74,13 @@ class DialogHelper {
     );
   }
 
-// ERROR
+  // ERROR
   static void showErrorMessage({
     required BuildContext context,
     String? title,
     required String message,
   }) {
-    CustomSnackBar.showTopSnackBar(
-      context,
-      title: message,
-      isError: true,
-    );
+    CustomSnackBar.showTopSnackBar(context, title: message, isError: true);
   }
 
   // <--- MENU CHANGED ERROR DIALOG ---->

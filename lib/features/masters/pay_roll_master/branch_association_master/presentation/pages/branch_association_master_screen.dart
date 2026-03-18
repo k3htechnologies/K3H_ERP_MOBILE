@@ -241,109 +241,133 @@ class _BranchAssociationMasterScreenState
           _showSortBottomSheetForBranchAssociation(context);
         },
       ),
-      body: BlocBuilder<
-        BranchAssociationMasterCubit,
-        BranchAssociationMasterState
-      >(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) &&
-              state.branchAssociationList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.branchAssociationList.isEmpty) {
-            return Center(child: noDataWidget(message: "No Branch Associations Data Found"));
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.branchAssociationList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.branchAssociationList.length) {
-                return state.branchAssociationList.length <
-                        state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var branchAssociation = state.branchAssociationList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _branchAssociationMasterCubit.branchAssociationMaster("", context);
+        },
+        child: BlocBuilder<
+          BranchAssociationMasterCubit,
+          BranchAssociationMasterState
+        >(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) &&
+                state.branchAssociationList.isEmpty) {
+              return Center(child: loader());
+            }
+            if (state.branchAssociationList.isEmpty) {
+              return ListView(
+                physics: AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    child: Center(
+                      child: noDataWidget(
+                        message: "No Branch Associations Data Found",
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+            return ListView.builder(
+              controller: scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              itemCount: state.branchAssociationList.length + 1,
+              itemBuilder: (context, index) {
+                if (index == state.branchAssociationList.length) {
+                  return state.branchAssociationList.length <
+                          state.totalNumberOfRecord
+                      ? const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                      : const SizedBox.shrink();
+                }
+                var branchAssociation = state.branchAssociationList[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: commonCardDecoration(),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.viewBranchAssociation,
+                                  queryParameters: {
+                                    "branchAssociation":
+                                        Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(
+                                              branchAssociation.toJson(),
+                                            ),
+                                          ),
+                                        ),
+                                  },
+                                );
+                              },
+                              child: Text(
+                                branchAssociation.employeeName,
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: AppColor.primary,
+                                ),
+                              ),
+                            ),
+                            verticalSpacing(height: 5),
+                            Text(
+                              branchAssociation.branchName,
+                              style: AppTextStyle.ts12M(color: AppColor.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        spacing: 10,
                         children: [
-                          GestureDetector(
-                            onTap: () {
+                          CustomIconButton.edit(
+                            onPressed: () async {
                               goRouter.pushNamed(
-                                AppRoutes.viewBranchAssociation,
+                                AppRoutes.addBranchAssociation,
                                 queryParameters: {
                                   "branchAssociation": Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
                                       jsonEncode(branchAssociation.toJson()),
                                     ),
                                   ),
+                                  "index": index.toString(),
                                 },
                               );
                             },
-                            child: Text(
-                              branchAssociation.employeeName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
-                            ),
                           ),
-                          verticalSpacing(height: 5),
-                          Text(
-                            branchAssociation.branchName,
-                            style: AppTextStyle.ts12M(color: AppColor.grey),
+                          CustomIconButton.delete(
+                            onPressed: () {
+                              _showPopupToDeleteBranchAssociationMaster(
+                                context,
+                                branchAssociation,
+                                index,
+                              );
+                            },
                           ),
                         ],
                       ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      spacing: 10,
-                      children: [
-                        CustomIconButton.edit(
-                          onPressed: () async {
-                            goRouter.pushNamed(
-                              AppRoutes.addBranchAssociation,
-                              queryParameters: {
-                                "branchAssociation": Uri.encodeQueryComponent(
-                                  EncryptionManager.encryptData(
-                                    jsonEncode(branchAssociation.toJson()),
-                                  ),
-                                ),
-                                "index": index.toString(),
-                              },
-                            );
-                          },
-                        ),
-                        CustomIconButton.delete(
-                          onPressed: () {
-                            _showPopupToDeleteBranchAssociationMaster(
-                              context,
-                              branchAssociation,
-                              index,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

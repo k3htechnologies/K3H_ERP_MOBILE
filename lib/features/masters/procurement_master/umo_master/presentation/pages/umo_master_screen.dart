@@ -97,99 +97,121 @@ class _UOMMasterScreenState extends State<UOMMasterScreen> {
         },
       ),
       body: SafeArea(
-        child: BlocBuilder<UOMMasterCubit, UOMMasterState>(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) && state.uomList.isEmpty) {
-              return Center(child: loader());
-            }
-            if (state.uomList.isEmpty) {
-              return Center(child: noDataWidget(message: "No UOMs Data Found"));
-            }
-            return Column(
-              children: [
-                // Header Row
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColor.white,
-                    border: Border(
-                      bottom: BorderSide(
-                        color: AppColor.grey.withValues(alpha: 0.3),
-                        width: 1,
+        child: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
+            _uomMasterCubit.searchUOM(context, "");
+          },
+          child: BlocBuilder<UOMMasterCubit, UOMMasterState>(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) && state.uomList.isEmpty) {
+                return Center(child: loader());
+              }
+              if (state.uomList.isEmpty) {
+                return ListView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      child: Center(
+                        child: noDataWidget(message: "No UOMs Data Found"),
                       ),
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Text('UOM Name', style: AppTextStyle.ts14SB()),
-                      ),
-                      Expanded(
-                        child: Text(
-                          'UOM Code',
-                          style: AppTextStyle.ts14SB(),
-                          textAlign: TextAlign.right,
+                  ],
+                );
+              }
+              return Column(
+                children: [
+                  // Header Row
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColor.white,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: AppColor.grey.withValues(alpha: 0.3),
+                          width: 1,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                // List
-                Expanded(
-                  child: ListView.builder(
-                    controller: scrollController,
-                    padding: EdgeInsets.zero,
-                    itemCount: _uomMasterCubit.state.uomList.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == state.uomList.length) {
-                        return state.uomList.length < state.totalNumberOfRecord
-                            ? const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                            : const SizedBox.shrink();
-                      }
-                      var uom = state.uomList[index];
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Text('UOM Name', style: AppTextStyle.ts14SB()),
                         ),
-                        decoration: BoxDecoration(
-                          color: AppColor.white,
-                          border: Border(
-                            bottom: BorderSide(
-                              color: AppColor.grey.withValues(alpha: 0.2),
-                              width: 1,
-                            ),
+                        Expanded(
+                          child: Text(
+                            'UOM Code',
+                            style: AppTextStyle.ts14SB(),
+                            textAlign: TextAlign.right,
                           ),
                         ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: Text(uom.uom, style: AppTextStyle.ts14R()),
-                            ),
-                            Expanded(
-                              child: Text(
-                                uom.uomCode,
-                                style: AppTextStyle.ts14R(),
-                                textAlign: TextAlign.right,
+                      ],
+                    ),
+                  ),
+                  // List
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      padding: EdgeInsets.zero,
+                      itemCount: _uomMasterCubit.state.uomList.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == state.uomList.length) {
+                          return state.uomList.length <
+                                  state.totalNumberOfRecord
+                              ? const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                              : const SizedBox.shrink();
+                        }
+                        var uom = state.uomList[index];
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColor.white,
+                            border: Border(
+                              bottom: BorderSide(
+                                color: AppColor.grey.withValues(alpha: 0.2),
+                                width: 1,
                               ),
                             ),
-                          ],
-                        ),
-                      );
-                    },
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  uom.uom,
+                                  style: AppTextStyle.ts14R(),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  uom.uomCode,
+                                  style: AppTextStyle.ts14R(),
+                                  textAlign: TextAlign.right,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
