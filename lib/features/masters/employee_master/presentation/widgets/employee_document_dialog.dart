@@ -26,7 +26,6 @@ class EmployeeDocumentDialog extends StatefulWidget {
 
   final bool isFreshAdd;
 
-
   const EmployeeDocumentDialog({
     super.key,
     required this.urls,
@@ -97,7 +96,12 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
       allowedExtensions: [".pdf", ".png", "jpg", "jpeg", ".heic"],
     );
 
-    if (result == null || result.files.isEmpty) return;
+    if (result == null || result.files.isEmpty) {
+      if (widget.isFreshAdd && mounted) {
+        Navigator.pop(context);
+      }
+      return;
+    }
 
     if (result.files.length > remaining) {
       goRouter.pop();
@@ -128,7 +132,12 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
       imageQuality: 80,
     );
 
-    if (image == null) return;
+    if (image == null) {
+      if (widget.isFreshAdd && mounted) {
+        Navigator.pop(context);
+      }
+      return;
+    }
 
     final currentCount = widget.urls.length;
 
@@ -156,9 +165,11 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
     if (mounted) Navigator.pop(context);
   }
 
-  void _showAttachmentOptions() {
-    showDialog(
+  // FOR CAMERA AND BROWSER OPTION
+  void _showAttachmentOptions() async {
+    await showDialog(
       context: context,
+      barrierDismissible: true,
       builder: (_) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
@@ -189,6 +200,10 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
         );
       },
     );
+
+    if (widget.isFreshAdd && mounted) {
+      Navigator.pop(context);
+    }
   }
 
   // PREVIOUS BUTTON
@@ -263,6 +278,9 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isFreshAdd) {
+      return const SizedBox();
+    }
     return Dialog(
       insetPadding: const EdgeInsets.all(20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -316,7 +334,7 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
             // ───── BODY ─────
             SizedBox(
               height: 260,
-              child: widget.isFreshAdd ? _buildUploadUI() : _buildPreviewUI(),
+              child: widget.isFreshAdd ? const SizedBox() : _buildPreviewUI(),
             ),
 
             verticalSpacing(height: 12),
@@ -362,7 +380,9 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
                   horizontalSpacing(),
                   // ADD
                   CustomIconButton(
-                    onPressed: _pickDocuments,
+                    onPressed: () {
+                      _pickDocuments();
+                    },
                     icon: Icon(Icons.add, size: 16, color: AppColor.primary),
                   ),
                   horizontalSpacing(),

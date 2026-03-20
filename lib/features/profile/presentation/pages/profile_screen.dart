@@ -1032,13 +1032,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     if (projectList.isEmpty) {
       return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Text(
-            "No projects found",
-            style: AppTextStyle.ts16M(color: AppColor.grey),
-          ),
-        ),
+        child: noDataWidget(message: "No Project Found")
       );
     }
 
@@ -1206,43 +1200,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ],
                     ),
                     verticalSpacing(),
-                    Text("Purchase Details", style: AppTextStyle.ts14SB()),
-                    verticalSpacing(),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Purchase Date",
-                            formatDateTimeAsDDMMMYYYY(asset.purchaseDate),
-                          ),
-                        ),
-                        horizontalSpacing(width: 16),
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Asset Cost",
-                            asset.assetCost.toString(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Warranty Expiry Date",
-                            formatDateTimeAsDDMMMYYYY(asset.warrantyExpiryDate),
-                          ),
-                        ),
-                        horizontalSpacing(width: 16),
-                        Expanded(
-                          child: _buildInfoItem(
-                            "Supplier Name",
-                            asset.supplierName,
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               );
@@ -1566,7 +1523,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           Row(
                             children: [
                               buildColumnTitleValue(
-                                title: "School/College",
+                                title: "School / College Name",
                                 value: education.collegeName,
                               ),
                             ],

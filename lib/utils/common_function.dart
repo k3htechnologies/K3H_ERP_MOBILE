@@ -192,13 +192,13 @@ Future<void> handleLocationPermission() async {
 Future<void> logOutUser(BuildContext context) async {
   final isConfirmed = await DialogHelper.logoutDialog(
     context,
-    "You are sure you want to logout?",
+    "Are you sure you want to logout?",
     "Are you sure you want to logout from the application? Please save all your work before confirming.",
   );
 
   if (isConfirmed == true) {
     if (context.mounted) {
-      await showSuccessMessage(context, subTitle: "Logged out successfully");
+      await showSuccessMessage(context, subTitle: "Logg out successfully");
     }
 
     Future.delayed(Duration(seconds: 1), () async {

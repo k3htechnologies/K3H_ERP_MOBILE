@@ -248,7 +248,11 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
           _showBottomSheetToFilterAssetMapping(context);
         },
       ),
-      body: SizedBox(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          _assetMappingMasterCubit.searchAssetMapping("", context);
+        },
         child: BlocBuilder<AssetMappingMasterCubit, AssetMappingMasterState>(
           builder: (context, state) {
             if ((state.isLoading ?? true) && state.assetMappingList.isEmpty) {
@@ -269,6 +273,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
             }
             return ListView.builder(
               controller: scrollController,
+              physics: AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               itemCount: state.assetMappingList.length + 1,
               itemBuilder: (context, index) {

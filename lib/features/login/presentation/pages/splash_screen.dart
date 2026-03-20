@@ -20,56 +20,65 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashMobileScreenState extends State<SplashScreen> {
+
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 3), () async {
+
+    Future.delayed(const Duration(seconds: 2), () async {
       final localStorage = LocalStorageManager();
+
+      final token = localStorage.getString(StorageKey.authorizationToken);
       final menu = localStorage.getString(StorageKey.menu);
-      final selectedProject = localStorage.getString(
-        StorageKey.selectedProject,
-      );
-      final bool isLoggedIn = selectedProject != null || menu != null;
-      if (isLoggedIn) {
-        if (menu != null) {
-          goRouter.goNamed(AppRoutes.dashboardScreen);
-        } else {
-          final UtilsRepository utilsRepository =
-              serviceLocator<UtilsRepository>();
-          var result = await utilsRepository.getMenu(
-            employeeId:
-                UserModel.fromJson(
-                  jsonDecode(
-                    LocalStorageManager().getString(StorageKey.currentUser) ??
-                        '',
-                  ),
-                ).employeeId,
-          );
-          return result.fold(
-            (failure) {
-              // Handle failure
-              return false;
-            },
-            (data) async {
-              localStorage.setString(
-                StorageKey.menu,
-                jsonEncode(data["menuData"] as List<ModuleModel>),
-              );
-              // localStorage.setString(
-              //   StorageKey.moduleAction,
-              //   jsonEncode(
-              //     data["materialRequisitionModulesPermissionsData"]
-              //         as List<ModuleActionPermissionModel>,
-              //   ),
-              // );
-              await updateRouteAuthorization(
-                data["menuData"] as List<ModuleModel>,
-              );
-              goRouter.goNamed(AppRoutes.dashboardScreen);
-            },
-          );
+
+      final bool isLoggedIn = token != null && token.isNotEmpty;
+
+      if (!isLoggedIn) {
+        goRouter.goNamed(AppRoutes.login);
+        return;
+      }
+
+      if (menu != null && menu.isNotEmpty) {
+        goRouter.goNamed(AppRoutes.dashboardScreen);
+        return;
+      }
+
+      try {
+        final UtilsRepository utilsRepository =
+        serviceLocator<UtilsRepository>();
+
+        final userJson =
+            localStorage.getString(StorageKey.currentUser) ?? '';
+
+        if (userJson.isEmpty) {
+          goRouter.goNamed(AppRoutes.login);
+          return;
         }
-      } else {
+
+        final user = UserModel.fromJson(jsonDecode(userJson));
+
+        var result = await utilsRepository.getMenu(
+          employeeId: user.employeeId,
+        );
+
+        result.fold(
+              (failure) {
+            goRouter.goNamed(AppRoutes.login);
+          },
+              (data) async {
+            localStorage.setString(
+              StorageKey.menu,
+              jsonEncode(data["menuData"]),
+            );
+
+            await updateRouteAuthorization(
+              data["menuData"] as List<ModuleModel>,
+            );
+
+            goRouter.goNamed(AppRoutes.dashboardScreen);
+          },
+        );
+      } catch (e) {
         goRouter.goNamed(AppRoutes.login);
       }
     });
