@@ -608,29 +608,30 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Hearing History', style: AppTextStyle.ts16SB()),
-                  CustomButton(
-                    backgroundColor: AppColor.lightBlue,
-                    leading: Icon(Icons.add),
-                    textColor: AppColor.primary,
-                    text: 'Add Hearing',
-                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                    onPressed: () async {
-                      await goRouter.pushNamed(
-                        AppRoutes.addLitigationHearing,
-                        queryParameters: {
-                          'litigationId':
-                              widget.litigationModel.litigationId.toString(),
-                        },
-                      );
-                      if (context.mounted) {
-                        _litigationCubit.getLitigationHearingList(
-                          context: context,
-                          pageNumber: 1,
-                          litigationId: widget.litigationModel.litigationId,
+                  if (status != "closed")
+                    CustomButton(
+                      backgroundColor: AppColor.lightBlue,
+                      leading: Icon(Icons.add),
+                      textColor: AppColor.primary,
+                      text: 'Add Hearing',
+                      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                      onPressed: () async {
+                        await goRouter.pushNamed(
+                          AppRoutes.addLitigationHearing,
+                          queryParameters: {
+                            'litigationId':
+                                widget.litigationModel.litigationId.toString(),
+                          },
                         );
-                      }
-                    },
-                  ),
+                        if (context.mounted) {
+                          _litigationCubit.getLitigationHearingList(
+                            context: context,
+                            pageNumber: 1,
+                            litigationId: widget.litigationModel.litigationId,
+                          );
+                        }
+                      },
+                    ),
                 ],
               ),
               verticalSpacing(height: 15),

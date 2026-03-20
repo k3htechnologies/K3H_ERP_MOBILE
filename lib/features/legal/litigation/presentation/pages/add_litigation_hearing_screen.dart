@@ -87,15 +87,7 @@ class _AddLitigationHearingScreenState
       if (_isEditMode) "Uniquekey": widget.litigationHearingModel!.uniquekey,
       "ProjectId": getProject().projectId.toString(),
       "LitigationId": widget.litigationId,
-      "HearingDate":
-          DateTime(
-            hearingDate!.year,
-            hearingDate!.month,
-            hearingDate!.day,
-            DateTime.now().hour,
-            DateTime.now().minute,
-            DateTime.now().second,
-          ).toIso8601String(),
+      "HearingDate": hearingDate!.toIso8601String().split('T')[0],
       "Remark": _remarkC.text.trim(),
       "RemoveHearingAttachementURL": hearingDocument.deletedFileList,
     };
