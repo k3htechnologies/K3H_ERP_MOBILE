@@ -23,7 +23,6 @@ class AddCompOffScreen extends StatefulWidget {
 }
 
 class _AddCompOffScreenState extends State<AddCompOffScreen> {
-
   // CUBIT
   late CompOffCubit _compOffCubit;
 
@@ -37,13 +36,14 @@ class _AddCompOffScreenState extends State<AddCompOffScreen> {
   void initState() {
     super.initState();
     _compOffCubit = context.read<CompOffCubit>();
-    final prefillMonth = _isEditMode
-        ? DateTime(
-            widget.compOffModel!.workingDate.year,
-            widget.compOffModel!.workingDate.month,
-            1,
-          )
-        : DateTime.now();
+    final prefillMonth =
+        _isEditMode
+            ? DateTime(
+              widget.compOffModel!.workingDate.year,
+              widget.compOffModel!.workingDate.month,
+              1,
+            )
+            : DateTime.now();
     _visibleMonth = DateTime(prefillMonth.year, prefillMonth.month, 1);
 
     if (_isEditMode) {
@@ -80,7 +80,7 @@ class _AddCompOffScreenState extends State<AddCompOffScreen> {
 
     if (_isEditMode) {
       final model = widget.compOffModel!;
-       _compOffCubit.updateCompOff(
+      _compOffCubit.updateCompOff(
         context: context,
         compOffId: model.compOffId,
         uniqueKey: model.uniquekey,
@@ -91,7 +91,7 @@ class _AddCompOffScreenState extends State<AddCompOffScreen> {
       );
     }
 
-     _compOffCubit.addCompOff(
+    _compOffCubit.addCompOff(
       context: context,
       compOffDate: s.compOffDate!,
       workingDate: s.workedDate!,
@@ -200,7 +200,7 @@ class _AddCompOffScreenState extends State<AddCompOffScreen> {
                     children: [
                       // WORKED DATE FIELD
                       _buildDateField(
-                        title: "Worked Date",
+                        title: "Working Date",
                         date: state.workedDate,
                         onClear: () {
                           _compOffCubit.clearWorkedDate();
@@ -246,7 +246,7 @@ class _AddCompOffScreenState extends State<AddCompOffScreen> {
           padding: EdgeInsets.all(16),
           child: CustomButton(
             onPressed: _handleSubmit,
-            text: _isEditMode ? "Update Request" : "Submit Request",
+            text: _isEditMode ? "Update" : "Save",
           ),
         ),
       ),
