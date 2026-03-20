@@ -119,6 +119,7 @@ dev_dependencies:
   change_app_package_name: ^1.5.0
   envied_generator: ^1.1.1
   build_runner: ^2.4.15
+  rename_app: ^1.6.5
 
 flutter_launcher_icons:
   android: "launcher_icon"

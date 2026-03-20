@@ -302,7 +302,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
     );
   }
 
-  Widget _buildOverviewWidget(BuildContext context) {
+  /* Widget _buildOverviewWidget(BuildContext context) {
     return BlocBuilder<SalesDashboardCubit, SalesDashboardState>(
       builder: (context, state) {
         if (state.isLoading == true) {
@@ -615,8 +615,8 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
         return AppColor.primary;
     }
   }
-
-  Widget _buildTargetPerformanceWidget(BuildContext context) {
+*/
+  /* Widget _buildTargetPerformanceWidget(BuildContext context) {
     return BlocBuilder<SalesDashboardCubit, SalesDashboardState>(
       builder: (context, state) {
         if (state.isLoading == true) {
@@ -779,7 +779,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
       ),
     );
   }
-
+*/
   Widget _buildEnquiriesWidget(BuildContext context) {
     return Container(
       height: 300.0,

@@ -196,7 +196,9 @@ class _AddShiftMappingMasterScreenState
                                   children: [
                                     Radio<SelectionType>(
                                       value: SelectionType.department,
+                                      // ignore: deprecated_member_use
                                       groupValue: selectionType,
+                                      // ignore: deprecated_member_use
                                       onChanged: (value) {
                                         _selectionTypeNotifier.value = value!;
 
@@ -216,7 +218,9 @@ class _AddShiftMappingMasterScreenState
                                   children: [
                                     Radio<SelectionType>(
                                       value: SelectionType.employee,
+                                      // ignore: deprecated_member_use
                                       groupValue: selectionType,
+                                      // ignore: deprecated_member_use
                                       onChanged: (value) {
                                         _selectionTypeNotifier.value = value!;
                                         _selectedDepartment.clear();
