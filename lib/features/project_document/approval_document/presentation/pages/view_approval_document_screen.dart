@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -91,6 +92,28 @@ class _ViewApprovalDocumentScreenState
     });
   }
 
+  // DELETE SUB DOCUMENT
+  Future<void> _showPopupToDeleteSubDocument(
+    BuildContext context,
+    ApprovalDocumentModel obj,
+    int index,
+  ) async {
+    final shouldDelete = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a document?',
+      'Deleting this document will permanently remove its contents.',
+    );
+
+    if (shouldDelete && context.mounted) {
+      _documentCubit.deleteApprovalDocument(
+        obj,
+        context,
+        index,
+        isSubDoc: true,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -138,7 +161,7 @@ class _ViewApprovalDocumentScreenState
 
             BlocBuilder<ApprovalDocumentCubit, ApprovalDocumentState>(
               builder: (context, state) {
-                if ((state.isLoading ?? true) ||
+                if ((state.isLoading ?? true) &&
                     state.subApprovalDocumentList.isEmpty) {
                   return Expanded(child: Center(child: loader()));
                 }
@@ -206,24 +229,35 @@ class _ViewApprovalDocumentScreenState
                   style: AppTextStyle.ts16SB(),
                 ),
               ),
-              CustomIconButton.edit(
-                onPressed: () {
-                  goRouter.pushNamed(
-                    AppRoutes.addApprovalDocument,
-                    queryParameters: {
-                      "approvalDocument": Uri.encodeQueryComponent(
-                        EncryptionManager.encryptData(
-                          jsonEncode(document.toJson()),
+              if (_routeAuthorizationModel.isAction) ...[
+                CustomIconButton.edit(
+                  onPressed: () {
+                    goRouter.pushNamed(
+                      AppRoutes.addApprovalDocument,
+                      queryParameters: {
+                        "approvalDocument": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            jsonEncode(document.toJson()),
+                          ),
                         ),
-                      ),
-                      "index": index.toString(),
-                      "isEdit": Uri.encodeQueryComponent(
-                        EncryptionManager.encryptData(true.toString()),
-                      ),
-                    },
-                  );
-                },
-              ),
+                        "index": index.toString(),
+                        "isEdit": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(true.toString()),
+                        ),
+                      },
+                    );
+                  },
+                ),
+                CustomIconButton.delete(
+                  isDisabled:
+                      !document.approvalDocumentApprovalStatus
+                          .toLowerCase()
+                          .contains('pending'),
+                  onPressed: () {
+                    _showPopupToDeleteSubDocument(context, document, index);
+                  },
+                ),
+              ],
             ],
           ),
           Row(
@@ -342,6 +376,11 @@ class _ViewApprovalDocumentScreenState
                     "subTitle": Uri.encodeComponent(
                       EncryptionManager.encryptData(
                         "${widget.documentModel.approvalDocumentName} > ${document.approvalDocumentName}",
+                      ),
+                    ),
+                    "title": Uri.encodeComponent(
+                      EncryptionManager.encryptData(
+                        "Approval Document Log History",
                       ),
                     ),
                     "approvalList": Uri.encodeComponent(

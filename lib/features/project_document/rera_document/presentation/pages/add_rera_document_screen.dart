@@ -43,9 +43,10 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
   // FILE REQUIRED CHECK VARIABLE
   final ValueNotifier<bool> isFileRequired = ValueNotifier(false);
 
-  List<Map<String, dynamic>> _selectedStatus = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Status'},
-  ];
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedStatus =
+      ValueNotifier([
+        {'zAttributesId': -1, 'DisplayName': 'Select Status'},
+      ]);
   // STATIC LISTS
   List<Map<String, dynamic>> statusList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Status'},
@@ -109,7 +110,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
         projectRERADocumentCategoryId:
             widget.documentModel!.projectRERADocumentCategoryId,
         documents: selectedDocumentFile,
-        projectRERADocumentStatus: _selectedStatus[0]['DisplayName'],
+        projectRERADocumentStatus: _selectedStatus.value[0]['DisplayName'],
         screenshots: selectedScreenShotFile,
         projectRERADocumentRemark: _remarkC.text.trim(),
         projectRERADocumentName: widget.documentModel!.projectRERADocumentName,
@@ -123,7 +124,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
         projectRERADocumentCategoryId:
             widget.documentModel!.projectRERADocumentCategoryId,
         documents: selectedDocumentFile,
-        projectRERADocumentStatus: _selectedStatus[0]['DisplayName'],
+        projectRERADocumentStatus: _selectedStatus.value[0]['DisplayName'],
         screenshots: selectedScreenShotFile,
         projectRERADocumentRemark: _remarkC.text.trim(),
         projectRERADocumentName: widget.documentModel!.projectRERADocumentName,
@@ -138,7 +139,7 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
       orElse: () => statusList.first,
     );
 
-    _selectedStatus = [matchedStatus];
+    _selectedStatus.value = [matchedStatus];
 
     if (document.reraPortalScreenShotURL != null) {
       selectedScreenShotFile.fileNameList =
@@ -178,10 +179,10 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
                   title: "Status",
                   dataList: statusList,
                   initialValue:
-                      _isEditMode ? _selectedStatus[0] : statusList[0],
+                      _isEditMode ? _selectedStatus.value[0] : statusList[0],
                   isRequired: true,
                   onSelected: (Map<String, dynamic> p1) {
-                    _selectedStatus = [p1];
+                    _selectedStatus.value = [p1];
 
                     isFileRequired.value = p1["zAttributesId"] == 4;
                   },
@@ -193,12 +194,15 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
                   },
                 ),
                 ValueListenableBuilder(
-                  valueListenable: isFileRequired,
-                  builder: (context, requiredFile, child) {
+                  valueListenable: _selectedStatus,
+                  builder: (context, value, child) {
                     return CustomMultiFilePicker(
                       maxFiles: 5,
                       title: "Files",
-                      isRequired: requiredFile,
+                      isRequired: _selectedStatus.value[0]['DisplayName']
+                          .toString()
+                          .toLowerCase()
+                          .contains('issued'),
                       initialFileList: selectedDocumentFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
                         selectedDocumentFile.fileNameList = fileNameList;
@@ -212,6 +216,16 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
                         selectedDocumentFile.fileNameList = fileNameList;
                         selectedDocumentFile.fileBytesList = fileBytesList;
                         selectedDocumentFile.deletedFileList = deletedFile;
+                      },
+                      validator: (value) {
+                        if (_selectedStatus.value[0]['DisplayName']
+                                .toString()
+                                .toLowerCase()
+                                .contains('issued') &&
+                            (value == null || value.isEmpty)) {
+                          return "File is required";
+                        }
+                        return null;
                       },
                     );
                   },
@@ -251,7 +265,11 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: Icon(_isEditMode?Icons.edit:Icons.add,size: 18,color: AppColor.white,),
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              size: 18,
+              color: AppColor.white,
+            ),
             text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),

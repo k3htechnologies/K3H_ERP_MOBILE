@@ -41,9 +41,10 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
   DateTime? expiryDate;
-  List<Map<String, dynamic>> _selectedStatus = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Status'},
-  ];
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedStatus =
+      ValueNotifier([
+        {'zAttributesId': -1, 'DisplayName': 'Select Status'},
+      ]);
   // STATIC LISTS
   List<Map<String, dynamic>> statusList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Status'},
@@ -104,7 +105,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
         projectDocumentCategoryId:
             widget.documentModel!.projectDocumentCategoryId,
         documents: selectedDocumentFile,
-        projectDocumentStatus: _selectedStatus[0]['DisplayName'],
+        projectDocumentStatus: _selectedStatus.value[0]['DisplayName'],
         projectDocumentExpiryDate: expiryDate,
         projectDocumentRemark: _remarkC.text.trim(),
       );
@@ -117,7 +118,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
         projectDocumentCategoryId:
             widget.documentModel!.projectDocumentCategoryId,
         documents: selectedDocumentFile,
-        projectDocumentStatus: _selectedStatus[0]['DisplayName'],
+        projectDocumentStatus: _selectedStatus.value[0]['DisplayName'],
         projectDocumentExpiryDate: expiryDate,
         projectDocumentRemark: _remarkC.text.trim(),
       );
@@ -133,7 +134,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
       orElse: () => statusList.first, // fallback to "Select Status"
     );
 
-    _selectedStatus = [matchedStatus];
+    _selectedStatus.value = [matchedStatus];
 
     // Prefill expiry date
     expiryDate = document.projectDocumentExpiryDate;
@@ -180,10 +181,10 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
                   title: "Status",
                   dataList: statusList,
                   initialValue:
-                      _isEditMode ? _selectedStatus[0] : statusList[0],
+                      _isEditMode ? _selectedStatus.value[0] : statusList[0],
                   isRequired: true,
                   onSelected: (Map<String, dynamic> p1) {
-                    _selectedStatus = [p1];
+                    _selectedStatus.value = [p1];
                   },
                   validator: (value) {
                     if (value == null || value['zAttributesId'] == -1) {
@@ -192,22 +193,41 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
                     return null;
                   },
                 ),
-                CustomMultiFilePicker(
-                  maxFiles: 5,
-                  title: "Files",
-                  initialFileList: selectedDocumentFile.fileNameList,
-                  onFilePickedCallback: (bytesList, fileNameList) {
-                    selectedDocumentFile.fileNameList = fileNameList;
-                    selectedDocumentFile.fileBytesList = bytesList;
-                  },
-                  onFileDeleteCallback: (
-                    fileBytesList,
-                    fileNameList,
-                    deletedFile,
-                  ) {
-                    selectedDocumentFile.fileNameList = fileNameList;
-                    selectedDocumentFile.fileBytesList = fileBytesList;
-                    selectedDocumentFile.deletedFileList = deletedFile;
+                ValueListenableBuilder(
+                  valueListenable: _selectedStatus,
+                  builder: (context, value, child) {
+                    return CustomMultiFilePicker(
+                      maxFiles: 5,
+                      title: "Files",
+                      isRequired: _selectedStatus.value[0]['DisplayName']
+                          .toString()
+                          .toLowerCase()
+                          .contains('issued'),
+                      initialFileList: selectedDocumentFile.fileNameList,
+                      onFilePickedCallback: (bytesList, fileNameList) {
+                        selectedDocumentFile.fileNameList = fileNameList;
+                        selectedDocumentFile.fileBytesList = bytesList;
+                      },
+                      onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deletedFile,
+                      ) {
+                        selectedDocumentFile.fileNameList = fileNameList;
+                        selectedDocumentFile.fileBytesList = fileBytesList;
+                        selectedDocumentFile.deletedFileList = deletedFile;
+                      },
+                      validator: (value) {
+                        if (_selectedStatus.value[0]['DisplayName']
+                                .toString()
+                                .toLowerCase()
+                                .contains('issued') &&
+                            (value == null || value.isEmpty)) {
+                          return "File is required";
+                        }
+                        return null;
+                      },
+                    );
                   },
                 ),
                 CustomDatePicker(

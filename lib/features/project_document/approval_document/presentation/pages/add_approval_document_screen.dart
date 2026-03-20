@@ -43,9 +43,10 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
   final _formKey = GlobalKey<FormState>();
 
   DateTime? expiryDate;
-  List<Map<String, dynamic>> _selectedStatus = [
-    {'zAttributesId': -1, 'DisplayName': 'Select Status'},
-  ];
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedStatus =
+      ValueNotifier([
+        {'zAttributesId': -1, 'DisplayName': 'Select Status'},
+      ]);
   // STATIC LISTS
   List<Map<String, dynamic>> statusList = [
     {'zAttributesId': -1, 'DisplayName': 'Select Status'},
@@ -104,7 +105,7 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
         approvalDocumentCategoryId:
             widget.documentModel!.approvalDocumentCategoryId,
         documents: selectedApprovalDocumentFile,
-        approvalDocumentStatus: _selectedStatus[0]['DisplayName'],
+        approvalDocumentStatus: _selectedStatus.value[0]['DisplayName'],
         approvalDocumentExpiryDate: expiryDate,
         approvalDocumentRemark: _remarkC.text.trim(),
         approvalDocumentName: widget.documentModel!.approvalDocumentName,
@@ -118,7 +119,7 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
         approvalDocumentCategoryId:
             widget.documentModel!.approvalDocumentCategoryId,
         documents: selectedApprovalDocumentFile,
-        approvalDocumentStatus: _selectedStatus[0]['DisplayName'],
+        approvalDocumentStatus: _selectedStatus.value[0]['DisplayName'],
         approvalDocumentExpiryDate: expiryDate,
         approvalDocumentRemark: _remarkC.text.trim(),
       );
@@ -132,7 +133,7 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
       orElse: () => statusList.first,
     );
 
-    _selectedStatus = [matchedStatus];
+    _selectedStatus.value = [matchedStatus];
 
     expiryDate = document.approvalDocumentExpiryDate;
 
@@ -177,10 +178,10 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
                   title: "Status",
                   dataList: statusList,
                   initialValue:
-                      _isEditMode ? _selectedStatus[0] : statusList[0],
+                      _isEditMode ? _selectedStatus.value[0] : statusList[0],
                   isRequired: true,
                   onSelected: (Map<String, dynamic> p1) {
-                    _selectedStatus = [p1];
+                    _selectedStatus.value = [p1];
                   },
                   validator: (value) {
                     if (value == null || value["zAttributesId"] == -1) {
@@ -189,22 +190,46 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
                     return null;
                   },
                 ),
-                CustomMultiFilePicker(
-                  maxFiles: 5,
-                  title: "Files",
-                  initialFileList: selectedApprovalDocumentFile.fileNameList,
-                  onFilePickedCallback: (bytesList, fileNameList) {
-                    selectedApprovalDocumentFile.fileNameList = fileNameList;
-                    selectedApprovalDocumentFile.fileBytesList = bytesList;
-                  },
-                  onFileDeleteCallback: (
-                    fileBytesList,
-                    fileNameList,
-                    deletedFile,
-                  ) {
-                    selectedApprovalDocumentFile.fileNameList = fileNameList;
-                    selectedApprovalDocumentFile.fileBytesList = fileBytesList;
-                    selectedApprovalDocumentFile.deletedFileList = deletedFile;
+                ValueListenableBuilder(
+                  valueListenable: _selectedStatus,
+                  builder: (context, value, child) {
+                    return CustomMultiFilePicker(
+                      maxFiles: 5,
+                      title: "Files",
+                      isRequired: _selectedStatus.value[0]['DisplayName']
+                          .toString()
+                          .toLowerCase()
+                          .contains('issued'),
+                      initialFileList:
+                          selectedApprovalDocumentFile.fileNameList,
+                      onFilePickedCallback: (bytesList, fileNameList) {
+                        selectedApprovalDocumentFile.fileNameList =
+                            fileNameList;
+                        selectedApprovalDocumentFile.fileBytesList = bytesList;
+                      },
+                      onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deletedFile,
+                      ) {
+                        selectedApprovalDocumentFile.fileNameList =
+                            fileNameList;
+                        selectedApprovalDocumentFile.fileBytesList =
+                            fileBytesList;
+                        selectedApprovalDocumentFile.deletedFileList =
+                            deletedFile;
+                      },
+                      validator: (value) {
+                        if (_selectedStatus.value[0]['DisplayName']
+                                .toString()
+                                .toLowerCase()
+                                .contains('issued') &&
+                            (value == null || value.isEmpty)) {
+                          return "File is required";
+                        }
+                        return null;
+                      },
+                    );
                   },
                 ),
                 CustomDatePicker(

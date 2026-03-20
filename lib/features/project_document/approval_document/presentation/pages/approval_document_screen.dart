@@ -204,6 +204,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                           : "Add Document",
                   onPressed: () {
                     _submitForm(documentModel: documentModel, index: index);
+                    _searchC.clear();
                   },
                 ),
               ),
@@ -213,15 +214,10 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
       ),
     );
     _clearDialogueToAddUpdateApprovalDocument();
-    if (context!.mounted) {
-      _documentCubit.searchApprovalDocument("", context);
-    }
-    ;
   }
 
   void _clearDialogueToAddUpdateApprovalDocument() {
     _documentC.clear();
-    _searchC.clear();
   }
 
   @override
@@ -238,7 +234,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
         onProjectChangeCallback: (project) {
           projectId = project.projectId;
           if (context.mounted) {
-            _documentCubit.searchApprovalDocument("", context);
+            _documentCubit.getCategoryList(context, 1, projectId);
           }
         },
         extraHeight: 20,
@@ -445,62 +441,63 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                           ),
                         ),
                       ),
+                      if (_routeAuthorizationModel.isAction)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            CustomIconButton(
+                              icon: Icon(
+                                Icons.add,
+                                size: 16,
+                                color: AppColor.primary,
+                              ),
+                              onPressed: () async {
+                                goRouter.pushNamed(
+                                  AppRoutes.addApprovalDocument,
+                                  queryParameters: {
+                                    "approvalDocument":
+                                        Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(document.toJson()),
+                                          ),
+                                        ),
+                                    "index": index.toString(),
 
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          CustomIconButton(
-                            icon: Icon(
-                              Icons.add,
-                              size: 16,
-                              color: AppColor.primary,
+                                    "isEdit": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        false.toString(),
+                                      ),
+                                    ),
+                                  },
+                                );
+                              },
                             ),
-                            onPressed: () async {
-                              goRouter.pushNamed(
-                                AppRoutes.addApprovalDocument,
-                                queryParameters: {
-                                  "approvalDocument": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(document.toJson()),
-                                    ),
-                                  ),
-                                  "index": index.toString(),
-
-                                  "isEdit": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      false.toString(),
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 8),
-                          CustomIconButton.edit(
-                            onPressed: () async {
-                              _showPopUpToAddUpdateApprovalDocument(
-                                documentModel: document,
-                                index: index,
-                                context: context,
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 8),
-                          CustomIconButton.delete(
-                            isDisabled:
-                                document.uploadedApprovalDocumentCount == 0
-                                    ? false
-                                    : true,
-                            onPressed: () {
-                              _showPopupToDeleteApprovalDocument(
-                                context,
-                                document,
-                                index,
-                              );
-                            },
-                          ),
-                        ],
-                      ),
+                            const SizedBox(width: 8),
+                            CustomIconButton.edit(
+                              onPressed: () async {
+                                _showPopUpToAddUpdateApprovalDocument(
+                                  documentModel: document,
+                                  index: index,
+                                  context: context,
+                                );
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            CustomIconButton.delete(
+                              isDisabled:
+                                  document.uploadedApprovalDocumentCount == 0
+                                      ? false
+                                      : true,
+                              onPressed: () {
+                                _showPopupToDeleteApprovalDocument(
+                                  context,
+                                  document,
+                                  index,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                   verticalSpacing(height: 10),

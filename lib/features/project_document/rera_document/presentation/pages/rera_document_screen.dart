@@ -203,6 +203,29 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     _reraDocumentC.clear();
   }
 
+  // DELETE RERA DOCUMENT
+  Future<void> _showPopupToDeleteRERADocument(
+    BuildContext context,
+    RERADocumentModel obj,
+
+    int index,
+  ) async {
+    final shouldDelete = await DialogHelper.deleteDialog(
+      context,
+      'You are about to RERA delete a document?',
+      'Deleting this RERA document will permanently remove its contents.',
+    );
+
+    if (shouldDelete && context.mounted) {
+      _reraDocumentCubit.deleteDocument(
+        obj,
+        obj.projectRERADocumentCategoryId,
+        context,
+        index,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -437,6 +460,29 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                                       ),
                                     ),
                                   },
+                                );
+                              },
+                            ),
+                            horizontalSpacing(),
+                            CustomIconButton.edit(
+                              onPressed: () async {
+                                _showPopUpToAddUpdateRERADocument(
+                                  documentModel: document,
+                                  index: index,
+                                );
+                              },
+                            ),
+                            horizontalSpacing(),
+                            CustomIconButton.delete(
+                              isDisabled:
+                                  document.uploadedProjectRERADocumentCount == 0
+                                      ? false
+                                      : true,
+                              onPressed: () {
+                                _showPopupToDeleteRERADocument(
+                                  context,
+                                  document,
+                                  index,
                                 );
                               },
                             ),

@@ -9,11 +9,13 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ApprovalLogHistoryScreen extends StatelessWidget {
+  final String title;
   final String subTitle;
   final List<ApprovalLogHistory> items;
 
   const ApprovalLogHistoryScreen({
     super.key,
+    required this.title,
     required this.subTitle,
     required this.items,
   });
@@ -22,13 +24,13 @@ class ApprovalLogHistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Approval Log History",
+        screenTitle: title,
         authorization: AuthorizationModel(),
       ),
       backgroundColor: Colors.grey.shade100,
       body:
           items.isEmpty
-              ? const Center(child: Text("No Data Found"))
+              ? Center(child: noDataWidget(message: "No $title Found"))
               : SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Container(
