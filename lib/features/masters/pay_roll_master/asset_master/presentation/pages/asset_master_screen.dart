@@ -341,6 +341,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
             }
             return ListView.builder(
               controller: scrollController,
+              physics: AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               itemCount: state.assetList.length + 1,
               itemBuilder: (context, index) {

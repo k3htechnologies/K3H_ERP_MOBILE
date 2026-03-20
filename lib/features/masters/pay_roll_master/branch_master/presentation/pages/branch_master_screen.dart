@@ -307,6 +307,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
             }
             return ListView.builder(
               controller: scrollController,
+              physics: AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               itemCount: state.branchList.length + 1,
               itemBuilder: (context, index) {

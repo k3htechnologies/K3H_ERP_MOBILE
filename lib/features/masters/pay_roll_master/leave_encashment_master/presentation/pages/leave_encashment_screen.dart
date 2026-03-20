@@ -220,15 +220,15 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
                             verticalSpacing(height: 10),
                             buildRowTitleValue(
                               title: "Minimum Salary",
-                              value: leaveEncashment.minSalary.toString(),
+                              value: "₹ ${leaveEncashment.minSalary}",
                             ),
                             buildRowTitleValue(
                               title: "Maximum Salary",
-                              value: leaveEncashment.maxSalary.toString(),
+                              value: "₹ ${leaveEncashment.maxSalary}",
                             ),
                             buildRowTitleValue(
                               title: "Encashment Rate",
-                              value: leaveEncashment.encashmentRate.toString(),
+                              value: "${leaveEncashment.encashmentRate} %",
                             ),
                             buildRowTitleValue(
                               title: "Created By",

@@ -256,6 +256,7 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
             }
             return ListView.builder(
               controller: scrollController,
+              physics: AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               itemCount: state.shiftMasterList.length + 1,
               itemBuilder: (context, index) {

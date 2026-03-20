@@ -388,14 +388,25 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             title: "Shift Begin Time",
             isRequired: true,
             initialTime: parseTimeOfDayFromHHmm(shiftBeginTime),
+            validator: (value) {
+              if (value == null) {
+                return "Shift Begin Time is required";
+              }
+              return null;
+            },
           ),
-
           CustomTimePicker(
             setValue:
                 (value) => _onTimeChanged((val) => shiftEndTime = val, value),
             title: "Shift End Time",
             isRequired: true,
             initialTime: parseTimeOfDayFromHHmm(shiftEndTime),
+            validator: (value) {
+              if (value == null) {
+                return "Shift End Time is required";
+              }
+              return null;
+            },
           ),
           CustomTextField(
             textController: _shiftDurationC,
@@ -428,6 +439,12 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             title: "Break Begin Time",
             isRequired: true,
             initialTime: parseTimeOfDayFromHHmm(breakBeginTime),
+            validator: (value) {
+              if (value == null) {
+                return "Break Begin Time is required";
+              }
+              return null;
+            },
           ),
 
           CustomTimePicker(
@@ -437,6 +454,12 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             title: "Break End Time",
             isRequired: true,
             initialTime: parseTimeOfDayFromHHmm(breakEndTime),
+            validator: (value) {
+              if (value == null) {
+                return "Break End Time is required";
+              }
+              return null;
+            },
           ),
           CustomTextField(
             textController: _breakDurationC,
@@ -591,7 +614,8 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
         children: [
           _buildSectionHeader('Time Allowed for Late Entry Details'),
           CustomTextField(
-            title: "Grace Time",
+            title: "Grace Time In Minutes",
+            isRequired: true,
             textController: _graceTimeC,
             keyboardType: TextInputType.number,
             inputFormatterList: InputValidator.digit(4),
@@ -602,6 +626,12 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
               graceTime = minutes.toString();
 
               setState(() {});
+            },
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return "Grace Time is required";
+              }
+              return null;
             },
           ),
           _buildSectionHeader('Late Arrival Action'),

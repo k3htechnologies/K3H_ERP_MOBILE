@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProjectOverviewScreen extends StatefulWidget {
   final ProjectModel project;
@@ -184,6 +185,33 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                       value: widget.project.googleLocation,
                       valueTextStyle: AppTextStyle.ts14M(
                         color: AppColor.primary,
+                      ),
+                      customValueWidget: GestureDetector(
+                        onTap: () async {
+                          final url = widget.project.googleLocation;
+
+                          if (url.isNotEmpty) {
+                            final Uri uri = Uri.parse(url);
+
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(
+                                uri,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            }
+                          }
+                        },
+                        child: Text(
+                          widget.project.googleLocation.isEmpty
+                              ? "-"
+                              : widget.project.googleLocation,
+                          style: AppTextStyle.ts14M(
+                            color: AppColor.primary,
+                          ).copyWith(
+                            decoration: TextDecoration.underline,
+                            decorationColor: AppColor.primary,
+                          ),
+                        ),
                       ),
                     ),
                   ],

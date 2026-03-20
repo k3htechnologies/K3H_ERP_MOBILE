@@ -281,13 +281,13 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                       textController: _weekOffNameC,
                       hint: "Enter Week Off Name",
                       inputFormatterList: [
-                        LengthLimitingTextInputFormatter(200)
+                        LengthLimitingTextInputFormatter(200),
                       ],
                       keyboardType: TextInputType.text,
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Week Off Name is required";
+                          return "Week Off Policy Name is required";
                         }
 
                         return null;
@@ -315,11 +315,17 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                       title: 'Weekdays',
                       isRequired: true,
                       isMultiSelect: false,
+                      hintText: "Select Weekdays",
                       initialValue: _selectWeekDays,
                       onSelected: (value) {
                         _selectWeekDays = value;
                       },
-
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Weekdays is required';
+                        }
+                        return null;
+                      },
                       dataFetchCallBack: (int pageNumber, {String? value}) {
                         //  Filter based on search value
                         final filteredList =
@@ -351,23 +357,6 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Weekday Starts On is required';
-                        }
-
-                        final weekDayStartOn =
-                            value.first["DisplayName"]?.toString().trim() ?? '';
-                        final weekOff1 = _getSelectedDisplayName(
-                          _selectWeekOff,
-                        );
-                        final weekOff2 = _getSelectedDisplayName(
-                          _selectWeekOff2,
-                        );
-
-                        if (weekOff1.isNotEmpty && weekDayStartOn == weekOff1) {
-                          return 'Weekday Starts On must be different from Week Off 1';
-                        }
-
-                        if (weekOff2.isNotEmpty && weekDayStartOn == weekOff2) {
-                          return 'Weekday Starts On must be different from Week Off 2';
                         }
 
                         return null;
@@ -426,11 +415,11 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
 
                         if (weekDayStartOn.isNotEmpty &&
                             weekOff1 == weekDayStartOn) {
-                          return 'Week Off 1 must be different from Weekday Starts On';
+                          return "Week day start on & Week off 1 can't be the same";
                         }
 
                         if (weekOff2.isNotEmpty && weekOff1 == weekOff2) {
-                          return 'Week Off 1 must be different from Week Off 2';
+                          return "Weekly Off 2 must be different from Weekly Off 1";
                         }
 
                         return null;
@@ -483,11 +472,11 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
 
                         if (weekDayStartOn.isNotEmpty &&
                             weekOff2 == weekDayStartOn) {
-                          return 'Week Off 2 must be different from Weekday Starts On';
+                          return "Week day start on & Week off 2 can't be the same";
                         }
 
                         if (weekOff1.isNotEmpty && weekOff2 == weekOff1) {
-                          return 'Week Off 2 must be different from Week Off 1';
+                          return 'Weekly Off 2 must be different from Weekly Off 1';
                         }
 
                         return null;

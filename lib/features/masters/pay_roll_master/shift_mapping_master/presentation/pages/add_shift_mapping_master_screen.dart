@@ -12,6 +12,8 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
+enum SelectionType { employee, department }
+
 class AddShiftMappingMasterScreen extends StatefulWidget {
   final ShiftMappingModel? shiftMappingModel;
   final int index;
@@ -42,6 +44,9 @@ class _AddShiftMappingMasterScreenState
   //EDIT MODE
   bool get _isEditMode => widget.shiftMappingModel != null;
 
+  // SELECTION TYPE
+  late final ValueNotifier<SelectionType> _selectionTypeNotifier;
+
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
@@ -51,10 +56,19 @@ class _AddShiftMappingMasterScreenState
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.addShiftMappingMaster] ??
         AuthorizationModel();
+    _selectionTypeNotifier = ValueNotifier<SelectionType>(
+      SelectionType.department,
+    );
     _shiftMappingMasterCubit = context.read<ShiftMappingMasterCubit>();
     if (_isEditMode) {
       _populateFormFields(widget.shiftMappingModel!);
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _selectionTypeNotifier.dispose();
   }
 
   // POPULATE FORM FIELDS
@@ -85,18 +99,23 @@ class _AddShiftMappingMasterScreenState
       return;
     }
 
-    if (_selectedShift.isEmpty) {
-      showErrorMessage(context, 'Error', 'Please select a shift');
-      return;
-    }
-    if (_selectedEmployee.isEmpty) {
-      showErrorMessage(context, 'Error', 'Please select an employee');
-      return;
-    }
+    final selectionType = _selectionTypeNotifier.value;
 
-    if (_selectedDepartment.isEmpty) {
-      showErrorMessage(context, 'Error', 'Please select department');
-      return;
+    String employeeId = "";
+    String departmentId = "";
+
+    if (selectionType == SelectionType.employee) {
+      if (_selectedEmployee.isEmpty) {
+        showErrorMessage(context, 'Error', 'Please select an employee');
+        return;
+      }
+      employeeId = _selectedEmployee.first['zAttributesId'].toString();
+    } else {
+      if (_selectedDepartment.isEmpty) {
+        showErrorMessage(context, 'Error', 'Please select department');
+        return;
+      }
+      departmentId = _selectedDepartment.first['zAttributesId'].toString();
     }
 
     if (_isEditMode && widget.shiftMappingModel != null) {
@@ -107,17 +126,15 @@ class _AddShiftMappingMasterScreenState
         shiftMappingMasterId:
             widget.shiftMappingModel!.shiftManagementMasterMappingId,
         shiftMasterId: _selectedShift.first['zAttributesId'] as int,
-        employeeId: _selectedEmployee.first['zAttributesId'].toString(),
-        departmentMasterId:
-            _selectedDepartment.first['zAttributesId'].toString(),
+        employeeId: employeeId,
+        departmentMasterId: departmentId,
       );
     } else {
       _shiftMappingMasterCubit.addShiftMapping(
         context: context,
-        employeeId: _selectedEmployee.first['zAttributesId'].toString(),
+        employeeId: employeeId,
         shiftMasterId: _selectedShift.first['zAttributesId'] as int,
-        departmentMasterId:
-            _selectedDepartment.first['zAttributesId'].toString(),
+        departmentMasterId: departmentId,
       );
     }
   }
@@ -166,42 +183,146 @@ class _AddShiftMappingMasterScreenState
                       },
                     ),
 
-                    CustomMultipleSelectPopup(
-                      title: 'Employee',
-                      isRequired: true,
-                      isMultiSelect: false,
-                      initialValue: _selectedEmployee,
-                      dataList: [],
-                      onSelected: (value) {
-                        _selectedEmployee = value;
-                      },
-                      dataFetchCallBack:
-                          _shiftMappingMasterCubit.fetchEmployees,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Employee is required";
-                        }
-                        return null;
+                    ValueListenableBuilder<SelectionType>(
+                      valueListenable: _selectionTypeNotifier,
+                      builder: (context, selectionType, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Select Type", style: AppTextStyle.ts14M()),
+                            Row(
+                              children: [
+                                Row(
+                                  children: [
+                                    Radio<SelectionType>(
+                                      value: SelectionType.department,
+                                      groupValue: selectionType,
+                                      onChanged: (value) {
+                                        _selectionTypeNotifier.value = value!;
+
+                                        _selectedEmployee.clear();
+                                        _selectedDepartment.clear();
+
+                                        _formKey.currentState?.reset();
+                                      },
+                                    ),
+                                    Text(
+                                      "Department",
+                                      style: AppTextStyle.ts14M(),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Radio<SelectionType>(
+                                      value: SelectionType.employee,
+                                      groupValue: selectionType,
+                                      onChanged: (value) {
+                                        _selectionTypeNotifier.value = value!;
+                                        _selectedDepartment.clear();
+
+                                        _selectedEmployee.clear();
+
+                                        _formKey.currentState?.reset();
+                                      },
+                                    ),
+                                    Text(
+                                      "Employee",
+                                      style: AppTextStyle.ts14M(),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(),
+                          ],
+                        );
                       },
                     ),
-                    CustomMultipleSelectPopup(
-                      title: 'Department',
-                      isRequired: true,
-                      isMultiSelect: false,
-                      initialValue: _selectedDepartment,
-                      dataList: [],
-                      onSelected: (value) {
-                        _selectedDepartment = value;
-                      },
-                      dataFetchCallBack:
-                          _shiftMappingMasterCubit.fetchDepartment,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Department is required";
+
+                    ValueListenableBuilder<SelectionType>(
+                      valueListenable: _selectionTypeNotifier,
+                      builder: (context, selectionType, _) {
+                        if (selectionType == SelectionType.employee) {
+                          return CustomMultipleSelectPopup(
+                            title: 'Employee',
+                            isRequired: true,
+                            isMultiSelect: false,
+                            initialValue: _selectedEmployee,
+                            dataList: [],
+                            onSelected: (value) {
+                              _selectedEmployee = value;
+                            },
+                            dataFetchCallBack:
+                                _shiftMappingMasterCubit.fetchEmployees,
+                            validator: (value) {
+                              if (selectionType == SelectionType.employee &&
+                                  (value == null || value.isEmpty)) {
+                                return "Employee is required";
+                              }
+                              return null;
+                            },
+                          );
+                        } else {
+                          return CustomMultipleSelectPopup(
+                            title: 'Department',
+                            isRequired: true,
+                            isMultiSelect: false,
+                            initialValue: _selectedDepartment,
+                            dataList: [],
+                            onSelected: (value) {
+                              _selectedDepartment = value;
+                            },
+                            dataFetchCallBack:
+                                _shiftMappingMasterCubit.fetchDepartment,
+                            validator: (value) {
+                              if (selectionType == SelectionType.department &&
+                                  (value == null || value.isEmpty)) {
+                                return "Department is required";
+                              }
+                              return null;
+                            },
+                          );
                         }
-                        return null;
                       },
                     ),
+
+                    // CustomMultipleSelectPopup(
+                    //   title: 'Employee',
+                    //   isRequired: true,
+                    //   isMultiSelect: false,
+                    //   initialValue: _selectedEmployee,
+                    //   dataList: [],
+                    //   onSelected: (value) {
+                    //     _selectedEmployee = value;
+                    //   },
+                    //   dataFetchCallBack:
+                    //       _shiftMappingMasterCubit.fetchEmployees,
+                    //   validator: (value) {
+                    //     if (value == null || value.isEmpty) {
+                    //       return "Employee is required";
+                    //     }
+                    //     return null;
+                    //   },
+                    // ),
+                    // CustomMultipleSelectPopup(
+                    //   title: 'Department',
+                    //   isRequired: true,
+                    //   isMultiSelect: false,
+                    //   initialValue: _selectedDepartment,
+                    //   dataList: [],
+                    //   onSelected: (value) {
+                    //     _selectedDepartment = value;
+                    //   },
+                    //   dataFetchCallBack:
+                    //       _shiftMappingMasterCubit.fetchDepartment,
+                    //   validator: (value) {
+                    //     if (value == null || value.isEmpty) {
+                    //       return "Department is required";
+                    //     }
+                    //     return null;
+                    //   },
+                    // ),
                   ],
                 ),
               ),

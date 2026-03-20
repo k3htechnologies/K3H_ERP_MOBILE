@@ -56,8 +56,8 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
   List<Map<String, dynamic>> leaveTypeList = [
     {"zAttributesId": 1, "DisplayName": "Adoption - Adoption Leave"},
     {"zAttributesId": 2, "DisplayName": "Birthday - Birthday Leave"},
-    {"zAttributesId": 3, "DisplayName": "Cl - Casual Leave"},
-    {"zAttributesId": 4, "DisplayName": "C0 - Compensator Off"},
+    {"zAttributesId": 3, "DisplayName": "CL - Casual Leave"},
+    {"zAttributesId": 4, "DisplayName": "CO - Compensatory Off"},
     {"zAttributesId": 5, "DisplayName": "ChildCare - Child Care Leave"},
     {
       "zAttributesId": 6,
@@ -174,6 +174,7 @@ class _AddLeaveTypeMasterScreenState extends State<AddLeaveTypeMasterScreen> {
                     CustomMultipleSelectPopup(
                       title: 'Leave Type',
                       isMultiSelect: false,
+                      hintText: "Select Leave Type",
                       initialValue: _selectedLeaveType,
                       dataList: leaveTypeList,
                       onSelected: (value) {
