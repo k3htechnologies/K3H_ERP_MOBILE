@@ -199,7 +199,7 @@ class DashboardCubit extends Cubit<DashboardState> {
   }) async {
     emit(state.copyWith(isLoading: true));
     var result = await _projectMasterRepository.getProjectWithEmployee(
-      projectId: projectId.toString(),
+      projectId: projectId,
       queryParams: {"FullName": searchText ?? ""},
     );
 

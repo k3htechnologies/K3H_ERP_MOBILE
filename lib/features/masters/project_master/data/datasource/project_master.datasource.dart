@@ -15,15 +15,15 @@ abstract interface class ProjectMasterDatasource {
   });
 
   Future<Map<String, dynamic>> apicallGetProjectWithCompany({
-    required String projectId,
+    required int projectId,
   });
 
   Future<Map<String, dynamic>> apicallGetProjectWithBankDetails({
-    required String projectId,
+    required int projectId,
   });
 
   Future<Map<String, dynamic>> apicallGetProjectWithEmployee({
-    required String projectId,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 
@@ -135,7 +135,7 @@ class ProjectMasterDatasourceImpl implements ProjectMasterDatasource {
 
   @override
   Future<Map<String, dynamic>> apicallGetProjectWithCompany({
-    required String projectId,
+    required int projectId,
   }) async {
     String pullProjectWithCompanyUrl({required int projectId}) {
       return "Project/PullProjectWithCompany?ProjectId=$projectId";
@@ -143,7 +143,7 @@ class ProjectMasterDatasourceImpl implements ProjectMasterDatasource {
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullProjectWithCompanyUrl(projectId: int.parse(projectId)),
+        pullProjectWithCompanyUrl(projectId: projectId),
       );
       return {
         'data': networkResponse["data"],
@@ -159,7 +159,7 @@ class ProjectMasterDatasourceImpl implements ProjectMasterDatasource {
 
   @override
   Future<Map<String, dynamic>> apicallGetProjectWithBankDetails({
-    required String projectId,
+    required int projectId,
   }) async {
     String pullProjectWithBankDetailsUrl({required int projectId}) {
       return "Project/PullProjectWithBankDetails?ProjectId=$projectId";
@@ -167,7 +167,7 @@ class ProjectMasterDatasourceImpl implements ProjectMasterDatasource {
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullProjectWithBankDetailsUrl(projectId: int.parse(projectId)),
+        pullProjectWithBankDetailsUrl(projectId: projectId),
       );
       return {
         'data': networkResponse["data"],
@@ -183,18 +183,18 @@ class ProjectMasterDatasourceImpl implements ProjectMasterDatasource {
 
   @override
   Future<Map<String, dynamic>> apicallGetProjectWithEmployee({
-    required String projectId,
+    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     String pullProjectWithEmployeeUrl({required int projectId}) {
-      var url =  "Project/PullProjectWithEmployee?ProjectId=$projectId";
+      var url = "Project/PullProjectWithEmployee?ProjectId=$projectId";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullProjectWithEmployeeUrl(projectId: int.parse(projectId)),
+        pullProjectWithEmployeeUrl(projectId: projectId),
       );
       return {
         'data': networkResponse["data"],

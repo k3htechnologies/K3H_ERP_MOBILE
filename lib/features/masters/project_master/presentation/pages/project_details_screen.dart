@@ -63,7 +63,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
 
     _projectMasterCubit = context.read<ProjectMasterCubit>();
 
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _tabController.addListener(_handleTabChange);
 
     _delayFuture = Future.delayed(const Duration(seconds: 2));
@@ -98,11 +98,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
   // <---- TAB CHANGE ---->
   void _handleTabChange() {
     final index = _tabController.index;
-
     context.read<ProjectMasterCubit>().onTabChanged(
       context,
       index,
-      projectId: widget.project.projectId.toString(),
+      projectId: widget.project.projectId,
+      employeeId: 0,
     );
   }
 
@@ -199,7 +199,13 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
             verticalSpacing(),
             ChipStyleTabBar(
               controller: _tabController,
-              tabs: ["Overview", "Employee", "Bank Details", "Company"],
+              tabs: [
+                "Overview",
+                "Employee",
+                "Bank Details",
+                "Company",
+                "Approval",
+              ],
             ),
             Expanded(
               child: TabBarView(
@@ -210,6 +216,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   _employeeSection(),
                   _bankSection(),
                   _companySection(),
+                  ListView(children: [Center(child: noDataWidget())]),
                 ],
               ),
             ),

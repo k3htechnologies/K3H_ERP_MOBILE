@@ -148,7 +148,7 @@ class RentCubit extends Cubit<RentState> {
   }) async {
     ProjectModel project = getProject();
     var result = await _projectMasterRepository.getProjectWithBankDetails(
-      projectId: project.projectId.toString(),
+      projectId: project.projectId,
     );
     return result.fold(
       (failure) {
