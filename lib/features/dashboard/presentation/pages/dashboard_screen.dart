@@ -68,6 +68,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   UserModel? currentUser;
   bool isProcessing = false;
 
+  final ValueNotifier<bool> isDayCompletedNotifier = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
@@ -84,7 +86,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> initialise() async {
-    // WidgetsBinding.instance.addPostFrameCallback((_) async {
     final now = DateTime.now();
     final start = DateTime(now.year, now.month, now.day);
     final end = start;
@@ -97,7 +98,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       0,
       _selectedProject.projectId,
     );
-    // });
     await _dashboardCubit.getDashboardList(context);
   }
 
@@ -225,23 +225,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final finalPolyline =
         routePoints.length > 1 ? PolylineEncoder.encode(routePoints) : "";
 
+    final data = _dashboardCubit.state.data;
+    if (data == null) {
+      debugPrint("Attendance data null");
+      return;
+    }
+
+    double startLat;
+    double startLng;
+
+    if (startLatLng != null) {
+      startLat = startLatLng!.latitude;
+      startLng = startLatLng!.longitude;
+    } else if (routePoints.isNotEmpty) {
+      startLat = routePoints.first.latitude;
+      startLng = routePoints.first.longitude;
+    } else {
+      startLat = currentPosition.latitude;
+      startLng = currentPosition.longitude;
+    }
+
     await _dashboardCubit.updateAttendance(
       context,
-      attendanceId: _dashboardCubit.state.data!.attendanceId,
-      uniquekey: _dashboardCubit.state.data!.uniquekey,
+      attendanceId: data.attendanceId,
+      uniquekey: data.uniquekey,
       punchAddress: address,
-      startLatitude: startLatLng?.latitude ?? routePoints.first.latitude,
-      startLongitude: startLatLng?.longitude ?? routePoints.first.longitude,
+      startLatitude: startLat,
+      startLongitude: startLng,
       endLatitude: endPoint.latitude,
       endLongitude: endPoint.longitude,
       polyline: finalPolyline,
       distance: finalDistance,
     );
 
-    _timer?.cancel();
+    workedDuration.value = DateTime.now().difference(punchInTime);
 
-    isPunchedInNotifier.value = false;
-    dragPositionNotifier.value = 0;
+    _timer?.cancel();
   }
 
   double _calculateDistance(List<LatLng> points) {
@@ -351,32 +370,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         currentAttendanceId = record.attendanceId;
         currentUniquekey = record.uniquekey;
-        // PUNCH OUT SESSION
+
         if (record.punchOut == null) {
           isPunchedInNotifier.value = true;
-          dragPositionNotifier.value = maxWidth;
+          isDayCompletedNotifier.value = false;
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            dragPositionNotifier.value = maxWidth;
+          });
+
           _startTimerFrom(record.punchIn!);
-          if (startLatLng == null &&
-              record.startLatitude != 0 &&
-              record.startLongitude != 0) {
-            startLatLng = LatLng(record.startLatitude, record.startLongitude);
-            if (routePoints.isEmpty) {
-              routePoints.add(startLatLng!);
-              lastPoint = startLatLng;
-              totalDistance = 0.0;
-            }
-            if (positionStream == null) {
-              _startLocationTracking();
-            }
-          }
         } else {
           _timer?.cancel();
-          isPunchedInNotifier.value = false;
-          dragPositionNotifier.value = 0;
+
+          isPunchedInNotifier.value = true;
+          isDayCompletedNotifier.value = true;
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            dragPositionNotifier.value = maxWidth;
+          });
+
           workedDuration.value = record.punchOut!.difference(record.punchIn!);
         }
-        isPunchedInNotifier.value = record.punchOut == null;
-        dragPositionNotifier.value = record.punchOut == null ? maxWidth : 0;
       },
       child: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {
@@ -588,41 +603,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   },
 
                                   onHorizontalDragEnd: (_) async {
-                                    if (isProcessing) {
-                                      return;
-                                    }
+                                    if (isProcessing) return;
 
                                     final currentPos =
                                         dragPositionNotifier.value;
 
-                                    /// PUNCH IN
+                                    // PUNCH IN (only once)
                                     if (!isPunchedInNotifier.value &&
                                         currentPos > maxWidth * 0.7) {
+                                      // Block re-punch-in after day completed
+                                      if (isDayCompletedNotifier.value ||
+                                          currentAttendanceId != null) {
+                                        dragPositionNotifier.value = 0;
+                                        return;
+                                      }
+
                                       isProcessing = true;
 
                                       dragPositionNotifier.value = maxWidth;
                                       isPunchedInNotifier.value = true;
 
-                                      await punchIn(context); //  ONLY ONCE
+                                      await punchIn(context);
 
                                       _startLocationTracking();
                                       _startTimerFrom(DateTime.now());
 
                                       isProcessing = false;
                                     }
-                                    /// PUNCH OUT
+                                    // PUNCH OUT (allow multiple times)
                                     else if (isPunchedInNotifier.value &&
                                         currentPos < maxWidth * 0.3) {
                                       isProcessing = true;
 
-                                      dragPositionNotifier.value = 0;
-                                      isPunchedInNotifier.value = false;
-
                                       await punchOut(context);
+
+                                      // move slider RIGHT after UI builds
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                            dragPositionNotifier.value =
+                                                maxWidth;
+                                          });
+
+                                      // keep in punch-out mode
+                                      isPunchedInNotifier.value = true;
+                                      isDayCompletedNotifier.value = true;
 
                                       isProcessing = false;
                                     }
-                                    /// RESET
+                                    // RESET
                                     else {
                                       dragPositionNotifier.value =
                                           isPunchedInNotifier.value

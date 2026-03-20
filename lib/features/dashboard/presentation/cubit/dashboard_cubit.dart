@@ -78,7 +78,7 @@ class DashboardCubit extends Cubit<DashboardState> {
     );
   }
 
-  // ADD ATTENDACE
+  // ADD ATTENDANCE
   Future addAttendance(
     BuildContext context, {
     required int attendanceId,
