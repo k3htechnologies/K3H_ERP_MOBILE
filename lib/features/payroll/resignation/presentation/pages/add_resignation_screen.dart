@@ -51,7 +51,6 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
     deletedFileList: "",
   );
 
-  ValueNotifier<bool> isEarlyRealise = ValueNotifier(false);
   ValueNotifier<bool> isOfferInHand = ValueNotifier(false);
 
   //EDIT MODE
@@ -78,8 +77,6 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
       resignationDate = resignation.resignationDate;
       relievingDate = resignation.expectedRelievingDate;
       reasonC.text = resignation.reasonOfLeaving;
-      // ignore: unnecessary_null_comparison
-      isEarlyRealise.value = resignation.expectedRelievingDate != null;
 
       expectedRelievingDate = resignation.expectedRelievingDate;
       isOfferInHand.value = resignation.isAnyOfferInHand;
@@ -103,8 +100,8 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
           resignationDate: resignationDate!.toIso8601String(),
           relievingDate: relievingDate!.toIso8601String(),
           expectedRelievingDate:
-              isEarlyRealise.value && expectedRelievingDate != null
-                  ? expectedRelievingDate!.toIso8601String().split('T').first
+              expectedRelievingDate != null
+                  ? expectedRelievingDate!.toIso8601String()
                   : "",
           reasonOfLeaving: reasonC.text.trim(),
           isAnyOfferInHand: isOfferInHand.value,
@@ -118,7 +115,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
           relievingDate: relievingDate!.toIso8601String(),
           resignationDate: resignationDate!.toIso8601String().split('T').first,
           expectedRelievingDate:
-              isEarlyRealise.value && expectedRelievingDate != null
+              expectedRelievingDate != null
                   ? expectedRelievingDate!.toIso8601String().split('T').first
                   : "",
           reasonOfLeaving: reasonC.text.trim(),

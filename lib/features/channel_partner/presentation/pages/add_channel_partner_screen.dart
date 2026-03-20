@@ -959,13 +959,13 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                           if (value == null || value.isEmpty) {
                             return "Aadhaar Card Number is required";
                           }
-                          if (!InputValidator.isValidPAN(value)) {
+                          if (!InputValidator.isValidAadharNumber(value)) {
                             return "Aadhaar Card Number is invalid";
                           }
                         } else {
                           if (value != null &&
                               value.isNotEmpty &&
-                              !InputValidator.isValidPAN(value)) {
+                              !InputValidator.isValidAadharNumber(value)) {
                             return "Aadhaar Card Number is invalid";
                           }
                         }
