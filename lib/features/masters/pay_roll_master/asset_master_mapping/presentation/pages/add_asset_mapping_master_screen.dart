@@ -214,7 +214,7 @@ class _AddAssetMappingMasterScreenState
       pageNumber: pageNumber,
       pageSize: 15,
       queryParams:
-          value != null && value.isNotEmpty ? {"AssetName": value} : {},
+          value != null && value.isNotEmpty ? {"AssetName": value,"Status":"Available"} : {"Status":"Available"},
     );
 
     return result.fold(

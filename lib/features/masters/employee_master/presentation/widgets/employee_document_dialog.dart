@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -24,6 +25,7 @@ class EmployeeDocumentDialog extends StatefulWidget {
   final Function(String url) deleteDocument;
 
   final bool isFreshAdd;
+
 
   const EmployeeDocumentDialog({
     super.key,
@@ -47,10 +49,19 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
   int _pickedDocumentCount = 0;
   int maxDocuments = 5;
 
+  bool _handledFresh = false;
+
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.isFreshAdd && !_handledFresh) {
+        _handledFresh = true;
+        _showAttachmentOptions();
+      }
+    });
   }
 
   @override
@@ -106,6 +117,78 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
 
     await widget.addDocument(result.files);
     if (mounted) Navigator.pop(context);
+  }
+
+  // ───────────────── CAPTURE FROM CAMERA ─────────────────
+  Future<void> _captureFromCamera() async {
+    final ImagePicker picker = ImagePicker();
+
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 80,
+    );
+
+    if (image == null) return;
+
+    final currentCount = widget.urls.length;
+
+    if (currentCount >= maxDocuments) {
+      if (mounted) {
+        showErrorMessage(
+          context,
+          "Image Error",
+          "Maximum $maxDocuments documents allowed",
+        );
+      }
+      return;
+    }
+
+    final bytes = await image.readAsBytes();
+
+    final file = PlatformFile(
+      name: image.name,
+      size: bytes.length,
+      bytes: bytes,
+    );
+
+    await widget.addDocument([file]);
+
+    if (mounted) Navigator.pop(context);
+  }
+
+  void _showAttachmentOptions() {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Text("Select Option", style: AppTextStyle.ts16SB()),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.camera_alt, size: 18),
+                title: Text("Camera"),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _captureFromCamera();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.attach_file, size: 18),
+                title: Text("Browse Files"),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _pickDocuments();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   // PREVIOUS BUTTON
@@ -383,7 +466,7 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
   // ───────────────── UPLOAD UI ─────────────────
   Widget _buildUploadUI() {
     return GestureDetector(
-      onTap: _pickDocuments,
+      onTap: _showAttachmentOptions,
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(

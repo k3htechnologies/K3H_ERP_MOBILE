@@ -953,11 +953,20 @@ class _ProfileScreenState extends State<ProfileScreen>
                     'label': 'Reporting Person',
                     'value': overview.reportPersonName,
                   },
-                  if (overview.joiningDate != null)
-                    {
-                      'label': 'Joining Date',
-                      'value': formatDate(overview.joiningDate!),
-                    },
+                  {
+                    'label': 'Joining Date',
+                    'value':
+                        overview.joiningDate != null
+                            ? formatDateTimeAsDDMMMYYYY(overview.joiningDate!)
+                            : "-",
+                  },
+                  {
+                    'label': 'Probation Date',
+                    'value':
+                        overview.probationDate != null
+                            ? formatDateTimeAsDDMMMYYYY(overview.probationDate!)
+                            : "-",
+                  },
                 ],
               ),
               verticalSpacing(),

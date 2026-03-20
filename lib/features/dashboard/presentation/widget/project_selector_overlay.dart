@@ -72,26 +72,31 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
   @override
   void initState() {
     super.initState();
-    try {
-      selectedProject = widget.projects.firstWhere(
-        (p) => p.projectId == widget.selectedProjectId,
-      );
-    } catch (_) {
-      selectedProject =
-          widget.projects.isNotEmpty ? widget.projects.first : null;
-    }
 
     if (widget.selectedProjectId != null) {
+      try {
+        selectedProject = widget.projects.firstWhere(
+          (p) => p.projectId == widget.selectedProjectId,
+        );
+      } catch (_) {
+        selectedProject = null;
+      }
+
       _fetchProjectById(widget.selectedProjectId!);
+    } else {
+      selectedProject = null;
     }
+
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(1.0, 0.0),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
     _controller.forward();
   }
 
@@ -159,27 +164,31 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (selectedProject != null)
+                          if(selectedProject==null)...[
+                            Text("Select Project",style: AppTextStyle.ts14M(color: AppColor.grey),)
+                          ],
+                          if(selectedProject != null)...[
                             GestureDetector(
                               onTap:
                                   () => _navigateToProjectDetails(
-                                    selectedProject!,
-                                  ),
+                                selectedProject!,
+                              ),
                               child: Icon(
                                 Icons.info_outline,
                                 color: AppColor.primary,
                                 size: 20,
                               ),
                             ),
-                          horizontalSpacing(),
-                          Expanded(
-                            child: Text(
-                              selectedProject?.projectName ?? '',
-                              style: AppTextStyle.ts16SB(),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                            horizontalSpacing(),
+                            Expanded(
+                              child: Text(
+                                selectedProject?.projectName ?? '',
+                                style: AppTextStyle.ts16SB(),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
@@ -222,9 +231,9 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                               return GestureDetector(
                                 behavior: HitTestBehavior.opaque,
                                 onTap: () async {
-                                    await _controller.reverse();
-                                    widget.onSelect(project);
-                                    widget.onClose();
+                                  await _controller.reverse();
+                                  widget.onSelect(project);
+                                  widget.onClose();
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(

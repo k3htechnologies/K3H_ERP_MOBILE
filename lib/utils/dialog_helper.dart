@@ -609,8 +609,7 @@ class DialogHelper {
               children: [
                 Row(
                   children: [
-                    icon!,
-                    horizontalSpacing(),
+                    if (icon != null) ...[icon, horizontalSpacing()],
                     if (title != null) Text(title, style: AppTextStyle.ts14M()),
                     Spacer(),
                     IconButton(

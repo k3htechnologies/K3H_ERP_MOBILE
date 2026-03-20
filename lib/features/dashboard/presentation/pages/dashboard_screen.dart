@@ -389,6 +389,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               isMenuButton: true,
               authorization: _routeAuthorization,
               onProjectChangeCallback: (value) {
+                print(_selectedProject.projectId);
                 _selectedProject = value;
                 final now = DateTime.now();
                 final start = DateTime(now.year, now.month, now.day);

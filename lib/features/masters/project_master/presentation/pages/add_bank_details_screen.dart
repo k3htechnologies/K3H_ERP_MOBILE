@@ -101,10 +101,10 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
   // INITIALISING DROPDOWN
   void _initializeDropdowns() {
     if (widget.bankDetailsModel != null) {
-      _selectedBankNotifier.value.first = {
+      _selectedBankNotifier.value = [{
         'zAttributesId': widget.bankDetailsModel!.bankListMasterId,
         'DisplayName': widget.bankDetailsModel!.bankName,
-      };
+      }];
 
       final acType = widget.bankDetailsModel!.acType.toLowerCase();
       if (acType.contains('current')) {

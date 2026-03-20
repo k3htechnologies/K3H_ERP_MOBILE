@@ -49,7 +49,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
   void initState() {
     super.initState();
     _project = getProject();
-    _buildingCubit = serviceLocator<BuildingCubit>();
+    _buildingCubit = context.read<BuildingCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.building] ??
         AuthorizationModel();
@@ -265,7 +265,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
         },
         onProjectChangeCallback: (project) {
           _project = project;
-          _buildingCubit.getBuildingList(context, 1, _project.projectId);
+          _buildingCubit.searchBuilding(context, _project.projectId, "");
         },
         isFilterOn: true,
         onFilterTap: () {
@@ -328,11 +328,14 @@ class _BuildingScreenState extends State<BuildingScreen> {
                                       },
                                     );
                                   },
-                                  child:  Text(
+                                  child: Text(
                                     building.buildingName,
                                     style: AppTextStyle.ts16M(
                                       color: AppColor.primary,
-                                    ).copyWith(decoration: TextDecoration.underline,decorationColor: AppColor.primary),
+                                    ).copyWith(
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: AppColor.primary,
+                                    ),
                                   ),
                                 ),
                               ),
