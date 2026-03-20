@@ -97,6 +97,7 @@ class _AddLitigationHearingScreenState
             DateTime.now().second,
           ).toIso8601String(),
       "Remark": _remarkC.text.trim(),
+      "RemoveHearingAttachementURL": hearingDocument.deletedFileList,
     };
     if (!_isEditMode) {
       _litigationCubit.addLitigationHearing(
@@ -118,10 +119,7 @@ class _AddLitigationHearingScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle:
-            _isEditMode
-                ? "Update Hearing"
-                : "Add Hearing",
+        screenTitle: _isEditMode ? "Update Hearing" : "Add Hearing",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(

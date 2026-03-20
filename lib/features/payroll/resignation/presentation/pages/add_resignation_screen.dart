@@ -39,7 +39,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   // DATE VARIABLE
-  DateTime? resignationDate, relievingDate;
+  DateTime? resignationDate, relievingDate, expectedRelievingDate;
 
   // TEXT CONTROLLER
   late TextEditingController reasonC, offerAmountC;
@@ -80,6 +80,8 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
       reasonC.text = resignation.reasonOfLeaving;
       // ignore: unnecessary_null_comparison
       isEarlyRealise.value = resignation.expectedRelievingDate != null;
+
+      expectedRelievingDate = resignation.expectedRelievingDate;
       isOfferInHand.value = resignation.isAnyOfferInHand;
       offerAmountC.text = resignation.offerAmount.toString();
       if (resignation.offerLetterUrl.isNotEmpty) {
@@ -99,9 +101,10 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
           uniquekey: widget.resignationModel!.uniqueKey,
           employeeId: widget.resignationModel!.employeeId.toString(),
           resignationDate: resignationDate!.toIso8601String(),
+          relievingDate: relievingDate!.toIso8601String(),
           expectedRelievingDate:
-              isEarlyRealise.value && relievingDate != null
-                  ? relievingDate!.toIso8601String()
+              isEarlyRealise.value && expectedRelievingDate != null
+                  ? expectedRelievingDate!.toIso8601String().split('T').first
                   : "",
           reasonOfLeaving: reasonC.text.trim(),
           isAnyOfferInHand: isOfferInHand.value,
@@ -112,10 +115,11 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
         _resignationCubit.addResignation(
           context: context,
           employeeId: userModel.employeeId.toString(),
+          relievingDate: relievingDate!.toIso8601String(),
           resignationDate: resignationDate!.toIso8601String().split('T').first,
           expectedRelievingDate:
-              isEarlyRealise.value && relievingDate != null
-                  ? relievingDate!.toIso8601String().split('T').first
+              isEarlyRealise.value && expectedRelievingDate != null
+                  ? expectedRelievingDate!.toIso8601String().split('T').first
                   : "",
           reasonOfLeaving: reasonC.text.trim(),
           isAnyOfferInHand: isOfferInHand.value,
@@ -179,48 +183,22 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
                 ),
                 CustomTextField(
                   textController: reasonC,
-                  title: 'Reason',
+                  title: 'Reason Of Leaving',
                   maxLines: 10,
                   minLines: 3,
                   isRequired: true,
-                  hint: 'Enter Reason',
+                  hint: 'Enter Reason Of Leaving',
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Reason is required";
+                      return "Reason Of Leaving is required";
                     }
                     return null;
                   },
                 ),
-                ValueListenableBuilder<bool>(
-                  valueListenable: isEarlyRealise,
-                  builder: (context, value, _) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomCheckBox(
-                          isSelected: value,
-                          onChanged: (newValue) {
-                            isEarlyRealise.value = newValue;
-                          },
-                          title: "Early Realise",
-                        ),
-                        verticalSpacing(),
-                        CustomDatePicker(
-                          readOnly: !value,
-                          isRequired: value,
-                          title: 'Expected Relieving Date',
-                          initialDate: relievingDate,
-                          setValue: (value) => relievingDate = value,
-                          validator: (value) {
-                            if (value == null && isEarlyRealise.value) {
-                              return 'Expected Relieving Date is required';
-                            }
-                            return null;
-                          },
-                        ),
-                      ],
-                    );
-                  },
+                CustomDatePicker(
+                  title: 'Expected Relieving Date',
+                  initialDate: expectedRelievingDate,
+                  setValue: (value) => expectedRelievingDate = value,
                 ),
                 ValueListenableBuilder<bool>(
                   valueListenable: isOfferInHand,

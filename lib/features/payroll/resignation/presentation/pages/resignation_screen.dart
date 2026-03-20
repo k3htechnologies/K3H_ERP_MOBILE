@@ -96,11 +96,8 @@ class _ResignationScreenState extends State<ResignationScreen> {
         screenTitle: 'Resignation',
         authorization: _routeAuthorizationModel,
         isMenuButton: true,
-        onAddCallback: () async {
-          await goRouter.pushNamed(AppRoutes.addresignation);
-          if (context.mounted) {
-            _resignationCubit.getResignationList(context, 1);
-          }
+        onAddCallback: () {
+          goRouter.pushNamed(AppRoutes.addresignation);
         },
       ),
       body: BlocBuilder<ResignationCubit, ResignationState>(

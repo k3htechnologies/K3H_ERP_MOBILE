@@ -541,8 +541,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   Widget _buildHearingTab() {
     return BlocBuilder<LitigationCubit, LitigationState>(
       builder: (context, state) {
-
-
         if (state.isLoading! && state.litigationHearingList.isEmpty) {
           return Center(child: loader());
         }
@@ -560,31 +558,35 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Hearing History', style: AppTextStyle.ts16SB()),
-                    if(status!="closed")
-                    CustomButton(
-                      backgroundColor: AppColor.lightBlue,
-                      leading: Icon(Icons.add),
-                      textColor: AppColor.primary,
-                      text: 'Add Hearing',
-                      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                      onPressed: () async {
-                        await goRouter.pushNamed(
-                          AppRoutes.addLitigationHearing,
-                          queryParameters: {
-                            'litigationId':
-                                widget.litigationModel.litigationId.toString(),
-                          },
-                        );
-
-                        if (context.mounted) {
-                          _litigationCubit.getLitigationHearingList(
-                            context: context,
-                            pageNumber: 1,
-                            litigationId: widget.litigationModel.litigationId,
+                    if (status != "closed")
+                      CustomButton(
+                        backgroundColor: AppColor.lightBlue,
+                        leading: Icon(Icons.add),
+                        textColor: AppColor.primary,
+                        text: 'Add Hearing',
+                        padding: EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 8,
+                        ),
+                        onPressed: () async {
+                          await goRouter.pushNamed(
+                            AppRoutes.addLitigationHearing,
+                            queryParameters: {
+                              'litigationId':
+                                  widget.litigationModel.litigationId
+                                      .toString(),
+                            },
                           );
-                        }
-                      },
-                    ),
+
+                          if (context.mounted) {
+                            _litigationCubit.getLitigationHearingList(
+                              context: context,
+                              pageNumber: 1,
+                              litigationId: widget.litigationModel.litigationId,
+                            );
+                          }
+                        },
+                      ),
                   ],
                 ),
                 Expanded(
@@ -764,7 +766,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
         // Find the current litigation from state using its ID
         final litigation = state.litigationList[widget.index];
 
-
         final status = litigation.status.toLowerCase();
 
         if (state.isLoading! && state.litigationDocumentList.isEmpty) {
@@ -776,7 +777,44 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
             child: Column(
               children: [
-                if(status!="closed")
+                if (status != "closed")
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Uploaded Documents", style: AppTextStyle.ts16SB()),
+                      CustomIconButton(
+                        onPressed: () async {
+                          await _showPopUpToAddUpdateDocument();
+                          if (context.mounted) {
+                            _litigationCubit.getLitigationDocumentList(
+                              context: context,
+                              pageNumber: 1,
+                              litigationId: widget.litigationModel.litigationId,
+                            );
+                          }
+                        },
+                        backgroundColor: AppColor.primary,
+                        icon: Icon(Icons.add, color: AppColor.white, size: 16),
+                      ),
+                    ],
+                  ),
+                Expanded(
+                  child: Center(
+                    child: noDataWidget(
+                      message: "No Litigation Documents Data Found",
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          child: Column(
+            children: [
+              if (status != "closed")
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -797,43 +835,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                     ),
                   ],
                 ),
-                Expanded(
-                  child: Center(
-                    child: noDataWidget(
-                      message: "No Litigation Documents Data Found",
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return Padding(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Column(
-            children: [
-              if(status!="closed")
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Uploaded Documents", style: AppTextStyle.ts16SB()),
-                  CustomIconButton(
-                    onPressed: () async {
-                      await _showPopUpToAddUpdateDocument();
-                      if (context.mounted) {
-                        _litigationCubit.getLitigationDocumentList(
-                          context: context,
-                          pageNumber: 1,
-                          litigationId: widget.litigationModel.litigationId,
-                        );
-                      }
-                    },
-                    backgroundColor: AppColor.primary,
-                    icon: Icon(Icons.add, color: AppColor.white, size: 16),
-                  ),
-                ],
-              ),
               Expanded(
                 child: ListView.builder(
                   controller: _documentScrollController,
@@ -1103,6 +1104,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                   litigationDocument.fileBytesList = fileBytesList;
                   litigationDocument.fileNameList = fileNameList;
                   litigationDocument.deletedFileList = deleted;
+                  print("delete: ${litigationDocument.deletedFileList}");
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -1147,6 +1149,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
       "ProjectId": getProject().projectId.toString(),
       "LitigationId": widget.litigationModel.litigationId.toString(),
       "DocumentName": _documentNameC.text.trim(),
+      "RemoveDocumentURL": litigationDocument.deletedFileList,
     };
     if (documentModel != null) {
       //Update
@@ -1243,7 +1246,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                                 return null;
                               },
                             ),
-                            verticalSpacing(),
 
                             /// FILES
                             CustomMultiFilePicker(
@@ -1268,23 +1270,21 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                               },
                             ),
 
-                            verticalSpacing(),
-
                             /// Remark
                             CustomTextField(
-                              title: "Remark",
+                              title: "Remarks",
                               isRequired: true,
-                              hint: "Enter remark",
+                              hint: "Enter remarks",
                               textController: _remarkC,
-                              maxLines: 2,
+                              maxLines: 3,
+                              minLines: 3,
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return "Remark is required";
+                                  return "Remarks is required";
                                 }
                                 return null;
                               },
                             ),
-                            verticalSpacing(),
 
                             /// Conclusion
                             CustomTextField(
@@ -1292,7 +1292,8 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                               hint: "Enter conclusion",
                               textController: _conclusionC,
                               isRequired: true,
-                              maxLines: 2,
+                              maxLines: 3,
+                              minLines: 3,
                               validator:
                                   (v) =>
                                       v == null || v.trim().isEmpty
@@ -1397,8 +1398,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     final shouldDelete = await DialogHelper.showConfirmationDialog(
       context: context,
       title: 'Reopen Litigation',
-      message:
-          'Are you sure you want to Reopen?',
+      message: 'Are you sure you want to Reopen?',
       confirmText: "Reopen",
     );
 

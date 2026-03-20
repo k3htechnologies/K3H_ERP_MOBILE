@@ -696,7 +696,10 @@ class LitigationCubit extends Cubit<LitigationState> {
 
         emit(state.copyWith(litigationList: updatedLitigationList));
 
-        showSuccessMessage(context, subTitle: 'Litigation Closure added successfully');
+        showSuccessMessage(
+          context,
+          subTitle: 'Litigation Closure added successfully',
+        );
       },
     );
   }
@@ -760,7 +763,10 @@ class LitigationCubit extends Cubit<LitigationState> {
 
         emit(state.copyWith(litigationList: updatedLitigationList));
 
-        showSuccessMessage(context, subTitle: 'Litigation Closure updated successfully');
+        showSuccessMessage(
+          context,
+          subTitle: 'Litigation Closure updated successfully',
+        );
       },
     );
   }

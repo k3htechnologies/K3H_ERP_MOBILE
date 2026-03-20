@@ -98,6 +98,7 @@ class ResignationCubit extends Cubit<ResignationState> {
     required BuildContext context,
     required String employeeId,
     required String resignationDate,
+    required String relievingDate,
     required String expectedRelievingDate,
     required String reasonOfLeaving,
     required bool isAnyOfferInHand,
@@ -113,6 +114,7 @@ class ResignationCubit extends Cubit<ResignationState> {
       "ExpectedRelievingDate": expectedRelievingDate,
       "ReasonOfLeaving": reasonOfLeaving,
       "IsAnyOfferInHand": isAnyOfferInHand.toString(),
+      "RelievingDate": relievingDate,
       "OfferAmount": offerAmount,
       "RemoveOfferLetterURL": offerLetter.deletedFileList,
     };
@@ -140,8 +142,9 @@ class ResignationCubit extends Cubit<ResignationState> {
         showErrorMessage(context, "Error Message", failure.message);
       },
       (response) {
+        final newData = List<ResignationModel>.from((response['data']));
         goRouter.pop();
-
+        emit(state.copyWith(resignationList: newData));
         showSuccessMessage(context, subTitle: "Resignation added successfully");
       },
     );
@@ -155,6 +158,7 @@ class ResignationCubit extends Cubit<ResignationState> {
     required String employeeId,
     required String resignationDate,
     required String expectedRelievingDate,
+    required String relievingDate,
     required String reasonOfLeaving,
     required bool isAnyOfferInHand,
     required String offerAmount,
@@ -168,6 +172,7 @@ class ResignationCubit extends Cubit<ResignationState> {
       "EmployeeId": employeeId,
       "ResignationDate": resignationDate,
       "ExpectedRelievingDate": expectedRelievingDate,
+      "RelievingDate": relievingDate,
       "ReasonOfLeaving": reasonOfLeaving,
       "IsAnyOfferInHand": isAnyOfferInHand.toString(),
       "OfferAmount": offerAmount,
