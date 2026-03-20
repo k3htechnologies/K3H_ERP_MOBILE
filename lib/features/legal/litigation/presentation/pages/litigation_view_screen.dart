@@ -1104,7 +1104,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                   litigationDocument.fileBytesList = fileBytesList;
                   litigationDocument.fileNameList = fileNameList;
                   litigationDocument.deletedFileList = deleted;
-                  print("delete: ${litigationDocument.deletedFileList}");
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
