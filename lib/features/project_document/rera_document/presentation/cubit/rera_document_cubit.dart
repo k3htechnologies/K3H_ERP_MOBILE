@@ -455,8 +455,9 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     RERADocumentModel document,
     int projectRERADocumentCategoryId,
     BuildContext context,
-    int index,
-  ) async {
+    int index, {
+    bool isSubDoc = false,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
 
     final result = await _reraDocumentRepository.deleteRERADocument(
@@ -476,21 +477,39 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
-        final updatedList = List<RERADocumentModel>.from(
-          state.reraSubDocumentList,
-        );
+        if (isSubDoc == false) {
+          final updatedList = List<RERADocumentModel>.from(
+            state.reraDocumentList,
+          );
 
-        updatedList.removeAt(index);
+          updatedList.removeAt(index);
 
-        emit(
-          state.copyWith(
-            reraSubDocumentList: updatedList,
-            totalNumberOfRecordOfSubDoc:
-                state.totalNumberOfRecordOfSubDoc > 0
-                    ? state.totalNumberOfRecordOfSubDoc - 1
-                    : 0,
-          ),
-        );
+          emit(
+            state.copyWith(
+              reraDocumentList: updatedList,
+              totalNumberOfRecord:
+                  state.totalNumberOfRecord > 0
+                      ? state.totalNumberOfRecord - 1
+                      : 0,
+            ),
+          );
+        } else {
+          final updatedList = List<RERADocumentModel>.from(
+            state.reraSubDocumentList,
+          );
+
+          updatedList.removeAt(index);
+
+          emit(
+            state.copyWith(
+              reraSubDocumentList: updatedList,
+              totalNumberOfRecordOfSubDoc:
+                  state.totalNumberOfRecordOfSubDoc > 0
+                      ? state.totalNumberOfRecordOfSubDoc - 1
+                      : 0,
+            ),
+          );
+        }
         showSuccessMessage(context, subTitle: "Document Deleted Successfully");
       },
     );

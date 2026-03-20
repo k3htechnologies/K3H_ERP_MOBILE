@@ -212,6 +212,7 @@ class _DocumentScreenState extends State<DocumentScreen>
                           : "Add Document Name",
                   onPressed: () {
                     _submitForm(documentModel: documentModel, index: index);
+                    _searchC.clear();
                   },
                 ),
               ),
@@ -226,7 +227,6 @@ class _DocumentScreenState extends State<DocumentScreen>
   // CLEAR TEXT CONTROLLER
   void _clearDialogueToAddUpdateDocument() {
     _documentC.clear();
-    _searchC.clear();
   }
 
   @override
@@ -243,7 +243,7 @@ class _DocumentScreenState extends State<DocumentScreen>
         onProjectChangeCallback: (project) {
           projectId = project.projectId;
           if (context.mounted) {
-            _documentCubit.searchDocument("", context);
+            _documentCubit.getCategoryList(context, 1, projectId);
           }
         },
         onExportCallback: (value) {
@@ -414,8 +414,7 @@ class _DocumentScreenState extends State<DocumentScreen>
                             if (context.mounted) {
                               _documentCubit.getProjectDocumentList(
                                 context: context,
-                                pageNumber:
-                                    _documentCubit.state.currentPage + 1,
+                                pageNumber: 1,
                               );
                             }
                           },

@@ -725,6 +725,11 @@ class _BookingScreenState extends State<BookingScreen> {
                                   "${booking.buildingNumber} > ${booking.flat}",
                                 ),
                               ),
+                              "title": Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  "Booking Log History",
+                                ),
+                              ),
                               "approvalList": Uri.encodeComponent(
                                 EncryptionManager.encryptData(
                                   jsonEncode(

@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 // ignore: unused_import
 import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -89,6 +90,23 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
         });
       }
     });
+  }
+
+  // DELETE SUB DOCUMENT
+  Future<void> _showPopupToDeleteSubDocument(
+    BuildContext context,
+    DocumentModel obj,
+    int index,
+  ) async {
+    final shouldDelete = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a document?',
+      'Deleting this document will permanently remove its contents.',
+    );
+
+    if (shouldDelete && context.mounted) {
+      _documentCubit.deleteDocument(obj, context, index, isSubDoc: true);
+    }
   }
 
   @override
@@ -214,26 +232,36 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                   style: AppTextStyle.ts16SB(),
                 ),
               ),
-              CustomIconButton.edit(
-                onPressed: () {
-                  goRouter.pushNamed(
-                    AppRoutes.addDocument,
-                    queryParameters: {
-                      "document": Uri.encodeQueryComponent(
-                        EncryptionManager.encryptData(
-                          jsonEncode(document.toJson()),
+              if (_routeAuthorizationModel.isAction) ...[
+                CustomIconButton.edit(
+                  onPressed: () {
+                    goRouter.pushNamed(
+                      AppRoutes.addDocument,
+                      queryParameters: {
+                        "document": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            jsonEncode(document.toJson()),
+                          ),
                         ),
-                      ),
-                      "index": index.toString(),
+                        "index": index.toString(),
 
-                      "isEdit": Uri.encodeQueryComponent(
-                        EncryptionManager.encryptData(true.toString()),
-                      ),
-                    },
-                  );
-                },
-              ),
-              CustomIconButton.delete(onPressed: () {}),
+                        "isEdit": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(true.toString()),
+                        ),
+                      },
+                    );
+                  },
+                ),
+                CustomIconButton.delete(
+                  isDisabled:
+                      !document.projectDocumentApprovalStatus
+                          .toLowerCase()
+                          .contains('pending'),
+                  onPressed: () {
+                    _showPopupToDeleteSubDocument(context, document, index);
+                  },
+                ),
+              ],
             ],
           ),
           Row(
@@ -370,6 +398,11 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                     "subTitle": Uri.encodeComponent(
                       EncryptionManager.encryptData(
                         "${widget.documentModel.projectDocumentName} > ${document.projectDocumentName}",
+                      ),
+                    ),
+                    "title": Uri.encodeComponent(
+                      EncryptionManager.encryptData(
+                        "Project Document Log History",
                       ),
                     ),
                     "approvalList": Uri.encodeComponent(

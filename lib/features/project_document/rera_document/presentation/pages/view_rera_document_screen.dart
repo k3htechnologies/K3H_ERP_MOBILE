@@ -87,10 +87,10 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   }
 
   // DELETE RERA DOCUMENT
-  Future<void> _showPopupToDeleteRERADocument(
+  Future<void> _showPopupToDeleteRERASubDocument(
     BuildContext context,
     RERADocumentModel obj,
-    // int page,
+
     int index,
   ) async {
     final shouldDelete = await DialogHelper.deleteDialog(
@@ -105,6 +105,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
         obj.projectRERADocumentCategoryId,
         context,
         index,
+        isSubDoc: true,
       );
     }
   }
@@ -242,14 +243,13 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                     );
                   },
                 ),
-                horizontalSpacing(),
                 CustomIconButton.delete(
                   isDisabled:
-                      document.uploadedProjectRERADocumentCount == 0
-                          ? false
-                          : true,
+                      !document.projectRERADocumentApprovalStatus
+                          .toLowerCase()
+                          .contains('pending'),
                   onPressed: () {
-                    _showPopupToDeleteRERADocument(context, document, index);
+                    _showPopupToDeleteRERASubDocument(context, document, index);
                   },
                 ),
               ],
@@ -395,6 +395,11 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                     "subTitle": Uri.encodeComponent(
                       EncryptionManager.encryptData(
                         "${widget.documentModel.projectRERADocumentName} > ${document.projectRERADocumentName}",
+                      ),
+                    ),
+                    "title": Uri.encodeComponent(
+                      EncryptionManager.encryptData(
+                        "RERA Document Log History",
                       ),
                     ),
                     "approvalList": Uri.encodeComponent(

@@ -3965,7 +3965,14 @@ final GoRouter goRouter = GoRouter(
                   path: AppRoutes.approvalLogHistory,
                   builder: (context, state) {
                     /// SUBTITLE
+                    final titleParam = state.uri.queryParameters['title'];
                     final subTitleParam = state.uri.queryParameters['subTitle'];
+                    final title =
+                        titleParam != null && titleParam.isNotEmpty
+                            ? EncryptionManager.decryptData(
+                              Uri.decodeComponent(titleParam),
+                            )
+                            : "";
                     final subTitle =
                         subTitleParam != null && subTitleParam.isNotEmpty
                             ? EncryptionManager.decryptData(
@@ -3991,6 +3998,7 @@ final GoRouter goRouter = GoRouter(
                             : [];
 
                     return ApprovalLogHistoryScreen(
+                      title: title,
                       subTitle: subTitle,
                       items: approvalList,
                     );

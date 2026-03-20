@@ -414,8 +414,9 @@ class DocumentCubit extends Cubit<DocumentState> {
   Future deleteDocument(
     DocumentModel document,
     BuildContext context,
-    int index,
-  ) async {
+    int index, {
+    bool isSubDoc = false,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
 
     final result = await _documentRepository.deleteDocument(
@@ -435,17 +436,33 @@ class DocumentCubit extends Cubit<DocumentState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
-        final updatedList = List<DocumentModel>.from(state.documentList);
-        updatedList.removeAt(index);
-        emit(
-          state.copyWith(
-            documentList: updatedList,
-            totalNumberOfRecord:
-                state.totalNumberOfRecord > 0
-                    ? state.totalNumberOfRecord - 1
-                    : 0,
-          ),
-        );
+        // Parent document delete
+        if (isSubDoc == false) {
+          final updatedList = List<DocumentModel>.from(state.documentList);
+          updatedList.removeAt(index);
+          emit(
+            state.copyWith(
+              documentList: updatedList,
+              totalNumberOfRecord:
+                  state.totalNumberOfRecord > 0
+                      ? state.totalNumberOfRecord - 1
+                      : 0,
+            ),
+          );
+        } else {
+          //Sub document delete
+          final updatedList = List<DocumentModel>.from(state.subDocumentList);
+          updatedList.removeAt(index);
+          emit(
+            state.copyWith(
+              subDocumentList: updatedList,
+              totalNumberOfRecordOfSubDoc:
+                  state.totalNumberOfRecordOfSubDoc > 0
+                      ? state.totalNumberOfRecordOfSubDoc - 1
+                      : 0,
+            ),
+          );
+        }
         showSuccessMessage(context, subTitle: "Document Deleted Successfully");
       },
     );
