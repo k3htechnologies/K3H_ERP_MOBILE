@@ -45,7 +45,6 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
   final ValueNotifier<int> _currentIndex = ValueNotifier(0);
 
   // INITIALIZE COUNTS
-  int _pickedDocumentCount = 0;
   int maxDocuments = 5;
 
   bool _handledFresh = false;
@@ -114,10 +113,6 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
       }
       return;
     }
-
-    setState(() {
-      _pickedDocumentCount = result.files.length;
-    });
 
     await widget.addDocument(result.files);
     if (mounted) Navigator.pop(context);
@@ -483,34 +478,6 @@ class _EmployeeDocumentDialogState extends State<EmployeeDocumentDialog> {
     );
   }
 
-  // ───────────────── UPLOAD UI ─────────────────
-  Widget _buildUploadUI() {
-    return GestureDetector(
-      onTap: _showAttachmentOptions,
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: AppColor.lightGrey, width: 1.2),
-          color: AppColor.white,
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.upload_file, size: 40, color: AppColor.primary),
-            verticalSpacing(height: 8),
-            Text(
-              _pickedDocumentCount == 0
-                  ? "Upload Document"
-                  : "Document ($_pickedDocumentCount)",
-              style: AppTextStyle.ts14SB(color: AppColor.grey),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   // ───────────────── ARROW BUTTON ─────────────────
   Widget _arrowButton({

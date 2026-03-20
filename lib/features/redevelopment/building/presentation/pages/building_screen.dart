@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/building_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
