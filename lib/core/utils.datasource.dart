@@ -1,13 +1,12 @@
 import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
+import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 
 abstract interface class UtilsDatasource {
-  Future<Map<String, dynamic>> apicallPullMenu({
-    required int employeeId,
-  });
+  Future<Map<String, dynamic>> apicallPullMenu({required int employeeId});
 
   Future<Map<String, dynamic>> apicallExcelImport({
     required Map<String, String> body,
@@ -48,6 +47,12 @@ abstract interface class UtilsDatasource {
     int? subId,
     int? subSubId,
     int? subSubSubId,
+  });
+
+  Future<Map<String, dynamic>> apiCallPullModulesWorkflowApproval({
+    required int employeeId,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
   });
 }
 
@@ -291,6 +296,45 @@ class UtilsDatasourceImpl implements UtilsDatasource {
       return {
         'data': List<ApprovalLogHistory>.from(
           networkResponse["data"].map((e) => ApprovalLogHistory.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullModulesWorkflowApproval({
+    required int employeeId,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      String updateModulesWorkflowApprovalUrl({
+        required int employeeId,
+        required int projectId,
+        Map<String, dynamic>? queryParams,
+      }) {
+        String url =
+            "ModulesWorkflowApproval/PullModulesWorkflowApproval?EmployeeId=$employeeId&ProjectId=$projectId";
+        queryParams?.forEach((key, value) => url += "&$key=$value");
+        return url;
+      }
+
+      var networkResponse = await client.getRequestWithoutAuthentication(
+        updateModulesWorkflowApprovalUrl(
+          employeeId: employeeId,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': List<ModulesWorkflowApprovalModel>.from(
+          networkResponse["data"].map(
+            (e) => ModulesWorkflowApprovalModel.fromJson(e),
+          ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };

@@ -49,6 +49,12 @@ abstract interface class UtilsRepository {
     int? subSubId,
     int? subSubSubId,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> pullModulesWorkflowApproval({
+    required int employeeId,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class UtilsRepositoryImpl implements UtilsRepository {
@@ -200,6 +206,25 @@ class UtilsRepositoryImpl implements UtilsRepository {
         subId: subId,
         subSubId: subSubId,
         subSubSubId: subSubSubId,
+      );
+
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> pullModulesWorkflowApproval({
+    required int employeeId,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await _utilsDatasource.apiCallPullModulesWorkflowApproval(
+        employeeId: employeeId,
+        projectId: projectId,
+        queryParams: queryParams,
       );
 
       return right(result);

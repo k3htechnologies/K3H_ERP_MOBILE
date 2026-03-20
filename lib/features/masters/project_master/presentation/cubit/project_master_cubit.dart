@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/company_master/data/repository/company_master_repository.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
@@ -37,6 +38,9 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   final EmployeeMasterRepository employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
 
+  // UTILS REPO
+  final UtilsRepository utilsRepository = serviceLocator<UtilsRepository>();
+
   // <--- RESET PROJECT DETAILS STATE VARIABLE AS SAME CUBIT ISUSED THERE ---->
   void resetProjectDetailsStateVariable() {
     emit(
@@ -55,7 +59,12 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   }
 
   // <---- TAB CHANGED ---->
-  void onTabChanged(BuildContext context, int index, {String? projectId}) {
+  void onTabChanged(
+    BuildContext context,
+    int index, {
+    int? projectId,
+    int? employeeId,
+  }) {
     if (index == 1 && projectId != null) {
       emit(
         state.copyWith(
@@ -81,6 +90,14 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         ),
       );
       getProjectWithCompany(context: context, projectId: projectId);
+    }
+    if (index == 4 && projectId != null) {
+      emit(state.copyWith(moduleWorkflowApprovalList: []));
+      getApprovalList(
+        context: context,
+        projectId: projectId,
+        employeeId: employeeId!,
+      );
     }
   }
 
@@ -419,7 +436,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   // <---- ADD COMPANY RESPECTED TO PROJECTS ---->
   Future<void> getProjectWithCompany({
     required BuildContext context,
-    required String projectId,
+    required int projectId,
   }) async {
     emit(state.copyWith(isLoading: true));
     var result = await _projectMasterRepository.getProjectWithCompany(
@@ -479,7 +496,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   // <---- ADD BANK RESPECTED TO PROJECTS ---->
   Future<void> getProjectWithBankDetails({
     required BuildContext context,
-    required String projectId,
+    required int projectId,
   }) async {
     emit(state.copyWith(isLoading: true));
     var result = await _projectMasterRepository.getProjectWithBankDetails(
@@ -562,7 +579,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   // <---- ADD EMPLOYEE RESPECT TO PROJECTS ---->
   Future<void> getProjectWithEmployee({
     required BuildContext context,
-    required String projectId,
+    required int projectId,
   }) async {
     emit(state.copyWith(isLoading: true));
     var result = await _projectMasterRepository.getProjectWithEmployee(
@@ -636,7 +653,10 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       },
       (response) {
         goRouter.pop();
-        getProjectWithBankDetails(projectId: projectId, context: context);
+        getProjectWithBankDetails(
+          projectId: int.parse(projectId),
+          context: context,
+        );
         showSuccessMessage(
           context,
           subTitle: 'Bank Details Updated Successfully!!!',
@@ -666,10 +686,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       },
       (response) {
         emit(state.copyWith(isLoading: false));
-        getProjectWithBankDetails(
-          projectId: projectId.toString(),
-          context: context,
-        );
+        getProjectWithBankDetails(projectId: projectId, context: context);
         showSuccessMessage(
           context,
           subTitle: 'Bank Details Deleted Successfully!!!',
@@ -788,7 +805,10 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       },
       (response) async {
         emit(state.copyWith(isLoading: false));
-        getProjectWithCompany(projectId: projectId, context: context);
+        getProjectWithCompany(
+          projectId: int.parse(projectId),
+          context: context,
+        );
         await showSuccessMessage(context, subTitle: response["message"]);
         onSuccess();
       },
@@ -824,13 +844,15 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
           subTitle: 'Employee has been added to the project',
         );
         if (context.mounted) {
-          getProjectWithEmployee(projectId: projectId, context: context);
+          getProjectWithEmployee(
+            projectId: int.parse(projectId),
+            context: context,
+          );
         }
         if (onSuccess != null) onSuccess();
       },
     );
   }
-
 
   // <---- DELETE BANK RESPECT TO PROJECT ---->
   Future<void> deleteProjectWithEmployee({
@@ -853,10 +875,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       },
       (response) {
         emit(state.copyWith(isLoading: false));
-        getProjectWithEmployee(
-          context: context,
-          projectId: projectId.toString(),
-        );
+        getProjectWithEmployee(context: context, projectId: projectId);
         showSuccessMessage(
           context,
           subTitle: 'Employee has been deleted to the project',
@@ -970,6 +989,38 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         showSuccessMessage(
           context,
           subTitle: 'Exported as $exportType Successfully',
+        );
+      },
+    );
+  }
+
+  //  GET APPROVAL LIST
+  Future<void> getApprovalList({
+    required BuildContext context,
+    required int projectId,
+    required int employeeId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    emit(state.copyWith(isLoading: true));
+
+    var result = await utilsRepository.pullModulesWorkflowApproval(
+      projectId: projectId,
+      employeeId: employeeId,
+    );
+
+    goRouter.pop();
+
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<ModulesWorkflowApprovalModel> newData =
+            List<ModulesWorkflowApprovalModel>.from(response['data'] ?? []);
+
+        emit(
+          state.copyWith(isLoading: false, moduleWorkflowApprovalList: newData),
         );
       },
     );
