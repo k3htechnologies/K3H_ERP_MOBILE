@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -1213,7 +1214,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
 
         return Column(
           children: [
-            //  TABS (moduleName)
+            //  TABS
+            verticalSpacing(),
             TabBar(
               controller: _approvalTabController!,
               isScrollable: true,
@@ -1222,7 +1224,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
               labelStyle: AppTextStyle.ts14SB(),
               unselectedLabelStyle: AppTextStyle.ts14M(),
               tabAlignment: TabAlignment.start,
-
+              dividerColor: AppColor.lightBlue,
               indicator: UnderlineTabIndicator(
                 borderSide: BorderSide(width: 2, color: AppColor.primary),
               ),
@@ -1236,6 +1238,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
             Expanded(
               child: TabBarView(
                 controller: _approvalTabController!,
+                physics: NeverScrollableScrollPhysics(),
                 children:
                     moduleNames.map((moduleName) {
                       final moduleList = groupedData[moduleName]!;
@@ -1269,12 +1272,40 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          //  SubSubModuleName
-          Text(module.subSubModuleName, style: AppTextStyle.ts16SB()),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  module.subSubModuleName,
+                  style: AppTextStyle.ts16SB(),
+                ),
+              ),
+              CustomIconButton(
+                onPressed: () {
+                  goRouter.pushNamed(
+                    AppRoutes.addEmployeeToModule,
+                    queryParameters: {
+                      "modulesWorkflowApprovalModel": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(jsonEncode(module)),
+                      ),
+                      "projectId": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(
+                          widget.project.projectId.toString(),
+                        ),
+                      ),
+                    },
+                  );
+                },
+                icon: Icon(Icons.add, color: AppColor.primary, size: 16),
+              ),
+            ],
+          ),
 
-          verticalSpacing(height: 8),
+          verticalSpacing(),
 
-          //  Employee Data
+          //  EMPLOYEE DATA
           module.employeeData.isEmpty
               ? Text(
                 "No Employee Assigned",
@@ -1283,15 +1314,63 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
               : Column(
                 children:
                     module.employeeData.map<Widget>((employee) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
+                      return Container(
+                        padding: const EdgeInsets.all(10),
+                        margin: EdgeInsets.only(bottom: 10),
+                        decoration: BoxDecoration(
+                          color: AppColor.white,
+                          border: Border.all(color: AppColor.grey, width: 0.3),
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColor.black.withValues(alpha: 0.05),
+                              blurRadius: 2,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Text(
-                                employee['EmployeeName'] ?? "-",
-                                style: AppTextStyle.ts14M(),
-                              ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        employee.fullName,
+                                        style: AppTextStyle.ts14M(),
+                                      ),
+                                      Text(
+                                        employee.designation,
+                                        style: AppTextStyle.ts12M(
+                                          color: AppColor.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showDeleteModulePermissionDialog(
+                                      context,
+                                      module,
+                                      employee.employeeId,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+
+                            CustomClickToContactText(
+                              value: employee.personalMobileNumber!,
+                            ),
+                            CustomClickToContactText(
+                              value: employee.emailId ?? "",
+                              type: ContactType.email,
                             ),
                           ],
                         ),
@@ -1568,6 +1647,29 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
         projectWithBankDetailsId: bank.projectWithBankDetailsId,
         uniqueKey: bank.uniquekey,
         projectId: bank.projectId,
+      );
+    }
+  }
+
+  // <---- SHOW DELETE MODULE PERMISSION DIALOG ---->
+  Future<void> _showDeleteModulePermissionDialog(
+    BuildContext context,
+    ModulesWorkflowApprovalModel module,
+    int employeeId,
+  ) async {
+    final result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a Module Permission ?',
+      'Deleting this Module Permission will permanently remove all associated data.',
+    );
+    if (result && context.mounted) {
+      _projectMasterCubit.deleteModulesWorkflowApproval(
+        context: context,
+        employeeId: employeeId,
+        projectId: widget.project.projectId,
+        modulesMasterId: module.modulesMasterId,
+        subModulesMasterId: module.subModulesMasterId,
+        subSubModulesMasterId: module.subSubModulesMasterId,
       );
     }
   }

@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
 import 'package:k3h_erp_app/core/models/bank_details.model.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
+import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/presentation/cubit/main_screen_cubit.dart';
@@ -121,6 +122,7 @@ import 'package:k3h_erp_app/features/masters/procurement_master/umo_master/prese
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_bank_details_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_project_screen.dart';
+import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/module_add_employee_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/project_details_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/project_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/setting_dashboard/presentation/cubit/setting_dashboard_cubit.dart';
@@ -1902,6 +1904,46 @@ final GoRouter goRouter = GoRouter(
                     return AddBankDetailsScreen(
                       bankDetailsModel: bankDetailsModel,
                       project: project!,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addEmployeeToModule,
+                  path: AppRoutes.addEmployeeToModule,
+                  builder: (context, state) {
+                    final queryParameterModulesWorkflowApprovalModel =
+                        state
+                            .uri
+                            .queryParameters['modulesWorkflowApprovalModel'];
+                    final queryParameterProjectId =
+                        state.uri.queryParameters['projectId'];
+
+                    final projectId =
+                        queryParameterProjectId != null &&
+                                queryParameterProjectId.isNotEmpty
+                            ? int.parse(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(queryParameterProjectId),
+                              ),
+                            )
+                            : null;
+                    final modulesWorkflowApprovalModel =
+                        queryParameterModulesWorkflowApprovalModel != null &&
+                                queryParameterModulesWorkflowApprovalModel
+                                    .isNotEmpty
+                            ? ModulesWorkflowApprovalModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterModulesWorkflowApprovalModel,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return ModuleAddEmployeeScreen(
+                      module: modulesWorkflowApprovalModel!,
+                      projectId: projectId!,
                     );
                   },
                 ),
