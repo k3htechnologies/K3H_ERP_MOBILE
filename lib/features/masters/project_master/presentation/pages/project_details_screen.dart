@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/bank_details.model.dart';
+import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -39,7 +40,7 @@ class ProjectDetailsScreen extends StatefulWidget {
 }
 
 class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late TabController _tabController;
   late final Future<void> _delayFuture;
 
@@ -56,6 +57,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
   Timer? _bankDebounce;
 
   late ProjectMasterCubit _projectMasterCubit;
+  TabController? _approvalTabController;
 
   @override
   void initState() {
@@ -104,6 +106,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
       projectId: widget.project.projectId,
       employeeId: 0,
     );
+    if (index != 4) {
+      if (_approvalTabController != null) {
+        _approvalTabController!.index = 0;
+      }
+    }
   }
 
   // <---- PAGINATION ---->
@@ -216,7 +223,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   _employeeSection(),
                   _bankSection(),
                   _companySection(),
-                  ListView(children: [Center(child: noDataWidget())]),
+                  _approvalSection(),
                 ],
               ),
             ),
@@ -1170,6 +1177,129 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
           ],
         );
       },
+    );
+  }
+
+  //APPROVAL
+  Widget _approvalSection() {
+    return BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
+      builder: (context, state) {
+        final approvalList = state.moduleWorkflowApprovalList;
+
+        if ((state.isLoading ?? true) && approvalList.isEmpty) {
+          return Center(child: loader());
+        }
+
+        if (approvalList.isEmpty) {
+          return Center(child: noDataWidget(message: "No Approval Data Found"));
+        }
+
+        // Group by moduleName
+        final Map<String, List<ModulesWorkflowApprovalModel>> groupedData = {};
+        for (var item in approvalList) {
+          groupedData.putIfAbsent(item.moduleName, () => []).add(item);
+        }
+
+        final moduleNames = groupedData.keys.toList();
+
+        // Init TabController
+        if (_approvalTabController == null ||
+            _approvalTabController!.length != moduleNames.length) {
+          _approvalTabController = TabController(
+            length: moduleNames.length,
+            vsync: this,
+          );
+        }
+
+        return Column(
+          children: [
+            //  TABS (moduleName)
+            TabBar(
+              controller: _approvalTabController!,
+              isScrollable: true,
+              labelColor: AppColor.primary,
+              unselectedLabelColor: AppColor.grey,
+              labelStyle: AppTextStyle.ts14SB(),
+              unselectedLabelStyle: AppTextStyle.ts14M(),
+              tabAlignment: TabAlignment.start,
+
+              indicator: UnderlineTabIndicator(
+                borderSide: BorderSide(width: 2, color: AppColor.primary),
+              ),
+
+              tabs: moduleNames.map((e) => Tab(text: e)).toList(),
+            ),
+
+            verticalSpacing(),
+
+            //  TAB VIEW
+            Expanded(
+              child: TabBarView(
+                controller: _approvalTabController!,
+                children:
+                    moduleNames.map((moduleName) {
+                      final moduleList = groupedData[moduleName]!;
+
+                      return _buildApprovalCards(moduleList);
+                    }).toList(),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildApprovalCards(List<ModulesWorkflowApprovalModel> moduleList) {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      itemCount: moduleList.length,
+      itemBuilder: (context, index) {
+        final module = moduleList[index];
+        return _buildApprovalCard(module);
+      },
+    );
+  }
+
+  Widget _buildApprovalCard(ModulesWorkflowApprovalModel module) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          //  SubSubModuleName
+          Text(module.subSubModuleName, style: AppTextStyle.ts16SB()),
+
+          verticalSpacing(height: 8),
+
+          //  Employee Data
+          module.employeeData.isEmpty
+              ? Text(
+                "No Employee Assigned",
+                style: AppTextStyle.ts14M(color: AppColor.grey),
+              )
+              : Column(
+                children:
+                    module.employeeData.map<Widget>((employee) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                employee['EmployeeName'] ?? "-",
+                                style: AppTextStyle.ts14M(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+              ),
+        ],
+      ),
     );
   }
 

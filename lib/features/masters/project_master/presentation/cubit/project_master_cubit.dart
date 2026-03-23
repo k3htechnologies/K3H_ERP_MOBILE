@@ -1000,15 +1000,12 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required int projectId,
     required int employeeId,
   }) async {
-    DialogHelper.showProcessingOverlay(context);
     emit(state.copyWith(isLoading: true));
 
     var result = await utilsRepository.pullModulesWorkflowApproval(
       projectId: projectId,
       employeeId: employeeId,
     );
-
-    goRouter.pop();
 
     return result.fold(
       (failure) {

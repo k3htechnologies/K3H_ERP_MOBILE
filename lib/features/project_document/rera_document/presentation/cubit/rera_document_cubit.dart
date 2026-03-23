@@ -153,6 +153,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       "ProjectRERADocumentName": projectRERADocumentName,
       "RemoveRERAPortalScreenShotURL": screenshots?.deletedFileList ?? "",
       "ProjectRERADocumentStatus": projectRERADocumentStatus ?? '',
+      "RemoveProjectRERADocumentURL": documents?.deletedFileList ?? '',
       "ProjectRERADocumentRemark": projectRERADocumentRemark ?? '',
     };
     if (documents != null) {

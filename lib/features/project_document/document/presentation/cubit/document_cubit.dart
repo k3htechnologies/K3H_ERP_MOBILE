@@ -153,6 +153,7 @@ class DocumentCubit extends Cubit<DocumentState> {
           projectDocumentExpiryDate != null
               ? projectDocumentExpiryDate.toIso8601String()
               : '',
+      "RemoveProjectDocumentURL": documents?.deletedFileList ?? '',
       "ProjectDocumentStatus": projectDocumentStatus ?? '',
       "ProjectDocumentRemark": projectDocumentRemark ?? '',
     };
