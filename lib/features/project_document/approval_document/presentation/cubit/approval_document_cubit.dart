@@ -156,6 +156,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
               : '',
       "ApprovalDocumentStatus": approvalDocumentStatus ?? '',
       "ApprovalDocumentRemark": approvalDocumentRemark ?? '',
+      "RemoveApprovalDocumentURL": documents?.deletedFileList ?? '',
     };
     if (documents != null) {
       for (int i = 0; i < documents.fileNameList.length; i++) {

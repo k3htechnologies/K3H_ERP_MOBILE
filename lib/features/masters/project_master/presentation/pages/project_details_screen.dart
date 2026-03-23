@@ -9,11 +9,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/bank_details.model.dart';
+import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
@@ -39,7 +41,7 @@ class ProjectDetailsScreen extends StatefulWidget {
 }
 
 class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late TabController _tabController;
   late final Future<void> _delayFuture;
 
@@ -56,6 +58,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
   Timer? _bankDebounce;
 
   late ProjectMasterCubit _projectMasterCubit;
+  TabController? _approvalTabController;
 
   @override
   void initState() {
@@ -104,6 +107,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
       projectId: widget.project.projectId,
       employeeId: 0,
     );
+    if (index != 4) {
+      if (_approvalTabController != null) {
+        _approvalTabController!.index = 0;
+      }
+    }
   }
 
   // <---- PAGINATION ---->
@@ -216,7 +224,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   _employeeSection(),
                   _bankSection(),
                   _companySection(),
-                  ListView(children: [Center(child: noDataWidget())]),
+                  _approvalSection(),
                 ],
               ),
             ),
@@ -1210,6 +1218,207 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
     );
   }
 
+  //APPROVAL
+  Widget _approvalSection() {
+    return BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
+      builder: (context, state) {
+        final approvalList = state.moduleWorkflowApprovalList;
+
+        if ((state.isLoading ?? true) && approvalList.isEmpty) {
+          return Center(child: loader());
+        }
+
+        if (approvalList.isEmpty) {
+          return Center(child: noDataWidget(message: "No Approval Data Found"));
+        }
+
+        // Group by moduleName
+        final Map<String, List<ModulesWorkflowApprovalModel>> groupedData = {};
+        for (var item in approvalList) {
+          groupedData.putIfAbsent(item.moduleName, () => []).add(item);
+        }
+
+        final moduleNames = groupedData.keys.toList();
+
+        // Init TabController
+        if (_approvalTabController == null ||
+            _approvalTabController!.length != moduleNames.length) {
+          _approvalTabController = TabController(
+            length: moduleNames.length,
+            vsync: this,
+          );
+        }
+
+        return Column(
+          children: [
+            //  TABS
+            verticalSpacing(),
+            TabBar(
+              controller: _approvalTabController!,
+              isScrollable: true,
+              labelColor: AppColor.primary,
+              unselectedLabelColor: AppColor.grey,
+              labelStyle: AppTextStyle.ts14SB(),
+              unselectedLabelStyle: AppTextStyle.ts14M(),
+              tabAlignment: TabAlignment.start,
+              dividerColor: AppColor.lightBlue,
+              indicator: UnderlineTabIndicator(
+                borderSide: BorderSide(width: 2, color: AppColor.primary),
+              ),
+
+              tabs: moduleNames.map((e) => Tab(text: e)).toList(),
+            ),
+
+            verticalSpacing(),
+
+            //  TAB VIEW
+            Expanded(
+              child: TabBarView(
+                controller: _approvalTabController!,
+                physics: NeverScrollableScrollPhysics(),
+                children:
+                    moduleNames.map((moduleName) {
+                      final moduleList = groupedData[moduleName]!;
+
+                      return _buildApprovalCards(moduleList);
+                    }).toList(),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildApprovalCards(List<ModulesWorkflowApprovalModel> moduleList) {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      itemCount: moduleList.length,
+      itemBuilder: (context, index) {
+        final module = moduleList[index];
+        return _buildApprovalCard(module);
+      },
+    );
+  }
+
+  Widget _buildApprovalCard(ModulesWorkflowApprovalModel module) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  module.subSubModuleName,
+                  style: AppTextStyle.ts16SB(),
+                ),
+              ),
+              CustomIconButton(
+                onPressed: () {
+                  goRouter.pushNamed(
+                    AppRoutes.addEmployeeToModule,
+                    queryParameters: {
+                      "modulesWorkflowApprovalModel": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(jsonEncode(module)),
+                      ),
+                      "projectId": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(
+                          widget.project.projectId.toString(),
+                        ),
+                      ),
+                    },
+                  );
+                },
+                icon: Icon(Icons.add, color: AppColor.primary, size: 16),
+              ),
+            ],
+          ),
+
+          verticalSpacing(),
+
+          //  EMPLOYEE DATA
+          module.employeeData.isEmpty
+              ? Text(
+                "No Employee Assigned",
+                style: AppTextStyle.ts14M(color: AppColor.grey),
+              )
+              : Column(
+                children:
+                    module.employeeData.map<Widget>((employee) {
+                      return Container(
+                        padding: const EdgeInsets.all(10),
+                        margin: EdgeInsets.only(bottom: 10),
+                        decoration: BoxDecoration(
+                          color: AppColor.white,
+                          border: Border.all(color: AppColor.grey, width: 0.3),
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColor.black.withValues(alpha: 0.05),
+                              blurRadius: 2,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        employee.fullName,
+                                        style: AppTextStyle.ts14M(),
+                                      ),
+                                      Text(
+                                        employee.designation,
+                                        style: AppTextStyle.ts12M(
+                                          color: AppColor.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showDeleteModulePermissionDialog(
+                                      context,
+                                      module,
+                                      employee.employeeId,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+
+                            CustomClickToContactText(
+                              value: employee.personalMobileNumber!,
+                            ),
+                            CustomClickToContactText(
+                              value: employee.emailId ?? "",
+                              type: ContactType.email,
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+              ),
+        ],
+      ),
+    );
+  }
+
   // BANK
   Widget _bankSection() {
     return BlocBuilder<ProjectMasterCubit, ProjectMasterState>(
@@ -1477,6 +1686,29 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
         projectWithBankDetailsId: bank.projectWithBankDetailsId,
         uniqueKey: bank.uniquekey,
         projectId: bank.projectId,
+      );
+    }
+  }
+
+  // <---- SHOW DELETE MODULE PERMISSION DIALOG ---->
+  Future<void> _showDeleteModulePermissionDialog(
+    BuildContext context,
+    ModulesWorkflowApprovalModel module,
+    int employeeId,
+  ) async {
+    final result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a Module Permission ?',
+      'Deleting this Module Permission will permanently remove all associated data.',
+    );
+    if (result && context.mounted) {
+      _projectMasterCubit.deleteModulesWorkflowApproval(
+        context: context,
+        employeeId: employeeId,
+        projectId: widget.project.projectId,
+        modulesMasterId: module.modulesMasterId,
+        subModulesMasterId: module.subModulesMasterId,
+        subSubModulesMasterId: module.subSubModulesMasterId,
       );
     }
   }

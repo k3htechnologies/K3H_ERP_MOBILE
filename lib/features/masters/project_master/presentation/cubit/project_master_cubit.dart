@@ -93,11 +93,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     }
     if (index == 4 && projectId != null) {
       emit(state.copyWith(moduleWorkflowApprovalList: []));
-      getApprovalList(
-        context: context,
-        projectId: projectId,
-        employeeId: employeeId!,
-      );
+      getApprovalList(context: context, projectId: projectId);
     }
   }
 
@@ -884,84 +880,6 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  // <----- ADD UPDATE MATERIAL REQUISITION MODULE APPROVAL ----->
-  /*Future<void> addUpdateMaterialRequisitionModulesApproval({
-    required BuildContext context,
-    required int employeeId,
-    required int projectId,
-    required int modulesMasterId,
-    required int subModulesMasterId,
-    required int subSubModulesMasterId,
-  }) async {
-    Map<String, dynamic> requestBody = {
-      "EmployeeId": employeeId,
-      "ProjectId": projectId,
-      "ModulesMasterId": modulesMasterId,
-      "SubModulesMasterId": subModulesMasterId,
-      "SubSubModulesMasterId": subSubModulesMasterId,
-    };
-
-    DialogHelper.showProcessingDialog(context);
-    var result = await approvalRepository.addUpdateModulesWorkflowApproval(
-      requestBody: requestBody,
-    );
-    goRouter.pop();
-    result.fold(
-          (failure) {
-        showErrorMessage(context, "Error Message", failure.message);
-      },
-          (response) async {
-        goRouter.pop();
-
-        await getModuleWorkFlowApprovalList(
-          context: context,
-          employeeId: 0,
-          projectId: projectId,
-        );
-        showSuccessMessage(
-          goRouter.routerDelegate.navigatorKey.currentContext!,
-        );
-      },
-    );
-  }
-
-  // <---- DELETE MODULES WORK FLOW APPROVAL ---->
-  Future<void> deleteModulesWorkflowApproval({
-    required BuildContext context,
-    required int projectId,
-    required int employeeId,
-    required int modulesMasterId,
-    required int subModulesMasterId,
-    required int subSubModulesMasterId,
-  }) async {
-    DialogHelper.showProcessingDialog(context);
-    var result = await approvalRepository.deleteModulesWorkflowApproval(
-      employeeId: employeeId,
-      projectId: projectId,
-      modulesMasterId: modulesMasterId,
-      subModulesMasterId: subModulesMasterId,
-      subSubModulesMasterId: subSubModulesMasterId,
-    );
-    goRouter.pop();
-    result.fold(
-          (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
-      },
-          (response) async {
-        emit(state.copyWith(isLoading: false));
-        await getModuleWorkFlowApprovalList(
-          context: context,
-          employeeId: 0,
-          projectId: projectId,
-        );
-        showSuccessMessage(
-          goRouter.routerDelegate.navigatorKey.currentContext!,
-        );
-      },
-    );
-  }*/
-
   // <---- EXPORT EXCEL OR PDF ---->
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
@@ -998,17 +916,12 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   Future<void> getApprovalList({
     required BuildContext context,
     required int projectId,
-    required int employeeId,
   }) async {
-    DialogHelper.showProcessingOverlay(context);
     emit(state.copyWith(isLoading: true));
 
     var result = await utilsRepository.pullModulesWorkflowApproval(
       projectId: projectId,
-      employeeId: employeeId,
     );
-
-    goRouter.pop();
 
     return result.fold(
       (failure) {
@@ -1026,31 +939,77 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     );
   }
 
-  /*// <---- PULL MODULE WORK FLOW LIST ---->
-  Future<void> getModuleWorkFlowApprovalList({
+  // DELETE EMPLOYEE FROM MODULE WORKFLOW APPROVAL
+  Future<void> deleteModulesWorkflowApproval({
     required BuildContext context,
-    required int projectId,
     required int employeeId,
+    required int projectId,
+    required int modulesMasterId,
+    required int subModulesMasterId,
+    required int subSubModulesMasterId,
   }) async {
+    DialogHelper.showProcessingOverlay(context);
+
     emit(state.copyWith(isLoading: true));
-    var result = await approvalRepository.getModulesWorkflowApproval(
+
+    final result = await utilsRepository.deleteModulesWorkflowApproval(
       employeeId: employeeId,
       projectId: projectId,
+      modulesMasterId: modulesMasterId,
+      subModulesMasterId: subModulesMasterId,
+      subSubModulesMasterId: subSubModulesMasterId,
     );
+    goRouter.pop();
     result.fold(
-          (failure) {
+      (failure) {
         emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
+        showErrorMessage(context, "Error", failure.message);
       },
-          (response) {
-        emit(
-          state.copyWith(
-            isLoading: false,
-            moduleWorkflowApprovalList:
-            response["data"] as List<ModulesWorkflowApprovalModel>,
-          ),
+      (response) async {
+        showSuccessMessage(
+          context,
+          subTitle: response['message'] ?? "Deleted successfully",
         );
+
+        await getApprovalList(context: context, projectId: projectId);
+
+        emit(state.copyWith(isLoading: false));
       },
     );
-  }*/
+  }
+
+  // ADD UPDATE MODULES WORKFLOW APPROVAL (FOR ADDING EMPLOYEES TO APPROVAL MODULES)
+  Future<void> addUpdateModulesWorkflowApproval({
+    required BuildContext context,
+    required String employeeId,
+    required int projectId,
+    required int modulesMasterId,
+    required int subModulesMasterId,
+    required int subSubModulesMasterId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    emit(state.copyWith(isLoading: true));
+
+    final result = await utilsRepository.addUpdateModulesWorkflowApproval(
+      employeeId: employeeId,
+      projectId: projectId,
+      modulesMasterId: modulesMasterId,
+      subModulesMasterId: subModulesMasterId,
+      subSubModulesMasterId: subSubModulesMasterId,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) async {
+        showSuccessMessage(context, subTitle: response['message']);
+        goRouter.pop();
+        await getApprovalList(context: context, projectId: projectId);
+
+        emit(state.copyWith(isLoading: false));
+      },
+    );
+  }
 }

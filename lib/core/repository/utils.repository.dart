@@ -51,9 +51,31 @@ abstract interface class UtilsRepository {
   });
 
   Future<Either<Failure, Map<String, dynamic>>> pullModulesWorkflowApproval({
-    required int employeeId,
+    int? employeeId,
     required int projectId,
     Map<String, dynamic>? queryParams,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> deleteModulesWorkflowApproval({
+    required int employeeId,
+    required int projectId,
+    required int modulesMasterId,
+    required int subModulesMasterId,
+    required int subSubModulesMasterId,
+  });
+  Future<Either<Failure, Map<String, dynamic>>>
+  pullPaginationProjectWithEmployee({
+    required int projectId,
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdateModulesWorkflowApproval({
+    required String employeeId,
+    required int projectId,
+    required int modulesMasterId,
+    required int subModulesMasterId,
+    required int subSubModulesMasterId,
   });
 }
 
@@ -62,6 +84,7 @@ class UtilsRepositoryImpl implements UtilsRepository {
 
   UtilsRepositoryImpl(this._utilsDatasource);
 
+  // PULL MENU
   @override
   Future<Either<Failure, Map<String, dynamic>>> getMenu({
     required int employeeId,
@@ -76,6 +99,7 @@ class UtilsRepositoryImpl implements UtilsRepository {
     }
   }
 
+  // EXCEL IMPORT
   @override
   Future<Either<Failure, Map<String, dynamic>>> excelImport({
     required Map<String, String> body,
@@ -92,6 +116,7 @@ class UtilsRepositoryImpl implements UtilsRepository {
     }
   }
 
+  // PULL MATERIAL MASTER SUB MATERIAL MASTER UOM MASTER
   @override
   Future<Either<Failure, Map<String, dynamic>>>
   getMaterialMasterSubMaterialMasterUOMMaster({required int projectId}) async {
@@ -106,6 +131,7 @@ class UtilsRepositoryImpl implements UtilsRepository {
     }
   }
 
+  // PULL EXCEL SAMPLE
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullExcelSample({
     required String tableName,
@@ -120,6 +146,7 @@ class UtilsRepositoryImpl implements UtilsRepository {
     }
   }
 
+  // PULL EMPLOYEE WITH MENU LIST
   @override
   Future<Either<Failure, UserModel>> pullEmployeeWithMenuList() async {
     try {
@@ -130,12 +157,13 @@ class UtilsRepositoryImpl implements UtilsRepository {
     }
   }
 
+  // PULL PROJECT SUMMARY
   @override
   Future<Either<Failure, Map<String, dynamic>>> getProjectSummery({
     required int projectId,
   }) async {
     try {
-      var result = await _utilsDatasource.apiCallToPullProjectSummery(
+      var result = await _utilsDatasource.apiCallToPullProjectSummary(
         projectId: projectId,
       );
       return right(result);
@@ -144,6 +172,7 @@ class UtilsRepositoryImpl implements UtilsRepository {
     }
   }
 
+  //SEND MODULE BASED OTP
   @override
   Future<Either<Failure, Map<String, dynamic>>> sendOTPModuleBased({
     required String mobileNumber,
@@ -160,6 +189,7 @@ class UtilsRepositoryImpl implements UtilsRepository {
     }
   }
 
+  // UPDATE MODULES WORKFLOW APPROVAL (FOR ACTION LIKE APPROVE AND REJECT)
   @override
   Future<Either<Failure, Map<String, dynamic>>> updateModulesWorkflowApproval({
     required String moduleName,
@@ -189,6 +219,33 @@ class UtilsRepositoryImpl implements UtilsRepository {
     }
   }
 
+  // ADD UPDATE MODULES WORKFLOW APPROVAL (FOR ADDING EMPLOYEES TO APPROVAL MODULES)
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdateModulesWorkflowApproval({
+    required String employeeId,
+    required int projectId,
+    required int modulesMasterId,
+    required int subModulesMasterId,
+    required int subSubModulesMasterId,
+  }) async {
+    try {
+      final result = await _utilsDatasource
+          .apiCallAddUpdateModulesWorkflowApproval(
+            employeeId: employeeId,
+            projectId: projectId,
+            modulesMasterId: modulesMasterId,
+            subModulesMasterId: subModulesMasterId,
+            subSubModulesMasterId: subSubModulesMasterId,
+          );
+
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  // MODULE BASED APPROVAL STATUS
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullModuleApprovalStatus({
     required String moduleName,
@@ -214,9 +271,10 @@ class UtilsRepositoryImpl implements UtilsRepository {
     }
   }
 
+  // PULL MODULES WORKFLOW APPROVAL FOR PROJECT DETAILS APPROVAL TAB
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullModulesWorkflowApproval({
-    required int employeeId,
+    int? employeeId,
     required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
@@ -226,6 +284,54 @@ class UtilsRepositoryImpl implements UtilsRepository {
         projectId: projectId,
         queryParams: queryParams,
       );
+
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  // DELETE EMPLOYEE FROM MODULE WORKFLOW APPROVAL
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteModulesWorkflowApproval({
+    required int employeeId,
+    required int projectId,
+    required int modulesMasterId,
+    required int subModulesMasterId,
+    required int subSubModulesMasterId,
+  }) async {
+    try {
+      var result = await _utilsDatasource.apiCallDeleteModuleWorkflowApproval(
+        employeeId: employeeId,
+        projectId: projectId,
+        modulesMasterId: modulesMasterId,
+        subModulesMasterId: subModulesMasterId,
+        subSubModulesMasterId: subSubModulesMasterId,
+      );
+
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  // PULL PAGINATION PROJECT WITH EMPLOYEE
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  pullPaginationProjectWithEmployee({
+    required int projectId,
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      final result = await _utilsDatasource
+          .apiCallPullPaginationProjectWithEmployee(
+            projectId: projectId,
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            queryParams: queryParams,
+          );
 
       return right(result);
     } catch (error) {

@@ -40,6 +40,7 @@ class AppRoutes {
   static String addProjectMaster = "/addProjectMaster";
   static String projectDetails = "/projectDetails";
   static String addBankDetails = "/addBankDetails";
+  static String addEmployeeToModule = "/addEmployeeToModule";
 
   // EMPLOYEE MASTER
   static String employeeMaster = "/employeeMaster";

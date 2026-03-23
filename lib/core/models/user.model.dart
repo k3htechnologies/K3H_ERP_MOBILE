@@ -163,9 +163,7 @@ class UserModel {
     idCardIssuedDate:
         json["IdCardIssuedDate"] != null
             ? parseValue<DateTime>(json, "IdCardIssuedDate")
-            : (json["IdCardIssueDate"] != null
-                ? parseValue<DateTime>(json, "IdCardIssueDate")
-                : null),
+            : null,
     resignationDate:
         json["ResignationDate"] == null
             ? null

@@ -22,7 +22,7 @@ abstract interface class UtilsDatasource {
 
   Future<UserModel> apicallIsPullEmployeeWithMenuList();
 
-  Future<Map<String, dynamic>> apiCallToPullProjectSummery({
+  Future<Map<String, dynamic>> apiCallToPullProjectSummary({
     required int projectId,
   });
 
@@ -40,6 +40,14 @@ abstract interface class UtilsDatasource {
     int? subSubId,
     int? subSubSubId,
   });
+
+  Future<Map<String, dynamic>> apiCallAddUpdateModulesWorkflowApproval({
+    required String employeeId,
+    required int projectId,
+    required int modulesMasterId,
+    required int subModulesMasterId,
+    required int subSubModulesMasterId,
+  });
   Future<Map<String, dynamic>> apiCallPullModuleApprovalStatus({
     required String moduleName,
     required int id,
@@ -50,8 +58,22 @@ abstract interface class UtilsDatasource {
   });
 
   Future<Map<String, dynamic>> apiCallPullModulesWorkflowApproval({
+    int? employeeId,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> apiCallDeleteModuleWorkflowApproval({
     required int employeeId,
     required int projectId,
+    required int modulesMasterId,
+    required int subModulesMasterId,
+    required int subSubModulesMasterId,
+  });
+  Future<Map<String, dynamic>> apiCallPullPaginationProjectWithEmployee({
+    required int projectId,
+    required int pageNumber,
+    required int pageSize,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -59,6 +81,7 @@ abstract interface class UtilsDatasource {
 class UtilsDatasourceImpl implements UtilsDatasource {
   final client = BaseClient();
 
+  // PULL MENU
   @override
   Future<Map<String, dynamic>> apicallPullMenu({
     required int employeeId,
@@ -81,6 +104,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     }
   }
 
+  // EXCEL IMPORT
   @override
   Future<Map<String, dynamic>> apicallExcelImport({
     required Map<String, String> body,
@@ -102,6 +126,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     }
   }
 
+  // PULL MATERIAL MASTER SUB MATERIAL MASTER UOM MASTER
   @override
   Future<Map<String, dynamic>>
   apicallPullMaterialMasterSubMaterialMasterUOMMaster({
@@ -130,6 +155,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     }
   }
 
+  // PULL EXCEL SAMPLE
   @override
   Future<Map<String, dynamic>> apicalPullExcelSample({
     required String tableName,
@@ -151,6 +177,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     }
   }
 
+  // PULL EMPLOYEE WITH MENU LIST
   @override
   Future<UserModel> apicallIsPullEmployeeWithMenuList() async {
     try {
@@ -163,8 +190,9 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     }
   }
 
+  // PULL PROJECT SUMMARY
   @override
-  Future<Map<String, dynamic>> apiCallToPullProjectSummery({
+  Future<Map<String, dynamic>> apiCallToPullProjectSummary({
     required int projectId,
   }) async {
     try {
@@ -191,6 +219,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     }
   }
 
+  //SEND MODULE BASED OTP
   @override
   Future<Map<String, dynamic>> apiCallSendOTPModuleBased({
     required String mobileNumber,
@@ -207,7 +236,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
         return url;
       }
 
-      var networkResponse = await client.getRequestWithoutAuthentication(
+      var networkResponse = await client.getRequestWithAuthentication(
         sendOTPUrl(mobileNumber: mobileNumber, module: module),
       );
 
@@ -220,6 +249,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     }
   }
 
+  // UPDATE MODULES WORKFLOW APPROVAL (FOR ACTION LIKE APPROVE AND REJECT)
   @override
   Future<Map<String, dynamic>> apiCallUpdateModulesWorkflowApproval({
     required String moduleName,
@@ -260,6 +290,42 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     }
   }
 
+  // ADD UPDATE MODULES WORKFLOW APPROVAL (FOR ADDING EMPLOYEES TO APPROVAL MODULES)
+  @override
+  Future<Map<String, dynamic>> apiCallAddUpdateModulesWorkflowApproval({
+    required String employeeId,
+    required int projectId,
+    required int modulesMasterId,
+    required int subModulesMasterId,
+    required int subSubModulesMasterId,
+  }) async {
+    try {
+      final String url =
+          "ModulesWorkflowApproval/AddUpdateModulesWorkflowApproval";
+
+      final payload = {
+        "EmployeeId": employeeId,
+        "ProjectId": projectId,
+        "ModulesMasterId": modulesMasterId,
+        "SubModulesMasterId": subModulesMasterId,
+        "SubSubModulesMasterId": subSubModulesMasterId,
+      };
+
+      var networkResponse = await client.postRequestWithAuthentication(
+        url,
+        payload,
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse['message'],
+      };
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  // MODULE BASED APPROVAL STATUS
   @override
   Future<Map<String, dynamic>> apiCallPullModuleApprovalStatus({
     required String moduleName,
@@ -285,7 +351,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
         return url;
       }
 
-      var networkResponse = await client.getRequestWithoutAuthentication(
+      var networkResponse = await client.getRequestWithAuthentication(
         updateModulesWorkflowApprovalUrl(
           moduleName: moduleName,
           id: id,
@@ -304,25 +370,29 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     }
   }
 
+  // PULL MODULES WORKFLOW APPROVAL FOR PROJECT DETAILS APPROVAL TAB
   @override
   Future<Map<String, dynamic>> apiCallPullModulesWorkflowApproval({
-    required int employeeId,
+    int? employeeId,
     required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
       String updateModulesWorkflowApprovalUrl({
-        required int employeeId,
+        int? employeeId,
         required int projectId,
         Map<String, dynamic>? queryParams,
       }) {
         String url =
-            "ModulesWorkflowApproval/PullModulesWorkflowApproval?EmployeeId=$employeeId&ProjectId=$projectId";
+            "ModulesWorkflowApproval/PullModulesWorkflowApproval?ProjectId=$projectId";
+        if (employeeId != null) {
+          url += "&EmployeeId=$employeeId";
+        }
         queryParams?.forEach((key, value) => url += "&$key=$value");
         return url;
       }
 
-      var networkResponse = await client.getRequestWithoutAuthentication(
+      var networkResponse = await client.getRequestWithAuthentication(
         updateModulesWorkflowApprovalUrl(
           employeeId: employeeId,
           projectId: projectId,
@@ -334,6 +404,81 @@ class UtilsDatasourceImpl implements UtilsDatasource {
         'data': List<ModulesWorkflowApprovalModel>.from(
           networkResponse["data"].map(
             (e) => ModulesWorkflowApprovalModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  // DELETE EMPLOYEE FROM MODULE WORKFLOW APPROVAL
+  @override
+  Future<Map<String, dynamic>> apiCallDeleteModuleWorkflowApproval({
+    required int employeeId,
+    required int projectId,
+    required int modulesMasterId,
+    required int subModulesMasterId,
+    required int subSubModulesMasterId,
+  }) async {
+    try {
+      String deleteModulesWorkflowApprovalUrl({
+        required int employeeId,
+        required int projectId,
+        required int modulesMasterId,
+      }) {
+        String url =
+            "ModulesWorkflowApproval/DeleteModulesWorkflowApproval"
+            "?EmployeeId=$employeeId"
+            "&ProjectId=$projectId"
+            "&ModulesMasterId=$modulesMasterId"
+            "&SubModulesMasterId=$subModulesMasterId"
+            "&SubSubModulesMasterId=$subSubModulesMasterId";
+
+        return url;
+      }
+
+      var networkResponse = await client.deleteRequestWithAuthentication(
+        deleteModulesWorkflowApprovalUrl(
+          employeeId: employeeId,
+          projectId: projectId,
+          modulesMasterId: modulesMasterId,
+        ),
+      );
+
+      return {
+        'message': networkResponse['message'],
+        'success': networkResponse['success'] ?? true,
+      };
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  // PULL PAGINATION PROJECT WITH EMPLOYEE
+  @override
+  Future<Map<String, dynamic>> apiCallPullPaginationProjectWithEmployee({
+    required int projectId,
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      String url =
+          "Project/PullPaginationProjectWithEmployee?"
+          "ProjectId=$projectId"
+          "&PageNumber=$pageNumber"
+          "&PageSize=$pageSize";
+
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+
+      final networkResponse = await client.getRequestWithAuthentication(url);
+
+      return {
+        'data': List<ModulesApprovalEmployeeDataModel>.from(
+          networkResponse["data"].map(
+            (e) => ModulesApprovalEmployeeDataModel.fromJson(e),
           ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
