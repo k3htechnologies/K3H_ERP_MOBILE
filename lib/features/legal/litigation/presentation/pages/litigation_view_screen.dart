@@ -170,7 +170,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     _documentScrollController = ScrollController();
     _documentScrollController.addListener(() {
       if (_documentScrollController.position.pixels >=
-              _documentScrollController.position.maxScrollExtent - 100 &&
+          _documentScrollController.position.maxScrollExtent - 100 &&
           !(_litigationCubit.state.isLoading ?? false) &&
           _litigationCubit.state.litigationDocumentList.length <
               _litigationCubit.state.documentTotalRecords) {
@@ -1317,7 +1317,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                         horizontalSpacing(),
                         Expanded(
                           child: CustomButton(
-                            text: closure != null ? "Update" : "Close",
+                            text: "Close",
                             onPressed: () => _submitClosure(index: index),
                           ),
                         ),
