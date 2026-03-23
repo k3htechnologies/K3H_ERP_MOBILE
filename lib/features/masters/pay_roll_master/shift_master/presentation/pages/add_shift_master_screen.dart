@@ -68,19 +68,23 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
   //TIME VARIABLES
   String? shiftBeginTime;
   String? shiftEndTime;
-  String? shiftDurationTime;
-  String? shiftWorkDurationTime;
   String? firstHalfUpTo;
-  String? absentWorkingHours;
-  String? halfDayWorkingHours;
-  String? halfDayInTimeAfter;
   String? markHalfDayIfInTimeIsAfterWorkingHour;
   String? markHalfDayIfOutTimeBefpreWorkingHours;
-  String? halfDayOutTimeBefore;
   String? breakBeginTime;
   String? breakEndTime;
-  String? breakDurationTime;
-  String? graceTime;
+
+  // VALUE NOTIFIERS
+  final shiftDurationVN = ValueNotifier<String>("");
+  final shiftWorkDurationVN = ValueNotifier<String>("");
+  final breakDurationVN = ValueNotifier<String>("");
+
+  final absentWorkingHoursVN = ValueNotifier<String>("00:00");
+  final halfDayWorkingHoursVN = ValueNotifier<String>("00:00");
+  final halfDayInAfterVN = ValueNotifier<String>("00:00");
+  final halfDayOutBeforeVN = ValueNotifier<String>("00:00");
+
+  final graceTimeVN = ValueNotifier<String>("0");
 
   @override
   void initState() {
@@ -112,8 +116,18 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
     _shiftDurationC.dispose();
     _breakDurationC.dispose();
     _shiftWorkDurationC.dispose();
+
+    shiftDurationVN.dispose();
+    shiftWorkDurationVN.dispose();
+    breakDurationVN.dispose();
+    absentWorkingHoursVN.dispose();
+    halfDayWorkingHoursVN.dispose();
+    halfDayInAfterVN.dispose();
+    halfDayOutBeforeVN.dispose();
+    graceTimeVN.dispose();
   }
 
+  // ON TIME CHANGED
   void _onTimeChanged(Function(String) setter, TimeOfDay value) {
     setter(formatTimeOfDayHHmm(value));
     _calculateAllDurations();
@@ -135,47 +149,75 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
     _shiftWorkDurationC = TextEditingController();
   }
 
+  // CHECK IF END TIME IS VALID
+  bool _isEndTimeValid(String? start, String? end) {
+    if (start == null || end == null) return true;
+
+    final startParts = start.split(':');
+    final endParts = end.split(':');
+
+    final startMinutes =
+        int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
+
+    final endMinutes = int.parse(endParts[0]) * 60 + int.parse(endParts[1]);
+
+    return endMinutes > startMinutes;
+  }
+
   // POPULATE FORM FIELDS
   void _populateFormFields(ShiftMasterModel shiftMasterModel) {
     _shiftNameC.text = shiftMasterModel.shiftName;
     _shiftCodeC.text = shiftMasterModel.shiftCode;
+
     shiftBeginTime = normalizeTime(shiftMasterModel.shiftBeginTime);
     shiftEndTime = normalizeTime(shiftMasterModel.shiftEndTime);
-    shiftDurationTime = normalizeTime(shiftMasterModel.shiftDurationTime);
-    shiftWorkDurationTime = normalizeTime(
-      shiftMasterModel.shiftWorkDurationTime,
-    );
-
-    _shiftWorkDurationC.text = shiftWorkDurationTime ?? "";
 
     firstHalfUpTo = shiftMasterModel.firstHalfUpTo;
 
-    absentWorkingHours = shiftMasterModel.absentWorkingHours;
-    _markAbsentInMinutesC.text =
-        convertHHmmToMinutes(absentWorkingHours).toString();
+    //  SHIFT DURATIONS
+    shiftDurationVN.value = normalizeTime(shiftMasterModel.shiftDurationTime);
 
-    halfDayWorkingHours = shiftMasterModel.halfDayWorkingHours;
-    _markHalfDayInMinutesC.text =
-        convertHHmmToMinutes(halfDayWorkingHours).toString();
+    shiftWorkDurationVN.value = normalizeTime(
+      shiftMasterModel.shiftWorkDurationTime,
+    );
 
-    markHalfDayIfInTimeIsAfterWorkingHour = shiftMasterModel.halfDayInTimeAfter;
-    _markHalfDayIfIntimeAfterC.text =
-        convertHHmmToMinutes(markHalfDayIfInTimeIsAfterWorkingHour).toString();
+    _shiftWorkDurationC.text = shiftWorkDurationVN.value;
 
-    markHalfDayIfOutTimeBefpreWorkingHours =
-        shiftMasterModel.halfDayOutTimeBefore;
+    // ABSENT WORKING HOURS
+    final absent = shiftMasterModel.absentWorkingHours;
+    absentWorkingHoursVN.value = absent;
+    _markAbsentInMinutesC.text = convertHHmmToMinutes(absent).toString();
+
+    //  HALF DAY WORKING HOURS
+    final halfDay = shiftMasterModel.halfDayWorkingHours;
+    halfDayWorkingHoursVN.value = halfDay;
+    _markHalfDayInMinutesC.text = convertHHmmToMinutes(halfDay).toString();
+
+    //  HALF DAY IN TIME AFTER
+    final inAfter = shiftMasterModel.halfDayInTimeAfter;
+    halfDayInAfterVN.value = inAfter;
+    _markHalfDayIfIntimeAfterC.text = convertHHmmToMinutes(inAfter).toString();
+
+    // HALF DAY OUT TIME BEFORE
+    final outBefore = shiftMasterModel.halfDayOutTimeBefore;
+    halfDayOutBeforeVN.value = outBefore;
     _markHalfDayIfOutTimeBeforeC.text =
-        convertHHmmToMinutes(markHalfDayIfOutTimeBefpreWorkingHours).toString();
+        convertHHmmToMinutes(outBefore).toString();
 
-    // BREAK
+    //  BREAK
     breakBeginTime = normalizeTime(shiftMasterModel.breakBeginTime);
     breakEndTime = normalizeTime(shiftMasterModel.breakEndTime);
-    breakDurationTime = normalizeTime(shiftMasterModel.breakDurationTime);
 
-    // GRACE TIME
-    graceTime = shiftMasterModel.graceTime;
-    _graceTimeC.text = convertHHmmToMinutes(graceTime).toString();
+    breakDurationVN.value = normalizeTime(shiftMasterModel.breakDurationTime);
 
+    _breakDurationC.text = breakDurationVN.value;
+
+    //  GRACE TIME
+    final grace = shiftMasterModel.graceTime;
+    graceTimeVN.value = grace;
+    _graceTimeC.text = grace;
+
+    //  OTHER FIELDS
     _selectedLateArrivalAction = shiftMasterModel.lateArrivalAction;
     _lateCountC.text = shiftMasterModel.lateCount.toString();
     _remarksC.text = shiftMasterModel.remarks;
@@ -200,7 +242,21 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
         !isRemarkValid) {
       return;
     }
+
     _calculateAllDurations();
+
+    //  GET VALUES FROM VALUE NOTIFIERS
+    final shiftDuration = shiftDurationVN.value;
+    final shiftWorkDuration = shiftWorkDurationVN.value;
+    final breakDuration = breakDurationVN.value;
+
+    final absentWorkingHours = absentWorkingHoursVN.value;
+    final halfDayWorkingHours = halfDayWorkingHoursVN.value;
+    final halfDayInAfter = halfDayInAfterVN.value;
+    final halfDayOutBefore = halfDayOutBeforeVN.value;
+
+    final graceTime = graceTimeVN.value;
+
     if (_isEditMode && widget.shiftMasterModel != null) {
       _shiftMasterCubit.updateShift(
         index: widget.index,
@@ -211,17 +267,17 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
         shiftName: _shiftNameC.text.trim(),
         shiftBeginTime: shiftBeginTime ?? "",
         shiftEndTime: shiftEndTime ?? "",
-        shiftDurationTime: shiftDurationTime ?? "",
-        shiftWorkDurationTime: shiftWorkDurationTime ?? "",
+        shiftDurationTime: shiftDuration,
+        shiftWorkDurationTime: shiftWorkDuration,
         firstHalfUpTo: firstHalfUpTo ?? "",
-        absentWorkingHours: absentWorkingHours ?? "",
-        halfDayWorkingHours: halfDayWorkingHours ?? "",
-        halfDayInTimeAfter: markHalfDayIfInTimeIsAfterWorkingHour ?? "",
-        halfDayOutTimeBefore: markHalfDayIfOutTimeBefpreWorkingHours ?? "",
+        absentWorkingHours: absentWorkingHours,
+        halfDayWorkingHours: halfDayWorkingHours,
+        halfDayInTimeAfter: halfDayInAfter,
+        halfDayOutTimeBefore: halfDayOutBefore,
         breakBeginTime: breakBeginTime ?? "",
         breakEndTime: breakEndTime ?? "",
-        breakDurationTime: breakDurationTime!,
-        graceTime: graceTime ?? "",
+        breakDurationTime: breakDuration,
+        graceTime: graceTime,
         lateArrivalAction: _selectedLateArrivalAction,
         lateCount: double.parse(_lateCountC.text.trim()),
         remarks: _remarksC.text.trim(),
@@ -233,17 +289,17 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
         shiftName: _shiftNameC.text.trim(),
         shiftBeginTime: shiftBeginTime!,
         shiftEndTime: shiftEndTime!,
-        shiftDurationTime: shiftDurationTime!,
-        shiftWorkDurationTime: shiftWorkDurationTime!,
+        shiftDurationTime: shiftDuration,
+        shiftWorkDurationTime: shiftWorkDuration,
         firstHalfUpTo: firstHalfUpTo!,
-        absentWorkingHours: absentWorkingHours ?? "",
-        halfDayWorkingHours: halfDayWorkingHours ?? "",
-        halfDayInTimeAfter: markHalfDayIfInTimeIsAfterWorkingHour ?? "",
-        halfDayOutTimeBefore: markHalfDayIfOutTimeBefpreWorkingHours ?? "",
+        absentWorkingHours: absentWorkingHours,
+        halfDayWorkingHours: halfDayWorkingHours,
+        halfDayInTimeAfter: halfDayInAfter,
+        halfDayOutTimeBefore: halfDayOutBefore,
         breakBeginTime: breakBeginTime!,
         breakEndTime: breakEndTime!,
-        breakDurationTime: breakDurationTime!,
-        graceTime: graceTime!,
+        breakDurationTime: breakDuration,
+        graceTime: graceTime,
         lateArrivalAction: _selectedLateArrivalAction,
         lateCount: double.parse(_lateCountC.text.trim()),
         remarks: _remarksC.text.trim(),
@@ -383,8 +439,18 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
         children: [
           _buildSectionHeader('Time Details'),
           CustomTimePicker(
-            setValue:
-                (value) => _onTimeChanged((val) => shiftBeginTime = val, value),
+            setValue: (value) {
+              final selected = formatTimeOfDayHHmm(value);
+
+              shiftBeginTime = selected;
+
+              if (shiftEndTime != null &&
+                  !_isEndTimeValid(shiftBeginTime, shiftEndTime)) {
+                shiftEndTime = null;
+              }
+
+              _calculateAllDurations();
+            },
             title: "Shift Begin Time",
             isRequired: true,
             initialTime: parseTimeOfDayFromHHmm(shiftBeginTime),
@@ -396,8 +462,12 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             },
           ),
           CustomTimePicker(
-            setValue:
-                (value) => _onTimeChanged((val) => shiftEndTime = val, value),
+            setValue: (value) {
+              final selected = formatTimeOfDayHHmm(value);
+
+              shiftEndTime = selected;
+              _calculateAllDurations();
+            },
             title: "Shift End Time",
             isRequired: true,
             initialTime: parseTimeOfDayFromHHmm(shiftEndTime),
@@ -405,19 +475,37 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
               if (value == null) {
                 return "Shift End Time is required";
               }
+
+              final selected = formatTimeOfDayHHmm(value);
+
+              if (!_isEndTimeValid(shiftBeginTime, selected)) {
+                return "End time must be after start time";
+              }
+
               return null;
             },
           ),
-          CustomTextField(
-            textController: _shiftDurationC,
-            title: "Shift Duration",
-            readOnly: true,
-            hint: shiftDurationTime,
+          ValueListenableBuilder<String>(
+            valueListenable: shiftDurationVN,
+            builder: (_, value, __) {
+              return CustomTextField(
+                textController: _shiftDurationC,
+                title: "Shift Duration",
+                readOnly: true,
+                hint: value,
+              );
+            },
           ),
-          CustomTextField(
-            textController: _shiftWorkDurationC,
-            title: "Shift Work Duration",
-            readOnly: true,
+          ValueListenableBuilder<String>(
+            valueListenable: shiftWorkDurationVN,
+            builder: (_, value, __) {
+              return CustomTextField(
+                textController: _shiftWorkDurationC,
+                title: "Shift Work Duration",
+                readOnly: true,
+                hint: value,
+              );
+            },
           ),
         ],
       ),
@@ -458,14 +546,26 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
               if (value == null) {
                 return "Break End Time is required";
               }
+
+              final selected = formatTimeOfDayHHmm(value);
+
+              if (!_isEndTimeValid(breakBeginTime, selected)) {
+                return "End time must be after start time";
+              }
+
               return null;
             },
           ),
-          CustomTextField(
-            textController: _breakDurationC,
-            title: "Break Duration Time",
-            readOnly: true,
-            hint: breakDurationTime,
+          ValueListenableBuilder<String>(
+            valueListenable: breakDurationVN,
+            builder: (_, value, __) {
+              return CustomTextField(
+                textController: _breakDurationC,
+                title: "Break Duration Time",
+                readOnly: true,
+                hint: value,
+              );
+            },
           ),
         ],
       ),
@@ -473,24 +573,16 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
   }
 
   void _calculateAllDurations() {
-    /// SHIFT
     final shiftMinutes = getDiffInMinutes(shiftBeginTime, shiftEndTime);
-    shiftDurationTime = toHHmm(shiftMinutes);
-    _shiftDurationC.text = shiftDurationTime ?? "";
+    shiftDurationVN.value = toHHmm(shiftMinutes);
 
-    /// BREAK
     final breakMinutes = getDiffInMinutes(breakBeginTime, breakEndTime);
-    breakDurationTime = toHHmm(breakMinutes);
-    _breakDurationC.text = breakDurationTime ?? "";
+    breakDurationVN.value = toHHmm(breakMinutes);
 
-    /// WORK
     int workMinutes = shiftMinutes - breakMinutes;
     if (workMinutes < 0) workMinutes = 0;
 
-    shiftWorkDurationTime = toHHmm(workMinutes);
-    _shiftWorkDurationC.text = shiftWorkDurationTime ?? "";
-
-    setState(() {});
+    shiftWorkDurationVN.value = toHHmm(workMinutes);
   }
 
   // BUILD ADVANCE SETTING
@@ -520,17 +612,20 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
               final hours = minutes ~/ 60;
               final remainingMinutes = minutes % 60;
 
-              absentWorkingHours =
+              absentWorkingHoursVN.value =
                   "${hours.toString().padLeft(2, '0')}:${remainingMinutes.toString().padLeft(2, '0')}";
-
-              setState(() {});
             },
           ),
-          CustomTextField(
-            title: "Mark Absent If Working Hour Less than (in Hours)",
-            hint: absentWorkingHours ?? "00:00",
-            readOnly: true,
-            textController: TextEditingController(),
+          ValueListenableBuilder<String>(
+            valueListenable: absentWorkingHoursVN,
+            builder: (_, value, __) {
+              return CustomTextField(
+                title: "Mark Absent If Working Hour Less than (in Hours)",
+                hint: value,
+                readOnly: true,
+                textController: TextEditingController(),
+              );
+            },
           ),
           CustomTextField(
             title: "Mark Half Day If Working Hour Less than (in Minutes)",
@@ -543,17 +638,20 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
               final hours = minutes ~/ 60;
               final remainingMinutes = minutes % 60;
 
-              halfDayWorkingHours =
+              halfDayWorkingHoursVN.value =
                   "${hours.toString().padLeft(2, '0')}:${remainingMinutes.toString().padLeft(2, '0')}";
-
-              setState(() {});
             },
           ),
-          CustomTextField(
-            title: "Mark Half Day If Working Hour Less than (in Hours)",
-            hint: halfDayWorkingHours ?? "00:00",
-            readOnly: true,
-            textController: TextEditingController(),
+          ValueListenableBuilder<String>(
+            valueListenable: halfDayWorkingHoursVN,
+            builder: (_, value, __) {
+              return CustomTextField(
+                title: "Mark Half Day If Working Hour Less than (in Hours)",
+                hint: value,
+                readOnly: true,
+                textController: TextEditingController(),
+              );
+            },
           ),
           CustomTextField(
             title: "Mark Half Day if Intime After (in Minutes)",
@@ -566,17 +664,20 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
               final hours = minutes ~/ 60;
               final remainingMinutes = minutes % 60;
 
-              markHalfDayIfInTimeIsAfterWorkingHour =
+              halfDayInAfterVN.value =
                   "${hours.toString().padLeft(2, '0')}:${remainingMinutes.toString().padLeft(2, '0')}";
-
-              setState(() {});
             },
           ),
-          CustomTextField(
-            title: "Mark Half Day if Intime After (in Hours)",
-            readOnly: true,
-            hint: markHalfDayIfInTimeIsAfterWorkingHour ?? "00:00",
-            textController: TextEditingController(),
+          ValueListenableBuilder<String>(
+            valueListenable: halfDayInAfterVN,
+            builder: (_, value, __) {
+              return CustomTextField(
+                title: "Mark Half Day if Intime After (in Hours)",
+                readOnly: true,
+                hint: value,
+                textController: TextEditingController(),
+              );
+            },
           ),
           CustomTextField(
             title: "Mark Half Day if Outtime Before (in Minutes)",
@@ -589,23 +690,27 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
               final hours = minutes ~/ 60;
               final remainingMinutes = minutes % 60;
 
-              markHalfDayIfOutTimeBefpreWorkingHours =
+              halfDayOutBeforeVN.value =
                   "${hours.toString().padLeft(2, '0')}:${remainingMinutes.toString().padLeft(2, '0')}";
-
-              setState(() {});
             },
           ),
-          CustomTextField(
-            title: "Mark Half Day if Intime After (in Hours)",
-            readOnly: true,
-            hint: markHalfDayIfOutTimeBefpreWorkingHours ?? "00:00",
-            textController: TextEditingController(),
+          ValueListenableBuilder<String>(
+            valueListenable: halfDayOutBeforeVN,
+            builder: (_, value, __) {
+              return CustomTextField(
+                title: "Mark Half Day if Outtime Before (in Hours)",
+                readOnly: true,
+                hint: value,
+                textController: TextEditingController(),
+              );
+            },
           ),
         ],
       ),
     );
   }
 
+  // BUILD TIME ALLOWED FOR LATE ENTRY DETAILS
   Widget _buildShiftTimeAllowedForLateEntryDetailsSection() {
     return Form(
       key: _formKeys[4],
@@ -623,9 +728,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             onChangeFunction: (value) {
               final minutes = int.tryParse(value) ?? 0;
 
-              graceTime = minutes.toString();
-
-              setState(() {});
+              graceTimeVN.value = minutes.toString();
             },
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
@@ -660,6 +763,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
     );
   }
 
+  // BUILD RADIO OPTION
   Widget _buildRadioOption(String value) {
     return Row(
       children: [
@@ -679,6 +783,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
     );
   }
 
+  // BUILD REMARKS SECTION
   Widget _buildRemarkSection() {
     return Form(
       key: _formKeys[5],

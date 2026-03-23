@@ -23,17 +23,20 @@ final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await requestPhonePermission();
+  print("Hii=>1");
+   requestPhonePermission();
+  print("Hii=>2");
 
   // INITIAL SETUP
   await initialSetup();
+  print("Hii=>3");
 
   // LOCK ORIENTATION
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  print("Hii=>4");
   // RUN APP
   runApp(const MyApp());
 }
