@@ -785,7 +785,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                               SizedBox(
                                 width: 130,
                                 child: Text(
-                                  "Contact Number",
+                                  "Personal Mobile Number",
                                   style: AppTextStyle.ts14R(
                                     color: AppColor.grey,
                                   ),

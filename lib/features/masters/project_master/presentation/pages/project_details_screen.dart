@@ -565,7 +565,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Project Document", style: AppTextStyle.ts16SB()),
+                Text("Project Documentation", style: AppTextStyle.ts16SB()),
                 verticalSpacing(),
                 Row(
                   spacing: 10,
@@ -895,7 +895,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "Contact Number",
+                                    "Mobile Number",
                                     style: AppTextStyle.ts14M(
                                       color: AppColor.grey,
                                     ),
@@ -914,15 +914,6 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            buildColumnTitleValue(
-                              title: "Joining Date",
-                              value:
-                                  employee.joiningDate != null
-                                      ? formatDateTimeAsDDMMMYYYY(
-                                        employee.joiningDate!,
-                                      )
-                                      : "-",
-                            ),
                             buildColumnTitleValue(
                               title: "Last Login",
                               value:
@@ -1102,6 +1093,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                             ),
                             verticalSpacing(),
                             Row(
+                              spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
@@ -1116,35 +1108,61 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                             ),
                             verticalSpacing(),
                             Row(
+                              spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Contact Number",
-                                        style: AppTextStyle.ts14M(
-                                          color: AppColor.grey,
-                                        ),
-                                      ),
-                                      verticalSpacing(),
-                                      CustomClickToContactText(
-                                        value: company.mobileNumber,
-                                      ),
-                                    ],
+                                buildColumnTitleValue(
+                                  title: "Mobile Number",
+                                  value: company.mobileNumber,
+                                  customValueWidget: CustomClickToContactText(
+                                    value: company.mobileNumber,
                                   ),
                                 ),
                                 buildColumnTitleValue(
-                                  title: "City",
-                                  value: company.cityName,
+                                  title: "E-mail Id",
+                                  value: company.mobileNumber,
+                                  customValueWidget: CustomClickToContactText(
+                                    value: company.mobileNumber,
+                                  ),
                                 ),
                               ],
                             ),
                             verticalSpacing(),
                             Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                buildColumnTitleValue(
+                                  title: "PAN Number",
+                                  value: company.panNumber,
+                                  customValueWidget:
+                                      company.panNumber.isNotEmpty
+                                          ? Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(company.panNumber),
+                                              horizontalSpacing(),
+                                              CustomIconButton(
+                                                onPressed: () {
+                                                  showFilePreviewDialog(
+                                                    context,
+                                                    company.panCardURL.split(
+                                                      ",",
+                                                    ),
+                                                  );
+                                                },
+                                                icon: Icon(
+                                                  Icons.remove_red_eye_outlined,
+                                                  size: 16,
+                                                  color: AppColor.primary,
+                                                ),
+                                                backgroundColor:
+                                                    AppColor.lightBlue,
+                                              ),
+                                            ],
+                                          )
+                                          : Text("-"),
+                                ),
                                 buildColumnTitleValue(
                                   title: "GST Number",
                                   value:
@@ -1152,12 +1170,31 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                           ? company.gstNumber
                                           : "-",
                                 ),
+                              ],
+                            ),
+                            verticalSpacing(),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 buildColumnTitleValue(
-                                  title: "PAN Number",
-                                  value:
-                                      company.panNumber.isNotEmpty
-                                          ? company.panNumber
-                                          : "-",
+                                  title: "CIN Number",
+                                  value: company.cinNumber,
+                                ),
+                                buildColumnTitleValue(
+                                  title: "TAN Number",
+                                  value: company.tanNumber,
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "City",
+                                  value: company.cityName,
                                 ),
                               ],
                             ),
@@ -1288,6 +1325,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         ),
                         verticalSpacing(),
                         Row(
+                          spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             buildColumnTitleValue(
@@ -1302,6 +1340,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                         ),
                         verticalSpacing(),
                         Row(
+                          spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             buildColumnTitleValue(

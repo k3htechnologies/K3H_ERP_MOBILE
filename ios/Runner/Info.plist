@@ -42,6 +42,10 @@
 		<key>TemporaryLocation</key>
 		<string>Location is required to show your movement on the map.</string>
 	</dict>
+	<key>NSContactsUsageDescription</key>
+        <string>This app requires access to contacts to verify phone identity for ERP security.</string>
+        <key>NSCameraUsageDescription</key>
+        <string>This app requires camera access to scan QR codes or take profile photos.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs your location to record punch in and punch out attendance.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

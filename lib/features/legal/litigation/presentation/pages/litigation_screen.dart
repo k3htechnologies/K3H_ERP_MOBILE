@@ -337,6 +337,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
                         ),
                         const SizedBox(width: 8),
 
+                        if(_routeAuthorizationModel.isAction)
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [

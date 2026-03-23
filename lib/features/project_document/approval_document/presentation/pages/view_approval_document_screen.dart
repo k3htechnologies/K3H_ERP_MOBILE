@@ -286,14 +286,14 @@ class _ViewApprovalDocumentScreenState
             children: [
               buildColumnTitleValue(
                 title: "Last Modified By",
-                value: document.modifiedBy,
+                value: document.modifiedBy.isEmpty? document.createdBy : document.modifiedBy,
               ),
               buildColumnTitleValue(
                 title: "Last Modified Date",
                 value:
                     document.modifiedDate != null
                         ? formatDate(document.modifiedDate!)
-                        : '-',
+                        : formatDate(document.createdDate),
               ),
             ],
           ),

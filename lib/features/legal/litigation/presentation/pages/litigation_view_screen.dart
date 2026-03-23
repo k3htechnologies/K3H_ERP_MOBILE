@@ -78,6 +78,9 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   late TextEditingController _remarkC;
   late TextEditingController _conclusionC;
 
+  // ROUTH AUTHORIZATION
+  late AuthorizationModel _routeAuthorizationModel;
+
   /// File picker model for closure attachments
   MultiFilePickerModel closureFiles = MultiFilePickerModel(
     fileBytesList: [],
@@ -90,6 +93,9 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     super.initState();
 
     _litigationCubit = context.read<LitigationCubit>();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.litigation] ??
+            AuthorizationModel();
     _documentNameC = TextEditingController();
     _remarkC = TextEditingController();
     _conclusionC = TextEditingController();
@@ -558,7 +564,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Hearing History', style: AppTextStyle.ts16SB()),
-                    if (status != "closed")
+                    if (status != "closed" && _routeAuthorizationModel.isAction)
                       CustomButton(
                         backgroundColor: AppColor.lightBlue,
                         leading: Icon(Icons.add),
@@ -608,7 +614,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Hearing History', style: AppTextStyle.ts16SB()),
-                  if (status != "closed")
+                  if (status != "closed" && _routeAuthorizationModel.isAction )
                     CustomButton(
                       backgroundColor: AppColor.lightBlue,
                       leading: Icon(Icons.add),
@@ -684,7 +690,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                               ),
                               //Only Lastest Hearing can be Update and Delete but make sure Api return data by date and Time
                               if (index == 0 &&
-                                  status.toLowerCase() != 'closed')
+                                  status.toLowerCase() != 'closed' && _routeAuthorizationModel.isAction)
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
@@ -778,7 +784,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
             child: Column(
               children: [
-                if (status != "closed")
+                if (status != "closed" && _routeAuthorizationModel.isAction)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -815,7 +821,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
           child: Column(
             children: [
-              if (status != "closed")
+              if (status != "closed" && _routeAuthorizationModel.isAction)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -939,7 +945,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                       onPressed: onViewTab,
                     ),
                     // Edit/Delete buttons only if litigation is not closed
-                    if (status.toLowerCase() != 'closed')
+                    if (status.toLowerCase() != 'closed' && _routeAuthorizationModel.isAction)
                       Row(
                         children: [
                           horizontalSpacing(),

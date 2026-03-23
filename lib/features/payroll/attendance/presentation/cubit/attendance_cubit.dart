@@ -28,6 +28,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     Map<String, dynamic> queryParams = {
       "StartDate": startDate.toIso8601String(),
       "EndDate": endDate.toIso8601String(),
+      "isReport": "false"
     };
     var result = await _attendanceRepository.getAttendanceList(
       pageNumber: pageNumber,

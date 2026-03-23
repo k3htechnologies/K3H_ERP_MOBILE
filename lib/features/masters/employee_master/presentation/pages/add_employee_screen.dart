@@ -69,20 +69,18 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
 
   // LISTS
   List<Map<String, dynamic>> genderList = [
-    {"zAttributesId": -1, "DisplayName": "Select Gender"},
     {"zAttributesId": 1, "DisplayName": "Male"},
     {"zAttributesId": 2, "DisplayName": "Female"},
     {"zAttributesId": 3, "DisplayName": "Other"},
   ];
   List<Map<String, dynamic>> maritalStatusList = [
-    {"zAttributesId": -1, "DisplayName": "Select Marital Status"},
     {"zAttributesId": 1, "DisplayName": "Single"},
     {"zAttributesId": 2, "DisplayName": "Married"},
     {"zAttributesId": 3, "DisplayName": "Divorce"},
     {"zAttributesId": 4, "DisplayName": "Widow"},
+    {"zAttributesId": 5, "DisplayName": "Separated"},
   ];
   List<Map<String, dynamic>> bloodGroupList = [
-    {"zAttributesId": -1, "DisplayName": "Select Blood Group"},
     {"zAttributesId": 1, "DisplayName": "A+"},
     {"zAttributesId": 2, "DisplayName": "A-"},
     {"zAttributesId": 3, "DisplayName": "O+"},
@@ -102,12 +100,20 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   ];
 
   List<Map<String, dynamic>> relationToEmployeeList = [
-    {"zAttributesId": -1, "DisplayName": "Select Relation"},
     {"zAttributesId": 1, "DisplayName": "Father"},
     {"zAttributesId": 2, "DisplayName": "Mother"},
     {"zAttributesId": 3, "DisplayName": "Spouse"},
     {"zAttributesId": 4, "DisplayName": "Sibling"},
     {"zAttributesId": 5, "DisplayName": "Child"},
+    {"zAttributesId": 6, "DisplayName": "Son"},
+    {"zAttributesId": 7, "DisplayName": "Daughter"},
+    {"zAttributesId": 8, "DisplayName": "Grandfather"},
+    {"zAttributesId": 9, "DisplayName": "Grandmother"},
+    {"zAttributesId": 10, "DisplayName": "Uncle"},
+    {"zAttributesId": 11, "DisplayName": "Aunty"},
+    {"zAttributesId": 12, "DisplayName": "Cousin"},
+    {"zAttributesId": 13, "DisplayName": "Friend"},
+    {"zAttributesId": 14, "DisplayName": "Other"},
   ];
 
   // SELECTED VALUES
@@ -145,7 +151,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     super.initState();
     _employeeMasterCubit = BlocProvider.of<EmployeeMasterCubit>(context);
     _initializeTextEditingController();
-    _initializeDropdowns();
 
     _selectedReportingPersonNotifier =
         ValueNotifier<List<Map<String, dynamic>>>([]);
@@ -313,13 +318,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     _ifscC = TextEditingController();
   }
 
-  // INITIALIZE DROPDOWNS
-  void _initializeDropdowns() {
-    // BASIC EMPLOYEE DETAILS
-    selectedGender = genderList.first;
-    selectedMaritalStatus = maritalStatusList.first;
-    selectedBloodGroup = bloodGroupList.first;
-  }
 
   // FETCH DEPARTMENTS
   Future<Map<String, dynamic>> _fetchDepartment(
@@ -993,6 +991,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             title: 'Gender',
             isRequired: true,
             initialValue: selectedGender,
+            hintText: "Select Gender",
             dataList: genderList,
             onSelected: (value) => selectedGender = value,
             validator: (value) {
@@ -1005,6 +1004,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           CustomDropDownWidget(
             title: 'Marital Status',
             isRequired: true,
+            hintText: "Select Marital Status",
             initialValue: selectedMaritalStatus,
             dataList: maritalStatusList,
             onSelected: (value) => selectedMaritalStatus = value,
@@ -1017,6 +1017,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           ),
           CustomDropDownWidget(
             title: 'Blood Group',
+            hintText: "Select Blood Group",
             isRequired: true,
             initialValue: selectedBloodGroup,
             dataList: bloodGroupList,
@@ -1122,6 +1123,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           CustomDropDownWidget(
             title: 'Relation to Emergency Contact',
             isRequired: true,
+            hintText: "Select Relation",
             initialValue: selectedRelationToEmployee,
             dataList: relationToEmployeeList,
             onSelected: (value) => selectedRelationToEmployee = value,
@@ -1182,6 +1184,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             title: "Company Name",
             isRequired: true,
             isMultiSelect: false,
+            hintText: "Select Company",
             initialValue: _selectedCompany,
             dataFetchCallBack: _fetchCompany,
             dataList: [],
@@ -1197,6 +1200,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           ),
           CustomMultipleSelectPopup(
             title: "Department",
+            hintText: "Select Department",
             isRequired: true,
             isMultiSelect: false,
             initialValue: _selectedDepartment,
@@ -1214,6 +1218,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           ),
           CustomMultipleSelectPopup(
             title: "Branch",
+            hintText: "Select Branch",
             isRequired: true,
             isMultiSelect: false,
             initialValue: _selectedBranch,
@@ -1231,6 +1236,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           ),
           CustomMultipleSelectPopup(
             title: "Designation",
+            hintText: "Select Designation",
             isRequired: true,
             isMultiSelect: false,
             initialValue: _selectedDesignation,
@@ -1271,6 +1277,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                 children: [
                   CustomMultipleSelectPopup(
                     title: "Reporting Person",
+                    hintText: "Select Reporting Person",
                     isRequired: true,
                     isMultiSelect: false,
                     initialValue: selectedEmployee,
@@ -1376,6 +1383,8 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           CustomTextField(
             title: 'Communication Address',
             hint: "Enter Communication Address",
+            minLines: 3,
+            maxLines: 3,
             isRequired: true,
             textController: _communicationAddressC,
             inputFormatterList: [LengthLimitingTextInputFormatter(500)],
@@ -1389,6 +1398,8 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
           CustomTextField(
             title: 'Permanent Address',
             hint: "Enter Permanent Address",
+            minLines: 3,
+            maxLines: 3,
             isRequired: true,
             textController: _permanentAddressC,
             inputFormatterList: [LengthLimitingTextInputFormatter(500)],
@@ -1428,7 +1439,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
         children: [
           _buildSectionHeader('Bank Details'),
           CustomMultipleSelectPopup(
-            title: "Bank Details",
+            title: "Bank",
             isRequired: true,
             isMultiSelect: false,
             initialValue: _selectedBank,

@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "851006050471",
-    "project_id": "k3htechnologies-erp-app",
-    "storage_bucket": "k3htechnologies-erp-app.firebasestorage.app"
+    "project_number": "782945913757",
+    "project_id": "hrr-erp-2",
+    "storage_bucket": "hrr-erp-2.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:851006050471:android:be5b3822c7b5e01eed4b82",
+        "mobilesdk_app_id": "1:782945913757:android:ef57d25838bb4532e37d74",
         "android_client_info": {
           "package_name": "com.k3hTechnologies.k3h_new_erp_app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAiw2Kc9btRIKQv_FJMxHTGNosSOLGUI_o"
+          "current_key": "AIzaSyDBQuOQTzY1q1Ts0NBrOAbtm_mTs7wjE_Y"
         }
       ],
       "services": {

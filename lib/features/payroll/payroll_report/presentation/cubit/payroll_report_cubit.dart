@@ -105,6 +105,7 @@ class PayrollReportCubit extends Cubit<PayrollReportState> {
       'EmployeeName': state.searchText,
       'StartDate': DateFormat('yyyy-MM-dd').format(startDate),
       'EndDate': DateFormat('yyyy-MM-dd').format(endDate),
+      'isReport':"true"
     };
     var result = await _attendanceRepository.getAttendanceList(
       pageNumber: pageNumber,

@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyA_3wNQntZRyqMLgrAAcqolp48rh47PO2k</string>
+	<string>AIzaSyA9gEYjO2eZpO7MnHgOgBHxkqshqr7RMM8</string>
 	<key>GCM_SENDER_ID</key>
-	<string>851006050471</string>
+	<string>782945913757</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.k3hTechnologies.k3hNewErpApp</string>
+	<string>com.k3htechnologies.hrr.erp</string>
 	<key>PROJECT_ID</key>
-	<string>k3htechnologies-erp-app</string>
+	<string>hrr-erp-2</string>
 	<key>STORAGE_BUCKET</key>
-	<string>k3htechnologies-erp-app.firebasestorage.app</string>
+	<string>hrr-erp-2.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:851006050471:ios:514fee2d63d83fbfed4b82</string>
+	<string>1:782945913757:ios:7a99b21610350f2be37d74</string>
 </dict>
 </plist>

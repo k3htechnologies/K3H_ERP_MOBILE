@@ -128,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       textAlign: TextAlign.center,
                     ),
                     Text(
-                      "Enter Details to get started",
+                      "Enter details to get started",
                       style: AppTextStyle.ts14R(color: AppColor.grey),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,

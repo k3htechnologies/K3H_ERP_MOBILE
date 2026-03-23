@@ -233,7 +233,7 @@ class _EmployeeMasterViewDetailsScreenState
                   spacing: 10,
                   children: [
                     buildColumnTitleValue(
-                      title: "Personal Mobile No.",
+                      title: "Personal Mobile Number",
                       value: user.personalMobileNumber,
                       customValueWidget: CustomClickToContactText(
                         value: user.personalMobileNumber,

@@ -50,12 +50,11 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
 
   // ACCOUNT TYPE LIST
   final List<Map<String, dynamic>> accountTypeList = [
-    {"zAttributesId": -1, "DisplayName": "Select Account Type"},
     {"zAttributesId": 1, "DisplayName": "Current"},
     {"zAttributesId": 2, "DisplayName": "DEMAT"},
     {"zAttributesId": 3, "DisplayName": "Fixed"},
     {"zAttributesId": 4, "DisplayName": "Salary"},
-    {"zAttributesId": 5, "DisplayName": "Savings"},
+    {"zAttributesId": 5, "DisplayName": "Saving"},
   ];
 
   @override
@@ -257,6 +256,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                   ),
                   CustomDropDownWidget(
                     title: "Account Type",
+                    hintText: "Select Account Type",
                     isRequired: true,
                     initialValue: selectedAccountType,
                     dataList: accountTypeList,
