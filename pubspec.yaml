@@ -2,7 +2,7 @@ name: k3h_erp_app
 description: "ERP Mobile App."
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0+4
 
 environment:
   sdk: ^3.7.2
@@ -109,6 +109,7 @@ dependencies:
   syncfusion_flutter_pdfviewer: ^32.2.7
   # CURVY GRAPH
   fl_chart: ^1.2.0
+  device_info_plus: ^12.3.0
   
 # DEV DEPENDENCIES
 dev_dependencies:
