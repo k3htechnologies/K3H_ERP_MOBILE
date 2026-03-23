@@ -1195,7 +1195,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
           return Center(child: noDataWidget(message: "No Approval Data Found"));
         }
 
-        // Group by moduleName
+        // GROUP BY MODULE NAME
         final Map<String, List<ModulesWorkflowApprovalModel>> groupedData = {};
         for (var item in approvalList) {
           groupedData.putIfAbsent(item.moduleName, () => []).add(item);
@@ -1203,7 +1203,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
 
         final moduleNames = groupedData.keys.toList();
 
-        // Init TabController
+        // INITIALIZE TAB CONTROLLER
         if (_approvalTabController == null ||
             _approvalTabController!.length != moduleNames.length) {
           _approvalTabController = TabController(
@@ -1243,142 +1243,170 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                     moduleNames.map((moduleName) {
                       final moduleList = groupedData[moduleName]!;
 
-                      return _buildApprovalCards(moduleList);
+                      return ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        itemCount: moduleList.length,
+                        itemBuilder: (context, index) {
+                          final module = moduleList[index];
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(16),
+                            decoration: commonCardDecoration(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        module.subSubModuleName,
+                                        style: AppTextStyle.ts16SB(),
+                                      ),
+                                    ),
+                                    CustomIconButton(
+                                      onPressed: () {
+                                        goRouter.pushNamed(
+                                          AppRoutes.addEmployeeToModule,
+                                          queryParameters: {
+                                            "modulesWorkflowApprovalModel":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(module),
+                                                  ),
+                                                ),
+                                            "projectId":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    widget.project.projectId
+                                                        .toString(),
+                                                  ),
+                                                ),
+                                          },
+                                        );
+                                      },
+                                      icon: Icon(
+                                        Icons.add,
+                                        color: AppColor.primary,
+                                        size: 16,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                verticalSpacing(),
+
+                                //  EMPLOYEE DATA
+                                module.employeeData.isEmpty
+                                    ? Text(
+                                      "No Employee Assigned",
+                                      style: AppTextStyle.ts14M(
+                                        color: AppColor.grey,
+                                      ),
+                                    )
+                                    : Column(
+                                      children:
+                                          module.employeeData.map<Widget>((
+                                            employee,
+                                          ) {
+                                            return Container(
+                                              padding: const EdgeInsets.all(10),
+                                              margin: EdgeInsets.only(
+                                                bottom: 10,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: AppColor.white,
+                                                border: Border.all(
+                                                  color: AppColor.grey,
+                                                  width: 0.3,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: AppColor.black
+                                                        .withValues(
+                                                          alpha: 0.05,
+                                                        ),
+                                                    blurRadius: 2,
+                                                    offset: const Offset(0, 2),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Column(
+                                                spacing: 10,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              employee.fullName,
+                                                              style:
+                                                                  AppTextStyle.ts14M(),
+                                                            ),
+                                                            Text(
+                                                              employee
+                                                                  .designation,
+                                                              style:
+                                                                  AppTextStyle.ts12M(
+                                                                    color:
+                                                                        AppColor
+                                                                            .grey,
+                                                                  ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      CustomIconButton.delete(
+                                                        onPressed: () {
+                                                          _showDeleteModulePermissionDialog(
+                                                            context,
+                                                            module,
+                                                            employee.employeeId,
+                                                          );
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+
+                                                  CustomClickToContactText(
+                                                    value:
+                                                        employee
+                                                            .personalMobileNumber!,
+                                                  ),
+                                                  CustomClickToContactText(
+                                                    value:
+                                                        employee.emailId ?? "",
+                                                    type: ContactType.email,
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }).toList(),
+                                    ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
                     }).toList(),
               ),
             ),
           ],
         );
       },
-    );
-  }
-
-  Widget _buildApprovalCards(List<ModulesWorkflowApprovalModel> moduleList) {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      itemCount: moduleList.length,
-      itemBuilder: (context, index) {
-        final module = moduleList[index];
-        return _buildApprovalCard(module);
-      },
-    );
-  }
-
-  Widget _buildApprovalCard(ModulesWorkflowApprovalModel module) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  module.subSubModuleName,
-                  style: AppTextStyle.ts16SB(),
-                ),
-              ),
-              CustomIconButton(
-                onPressed: () {
-                  goRouter.pushNamed(
-                    AppRoutes.addEmployeeToModule,
-                    queryParameters: {
-                      "modulesWorkflowApprovalModel": Uri.encodeQueryComponent(
-                        EncryptionManager.encryptData(jsonEncode(module)),
-                      ),
-                      "projectId": Uri.encodeQueryComponent(
-                        EncryptionManager.encryptData(
-                          widget.project.projectId.toString(),
-                        ),
-                      ),
-                    },
-                  );
-                },
-                icon: Icon(Icons.add, color: AppColor.primary, size: 16),
-              ),
-            ],
-          ),
-
-          verticalSpacing(),
-
-          //  EMPLOYEE DATA
-          module.employeeData.isEmpty
-              ? Text(
-                "No Employee Assigned",
-                style: AppTextStyle.ts14M(color: AppColor.grey),
-              )
-              : Column(
-                children:
-                    module.employeeData.map<Widget>((employee) {
-                      return Container(
-                        padding: const EdgeInsets.all(10),
-                        margin: EdgeInsets.only(bottom: 10),
-                        decoration: BoxDecoration(
-                          color: AppColor.white,
-                          border: Border.all(color: AppColor.grey, width: 0.3),
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColor.black.withValues(alpha: 0.05),
-                              blurRadius: 2,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        employee.fullName,
-                                        style: AppTextStyle.ts14M(),
-                                      ),
-                                      Text(
-                                        employee.designation,
-                                        style: AppTextStyle.ts12M(
-                                          color: AppColor.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                CustomIconButton.delete(
-                                  onPressed: () {
-                                    _showDeleteModulePermissionDialog(
-                                      context,
-                                      module,
-                                      employee.employeeId,
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-
-                            CustomClickToContactText(
-                              value: employee.personalMobileNumber!,
-                            ),
-                            CustomClickToContactText(
-                              value: employee.emailId ?? "",
-                              type: ContactType.email,
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-              ),
-        ],
-      ),
     );
   }
 
