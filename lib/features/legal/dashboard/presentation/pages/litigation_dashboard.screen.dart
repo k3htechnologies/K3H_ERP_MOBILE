@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -7,8 +8,10 @@ import 'package:k3h_erp_app/features/legal/dashboard/presentation/cubit/litigati
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -29,11 +32,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
   // FOR INTERNAL SCROLL
   final ScrollController _scrollController = ScrollController();
 
-  List<String> months = ["JAN", "FEB", "MAR", "APR"];
-
-  List<int> closedData = [22, 60, 80, 92];
-  List<int> openedData = [28, 40, 58, 102];
-
+  int tempRangeIndex = 0;
   @override
   void initState() {
     super.initState();
@@ -45,8 +44,6 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
     );
   }
 
-  /// FOR LATER USE WHEN DATA WILL BE THERE IN API
-  /*
   List<FlSpot> _mapToSpots(List<int> values) {
     return List.generate(
       values.length,
@@ -55,51 +52,71 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
   }
 
   void _openFilter(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: const Text("Jan - Apr"),
-              onTap: () {
-                setState(() {
-                  months = ["JAN", "FEB", "MAR", "APR"];
-                  closedData = [22, 60, 80, 92];
-                  openedData = [28, 40, 58, 102];
-                });
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text("May - Aug"),
-              onTap: () {
-                setState(() {
-                  months = ["MAY", "JUN", "JUL", "AUG"];
-                  closedData = [40, 55, 70, 88];
-                  openedData = [35, 60, 65, 95];
-                });
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text("Sep - Dec"),
-              onTap: () {
-                setState(() {
-                  months = ["SEP", "OCT", "NOV", "DEC"];
-                  closedData = [50, 65, 78, 90];
-                  openedData = [45, 70, 85, 100];
-                });
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
+    tempRangeIndex = _litigationDashboardCubit.state.selectedRangeIndex;
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Month Wise Case Analysis",
+      onClear: () {
+        _litigationDashboardCubit.updateRange(0);
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
       },
+      onApply: () {
+        _litigationDashboardCubit.updateRange(tempRangeIndex);
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
+      },
+      contentWidget: StatefulBuilder(
+        builder: (context, setModalState) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: List.generate(3, (index) {
+                  final labels = ["Jan - Apr", "May - Aug", "Sep - Dec"];
+                  final isSelected = tempRangeIndex == index;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: GestureDetector(
+                      onTap: () {
+                        setModalState(() => tempRangeIndex = index);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                          color:
+                              isSelected
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text(
+                          labels[index],
+                          style: AppTextStyle.ts12R(
+                            color:
+                                isSelected ? AppColor.primary : AppColor.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
-*/
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LitigationDashboardCubit, LitigationDashboardState>(
@@ -113,7 +130,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
         return Scaffold(
           backgroundColor: AppColor.lightGreyBackground,
           appBar: CustomAppBarWithBackButton(
-            screenTitle: "Litigation Dashbaord",
+            screenTitle: "Legal Dashbaord",
             isMenuButton: true,
             showNotification: true,
             authorization: AuthorizationModel(),
@@ -304,7 +321,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                     RadialChartItem(
                       title: "Criminal",
                       value: criminal,
-                      color: AppColor.error,
+                      color: AppColor.blueBgColor,
                     ),
                   ],
                 ),
@@ -358,7 +375,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                   children:
                       table3.map((court) {
                         return _courtDistributionItem(
-                          court.caseType,
+                          court.courtType,
                           court.totalCases,
                           court.openCases,
                         );
@@ -642,9 +659,19 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    "Case No: ${item.caseNumber}",
-                                    style: AppTextStyle.ts14M(),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Case No: ${item.caseNumber}",
+                                        style: AppTextStyle.ts14M(),
+                                      ),
+                                      Text(
+                                        formatDate(item.hearingDate),
+                                        style: AppTextStyle.ts14M(),
+                                      ),
+                                    ],
                                   ),
                                   verticalSpacing(height: 6.0),
                                   Text(
@@ -721,73 +748,127 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
   }
 
   Widget _buildCaseAnalysisWidget(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  "Case Analysis",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.50),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          verticalSpacing(),
-          Center(
-            child: Text(
-              "No Case Analysis Available",
-              style: AppTextStyle.ts12M(
-                color: AppColor.black.withValues(alpha: .5),
-              ),
-            ),
-          ),
+    return BlocBuilder<LitigationDashboardCubit, LitigationDashboardState>(
+      builder: (context, state) {
+        if (state.isLoading!) {
+          return Center(child: loader());
+        }
 
-          /// FOR LATER USE WHEN DATA WILL BE THERE IN API
-          /*Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+        final table7 = state.litigationDashboardModel?.table7;
+
+        List<Table7> filteredData = [];
+        if (table7 != null && table7.isNotEmpty) {
+          if (state.selectedRangeIndex == 0) {
+            filteredData =
+                table7
+                    .where((e) => e.monthNumber >= 1 && e.monthNumber <= 4)
+                    .toList();
+          } else if (state.selectedRangeIndex == 1) {
+            filteredData =
+                table7
+                    .where((e) => e.monthNumber >= 5 && e.monthNumber <= 8)
+                    .toList();
+          } else {
+            filteredData =
+                table7
+                    .where((e) => e.monthNumber >= 9 && e.monthNumber <= 12)
+                    .toList();
+          }
+        }
+
+        final dataMap = {
+          for (var e in filteredData)
+            e.monthName.substring(0, 3).toUpperCase(): e,
+        };
+        List<String> allMonths;
+
+        if (state.selectedRangeIndex == 0) {
+          allMonths = ["JAN", "FEB", "MAR", "APR"];
+        } else if (state.selectedRangeIndex == 1) {
+          allMonths = ["MAY", "JUN", "JUL", "AUG"];
+        } else {
+          allMonths = ["SEP", "OCT", "NOV", "DEC"];
+        }
+
+        final closedData =
+            allMonths.map((m) => dataMap[m]?.closedCases ?? 0).toList();
+
+        final openedData =
+            allMonths.map((m) => dataMap[m]?.openCases ?? 0).toList();
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  _legendItem("Closed", Colors.blue),
-                  const SizedBox(width: 16),
-                  _legendItem("Opened", Colors.pink),
+                  Expanded(
+                    child: Text(
+                      "Case Analysis",
+                      style: AppTextStyle.ts14M(
+                        color: AppColor.black.withValues(alpha: 0.50),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              horizontalSpacing(),
-              GestureDetector(
-                onTap: () => _openFilter(context),
+              verticalSpacing(),
 
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppColor.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+              if (table7!.isNotEmpty) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Row(
+                      children: [
+                        _legendItem("Closed", Colors.blue),
+                        const SizedBox(width: 16),
+                        _legendItem("Opened", Colors.pink),
+                      ],
                     ),
-                    child: Icon(Icons.tune, size: 18),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => _openFilter(context),
+
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppColor.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(Icons.tune, size: 18),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20.0),
+                SizedBox(
+                  height: 200,
+                  child: LineChart(
+                    _buildChartData(allMonths, closedData, openedData),
                   ),
                 ),
-              ),
+              ] else ...[
+                Center(
+                  child: Text(
+                    "No Case Analysis Available",
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: .5),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
-          verticalSpacing(height: 20.0),
-          SizedBox(height: 200, child: LineChart(_buildChartData())), */
-        ],
-      ),
+        );
+      },
     );
   }
 
-  /// FOR LATER USE WHEN DATA WILL BE THERE IN API
-  /*
   Widget _legendItem(String title, Color color) {
     return Row(
       children: [
@@ -797,12 +878,25 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
       ],
     );
   }
-*/
 
-  /*  LineChartData _buildChartData() {
+  LineChartData _buildChartData(
+    List<String> months,
+    List<int> closedData,
+    List<int> openedData,
+  ) {
+    final allValues = [...closedData, ...openedData];
+
+    double maxY =
+        allValues.isNotEmpty
+            ? (allValues.reduce((a, b) => a > b ? a : b) * 1.5)
+            : 10;
+    if (maxY <= 0) {
+      maxY = 10;
+    }
+    final interval = maxY / 5;
     return LineChartData(
-      minY: 10,
-      maxY: 100,
+      minY: 0,
+      maxY: maxY,
 
       gridData: FlGridData(show: true),
       borderData: FlBorderData(
@@ -817,7 +911,8 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval: 10,
+            interval: interval,
+            reservedSize: 32,
             getTitlesWidget: (value, meta) {
               return Text(
                 value.toInt().toString(),
@@ -857,6 +952,8 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
         LineChartBarData(
           isCurved: true,
           color: Colors.blue,
+          curveSmoothness: 0.35,
+          isStrokeCapRound: true,
           barWidth: 2,
           dotData: FlDotData(show: false),
           spots: _mapToSpots(closedData),
@@ -866,6 +963,8 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
         LineChartBarData(
           isCurved: true,
           color: Colors.pink,
+          curveSmoothness: 0.35,
+          isStrokeCapRound: true,
           barWidth: 2,
           dotData: FlDotData(show: false),
           spots: _mapToSpots(openedData),
@@ -873,7 +972,7 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
       ],
     );
   }
-*/
+
   Widget _buildRecentlyUploadedDocumentsWidget(BuildContext context) {
     return BlocBuilder<LitigationDashboardCubit, LitigationDashboardState>(
       builder: (context, state) {
@@ -882,6 +981,28 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
         }
         final litigationDashboardModel = state.litigationDashboardModel;
         final table6 = litigationDashboardModel?.table6;
+
+        String getDocumentType(Table6 item) {
+          if ((item.closureAttachementUrl).isNotEmpty) {
+            return "Closure Document";
+          } else if ((item.hearingAttachementUrl).isNotEmpty) {
+            return "Hearing Document";
+          } else if ((item.documentUrl).isNotEmpty) {
+            return "Document";
+          }
+          return "-";
+        }
+
+        String? getDocumentUrl(Table6 item) {
+          if ((item.closureAttachementUrl).trim().isNotEmpty) {
+            return item.closureAttachementUrl;
+          } else if ((item.hearingAttachementUrl).trim().isNotEmpty) {
+            return item.hearingAttachementUrl;
+          } else if ((item.documentUrl).trim().isNotEmpty) {
+            return item.documentUrl;
+          }
+          return null;
+        }
 
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
@@ -918,22 +1039,34 @@ class _LitigationDashboardScreenState extends State<LitigationDashboardScreen> {
                         children: [
                           verticalSpacing(height: 9.0),
                           Text(
-                            "Structural Document",
-                            style: AppTextStyle.ts16SB(color: AppColor.primary),
-                          ),
-                          verticalSpacing(height: 9.0),
-                          Text(
-                            "Case No: -",
-                            style: AppTextStyle.ts14M(
-                              color: AppColor.black.withValues(alpha: 0.5),
-                            ),
-                          ),
-                          verticalSpacing(height: 9.0),
-                          Text(
                             item.documentName.isEmpty ? "-" : item.documentName,
+                            style: AppTextStyle.ts16SB(),
+                          ),
+                          verticalSpacing(height: 9.0),
+                          Text(
+                            "Case No: ${item.caseNumber}",
                             style: AppTextStyle.ts14M(
                               color: AppColor.black.withValues(alpha: 0.5),
                             ),
+                          ),
+                          verticalSpacing(height: 9.0),
+
+                          Row(
+                            children: [
+                              Text(
+                                getDocumentType(item),
+                                style: AppTextStyle.ts14M(
+                                  color: AppColor.black.withValues(alpha: 0.5),
+                                ),
+                              ),
+                              horizontalSpacing(),
+                              CustomButton.documentOutline(
+                                onPressed: () {
+                                  final url = getDocumentUrl(item);
+                                  showFilePreviewDialog(context, [url!]);
+                                },
+                              ),
+                            ],
                           ),
                           verticalSpacing(height: 9.0),
                           !isLast

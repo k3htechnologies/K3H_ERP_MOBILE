@@ -4,20 +4,14 @@ import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/dashboard_screen.dart';
-import 'package:k3h_erp_app/features/sales/sales_dashboard/data/model/sales.dashboard.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
-import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 class SalesDashboardScreen extends StatefulWidget {
   const SalesDashboardScreen({super.key});
@@ -30,11 +24,8 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
   // CUBIT
   late SalesDashboardCubit _salesDashboardCubit;
 
-  int selectedAreaIndex = 0;
+  final ValueNotifier<int> selectedAreaNotifier = ValueNotifier(0);
   late ProjectModel _selectedProject;
-
-  // FOR ANIMATION
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
   List<int> enquiriesList = [0, 1, 2];
 
@@ -47,6 +38,12 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
       context,
       _selectedProject.projectId,
     );
+  }
+
+  @override
+  void dispose() {
+    selectedAreaNotifier.dispose();
+    super.dispose();
   }
 
   Widget areaToggle() {
@@ -64,37 +61,40 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
   }
 
   Widget _toggleItem(String title, int index) {
-    final bool isSelected = selectedAreaIndex == index;
+    return ValueListenableBuilder<int>(
+      valueListenable: selectedAreaNotifier,
+      builder: (context, selectedIndex, _) {
+        final bool isSelected = selectedIndex == index;
 
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedAreaIndex = index;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(4),
-          border:
-              isSelected
-                  ? Border.all(width: 0.5, color: AppColor.primary)
-                  : null,
-          color: isSelected ? const Color(0xFFEFF4FF) : Colors.transparent,
-        ),
-        child: Text(
-          title,
-          style: AppTextStyle.ts14M(
-            color:
-                isSelected
-                    ? AppColor.primary
-                    : AppColor.black.withValues(alpha: 0.5),
+        return GestureDetector(
+          onTap: () {
+            selectedAreaNotifier.value = index;
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+              border:
+                  isSelected
+                      ? Border.all(width: 0.5, color: AppColor.primary)
+                      : null,
+              color: isSelected ? const Color(0xFFEFF4FF) : Colors.transparent,
+            ),
+            child: Text(
+              title,
+              style: AppTextStyle.ts14M(
+                color:
+                    isSelected
+                        ? AppColor.primary
+                        : AppColor.black.withValues(alpha: 0.5),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
-
+  /*
   List<BudgetChartData> _getStaticBudgetData() {
     return [
       BudgetChartData(month: 'JAN', value: 10, slab: '10-15 CR'),
@@ -112,6 +112,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
     ];
   }
 
+  
   Future<void> _showMarkAsTimeOutPopup(BuildContext context, int index) async {
     final shouldRemove = await DialogHelper.showConfirmationDialog(
       context: context,
@@ -134,7 +135,9 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
       setState(() {});
     }
   }
+  */
 
+  /*
   List<StatusColor> _getActiveFollowUpData() {
     return [
       StatusColor(
@@ -207,7 +210,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
       ),
     );
   }
-
+*/
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SalesDashboardCubit, SalesDashboardState>(
@@ -237,7 +240,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                 children: [
                   // GENERATE REPORT
                   Container(
-                    width: 160,
                     padding: const EdgeInsets.symmetric(
                       vertical: 5.0,
                       horizontal: 6.0,
@@ -255,9 +257,11 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                           height: 16,
                         ),
                         horizontalSpacing(),
-                        Text(
-                          "Generate Report",
-                          style: AppTextStyle.ts14M(color: AppColor.primary),
+                        Flexible(
+                          child: Text(
+                            "Generate Report",
+                            style: AppTextStyle.ts14M(color: AppColor.primary),
+                          ),
                         ),
                       ],
                     ),
@@ -280,19 +284,23 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
                   _buildActiveFollowUpsWidget(context),
                   verticalSpacing(),
                   // CALL TRACKER AND TOP CALLER LIST WIDGET
-                  _buildCallTrackerWidget(context),
+                  /*
+                  _buildCallTrackerWidget(context),*/
                   verticalSpacing(),
                   // SALES DISTRIBUTION (SOURCE WISE DISTRIBUTION, AREA WISE DISTRIBUTION {COMMERCIAL AND RESIDENTIAL},BUDGET WISE DISTRIBUTION AND CONVERSION RATE COUNT)
-                  _buildSalesDistributionWidget(context),
+                  /*
+                  _buildSalesDistributionWidget(context),*/
                   verticalSpacing(),
                   // REPORTS WIDGET
                   _buildReportsWidget(context),
                   verticalSpacing(),
                   // CHANNEL PARTNER COUNT WIDGET
-                  _buildChannelPartnerWidget(context),
+                  /*
+                  _buildChannelPartnerWidget(context),*/
                   verticalSpacing(),
                   // SALES LEADERBOARD WIDGET
-                  _buildSalesLeaderboardWidget(context),
+                  /*
+                  _buildSalesLeaderboardWidget(context),*/
                 ],
               ),
             ),
@@ -782,7 +790,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
 */
   Widget _buildEnquiriesWidget(BuildContext context) {
     return Container(
-      height: 300.0,
       padding: const EdgeInsets.only(
         left: 16.0,
         right: 16.0,
@@ -798,7 +805,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
             children: [
               Expanded(
                 child: Text(
-                  "Enquiries",
+                  "Enquiries  (Today's)",
                   style: AppTextStyle.ts14M(
                     color: AppColor.black.withValues(alpha: 0.50),
                   ),
@@ -807,6 +814,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
             ],
           ),
           verticalSpacing(height: 10.0),
+          /*
           Expanded(
             child: AnimatedList(
               key: _listKey,
@@ -821,11 +829,21 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
               },
             ),
           ),
+          */
+          Center(
+            child: Text(
+              "No Enquiries for today Available",
+              style: AppTextStyle.ts12M(
+                color: AppColor.black.withValues(alpha: 0.50),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
+  /*
   Widget _buildEnquiryTile(BuildContext context, int index) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12.0),
@@ -889,10 +907,9 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
       ),
     );
   }
-
+*/
   Widget _buildActiveFollowUpsWidget(BuildContext context) {
     return Container(
-      height: 300.0,
       padding: const EdgeInsets.only(
         left: 16.0,
         right: 16.0,
@@ -917,6 +934,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
             ],
           ),
           verticalSpacing(height: 10.0),
+          /*
           Expanded(
             child: ListView.builder(
               itemCount: 10,
@@ -1030,11 +1048,21 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
               },
             ),
           ),
+       */
+          Center(
+            child: Text(
+              "No Active Follow ups Available",
+              style: AppTextStyle.ts12M(
+                color: AppColor.black.withValues(alpha: 0.50),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
+  /*
   Widget _buildCallTrackerWidget(BuildContext context) {
     return BlocBuilder<SalesDashboardCubit, SalesDashboardState>(
       builder: (context, state) {
@@ -1189,7 +1217,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
       },
     );
   }
-
+*/
   Widget summaryOverallWidget({String? title, String? subTitle, Color? color}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1205,6 +1233,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
     );
   }
 
+  /*
   Widget _buildSalesDistributionWidget(BuildContext context) {
     return BlocBuilder<SalesDashboardCubit, SalesDashboardState>(
       builder: (context, state) {
@@ -1358,7 +1387,8 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
       },
     );
   }
-
+*/
+  /*
   Widget _buildBudgetChart() {
     final chartData = _getStaticBudgetData().reversed.toList();
 
@@ -1427,7 +1457,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
     required List<Table14> table14,
   }) {
     final List<dynamic> currentList =
-        selectedAreaIndex == 0 ? table13 : table14;
+        selectedAreaNotifier.value == 0 ? table13 : table14;
 
     if (currentList.isEmpty) {
       return const SizedBox();
@@ -1519,7 +1549,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
       ),
     );
   }
-
+*/
   Widget _buildReportsWidget(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 12.0),
@@ -1586,6 +1616,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
     );
   }
 
+  /*
   Widget _buildChannelPartnerWidget(BuildContext context) {
     return BlocBuilder<SalesDashboardCubit, SalesDashboardState>(
       builder: (context, state) {
@@ -1936,6 +1967,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
       },
     );
   }
+*/
 }
 
 class DashboardStatCard extends StatelessWidget {

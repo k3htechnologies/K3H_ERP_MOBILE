@@ -11,9 +11,9 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/data/
 import 'package:k3h_erp_app/features/masters/pay_roll_master/deduction_master/data/model/deduction_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/deduction_master/presentation/cubit/deduction_master_cubit.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -58,9 +58,9 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
   bool get _isEditMode => widget.deductionMasterModel != null;
 
   // INITIALIZE TEXT EDITING CONTROLLERS
-  Map<int, List<CityModel>> groupedStateData = {};
-  List<Map<String, dynamic>> stateList = [];
-  List<Map<String, dynamic>> selectedStateList = [];
+  Map<int, List<CityModel>>? groupedStateData = {};
+  List<Map<String, dynamic>>? stateList = [];
+  List<Map<String, dynamic>>? selectedStateList = [];
   // GENDER LIST
   List<Map<String, dynamic>> genderList = [
     {"zAttributesId": -1, "DisplayName": "Select Gender"},
@@ -68,24 +68,61 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     {"zAttributesId": 2, "DisplayName": "Female"},
     {"zAttributesId": 3, "DisplayName": "Other"},
   ];
-
+  // NAME LIST
+  List<Map<String, dynamic>> nameList = [
+    {"DisplayName": 'Provident Fund', "zAttributesId": 1},
+    {"DisplayName": 'Professional Tax', "zAttributesId": 2},
+    {"DisplayName": "Tax Deduction at Source", "zAttributesId": 3},
+    {"DisplayName": 'Labor Welfare Fund', "zAttributesId": 4},
+    {"DisplayName": 'ESI', "zAttributesId": 5},
+    {"DisplayName": 'Labour WaleFare Fund', "zAttributesId": 6},
+    {"DisplayName": 'National Pension Scheme', "zAttributesId": 7},
+    {"DisplayName": 'Health Insurance Premiums', "zAttributesId": 8},
+  ];
   // TYPES LIST
   List<Map<String, dynamic>> typesList = [
-    {"DisplayName": "Provident Fund", "zAttributesId": 1},
-    {"DisplayName": "Professional Tax", "zAttributesId": 2},
-    {"DisplayName": "Tax Deducted at Source", "zAttributesId": 3},
-    {"DisplayName": "Labour Welfare", "zAttributesId": 4},
-    {"DisplayName": "ESI", "zAttributesId": 5},
-    {"DisplayName": "Labour Welfare Fund", "zAttributesId": 6},
-    {"DisplayName": "National Pension Scheme", "zAttributesId": 7},
-    {"DisplayName": "National Pension Scheme", "zAttributesId": 8},
-    {"DisplayName": "Health Insurance Premiums", "zAttributesId": 9},
-  ];
+    {"DisplayName": "Basic Salary", "zAttributesId": 1},
+    {"DisplayName": "HRA", "zAttributesId": 2},
+    {"DisplayName": "DA", "zAttributesId": 3},
 
+    {"DisplayName": "Conveyance Allowance", "zAttributesId": 4},
+    {"DisplayName": "Medical Allowance", "zAttributesId": 5},
+    {"DisplayName": "Special Allowance", "zAttributesId": 6},
+    {"DisplayName": "Other Allowance", "zAttributesId": 7},
+    {"DisplayName": "LTA", "zAttributesId": 8},
+
+    {"DisplayName": "Performance Bonus", "zAttributesId": 9},
+    {"DisplayName": "Incentive", "zAttributesId": 10},
+    {"DisplayName": "Variable Pay", "zAttributesId": 11},
+    {"DisplayName": "Annual Bonus", "zAttributesId": 12},
+    {"DisplayName": "Joining Bonus", "zAttributesId": 13},
+    {"DisplayName": "Retention Bonus", "zAttributesId": 14},
+    {"DisplayName": "Mobile Reimbursement", "zAttributesId": 15},
+    {"DisplayName": "Internet Reimbursement", "zAttributesId": 16},
+    {"DisplayName": "Fuel Reimbursement", "zAttributesId": 17},
+    {"DisplayName": "Food Allowance", "zAttributesId": 18},
+    {"DisplayName": "Shift Allowance", "zAttributesId": 19},
+    {"DisplayName": "Night Shift Allowance", "zAttributesId": 20},
+    {"DisplayName": "City Compensatory Allowance", "zAttributesId": 21},
+    {"DisplayName": "Employer PF", "zAttributesId": 22},
+    {"DisplayName": "Employer ESI", "zAttributesId": 23},
+    {"DisplayName": "Gratuity", "zAttributesId": 24},
+    {"DisplayName": "Superannuation", "zAttributesId": 25},
+    {"DisplayName": "NPS Employer", "zAttributesId": 26},
+    {"DisplayName": "Health Insurance", "zAttributesId": 27},
+    {"DisplayName": "Overtime Pay", "zAttributesId": 28},
+    {"DisplayName": "Leave Encashment", "zAttributesId": 29},
+    {"DisplayName": "Arrears", "zAttributesId": 30},
+    {"DisplayName": "Ex-Gratia", "zAttributesId": 31},
+    {"DisplayName": "Relocation Allowance", "zAttributesId": 32},
+  ];
   // SELECTED VALUES
   Map<String, dynamic>? selectedGender;
+  List<Map<String, dynamic>> selectedNameList = [];
   List<Map<String, dynamic>> selectedTypeList = [];
-  List<Map<String, dynamic>> selectedBranch = [];
+  List<Map<String, dynamic>>? selectedBranch = [];
+
+  late ValueNotifier<String> applicableType;
 
   @override
   void initState() {
@@ -96,13 +133,19 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     _routeAuthorizationModel = AuthorizationModel();
     selectedGender = genderList.first;
     if (_isEditMode && widget.deductionMasterModel != null) {
-      _populateFormFields(widget.deductionMasterModel!);
+      final model = widget.deductionMasterModel!;
+      final isPercentage = model.applicable == "Percentage";
+      applicableType = ValueNotifier(isPercentage ? "Percentage" : "Lumpsum");
+      _populateFormFields(model);
+    } else {
+      applicableType = ValueNotifier("Percentage");
     }
   }
 
   @override
   void dispose() {
     super.dispose();
+    applicableType.dispose();
     _disposeTextEditingControllers();
   }
 
@@ -124,7 +167,6 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
 
   // POPULATE FORM FIELDS
   void _populateFormFields(DeductionMasterModel deductionMasterModel) {
-    _nameC.text = deductionMasterModel.name;
     _valueC.text = deductionMasterModel.value.toString();
     _minSalaryC.text = deductionMasterModel.minSalary.toString();
     _maxSalaryC.text = deductionMasterModel.maxSalary.toString();
@@ -132,6 +174,12 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
       (item) => item['DisplayName'] == deductionMasterModel.gender,
       orElse: () => genderList.first,
     );
+    selectedNameList = [
+      nameList.firstWhere(
+        (item) => item['DisplayName'] == deductionMasterModel.name,
+        orElse: () => nameList.first,
+      ),
+    ];
     selectedTypeList = [
       typesList.firstWhere(
         (item) => item['DisplayName'] == deductionMasterModel.type,
@@ -151,6 +199,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
         "DisplayName": deductionMasterModel.stateName,
       },
     ];
+    applicableType.value = deductionMasterModel.applicable;
   }
 
   // API CALL FOR PULL COUNTRY STATE CITY DISTRICT VILLAGE
@@ -171,8 +220,8 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
 
       groupedStateData = groupBy(dataList, (e) => e.stateMasterId);
 
-      groupedStateData.forEach((key, value) {
-        stateList.add({
+      groupedStateData?.forEach((key, value) {
+        stateList?.add({
           "zAttributesId": key,
           "DisplayName": value[0].stateName,
         });
@@ -182,6 +231,28 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     } catch (error) {
       ErrorHandler.getErrorMessage(error);
     }
+  }
+
+  // FETCH STATIC DEDUCTION NAMES
+  Future<Map<String, dynamic>> _fetchStaticDeductionNames(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final filteredList =
+        value == null || value.isEmpty
+            ? nameList
+            : nameList
+                .where(
+                  (e) => e["DisplayName"].toString().toLowerCase().contains(
+                    value.toLowerCase(),
+                  ),
+                )
+                .toList();
+
+    return {
+      "itemList": filteredList,
+      "totalNumberOfRecord": filteredList.length,
+    };
   }
 
   // FETCH STATIC DEDUCTION TYPES
@@ -248,7 +319,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
         value == null || value.isEmpty
             ? stateList
             : stateList
-                .where(
+                ?.where(
                   (e) => e["DisplayName"].toString().toLowerCase().contains(
                     value.toLowerCase(),
                   ),
@@ -257,7 +328,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
 
     return {
       "itemList": filteredList,
-      "totalNumberOfRecord": filteredList.length,
+      "totalNumberOfRecord": filteredList?.length,
     };
   }
 
@@ -266,44 +337,61 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    if (selectedNameList.isEmpty) {
+      showErrorMessage(context, 'Error', 'Please select Name');
+      return;
+    }
     if (selectedTypeList.isEmpty) {
-      showErrorMessage(context, 'Error', 'Please select deduction type');
+      showErrorMessage(context, 'Error', 'Please select Type');
       return;
     }
-    if (selectedStateList.isEmpty) {
-      showErrorMessage(context, 'Error', 'Please select state');
-      return;
-    }
-    if (selectedBranch.isEmpty) {
-      showErrorMessage(context, 'Error', 'Please select branch');
-      return;
-    }
+    final int? branchId =
+        (selectedBranch != null && selectedBranch!.isNotEmpty)
+            ? selectedBranch!.first['zAttributesId'] as int
+            : null;
+
+    final int? stateId =
+        (selectedStateList != null && selectedStateList!.isNotEmpty)
+            ? selectedStateList!.first['zAttributesId'] as int
+            : null;
+
+    final String? genderValue =
+        (selectedGender != null && selectedGender!['zAttributesId'] != -1)
+            ? selectedGender!['DisplayName'].toString()
+            : null;
+
+    final String? typeValue =
+        selectedTypeList.isNotEmpty
+            ? selectedTypeList.first['DisplayName'].toString()
+            : null;
     if (_isEditMode && widget.deductionMasterModel != null) {
       _deductionMasterCubit.updateDeduction(
         index: widget.index,
         context: context,
         deductionMasterId: widget.deductionMasterModel!.deductionMasterId,
         uniqueKey: widget.deductionMasterModel!.uniquekey,
-        name: _nameC.text.trim(),
-        type: selectedTypeList.first['DisplayName'].toString(),
+        name: selectedNameList.first['DisplayName'].toString(),
+        type: typeValue ?? "",
+        applicable: applicableType.value,
         value: double.parse(_valueC.text),
-        branchMasterId: selectedBranch.first['zAttributesId'] as int,
-        stateMasterId: selectedStateList.first['zAttributesId'] as int,
+        branchMasterId: branchId,
+        stateMasterId: stateId,
         minSalary: double.parse(_minSalaryC.text),
         maxSalary: double.parse(_maxSalaryC.text),
-        gender: selectedGender!['DisplayName'].toString(),
+        gender: genderValue,
       );
     } else {
       _deductionMasterCubit.addDeductionMapping(
         context: context,
-        name: _nameC.text.trim(),
-        type: selectedTypeList.first['DisplayName'].toString(),
+        name: selectedNameList.first['DisplayName'].toString(),
+        type: typeValue ?? "",
+        applicable: applicableType.value,
         value: double.parse(_valueC.text),
-        branchMasterId: selectedBranch.first['zAttributesId'] as int,
-        stateMasterId: selectedStateList.first['zAttributesId'] as int,
+        branchMasterId: branchId,
+        stateMasterId: stateId,
         minSalary: double.parse(_minSalaryC.text),
         maxSalary: double.parse(_maxSalaryC.text),
-        gender: selectedGender!['DisplayName'].toString(),
+        gender: genderValue,
       );
     }
   }
@@ -331,24 +419,31 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                 decoration: commonCardDecoration(),
                 padding: EdgeInsets.all(16),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomTextField(
-                      textController: _nameC,
-                      hint: "Enter Deduction Name",
-                      title: "Deduction Name",
-                      inputFormatterList: InputValidator.textDigit(200),
+                    CustomMultipleSelectPopup(
+                      initialValue: selectedNameList,
+                      title: "Name",
                       isRequired: true,
+                      dataFetchCallBack: _fetchStaticDeductionNames,
+                      isMultiSelect: false,
+                      dataList: nameList,
+                      onSelected: (value) {
+                        setState(() {
+                          selectedNameList = value;
+                        });
+                      },
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Deduction Name is required";
+                        if (value == null || value.isEmpty) {
+                          return "Name is required";
                         }
                         return null;
                       },
                     ),
                     CustomMultipleSelectPopup(
                       initialValue: selectedTypeList,
-                      title: "Deduction Type",
-                      isRequired: true,
+                      title: "Type",
+                      isRequired: false,
                       dataFetchCallBack: _fetchStaticDeductionTypes,
                       isMultiSelect: false,
                       dataList: typesList,
@@ -358,62 +453,146 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                         });
                       },
                     ),
-                    CustomTextField(
-                      textController: _valueC,
-                      hint: "Enter Deduction Value",
-                      title: "Deduction Value",
-                      isRequired: true,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              "Applicable",
+                              style: AppTextStyle.ts14R(),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                            Text(
+                              "*",
+                              style: AppTextStyle.ts14R(color: AppColor.error),
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        ValueListenableBuilder<String>(
+                          valueListenable: applicableType,
+                          builder: (context, value, _) {
+                            return Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    applicableType.value = "Percentage";
+                                    _valueC.clear();
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 6,
+                                      horizontal: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(6),
+                                      color:
+                                          value == "Percentage"
+                                              ? AppColor.lightBlue
+                                              : Colors.transparent,
+                                      border: Border.all(
+                                        color: AppColor.grey,
+                                        width: .5,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "Percentage",
+                                      style: AppTextStyle.ts12R(
+                                        color:
+                                            value == "Percentage"
+                                                ? AppColor.primary
+                                                : AppColor.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                GestureDetector(
+                                  onTap: () {
+                                    applicableType.value = "Lumpsum";
+                                    _valueC.clear();
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 6,
+                                      horizontal: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(6),
+                                      color:
+                                          value == "Lumpsum"
+                                              ? AppColor.lightBlue
+                                              : Colors.transparent,
+                                      border: Border.all(
+                                        color: AppColor.grey,
+                                        width: .5,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "Lumpsum",
+                                      style: AppTextStyle.ts12R(
+                                        color:
+                                            value == "Lumpsum"
+                                                ? AppColor.primary
+                                                : AppColor.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
                       ],
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Deduction Value is required";
-                        }
-                        return null;
+                    ),
+                    verticalSpacing(),
+                    ValueListenableBuilder<String>(
+                      valueListenable: applicableType,
+                      builder: (context, value, _) {
+                        return CustomTextField(
+                          textController: _valueC,
+                          hint:
+                              value == "Percentage"
+                                  ? "Enter Percentage (%)"
+                                  : "Enter Amount",
+                          title:
+                              value == "Percentage"
+                                  ? "Value (%)"
+                                  : "Value (Lumpsum)",
+                          keyboardType: TextInputType.number,
+                          isRequired: true,
+                          inputFormatterList:
+                              value == "Percentage"
+                                  ? [
+                                    FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d+\.?\d{0,2}'),
+                                    ),
+                                    LengthLimitingTextInputFormatter(5),
+                                  ]
+                                  : [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                    LengthLimitingTextInputFormatter(10),
+                                  ],
+                          validator: (valueText) {
+                            if (valueText == null || valueText.trim().isEmpty) {
+                              return "Value is required";
+                            }
+
+                            if (value == "Percentage") {
+                              final val = double.tryParse(valueText) ?? 0;
+                              if (val > 100) {
+                                return "Percentage cannot exceed 100";
+                              }
+                            }
+
+                            return null;
+                          },
+                        );
                       },
                     ),
-                    CustomDropDownWidget(
-                      title: 'Gender',
-                      isRequired: true,
-                      initialValue: selectedGender,
-                      dataList: genderList,
-                      onSelected: (value) => selectedGender = value,
-                      validator: (value) {
-                        if (value == null || value["zAttributesId"] == -1) {
-                          return 'Gender is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomMultipleSelectPopup(
-                      initialValue: selectedStateList,
-                      title: "State",
-                      isRequired: true,
-                      isMultiSelect: false,
-                      dataFetchCallBack: _fetchStates,
-                      dataList: stateList,
-                      onSelected: (value) {
-                        setState(() {
-                          selectedStateList = value;
-                        });
-                      },
-                    ),
-                    CustomMultipleSelectPopup(
-                      initialValue: selectedBranch,
-                      title: "Branch",
-                      isRequired: true,
-                      dataFetchCallBack: _fetchBranch,
-                      isMultiSelect: false,
-                      dataList: [],
-                      onSelected: (value) {
-                        setState(() {
-                          selectedBranch = value;
-                        });
-                      },
-                    ),
+
                     CustomTextField(
                       textController: _minSalaryC,
                       title: "Min Salary",
@@ -447,6 +626,36 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                         FilteringTextInputFormatter.digitsOnly,
                         LengthLimitingTextInputFormatter(10),
                       ],
+                    ),
+                    CustomDropDownWidget(
+                      title: 'Gender',
+                      initialValue: selectedGender,
+                      dataList: genderList,
+                      onSelected: (value) => selectedGender = value,
+                    ),
+                    CustomMultipleSelectPopup(
+                      initialValue: selectedStateList,
+                      title: "State Name",
+                      isMultiSelect: false,
+                      dataFetchCallBack: _fetchStates,
+                      dataList: stateList,
+                      onSelected: (value) {
+                        setState(() {
+                          selectedStateList = value;
+                        });
+                      },
+                    ),
+                    CustomMultipleSelectPopup(
+                      initialValue: selectedBranch,
+                      title: "Branch Name",
+                      dataFetchCallBack: _fetchBranch,
+                      isMultiSelect: false,
+                      dataList: [],
+                      onSelected: (value) {
+                        setState(() {
+                          selectedBranch = value;
+                        });
+                      },
                     ),
                   ],
                 ),

@@ -3,15 +3,18 @@ part of 'litigation_dashboard_cubit.dart';
 final class LitigationDashboardState extends BaseState {
   final LitigationDashboardModel? litigationDashboardModel;
   final List<LitigationDashboardModel> litigationDashboardModelList;
+  final int selectedRangeIndex;
   const LitigationDashboardState({
     super.isLoading,
     this.litigationDashboardModel,
     required this.litigationDashboardModelList,
+    required this.selectedRangeIndex,
   });
 
   factory LitigationDashboardState.initial() => LitigationDashboardState(
     isLoading: true,
     litigationDashboardModelList: [],
+    selectedRangeIndex: 0,
   );
 
   LitigationDashboardState copyWith({
@@ -20,6 +23,7 @@ final class LitigationDashboardState extends BaseState {
     int? currentPage,
     LitigationDashboardModel? litigationDashboardModel,
     List<LitigationDashboardModel>? litigationDashboardModelList,
+    int? selectedRangeIndex,
   }) {
     return LitigationDashboardState(
       isLoading: isLoading ?? this.isLoading,
@@ -27,6 +31,7 @@ final class LitigationDashboardState extends BaseState {
           litigationDashboardModel ?? this.litigationDashboardModel,
       litigationDashboardModelList:
           litigationDashboardModelList ?? this.litigationDashboardModelList,
+      selectedRangeIndex: selectedRangeIndex ?? this.selectedRangeIndex,
     );
   }
 
@@ -35,5 +40,6 @@ final class LitigationDashboardState extends BaseState {
     isLoading,
     litigationDashboardModel,
     litigationDashboardModelList,
+    selectedRangeIndex,
   ];
 }

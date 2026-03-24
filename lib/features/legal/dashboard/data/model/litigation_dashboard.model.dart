@@ -8,6 +8,7 @@ class LitigationDashboardModel {
   final List<Table4> table4;
   final List<Table5> table5;
   final List<Table6> table6;
+  final List<Table7> table7;
 
   LitigationDashboardModel({
     required this.table0,
@@ -17,6 +18,7 @@ class LitigationDashboardModel {
     required this.table4,
     required this.table5,
     required this.table6,
+    required this.table7,
   });
 
   factory LitigationDashboardModel.fromJson(
@@ -29,6 +31,7 @@ class LitigationDashboardModel {
     table4: List<Table4>.from(json["Table4"].map((x) => Table4.fromJson(x))),
     table5: List<Table5>.from(json["Table5"].map((x) => Table5.fromJson(x))),
     table6: List<Table6>.from(json["Table6"].map((x) => Table6.fromJson(x))),
+    table7: List<Table7>.from(json["Table7"].map((x) => Table7.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -39,6 +42,7 @@ class LitigationDashboardModel {
     "Table4": List<dynamic>.from(table4.map((x) => x.toJson())),
     "Table5": List<dynamic>.from(table5.map((x) => x.toJson())),
     "Table6": List<dynamic>.from(table6.map((x) => x.toJson())),
+    "Table7": List<dynamic>.from(table7.map((x) => x.toJson())),
   };
 }
 
@@ -99,24 +103,24 @@ class Table2 {
 }
 
 class Table3 {
-  final String caseType;
+  final String courtType;
   final int totalCases;
   final int openCases;
 
   Table3({
-    required this.caseType,
+    required this.courtType,
     required this.totalCases,
     required this.openCases,
   });
 
   factory Table3.fromJson(Map<String, dynamic> json) => Table3(
-    caseType: parseValue<String>(json, "CaseType"),
+    courtType: parseValue<String>(json, "CourtType"),
     totalCases: parseValue<int>(json, "TotalCases"),
     openCases: parseValue<int>(json, "OpenCases"),
   );
 
   Map<String, dynamic> toJson() => {
-    "CaseType": caseType,
+    "CourtType": courtType,
     "TotalCases": totalCases,
     "OpenCases": openCases,
   };
@@ -189,16 +193,71 @@ class Table5 {
 class Table6 {
   final String documentName;
   final DateTime recentDate;
+  final String caseNumber;
+  final String closureDocument;
+  final String closureAttachementUrl;
+  final String documentUrl;
+  final String hearingAttachementUrl;
 
-  Table6({required this.documentName, required this.recentDate});
+  Table6({
+    required this.documentName,
+    required this.recentDate,
+    required this.caseNumber,
+    required this.closureDocument,
+    required this.closureAttachementUrl,
+    required this.documentUrl,
+    required this.hearingAttachementUrl,
+  });
 
   factory Table6.fromJson(Map<String, dynamic> json) => Table6(
     documentName: parseValue<String>(json, "DocumentName"),
     recentDate: parseValue<DateTime>(json, "RecentDate"),
+    caseNumber: parseValue<String>(json, "CaseNumber"),
+    closureDocument: parseValue<String>(json, "ClosureDocument"),
+    closureAttachementUrl: parseValue<String>(json, "ClosureAttachementURL"),
+    documentUrl: parseValue<String>(json, "DocumentURL"),
+    hearingAttachementUrl: parseValue<String>(json, "HearingAttachementURL"),
   );
 
   Map<String, dynamic> toJson() => {
     "DocumentName": documentName,
     "RecentDate": recentDate.toIso8601String(),
+    "CaseNumber": caseNumber,
+    "ClosureDocument": closureDocument,
+    "ClosureAttachementURL": closureAttachementUrl,
+    "DocumentURL": documentUrl,
+    "HearingAttachementURL": hearingAttachementUrl,
+  };
+}
+
+class Table7 {
+  final String monthName;
+  final int monthNumber;
+  final int totalCases;
+  final int openCases;
+  final int closedCases;
+
+  Table7({
+    required this.monthName,
+    required this.monthNumber,
+    required this.totalCases,
+    required this.openCases,
+    required this.closedCases,
+  });
+
+  factory Table7.fromJson(Map<String, dynamic> json) => Table7(
+    monthName: parseValue<String>(json, "MonthName"),
+    monthNumber: parseValue<int>(json, "MonthNumber"),
+    totalCases: parseValue<int>(json, "TotalCases"),
+    openCases: parseValue<int>(json, "OpenCases"),
+    closedCases: parseValue<int>(json, "ClosedCases"),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "MonthName": monthName,
+    "MonthNumber": monthNumber,
+    "TotalCases": totalCases,
+    "OpenCases": openCases,
+    "ClosedCases": closedCases,
   };
 }
