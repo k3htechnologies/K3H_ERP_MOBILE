@@ -27,7 +27,6 @@ class ApprovalLogHistoryScreen extends StatelessWidget {
         screenTitle: title,
         authorization: AuthorizationModel(),
       ),
-      backgroundColor: Colors.grey.shade100,
       body:
           items.isEmpty
               ? Center(child: noDataWidget(message: "No $title Found"))

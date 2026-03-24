@@ -385,10 +385,10 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
             onThirdTap: () async {
               final approvalLogHistoryList = await _loginCubit
                   .getApprovalLogHistory(
-                    context,
-                    document.projectId,
-                    document.projectDocumentId,
-                    "DOCUMENT APPROVAL",
+                    context: context,
+                    projectId: document.projectId,
+                    id: document.projectDocumentId,
+                    moduleName: "DOCUMENT APPROVAL",
                   );
 
               if (context.mounted) {

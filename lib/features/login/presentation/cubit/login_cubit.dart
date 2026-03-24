@@ -296,6 +296,9 @@ class LoginCubit extends Cubit<LoginState> {
     required int projectId,
     required bool isApproved,
     required String remark,
+    int? subId,
+    int? subSubId,
+    int? subSubSubId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -305,6 +308,9 @@ class LoginCubit extends Cubit<LoginState> {
       projectId: projectId,
       isApproved: isApproved,
       remark: remark,
+      subId: subId,
+      subSubId: subSubId,
+      subSubSubId: subSubSubId,
     );
 
     goRouter.pop();
@@ -323,12 +329,15 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   //  GET APPROVAL LOG HISTORY LIST
-  Future<List<ApprovalLogHistory>> getApprovalLogHistory(
-    BuildContext context,
-    int projectId,
-    int id,
-    String moduleName,
-  ) async {
+  Future<List<ApprovalLogHistory>> getApprovalLogHistory({
+    required BuildContext context,
+    required int projectId,
+    required int id,
+    required String moduleName,
+    int? subId,
+    int? subSubId,
+    int? subSubSubId,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
     emit(state.copyWith(isLoading: true));
 
@@ -336,6 +345,9 @@ class LoginCubit extends Cubit<LoginState> {
       projectId: projectId,
       moduleName: moduleName,
       id: id,
+      subId: subId,
+      subSubId: subSubId,
+      subSubSubId: subSubSubId,
     );
 
     goRouter.pop();
