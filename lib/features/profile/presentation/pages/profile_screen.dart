@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
@@ -18,6 +19,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
@@ -48,6 +50,9 @@ class _ProfileScreenState extends State<ProfileScreen>
       _setMPIN;
   late TextEditingController _companyNameC, _roleC, _tenureC;
 
+  // APP VERSION
+  late String version;
+
   // FORM KEY FOR BOTTOM SHEETS
   final _educationFormKey = GlobalKey<FormState>();
   final _experienceFormKey = GlobalKey<FormState>();
@@ -58,6 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     super.initState();
     _profileCubit = context.read<ProfileCubit>();
     _initializeTextEditingControllers();
+    version = LocalStorageManager().getString(StorageKey.appVersion) ?? "";
     _tabController = TabController(length: 9, vsync: this);
     _tabController.addListener(_handleTabChange);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1008,6 +1014,16 @@ class _ProfileScreenState extends State<ProfileScreen>
               if (overview.employeeReportingCycleData.isNotEmpty)
                 verticalSpacing(),
               _buildLogoutButton(context),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Version: ",
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                  ),
+                  Text(version, style: AppTextStyle.ts12M()),
+                ],
+              ),
               verticalSpacing(height: 20),
             ],
           ),
@@ -1031,9 +1047,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
 
     if (projectList.isEmpty) {
-      return Center(
-        child: noDataWidget(message: "No Project Found")
-      );
+      return Center(child: noDataWidget(message: "No Project Found"));
     }
 
     return ListView.builder(

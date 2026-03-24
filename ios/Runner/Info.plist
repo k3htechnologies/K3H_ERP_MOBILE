@@ -24,8 +24,10 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<true/>
 	<key>GMSApiKey</key>
-	<string>AIzaSyD41k9DaOoiR52wvxDw582I5ktkyL2CdY4</string>
+	<string>AIzaSyATMi_WzfUnBfhb66_FR8c1Fg_zEwHyaCs</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>mailto</string>
@@ -33,6 +35,10 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>This app requires camera access to scan QR codes or take profile photos.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>This app requires access to contacts to verify phone identity for ERP security.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app tracks your movement for attendance and outdoor tracking.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -42,19 +48,22 @@
 		<key>TemporaryLocation</key>
 		<string>Location is required to show your movement on the map.</string>
 	</dict>
-	<key>NSContactsUsageDescription</key>
-        <string>This app requires access to contacts to verify phone identity for ERP security.</string>
-        <key>NSCameraUsageDescription</key>
-        <string>This app requires camera access to scan QR codes or take profile photos.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs your location to record punch in and punch out attendance.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-    <string>This app requires access to the photo library to allow users to upload profile pictures or document attachments.</string>
+	<string>This app requires access to the photo library to allow users to upload profile pictures or document attachments.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>FirebaseAutomaticScreenReportingEnabled</key>
+    <false/>
+    <key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+    <false/>
+    <key>FirebaseScreenReportingEnabled</key>
+    <false/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
+		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

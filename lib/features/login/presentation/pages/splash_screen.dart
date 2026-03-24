@@ -86,6 +86,7 @@ class _SplashMobileScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print("splash/Home screen build");
     return Scaffold(body: Center(child: Image.asset(AppAssets.splashLogoGif)));
   }
 }

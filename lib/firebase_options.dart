@@ -2,87 +2,36 @@
 // ignore_for_file: type=lint
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, kIsWeb, TargetPlatform;
+    show defaultTargetPlatform, TargetPlatform;
 
-/// Default [FirebaseOptions] for use with your Firebase apps.
-///
-/// Example:
-/// ```dart
-/// import 'firebase_options.dart';
-/// // ...
-/// await Firebase.initializeApp(
-///   options: DefaultFirebaseOptions.currentPlatform,
-/// );
-/// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
-    if (kIsWeb) {
-      return web;
-    }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
         return ios;
-      case TargetPlatform.macOS:
-        return macos;
-      case TargetPlatform.windows:
-        return windows;
-      case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
       default:
         throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for this platform.',
+          'This platform is not supported for Firebase configuration.',
         );
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyD4XgGzIWmVGHBDQGy_54_Sx2uLd00Lgj4',
-    appId: '1:130263255773:web:55017967708bc8629d2934',
-    messagingSenderId: '130263255773',
-    projectId: 'k3h-erp',
-    authDomain: 'k3h-erp.firebaseapp.com',
-    storageBucket: 'k3h-erp.firebasestorage.app',
-    measurementId: 'G-5SCT3HYGN0',
-  );
-
+  ///  Android
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAxFVqcLq8_hjvqT_Vg2pU_xvRXOIcOy9s',
-    appId: '1:130263255773:android:fe69b5ba179b5a719d2934',
-    messagingSenderId: '130263255773',
-    projectId: 'k3h-erp',
-    storageBucket: 'k3h-erp.firebasestorage.app',
+    apiKey: 'wedNfr4rZCr4IkpEede+5gSPN76RC5pchp9sDl3epZaNyvUlSt7cXY+/puYhJoiGgcp50WuqNCVtlf8i6A/LdA==',
+    appId: '1:782945913757:android:ef57d25838bb4532e37d74',
+    messagingSenderId: '782945913757',
+    projectId: 'hrr-erp-2',
   );
 
+  ///  iOS
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBimNpnFGJ_dCM_d6g2JBoF8Dxa5BWC5B8',
-    appId: '1:130263255773:ios:3615a1240f4f4cdd9d2934',
-    messagingSenderId: '130263255773',
-    projectId: 'k3h-erp',
-    storageBucket: 'k3h-erp.firebasestorage.app',
-    iosBundleId: 'com.example.k3hErpApp',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBimNpnFGJ_dCM_d6g2JBoF8Dxa5BWC5B8',
-    appId: '1:130263255773:ios:3615a1240f4f4cdd9d2934',
-    messagingSenderId: '130263255773',
-    projectId: 'k3h-erp',
-    storageBucket: 'k3h-erp.firebasestorage.app',
-    iosBundleId: 'com.example.k3hErpApp',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyD4XgGzIWmVGHBDQGy_54_Sx2uLd00Lgj4',
-    appId: '1:130263255773:web:bdf17be4f369658e9d2934',
-    messagingSenderId: '130263255773',
-    projectId: 'k3h-erp',
-    authDomain: 'k3h-erp.firebaseapp.com',
-    storageBucket: 'k3h-erp.firebasestorage.app',
-    measurementId: 'G-F7J4F790YD',
+    apiKey: 'AIzaSyATMi_WzfUnBfhb66_FR8c1Fg_zEwHyaCs',
+    appId: '1:782945913757:ios:7a99b21610350f2be37d74',
+    messagingSenderId: '782945913757',
+    projectId: 'hrr-erp-2',
+    iosBundleId: 'com.k3htechnologies.hrr.erp',
   );
 }

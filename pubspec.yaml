@@ -99,6 +99,7 @@ dependencies:
   flutter_polyline_points: ^3.1.0
   firebase_core: ^4.4.0
   firebase_analytics: ^12.1.2
+  firebase_messaging: ^16.1.3
   # OPEN FILE
   open_filex: ^4.7.0
   # IMAGE PICKER
@@ -109,7 +110,12 @@ dependencies:
   syncfusion_flutter_pdfviewer: ^32.2.7
   # CURVY GRAPH
   fl_chart: ^1.2.0
+  # DEVICE INFO
   device_info_plus: ^12.3.0
+  # APP VERSION
+  package_info_plus: ^9.0.0
+  # LOCAL NOTIFICATION
+  flutter_local_notifications: ^20.1.0
   
 # DEV DEPENDENCIES
 dev_dependencies:
