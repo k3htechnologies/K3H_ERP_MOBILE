@@ -20,7 +20,7 @@ class DefaultFirebaseOptions {
 
   ///  Android
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'wedNfr4rZCr4IkpEede+5gSPN76RC5pchp9sDl3epZaNyvUlSt7cXY+/puYhJoiGgcp50WuqNCVtlf8i6A/LdA==',
+    apiKey: 'AIzaSyCfAIfnEkkYssEkOXdPBDPCTdtmPUvtXz0',
     appId: '1:782945913757:android:ef57d25838bb4532e37d74',
     messagingSenderId: '782945913757',
     projectId: 'hrr-erp-2',

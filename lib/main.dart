@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'dart:io';
-
 import 'package:dynamic_path_url_strategy/dynamic_path_url_strategy.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +18,8 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/scheduler.dart';
 
-import 'firebase_options.dart';
 
 // NAVIGATOR KEY
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -29,12 +28,13 @@ final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Future.delayed(const Duration(seconds: 2));
+  SchedulerBinding.instance.addPostFrameCallback((_) {
+    print("FIRST FRAME RENDERED");
+  });
 
   print("STEP 1 - before Firebase");
 
     await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
     );
 
   print("STEP 2 - after Firebase");
