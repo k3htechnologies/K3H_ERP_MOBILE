@@ -5,8 +5,6 @@ import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
-import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/data/model/outdoor.model.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/data/repository/outdoor.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -21,13 +19,6 @@ class OutdoorCubit extends Cubit<OutdoorState> {
   // REPOSITORIES
   final OutdoorRepository _outdoorRepository =
       serviceLocator<OutdoorRepository>();
-
-  // REPOSITORY
-  final DepartmentMasterRepository _departmentMasterRepository =
-      serviceLocator<DepartmentMasterRepository>();
-
-  final EmployeeMasterRepository _employeeMasterRepository =
-      serviceLocator<EmployeeMasterRepository>();
 
   // <---- SEARCH OUTDOOR ---->
   Future searchOutdoor(BuildContext context, String value) async {
@@ -211,59 +202,6 @@ class OutdoorCubit extends Cubit<OutdoorState> {
           exportType.toLowerCase() == "pdf"
               ? "outdoor_${DateTime.now()}.pdf"
               : "outdoor_${DateTime.now()}.xlsx",
-        );
-      },
-    );
-  }
-
-  // <---- GET EMPLOYEE LIST BY DEPARTMENT ---->
-  Future<void> getEmployeeListByDepartment(
-    BuildContext context,
-    int pageNumber,
-    int pageSize,
-    String departmentName,
-  ) async {
-    emit(state.copyWith(isLoading: true));
-
-    final result = await _employeeMasterRepository.getEmployeeMasterList(
-      pageNumber: pageNumber,
-      pageSize: pageSize,
-      queryParams: {
-        "DepartmentName": departmentName.isEmpty ? '' : departmentName,
-      },
-    );
-
-    result.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
-      },
-      (response) {
-        // Data is already List<UserModel> from datasource
-        final newData = List<UserModel>.from(response['data']);
-
-        // If page 1, always start fresh (clear previous department's employees)
-        // If pagination, only append employees that match current department
-        final List<UserModel> updatedList;
-        if (pageNumber == 1) {
-          updatedList = newData;
-        } else {
-          // Only keep employees from current department when paginating
-          final currentDeptEmployees =
-              state.employeeList
-                  .where((emp) => emp.department == departmentName)
-                  .toList();
-          updatedList = [...currentDeptEmployees, ...newData];
-        }
-
-        final totalCount = response['totalNumberOfRecord'] ?? 0;
-
-        emit(
-          state.copyWith(
-            isLoading: false,
-            employeeList: updatedList,
-            employeeTotalCount: totalCount,
-          ),
         );
       },
     );
