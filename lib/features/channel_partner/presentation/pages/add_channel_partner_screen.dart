@@ -325,10 +325,13 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     }
 
     if (channelPartnerMasterModel.designation.isNotEmpty) {
-      _selectedDesignation =
-          channelPartnerMasterModel.designation.split(",").map((name) {
-            return {"zAttributesId": 0, "DisplayName": name.trim()};
-          }).toList();
+      _selectedDesignation = [
+        designationList.firstWhere(
+          (element) =>
+              element['DisplayName'] == channelPartnerMasterModel.designation,
+          orElse: () => designationList.first,
+        ),
+      ];
     }
 
     selectedSpeciality = specialityList.firstWhere(
@@ -681,12 +684,12 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     ValueListenableBuilder(
                       valueListenable: selectedCompanyType,
                       builder: (context, value, child) {
-                        final int typeId = value['zAttributesId'];
+                        final int companyTypeId = value['zAttributesId'];
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (typeId == 2) ...[
+                            if (companyTypeId == 2) ...[
                               CustomMultipleSelectPopup(
                                 title: "Company",
                                 isRequired: true,
@@ -725,7 +728,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                   }
                                 },
                                 validator: (selectedValue) {
-                                  if (typeId == 2 &&
+                                  if (companyTypeId == 2 &&
                                       (selectedValue == null ||
                                           selectedValue.isEmpty)) {
                                     return "Company is required";
@@ -743,7 +746,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               ),
                             ],
 
-                            if (typeId == 1) ...[
+                            if (companyTypeId == 1) ...[
                               CustomTextField(
                                 title: 'Company Name',
                                 isRequired: true,
@@ -753,7 +756,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                   LengthLimitingTextInputFormatter(50),
                                 ],
                                 validator: (value) {
-                                  if (typeId == 1 &&
+                                  if (companyTypeId == 1 &&
                                       (value == null || value.trim().isEmpty)) {
                                     return "Company Name is required";
                                   }
@@ -762,7 +765,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               ),
                             ],
 
-                            if (typeId == 1) ...[
+                            if (companyTypeId == 1) ...[
                               ValueListenableBuilder(
                                 valueListenable: selectedFirmsType,
                                 builder: (context, firmsValue, _) {
@@ -775,7 +778,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                       selectedFirmsType.value = value;
                                     },
                                     validator: (value) {
-                                      if (typeId == 1 &&
+                                      if (companyTypeId == 1 &&
                                           (value == null ||
                                               value['zAttributesId'] == -1)) {
                                         return "Firms Type is required";
@@ -787,7 +790,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               ),
                             ],
 
-                            if (typeId == 2) ...[
+                            if (companyTypeId == 2) ...[
                               ValueListenableBuilder(
                                 valueListenable: selectedFirmsType,
                                 builder: (context, firmsValue, _) {
@@ -826,6 +829,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         if (value == null || value.isEmpty) {
                           return "Designation Name is required";
                         }
+                        if (selectedCompanyType.value['zAttributesId'] == 2 &&
+                            _selectedDesignation.first['zAttributesId'] == 3) {
+                          return "You can't be Owner";
+                        }
                         return null;
                       },
                     ),
@@ -863,14 +870,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     ValueListenableBuilder(
                       valueListenable: selectedCompanyType,
                       builder: (context, value, child) {
-                        final int typeId = value['zAttributesId'];
-
                         return ValueListenableBuilder(
                           valueListenable: hasReraNumber,
                           builder: (context, hasRera, _) {
-                            // Existing company + RERA exists
-                            final bool disableRera = typeId == 2;
-
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -882,7 +884,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                       child: Checkbox(
                                         value: hasRera,
                                         onChanged:
-                                            disableRera
+                                            (hasRera &&
+                                                    _selectedDesignation
+                                                            .first["zAttributesId"] !=
+                                                        3)
                                                 ? null
                                                 : (value) {
                                                   hasReraNumber.value =
@@ -899,7 +904,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                       "Do you have RERA Number",
                                       style: AppTextStyle.ts14M().copyWith(
                                         color:
-                                            disableRera
+                                            hasRera
                                                 ? Colors.grey
                                                 : Colors.black,
                                       ),
@@ -910,7 +915,11 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 CustomTextField(
                                   title: 'RERA Number',
                                   isRequired: hasRera,
-                                  readOnly: disableRera || !hasRera,
+                                  readOnly:
+                                      hasRera &&
+                                      _selectedDesignation
+                                              .first["zAttributesId"] !=
+                                          3,
                                   hint: "Enter RERA Number",
                                   textController: _reraNumberC,
                                   inputFormatterList:

@@ -710,10 +710,10 @@ class _BookingScreenState extends State<BookingScreen> {
                       onThirdTap: () async {
                         final approvalLogHistoryList = await _loginCubit
                             .getApprovalLogHistory(
-                              context,
-                              _project.projectId,
-                              booking.bookingId,
-                              "BOOKING APPROVAL",
+                              context: context,
+                              projectId: _project.projectId,
+                              id: booking.bookingId,
+                              moduleName: "BOOKING APPROVAL",
                             );
 
                         if (context.mounted) {

@@ -286,7 +286,10 @@ class _ViewApprovalDocumentScreenState
             children: [
               buildColumnTitleValue(
                 title: "Last Modified By",
-                value: document.modifiedBy.isEmpty? document.createdBy : document.modifiedBy,
+                value:
+                    document.modifiedBy.isEmpty
+                        ? document.createdBy
+                        : document.modifiedBy,
               ),
               buildColumnTitleValue(
                 title: "Last Modified Date",
@@ -363,10 +366,10 @@ class _ViewApprovalDocumentScreenState
             onThirdTap: () async {
               final approvalLogHistoryList = await _loginCubit
                   .getApprovalLogHistory(
-                    context,
-                    document.projectId,
-                    document.approvalDocumentId,
-                    "APPROVAL DOCUMENT APPROVAL",
+                    context: context,
+                    projectId: document.projectId,
+                    id: document.approvalDocumentId,
+                    moduleName: "APPROVAL DOCUMENT APPROVAL",
                   );
 
               if (context.mounted) {

@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
+import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -16,6 +17,7 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -32,9 +34,10 @@ class _InventoryScreenState extends State<InventoryScreen>
     with TickerProviderStateMixin {
   // CUBIT
   late InventoryCubit _inventoryCubit;
+  late LoginCubit _loginCubit;
 
   // AUTHORIZATION
-  late AuthorizationModel _routAuthorizationModel;
+  late AuthorizationModel _routeAuthorizationModel;
 
   // CURRENT PROJECT
   late ProjectModel _project;
@@ -54,10 +57,11 @@ class _InventoryScreenState extends State<InventoryScreen>
   void initState() {
     super.initState();
     _project = getProject();
-    _routAuthorizationModel =
+    _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.inventory]!;
     _initControllers();
     _inventoryCubit = context.read<InventoryCubit>();
+    _loginCubit = context.read<LoginCubit>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -221,7 +225,7 @@ class _InventoryScreenState extends State<InventoryScreen>
       appBar: CustomAppBarWithBackButton(
         isMenuButton: true,
         screenTitle: "Inventory Management",
-        authorization: _routAuthorizationModel,
+        authorization: _routeAuthorizationModel,
         onExportCallback: (value) {
           _inventoryCubit.exportInventory(context, _project.projectId, value);
         },
@@ -300,7 +304,6 @@ class _InventoryScreenState extends State<InventoryScreen>
                           state.buildingList.length)) {
                 return const Center(child: CircularProgressIndicator());
               }
-
               return Column(
                 children: [
                   verticalSpacing(),
@@ -315,6 +318,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                       _wingTabController != null &&
                       _wingTabController!.length == wingList.length)
                     _buildCountsRow(wingList),
+
                   if (wingList.isNotEmpty)
                     Expanded(
                       child:
@@ -367,6 +371,8 @@ class _InventoryScreenState extends State<InventoryScreen>
     if (floorList.isEmpty) {
       return Center(child: Text("No floors found"));
     }
+    final bool isActionAllowed =
+        wing.isApproval && _routeAuthorizationModel.isAction;
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -380,230 +386,325 @@ class _InventoryScreenState extends State<InventoryScreen>
             final floorKey = "$buildingIndex-$wingIndex-$index";
             final isExpanded = expandedSet.contains(floorKey);
 
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: AppColor.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
-              ),
-              child: Column(
-                children: [
-                  // Header - Clickable
-                  InkWell(
-                    onTap: () {
-                      final newSet = Set<String>.from(expandedSet);
-
-                      if (isExpanded) {
-                        newSet.remove(floorKey);
-                      } else {
-                        newSet.add(floorKey);
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (index == 0)
+                  ApproveRejectWidget(
+                    title: wing.approvalStatus,
+                    isActionAlreadyPerformed: !isActionAllowed,
+                    isMaster: true,
+                    onApprove: (val) async {
+                      await _loginCubit.updateModulesWorkflowApproval(
+                        context: context,
+                        moduleName: 'INVENTORY APPROVAL',
+                        id: building.inventoryBuildingId,
+                        subId: wing.inventoryFlatFloorBasementPodiumWingId,
+                        projectId: _project.projectId,
+                        isApproved: true,
+                        remark: val.trim(),
+                      );
+                      if (context.mounted) {
+                        _inventoryCubit.getInventory(
+                          context,
+                          _project.projectId,
+                        );
                       }
-                      _expandedFloors.value = newSet;
                     },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Floor : ${floor.floor}",
-                                  style: AppTextStyle.ts14M(),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  "Total Flats : ${floor.flatList.length}",
-                                  style: AppTextStyle.ts12R(
-                                    color: AppColor.grey,
-                                  ),
-                                ),
-                              ],
+                    onReject: (val) async {
+                      await _loginCubit.updateModulesWorkflowApproval(
+                        context: context,
+                        moduleName: 'INVENTORY APPROVAL',
+                        id: building.inventoryBuildingId,
+                        subId: wing.inventoryFlatFloorBasementPodiumWingId,
+                        projectId: _project.projectId,
+                        isApproved: false,
+                        remark: val.trim(),
+                      );
+                      if (context.mounted) {
+                        _inventoryCubit.getInventory(
+                          context,
+                          _project.projectId,
+                        );
+                      }
+                    },
+                    onThirdTap: () async {
+                      final approvalLogHistoryList = await _loginCubit
+                          .getApprovalLogHistory(
+                            context: context,
+                            projectId: _project.projectId,
+                            id: building.inventoryBuildingId,
+                            subId: wing.inventoryFlatFloorBasementPodiumWingId,
+                            moduleName: "INVENTORY APPROVAL",
+                          );
+
+                      if (context.mounted) {
+                        goRouter.pushNamed(
+                          AppRoutes.approvalLogHistory,
+                          queryParameters: {
+                            "subTitle": Uri.encodeComponent(
+                              EncryptionManager.encryptData(
+                                "${building.buildingNumber} > ${wing.wing}",
+                              ),
                             ),
-                          ),
-                          Row(
-                            children: [
-                              IconButton(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addInventorySpecification,
-                                    queryParameters: {
-                                      "flatModel": Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(
-                                            FlatModel(
-                                              inventoryFlatId: 0,
-                                              uniquekey: "",
-                                              inventoryBuildingId:
-                                                  floor.inventoryBuildingId,
-                                              buildingNumber:
-                                                  building.buildingNumber,
-                                              inventoryFlatFloorBasementPodiumWingId:
-                                                  floor
-                                                      .inventoryFlatFloorBasementPodiumWingId,
-                                              wing: wing.wing,
-                                              inventoryFloorId:
-                                                  floor.inventoryFloorId,
-                                              floor: floor.floor,
-                                              flat: "",
-                                              reraCarpetAreaSqFt: 0,
-                                              flatType: "",
-                                              flatConfiguration: "",
-                                              flatStatus: "",
-                                              ownerName: "",
-                                              flatFacing: "",
-                                              bookingId: 0,
-                                              bookingCreatedById: 0,
-                                              bookingCreatedBy: "",
-                                              bookingCreatedDate:
-                                                  DateTime.now(),
-                                              specificationList: [
-                                                FlatSpecificationModel(
-                                                  inventoryFlatSpecificationId:
-                                                      0,
-                                                  uniquekey: "",
-                                                  inventoryBuildingId:
-                                                      floor.inventoryBuildingId,
-                                                  inventoryFlatFloorBasementPodiumWingId:
-                                                      floor
-                                                          .inventoryFlatFloorBasementPodiumWingId,
-                                                  inventoryFloorId:
-                                                      floor.inventoryFloorId,
-                                                  inventoryFlatId: 0,
-                                                  flatLayout: "Bedroom 1",
-                                                  flatLayoutAreaSqFt: 0,
-                                                  flatLayoutLengthSqFt: 0,
-                                                  flatLayoutWidthSqFt: 0,
-                                                  note: "",
-                                                ),
-                                                FlatSpecificationModel(
-                                                  inventoryFlatSpecificationId:
-                                                      0,
-                                                  uniquekey: "",
-                                                  inventoryBuildingId:
-                                                      floor.inventoryBuildingId,
-                                                  inventoryFlatFloorBasementPodiumWingId:
-                                                      floor
-                                                          .inventoryFlatFloorBasementPodiumWingId,
-                                                  inventoryFloorId:
-                                                      floor.inventoryFloorId,
-                                                  inventoryFlatId: 0,
-                                                  flatLayout: "Hall",
-                                                  flatLayoutAreaSqFt: 0,
-                                                  flatLayoutLengthSqFt: 0,
-                                                  flatLayoutWidthSqFt: 0,
-                                                  note: "",
-                                                ),
-                                                FlatSpecificationModel(
-                                                  inventoryFlatSpecificationId:
-                                                      0,
-                                                  uniquekey: "",
-                                                  inventoryBuildingId:
-                                                      floor.inventoryBuildingId,
-                                                  inventoryFlatFloorBasementPodiumWingId:
-                                                      floor
-                                                          .inventoryFlatFloorBasementPodiumWingId,
-                                                  inventoryFloorId:
-                                                      floor.inventoryFloorId,
-                                                  inventoryFlatId: 0,
-                                                  flatLayout: "Kitchen",
-                                                  flatLayoutAreaSqFt: 0,
-                                                  flatLayoutLengthSqFt: 0,
-                                                  flatLayoutWidthSqFt: 0,
-                                                  note: "",
-                                                ),
-                                                FlatSpecificationModel(
-                                                  inventoryFlatSpecificationId:
-                                                      0,
-                                                  uniquekey: "",
-                                                  inventoryBuildingId:
-                                                      floor.inventoryBuildingId,
-                                                  inventoryFlatFloorBasementPodiumWingId:
-                                                      floor
-                                                          .inventoryFlatFloorBasementPodiumWingId,
-                                                  inventoryFloorId:
-                                                      floor.inventoryFloorId,
-                                                  inventoryFlatId: 0,
-                                                  flatLayout: "Common Toilet",
-                                                  flatLayoutAreaSqFt: 0,
-                                                  flatLayoutLengthSqFt: 0,
-                                                  flatLayoutWidthSqFt: 0,
-                                                  note: "",
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      "floorModel": Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(floor),
-                                        ),
-                                      ),
-                                    },
-                                  );
-                                  if (context.mounted) {
-                                    _inventoryCubit.getInventory(
-                                      context,
-                                      _project.projectId,
-                                    );
-                                  }
-                                },
-                                icon: Icon(
-                                  Icons.add,
-                                  size: 16,
-                                  color: AppColor.darkGreen,
+                            "title": Uri.encodeComponent(
+                              EncryptionManager.encryptData(
+                                "Inventory Log History",
+                              ),
+                            ),
+                            "approvalList": Uri.encodeComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(
+                                  approvalLogHistoryList
+                                      .map((e) => e.toJson())
+                                      .toList(),
                                 ),
                               ),
-                              Icon(
-                                isExpanded
-                                    ? Icons.keyboard_arrow_up
-                                    : Icons.keyboard_arrow_down,
-                                color: AppColor.grey,
+                            ),
+                          },
+                        );
+                      }
+                    },
+                  ),
+                verticalSpacing(),
+                Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: AppColor.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      // Header - Clickable
+                      InkWell(
+                        onTap: () {
+                          final newSet = Set<String>.from(expandedSet);
+
+                          if (isExpanded) {
+                            newSet.remove(floorKey);
+                          } else {
+                            newSet.add(floorKey);
+                          }
+                          _expandedFloors.value = newSet;
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Floor : ${floor.floor}",
+                                      style: AppTextStyle.ts14M(),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "Total Flats : ${floor.flatList.length}",
+                                      style: AppTextStyle.ts12R(
+                                        color: AppColor.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () async {
+                                      await goRouter.pushNamed(
+                                        AppRoutes.addInventorySpecification,
+                                        queryParameters: {
+                                          "flatModel": Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(
+                                                FlatModel(
+                                                  inventoryFlatId: 0,
+                                                  uniquekey: "",
+                                                  inventoryBuildingId:
+                                                      floor.inventoryBuildingId,
+                                                  buildingNumber:
+                                                      building.buildingNumber,
+                                                  inventoryFlatFloorBasementPodiumWingId:
+                                                      floor
+                                                          .inventoryFlatFloorBasementPodiumWingId,
+                                                  wing: wing.wing,
+                                                  inventoryFloorId:
+                                                      floor.inventoryFloorId,
+                                                  floor: floor.floor,
+                                                  flat: "",
+                                                  reraCarpetAreaSqFt: 0,
+                                                  flatType: "",
+                                                  flatConfiguration: "",
+                                                  flatStatus: "",
+                                                  ownerName: "",
+                                                  flatFacing: "",
+                                                  bookingId: 0,
+                                                  bookingCreatedById: 0,
+                                                  bookingCreatedBy: "",
+                                                  bookingCreatedDate:
+                                                      DateTime.now(),
+                                                  specificationList: [
+                                                    FlatSpecificationModel(
+                                                      inventoryFlatSpecificationId:
+                                                          0,
+                                                      uniquekey: "",
+                                                      inventoryBuildingId:
+                                                          floor
+                                                              .inventoryBuildingId,
+                                                      inventoryFlatFloorBasementPodiumWingId:
+                                                          floor
+                                                              .inventoryFlatFloorBasementPodiumWingId,
+                                                      inventoryFloorId:
+                                                          floor
+                                                              .inventoryFloorId,
+                                                      inventoryFlatId: 0,
+                                                      flatLayout: "Bedroom 1",
+                                                      flatLayoutAreaSqFt: 0,
+                                                      flatLayoutLengthSqFt: 0,
+                                                      flatLayoutWidthSqFt: 0,
+                                                      note: "",
+                                                    ),
+                                                    FlatSpecificationModel(
+                                                      inventoryFlatSpecificationId:
+                                                          0,
+                                                      uniquekey: "",
+                                                      inventoryBuildingId:
+                                                          floor
+                                                              .inventoryBuildingId,
+                                                      inventoryFlatFloorBasementPodiumWingId:
+                                                          floor
+                                                              .inventoryFlatFloorBasementPodiumWingId,
+                                                      inventoryFloorId:
+                                                          floor
+                                                              .inventoryFloorId,
+                                                      inventoryFlatId: 0,
+                                                      flatLayout: "Hall",
+                                                      flatLayoutAreaSqFt: 0,
+                                                      flatLayoutLengthSqFt: 0,
+                                                      flatLayoutWidthSqFt: 0,
+                                                      note: "",
+                                                    ),
+                                                    FlatSpecificationModel(
+                                                      inventoryFlatSpecificationId:
+                                                          0,
+                                                      uniquekey: "",
+                                                      inventoryBuildingId:
+                                                          floor
+                                                              .inventoryBuildingId,
+                                                      inventoryFlatFloorBasementPodiumWingId:
+                                                          floor
+                                                              .inventoryFlatFloorBasementPodiumWingId,
+                                                      inventoryFloorId:
+                                                          floor
+                                                              .inventoryFloorId,
+                                                      inventoryFlatId: 0,
+                                                      flatLayout: "Kitchen",
+                                                      flatLayoutAreaSqFt: 0,
+                                                      flatLayoutLengthSqFt: 0,
+                                                      flatLayoutWidthSqFt: 0,
+                                                      note: "",
+                                                    ),
+                                                    FlatSpecificationModel(
+                                                      inventoryFlatSpecificationId:
+                                                          0,
+                                                      uniquekey: "",
+                                                      inventoryBuildingId:
+                                                          floor
+                                                              .inventoryBuildingId,
+                                                      inventoryFlatFloorBasementPodiumWingId:
+                                                          floor
+                                                              .inventoryFlatFloorBasementPodiumWingId,
+                                                      inventoryFloorId:
+                                                          floor
+                                                              .inventoryFloorId,
+                                                      inventoryFlatId: 0,
+                                                      flatLayout:
+                                                          "Common Toilet",
+                                                      flatLayoutAreaSqFt: 0,
+                                                      flatLayoutLengthSqFt: 0,
+                                                      flatLayoutWidthSqFt: 0,
+                                                      note: "",
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          "floorModel":
+                                              Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(floor),
+                                                ),
+                                              ),
+                                        },
+                                      );
+                                      if (context.mounted) {
+                                        _inventoryCubit.getInventory(
+                                          context,
+                                          _project.projectId,
+                                        );
+                                      }
+                                    },
+                                    icon: Icon(
+                                      Icons.add,
+                                      size: 18,
+                                      color: AppColor.darkGreen,
+                                    ),
+                                  ),
+                                  Icon(
+                                    isExpanded
+                                        ? Icons.keyboard_arrow_up
+                                        : Icons.keyboard_arrow_down,
+                                    color: AppColor.grey,
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
 
-                  // EXPANDABLE CONTENT
-                  ClipRect(
-                    child: AnimatedSize(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      alignment: Alignment.topCenter,
-                      child:
-                          isExpanded
-                              ? Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 16,
-                                  right: 16,
-                                  bottom: 16,
-                                ),
-                                child: SizedBox(
-                                  width: double.infinity,
-                                  child: _buildFlatList(
-                                    floor.flatList,
-                                    floor,
-                                    buildingIndex,
-                                    wingIndex,
-                                    index,
-                                  ),
-                                ),
-                              )
-                              : const SizedBox.shrink(),
-                    ),
+                      // EXPANDABLE CONTENT
+                      ClipRect(
+                        child: AnimatedSize(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          alignment: Alignment.topCenter,
+                          child:
+                              isExpanded
+                                  ? Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 16,
+                                      right: 16,
+                                      bottom: 16,
+                                    ),
+                                    child: SizedBox(
+                                      width: double.infinity,
+                                      child: _buildFlatList(
+                                        floor.flatList,
+                                        floor,
+                                        buildingIndex,
+                                        wingIndex,
+                                        index,
+                                      ),
+                                    ),
+                                  )
+                                  : const SizedBox.shrink(),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             );
           },
         );
@@ -622,6 +723,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     }
 
     return ChipStyleTabBar(
+      margin: EdgeInsets.only(left: 10),
       controller: _buildingTabController!,
       tabs: state.buildingList.map((b) => b.buildingNumber).toList(),
     );
@@ -637,9 +739,19 @@ class _InventoryScreenState extends State<InventoryScreen>
       return const SizedBox.shrink();
     }
 
-    return ChipStyleTabBar(
+    return TabBar(
       controller: _wingTabController!,
-      tabs: wingList.map((w) => w.wing.toString()).toList(),
+      isScrollable: true,
+      labelColor: AppColor.primary,
+      unselectedLabelColor: AppColor.grey,
+      labelStyle: AppTextStyle.ts14SB(),
+      unselectedLabelStyle: AppTextStyle.ts14M(),
+      tabAlignment: TabAlignment.start,
+      dividerColor: AppColor.lightBlue,
+      indicator: UnderlineTabIndicator(
+        borderSide: BorderSide(width: 2, color: AppColor.primary),
+      ),
+      tabs: wingList.map((w) => Tab(text: w.wing.toString())).toList(),
     );
   }
 

@@ -382,10 +382,10 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
             onThirdTap: () async {
               final approvalLogHistoryList = await _loginCubit
                   .getApprovalLogHistory(
-                    context,
-                    document.projectId,
-                    document.projectRERADocumentId,
-                    "RERA DOCUMENT APPROVAL",
+                    context: context,
+                    projectId: document.projectId,
+                    id: document.projectRERADocumentId,
+                    moduleName: "RERA DOCUMENT APPROVAL",
                   );
 
               if (context.mounted) {

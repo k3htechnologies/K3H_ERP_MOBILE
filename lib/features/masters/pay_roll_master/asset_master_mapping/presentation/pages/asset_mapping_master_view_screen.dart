@@ -180,9 +180,12 @@ class AssetMappingMasterViewScreen extends StatelessWidget {
                         ),
                         buildColumnTitleValue(
                           title: "Warranty Expiry Date",
-                          value: formatDateTimeAsDDMMMYYYY(
-                            assetMapping.warrantyExpiryDate,
-                          ),
+                          value:
+                              assetMapping.warrantyExpiryDate == null
+                                  ? ''
+                                  : formatDateTimeAsDDMMMYYYY(
+                                    assetMapping.warrantyExpiryDate!,
+                                  ),
                         ),
                       ],
                     ),

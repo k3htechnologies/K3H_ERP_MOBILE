@@ -970,8 +970,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
           context: context,
           queryParams:
               value != null && value.isNotEmpty
-                  ? {"EmployeeName": value}
-                  : null,
+                  ? {"EmployeeName": value, "IsCheckPermission": false}
+                  : {"IsCheckPermission": false},
         );
 
         return {
