@@ -57,6 +57,18 @@ class _MapScreenState extends State<MapScreen> {
 
     if (widget.polyline.isNotEmpty) {
       routePoints = decodePolyline(widget.polyline);
+      if (widget.polyline.isNotEmpty) {
+        routePoints = decodePolyline(widget.polyline);
+
+        if (routePoints.length < 2) {
+          routePoints = [
+            LatLng(widget.startLatitude, widget.startLongitude),
+            LatLng(widget.endLatitude, widget.endLongitude),
+          ];
+        }
+
+        liveDistance.value = widget.distance;
+      }
       liveDistance.value = widget.distance;
     } else if (!isSameLocation) {
       routePoints = [
@@ -307,12 +319,13 @@ class _MapScreenState extends State<MapScreen> {
                 );
               },
               polylines: {
-                if (routePoints.isNotEmpty)
+                if (routePoints.length >= 2)
                   Polyline(
                     polylineId: const PolylineId("route"),
                     points: routePoints,
                     width: 5,
                     color: AppColor.primary,
+                    geodesic: true,
                   ),
               },
               markers: {

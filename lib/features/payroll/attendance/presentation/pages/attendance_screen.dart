@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -155,7 +157,10 @@ class _AttendanceScreenState extends State<AttendanceScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ChipStyleTabBar(controller: _tabController, tabs: ["Weekly","Monthly"]),
+            ChipStyleTabBar(
+              controller: _tabController,
+              tabs: ["Weekly", "Monthly"],
+            ),
             verticalSpacing(height: 16),
             Expanded(
               child: ValueListenableBuilder<DateTime>(
@@ -428,6 +433,12 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                         if (_hasValidLocation(item)) ...[
                                           InkWell(
                                             onTap: () {
+                                              debugPrint(
+                                                "📍 POLYLINE: ${item.polyline}",
+                                              );
+                                              debugPrint(
+                                                "📍 DISTANCE: ${item.distance}",
+                                              );
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
@@ -993,6 +1004,8 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                       if (_hasValidLocation(selectedAttendance)) ...[
                         InkWell(
                           onTap: () {
+                            log("📍 POLYLINE: ${selectedAttendance.polyline}");
+                            log("📍 DISTANCE: ${selectedAttendance.distance}");
                             Navigator.push(
                               context,
                               MaterialPageRoute(
