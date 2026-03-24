@@ -15,6 +15,10 @@ class LitigationDashboardCubit extends Cubit<LitigationDashboardState> {
   final LitigationDashboardRepository _litigationDashboardRepository =
       serviceLocator<LitigationDashboardRepository>();
 
+  void updateRange(int index) {
+    emit(state.copyWith(selectedRangeIndex: index));
+  }
+
   // <---- GET Dashboard LIST ---->
   Future getLitigationDashboardList(BuildContext context, int projectId) async {
     emit(state.copyWith(isLoading: true));

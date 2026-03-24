@@ -77,18 +77,20 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
     required BuildContext context,
     required String name,
     required String type,
+    required String applicable,
     required double value,
-    required int branchMasterId,
-    required int stateMasterId,
+    int? branchMasterId,
+    int? stateMasterId,
     required double minSalary,
     required double maxSalary,
-    required String gender,
+    String? gender,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var body = {
       "DeductionMasterId": 0,
       "Name": name,
       "Type": type,
+      "Applicable": applicable,
       "Value": value,
       "BranchMasterId": branchMasterId,
       "StateMasterId": stateMasterId,
@@ -117,12 +119,13 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
     required String uniqueKey,
     required String name,
     required String type,
+    required String applicable,
     required double value,
-    required int branchMasterId,
-    required int stateMasterId,
+    int? branchMasterId,
+    int? stateMasterId,
     required double minSalary,
     required double maxSalary,
-    required String gender,
+    String? gender,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var body = {
@@ -130,6 +133,7 @@ class DeductionMasterCubit extends Cubit<DeductionMasterState> {
       "UniqueKey": uniqueKey,
       "Name": name,
       "Type": type,
+      "Applicable": applicable,
       "Value": value,
       "BranchMasterId": branchMasterId,
       "StateMasterId": stateMasterId,

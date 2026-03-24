@@ -16,7 +16,7 @@ class CustomDropDownWidget extends StatelessWidget {
   const CustomDropDownWidget({
     super.key,
     required this.dataList,
-    this.isRequired=false,
+    this.isRequired = false,
     required this.onSelected,
     this.title,
     this.hintText,
@@ -40,14 +40,17 @@ class CustomDropDownWidget extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
-              isRequired==true? Text("*",style: AppTextStyle.ts14R(color: AppColor.error),):SizedBox()
+              isRequired == true
+                  ? Text("*", style: AppTextStyle.ts14R(color: AppColor.error))
+                  : SizedBox(),
             ],
           ),
         FormField<Map<String, dynamic>>(
           validator: validator,
-          initialValue: (initialValue == null || initialValue!.isEmpty)
-              ? null
-              : initialValue,
+          initialValue:
+              (initialValue == null || initialValue!.isEmpty)
+                  ? null
+                  : initialValue,
           builder: (FormFieldState<Map<String, dynamic>> formFieldState) {
             final hasError = formFieldState.hasError;
             return Column(
@@ -61,7 +64,7 @@ class CustomDropDownWidget extends StatelessWidget {
                       horizontal: 10.0,
                       vertical: 10.0,
                     ),
-                    hintText:hintText?? 'Select',
+                    hintText: hintText ?? 'Select',
                     decoration: CustomDropdownDecoration(
                       hintStyle: AppTextStyle.ts14R().copyWith(
                         color: AppColor.grey,
@@ -74,11 +77,12 @@ class CustomDropDownWidget extends StatelessWidget {
                         width: 1.0,
                       ),
                       closedBorder: Border.all(
-                        color: isDisabled
-                            ? AppColor.grey.withValues(alpha: 0.2)
-                            : hasError
-                            ? AppColor.error
-                            : AppColor.grey30,
+                        color:
+                            isDisabled
+                                ? AppColor.grey.withValues(alpha: 0.2)
+                                : hasError
+                                ? AppColor.error
+                                : AppColor.grey30,
                         width: 1.0,
                       ),
                       closedErrorBorder: Border.all(
@@ -101,10 +105,13 @@ class CustomDropDownWidget extends StatelessWidget {
                       );
                     },
                     headerBuilder: (context, selectedItem, isSelected) {
-                      final displayName = selectedItem['DisplayName']?.toString() ?? '';
+                      final displayName =
+                          selectedItem['DisplayName']?.toString() ?? '';
 
                       return Text(
-                        displayName.isEmpty ? (hintText ?? 'Select') : displayName,
+                        displayName.isEmpty
+                            ? (hintText ?? 'Select')
+                            : displayName,
                         style: AppTextStyle.ts14R().copyWith(
                           color: displayName.isEmpty ? AppColor.grey : null,
                         ),
@@ -120,20 +127,24 @@ class CustomDropDownWidget extends StatelessWidget {
                 ),
                 hasError
                     ? Container(
-                  padding: const EdgeInsets.only(left: 12.0, top: 2.0),
-                  margin: EdgeInsets.only(bottom: 10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.info_outline,color: AppColor.error,size: 14,),
-                      horizontalSpacing(width: 5),
-                      Text(
-                        formFieldState.errorText ?? '',
-                        style: AppTextStyle.ts12R(color: AppColor.error),
+                      padding: const EdgeInsets.only(left: 12.0, top: 2.0),
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: AppColor.error,
+                            size: 14,
+                          ),
+                          horizontalSpacing(width: 5),
+                          Text(
+                            formFieldState.errorText ?? '',
+                            style: AppTextStyle.ts12R(color: AppColor.error),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                )
+                    )
                     : const SizedBox(height: 18),
               ],
             );

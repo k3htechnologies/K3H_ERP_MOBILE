@@ -51,15 +51,22 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void loadRouteFromApi() {
+    final isSameLocation =
+        widget.startLatitude == widget.endLatitude &&
+        widget.startLongitude == widget.endLongitude;
+
     if (widget.polyline.isNotEmpty) {
       routePoints = decodePolyline(widget.polyline);
       liveDistance.value = widget.distance;
-    } else {
+    } else if (!isSameLocation) {
       routePoints = [
         LatLng(widget.startLatitude, widget.startLongitude),
         LatLng(widget.endLatitude, widget.endLongitude),
       ];
       liveDistance.value = _calculateDistance(routePoints);
+    } else {
+      routePoints = [LatLng(widget.startLatitude, widget.startLongitude)];
+      liveDistance.value = 0.0;
     }
 
     setState(() {});

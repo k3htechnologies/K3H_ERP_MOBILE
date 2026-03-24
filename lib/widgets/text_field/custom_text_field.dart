@@ -58,29 +58,45 @@ class CustomTextField extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // if (title != null)
+            //   Padding(
+            //     padding: const EdgeInsets.only(bottom: 4),
+            //     child: RichText(
+            //       text: TextSpan(
+            //         children: [
+            //           TextSpan(
+            //             text: title!,
+            //             style: AppTextStyle.ts14R(
+            //               color: readOnly ? AppColor.grey : null,
+            //             ),
+            //           ),
+            //           if (isRequired == true)
+            //             TextSpan(
+            //               text: " *",
+            //               style: AppTextStyle.ts14R(color: AppColor.error),
+            //             ),
+            //         ],
+            //       ),
+            //       softWrap: true,
+            //     ),
+            //   ),
             if (title != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: title!,
-                        style: AppTextStyle.ts14R(
-                          color: readOnly ? AppColor.grey : null,
-                        ),
-                      ),
-                      if (isRequired == true)
-                        TextSpan(
-                          text: " *",
-                          style: AppTextStyle.ts14R(color: AppColor.error),
-                        ),
-                    ],
+              Row(
+                children: [
+                  Text(
+                    title!,
+                    style: AppTextStyle.ts14R(),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
-                  softWrap: true,
-                ),
+                  isRequired == true
+                      ? Text(
+                        "*",
+                        style: AppTextStyle.ts14R(color: AppColor.error),
+                      )
+                      : SizedBox(),
+                ],
               ),
-
             Padding(
               padding: EdgeInsets.only(bottom: 2.0),
               child: TextFormField(
