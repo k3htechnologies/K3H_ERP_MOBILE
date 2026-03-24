@@ -231,13 +231,11 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
     // split name and extension safely
     final lastDotIndex = fileName.lastIndexOf('.');
 
-    String name = lastDotIndex != -1
-        ? fileName.substring(0, lastDotIndex)
-        : fileName;
+    String name =
+        lastDotIndex != -1 ? fileName.substring(0, lastDotIndex) : fileName;
 
-    String extension = lastDotIndex != -1
-        ? fileName.substring(lastDotIndex)
-        : '';
+    String extension =
+        lastDotIndex != -1 ? fileName.substring(lastDotIndex) : '';
 
     // remove invalid characters
     name = name
@@ -290,13 +288,20 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                       children: [
                         Column(
                           mainAxisSize: MainAxisSize.min,
-                          children: List.generate(fileNamesList.length, (index) {
+                          children: List.generate(fileNamesList.length, (
+                            index,
+                          ) {
                             final fileName = fileNamesList[index];
 
                             final cleanName = fileName.split('?').first;
-                            final ext = cleanName.contains('.')
-                                ? cleanName.split('.').last.toLowerCase().trim()
-                                : '';
+                            final ext =
+                                cleanName.contains('.')
+                                    ? cleanName
+                                        .split('.')
+                                        .last
+                                        .toLowerCase()
+                                        .trim()
+                                    : '';
 
                             final allowedPreviewExtensions = [
                               'jpg',
@@ -306,11 +311,11 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                               'webp',
                               'heic',
                               'heif',
-                              'pdf'
+                              'pdf',
                             ];
 
-                            final canPreview = allowedPreviewExtensions.contains(ext);
-
+                            final canPreview = allowedPreviewExtensions
+                                .contains(ext);
 
                             return Container(
                               margin: const EdgeInsets.only(bottom: 5.0),
@@ -337,10 +342,13 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                             CommonFileViewerMobile.show(
                                               context,
                                               urls: [fileName],
-                                              fileBytes: fileBytesList.length > index &&
-                                                  fileBytesList[index].isNotEmpty
-                                                  ? [fileBytesList[index]]
-                                                  : null,
+                                              fileBytes:
+                                                  fileBytesList.length >
+                                                              index &&
+                                                          fileBytesList[index]
+                                                              .isNotEmpty
+                                                      ? [fileBytesList[index]]
+                                                      : null,
                                             );
                                           },
                                           child: Icon(
@@ -354,7 +362,11 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
 
                                       /// 🗑 Always show delete
                                       InkWell(
-                                        onTap: () => deleteFile(formFieldState, index),
+                                        onTap:
+                                            () => deleteFile(
+                                              formFieldState,
+                                              index,
+                                            ),
                                         child: Icon(
                                           Icons.delete,
                                           color: AppColor.error,
@@ -631,7 +643,10 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                                             FilePickType
                                                                 .image ||
                                                         widget.filePickType ==
-                                                            FilePickType.both)
+                                                            FilePickType.both ||
+                                                        widget.filePickType ==
+                                                            FilePickType
+                                                                .kycDocument)
                                                     ? _showAttachmentOptions(
                                                       context,
                                                       formFieldState,

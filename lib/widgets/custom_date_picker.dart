@@ -18,7 +18,7 @@ class CustomDatePicker extends StatefulWidget {
 
   const CustomDatePicker({
     required this.setValue,
-    this.isRequired=false,
+    this.isRequired = false,
     this.hint,
     this.label,
     this.title,
@@ -98,7 +98,9 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
           Row(
             children: [
               Text(widget.title!, style: AppTextStyle.ts14R()),
-              widget.isRequired==true?Text("*",style: AppTextStyle.ts14R(color: AppColor.error),):SizedBox()
+              widget.isRequired == true
+                  ? Text("*", style: AppTextStyle.ts14R(color: AppColor.error))
+                  : SizedBox(),
             ],
           ),
         FormField<DateTime>(
@@ -117,9 +119,9 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                   child: InkWell(
                     onTap:
                         () =>
-                    widget.readOnly
-                        ? null
-                        : _showDatePicker(context, formFieldState),
+                            widget.readOnly
+                                ? null
+                                : _showDatePicker(context, formFieldState),
                     child: InputDecorator(
                       decoration: InputDecoration(
                         isDense: true,
@@ -134,9 +136,9 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                           borderRadius: BorderRadius.circular(6.0),
                           borderSide: BorderSide(
                             color:
-                            formFieldState.hasError
-                                ? AppColor.error
-                                : AppColor.grey30,
+                                formFieldState.hasError
+                                    ? AppColor.error
+                                    : AppColor.grey30,
                             width: 1.0,
                           ),
                         ),
@@ -144,9 +146,9 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                           borderRadius: BorderRadius.circular(6.0),
                           borderSide: BorderSide(
                             color:
-                            formFieldState.hasError
-                                ? AppColor.error
-                                : AppColor.grey30,
+                                formFieldState.hasError
+                                    ? AppColor.error
+                                    : AppColor.grey30,
                             width: 1.0,
                           ),
                         ),
@@ -159,9 +161,9 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                             finalDate ?? "DD-MM-YYYY",
                             style: AppTextStyle.ts14R().copyWith(
                               color:
-                              finalDate != null
-                                  ? AppColor.black
-                                  : AppColor.grey,
+                                  finalDate != null
+                                      ? AppColor.black
+                                      : AppColor.grey,
                             ),
                           ),
                           Icon(
@@ -176,20 +178,26 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                 ),
                 hasError
                     ? Container(
-                  padding: const EdgeInsets.only(left: 12.0, top: 4.0),
-                  margin: EdgeInsets.only(bottom: 10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.info_outline,color: AppColor.error,size: 14,),
-                      horizontalSpacing(width: 5),
-                      Text(
-                        formFieldState.errorText ?? '',
-                        style: AppTextStyle.ts12R(color: AppColor.error),
+                      padding: const EdgeInsets.only(left: 12.0, top: 4.0),
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: AppColor.error,
+                            size: 14,
+                          ),
+                          horizontalSpacing(width: 5),
+                          Expanded(
+                            child: Text(
+                              formFieldState.errorText ?? '',
+                              style: AppTextStyle.ts12R(color: AppColor.error),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                )
+                    )
                     : const SizedBox(height: 18),
               ],
             );

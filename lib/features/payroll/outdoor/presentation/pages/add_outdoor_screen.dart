@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
+import 'package:k3h_erp_app/features/masters/department_master/data/repository/department_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/data/model/outdoor.model.dart';
 import 'package:k3h_erp_app/features/payroll/outdoor/presentation/cubit/outdoor_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -31,6 +36,11 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
 
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final DepartmentMasterRepository _departmentMasterRepository =
+      serviceLocator<DepartmentMasterRepository>();
+  final EmployeeMasterRepository _employeeMasterRepository =
+      serviceLocator<EmployeeMasterRepository>();
 
   //TIME VARIABLES
   String? meetingTime;
@@ -71,13 +81,6 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
     if (_isEditMode && widget.outdoorModel != null) {
       _prefillData();
     }
-
-    // Load departments initially
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _loadDepartments();
-      }
-    });
   }
 
   @override
@@ -141,153 +144,74 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
     }
   }
 
-  // LOAD DEPARTMENTS INITIALLY
-  Future<void> _loadDepartments() async {
-    if (_outdoorCubit.state.departmentList.isEmpty) {
-      await _outdoorCubit.getDepartmentList(context, 1, 12);
-    }
-  }
-
+  // FETCH DEPARTMENTS
   Future<Map<String, dynamic>> _fetchDepartment(
     int pageNumber, {
     String? value,
   }) async {
-    final totalCount = _outdoorCubit.state.departmentTotalCount;
-    final pageSize = 15;
+    final result = await _departmentMasterRepository.getDepartmentList(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      queryParams:
+          value != null && value.isNotEmpty ? {"DepartmentName": value} : {},
+    );
 
-    // SEARCH MODE
-    if (value != null && value.isNotEmpty) {
-      final departmentList = _outdoorCubit.state.departmentList;
-      final filteredDepartments =
-          departmentList
-              .where(
-                (dept) => dept.departmentName.toLowerCase().contains(
-                  value.toLowerCase(),
-                ),
-              )
-              .toList();
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final departments = response['data'] as List<DepartmentModel>;
 
-      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
-
-      for (final dept in filteredDepartments) {
-        uniqueFiltered[dept.departmentMasterId] = {
-          "zAttributesId": dept.departmentMasterId,
-          "DisplayName": dept.departmentName,
+        return {
+          "itemList":
+              departments.map((department) {
+                return {
+                  "zAttributesId": department.departmentMasterId,
+                  "DisplayName": department.departmentName,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
-      }
-
-      return {
-        "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord": uniqueFiltered.length,
-      };
-    }
-
-    final currentLoadedCount = _outdoorCubit.state.departmentList.length;
-
-    // Always call API if list is empty or if we need more data
-    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
-      await _outdoorCubit.getDepartmentList(context, pageNumber, pageSize);
-    }
-
-    final departmentList = _outdoorCubit.state.departmentList;
-
-    final Map<int, Map<String, dynamic>> uniqueDepartments = {};
-
-    for (final dept in departmentList) {
-      uniqueDepartments[dept.departmentMasterId] = {
-        "zAttributesId": dept.departmentMasterId,
-        "DisplayName": dept.departmentName,
-      };
-    }
-
-    return {
-      "itemList": uniqueDepartments.values.toList(),
-      "totalNumberOfRecord":
-          totalCount > 0 ? totalCount : uniqueDepartments.length,
-    };
+      },
+    );
   }
 
+  // FETCH EMPLOYEE
   Future<Map<String, dynamic>> _fetchEmployee(
-    int pageNumber,
-    String departmentName, {
+    int pageNumber, {
     String? value,
   }) async {
-    final totalCount = _outdoorCubit.state.employeeTotalCount;
-    final pageSize = 15;
+    final result = await _employeeMasterRepository.getEmployeeMasterList(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      queryParams: {
+        "DepartmentName":
+            _selectedDepartmentNotifier.value.first['DisplayName'],
+      },
+    );
 
-    // SEARCH MODE
-    if (value != null && value.isNotEmpty) {
-      // Filter employees by current department (API filters server-side, but ensure client-side too)
-      final employeeList =
-          departmentName.isEmpty
-              ? _outdoorCubit.state.employeeList
-              : _outdoorCubit.state.employeeList
-                  .where((emp) => emp.department == departmentName)
-                  .toList();
-      final filteredEmployees =
-          employeeList
-              .where(
-                (emp) =>
-                    emp.fullName.toLowerCase().contains(value.toLowerCase()),
-              )
-              .toList();
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final users = response['data'] as List<UserModel>;
 
-      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
-
-      for (final emp in filteredEmployees) {
-        uniqueFiltered[emp.employeeId] = {
-          "zAttributesId": emp.employeeId,
-          "DisplayName": emp.fullName,
+        return {
+          "itemList":
+              users.map((user) {
+                return {
+                  "zAttributesId": user.employeeId,
+                  "DisplayName": user.fullName,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
-      }
-
-      return {
-        "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord": uniqueFiltered.length,
-      };
-    }
-
-    // Filter employees by current department to get accurate count
-    final currentDeptEmployees =
-        departmentName.isEmpty
-            ? _outdoorCubit.state.employeeList
-            : _outdoorCubit.state.employeeList
-                .where((emp) => emp.department == departmentName)
-                .toList();
-    final currentLoadedCount = currentDeptEmployees.length;
-
-    // Always call API if list is empty or if we need more data for this department
-    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
-      await _outdoorCubit.getEmployeeListByDepartment(
-        context,
-        pageNumber,
-        pageSize,
-        departmentName.isEmpty ? '' : departmentName,
-      );
-    }
-
-    // Get employees filtered by current department
-    final employeeList =
-        departmentName.isEmpty
-            ? _outdoorCubit.state.employeeList
-            : _outdoorCubit.state.employeeList
-                .where((emp) => emp.department == departmentName)
-                .toList();
-
-    final Map<int, Map<String, dynamic>> uniqueEmployees = {};
-
-    for (final emp in employeeList) {
-      uniqueEmployees[emp.employeeId] = {
-        "zAttributesId": emp.employeeId,
-        "DisplayName": emp.fullName,
-      };
-    }
-
-    return {
-      "itemList": uniqueEmployees.values.toList(),
-      "totalNumberOfRecord":
-          totalCount > 0 ? totalCount : uniqueEmployees.length,
-    };
+      },
+    );
   }
 
   @override
@@ -378,18 +302,12 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                             return CustomMultipleSelectPopup(
                               title: "Accompanied By",
                               isRequired: true,
-                              isMultiSelect: false,
+                              isReadOnly:
+                                  _selectedDepartmentNotifier.value.isEmpty,
+                              isMultiSelect: true,
                               initialValue: selectedEmp,
-                              dataFetchCallBack:
-                                  (pageNumber, {String? value}) =>
-                                      _fetchEmployee(
-                                        pageNumber,
-                                        selectedDept.isNotEmpty
-                                            ? selectedDept.first['DisplayName']
-                                                as String
-                                            : 'No Department',
-                                        value: value,
-                                      ),
+
+                              dataFetchCallBack: _fetchEmployee,
                               onSelected: (value) {
                                 _selectedEmployeeNotifier.value = value;
                               },
@@ -406,6 +324,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                     ),
                     CustomTextField(
                       title: 'Purpose',
+                      isRequired: true,
                       hint: "Enter Purpose",
                       textController: _purposeC,
                       validator: (value) {
@@ -417,6 +336,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                     ),
                     CustomTextField(
                       title: 'Company Name',
+                      isRequired: true,
                       hint: "Enter Company Name",
                       textController: _companyNameC,
                       validator: (value) {
@@ -428,6 +348,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                     ),
                     CustomTextField(
                       title: 'Company Address',
+                      isRequired: true,
                       hint: "Enter Company Address",
                       textController: _companyAddressC,
                       maxLines: 3,
@@ -500,11 +421,6 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
 
     if (_selectedDepartmentNotifier.value.isEmpty) {
       showErrorMessage(context, 'Error', 'Department is required');
-      return;
-    }
-
-    if (_selectedEmployeeNotifier.value.isEmpty) {
-      showErrorMessage(context, 'Error', 'Employee is required');
       return;
     }
 

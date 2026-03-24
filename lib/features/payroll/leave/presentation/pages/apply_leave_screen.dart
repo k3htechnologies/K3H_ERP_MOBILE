@@ -1,9 +1,11 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/model/leave_type_master.model.dart';
+import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_type_master/data/repository/leave_type_master.repository.dart';
 import 'package:k3h_erp_app/features/payroll/leave/model/leave.model.dart';
 import 'package:k3h_erp_app/features/payroll/leave/presentation/cubit/leave_cubit.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -29,6 +31,8 @@ class ApplyLeaveScreen extends StatefulWidget {
 class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
   // CUBIT
   late LeaveCubit _leaveCubit;
+  final LeaveTypeMasterRepository _leaveTypeMasterRepository =
+      serviceLocator<LeaveTypeMasterRepository>();
 
   // FORK KEY
   final _formKey = GlobalKey<FormState>();
@@ -50,8 +54,17 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
   // STATIC DURATION LIST
   List<Map<String, dynamic>> durationList = [
     {"zAttributesId": -1, "DisplayName": "Select Duration"},
-    {"zAttributesId": 1, "DisplayName": "Half-Day"},
-    {"zAttributesId": 2, "DisplayName": "Full-Day"},
+    {
+      "zAttributesId": 1,
+      "DisplayName": "Half Day (First Half)",
+      "value": "HalfFirst",
+    },
+    {
+      "zAttributesId": 2,
+      "DisplayName": "Half Day (Second Half)",
+      "value": "HalfSecond",
+    },
+    {"zAttributesId": 3, "DisplayName": "Full Day", "value": "Full"},
   ];
 
   // DROPDOWN VARIABLE
@@ -72,34 +85,28 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
     _initializeTextController();
     if (_isEditMode && widget.leaveModel != null) {
       _populateFormFields(widget.leaveModel!);
-      _leaveCubit.getLeaveTypeList(context, 1, 15);
     } else {
       selectedStartDuration = durationList.first;
       selectedEndDuration = durationList.first;
     }
   }
 
-  Map<String, dynamic> _durationFromModel(String? value) {
-    if (value == null || value.isEmpty) return durationList.first;
-    final v = value.trim().toLowerCase();
-    if (v == '1' || v == 'half-day') return durationList[1];
-    if (v == '2' || v == 'full-day') return durationList[2];
-    return durationList.first;
-  }
-
   void _populateFormFields(LeaveModel m) {
     _selectedLeaveTypeNotifier.value = [
-      {
-        "zAttributesId": m.leaveTypeMasterId.toString(),
-        "DisplayName": m.leaveType,
-      },
+      {"zAttributesId": m.leaveTypeMasterId, "DisplayName": m.leaveType},
     ];
     _startDateNotifier.value = m.startDate;
     _endDateNotifier.value = m.endDate;
     _totalDaysC.text = m.noOfDays.toString();
     _reasonC.text = m.reason;
-    selectedStartDuration = _durationFromModel(m.startDateLeaveDuration);
-    selectedEndDuration = _durationFromModel(m.endDateLeaveDuration);
+    selectedStartDuration = durationList.firstWhere(
+      (d) => d['value'].toString().toUpperCase() == m.startDateLeaveDuration,
+      orElse: () => durationList.first,
+    );
+    selectedEndDuration = durationList.firstWhere(
+      (d) => d['value'].toString().toUpperCase() == m.endDateLeaveDuration,
+      orElse: () => durationList.first,
+    );
     final urls =
         m.leaveDocumentUrl.trim().isEmpty
             ? <String>[]
@@ -131,64 +138,38 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
     _reasonC = TextEditingController();
   }
 
-  // FETCH DESIGNATION
+  // FETCH LEAVE TYPE
   Future<Map<String, dynamic>> _fetchLeaveType(
     int pageNumber, {
     String? value,
   }) async {
-    final totalCount = _leaveCubit.state.totalNumberOfRecord;
-    final pageSize = 15;
+    final result = await _leaveTypeMasterRepository.getLeaveTypeList(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      queryParams:
+          value != null && value.isNotEmpty ? {"DepartmentName": value} : {},
+    );
 
-    // SEARCH MODE
-    if (value != null && value.isNotEmpty) {
-      final leaveTypeList = _leaveCubit.state.leaveTypeList;
-      final filteredLeaveType =
-          leaveTypeList
-              .where(
-                (leaveType) => leaveType.leaveType
-                    .toString()
-                    .toLowerCase()
-                    .contains(value.toString().toLowerCase()),
-              )
-              .toList();
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final departments = response['data'] as List<LeaveTypeModel>;
 
-      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
-
-      for (final leaveType in filteredLeaveType) {
-        uniqueFiltered[leaveType.leaveTypeMasterId] = {
-          "zAttributesId": leaveType.leaveTypeMasterId.toString(),
-          "DisplayName": leaveType.leaveType,
+        return {
+          "itemList":
+              departments.map((department) {
+                return {
+                  "zAttributesId": department.leaveTypeMasterId,
+                  "DisplayName": department.leaveType,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
-      }
-
-      return {
-        "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord": uniqueFiltered.length,
-      };
-    }
-
-    final currentLoadedCount = _leaveCubit.state.leaveTypeList.length;
-
-    if (currentLoadedCount == 0 || currentLoadedCount < totalCount) {
-      await _leaveCubit.getLeaveTypeList(context, pageNumber, pageSize);
-    }
-
-    final leaveTypeListList = _leaveCubit.state.leaveTypeList;
-
-    final Map<int, Map<String, dynamic>> uniqueLeaveType = {};
-
-    for (final leaveType in leaveTypeListList) {
-      uniqueLeaveType[leaveType.leaveTypeMasterId] = {
-        "zAttributesId": leaveType.leaveTypeMasterId.toString(),
-        "DisplayName": leaveType.leaveType,
-      };
-    }
-
-    return {
-      "itemList": uniqueLeaveType.values.toList(),
-      "totalNumberOfRecord":
-          totalCount > 0 ? totalCount : uniqueLeaveType.length,
-    };
+      },
+    );
   }
 
   // CALCULATE TOTAL DAYS
@@ -260,6 +241,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                       },
                     ),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
                           child: ValueListenableBuilder<DateTime?>(
@@ -346,6 +328,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                             CustomTextField(
                               textController: _totalDaysC,
                               title: "Total Days",
+                              hint: "0",
                               isRequired: true,
                               readOnly: true,
                             ),
@@ -387,6 +370,8 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                       textController: _reasonC,
                       title: "Reason",
                       hint: "Enter reason",
+                      minLines: 3,
+                      maxLines: 3,
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -434,10 +419,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                       .toString();
               final startDate = _startDateNotifier.value!;
               final endDate = _endDateNotifier.value!;
-              final startDateLeaveDuration =
-                  selectedStartDuration!["zAttributesId"].toString();
-              final endDateLeaveDuration =
-                  selectedEndDuration!["zAttributesId"].toString();
+              final startDateLeaveDuration = selectedStartDuration!["value"];
+
+              final endDateLeaveDuration = selectedEndDuration!["value"];
               final reason = _reasonC.text;
 
               if (_isEditMode && widget.leaveModel != null) {

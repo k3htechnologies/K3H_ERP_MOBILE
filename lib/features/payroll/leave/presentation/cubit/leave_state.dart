@@ -2,8 +2,8 @@ part of 'leave_cubit.dart';
 
 class LeaveState extends BaseState {
   final List<LeaveTypeModel> leaveTypeList;
-  // final int leaveTypeTotalCount;
-  final List<LeaveModel> leaveList;
+  final List<LeaveModel> leaveList;  // final int leaveTypeTotalCount;
+
   final int totalNumberOfRecord;
   final int currentPage;
   final String searchText;

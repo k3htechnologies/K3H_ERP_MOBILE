@@ -59,7 +59,8 @@ class LeaveCreditConfigurationMasterCubit
     emit(state.copyWith(isLoading: true));
     var queryParams = {
       "DepartmentName": state.searchText,
-      "DesignationName": state.filterDesignationName,
+      if (state.filterDesignationName.isNotEmpty)
+        "DesignationName": state.filterDesignationName,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     if (state.filterFromLeaveCreditDate != null) {

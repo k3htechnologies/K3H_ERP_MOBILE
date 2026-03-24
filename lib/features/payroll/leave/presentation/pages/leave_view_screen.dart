@@ -145,11 +145,11 @@ class _LeaveViewScreenState extends State<LeaveViewScreen>
                 Row(
                   children: [
                     buildColumnTitleValue(
-                      title: "Start Date Duration",
+                      title: "Start Day Duration",
                       value: widget.leaveModel.startDateLeaveDuration,
                     ),
                     buildColumnTitleValue(
-                      title: "End Date Duration",
+                      title: "End Day Duration",
                       value: widget.leaveModel.endDateLeaveDuration,
                     ),
                   ],
@@ -188,10 +188,7 @@ class _LeaveViewScreenState extends State<LeaveViewScreen>
                 Text("Leave Details", style: AppTextStyle.ts16SB()),
                 Row(
                   children: [
-                    buildColumnTitleValue(
-                      title: "Approved By",
-                      value: "hahaha",
-                    ),
+                    buildColumnTitleValue(title: "Approved By", value: "haha"),
                     buildColumnTitleValue(
                       title: "Approved Date",
                       value: "hahaha",
@@ -251,7 +248,11 @@ class _LeaveViewScreenState extends State<LeaveViewScreen>
                           : AppColor.grey,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Icon(Icons.remove_red_eye, size: 16),
+                child: Icon(
+                  Icons.remove_red_eye,
+                  size: 16,
+                  color: AppColor.primary,
+                ),
               ),
             ],
           ),

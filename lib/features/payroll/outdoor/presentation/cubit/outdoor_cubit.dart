@@ -216,43 +216,6 @@ class OutdoorCubit extends Cubit<OutdoorState> {
     );
   }
 
-  // <---- GET DEPARTMENT LIST ---->
-  Future<void> getDepartmentList(
-    BuildContext context,
-    int pageNumber,
-    int pageSize,
-  ) async {
-    emit(state.copyWith(isLoading: true));
-
-    final result = await _departmentMasterRepository.getDepartmentList(
-      pageNumber: pageNumber,
-      pageSize: pageSize,
-    );
-
-    result.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error Message", failure.message);
-      },
-      (response) {
-        final newData = List<DepartmentModel>.from(response['data']);
-
-        final List<DepartmentModel> updatedList =
-            pageNumber == 1 ? newData : [...state.departmentList, ...newData];
-
-        final totalCount = response['totalNumberOfRecord'] ?? 0;
-
-        emit(
-          state.copyWith(
-            isLoading: false,
-            departmentList: updatedList,
-            departmentTotalCount: totalCount,
-          ),
-        );
-      },
-    );
-  }
-
   // <---- GET EMPLOYEE LIST BY DEPARTMENT ---->
   Future<void> getEmployeeListByDepartment(
     BuildContext context,

@@ -198,6 +198,7 @@ class _AddLeaveBalanceTypeScreenState extends State<AddLeaveBalanceTypeScreen> {
                       textController: _leaveCreditC,
                       isRequired: true,
                       title: "Leave Credit",
+                      hint: "Enter Leave Credit",
                       inputFormatterList: InputValidator.digit(2),
                       keyboardType: TextInputType.number,
                       validator: (value) {
