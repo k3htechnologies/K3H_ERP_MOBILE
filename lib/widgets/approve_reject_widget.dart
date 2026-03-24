@@ -42,7 +42,7 @@ class ApproveRejectWidget extends StatelessWidget {
             RichText(
               text: TextSpan(
                 style: AppTextStyle.ts14M(color: AppColor.grey),
-                text: "Status : ",
+                text: "Approval Status : ",
                 children: [
                   TextSpan(
                     style: AppTextStyle.ts14M(color: AppColor.black),
