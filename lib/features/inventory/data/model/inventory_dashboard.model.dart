@@ -95,11 +95,30 @@ class Table0 {
 }
 
 class Table1 {
-  Table1();
+  final String floorName;
+  final int totalParking;
+  final int availableParking;
+  final int bookedParking;
+  Table1({
+    required this.floorName,
+    required this.totalParking,
+    required this.availableParking,
+    required this.bookedParking,
+  });
 
-  factory Table1.fromJson(Map<String, dynamic> json) => Table1();
+  factory Table1.fromJson(Map<String, dynamic> json) => Table1(
+    floorName: parseValue<String>(json, "FloorName"),
+    totalParking: parseValue<int>(json, "TotalParking"),
+    availableParking: parseValue<int>(json, "AvailableParking"),
+    bookedParking: parseValue<int>(json, "BookedParking"),
+  );
 
-  Map<String, dynamic> toJson() => {};
+  Map<String, dynamic> toJson() => {
+    "FloorName": floorName,
+    "TotalParking": totalParking,
+    "AvailableParking": availableParking,
+    "BookedParking": bookedParking,
+  };
 }
 
 class Table2 {

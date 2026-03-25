@@ -12,8 +12,6 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 
-import '../../../../main.dart';
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -23,7 +21,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashMobileScreenState extends State<SplashScreen> {
   @override
-  void initState() async {
+  void initState() {
     super.initState();
 
     Future.delayed(const Duration(seconds: 2), () async {
@@ -80,21 +78,6 @@ class _SplashMobileScreenState extends State<SplashScreen> {
         goRouter.goNamed(AppRoutes.login);
       }
     });
-    Future.microtask(() async {
-      var decodedMenuData = LocalStorageManager().getString(StorageKey.menu);
-
-      if (decodedMenuData != null) {
-        List<ModuleModel> moduleData = List<ModuleModel>.from(
-          jsonDecode(decodedMenuData).map((e) => ModuleModel.fromJson(e)),
-        );
-
-        await updateRouteAuthorization(moduleData);
-      }
-    });
-    // LOCATION PERMISSION
-    await handleLocationPermission();
-
-    await requestPhonePermission();
   }
 
   @override

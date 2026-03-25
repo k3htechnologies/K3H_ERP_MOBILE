@@ -30,7 +30,6 @@ import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
-import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -441,6 +440,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         // PUNCH IN - PUNCH OUT WIDGET
                         _buildWordayOverviewWidget(state, context),
                         verticalSpacing(),
+                        _buildDailyActivitiesWidget(context),
+                        verticalSpacing(),
                         //  SCHEDULED TASK WIDGET
                         _buildScheduledTaskWidget(context),
                         verticalSpacing(),
@@ -784,6 +785,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildDailyActivitiesWidget(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      decoration: commonCardDecoration(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  "Daily Activities",
+                  style: AppTextStyle.ts14M(
+                    color: AppColor.black.withValues(alpha: 0.50),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Center(
+            child: Text(
+              "Coming Soon",
+              style: AppTextStyle.ts12M(
+                color: AppColor.black.withValues(alpha: 0.50),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildScheduledTaskWidget(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -805,13 +840,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-          ListView.builder(
-            itemCount: 3,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (context, int index) {
-              return scheduledTaskCard();
-            },
+          Center(
+            child: Text(
+              "No Scheduled Task Available",
+              style: AppTextStyle.ts12M(
+                color: AppColor.black.withValues(alpha: 0.50),
+              ),
+            ),
           ),
         ],
       ),
@@ -1185,7 +1220,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: AttendanceStatCard(
                             title: "Shift Pattern",
                             value:
-                                "${dateFormatterHourOnly(table1.shiftStartTime)} - ${dateFormatterHourOnly(table1.shiftEndTime)}",
+                                "${dateFormatterHourOnly(table1.shiftBeginTime)} - ${dateFormatterHourOnly(table1.shiftEndTime)}",
                             bgColor: Color(0xFFF4F0FF),
                             borderColor: Color(0xFFD9CCFF),
                             valueColor: Color(0xFF6A1B9A),
@@ -1283,7 +1318,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
         final userData = state.userData;
 
-        final table3 = userData?.table3;
+        final table7 = userData?.table7;
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -1305,22 +1340,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              (table3 != null && table3.isNotEmpty)
+              (table7 != null && table7.isNotEmpty)
                   ? CommonRadialChart(
                     items: [
                       RadialChartItem(
                         title: "Present",
-                        value: 9,
+                        value: table7.first.presentCount,
                         color: AppColor.primary,
                       ),
                       RadialChartItem(
                         title: "Absent",
-                        value: 2,
+                        value: table7.first.absentCount,
                         color: AppColor.blue,
                       ),
                       RadialChartItem(
                         title: "Leave",
-                        value: 2,
+                        value: table7.first.onLeaveCount,
                         color: AppColor.grey50,
                       ),
                     ],
@@ -1348,6 +1383,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
 
         final table4List = state.userData?.table4;
+
+        final table5List = state.userData?.table5;
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -1388,13 +1425,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                 const SizedBox(height: 10),
 
-                _buildUpcomingAttendanceWidget(
-                  title: table4List.first.leaveTypeName,
-                  value: "",
-                  subtitle: "Feb 14-16, 2024 (3 days)",
-                  bgColor: Color(0xFFEFFAF3),
-                  borderColor: Color(0xFFB7E4C7),
-                ),
+                if (table5List != null && table5List.isNotEmpty) ...{
+                  ListView.builder(
+                    itemCount: table5List.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      final upcomingLeaves = table5List[index];
+                      final item = upcomingLeaves;
+                      final startDate = DateTime.parse(
+                        item.startDate.toString(),
+                      );
+                      final endDate = DateTime.parse(item.endDate.toString());
+
+                      final formattedStart = DateFormat(
+                        'dd MMM',
+                      ).format(startDate);
+                      final formattedEnd = DateFormat(
+                        'dd MMM, yyyy',
+                      ).format(endDate);
+                      return _buildUpcomingAttendanceWidget(
+                        title: upcomingLeaves.leaveTypeName,
+                        value: "",
+                        subtitle:
+                            "$formattedStart - $formattedEnd (${upcomingLeaves.noOfDays.toString()} days)",
+                        bgColor: Color(0xFFEFFAF3),
+                        borderColor: Color(0xFFB7E4C7),
+                      );
+                    },
+                  ),
+                } else ...{
+                  Center(
+                    child: Text(
+                      "No Upcoming Approved Available",
+                      style: AppTextStyle.ts12M(
+                        color: AppColor.black.withValues(alpha: 0.50),
+                      ),
+                    ),
+                  ),
+                },
               ] else ...[
                 Center(
                   child: Text(
@@ -1445,6 +1513,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      margin: EdgeInsets.all(5.0),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(8),
@@ -1485,6 +1554,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final userData = state.userData;
 
         final table6List = userData?.table6;
+
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -1512,6 +1582,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   physics: AlwaysScrollableScrollPhysics(),
                   itemBuilder: (context, int index) {
                     final holiday = table6List[index];
+                    var daysRemainingText =
+                        holiday.daysRemaining == 0
+                            ? "Today"
+                            : "In ${holiday.daysRemaining} days";
                     return Container(
                       margin: EdgeInsets.only(bottom: 8.0),
                       padding: EdgeInsets.symmetric(
@@ -1543,7 +1617,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               ),
                               Text(
-                                "In ${holiday.daysRemaining} days",
+                                daysRemainingText,
                                 style: AppTextStyle.ts10M().copyWith(
                                   color: AppColor.primary,
                                 ),
@@ -1628,29 +1702,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     var upcomingBirthday = table8List[index];
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: Container(
-                        clipBehavior: Clip.hardEdge,
-                        decoration: BoxDecoration(shape: BoxShape.circle),
-                        child: NetworkImageWidget(
-                          borderRadius: BorderRadius.circular(100.0),
-                          imageUrl:
-                              'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                          width: 45,
-                          height: 45,
-                          fit: BoxFit.cover,
-                          errorWidget: Container(
-                            color: AppColor.white,
-                            width: 45,
-                            height: 45,
-                            child: Icon(
-                              Icons.image_not_supported,
-                              size: 20,
-                              color: Colors.grey[700],
-                            ),
-                          ),
+                      leading: CircleAvatar(
+                        radius: 45,
+                        backgroundColor: AppColor.primary,
+                        child: Text(
+                          table8List.first.fullName.isNotEmpty
+                              ? table8List.first.fullName[0].toUpperCase()
+                              : '',
+                          style: AppTextStyle.ts24B(color: AppColor.white),
                         ),
                       ),
-
                       title: Text(
                         upcomingBirthday.fullName,
                         style: AppTextStyle.ts14M(),
@@ -1770,40 +1831,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
               if (_hasValidManager(table10List)) ...[
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: Container(
-                    clipBehavior: Clip.hardEdge,
-                    decoration: BoxDecoration(shape: BoxShape.circle),
-                    child: NetworkImageWidget(
-                      borderRadius: BorderRadius.circular(100.0),
-                      imageUrl:
-                          'https://toppng.com/uploads/preview/immagini-divertenti-115510630433jfc6mpnb0.png',
-                      width: 45,
-                      height: 45,
-                      fit: BoxFit.cover,
-                      errorWidget: Container(
-                        color: AppColor.white,
-                        width: 45,
-                        height: 45,
-                        child: Icon(
-                          Icons.image_not_supported,
-                          size: 20,
-                          color: Colors.grey[700],
-                        ),
-                      ),
+                  leading: CircleAvatar(
+                    radius: 45,
+                    backgroundColor: AppColor.primary,
+                    child: Text(
+                      table10List!.first.managerName.isNotEmpty
+                          ? table10List.first.managerName[0].toUpperCase()
+                          : '',
+                      style: AppTextStyle.ts24B(color: AppColor.white),
                     ),
                   ),
                   title: Text(
-                    table10List!.first.managerName,
+                    table10List.first.managerName,
                     style: AppTextStyle.ts14B(),
                   ),
                   subtitle: Text(
-                    table10List.first.designationName,
+                    table10List.first.managerDesignation,
                     style: AppTextStyle.ts14R(
                       color: AppColor.black.withValues(alpha: 0.50),
                     ),
                   ),
                   trailing: Text(
-                    table10List.first.departmentName,
+                    table10List.first.managerDepartment,
                     style: AppTextStyle.ts14R(),
                   ),
                 ),
@@ -1834,25 +1883,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ],
                         ),
                       ),
-                      InkWell(
-                        onTap: () {
-                          _openDialer(table10List.first.managerPhone);
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            SvgPicture.asset(
-                              AppAssets.phoneIcon,
-                              height: 16.0,
-                              width: 16.0,
-                            ),
-                            const SizedBox(width: 6.0),
-                            Text(
-                              table10List.first.managerPhone,
-                              style: AppTextStyle.ts14M(),
-                            ),
-                          ],
-                        ),
+                    ],
+                  ),
+                ),
+                verticalSpacing(),
+                InkWell(
+                  onTap: () {
+                    _openDialer(table10List.first.managerPhone);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SvgPicture.asset(
+                        AppAssets.phoneIcon,
+                        height: 16.0,
+                        width: 16.0,
+                      ),
+                      const SizedBox(width: 6.0),
+                      Text(
+                        table10List.first.managerPhone,
+                        style: AppTextStyle.ts14M(),
                       ),
                     ],
                   ),
@@ -1920,12 +1970,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Duration targetDuration = const Duration(hours: 9);
 
         if (table1 != null &&
-            table1.shiftStartTime.isNotEmpty &&
+            table1.shiftBeginTime.isNotEmpty &&
             table1.shiftEndTime.isNotEmpty &&
-            table1.shiftStartTime != "{}" &&
+            table1.shiftBeginTime != "{}" &&
             table1.shiftEndTime != "{}") {
           try {
-            final startParts = table1.shiftStartTime.split(':');
+            final startParts = table1.shiftBeginTime.split(':');
             final endParts = table1.shiftEndTime.split(':');
 
             final startHour = int.tryParse(startParts[0]) ?? 0;
