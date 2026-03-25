@@ -389,7 +389,7 @@ class _InventoryScreenState extends State<InventoryScreen>
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (index == 0)
+                if (index == 0) ...[
                   ApproveRejectWidget(
                     title: wing.approvalStatus,
                     isActionAlreadyPerformed: !isActionAllowed,
@@ -466,7 +466,8 @@ class _InventoryScreenState extends State<InventoryScreen>
                       }
                     },
                   ),
-                verticalSpacing(),
+                  verticalSpacing(),
+                ],
                 Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(

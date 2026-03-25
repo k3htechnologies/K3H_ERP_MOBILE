@@ -24,6 +24,12 @@ class InventoryCubit extends Cubit<InventoryState> {
 
   // GET ENTIRE INVENTORY
   Future<void> getInventory(BuildContext context, int projectId) async {
+    if (projectId == 0) {
+      showErrorMessage(context, "Error Message", "Project Not Selected");
+      InventoryCubit();
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
     if (_isApiCallInProgress) return;
 
     _isApiCallInProgress = true;
