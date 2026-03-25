@@ -7,9 +7,9 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/data/
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/data/repository/branch_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/earning_master/data/model/earning_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/earning_master/presentation/cubit/earning_master_cubit.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
-import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
@@ -38,15 +38,95 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
       serviceLocator<BranchMasterRepository>();
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _nameC, _typeC, _valueC, _minSalaryC, _maxSalaryC;
+  late TextEditingController _valueC, _minSalaryC, _maxSalaryC;
 
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
   // DROPDOWN SELECTIONS
-  List<Map<String, dynamic>> _selectedBranch = [];
+  List<Map<String, dynamic>> selectedBranch = [];
 
   bool get _isEditMode => widget.earningMasterModel != null;
+  // TYPES LIST
+  List<Map<String, dynamic>> typesList = [
+    {"DisplayName": "Basic Salary", "zAttributesId": 1},
+    {"DisplayName": "HRA", "zAttributesId": 2},
+    {"DisplayName": "DA", "zAttributesId": 3},
+
+    {"DisplayName": "Conveyance Allowance", "zAttributesId": 4},
+    {"DisplayName": "Medical Allowance", "zAttributesId": 5},
+    {"DisplayName": "Special Allowance", "zAttributesId": 6},
+    {"DisplayName": "Other Allowance", "zAttributesId": 7},
+    {"DisplayName": "LTA", "zAttributesId": 8},
+
+    {"DisplayName": "Performance Bonus", "zAttributesId": 9},
+    {"DisplayName": "Incentive", "zAttributesId": 10},
+    {"DisplayName": "Variable Pay", "zAttributesId": 11},
+    {"DisplayName": "Annual Bonus", "zAttributesId": 12},
+    {"DisplayName": "Joining Bonus", "zAttributesId": 13},
+    {"DisplayName": "Retention Bonus", "zAttributesId": 14},
+    {"DisplayName": "Mobile Reimbursement", "zAttributesId": 15},
+    {"DisplayName": "Internet Reimbursement", "zAttributesId": 16},
+    {"DisplayName": "Fuel Reimbursement", "zAttributesId": 17},
+    {"DisplayName": "Food Allowance", "zAttributesId": 18},
+    {"DisplayName": "Shift Allowance", "zAttributesId": 19},
+    {"DisplayName": "Night Shift Allowance", "zAttributesId": 20},
+    {"DisplayName": "City Compensatory Allowance", "zAttributesId": 21},
+    {"DisplayName": "Employer PF", "zAttributesId": 22},
+    {"DisplayName": "Employer ESI", "zAttributesId": 23},
+    {"DisplayName": "Gratuity", "zAttributesId": 24},
+    {"DisplayName": "Superannuation", "zAttributesId": 25},
+    {"DisplayName": "NPS Employer", "zAttributesId": 26},
+    {"DisplayName": "Health Insurance", "zAttributesId": 27},
+    {"DisplayName": "Overtime Pay", "zAttributesId": 28},
+    {"DisplayName": "Leave Encashment", "zAttributesId": 29},
+    {"DisplayName": "Arrears", "zAttributesId": 30},
+    {"DisplayName": "Ex-Gratia", "zAttributesId": 31},
+    {"DisplayName": "Relocation Allowance", "zAttributesId": 32},
+  ];
+  // NAME LIST
+  List<Map<String, dynamic>> nameList = [
+    {"DisplayName": "Basic Salary", "zAttributesId": 1},
+    {"DisplayName": "HRA", "zAttributesId": 2},
+    {"DisplayName": "DA", "zAttributesId": 3},
+
+    {"DisplayName": "Conveyance Allowance", "zAttributesId": 4},
+    {"DisplayName": "Medical Allowance", "zAttributesId": 5},
+    {"DisplayName": "Special Allowance", "zAttributesId": 6},
+    {"DisplayName": "Other Allowance", "zAttributesId": 7},
+    {"DisplayName": "LTA", "zAttributesId": 8},
+
+    {"DisplayName": "Performance Bonus", "zAttributesId": 9},
+    {"DisplayName": "Incentive", "zAttributesId": 10},
+    {"DisplayName": "Variable Pay", "zAttributesId": 11},
+    {"DisplayName": "Annual Bonus", "zAttributesId": 12},
+    {"DisplayName": "Joining Bonus", "zAttributesId": 13},
+    {"DisplayName": "Retention Bonus", "zAttributesId": 14},
+    {"DisplayName": "Mobile Reimbursement", "zAttributesId": 15},
+    {"DisplayName": "Internet Reimbursement", "zAttributesId": 16},
+    {"DisplayName": "Fuel Reimbursement", "zAttributesId": 17},
+    {"DisplayName": "Food Allowance", "zAttributesId": 18},
+    {"DisplayName": "Shift Allowance", "zAttributesId": 19},
+    {"DisplayName": "Night Shift Allowance", "zAttributesId": 20},
+    {"DisplayName": "City Compensatory Allowance", "zAttributesId": 21},
+    {"DisplayName": "Employer PF", "zAttributesId": 22},
+    {"DisplayName": "Employer ESI", "zAttributesId": 23},
+    {"DisplayName": "Gratuity", "zAttributesId": 24},
+    {"DisplayName": "Superannuation", "zAttributesId": 25},
+    {"DisplayName": "NPS Employer", "zAttributesId": 26},
+    {"DisplayName": "Health Insurance", "zAttributesId": 27},
+    {"DisplayName": "Overtime Pay", "zAttributesId": 28},
+    {"DisplayName": "Leave Encashment", "zAttributesId": 29},
+    {"DisplayName": "Arrears", "zAttributesId": 30},
+    {"DisplayName": "Ex-Gratia", "zAttributesId": 31},
+    {"DisplayName": "Relocation Allowance", "zAttributesId": 32},
+  ];
+
+  // SELECTED VALUES
+  List<Map<String, dynamic>> selectedNameList = [];
+  List<Map<String, dynamic>> selectedTypeList = [];
+
+  late ValueNotifier<String> applicableType;
 
   @override
   void initState() {
@@ -54,24 +134,26 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
     _earningMasterCubit = context.read<EarningMasterCubit>();
     _initializeTextEditingController();
     if (_isEditMode && widget.earningMasterModel != null) {
-      _populateFormFields(widget.earningMasterModel!);
+      final model = widget.earningMasterModel!;
+      final isPercentage = model.applicable == "Percentage";
+      applicableType = ValueNotifier(isPercentage ? "Percentage" : "Lumpsum");
+      _populateFormFields(model);
+    } else {
+      applicableType = ValueNotifier("Percentage");
     }
   }
 
   @override
   void dispose() {
     super.dispose();
-    _nameC.dispose();
-    _typeC.dispose();
     _valueC.dispose();
     _minSalaryC.dispose();
     _maxSalaryC.dispose();
+    applicableType.dispose();
   }
 
   // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
-    _nameC = TextEditingController();
-    _typeC = TextEditingController();
     _valueC = TextEditingController();
     _minSalaryC = TextEditingController();
     _maxSalaryC = TextEditingController();
@@ -79,10 +161,20 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
 
   // POPULATE FORM FIELDS
   void _populateFormFields(EarningMasterModel earningMasterModel) {
-    _nameC.text = earningMasterModel.name;
-    _typeC.text = earningMasterModel.type;
+    selectedNameList = [
+      nameList.firstWhere(
+        (item) => item['DisplayName'] == earningMasterModel.name,
+        orElse: () => nameList.first,
+      ),
+    ];
+    selectedTypeList = [
+      typesList.firstWhere(
+        (item) => item['DisplayName'] == earningMasterModel.type,
+        orElse: () => typesList.first,
+      ),
+    ];
     _valueC.text = earningMasterModel.value.toString();
-    _selectedBranch = [
+    selectedBranch = [
       {
         'zAttributesId': earningMasterModel.branchMasterId,
         'DisplayName': earningMasterModel.branchName,
@@ -90,6 +182,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
     ];
     _minSalaryC.text = earningMasterModel.minSalary.toString();
     _maxSalaryC.text = earningMasterModel.maxSalary.toString();
+    applicableType.value = earningMasterModel.applicable;
   }
 
   Future<Map<String, dynamic>> _fetchBranch(
@@ -125,21 +218,76 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
     );
   }
 
+  // FETCH STATIC EARNING NAMES
+  Future<Map<String, dynamic>> _fetchStaticDeductionNames(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final filteredList =
+        value == null || value.isEmpty
+            ? nameList
+            : nameList
+                .where(
+                  (e) => e["DisplayName"].toString().toLowerCase().contains(
+                    value.toLowerCase(),
+                  ),
+                )
+                .toList();
+
+    return {
+      "itemList": filteredList,
+      "totalNumberOfRecord": filteredList.length,
+    };
+  }
+
+  // FETCH STATIC EARNING TYPES
+  Future<Map<String, dynamic>> _fetchStaticDeductionTypes(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final filteredList =
+        value == null || value.isEmpty
+            ? typesList
+            : typesList
+                .where(
+                  (e) => e["DisplayName"].toString().toLowerCase().contains(
+                    value.toLowerCase(),
+                  ),
+                )
+                .toList();
+
+    return {
+      "itemList": filteredList,
+      "totalNumberOfRecord": filteredList.length,
+    };
+  }
+
   // SUBMIT FORM
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
+    final String? typeValue =
+        selectedTypeList.isNotEmpty
+            ? selectedTypeList.first['DisplayName'].toString()
+            : null;
+
+    final int? branchId =
+        (selectedBranch.isNotEmpty)
+            ? selectedBranch.first['zAttributesId'] as int
+            : null;
+
     if (_isEditMode && widget.earningMasterModel != null) {
       _earningMasterCubit.updateEarning(
         index: widget.index,
         context: context,
         earningMasterId: widget.earningMasterModel!.earningMasterId,
-        branchMasterId: _selectedBranch.first["zAttributesId"],
+        branchMasterId: branchId,
         uniqueKey: widget.earningMasterModel!.uniquekey,
-        earningName: _nameC.text.trim(),
-        earningType: _typeC.text.trim(),
+        earningName: selectedNameList.first['DisplayName'].toString(),
+        earningType: typeValue ?? "",
+        earningApplicable: applicableType.value,
         value: double.parse(_valueC.text.trim()),
         minSalary: double.parse(_minSalaryC.text.trim()),
         maxSalary: double.parse(_maxSalaryC.text.trim()),
@@ -147,9 +295,10 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
     } else {
       _earningMasterCubit.addEarning(
         context: context,
-        branchMasterId: 0,
-        earningName: _nameC.text.trim(),
-        earningType: _typeC.text.trim(),
+        branchMasterId: branchId,
+        earningName: selectedNameList.first['DisplayName'].toString(),
+        earningType: typeValue ?? "",
+        earningApplicable: applicableType.value,
         value: double.parse(_valueC.text.trim()),
         minSalary: double.parse(_minSalaryC.text.trim()),
         maxSalary: double.parse(_maxSalaryC.text.trim()),
@@ -183,44 +332,182 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        CustomTextField(
-                          textController: _nameC,
-                          title: "Earning Name",
-                          hint: "Enter Earning Name",
+                        CustomMultipleSelectPopup(
+                          initialValue: selectedNameList,
+                          title: "Name",
                           isRequired: true,
-                          inputFormatterList: InputValidator.textDigit(200),
+                          dataFetchCallBack: _fetchStaticDeductionNames,
+                          isMultiSelect: false,
+                          dataList: nameList,
+                          onSelected: (value) {
+                            setState(() {
+                              selectedNameList = value;
+                            });
+                          },
                           validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Earning Name is required";
+                            if (value == null || value.isEmpty) {
+                              return "Name is required";
                             }
                             return null;
                           },
                         ),
-                        CustomTextField(
-                          textController: _typeC,
+                        CustomMultipleSelectPopup(
+                          initialValue: selectedTypeList,
                           title: "Type",
-                          hint: "Enter Earning Type",
-                          isRequired: true,
-                          inputFormatterList: InputValidator.textDigit(200),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Earning Type is required";
-                            }
-                            return null;
+                          isRequired: false,
+                          dataFetchCallBack: _fetchStaticDeductionTypes,
+                          isMultiSelect: false,
+                          dataList: typesList,
+                          onSelected: (value) {
+                            setState(() {
+                              selectedTypeList = value;
+                            });
                           },
                         ),
-                        CustomTextField(
-                          textController: _valueC,
-                          title: "Value",
-                          hint: "Enter Earning Value",
-                          isRequired: true,
-                          keyboardType: TextInputType.number,
-                          inputFormatterList: InputValidator.decimal(10),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Earning Value is required";
-                            }
-                            return null;
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  "Applicable",
+                                  style: AppTextStyle.ts14R(),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                                Text(
+                                  "*",
+                                  style: AppTextStyle.ts14R(
+                                    color: AppColor.error,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(),
+                            ValueListenableBuilder<String>(
+                              valueListenable: applicableType,
+                              builder: (context, value, _) {
+                                return Row(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        applicableType.value = "Percentage";
+                                        _valueC.clear();
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 6,
+                                          horizontal: 12,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                          color:
+                                              value == "Percentage"
+                                                  ? AppColor.lightBlue
+                                                  : Colors.transparent,
+                                          border: Border.all(
+                                            color: AppColor.grey,
+                                            width: .5,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          "Percentage",
+                                          style: AppTextStyle.ts12R(
+                                            color:
+                                                value == "Percentage"
+                                                    ? AppColor.primary
+                                                    : AppColor.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    GestureDetector(
+                                      onTap: () {
+                                        applicableType.value = "Lumpsum";
+                                        _valueC.clear();
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 6,
+                                          horizontal: 12,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                          color:
+                                              value == "Lumpsum"
+                                                  ? AppColor.lightBlue
+                                                  : Colors.transparent,
+                                          border: Border.all(
+                                            color: AppColor.grey,
+                                            width: .5,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          "Lumpsum",
+                                          style: AppTextStyle.ts12R(
+                                            color:
+                                                value == "Lumpsum"
+                                                    ? AppColor.primary
+                                                    : AppColor.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(),
+                        ValueListenableBuilder<String>(
+                          valueListenable: applicableType,
+                          builder: (context, value, _) {
+                            return CustomTextField(
+                              textController: _valueC,
+                              hint:
+                                  value == "Percentage"
+                                      ? "Enter Percentage (%)"
+                                      : "Enter Amount",
+                              title:
+                                  value == "Percentage"
+                                      ? "Value (%)"
+                                      : "Value (Lumpsum)",
+                              keyboardType: TextInputType.number,
+                              isRequired: true,
+                              inputFormatterList:
+                                  value == "Percentage"
+                                      ? [
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r'^\d+\.?\d{0,2}'),
+                                        ),
+                                        LengthLimitingTextInputFormatter(5),
+                                      ]
+                                      : [
+                                        FilteringTextInputFormatter.digitsOnly,
+                                        LengthLimitingTextInputFormatter(10),
+                                      ],
+                              validator: (valueText) {
+                                if (valueText == null ||
+                                    valueText.trim().isEmpty) {
+                                  return "Value is required";
+                                }
+
+                                if (value == "Percentage") {
+                                  final val = double.tryParse(valueText) ?? 0;
+                                  if (val > 100) {
+                                    return "Percentage cannot exceed 100";
+                                  }
+                                }
+
+                                return null;
+                              },
+                            );
                           },
                         ),
                         CustomTextField(
@@ -260,22 +547,15 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
 
                         CustomMultipleSelectPopup(
                           title: 'Branch',
-                          isRequired: true,
                           isMultiSelect: false,
-                          initialValue: _selectedBranch,
+                          initialValue: selectedBranch,
                           dataList: [],
                           onSelected: (value) {
                             innerState(() {
-                              _selectedBranch = value;
+                              selectedBranch = value;
                             });
                           },
                           dataFetchCallBack: _fetchBranch,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Branch is required";
-                            }
-                            return null;
-                          },
                         ),
                       ],
                     ),

@@ -3,44 +3,44 @@ import 'package:k3h_erp_app/utils/common_function.dart';
 class SalesDashboardModel {
   final List<Table0> table0;
   final List<Table1> table1;
-  final List<Table2> table2;
-  final List<Table3> table3;
-  final List<Table4> table4;
-  final List<Table5> table5;
-  final List<Table6> table6;
-  final List<dynamic> table7;
-  final List<dynamic> table8;
-  final List<Table9> table9;
-  final List<Table10> table10;
-  final List<Table11> table11;
-  final List<Table12> table12;
-  final List<Table13> table13;
-  final List<Table14> table14;
-  final List<Table15> table15;
-  final List<dynamic> table16;
-  final List<Table17> table17;
-  final List<Table18> table18;
+  // final List<Table2> table2;
+  // final List<Table3> table3;
+  // final List<Table4> table4;
+  // final List<Table5> table5;
+  // final List<Table6> table6;
+  // final List<dynamic> table7;
+  // final List<dynamic> table8;
+  // final List<Table9> table9;
+  // final List<Table10> table10;
+  // final List<Table11> table11;
+  // final List<Table12> table12;
+  // final List<Table13> table13;
+  // final List<Table14> table14;
+  // final List<Table15> table15;
+  // final List<dynamic> table16;
+  // final List<Table17> table17;
+  // final List<Table18> table18;
 
   SalesDashboardModel({
     required this.table0,
     required this.table1,
-    required this.table2,
-    required this.table3,
-    required this.table4,
-    required this.table5,
-    required this.table6,
-    required this.table7,
-    required this.table8,
-    required this.table9,
-    required this.table10,
-    required this.table11,
-    required this.table12,
-    required this.table13,
-    required this.table14,
-    required this.table15,
-    required this.table16,
-    required this.table17,
-    required this.table18,
+    // required this.table2,
+    // required this.table3,
+    // required this.table4,
+    // required this.table5,
+    // required this.table6,
+    // required this.table7,
+    // required this.table8,
+    // required this.table9,
+    // required this.table10,
+    // required this.table11,
+    // required this.table12,
+    // required this.table13,
+    // required this.table14,
+    // required this.table15,
+    // required this.table16,
+    // required this.table17,
+    // required this.table18,
   });
 
   factory SalesDashboardModel.fromJson(
@@ -48,61 +48,61 @@ class SalesDashboardModel {
   ) => SalesDashboardModel(
     table0: List<Table0>.from(json["Table0"].map((x) => Table0.fromJson(x))),
     table1: List<Table1>.from(json["Table1"].map((x) => Table1.fromJson(x))),
-    table2: List<Table2>.from(json["Table2"].map((x) => Table2.fromJson(x))),
-    table3: List<Table3>.from(json["Table3"].map((x) => Table3.fromJson(x))),
-    table4: List<Table4>.from(json["Table4"].map((x) => Table4.fromJson(x))),
-    table5: List<Table5>.from(json["Table5"].map((x) => Table5.fromJson(x))),
-    table6: List<Table6>.from(json["Table6"].map((x) => Table6.fromJson(x))),
-    table7: List<dynamic>.from(json["Table7"].map((x) => x)),
-    table8: List<dynamic>.from(json["Table8"].map((x) => x)),
-    table9: List<Table9>.from(json["Table9"].map((x) => Table9.fromJson(x))),
-    table10: List<Table10>.from(
-      json["Table10"].map((x) => Table10.fromJson(x)),
-    ),
-    table11: List<Table11>.from(
-      json["Table11"].map((x) => Table11.fromJson(x)),
-    ),
-    table12: List<Table12>.from(
-      json["Table12"].map((x) => Table12.fromJson(x)),
-    ),
-    table13: List<Table13>.from(
-      json["Table13"].map((x) => Table13.fromJson(x)),
-    ),
-    table14: List<Table14>.from(
-      json["Table14"].map((x) => Table14.fromJson(x)),
-    ),
-    table15: List<Table15>.from(
-      json["Table15"].map((x) => Table15.fromJson(x)),
-    ),
-    table16: List<dynamic>.from(json["Table16"].map((x) => x)),
-    table17: List<Table17>.from(
-      json["Table17"].map((x) => Table17.fromJson(x)),
-    ),
-    table18: List<Table18>.from(
-      json["Table18"].map((x) => Table18.fromJson(x)),
-    ),
+    // table2: List<Table2>.from(json["Table2"].map((x) => Table2.fromJson(x))),
+    // table3: List<Table3>.from(json["Table3"].map((x) => Table3.fromJson(x))),
+    // table4: List<Table4>.from(json["Table4"].map((x) => Table4.fromJson(x))),
+    // table5: List<Table5>.from(json["Table5"].map((x) => Table5.fromJson(x))),
+    // table6: List<Table6>.from(json["Table6"].map((x) => Table6.fromJson(x))),
+    // table7: List<dynamic>.from(json["Table7"].map((x) => x)),
+    // table8: List<dynamic>.from(json["Table8"].map((x) => x)),
+    // table9: List<Table9>.from(json["Table9"].map((x) => Table9.fromJson(x))),
+    // table10: List<Table10>.from(
+    //   json["Table10"].map((x) => Table10.fromJson(x)),
+    // ),
+    // table11: List<Table11>.from(
+    //   json["Table11"].map((x) => Table11.fromJson(x)),
+    // ),
+    // table12: List<Table12>.from(
+    //   json["Table12"].map((x) => Table12.fromJson(x)),
+    // ),
+    // table13: List<Table13>.from(
+    //   json["Table13"].map((x) => Table13.fromJson(x)),
+    // ),
+    // table14: List<Table14>.from(
+    //   json["Table14"].map((x) => Table14.fromJson(x)),
+    // ),
+    // table15: List<Table15>.from(
+    //   json["Table15"].map((x) => Table15.fromJson(x)),
+    // ),
+    // table16: List<dynamic>.from(json["Table16"].map((x) => x)),
+    // table17: List<Table17>.from(
+    //   json["Table17"].map((x) => Table17.fromJson(x)),
+    // ),
+    // table18: List<Table18>.from(
+    //   json["Table18"].map((x) => Table18.fromJson(x)),
+    // ),
   );
 
   Map<String, dynamic> toJson() => {
     "Table0": List<dynamic>.from(table0.map((x) => x.toJson())),
     "Table1": List<dynamic>.from(table1.map((x) => x.toJson())),
-    "Table2": List<dynamic>.from(table2.map((x) => x.toJson())),
-    "Table3": List<dynamic>.from(table3.map((x) => x.toJson())),
-    "Table4": List<dynamic>.from(table4.map((x) => x.toJson())),
-    "Table5": List<dynamic>.from(table5.map((x) => x.toJson())),
-    "Table6": List<dynamic>.from(table6.map((x) => x.toJson())),
-    "Table7": List<dynamic>.from(table7.map((x) => x)),
-    "Table8": List<dynamic>.from(table8.map((x) => x)),
-    "Table9": List<dynamic>.from(table9.map((x) => x.toJson())),
-    "Table10": List<dynamic>.from(table10.map((x) => x.toJson())),
-    "Table11": List<dynamic>.from(table11.map((x) => x.toJson())),
-    "Table12": List<dynamic>.from(table12.map((x) => x.toJson())),
-    "Table13": List<dynamic>.from(table13.map((x) => x.toJson())),
-    "Table14": List<dynamic>.from(table14.map((x) => x.toJson())),
-    "Table15": List<dynamic>.from(table15.map((x) => x.toJson())),
-    "Table16": List<dynamic>.from(table16.map((x) => x)),
-    "Table17": List<dynamic>.from(table17.map((x) => x.toJson())),
-    "Table18": List<dynamic>.from(table18.map((x) => x.toJson())),
+    // "Table2": List<dynamic>.from(table2.map((x) => x.toJson())),
+    // "Table3": List<dynamic>.from(table3.map((x) => x.toJson())),
+    // "Table4": List<dynamic>.from(table4.map((x) => x.toJson())),
+    // "Table5": List<dynamic>.from(table5.map((x) => x.toJson())),
+    // "Table6": List<dynamic>.from(table6.map((x) => x.toJson())),
+    // "Table7": List<dynamic>.from(table7.map((x) => x)),
+    // "Table8": List<dynamic>.from(table8.map((x) => x)),
+    // "Table9": List<dynamic>.from(table9.map((x) => x.toJson())),
+    // "Table10": List<dynamic>.from(table10.map((x) => x.toJson())),
+    // "Table11": List<dynamic>.from(table11.map((x) => x.toJson())),
+    // "Table12": List<dynamic>.from(table12.map((x) => x.toJson())),
+    // "Table13": List<dynamic>.from(table13.map((x) => x.toJson())),
+    // "Table14": List<dynamic>.from(table14.map((x) => x.toJson())),
+    // "Table15": List<dynamic>.from(table15.map((x) => x.toJson())),
+    // "Table16": List<dynamic>.from(table16.map((x) => x)),
+    // "Table17": List<dynamic>.from(table17.map((x) => x.toJson())),
+    // "Table18": List<dynamic>.from(table18.map((x) => x.toJson())),
   };
 }
 

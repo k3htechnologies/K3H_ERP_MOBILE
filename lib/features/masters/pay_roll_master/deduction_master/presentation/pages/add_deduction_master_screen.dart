@@ -53,7 +53,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
   late AuthorizationModel _routeAuthorizationModel;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _nameC, _valueC, _minSalaryC, _maxSalaryC;
+  late TextEditingController _valueC, _minSalaryC, _maxSalaryC;
 
   bool get _isEditMode => widget.deductionMasterModel != null;
 
@@ -116,6 +116,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
     {"DisplayName": "Ex-Gratia", "zAttributesId": 31},
     {"DisplayName": "Relocation Allowance", "zAttributesId": 32},
   ];
+ 
   // SELECTED VALUES
   Map<String, dynamic>? selectedGender;
   List<Map<String, dynamic>> selectedNameList = [];
@@ -151,7 +152,6 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
 
   // DISPOSE TEXT EDITING CONTROLLERS
   void _disposeTextEditingControllers() {
-    _nameC.dispose();
     _valueC.dispose();
     _minSalaryC.dispose();
     _maxSalaryC.dispose();
@@ -159,7 +159,6 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
 
   // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingControllers() {
-    _nameC = TextEditingController();
     _valueC = TextEditingController();
     _minSalaryC = TextEditingController();
     _maxSalaryC = TextEditingController();

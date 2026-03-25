@@ -2036,6 +2036,7 @@ class DashboardStatCard extends StatelessWidget {
   }
 }
 
+/*
 class EnquiryProgressBar extends StatelessWidget {
   final String title;
   final int percentage;
@@ -2152,7 +2153,7 @@ class EnquiryProgressBar extends StatelessWidget {
     );
   }
 }
-
+*/
 class SourceProgressBar extends StatelessWidget {
   final String title;
   final num percentage;
