@@ -323,18 +323,6 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                       },
                     ),
                     CustomTextField(
-                      title: 'Purpose',
-                      isRequired: true,
-                      hint: "Enter Purpose",
-                      textController: _purposeC,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Purpose is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
                       title: 'Company Name',
                       isRequired: true,
                       hint: "Enter Company Name",
@@ -375,6 +363,18 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                         visitingCardFile.fileBytesList = fileBytesList;
                         visitingCardFile.fileNameList = fileNameList;
                         visitingCardFile.deletedFileList = deleted;
+                      },
+                    ),
+                    CustomTextField(
+                      title: 'Purpose',
+                      isRequired: true,
+                      hint: "Enter Purpose",
+                      textController: _purposeC,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Purpose is required';
+                        }
+                        return null;
                       },
                     ),
                   ],
