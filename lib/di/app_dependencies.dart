@@ -25,6 +25,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/sales/enquiry/enquiry.depend
 import 'package:k3h_erp_app/di/feature_dependencies/sales/other_charges/other_charges.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/payment_schedule/payment_schedule.dependency.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/payment_schedule_scheme/payment_schedule_scheme.dependency.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/sales/report/performance_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/sales_dashboard/sales_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/setting_dashboard/setting_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
@@ -211,4 +212,6 @@ void initDependencies() {
   registerPayrollDashboardDependencies(serviceLocator);
   // CLASSIFICATION PARAMTERES DEPENDENCIES
   registerClassificationParameterDependencies(serviceLocator);
+  // PERFORMANCE REPORT DEPENDENCIES
+  registerPerformanceReportDependencies(serviceLocator);
 }
