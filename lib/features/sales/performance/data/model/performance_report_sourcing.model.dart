@@ -6,40 +6,40 @@ class PerformanceReportSourcingModel {
   final String designationName;
   final int walkinsByCp;
   final int actualWalkinsByCp;
-  final int performanceWalkinsByCp;
+  final double performanceWalkinsByCp;
   final int freshVisits;
   final int actualFreshVisits;
-  final int performanceFreshVisits;
+  final double performanceFreshVisits;
   final int revisits;
   final int actualRevisits;
-  final int performanceRevisits;
+  final double performanceRevisits;
   final int bookings;
   final int actualBookings;
-  final int performanceBookings;
+  final double performanceBookings;
   final int totalMeetings;
   final int actualTotalMeetings;
-  final int performanceTotalMeetings;
+  final double performanceTotalMeetings;
   final int totalObm;
   final int actualTotalObm;
-  final int performanceTotalObm;
+  final double performanceTotalObm;
   final int totalObmFreshVisits;
   final int actualTotalObmFreshVisits;
-  final int performanceTotalObmFreshVisits;
+  final double performanceTotalObmFreshVisits;
   final int totalObmRevisits;
   final int actualTotalObmRevisits;
-  final int performanceTotalObmRevisits;
+  final double performanceTotalObmRevisits;
   final int totalIbm;
   final int actualTotalIbm;
-  final int performanceTotalIbm;
+  final double performanceTotalIbm;
   final int uniqueCPs;
   final int actualUniqueCPs;
-  final int performanceUniqueCPs;
+  final double performanceUniqueCPs;
   final int activeCp;
   final int actualActiveCp;
-  final int performanceActiveCp;
+  final double performanceActiveCp;
   final int newCp;
   final int actualNewCp;
-  final int performanceNewCp;
+  final double performanceNewCp;
 
   PerformanceReportSourcingModel({
     required this.employeeId,
@@ -90,52 +90,52 @@ class PerformanceReportSourcingModel {
         designationName: parseValue<String>(json, "DesignationName"),
         walkinsByCp: parseValue<int>(json, "WalkinsByCP"),
         actualWalkinsByCp: parseValue<int>(json, "ActualWalkinsByCP"),
-        performanceWalkinsByCp: parseValue<int>(json, "PerformanceWalkinsByCP"),
+        performanceWalkinsByCp: parseValue<double>(json, "PerformanceWalkinsByCP"),
         freshVisits: parseValue<int>(json, "FreshVisits"),
         actualFreshVisits: parseValue<int>(json, "ActualFreshVisits"),
-        performanceFreshVisits: parseValue<int>(json, "PerformanceFreshVisits"),
+        performanceFreshVisits: parseValue<double>(json, "PerformanceFreshVisits"),
         revisits: parseValue<int>(json, "Revisits"),
         actualRevisits: parseValue<int>(json, "ActualRevisits"),
-        performanceRevisits: parseValue<int>(json, "PerformanceRevisits"),
+        performanceRevisits: parseValue<double>(json, "PerformanceRevisits"),
         bookings: parseValue<int>(json, "Bookings"),
         actualBookings: parseValue<int>(json, "ActualBookings"),
-        performanceBookings: parseValue<int>(json, "PerformanceBookings"),
+        performanceBookings: parseValue<double>(json, "PerformanceBookings"),
         totalMeetings: parseValue<int>(json, "TotalMeetings"),
         actualTotalMeetings: parseValue<int>(json, "ActualTotalMeetings"),
-        performanceTotalMeetings: parseValue<int>(
+        performanceTotalMeetings: parseValue<double>(
           json,
           "PerformanceTotalMeetings",
         ),
         totalObm: parseValue<int>(json, "TotalOBM"),
         actualTotalObm: parseValue<int>(json, "ActualTotalOBM"),
-        performanceTotalObm: parseValue<int>(json, "PerformanceTotalOBM"),
+        performanceTotalObm: parseValue<double>(json, "PerformanceTotalOBM"),
         totalObmFreshVisits: parseValue<int>(json, "TotalOBMFreshVisits"),
         actualTotalObmFreshVisits: parseValue<int>(
           json,
           "ActualTotalOBMFreshVisits",
         ),
-        performanceTotalObmFreshVisits: parseValue<int>(
+        performanceTotalObmFreshVisits: parseValue<double>(
           json,
           "PerformanceTotalOBMFreshVisits",
         ),
         totalObmRevisits: parseValue<int>(json, "TotalOBMRevisits"),
         actualTotalObmRevisits: parseValue<int>(json, "ActualTotalOBMRevisits"),
-        performanceTotalObmRevisits: parseValue<int>(
+        performanceTotalObmRevisits: parseValue<double>(
           json,
           "PerformanceTotalOBMRevisits",
         ),
         totalIbm: parseValue<int>(json, "TotalIBM"),
         actualTotalIbm: parseValue<int>(json, "ActualTotalIBM"),
-        performanceTotalIbm: parseValue<int>(json, "PerformanceTotalIBM"),
+        performanceTotalIbm: parseValue<double>(json, "PerformanceTotalIBM"),
         uniqueCPs: parseValue<int>(json, "UniqueCPs"),
         actualUniqueCPs: parseValue<int>(json, "ActualUniqueCPs"),
-        performanceUniqueCPs: parseValue<int>(json, "PerformanceUniqueCPs"),
+        performanceUniqueCPs: parseValue<double>(json, "PerformanceUniqueCPs"),
         activeCp: parseValue<int>(json, "ActiveCP"),
         actualActiveCp: parseValue<int>(json, "ActualActiveCP"),
-        performanceActiveCp: parseValue<int>(json, "PerformanceActiveCP"),
+        performanceActiveCp: parseValue<double>(json, "PerformanceActiveCP"),
         newCp: parseValue<int>(json, "NewCP"),
         actualNewCp: parseValue<int>(json, "ActualNewCP"),
-        performanceNewCp: parseValue<int>(json, "PerformanceNewCP"),
+        performanceNewCp: parseValue<double>(json, "PerformanceNewCP"),
       );
 
   Map<String, dynamic> toJson() => {

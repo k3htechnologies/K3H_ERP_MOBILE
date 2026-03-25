@@ -18,6 +18,14 @@ abstract interface class PerformanceReportDatasource {
     required String reportType,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Map<String, dynamic>> apicallPerformanceReportForExport({
+    required int projectId,
+    required int pageSize,
+    required int pageNumber,
+    required String reportType,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class PerformanceReportDatasourceImpl extends PerformanceReportDatasource {
@@ -49,21 +57,25 @@ class PerformanceReportDatasourceImpl extends PerformanceReportDatasource {
       if (rawData == null) {
         return {'data': null, 'totalNumberOfRecord': 0};
       }
-      final PerformanceReportSourcingModel model =
-          PerformanceReportSourcingModel.fromJson(rawData);
+      final List<dynamic> dataList = rawData as List;
+
+      final List<PerformanceReportSourcingModel> modelList =
+          dataList
+              .map((e) => PerformanceReportSourcingModel.fromJson(e))
+              .toList();
 
       return {
-        'data': model,
+        'data': modelList,
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
       };
     } catch (error) {
       if (error is TokenExpiredException) {
         return apiCallPullPerformanceSourcingReport(
-          queryParams: queryParams,
           reportType: reportType,
           projectId: projectId,
           pageSize: pageSize,
           pageNumber: pageNumber,
+          queryParams: queryParams,
         );
       }
       rethrow;
@@ -96,21 +108,62 @@ class PerformanceReportDatasourceImpl extends PerformanceReportDatasource {
       if (rawData == null) {
         return {'data': null, 'totalNumberOfRecord': 0};
       }
-      final PerformanceReportClosingModel model =
-          PerformanceReportClosingModel.fromJson(rawData);
+
+      final List<dynamic> dataList = rawData as List;
+      final List<PerformanceReportClosingModel> modelList =
+          dataList
+              .map((e) => PerformanceReportClosingModel.fromJson(e))
+              .toList();
 
       return {
-        'data': model,
+        'data': modelList,
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
       };
     } catch (error) {
       if (error is TokenExpiredException) {
         return apiCallPullPerformanceClosingReport(
-          queryParams: queryParams,
           reportType: reportType,
           projectId: projectId,
           pageSize: pageSize,
           pageNumber: pageNumber,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPerformanceReportForExport({
+    required int projectId,
+    required int pageSize,
+    required int pageNumber,
+    required String reportType,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullPerformanceReportExportUrl({Map<String, dynamic>? queryParams}) {
+      String url =
+          "PerformanceReport/PullPerformanceReport?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&ReportType=$reportType";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullPerformanceReportExportUrl(queryParams: queryParams),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPerformanceReportForExport(
+          projectId: projectId,
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          reportType: reportType,
+          queryParams: queryParams,
         );
       }
       rethrow;

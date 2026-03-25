@@ -42,11 +42,11 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   late ScrollController _attendanceScrollController;
   Timer? _attendanceDebounce;
 
-  //COMPOFF PAGINATION
+  // COMP OFF PAGINATION
   late ScrollController _regularizationScrollerController;
-  Timer? _regurizationDebounce;
+  Timer? _regularizationDebounce;
 
-  //COMPOFF PAGINATION
+  // COMP OFF PAGINATION
   late ScrollController _compOffScrollerController;
   Timer? _compOffDebounce;
 
@@ -298,11 +298,11 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           !(state.isLoading ?? false) &&
           state.regularizationList.length <
               state.totalNumberOfRecordRegurization) {
-        if (_regurizationDebounce?.isActive ?? false) {
-          _regurizationDebounce?.cancel();
+        if (_regularizationDebounce?.isActive ?? false) {
+          _regularizationDebounce?.cancel();
         }
         final date = _selectedDateNotifier.value;
-        _regurizationDebounce = Timer(const Duration(milliseconds: 300), () {
+        _regularizationDebounce = Timer(const Duration(milliseconds: 300), () {
           _payrollReportCubit.getAttendanceRegularizationList(
             context,
             state.currentPageRegurization + 1,

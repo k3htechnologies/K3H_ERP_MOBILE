@@ -299,6 +299,8 @@ import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/pa
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_cubit.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/pages/add_payment_schedule_scheme_screen.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/pages/payment_schedule_scheme_screen.dart';
+import 'package:k3h_erp_app/features/sales/performance/data/model/performance_report_closing.model.dart';
+import 'package:k3h_erp_app/features/sales/performance/data/model/performance_report_sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/performance/presentation/cubit/performance_cubit.dart';
 import 'package:k3h_erp_app/features/sales/performance/presentation/pages/performance.screen.dart';
 import 'package:k3h_erp_app/features/sales/performance/presentation/pages/view_performance.screen.dart';
@@ -3898,7 +3900,36 @@ final GoRouter goRouter = GoRouter(
                   name: AppRoutes.viewPerformanceReport,
                   path: AppRoutes.viewPerformanceReport,
                   builder: (context, state) {
-                    return ViewPerformanceScreen();
+                    final sourcingParam = state.uri.queryParameters['sourcing'];
+                    final closingParam = state.uri.queryParameters['closing'];
+
+                    PerformanceReportSourcingModel? sourcing;
+                    PerformanceReportClosingModel? closing;
+
+                    if (sourcingParam != null && sourcingParam.isNotEmpty) {
+                      sourcing = PerformanceReportSourcingModel.fromJson(
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(sourcingParam),
+                          ),
+                        ),
+                      );
+                    }
+
+                    if (closingParam != null && closingParam.isNotEmpty) {
+                      closing = PerformanceReportClosingModel.fromJson(
+                        jsonDecode(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(closingParam),
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ViewPerformanceScreen(
+                      sourcing: sourcing,
+                      closing: closing,
+                    );
                   },
                 ),
               ],

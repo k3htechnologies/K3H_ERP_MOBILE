@@ -5,7 +5,9 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/performance/data/model/performance_report_sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/performance/data/model/performance_report_closing.model.dart';
 import 'package:k3h_erp_app/features/sales/performance/data/repository/performance_report.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'performance_state.dart';
 
@@ -16,18 +18,23 @@ class PerformanceCubit extends Cubit<PerformanceState> {
       serviceLocator<PerformanceReportRepository>();
 
   // <---- SEARCH SALES TARGET ---->
-  Future<void> searchSalesTarget(
+  Future<void> searchPerformanceReport(
     BuildContext context,
     int projectId,
     int tabIndex,
     String value,
+    String reportType,
+    String periodType,
   ) async {
+    final searchText = value.trim();
+
     emit(
       state.copyWith(
-        searchText: value.trim(),
+        searchText: searchText,
         performanceReportClosingModel: [],
         performanceReportSourcingModel: [],
-        currentPage: 1,
+        closingCurrentPagePerformanceReport: 1,
+        sourcingCurrentPagePerformanceReport: 1,
       ),
     );
 
@@ -35,106 +42,54 @@ class PerformanceCubit extends Cubit<PerformanceState> {
       await getPerformanceSourcingReportList(
         context: context,
         projectId: projectId,
+        reportType: reportType,
+        periodType: periodType,
         pageNumber: 1,
-        reportType: "Sourcing",
+        value: searchText,
       );
     } else {
       await getPerformanceClosingReportList(
         context: context,
         projectId: projectId,
+        reportType: reportType,
+        periodType: periodType,
         pageNumber: 1,
-        reportType: "Closing",
+        value: searchText,
       );
     }
   }
 
-  // <---- CLEAR FILTER ON SALES TARGET ---->
-  void clearFilterOnSalesTarget(
-    BuildContext context,
-    int projectId,
-    int tabIndex,
-  ) {
+  // RESET SEARCH
+  void resetSearch() {
     emit(
       state.copyWith(
-        clearFilters: true,
-        performanceReportSourcingModel: [],
+        searchText: "",
         performanceReportClosingModel: [],
-        filterStartDate: null,
-        filterEndDate: null,
+        performanceReportSourcingModel: [],
+        closingCurrentPagePerformanceReport: 1,
+        sourcingCurrentPagePerformanceReport: 1,
       ),
     );
-    if (tabIndex == 0) {
-      getPerformanceSourcingReportList(
-        context: context,
-        pageNumber: 1,
-        projectId: projectId,
-        reportType: "Sourcing",
-      );
-    } else {
-      getPerformanceClosingReportList(
-        context: context,
-        pageNumber: 1,
-        projectId: projectId,
-        reportType: "Closing",
-      );
-    }
   }
 
-  // <---- APPLY FILTER ON SALES TARGET ---->
-  void applyFilterOnSalesTarget({
-    required BuildContext context,
-    DateTime? startDate,
-    DateTime? endDate,
-    required int projectId,
-    required int tabIndex,
-  }) {
-    emit(
-      state.copyWith(
-        filterStartDate: startDate,
-        filterEndDate: endDate,
-        performanceReportSourcingModel: [],
-        performanceReportClosingModel: [],
-      ),
-    );
-    if (tabIndex == 0) {
-      getPerformanceSourcingReportList(
-        context: context,
-        pageNumber: 1,
-        projectId: projectId,
-        reportType: "Sourcing",
-      );
-    } else {
-      getPerformanceClosingReportList(
-        context: context,
-        pageNumber: 1,
-        projectId: projectId,
-        reportType: "Closing",
-      );
-    }
-  }
-
-  // ON TAB CHANGE
-  void onTabChanged(int index, BuildContext context) {
-    emit(
-      state.copyWith(
-        isLoading: true,
-        performanceReportClosingModel: [],
-        performanceReportSourcingModel: [],
-        closingTotalNumberOfRecordPerformanceReport: 1,
-        sourcingTotalNumberOfRecordPerformanceReport: 1,
-        currentPage: 1,
-      ),
-    );
+  // ON TAB CHANGES METHOD
+  void onTabChangedViewScreen(int index, BuildContext context) {
+    emit(state.copyWith(currentTabIndexForView: index));
   }
 
   // <---- GET SOURCING TARGET LIST ---->
   Future getPerformanceSourcingReportList({
     required BuildContext context,
     required int projectId,
-    int pageNumber = 1,
     required String reportType,
-    Map<String, dynamic>? queryParams,
+    required String periodType,
+    int pageNumber = 1,
+    String? value,
   }) async {
+    Map<String, dynamic> queryParams = {
+      "PeriodType": periodType,
+      "EmployeeName": value ?? "",
+    };
     emit(state.copyWith(isLoading: true));
 
     var result = await _performanceReportRepository
@@ -143,6 +98,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
           pageSize: 10,
           projectId: projectId,
           reportType: reportType,
+          queryParams: queryParams,
         );
 
     result.fold(
@@ -168,7 +124,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
                         state.sourcingTotalNumberOfRecordPerformanceReport != 1
                     ? state.sourcingTotalNumberOfRecordPerformanceReport - 1
                     : response['totalNumberOfRecord'],
-            currentPage: pageNumber,
+            sourcingCurrentPagePerformanceReport: pageNumber,
           ),
         );
       },
@@ -179,10 +135,16 @@ class PerformanceCubit extends Cubit<PerformanceState> {
   Future getPerformanceClosingReportList({
     required BuildContext context,
     required int projectId,
-    int pageNumber = 1,
     required String reportType,
-    Map<String, dynamic>? queryParams,
+    required String periodType,
+    int pageNumber = 1,
+    String? value,
   }) async {
+    Map<String, dynamic> queryParams = {
+      "PeriodType": periodType,
+      "EmployeeName": value ?? "",
+    };
+
     emit(state.copyWith(isLoading: true));
 
     var result = await _performanceReportRepository.getPerformanceClosingReport(
@@ -190,6 +152,7 @@ class PerformanceCubit extends Cubit<PerformanceState> {
       pageSize: 10,
       projectId: projectId,
       reportType: reportType,
+      queryParams: queryParams,
     );
 
     result.fold(
@@ -215,8 +178,55 @@ class PerformanceCubit extends Cubit<PerformanceState> {
                         state.closingTotalNumberOfRecordPerformanceReport != 1
                     ? state.closingTotalNumberOfRecordPerformanceReport - 1
                     : response['totalNumberOfRecord'],
-            currentPage: pageNumber,
+            closingCurrentPagePerformanceReport: pageNumber,
           ),
+        );
+      },
+    );
+  }
+
+  // <---- EXPORT EXCEL PDF ---->
+  Future exportExcelPdf(
+    BuildContext context,
+    String exportType,
+    String reportType,
+    String periodType,
+    int projectId,
+    int totalNumberOfRecord,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _performanceReportRepository.exportPerformanceReport(
+      projectId: projectId,
+      pageNumber: 1,
+      pageSize: totalNumberOfRecord,
+      reportType: reportType,
+      queryParams:
+          state.searchText != ""
+              ? {
+                "EmployeeName": state.searchText,
+                "ExportType": exportType,
+                "PeriodType": periodType,
+              }
+              : {"ExportType": exportType, "PeriodType": periodType},
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final fileName =
+            "${reportType == "closing" ? "Closing Performance Report" : "Sourcing Performance Report"} ${DateTime.now()}";
+
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "$fileName.pdf"
+              : "$fileName.xlsx",
+        );
+        showSuccessMessage(
+          context,
+          subTitle: 'Exported as $exportType Successfully',
         );
       },
     );

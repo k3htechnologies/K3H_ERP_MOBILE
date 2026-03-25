@@ -16,6 +16,15 @@ abstract interface class PerformanceReportRepository {
     required int pageSize,
     required int pageNumber,
     required String reportType,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> exportPerformanceReport({
+    required int projectId,
+    required int pageSize,
+    required int pageNumber,
+    required String reportType,
+    Map<String, dynamic>? queryParams,
   });
 }
 
@@ -38,8 +47,8 @@ class PerformanceReportRepositoryImpl extends PerformanceReportRepository {
             pageNumber: pageNumber,
             pageSize: pageSize,
             projectId: projectId,
-            queryParams: queryParams,
             reportType: reportType,
+            queryParams: queryParams,
           );
       return right(result);
     } catch (error) {
@@ -61,8 +70,31 @@ class PerformanceReportRepositoryImpl extends PerformanceReportRepository {
             pageNumber: pageNumber,
             pageSize: pageSize,
             projectId: projectId,
-            queryParams: queryParams,
             reportType: reportType,
+            queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> exportPerformanceReport({
+    required int projectId,
+    required int pageSize,
+    required int pageNumber,
+    required String reportType,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await performanceReportDatasource
+          .apicallPerformanceReportForExport(
+            projectId: projectId,
+            pageSize: pageSize,
+            pageNumber: pageNumber,
+            reportType: reportType,
+        queryParams: queryParams
           );
       return right(result);
     } catch (error) {

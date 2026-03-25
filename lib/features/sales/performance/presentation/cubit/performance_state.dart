@@ -2,22 +2,28 @@ part of 'performance_cubit.dart';
 
 final class PerformanceState extends BaseState {
   final List<PerformanceReportClosingModel> performanceReportClosingModel;
-  final List<PerformanceReportSourcingModel> performanceReportSourcingModel;
   final int closingTotalNumberOfRecordPerformanceReport;
+  final int closingCurrentPagePerformanceReport;
+  final List<PerformanceReportSourcingModel> performanceReportSourcingModel;
   final int sourcingTotalNumberOfRecordPerformanceReport;
-  final int totalNumberOfRecords;
-  final int currentPage;
+  final int sourcingCurrentPagePerformanceReport;
+  final int currentTabIndexFirst;
+  final int currentTabIndexSecond;
+  final int currentTabIndexForView;
   final String searchText;
   final DateTime? filterStartDate;
   final DateTime? filterEndDate;
   const PerformanceState({
     super.isLoading,
     required this.performanceReportClosingModel,
-    required this.performanceReportSourcingModel,
     required this.closingTotalNumberOfRecordPerformanceReport,
+    required this.closingCurrentPagePerformanceReport,
+    required this.performanceReportSourcingModel,
     required this.sourcingTotalNumberOfRecordPerformanceReport,
-    required this.totalNumberOfRecords,
-    required this.currentPage,
+    required this.sourcingCurrentPagePerformanceReport,
+    required this.currentTabIndexFirst,
+    required this.currentTabIndexSecond,
+    required this.currentTabIndexForView,
     required this.searchText,
     this.filterStartDate,
     this.filterEndDate,
@@ -25,11 +31,14 @@ final class PerformanceState extends BaseState {
   factory PerformanceState.initial() => PerformanceState(
     isLoading: false,
     performanceReportClosingModel: [],
-    performanceReportSourcingModel: [],
     closingTotalNumberOfRecordPerformanceReport: 0,
+    closingCurrentPagePerformanceReport: 1,
+    performanceReportSourcingModel: [],
     sourcingTotalNumberOfRecordPerformanceReport: 0,
-    totalNumberOfRecords: 0,
-    currentPage: 1,
+    sourcingCurrentPagePerformanceReport: 1,
+    currentTabIndexFirst: 0,
+    currentTabIndexSecond: 0,
+    currentTabIndexForView: 0,
     searchText: "",
     filterStartDate: null,
     filterEndDate: null,
@@ -39,11 +48,14 @@ final class PerformanceState extends BaseState {
     String? errorMessage,
     bool? isLoading,
     List<PerformanceReportClosingModel>? performanceReportClosingModel,
-    List<PerformanceReportSourcingModel>? performanceReportSourcingModel,
     int? closingTotalNumberOfRecordPerformanceReport,
+    int? closingCurrentPagePerformanceReport,
+    List<PerformanceReportSourcingModel>? performanceReportSourcingModel,
     int? sourcingTotalNumberOfRecordPerformanceReport,
-    int? totalNumberOfRecords,
-    int? currentPage,
+    int? sourcingCurrentPagePerformanceReport,
+    int? currentTabIndexFirst,
+    int? currentTabIndexSecond,
+    int? currentTabIndexForView,
     String? searchText,
     Object? filterStartDate = _noChange,
     Object? filterEndDate = _noChange,
@@ -53,16 +65,23 @@ final class PerformanceState extends BaseState {
       isLoading: isLoading ?? this.isLoading,
       performanceReportClosingModel:
           performanceReportClosingModel ?? this.performanceReportClosingModel,
+      closingTotalNumberOfRecordPerformanceReport:
+      closingTotalNumberOfRecordPerformanceReport ??
+          this.closingTotalNumberOfRecordPerformanceReport,
+      closingCurrentPagePerformanceReport:
+      closingCurrentPagePerformanceReport ??
+          this.closingCurrentPagePerformanceReport,
       performanceReportSourcingModel:
           performanceReportSourcingModel ?? this.performanceReportSourcingModel,
-      closingTotalNumberOfRecordPerformanceReport:
-          closingTotalNumberOfRecordPerformanceReport ??
-          this.closingTotalNumberOfRecordPerformanceReport,
       sourcingTotalNumberOfRecordPerformanceReport:
           sourcingTotalNumberOfRecordPerformanceReport ??
           this.sourcingTotalNumberOfRecordPerformanceReport,
-      totalNumberOfRecords: totalNumberOfRecords ?? this.totalNumberOfRecords,
-      currentPage: currentPage ?? this.currentPage,
+      sourcingCurrentPagePerformanceReport:
+      sourcingCurrentPagePerformanceReport ??
+          this.sourcingCurrentPagePerformanceReport,
+      currentTabIndexFirst: currentTabIndexFirst ?? this.currentTabIndexFirst,
+      currentTabIndexSecond: currentTabIndexSecond ?? this.currentTabIndexSecond,
+      currentTabIndexForView: currentTabIndexForView ?? this.currentTabIndexForView,
       searchText: searchText ?? this.searchText,
       filterStartDate:
           filterStartDate == _noChange
@@ -80,11 +99,14 @@ final class PerformanceState extends BaseState {
   List<Object?> get props => [
     isLoading,
     performanceReportClosingModel,
-    performanceReportSourcingModel,
     closingTotalNumberOfRecordPerformanceReport,
+    closingCurrentPagePerformanceReport,
+    performanceReportSourcingModel,
     sourcingTotalNumberOfRecordPerformanceReport,
-    totalNumberOfRecords,
-    currentPage,
+    sourcingCurrentPagePerformanceReport,
+    currentTabIndexFirst,
+    currentTabIndexSecond,
+    currentTabIndexForView,
     searchText,
     filterStartDate,
     filterEndDate,

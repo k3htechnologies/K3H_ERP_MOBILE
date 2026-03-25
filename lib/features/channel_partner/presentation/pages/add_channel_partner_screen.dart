@@ -500,7 +500,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         companyName: companyName,
         firmsType: firmsTypeValue,
         type: selectedType["DisplayName"],
-        designation: _selectedDesignation.first["DisplayName"],
+        designation:
+            _selectedDesignation.isNotEmpty
+                ? _selectedDesignation.first["DisplayName"]
+                : "",
         otp: _otpController.text.trim(),
       );
     } else {
@@ -527,7 +530,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         companyName: companyName,
         firmsType: firmsTypeValue,
         type: selectedType["DisplayName"],
-        designation: _selectedDesignation.first["DisplayName"],
+        designation:
+            _selectedDesignation.isNotEmpty
+                ? _selectedDesignation.first["DisplayName"]
+                : "",
         otp: _otpController.text.trim(),
         gstCertificateURL: selectedGSTCertificateForPopUpFile.value,
       );
@@ -829,10 +835,13 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         if (value == null || value.isEmpty) {
                           return "Designation Name is required";
                         }
+
                         if (selectedCompanyType.value['zAttributesId'] == 2 &&
+                            _selectedDesignation.isNotEmpty &&
                             _selectedDesignation.first['zAttributesId'] == 3) {
                           return "You can't be Owner";
                         }
+
                         return null;
                       },
                     ),
@@ -886,6 +895,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                         onChanged:
                                             (hasRera &&
                                                     _selectedDesignation
+                                                        .isNotEmpty &&
+                                                    _selectedDesignation
                                                             .first["zAttributesId"] !=
                                                         3)
                                                 ? null
@@ -917,6 +928,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                   isRequired: hasRera,
                                   readOnly:
                                       hasRera &&
+                                      _selectedDesignation.isNotEmpty &&
                                       _selectedDesignation
                                               .first["zAttributesId"] !=
                                           3,

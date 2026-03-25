@@ -6,22 +6,22 @@ class PerformanceReportClosingModel {
   final String designationName;
   final int walkinsByCp;
   final int actualWalkinsByCp;
-  final int performanceWalkinsByCp;
+  final double performanceWalkinsByCp;
   final int walkinsDirect;
   final int actualWalkinsDirect;
-  final int performanceWalkinsDirect;
+  final double performanceWalkinsDirect;
   final int freshVisits;
   final int actualFreshVisits;
-  final int performanceFreshVisits;
+  final double performanceFreshVisits;
   final int revisits;
   final int actualRevisits;
-  final int performanceRevisits;
+  final double performanceRevisits;
   final int bookingByCp;
   final int actualBookingByCp;
-  final int performanceBookingByCp;
+  final double performanceBookingByCp;
   final int bookingDirect;
   final int actualBookingDirect;
-  final int performanceBookingDirect;
+  final double performanceBookingDirect;
 
   PerformanceReportClosingModel({
     required this.employeeId,
@@ -55,22 +55,22 @@ class PerformanceReportClosingModel {
     designationName: parseValue<String>(json, "DesignationName"),
     walkinsByCp: parseValue<int>(json, "WalkinsByCP"),
     actualWalkinsByCp: parseValue<int>(json, "ActualWalkinsByCP"),
-    performanceWalkinsByCp: parseValue<int>(json, "PerformanceWalkinsByCP"),
+    performanceWalkinsByCp: parseValue<double>(json, "PerformanceWalkinsByCP"),
     walkinsDirect: parseValue<int>(json, "WalkinsDirect"),
     actualWalkinsDirect: parseValue<int>(json, "ActualWalkinsDirect"),
-    performanceWalkinsDirect: parseValue<int>(json, "PerformanceWalkinsDirect"),
+    performanceWalkinsDirect: parseValue<double>(json, "PerformanceWalkinsDirect"),
     freshVisits: parseValue<int>(json, "FreshVisits"),
     actualFreshVisits: parseValue<int>(json, "ActualFreshVisits"),
-    performanceFreshVisits: parseValue<int>(json, "PerformanceFreshVisits"),
+    performanceFreshVisits: parseValue<double>(json, "PerformanceFreshVisits"),
     revisits: parseValue<int>(json, "Revisits"),
     actualRevisits: parseValue<int>(json, "ActualRevisits"),
-    performanceRevisits: parseValue<int>(json, "PerformanceRevisits"),
+    performanceRevisits: parseValue<double>(json, "PerformanceRevisits"),
     bookingByCp: parseValue<int>(json, "BookingByCP"),
     actualBookingByCp: parseValue<int>(json, "ActualBookingByCP"),
-    performanceBookingByCp: parseValue<int>(json, "PerformanceBookingByCP"),
+    performanceBookingByCp: parseValue<double>(json, "PerformanceBookingByCP"),
     bookingDirect: parseValue<int>(json, "BookingDirect"),
     actualBookingDirect: parseValue<int>(json, "ActualBookingDirect"),
-    performanceBookingDirect: parseValue<int>(json, "PerformanceBookingDirect"),
+    performanceBookingDirect: parseValue<double>(json, "PerformanceBookingDirect"),
   );
 
   Map<String, dynamic> toJson() => {
