@@ -1253,22 +1253,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
           children: [
             //  TABS
             verticalSpacing(),
-            TabBar(
+            ChipStyleTabBar(
               controller: _approvalTabController!,
-              isScrollable: true,
-              labelColor: AppColor.primary,
-              unselectedLabelColor: AppColor.grey,
-              labelStyle: AppTextStyle.ts14SB(),
-              unselectedLabelStyle: AppTextStyle.ts14M(),
-              tabAlignment: TabAlignment.start,
-              dividerColor: AppColor.lightBlue,
-              indicator: UnderlineTabIndicator(
-                borderSide: BorderSide(width: 2, color: AppColor.primary),
-              ),
-
-              tabs: moduleNames.map((e) => Tab(text: e)).toList(),
+              isSecondaryStyle: true,
+              tabs: moduleNames.map((m) => m).toList(),
             ),
-
             verticalSpacing(),
 
             //  TAB VIEW
