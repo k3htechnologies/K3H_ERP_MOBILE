@@ -1,17 +1,25 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/cubit/payroll_report_cubit.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/route_map_screen.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
@@ -26,12 +34,23 @@ class PayrollReportScreen extends StatefulWidget {
 }
 
 class _PayrollReportScreenState extends State<PayrollReportScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   // TAB CONTROLLER
   late TabController _tabController;
+  late TabController _regularizationTabController;
+  late TabController _compOffTabController;
+  late TabController _leaveTabController;
+  late TabController _outdoorTabController;
+  late TabController _resignationTabController;
+
+  late ProjectModel _project;
 
   // CUBIT
   late PayrollReportCubit _payrollReportCubit;
+  late LoginCubit _loginCubit;
+
+  // AUTHORIZATION
+  late AuthorizationModel _routeAuthorizationModel;
 
   // TEXT CONTROLLER
   late TextEditingController _searchC;
@@ -74,10 +93,19 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   @override
   void initState() {
     super.initState();
+    _project = getProject();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.payrollReport]!;
     _payrollReportCubit = context.read<PayrollReportCubit>();
+    _loginCubit = context.read<LoginCubit>();
     _searchC = TextEditingController();
     _selectedDateNotifier = ValueNotifier(DateTime.now());
     _tabController = TabController(length: 6, vsync: this);
+    _regularizationTabController = TabController(length: 2, vsync: this);
+    _compOffTabController = TabController(length: 2, vsync: this);
+    _leaveTabController = TabController(length: 2, vsync: this);
+    _outdoorTabController = TabController(length: 2, vsync: this);
+    _resignationTabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
     _attendanceScrollController = ScrollController();
     _regularizationScrollerController = ScrollController();
@@ -93,6 +121,20 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
     _setupResignationPagination();
     _selectedDateNotifier.addListener(_onSelectedDateChanged);
     _loadDataForTab(_tabController.index);
+
+    _leaveTabController.addListener(() {
+      if (!_leaveTabController.indexIsChanging) {
+        _payrollReportCubit.onLeaveInnerTabChanged(_leaveTabController.index);
+      }
+    });
+
+    _compOffTabController.addListener(() {
+      if (!_compOffTabController.indexIsChanging) {
+        _payrollReportCubit.onCompOffInnerTabChanged(
+          _compOffTabController.index,
+        );
+      }
+    });
   }
 
   @override
@@ -140,6 +182,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
   // WHEN SELECTED DATE CHANGES, REFETCH CURRENT TAB DATA
   void _onSelectedDateChanged() {
     final date = _selectedDateNotifier.value;
+    _payrollReportCubit.resetApprovalTabSelection();
     switch (_tabController.index) {
       case 0:
         _payrollReportCubit.getAttendanceList(
@@ -230,14 +273,13 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         }
         break;
       case 3: // Leave
-        if (_payrollReportCubit.state.leaveList.isEmpty) {
-          _payrollReportCubit.getLeaveList(
-            context: context,
-            pageNumber: 1,
-            startDate: date,
-            endDate: date,
-          );
-        }
+        _payrollReportCubit.getLeaveList(
+          context: context,
+          pageNumber: 1,
+          startDate: date,
+          endDate: date,
+        );
+
         break;
       case 4: // Outdoor
         if (_payrollReportCubit.state.outdoorList.isEmpty) {
@@ -519,7 +561,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             return;
           }
         }
-        _payrollReportCubit.applyFilterOnCompOff(
+        _payrollReportCubit.applyFilterOnPayrollReport(
           context: context,
           startDate: startDate,
           endDate: endDate,
@@ -567,7 +609,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisSize: MainAxisSize.min, // ✅ IMPORTANT
                     children: [
                       InkWell(
                         onTap: _onBackArrowClicked,
@@ -578,11 +620,13 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                         ),
                       ),
                       horizontalSpacing(width: 20),
+
                       ValueListenableBuilder<DateTime>(
                         valueListenable: _selectedDateNotifier,
                         builder: (context, date, _) {
                           final startDate = state.filterStartDate;
                           final endDate = state.filterEndDate;
+
                           if (startDate != null && endDate != null) {
                             return Text(
                               "${formatDateTimeAsDDMMMYYYY(startDate)} - "
@@ -590,12 +634,14 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                               style: AppTextStyle.ts14M(),
                             );
                           }
+
                           if (startDate != null && endDate == null) {
                             return Text(
                               formatDateTimeAsDDMMMYYYY(startDate),
                               style: AppTextStyle.ts14M(),
                             );
                           }
+
                           return Text(
                             formatDateTimeAsDDMMMYYYY(date),
                             style: AppTextStyle.ts14M(),
@@ -612,6 +658,58 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                           size: 18,
                           color: AppColor.black.withValues(alpha: .5),
                         ),
+                      ),
+
+                      Spacer(),
+                      BlocBuilder<PayrollReportCubit, PayrollReportState>(
+                        builder: (context, state) {
+                          bool isAllSelected = false;
+                          bool showSelectAll = false;
+
+                          switch (state.currentTabIndex) {
+                            case 3: // Leave
+                              isAllSelected = state.isAllLeaveSelected;
+                              showSelectAll = state.leaveInnerTabIndex == 1;
+                              break;
+                            case 2: // CompOff
+                              isAllSelected = state.isAllCompOffSelected;
+                              showSelectAll = state.compOffInnerTabIndex == 1;
+                              break;
+                            case 4:
+                              isAllSelected = state.isAllOutdoorSelected;
+                              showSelectAll = state.outdoorInnerTabIndex == 1;
+                              break;
+                            case 5:
+                              isAllSelected = state.isAllResignationSelected;
+                              showSelectAll =
+                                  state.resignationInnerTabIndex == 1;
+                              break;
+                          }
+
+                          return !showSelectAll
+                              ? const SizedBox.shrink()
+                              : InkWell(
+                                onTap: () {
+                                  _payrollReportCubit.toggleSelectAll();
+                                },
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      height: 18,
+                                      width: 18,
+                                      child: Checkbox(
+                                        value: isAllSelected,
+                                        onChanged: (_) {
+                                          _payrollReportCubit.toggleSelectAll();
+                                        },
+                                      ),
+                                    ),
+                                    horizontalSpacing(width: 5),
+                                    Text("Select All"),
+                                  ],
+                                ),
+                              );
+                        },
                       ),
                     ],
                   ),
@@ -1222,62 +1320,226 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         if (state.leaveList.isEmpty) {
           return Center(child: noDataWidget());
         }
+        final bool isActionAllowed = _routeAuthorizationModel.isAction;
 
-        return ListView.builder(
-          controller: _leaveScrollController,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          itemCount: state.leaveList.length + 1,
-          itemBuilder: (context, index) {
-            if (index == state.leaveList.length) {
-              return state.leaveList.length < state.totalNumberOfRecordLeave
-                  ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                  : const SizedBox.shrink();
-            }
+        return Column(
+          children: [
+            ApproveRejectWidget(
+              title: "Pending",
+              isActionAlreadyPerformed: !isActionAllowed,
+              isMaster: true,
 
-            final leave = state.leaveList[index];
+              onApprove: (val) async {
+                await _payrollReportCubit.approveRejectSelected(
+                  context: context,
+                  isApproved: true,
+                  remark: val.trim(),
+                  projectId: _project.projectId,
+                );
+              },
 
-            return Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(12),
-              decoration: commonCardDecoration(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              onReject: (val) async {
+                await _payrollReportCubit.approveRejectSelected(
+                  context: context,
+                  isApproved: false,
+                  remark: val.trim(),
+                  projectId: _project.projectId,
+                );
+              },
+              onThirdTap: () async {
+                final approvalLogHistoryList = await _loginCubit
+                    .getApprovalLogHistory(
+                      context: context,
+                      projectId: _project.projectId,
+                      id: 0,
+                      moduleName: "LEAVE",
+                    );
+
+                if (context.mounted) {
+                  goRouter.pushNamed(
+                    AppRoutes.approvalLogHistory,
+                    queryParameters: {
+                      "subTitle": Uri.encodeComponent(
+                        EncryptionManager.encryptData(""),
+                      ),
+                      "title": Uri.encodeComponent(
+                        EncryptionManager.encryptData("Leave Log History"),
+                      ),
+                      "approvalList": Uri.encodeComponent(
+                        EncryptionManager.encryptData(
+                          jsonEncode(
+                            approvalLogHistoryList
+                                .map((e) => e.toJson())
+                                .toList(),
+                          ),
+                        ),
+                      ),
+                    },
+                  );
+                }
+              },
+            ),
+            ChipStyleTabBar(
+              controller: _leaveTabController,
+              isSecondaryStyle: true,
+              tabs: ['Report', 'Approval'],
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _leaveTabController,
                 children: [
-                  Text(
-                    leave.createdBy,
-                    style: AppTextStyle.ts16M(),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  //REPORT
+                  ListView.builder(
+                    controller: _leaveScrollController,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    itemCount: state.leaveList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == state.leaveList.length) {
+                        return state.leaveList.length <
+                                state.totalNumberOfRecordLeave
+                            ? const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
+
+                      final leave = state.leaveList[index];
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              leave.createdBy,
+                              style: AppTextStyle.ts16M(),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            verticalSpacing(height: 10),
+                            buildRowTitleValue(
+                              title: "Leave Type",
+                              value: leave.leaveType,
+                            ),
+                            buildRowTitleValue(
+                              title: "Start Date",
+                              value: formatDateTimeAsDDMMMYYYY(leave.startDate),
+                            ),
+                            buildRowTitleValue(
+                              title: "End Date",
+                              value: formatDateTimeAsDDMMMYYYY(leave.endDate),
+                            ),
+                            buildRowTitleValue(
+                              title: "No Of Days",
+                              value: leave.noOfDays.toString(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Reason",
+                              value: leave.reason,
+                            ),
+                            buildRowTitleValue(
+                              title: "Leave Status",
+                              value: leave.leaveStatus,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                  verticalSpacing(height: 10),
-                  buildRowTitleValue(
-                    title: "Leave Type",
-                    value: leave.leaveType,
-                  ),
-                  buildRowTitleValue(
-                    title: "Start Date",
-                    value: formatDateTimeAsDDMMMYYYY(leave.startDate),
-                  ),
-                  buildRowTitleValue(
-                    title: "End Date",
-                    value: formatDateTimeAsDDMMMYYYY(leave.endDate),
-                  ),
-                  buildRowTitleValue(
-                    title: "No Of Days",
-                    value: leave.noOfDays.toString(),
-                  ),
-                  buildRowTitleValue(title: "Reason", value: leave.reason),
-                  buildRowTitleValue(
-                    title: "Leave Status",
-                    value: leave.leaveStatus,
+                  // APPROVAL
+                  ListView.builder(
+                    controller: _leaveScrollController,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    itemCount: state.leaveList.length + 1, // only loader
+                    itemBuilder: (context, index) {
+                      /// loader
+                      if (index == state.leaveList.length) {
+                        return state.leaveList.length <
+                                state.totalNumberOfRecordLeave
+                            ? const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
+
+                      final leave = state.leaveList[index];
+
+                      return BlocBuilder<
+                        PayrollReportCubit,
+                        PayrollReportState
+                      >(
+                        builder: (context, state) {
+                          final selectedIds = state.selectedLeaveIds;
+
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Checkbox(
+                                value: selectedIds.contains(leave.leaveId),
+                                onChanged: (_) {
+                                  _payrollReportCubit.toggleSelection(
+                                    id: leave.leaveId,
+                                    listLength: state.leaveList.length,
+                                  );
+                                },
+                              ),
+
+                              const SizedBox(width: 8),
+
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: commonCardDecoration(),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        leave.createdBy,
+                                        style: AppTextStyle.ts16M(),
+                                      ),
+                                      verticalSpacing(height: 10),
+                                      buildRowTitleValue(
+                                        title: "Leave Type",
+                                        value: leave.leaveType,
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Start Date",
+                                        value: formatDateTimeAsDDMMMYYYY(
+                                          leave.startDate,
+                                        ),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "End Date",
+                                        value: formatDateTimeAsDDMMMYYYY(
+                                          leave.endDate,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
-            );
-          },
+            ),
+          ],
         );
       },
     );

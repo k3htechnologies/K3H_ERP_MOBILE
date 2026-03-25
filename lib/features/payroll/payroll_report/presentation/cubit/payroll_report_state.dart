@@ -31,6 +31,21 @@ class PayrollReportState extends BaseState {
   final String searchText;
   final DateTime? filterStartDate;
   final DateTime? filterEndDate;
+  final Set<int> selectedLeaveIds;
+  final bool isAllLeaveSelected;
+
+  final Set<int> selectedOutdoorIds;
+  final bool isAllOutdoorSelected;
+
+  final Set<int> selectedResignationIds;
+  final bool isAllResignationSelected;
+
+  final Set<int> selectedCompOffIds;
+  final bool isAllCompOffSelected;
+  final int leaveInnerTabIndex;
+  final int compOffInnerTabIndex;
+  final int outdoorInnerTabIndex;
+  final int resignationInnerTabIndex;
 
   const PayrollReportState({
     super.isLoading,
@@ -58,6 +73,18 @@ class PayrollReportState extends BaseState {
     required this.searchText,
     this.filterStartDate,
     this.filterEndDate,
+    required this.selectedLeaveIds,
+    required this.isAllLeaveSelected,
+    required this.selectedOutdoorIds,
+    required this.isAllOutdoorSelected,
+    required this.selectedResignationIds,
+    required this.isAllResignationSelected,
+    required this.selectedCompOffIds,
+    required this.isAllCompOffSelected,
+    required this.leaveInnerTabIndex,
+    required this.compOffInnerTabIndex,
+    required this.outdoorInnerTabIndex,
+    required this.resignationInnerTabIndex,
   });
 
   factory PayrollReportState.initial() => PayrollReportState(
@@ -86,6 +113,21 @@ class PayrollReportState extends BaseState {
     searchText: '',
     filterStartDate: null,
     filterEndDate: null,
+    selectedLeaveIds: {},
+    isAllLeaveSelected: false,
+
+    selectedOutdoorIds: {},
+    isAllOutdoorSelected: false,
+
+    selectedResignationIds: {},
+    isAllResignationSelected: false,
+
+    selectedCompOffIds: {},
+    isAllCompOffSelected: false,
+    leaveInnerTabIndex: 0,
+    compOffInnerTabIndex: 0,
+    outdoorInnerTabIndex: 0,
+    resignationInnerTabIndex: 0,
   );
 
   PayrollReportState copyWith({
@@ -115,6 +157,21 @@ class PayrollReportState extends BaseState {
     DateTime? filterStartDate,
     DateTime? filterEndDate,
     bool clearFilters = false,
+    Set<int>? selectedLeaveIds,
+    bool? isAllLeaveSelected,
+
+    Set<int>? selectedOutdoorIds,
+    bool? isAllOutdoorSelected,
+
+    Set<int>? selectedResignationIds,
+    bool? isAllResignationSelected,
+
+    Set<int>? selectedCompOffIds,
+    bool? isAllCompOffSelected,
+    int? leaveInnerTabIndex,
+    int? compOffInnerTabIndex,
+    int? outdoorInnerTabIndex,
+    int? resignationInnerTabIndex,
   }) {
     return PayrollReportState(
       isLoading: isLoading ?? this.isLoading,
@@ -154,6 +211,24 @@ class PayrollReportState extends BaseState {
           clearFilters ? null : (filterStartDate ?? this.filterStartDate),
       filterEndDate:
           clearFilters ? null : (filterEndDate ?? this.filterEndDate),
+      selectedLeaveIds: selectedLeaveIds ?? this.selectedLeaveIds,
+      isAllLeaveSelected: isAllLeaveSelected ?? this.isAllLeaveSelected,
+
+      selectedOutdoorIds: selectedOutdoorIds ?? this.selectedOutdoorIds,
+      isAllOutdoorSelected: isAllOutdoorSelected ?? this.isAllOutdoorSelected,
+
+      selectedResignationIds:
+          selectedResignationIds ?? this.selectedResignationIds,
+      isAllResignationSelected:
+          isAllResignationSelected ?? this.isAllResignationSelected,
+
+      selectedCompOffIds: selectedCompOffIds ?? this.selectedCompOffIds,
+      isAllCompOffSelected: isAllCompOffSelected ?? this.isAllCompOffSelected,
+      leaveInnerTabIndex: leaveInnerTabIndex ?? this.leaveInnerTabIndex,
+      compOffInnerTabIndex: compOffInnerTabIndex ?? this.compOffInnerTabIndex,
+      outdoorInnerTabIndex: outdoorInnerTabIndex ?? this.outdoorInnerTabIndex,
+      resignationInnerTabIndex:
+          resignationInnerTabIndex ?? this.resignationInnerTabIndex,
     );
   }
 
@@ -184,5 +259,21 @@ class PayrollReportState extends BaseState {
     searchText,
     filterStartDate,
     filterEndDate,
+
+    selectedLeaveIds,
+    isAllLeaveSelected,
+
+    selectedOutdoorIds,
+    isAllOutdoorSelected,
+
+    selectedResignationIds,
+    isAllResignationSelected,
+
+    selectedCompOffIds,
+    isAllCompOffSelected,
+    leaveInnerTabIndex,
+    compOffInnerTabIndex,
+    outdoorInnerTabIndex,
+    resignationInnerTabIndex,
   ];
 }

@@ -299,6 +299,7 @@ class LoginCubit extends Cubit<LoginState> {
     int? subId,
     int? subSubId,
     int? subSubSubId,
+    List<int>? approvalIds,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -311,6 +312,7 @@ class LoginCubit extends Cubit<LoginState> {
       subId: subId,
       subSubId: subSubId,
       subSubSubId: subSubSubId,
+      approvalIds:approvalIds
     );
 
     goRouter.pop();
