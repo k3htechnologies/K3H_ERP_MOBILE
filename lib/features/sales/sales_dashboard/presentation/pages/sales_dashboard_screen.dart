@@ -9,8 +9,10 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class SalesDashboardScreen extends StatefulWidget {
@@ -1582,32 +1584,230 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen> {
               QuickActionTile(
                 icon: AppAssets.enquiryReportIcon,
                 title: "Enquiry Report",
-                onTap: () {},
+                onTap: () {
+                  DialogHelper.showCustomDialogue(
+                    context,
+                    icon: CustomIconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.warning_amber_outlined,
+                        color: AppColor.yellow,
+                        size: 16,
+                      ),
+                      backgroundColor: AppColor.yellow.withValues(alpha: .2),
+                    ),
+                    title: "ALERT",
+                    childContent: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Divider(
+                          color: AppColor.black.withValues(alpha: 0.50),
+                          thickness: 0.5,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                          child: Text(
+                            "This feature is currently under development and will be available soon.",
+                            style: AppTextStyle.ts14SB(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
               QuickActionTile(
                 icon: AppAssets.sourceReportIcon,
                 title: "Source Report",
-                onTap: () {},
+                onTap: () {
+                  DialogHelper.showCustomDialogue(
+                    context,
+                    icon: CustomIconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.warning_amber_outlined,
+                        color: AppColor.yellow,
+                        size: 16,
+                      ),
+                      backgroundColor: AppColor.yellow.withValues(alpha: .2),
+                    ),
+                    title: "ALERT",
+                    childContent: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Divider(
+                          color: AppColor.black.withValues(alpha: 0.50),
+                          thickness: 0.5,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                          child: Text(
+                            "This feature is currently under development and will be available soon.",
+                            style: AppTextStyle.ts14SB(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
               QuickActionTile(
                 icon: AppAssets.cpReportIcon,
                 title: "CP Report",
-                onTap: () {},
+                onTap: () {
+                  DialogHelper.showCustomDialogue(
+                    context,
+                    icon: CustomIconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.warning_amber_outlined,
+                        color: AppColor.yellow,
+                        size: 16,
+                      ),
+                      backgroundColor: AppColor.yellow.withValues(alpha: .2),
+                    ),
+                    title: "ALERT",
+                    childContent: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Divider(
+                          color: AppColor.black.withValues(alpha: 0.50),
+                          thickness: 0.5,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                          child: Text(
+                            "This feature is currently under development and will be available soon.",
+                            style: AppTextStyle.ts14SB(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
               QuickActionTile(
                 icon: AppAssets.bookingReportIcon,
                 title: "Booking Report",
-                onTap: () {},
+                onTap: () {
+                  DialogHelper.showCustomDialogue(
+                    context,
+                    icon: CustomIconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.warning_amber_outlined,
+                        color: AppColor.yellow,
+                        size: 16,
+                      ),
+                      backgroundColor: AppColor.yellow.withValues(alpha: .2),
+                    ),
+                    title: "ALERT",
+                    childContent: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Divider(
+                          color: AppColor.black.withValues(alpha: 0.50),
+                          thickness: 0.5,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                          child: Text(
+                            "This feature is currently under development and will be available soon.",
+                            style: AppTextStyle.ts14SB(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
               QuickActionTile(
                 icon: AppAssets.closingReportIcon,
                 title: "Closing Report",
-                onTap: () {},
+                onTap: () {
+                  DialogHelper.showCustomDialogue(
+                    context,
+                    icon: CustomIconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.warning_amber_outlined,
+                        color: AppColor.yellow,
+                        size: 16,
+                      ),
+                      backgroundColor: AppColor.yellow.withValues(alpha: .2),
+                    ),
+                    title: "ALERT",
+                    childContent: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Divider(
+                          color: AppColor.black.withValues(alpha: 0.50),
+                          thickness: 0.5,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                          child: Text(
+                            "This feature is currently under development and will be available soon.",
+                            style: AppTextStyle.ts14SB(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
               QuickActionTile(
                 icon: AppAssets.salesAdvisorIcon,
                 title: "Sales Advisor",
-                onTap: () {},
+                onTap: () {
+                  DialogHelper.showCustomDialogue(
+                    context,
+                    icon: CustomIconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        Icons.warning_amber_outlined,
+                        color: AppColor.yellow,
+                        size: 16,
+                      ),
+                      backgroundColor: AppColor.yellow.withValues(alpha: .2),
+                    ),
+                    title: "ALERT",
+                    childContent: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Divider(
+                          color: AppColor.black.withValues(alpha: 0.50),
+                          thickness: 0.5,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                          child: Text(
+                            "This feature is currently under development and will be available soon.",
+                            style: AppTextStyle.ts14SB(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ],
           ),

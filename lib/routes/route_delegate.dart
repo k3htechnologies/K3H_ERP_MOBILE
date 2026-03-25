@@ -299,6 +299,7 @@ import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/data/model/pa
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_cubit.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/pages/add_payment_schedule_scheme_screen.dart';
 import 'package:k3h_erp_app/features/sales/payment_schedule_scheme/presentation/pages/payment_schedule_scheme_screen.dart';
+import 'package:k3h_erp_app/features/sales/performance/presentation/cubit/performance_cubit.dart';
 import 'package:k3h_erp_app/features/sales/performance/presentation/pages/performance.screen.dart';
 import 'package:k3h_erp_app/features/sales/performance/presentation/pages/view_performance.screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/cubit/sales_dashboard_cubit.dart';
@@ -3876,10 +3877,14 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
-            // SALES TARGET
+
+            // SALES REPORT
             ShellRoute(
               builder: (context, state, child) {
-                return BlocProvider(create: (_) => TargetCubit(), child: child);
+                return BlocProvider(
+                  create: (_) => PerformanceCubit(),
+                  child: child,
+                );
               },
               routes: [
                 GoRoute(
@@ -3896,6 +3901,14 @@ final GoRouter goRouter = GoRouter(
                     return ViewPerformanceScreen();
                   },
                 ),
+              ],
+            ),
+            // SALES TARGET
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider(create: (_) => TargetCubit(), child: child);
+              },
+              routes: [
                 GoRoute(
                   name: AppRoutes.salesTarget,
                   path: AppRoutes.salesTarget,
@@ -3905,6 +3918,7 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
+
             // SALES BOOKING
             ShellRoute(
               builder: (context, state, child) {

@@ -1,61 +1,6 @@
-// To parse this JSON data, do
-//
-//     final performanceReportSourcingModel = performanceReportSourcingModelFromJson(jsonString);
-
-import 'dart:convert';
-
-PerformanceReportSourcingModel performanceReportSourcingModelFromJson(
-  String str,
-) => PerformanceReportSourcingModel.fromJson(json.decode(str));
-
-String performanceReportSourcingModelToJson(
-  PerformanceReportSourcingModel data,
-) => json.encode(data.toJson());
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 class PerformanceReportSourcingModel {
-  final List<String> successMessage;
-  final List<dynamic> errorMessage;
-  final List<dynamic> warningMessage;
-  final List<Datum> data;
-  final bool isSuccess;
-  final int totalNumberOfRecord;
-  final int httpStatusCode;
-
-  PerformanceReportSourcingModel({
-    required this.successMessage,
-    required this.errorMessage,
-    required this.warningMessage,
-    required this.data,
-    required this.isSuccess,
-    required this.totalNumberOfRecord,
-    required this.httpStatusCode,
-  });
-
-  factory PerformanceReportSourcingModel.fromJson(Map<String, dynamic> json) =>
-      PerformanceReportSourcingModel(
-        successMessage: List<String>.from(json["SuccessMessage"].map((x) => x)),
-        errorMessage: List<dynamic>.from(json["ErrorMessage"].map((x) => x)),
-        warningMessage: List<dynamic>.from(
-          json["WarningMessage"].map((x) => x),
-        ),
-        data: List<Datum>.from(json["Data"].map((x) => Datum.fromJson(x))),
-        isSuccess: json["IsSuccess"],
-        totalNumberOfRecord: json["TotalNumberOfRecord"],
-        httpStatusCode: json["HttpStatusCode"],
-      );
-
-  Map<String, dynamic> toJson() => {
-    "SuccessMessage": List<dynamic>.from(successMessage.map((x) => x)),
-    "ErrorMessage": List<dynamic>.from(errorMessage.map((x) => x)),
-    "WarningMessage": List<dynamic>.from(warningMessage.map((x) => x)),
-    "Data": List<dynamic>.from(data.map((x) => x.toJson())),
-    "IsSuccess": isSuccess,
-    "TotalNumberOfRecord": totalNumberOfRecord,
-    "HttpStatusCode": httpStatusCode,
-  };
-}
-
-class Datum {
   final int employeeId;
   final String employeeName;
   final String designationName;
@@ -96,7 +41,7 @@ class Datum {
   final int actualNewCp;
   final int performanceNewCp;
 
-  Datum({
+  PerformanceReportSourcingModel({
     required this.employeeId,
     required this.employeeName,
     required this.designationName,
@@ -138,47 +83,60 @@ class Datum {
     required this.performanceNewCp,
   });
 
-  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
-    employeeId: json["EmployeeId"],
-    employeeName: json["EmployeeName"],
-    designationName: json["DesignationName"],
-    walkinsByCp: json["WalkinsByCP"],
-    actualWalkinsByCp: json["ActualWalkinsByCP"],
-    performanceWalkinsByCp: json["PerformanceWalkinsByCP"],
-    freshVisits: json["FreshVisits"],
-    actualFreshVisits: json["ActualFreshVisits"],
-    performanceFreshVisits: json["PerformanceFreshVisits"],
-    revisits: json["Revisits"],
-    actualRevisits: json["ActualRevisits"],
-    performanceRevisits: json["PerformanceRevisits"],
-    bookings: json["Bookings"],
-    actualBookings: json["ActualBookings"],
-    performanceBookings: json["PerformanceBookings"],
-    totalMeetings: json["TotalMeetings"],
-    actualTotalMeetings: json["ActualTotalMeetings"],
-    performanceTotalMeetings: json["PerformanceTotalMeetings"],
-    totalObm: json["TotalOBM"],
-    actualTotalObm: json["ActualTotalOBM"],
-    performanceTotalObm: json["PerformanceTotalOBM"],
-    totalObmFreshVisits: json["TotalOBMFreshVisits"],
-    actualTotalObmFreshVisits: json["ActualTotalOBMFreshVisits"],
-    performanceTotalObmFreshVisits: json["PerformanceTotalOBMFreshVisits"],
-    totalObmRevisits: json["TotalOBMRevisits"],
-    actualTotalObmRevisits: json["ActualTotalOBMRevisits"],
-    performanceTotalObmRevisits: json["PerformanceTotalOBMRevisits"],
-    totalIbm: json["TotalIBM"],
-    actualTotalIbm: json["ActualTotalIBM"],
-    performanceTotalIbm: json["PerformanceTotalIBM"],
-    uniqueCPs: json["UniqueCPs"],
-    actualUniqueCPs: json["ActualUniqueCPs"],
-    performanceUniqueCPs: json["PerformanceUniqueCPs"],
-    activeCp: json["ActiveCP"],
-    actualActiveCp: json["ActualActiveCP"],
-    performanceActiveCp: json["PerformanceActiveCP"],
-    newCp: json["NewCP"],
-    actualNewCp: json["ActualNewCP"],
-    performanceNewCp: json["PerformanceNewCP"],
-  );
+  factory PerformanceReportSourcingModel.fromJson(Map<String, dynamic> json) =>
+      PerformanceReportSourcingModel(
+        employeeId: parseValue<int>(json, "EmployeeId"),
+        employeeName: parseValue<String>(json, "EmployeeName"),
+        designationName: parseValue<String>(json, "DesignationName"),
+        walkinsByCp: parseValue<int>(json, "WalkinsByCP"),
+        actualWalkinsByCp: parseValue<int>(json, "ActualWalkinsByCP"),
+        performanceWalkinsByCp: parseValue<int>(json, "PerformanceWalkinsByCP"),
+        freshVisits: parseValue<int>(json, "FreshVisits"),
+        actualFreshVisits: parseValue<int>(json, "ActualFreshVisits"),
+        performanceFreshVisits: parseValue<int>(json, "PerformanceFreshVisits"),
+        revisits: parseValue<int>(json, "Revisits"),
+        actualRevisits: parseValue<int>(json, "ActualRevisits"),
+        performanceRevisits: parseValue<int>(json, "PerformanceRevisits"),
+        bookings: parseValue<int>(json, "Bookings"),
+        actualBookings: parseValue<int>(json, "ActualBookings"),
+        performanceBookings: parseValue<int>(json, "PerformanceBookings"),
+        totalMeetings: parseValue<int>(json, "TotalMeetings"),
+        actualTotalMeetings: parseValue<int>(json, "ActualTotalMeetings"),
+        performanceTotalMeetings: parseValue<int>(
+          json,
+          "PerformanceTotalMeetings",
+        ),
+        totalObm: parseValue<int>(json, "TotalOBM"),
+        actualTotalObm: parseValue<int>(json, "ActualTotalOBM"),
+        performanceTotalObm: parseValue<int>(json, "PerformanceTotalOBM"),
+        totalObmFreshVisits: parseValue<int>(json, "TotalOBMFreshVisits"),
+        actualTotalObmFreshVisits: parseValue<int>(
+          json,
+          "ActualTotalOBMFreshVisits",
+        ),
+        performanceTotalObmFreshVisits: parseValue<int>(
+          json,
+          "PerformanceTotalOBMFreshVisits",
+        ),
+        totalObmRevisits: parseValue<int>(json, "TotalOBMRevisits"),
+        actualTotalObmRevisits: parseValue<int>(json, "ActualTotalOBMRevisits"),
+        performanceTotalObmRevisits: parseValue<int>(
+          json,
+          "PerformanceTotalOBMRevisits",
+        ),
+        totalIbm: parseValue<int>(json, "TotalIBM"),
+        actualTotalIbm: parseValue<int>(json, "ActualTotalIBM"),
+        performanceTotalIbm: parseValue<int>(json, "PerformanceTotalIBM"),
+        uniqueCPs: parseValue<int>(json, "UniqueCPs"),
+        actualUniqueCPs: parseValue<int>(json, "ActualUniqueCPs"),
+        performanceUniqueCPs: parseValue<int>(json, "PerformanceUniqueCPs"),
+        activeCp: parseValue<int>(json, "ActiveCP"),
+        actualActiveCp: parseValue<int>(json, "ActualActiveCP"),
+        performanceActiveCp: parseValue<int>(json, "PerformanceActiveCP"),
+        newCp: parseValue<int>(json, "NewCP"),
+        actualNewCp: parseValue<int>(json, "ActualNewCP"),
+        performanceNewCp: parseValue<int>(json, "PerformanceNewCP"),
+      );
 
   Map<String, dynamic> toJson() => {
     "EmployeeId": employeeId,

@@ -1,4 +1,4 @@
-import 'package:k3h_erp_app/features/sales/performance/data/model/perfomrance_report_closing.model.dart';
+import 'package:k3h_erp_app/features/sales/performance/data/model/performance_report_sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/performance/data/model/performance_report_closing.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';

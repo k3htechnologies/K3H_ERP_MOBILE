@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -771,12 +770,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                       employeeName,
                       style: AppTextStyle.ts16M(color: AppColor.primary),
                     ),
-                    Text(
-                      "Software Developer",
-                      style: AppTextStyle.ts10R(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -878,8 +871,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
                     alignment: Alignment.centerRight,
                     child: InkWell(
                       onTap: () {
-                        log("📍 POLYLINE: ${attendance.polyline}");
-                        log("📍 DISTANCE: ${attendance.distance}");
                         Navigator.push(
                           context,
                           MaterialPageRoute(

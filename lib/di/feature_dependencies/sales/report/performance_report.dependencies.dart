@@ -1,16 +1,19 @@
 import 'package:get_it/get_it.dart';
 import 'package:k3h_erp_app/features/sales/performance/data/datasource/performance_report.datatsource.dart';
+import 'package:k3h_erp_app/features/sales/performance/data/repository/performance_report.repository.dart';
+import 'package:k3h_erp_app/features/sales/performance/presentation/cubit/performance_cubit.dart';
 
-// void registerTargetDependencies(GetIt serviceLocator) {
-//   serviceLocator.registerSingleton<PerformanceReportDatasource>(
-//     PerformanceReportDatasourceImpl(),
-//   );
-//   serviceLocator.registerSingleton<TargetRepository>(
-//     TargetRepositoryImpl(
-//       salesTargetDatasource: serviceLocator<PerformanceReportDatasource>(),
-//     ),
-//   );
+void registerPerformanceReportDependencies(GetIt serviceLocator) {
+  serviceLocator.registerSingleton<PerformanceReportDatasource>(
+    PerformanceReportDatasourceImpl(),
+  );
+  serviceLocator.registerSingleton<PerformanceReportRepository>(
+    PerformanceReportRepositoryImpl(
+      performanceReportDatasource:
+          serviceLocator<PerformanceReportDatasource>(),
+    ),
+  );
 
-//   //<---- CUBIT ---->
-//   serviceLocator.registerSingleton<TargetCubit>(TargetCubit());
-// }
+  //<---- CUBIT ---->
+  serviceLocator.registerSingleton<PerformanceCubit>(PerformanceCubit());
+}

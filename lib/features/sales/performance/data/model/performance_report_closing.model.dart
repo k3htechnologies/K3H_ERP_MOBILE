@@ -1,61 +1,6 @@
-// To parse this JSON data, do
-//
-//     final performanceReportClosingModel = performanceReportClosingModelFromJson(jsonString);
-
-import 'dart:convert';
-
-PerformanceReportClosingModel performanceReportClosingModelFromJson(
-  String str,
-) => PerformanceReportClosingModel.fromJson(json.decode(str));
-
-String performanceReportClosingModelToJson(
-  PerformanceReportClosingModel data,
-) => json.encode(data.toJson());
+import 'package:k3h_erp_app/utils/common_function.dart';
 
 class PerformanceReportClosingModel {
-  final List<String> successMessage;
-  final List<dynamic> errorMessage;
-  final List<dynamic> warningMessage;
-  final List<Datum> data;
-  final bool isSuccess;
-  final int totalNumberOfRecord;
-  final int httpStatusCode;
-
-  PerformanceReportClosingModel({
-    required this.successMessage,
-    required this.errorMessage,
-    required this.warningMessage,
-    required this.data,
-    required this.isSuccess,
-    required this.totalNumberOfRecord,
-    required this.httpStatusCode,
-  });
-
-  factory PerformanceReportClosingModel.fromJson(Map<String, dynamic> json) =>
-      PerformanceReportClosingModel(
-        successMessage: List<String>.from(json["SuccessMessage"].map((x) => x)),
-        errorMessage: List<dynamic>.from(json["ErrorMessage"].map((x) => x)),
-        warningMessage: List<dynamic>.from(
-          json["WarningMessage"].map((x) => x),
-        ),
-        data: List<Datum>.from(json["Data"].map((x) => Datum.fromJson(x))),
-        isSuccess: json["IsSuccess"],
-        totalNumberOfRecord: json["TotalNumberOfRecord"],
-        httpStatusCode: json["HttpStatusCode"],
-      );
-
-  Map<String, dynamic> toJson() => {
-    "SuccessMessage": List<dynamic>.from(successMessage.map((x) => x)),
-    "ErrorMessage": List<dynamic>.from(errorMessage.map((x) => x)),
-    "WarningMessage": List<dynamic>.from(warningMessage.map((x) => x)),
-    "Data": List<dynamic>.from(data.map((x) => x.toJson())),
-    "IsSuccess": isSuccess,
-    "TotalNumberOfRecord": totalNumberOfRecord,
-    "HttpStatusCode": httpStatusCode,
-  };
-}
-
-class Datum {
   final int employeeId;
   final String employeeName;
   final String designationName;
@@ -78,7 +23,7 @@ class Datum {
   final int actualBookingDirect;
   final int performanceBookingDirect;
 
-  Datum({
+  PerformanceReportClosingModel({
     required this.employeeId,
     required this.employeeName,
     required this.designationName,
@@ -102,28 +47,30 @@ class Datum {
     required this.performanceBookingDirect,
   });
 
-  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
-    employeeId: json["EmployeeId"],
-    employeeName: json["EmployeeName"],
-    designationName: json["DesignationName"],
-    walkinsByCp: json["WalkinsByCP"],
-    actualWalkinsByCp: json["ActualWalkinsByCP"],
-    performanceWalkinsByCp: json["PerformanceWalkinsByCP"],
-    walkinsDirect: json["WalkinsDirect"],
-    actualWalkinsDirect: json["ActualWalkinsDirect"],
-    performanceWalkinsDirect: json["PerformanceWalkinsDirect"],
-    freshVisits: json["FreshVisits"],
-    actualFreshVisits: json["ActualFreshVisits"],
-    performanceFreshVisits: json["PerformanceFreshVisits"],
-    revisits: json["Revisits"],
-    actualRevisits: json["ActualRevisits"],
-    performanceRevisits: json["PerformanceRevisits"],
-    bookingByCp: json["BookingByCP"],
-    actualBookingByCp: json["ActualBookingByCP"],
-    performanceBookingByCp: json["PerformanceBookingByCP"],
-    bookingDirect: json["BookingDirect"],
-    actualBookingDirect: json["ActualBookingDirect"],
-    performanceBookingDirect: json["PerformanceBookingDirect"],
+  factory PerformanceReportClosingModel.fromJson(
+    Map<String, dynamic> json,
+  ) => PerformanceReportClosingModel(
+    employeeId: parseValue<int>(json, "EmployeeId"),
+    employeeName: parseValue<String>(json, "EmployeeName"),
+    designationName: parseValue<String>(json, "DesignationName"),
+    walkinsByCp: parseValue<int>(json, "WalkinsByCP"),
+    actualWalkinsByCp: parseValue<int>(json, "ActualWalkinsByCP"),
+    performanceWalkinsByCp: parseValue<int>(json, "PerformanceWalkinsByCP"),
+    walkinsDirect: parseValue<int>(json, "WalkinsDirect"),
+    actualWalkinsDirect: parseValue<int>(json, "ActualWalkinsDirect"),
+    performanceWalkinsDirect: parseValue<int>(json, "PerformanceWalkinsDirect"),
+    freshVisits: parseValue<int>(json, "FreshVisits"),
+    actualFreshVisits: parseValue<int>(json, "ActualFreshVisits"),
+    performanceFreshVisits: parseValue<int>(json, "PerformanceFreshVisits"),
+    revisits: parseValue<int>(json, "Revisits"),
+    actualRevisits: parseValue<int>(json, "ActualRevisits"),
+    performanceRevisits: parseValue<int>(json, "PerformanceRevisits"),
+    bookingByCp: parseValue<int>(json, "BookingByCP"),
+    actualBookingByCp: parseValue<int>(json, "ActualBookingByCP"),
+    performanceBookingByCp: parseValue<int>(json, "PerformanceBookingByCP"),
+    bookingDirect: parseValue<int>(json, "BookingDirect"),
+    actualBookingDirect: parseValue<int>(json, "ActualBookingDirect"),
+    performanceBookingDirect: parseValue<int>(json, "PerformanceBookingDirect"),
   );
 
   Map<String, dynamic> toJson() => {
