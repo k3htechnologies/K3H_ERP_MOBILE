@@ -104,7 +104,7 @@ class Table0 {
 class Table1 {
   final num presentDays;
   final String avgLoginTime;
-  final String shiftStartTime;
+  final String shiftBeginTime;
   final String shiftEndTime;
   final String shiftPattern;
   final String message;
@@ -112,7 +112,7 @@ class Table1 {
   Table1({
     required this.presentDays,
     required this.avgLoginTime,
-    required this.shiftStartTime,
+    required this.shiftBeginTime,
     required this.shiftEndTime,
     required this.shiftPattern,
     required this.message,
@@ -121,7 +121,7 @@ class Table1 {
   factory Table1.fromJson(Map<String, dynamic> json) => Table1(
     presentDays: parseValue<num>(json, "PresentDays"),
     avgLoginTime: parseValue<String>(json, "AvgLoginTime"),
-    shiftStartTime: parseValue<String>(json, "ShiftStartTime"),
+    shiftBeginTime: parseValue<String>(json, "ShiftBeginTime"),
     shiftEndTime: parseValue<String>(json, "ShiftEndTime"),
     shiftPattern: parseValue<String>(json, "ShiftPattern"),
     message: parseValue<String>(json, "Message"),
@@ -130,7 +130,7 @@ class Table1 {
   Map<String, dynamic> toJson() => {
     "PresentDays": presentDays,
     "AvgLoginTime": avgLoginTime,
-    "ShiftStartTime": shiftStartTime,
+    "ShiftBeginTime": shiftBeginTime,
     "ShiftEndTime": shiftEndTime,
     "ShiftPattern": shiftPattern,
     "Message": message,
@@ -257,7 +257,7 @@ class Table5 {
   final int leaveId;
   final DateTime startDate;
   final DateTime endDate;
-  final double noOfDays;
+  final int noOfDays;
   final String leaveTypeName;
   final String reason;
   final String message;
@@ -276,7 +276,7 @@ class Table5 {
     leaveId: parseValue<int>(json, "LeaveId"),
     startDate: parseValue<DateTime>(json, "StartDate"),
     endDate: parseValue<DateTime>(json, "EndDate"),
-    noOfDays: parseValue<double>(json, "NoOfDays").toDouble(),
+    noOfDays: parseValue<int>(json, "NoOfDays"),
     leaveTypeName: parseValue<String>(json, "LeaveTypeName"),
     reason: parseValue<String>(json, "Reason"),
     message: parseValue<String>(json, "Message"),
@@ -402,16 +402,16 @@ class Table10 {
   final String managerName;
   final String managerEmail;
   final String managerPhone;
-  final String departmentName;
-  final String designationName;
+  final String managerDepartment;
+  final String managerDesignation;
 
   Table10({
     required this.managerId,
     required this.managerName,
     required this.managerEmail,
     required this.managerPhone,
-    required this.departmentName,
-    required this.designationName,
+    required this.managerDepartment,
+    required this.managerDesignation,
   });
 
   factory Table10.fromJson(Map<String, dynamic> json) => Table10(
@@ -419,8 +419,8 @@ class Table10 {
     managerName: parseValue<String>(json, "ManagerName"),
     managerEmail: parseValue<String>(json, "ManagerEmail"),
     managerPhone: parseValue<String>(json, "ManagerPhone"),
-    departmentName: parseValue<String>(json, "DepartmentName"),
-    designationName: parseValue<String>(json, "DesignationName"),
+    managerDepartment: parseValue<String>(json, "ManagerDepartment"),
+    managerDesignation: parseValue<String>(json, "ManagerDesignation"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -428,8 +428,8 @@ class Table10 {
     "ManagerName": managerName,
     "ManagerEmail": managerEmail,
     "ManagerPhone": managerPhone,
-    "DepartmentName": departmentName,
-    "DesignationName": designationName,
+    "ManagerDepartment": managerDepartment,
+    "ManagerDesignation": managerDesignation,
   };
 }
 

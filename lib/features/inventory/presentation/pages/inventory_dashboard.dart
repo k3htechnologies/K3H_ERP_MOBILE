@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
@@ -24,6 +25,8 @@ class InventoryDashboard extends StatefulWidget {
 }
 
 class _InventoryDashboardState extends State<InventoryDashboard> {
+  // AUTHORIZATION
+  late AuthorizationModel _routeAuthorizationModel;
   // CUBIT
   late InventoryCubit _inventoryCubit;
   late ProjectModel _selectedProject;
@@ -32,6 +35,8 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
     super.initState();
     _inventoryCubit = context.read<InventoryCubit>();
     _selectedProject = getProject();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.inventory]!;
     _inventoryCubit.getInventoryDashboardList(
       context,
       _selectedProject.projectId,
@@ -51,7 +56,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
           appBar: CustomAppBarWithBackButton(
             screenTitle: "Inventory",
             isMenuButton: true,
-            authorization: AuthorizationModel(),
+            authorization: _routeAuthorizationModel,
             onProjectChangeCallback: (value) {
               _selectedProject = value;
               _inventoryCubit.getInventoryDashboardList(
@@ -113,18 +118,20 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                 ],
                               ),
                             ),
-                            horizontalSpacing(width: 20.0),
-                            Expanded(
-                              child: CustomButton(
-                                leading: Icon(
-                                  Icons.add,
-                                  size: 18,
-                                  color: AppColor.white,
+                            if (_routeAuthorizationModel.isAction) ...[
+                              horizontalSpacing(width: 20.0),
+                              Expanded(
+                                child: CustomButton(
+                                  leading: Icon(
+                                    Icons.add,
+                                    size: 18,
+                                    color: AppColor.white,
+                                  ),
+                                  text: "Add Inventory",
+                                  onPressed: () {},
                                 ),
-                                text: "Add",
-                                onPressed: () {},
                               ),
-                            ),
+                            ],
                           ],
                         ),
                         verticalSpacing(),
@@ -401,7 +408,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                "Floors",
+                                                "Ground",
                                                 style: AppTextStyle.ts14M(
                                                   color: AppColor.black
                                                       .withValues(alpha: 0.5),
@@ -496,7 +503,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                       color: AppColor.black.withValues(alpha: 0.5),
                     ),
                     RadialChartItem(
-                      title: "Allotted Units",
+                      title: "Member Units",
                       value:
                           state
                               .inventoryDashboardModel!
@@ -506,7 +513,7 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                       color: AppColor.purple,
                     ),
                     RadialChartItem(
-                      title: "Sold Units",
+                      title: "Booked Units",
                       value:
                           state
                               .inventoryDashboardModel!
@@ -634,12 +641,13 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                 verticalSpacing(height: 20.0),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: 5,
+                    itemCount: table1.length,
                     shrinkWrap: true,
                     physics: AlwaysScrollableScrollPhysics(),
                     itemBuilder: (context, int index) {
+                      final parkingDetails = table1[index];
                       return _buildParkingRow(
-                        title: "Basement 1",
+                        title: parkingDetails.floorName,
                         used: 100,
                         total: 300,
                       );

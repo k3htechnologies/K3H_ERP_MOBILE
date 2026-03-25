@@ -1,3 +1,5 @@
+import 'package:k3h_erp_app/utils/common_function.dart';
+
 class PayrollDashboardModel {
   final List<PayrollTable0> table0;
   final List<PayrollTable1> table1;
@@ -17,24 +19,30 @@ class PayrollDashboardModel {
 
   factory PayrollDashboardModel.fromJson(Map<String, dynamic> json) {
     return PayrollDashboardModel(
-      table0: (json["Table0"] ?? [])
-          .map<PayrollTable0>((x) => PayrollTable0.fromJson(x))
-          .toList(),
-      table1: (json["Table1"] ?? [])
-          .map<PayrollTable1>((x) => PayrollTable1.fromJson(x))
-          .toList(),
-      table2: (json["Table2"] ?? [])
-          .map<PayrollTable2>((x) => PayrollTable2.fromJson(x))
-          .toList(),
-      table3: (json["Table3"] ?? [])
-          .map<PayrollTable3>((x) => PayrollTable3.fromJson(x))
-          .toList(),
-      table4: (json["Table4"] ?? [])
-          .map<PayrollTable4>((x) => PayrollTable4.fromJson(x))
-          .toList(),
-      table5: (json["Table5"] ?? [])
-          .map<PayrollTable5>((x) => PayrollTable5.fromJson(x))
-          .toList(),
+      table0:
+          (json["Table0"] ?? [])
+              .map<PayrollTable0>((x) => PayrollTable0.fromJson(x))
+              .toList(),
+      table1:
+          (json["Table1"] ?? [])
+              .map<PayrollTable1>((x) => PayrollTable1.fromJson(x))
+              .toList(),
+      table2:
+          (json["Table2"] ?? [])
+              .map<PayrollTable2>((x) => PayrollTable2.fromJson(x))
+              .toList(),
+      table3:
+          (json["Table3"] ?? [])
+              .map<PayrollTable3>((x) => PayrollTable3.fromJson(x))
+              .toList(),
+      table4:
+          (json["Table4"] ?? [])
+              .map<PayrollTable4>((x) => PayrollTable4.fromJson(x))
+              .toList(),
+      table5:
+          (json["Table5"] ?? [])
+              .map<PayrollTable5>((x) => PayrollTable5.fromJson(x))
+              .toList(),
     );
   }
 
@@ -208,27 +216,31 @@ class PayrollTable4 {
 
 // ATTENDANCE
 class PayrollTable5 {
-  final DateTime attendanceDate;
-  final String fullName;
-  final String attendanceStatus;
+  final int totalEmployees;
+  final int presentCount;
+  final int onLeaveCount;
+  final int absentCount;
 
   PayrollTable5({
-    required this.attendanceDate,
-    required this.fullName,
-    required this.attendanceStatus,
+    required this.totalEmployees,
+    required this.presentCount,
+    required this.onLeaveCount,
+    required this.absentCount,
   });
 
   factory PayrollTable5.fromJson(Map<String, dynamic> json) {
     return PayrollTable5(
-      attendanceDate: DateTime.parse(json["AttendanceDate"]),
-      fullName: json["FullName"] ?? "",
-      attendanceStatus: json["AttendanceStatus"] ?? "",
+      totalEmployees: parseValue<int>(json, "TotalEmployees"),
+      presentCount: parseValue<int>(json, "PresentCount"),
+      onLeaveCount: parseValue<int>(json, "OnLeaveCount"),
+      absentCount: parseValue<int>(json, "AbsentCount"),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    "AttendanceDate": attendanceDate.toIso8601String(),
-    "FullName": fullName,
-    "AttendanceStatus": attendanceStatus,
+    "TotalEmployees": totalEmployees,
+    "PresentCount": presentCount,
+    "OnLeaveCount": onLeaveCount,
+    "AbsentCount": absentCount,
   };
 }
